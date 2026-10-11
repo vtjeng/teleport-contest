@@ -1,0 +1,137 @@
+{
+  "session": "synthetic/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+  "corpus": "synthetic",
+  "batch": "v43",
+  "caseId": "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+  "manifestPath": "challenges/manifests/v43.json",
+  "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+  "recordingSha256": "5943595e0e52793b6553dad2bb2a314b48c7c8424fc4509d3f05724740b6cb16",
+  "evaluationPath": "challenges/evaluations/accepted-c7271e507384b244820f4b96872f6bc085862a85-v43.json",
+  "evaluationCommit": "c7271e507384b244820f4b96872f6bc085862a85",
+  "remainingScreens": 1,
+  "recordedSteps": 112,
+  "status": "complete",
+  "commit": "c7271e507384b244820f4b96872f6bc085862a85",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v43",
+    "caseId": "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+    "session": "synthetic/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+    "manifestPath": "challenges/manifests/v43.json",
+    "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+    "recording": "challenges/cases/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst.session.json",
+    "recordingPath": "challenges/cases/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst.session.json",
+    "recordingSha256": "5943595e0e52793b6553dad2bb2a314b48c7c8424fc4509d3f05724740b6cb16",
+    "recipe": "challenges/cases/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst.recipe.session.json",
+    "recipeSha256": "3a809169a70fe47f4adb3759cdbda078bbb34d2fa23fba88a909e98e0384be11",
+    "replayInputSha256": "1b4fb467aeb41ed7eb091d97d4d427d6b3585792019fa6646e6566125e843ad5",
+    "evaluationPath": "challenges/evaluations/accepted-c7271e507384b244820f4b96872f6bc085862a85-v43.json",
+    "evaluationCommit": "c7271e507384b244820f4b96872f6bc085862a85",
+    "evaluationArtifact": "challenges/evaluations/accepted-c7271e507384b244820f4b96872f6bc085862a85-v43.json",
+    "evaluationUtc": "2026-10-11T04:23:50.572Z",
+    "remainingScreens": 1,
+    "recordedSteps": 112,
+    "previousScreensMatched": 111,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 111,
+        "total": 112
+      },
+      "rng": {
+        "matched": 2793,
+        "total": 2793
+      },
+      "cursors": {
+        "matched": 111,
+        "total": 112
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 111,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 111,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 38,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2793,
+        "cCaller": null,
+        "jsEntry": "rn2(4)=0",
+        "stepIndex": null
+      },
+      "cursor": {
+        "index": 111,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 111,
+          "key": "\n"
+        },
+        "cCursor": [
+          69,
+          0,
+          1
+        ],
+        "jsCursor": [
+          52,
+          6,
+          1
+        ]
+      }
+    },
+    "step": 111,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At the final step, a blessed potion of healing hits a blinded ogre. C potion.c:potionhit sets cureblind from the blessed potion and calls muse.c:mcureblindness after healing, restoring monster sight and printing “The ogre can see again.” The JS potionhit path reaches its healing line then records mcureblindness as unported, so the monster remains blind and the line is absent.",
+  "source": {
+    "file": "potion.c",
+    "branch": "For a non-saddle monster hit by POT_HEALING, obj->blessed sets cureblind; after healing, if cureblind, potionhit calls mcureblindness(mon, canseemon(mon)).",
+    "functions": [
+      "potionhit"
+    ],
+    "callers": [
+      "cmd.c:rhack -> dothrow.c:dothrow -> dothrow.c:throw_obj -> dothrow.c:throwit -> dothrow.c:thitmonst -> potion.c:potionhit; corresponding JS route is js/cmd.js -> js/dothrow.js:throwit/thitmonst -> js/potion.js:potionhit.",
+      "potion.c:potionhit -> muse.c:mcureblindness(mon, canseemon(mon)); js/potion.js:potionhit currently substitutes note_unported for this source call."
+    ],
+    "dependencies": [
+      "muse.c:mcureblindness (implemented in js/muse.js; verify its caller-compatible visibility and message behavior)."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/potion.c:1742-1758: POT_HEALING sets cureblind when the potion is blessed; do_healing restores hit points and invokes mcureblindness(mon, canseemon(mon)).",
+    "nethack-c/upstream/src/muse.c:2872-2883: mcureblindness clears mcansee/mblinded state and prints the visible-monster cure line only when verbos and haseyes(mon->data) are true.",
+    "js/potion.js:potionhit, around 2806, currently calls note_unported(\"mon.c mcureblindness\") after the healing output, skipping both the source state update and message; js/muse.js already contains the matching async helper.",
+    "Bounded scan .cache/a2-v43-monster-blindness-scan.log (run ecQgBk) shows all prior screens and 2793 RNG calls match. At step 111 C emits “The ogre looks sound and hale again. The ogre can see again.” while JS lacks the final message; the trailing JS rn2(4)=0 annotation is after the C RNG stream and is not the screen cause.",
+    "Queue provenance: .cache/latest-saved-combined-queue.json, SHA 574d4f0267bd7e1e421b85360e8d852bbe1863385174bf228682eaf2ee0fda40; exact v43 manifest, recording, replay input, and accepted evaluation identities are preserved above. The current accepted candidate remains at 111/112 screens, 2793/2793 RNG, and 111/112 cursors, with the first mismatch at step 111."
+  ],
+  "evaluationArtifact": "challenges/evaluations/accepted-c7271e507384b244820f4b96872f6bc085862a85-v43.json",
+  "evaluationUtc": "2026-10-11T04:23:50.572Z",
+  "replayInputSha256": "1b4fb467aeb41ed7eb091d97d4d427d6b3585792019fa6646e6566125e843ad5",
+  "queueSha256": "574d4f0267bd7e1e421b85360e8d852bbe1863385174bf228682eaf2ee0fda40"
+}
