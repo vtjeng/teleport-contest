@@ -269855,7 +269855,7 @@
     {
       "id": "port-uhitm-nohandglow-v45-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete bare-handed confusion feedback and its live melee caller",
       "cFile": "uhitm.c",
       "sessions": [
@@ -269869,8 +269869,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "nohandglow",
@@ -270128,6 +270131,12 @@
         ],
         "entryPointReview": "nohandglow is a static helper with one active source caller, uhitm.c:hmon_hitmon:1912; it has no independent command dispatcher. The admitted v45 hero melee case enters through the force-fight prefix and movement attack path, then executes the helper before spellbook resistance. The cited step covers the visible nonterminal glow branch; the source implementation also preserves the terminal, blind, invisible and hallucinated-color branches.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
