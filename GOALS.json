@@ -267071,7 +267071,7 @@
         "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst"
       ],
       "selectionReason": "The refreshed current queue has one mismatch: v43 stops at dog.c:mon_arrive after the accepted keepdogs departure port.",
-      "detail": "Port contiguous dog.c losedogs, mon_arrive, and mon_catchup_elapsed_time; wire existing do.c and cmd.c callers plus restore.c restmon and the existing-Wizard resurrection path. Keep void make_happy_shoppers and deliver_obj_to_mon callees as explicit gaps.",
+      "detail": "Port contiguous dog.c losedogs, mon_arrive, and mon_catchup_elapsed_time; port required return-valued stairs.c stairway_find; wire existing do.c and cmd.c callers plus restore.c restmon and the existing-Wizard resurrection path. Keep void make_happy_shoppers and deliver_obj_to_mon callees as explicit gaps.",
       "openedAt": null,
       "openStanding": null,
       "closedAt": null,
@@ -267103,6 +267103,16 @@
         "from": 304,
         "to": 728
       },
+      "requiredFunctions": [
+        {
+          "name": "stairway_find",
+          "line": 50,
+          "endLine": 63,
+          "declared": false,
+          "sourceFile": "stairs.c",
+          "complete": false
+        }
+      ],
       "syntheticProvenance": {
         "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst": {
           "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
