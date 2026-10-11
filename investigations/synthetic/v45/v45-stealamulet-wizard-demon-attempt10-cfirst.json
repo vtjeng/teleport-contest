@@ -1,0 +1,142 @@
+{
+  "session": "synthetic/v45/v45-stealamulet-wizard-demon-attempt10-cfirst",
+  "corpus": "synthetic",
+  "batch": "v45",
+  "caseId": "v45-stealamulet-wizard-demon-attempt10-cfirst",
+  "manifestPath": "challenges/manifests/v45.json",
+  "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+  "recordingPath": "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.session.json",
+  "recordingSha256": "2e228e977c11b0b56d8419558bf9649e4b1a3fbec242ee88376e40f5a6e6a376",
+  "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+  "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+  "remainingScreens": 33,
+  "recordedSteps": 184,
+  "status": "complete",
+  "commit": "59e77ae81300ee8c0ebcab04852f42a38f5a3cc3",
+  "queueSha256": "9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v45",
+    "caseId": "v45-stealamulet-wizard-demon-attempt10-cfirst",
+    "session": "synthetic/v45/v45-stealamulet-wizard-demon-attempt10-cfirst",
+    "manifestPath": "challenges/manifests/v45.json",
+    "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+    "recording": "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.session.json",
+    "recordingPath": "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.session.json",
+    "recordingSha256": "2e228e977c11b0b56d8419558bf9649e4b1a3fbec242ee88376e40f5a6e6a376",
+    "recipe": "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.recipe.session.json",
+    "recipeSha256": "e5f92ace07beba8131620a568b0f7a84e874e6269672e8d19da71f4816dd73d2",
+    "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+    "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+    "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+    "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+    "evaluationUtc": "2026-10-11T09:20:20.964Z",
+    "remainingScreens": 33,
+    "recordedSteps": 184,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 151,
+        "total": 184
+      },
+      "rng": {
+        "matched": 2831,
+        "total": 3047
+      },
+      "cursors": {
+        "matched": 153,
+        "total": 184
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 151,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 151,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 26,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2826,
+        "cEntry": "rnd(79)=45",
+        "cCaller": "rloc(teleport.c:1850)",
+        "jsEntry": "rn2(3)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 154,
+          "key": " "
+        },
+        "stepIndex": 154
+      },
+      "cursor": {
+        "index": 151,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 151,
+          "key": " "
+        },
+        "cCursor": [
+          34,
+          0,
+          1
+        ],
+        "jsCursor": [
+          78,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 151,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v45 Wizard-of-Yendor Amulet-theft case reaches the monster-to-hero AD_SAMU hit path at segment 0 step 151. C draws rn2(20)=0 in uhitm.c:mhitm_ad_samu and calls steal.c:stealamulet; JavaScript preserves the 1-in-20 gate but records note_unported(\"steal.c stealamulet\"), so it does not remove the Amulet or perform the thief inventory, message, and relocation effects. The C recording shows the theft message at step 154 and then the Wizard vanishing. The missing owner is the whole steal.c:stealamulet function and its existing uhitm.js caller site.",
+  "source": {
+    "file": "steal.c",
+    "branch": "A Wizard or quest nemesis hits the hero with AD_SAMU and the uhitm.c:mhitm_ad_samu rn2(20) gate succeeds. stealamulet first seeks any carried quest artifact; if none exists, it selects the Amulet, Bell, Book, or Candelabrum according to u.uhave, avoiding fake Amulets for the Wizard. For a selected object it removes required outer gear, extracts the item from hero inventory, gives it to the monster, prints the theft message, relocates a teleport-capable thief unless tele_restrict applies, and updates encumbrance.",
+    "functions": [
+      "stealamulet"
+    ],
+    "callers": [
+      "uhitm.c:mhitm_ad_samu calls stealamulet(magr) after hitmsg when rn2(20) is zero; this is the selected monster-to-hero production path.",
+      "JavaScript caller: uhitm.js:mhitm_ad_samu currently preserves the same rn2(20) gate but records note_unported(\"steal.c stealamulet\") instead of calling a helper."
+    ],
+    "dependencies": [
+      "The existing JavaScript owners provide worn_item_removal and mpickobj in steal.js, freeinv and encumber_msg in invent.js/pickup.js, shop_keeper and subfrombill in shk.js, and can_teleport, tele_restrict, and rloc in mondata.js/teleport.js. The C results from worn_item_removal, mpickobj, rloc, and encumber_msg are discarded here.",
+      "C obj.h:any_quest_artifact is a macro that recognizes every quest artifact by its artifact-number range; steal.js currently has is_quest_artifact for only the hero role, so the port must preserve the broader C predicate rather than reuse the narrower helper."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved combined queue SHA-256 is 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b. Its v45 entry has manifest c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649, recording 2e228e977c11b0b56d8419558bf9649e4b1a3fbec242ee88376e40f5a6e6a376, evaluation challenges/evaluations/v45-baseline-b317571a6.json at b317571a6e76a6dfab39e023745bcec4ea758e55, and 33 remaining screens out of 184 recorded steps.",
+    "The admitted C recording reaches the gate at segment 0 step 151 on space and logs rn2(20)=0 @ mhitm_ad_samu(uhitm.c:4583). At step 154 it displays “The Wizard of Yendor steals the Amulet of Yendor!” and logs the monster relocation draws from rloc(teleport.c:1850-1851).",
+    "Upstream uhitm.c:mhitm_ad_samu (4570-4589) emits hitmsg, then calls stealamulet(magr) when rn2(20) is zero. Upstream steal.c:stealamulet (689-773) scans inventory for any quest artifact, falls back to the invocation objects carried, removes required worn outer items in source order, bills and removes the selected object, copies its name, transfers it with mpickobj, emits the theft message, conditionally calls rloc, then calls encumber_msg.",
+    "JavaScript uhitm.js:mhitm_ad_samu (6457-6474) already performs hitmsg and the same random gate but substitutes note_unported(\"steal.c stealamulet\") for the gated C helper. steal.js has no stealamulet export; its canonical worn_item_removal and mpickobj helpers and existing inventory/shop helpers can be reused.",
+    "The mismatch is missing behavior, not an RNG defect inside the existing teleport.c:rloc implementation: C reaches rloc only after the theft selection, inventory transfer, and theft message. The source scope is the complete steal.c:stealamulet function plus the exact uhitm.js caller wiring; preserve the distinct uhitm.c:mhitm_ad_samu implementation and its other combat-direction branches."
+  ]
+}
