@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source route for a fountain.c:drinkfountain effect from the source-defined Minetown 1 fountains. Load the already verified minetn-1.lua map with an independent seed and capture its coordinates before selecting the fountain interaction.",
+  "segments": [
+    {
+      "seed": 47000148,
+      "datetime": "20571111091012",
+      "nethackrc": "OPTIONS=name:V47FountainScout,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-1.lua\n #wizmap\n"
+    }
+  ]
+}

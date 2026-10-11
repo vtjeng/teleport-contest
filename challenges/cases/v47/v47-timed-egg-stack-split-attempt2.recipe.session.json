@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected split attempt: after wishing a stack of two giant ant eggs, use the inventory item-action menu's `I` split action and assign the child stack to z. This tests whether a viable egg's HATCH_EGG timer is duplicated by mkobj.c:splitobj -> timeout.c:obj_split_timers.",
+  "segments": [
+    {
+      "seed": 47001014,
+      "datetime": "20571011111014",
+      "nethackrc": "OPTIONS=name:V47EggTimerSplitB,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\n2 eggs of giant ant\nimIz"
+    }
+  ]
+}

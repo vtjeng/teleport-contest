@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47100114,
+      "datetime": "20571009112435",
+      "nethackrc": "OPTIONS=name:V47ShopSale3,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizlevelport\n3\n "
+    }
+  ],
+  "comment": "C-first shop-generation scout for the independent drop/sellobj candidate; retain the result even if no shop generates."
+}

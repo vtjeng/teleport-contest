@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction after attempts2-3 reached but missed the adjacent rust monster: wish a +5 long sword to improve hit chance while keeping it non-rustproof. C observed the target northwest at (52,4) relative to hero (53,5); forcefight northwest and allow pager spaces between attack rounds. Preserve the lower-chance plain sword and wrong-direction attempts.",
+  "segments": [
+    {
+      "seed": 47001057,
+      "datetime": "20570615161719",
+      "nethackrc": "OPTIONS=name:V47RustWeapon,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\n+5 long sword\nwo#wizgenesis\nhostile rust monster\n#wizmap\nFy  Fy  Fy  Fy  Fy  Fy  Fy  Fy  Fy  Fy  Fy  Fy"
+    }
+  ]
+}

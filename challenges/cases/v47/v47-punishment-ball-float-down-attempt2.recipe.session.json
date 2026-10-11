@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected punishment/levitation setup attempt 2: the first probe read the wished ring letter incorrectly, so select observed ring slot o, left finger, dismiss the levitation pager, then create the pool before wishing and reading a cursed scroll of punishment. The final ring removal must reach the attached-ball float-down source branch; no JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047202,
+      "datetime": "20571216111116",
+      "nethackrc": "OPTIONS=name:V47PunishBall2,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nring of levitation\nPol #wizwish\npool\n#wizwish\ncursed scroll of punishment\nrp R     "
+    }
+  ]
+}

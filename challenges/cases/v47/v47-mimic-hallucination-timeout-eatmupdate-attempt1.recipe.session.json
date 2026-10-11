@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first reachability probe for eat.c:eatmupdate. Wish a small mimic corpse, give the hero a short hallucination timeout with #wizintrinsic, and begin eating the corpse. Count only if the completed-corpse transition sets ge.eatmbuf and the hallucination timer expires while the hero is still mimicking.",
+  "segments": [
+    {
+      "seed": 47000131,
+      "datetime": "20571111111214",
+      "nethackrc": "OPTIONS=name:V47EatMimicTimeout,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nsmall mimic corpse\n#wizintrinsic\n20h\ne"
+    }
+  ]
+}

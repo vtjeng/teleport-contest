@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47100116,
+      "datetime": "20571009112637",
+      "nethackrc": "OPTIONS=name:V47WhipArmed11,role:Archeologist,race:human,gender=female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizwish\n+5 ring of increase dexterity\nPjl#wizwish\n+5 bullwhip\nwk#wizgenesis\nhostile captain\n. . #wizmap\n. #wizmap\naky"
+    }
+  ],
+  "comment": "C-first correction to let the generated captain take an additional normal turn after its marble-wand action; re-map, then use slot-k bullwhip at the observed adjacent direction. Retain only if C proves captain MON_WEP before the whip and reaches apply.c:use_whip -> weapon.c:possibly_unwield."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first probe for mkobj.c:splitobj -> timeout.c:obj_split_timers. Wish a stack of hatchable giant ant eggs, inspect its actual inventory identity, then use a split action on one egg. Preserve a quantity/name/timer setup miss if C does not create an active timed stack.",
+  "segments": [
+    {
+      "seed": 47001013,
+      "datetime": "20571011101014",
+      "nethackrc": "OPTIONS=name:V47EggTimerSplit,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\n2 eggs of giant ant\ni"
+    }
+  ]
+}

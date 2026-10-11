@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47100115,
+      "datetime": "20571009112536",
+      "nethackrc": "OPTIONS=name:V47ShopSale,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizlevelport\n3\n  #wizmap\n#wizwish\n+5 dagger\ndoy"
+    }
+  ],
+  "comment": "C-first source candidate: teleport by wizard to the independently selected D:3 shop seed, confirm Upernavik store entry, map for evidence, wish a hero-owned saleable dagger, and deliberately drop it. Count only if C reaches do.c:dropx -> shk.c:sellobj and the JS first mismatch is at that seller transaction."
+}

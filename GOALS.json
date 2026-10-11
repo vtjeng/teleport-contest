@@ -274995,7 +274995,7 @@
     {
       "id": "port-zap-bhitm-mimic-reveal-v46-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port bhitm mimic reveal path",
       "cFile": "zap.c",
       "sessions": [
@@ -275009,8 +275009,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "34287484a30d00e42da741c0a2ea369df7e096e7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "bhitm",
@@ -275411,6 +275414,909 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "34287484a30d00e42da741c0a2ea369df7e096e7",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-trap-sokoban-guilt-v46-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port trap.c sokoban_guilt and wire every active caller so Sokoban conduct and luck penalties match C.",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24"
+      ],
+      "selectionReason": "The admitted v46 case is the next dependency-ready queued mismatch: read.c seffect_earth reaches the missing trap.c sokoban_guilt side effects, leaving the final conduct screen wrong while RNG remains exact.",
+      "detail": "Port the complete trap.c sokoban_guilt helper and wire its active read.c, zap.c, hack.c, and steed.c callers. Preserve current-level Sokoban gating, u.uconduct.sokocheat update, and change_luck(-1) order. Runtime evidence covers the read entry plus independent recordings for the other active callers; supporting polymon-to-DISMOUNT_POLY wiring does not claim whole caller completion.",
+      "openedAt": "b8795645b1d11864e62a4488f693b709dfb29007",
+      "openStanding": {
+        "sha": "34287484a30d00e42da741c0a2ea369df7e096e7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "dd8f450f2864f2521a5a0948c027fc47a1bd310e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "sokoban_guilt",
+          "line": 7039,
+          "endLine": 7058,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 7039,
+        "to": 7058
+      },
+      "syntheticProvenance": {
+        "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24": {
+          "session": "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24",
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recordingPath": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+          "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+          "evaluationPath": "challenges/evaluations/accepted-34287484a30d00e42da741c0a2ea369df7e096e7-v46.json",
+          "evaluationCommit": "34287484a30d00e42da741c0a2ea369df7e096e7"
+        }
+      },
+      "activeStanding": {
+        "sha": "34287484a30d00e42da741c0a2ea369df7e096e7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+          "session": "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recording": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+          "recordingPath": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+          "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+          "recipe": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.recipe.session.json",
+          "recipeSha256": "2c5b5e7c57a4a299bdea02c19b2cabd48da74512530d20e21fa206afb9c7d51e",
+          "replayInputSha256": "10d2d991152eef809a45b825126d737f24d6741b6f3d1f1d7a77fa1ca27ae893",
+          "evaluationPath": "challenges/evaluations/accepted-34287484a30d00e42da741c0a2ea369df7e096e7-v46.json",
+          "evaluationCommit": "34287484a30d00e42da741c0a2ea369df7e096e7",
+          "evaluationArtifact": "challenges/evaluations/accepted-34287484a30d00e42da741c0a2ea369df7e096e7-v46.json",
+          "evaluationUtc": "2026-10-11T19:23:23.295Z",
+          "remainingScreens": 1,
+          "recordedSteps": 121,
+          "previousScreensMatched": 120,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 120,
+              "total": 121
+            },
+            "rng": {
+              "matched": 6674,
+              "total": 6674
+            },
+            "cursors": {
+              "matched": 120,
+              "total": 121
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 119,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 119,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 24,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "V",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 119,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 119,
+                "key": "\n"
+              },
+              "cCursor": [
+                37,
+                17,
+                1
+              ],
+              "jsCursor": [
+                32,
+                17,
+                1
+              ]
+            }
+          },
+          "step": 119,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.json",
+            "result": {
+              "session": "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24",
+              "corpus": "synthetic",
+              "batch": "v46",
+              "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+              "manifestPath": "challenges/manifests/v46.json",
+              "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+              "recordingPath": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+              "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+              "evaluationPath": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+              "evaluationCommit": "696981041adb7876b92090fe5486dc9ca68af575",
+              "remainingScreens": 1,
+              "recordedSteps": 121,
+              "status": "complete",
+              "commit": "d404c42c66e68b5c46965a3a526962b43a03698d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v46",
+                "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+                "session": "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24",
+                "manifestPath": "challenges/manifests/v46.json",
+                "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+                "recording": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+                "recordingPath": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+                "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+                "recipe": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.recipe.session.json",
+                "recipeSha256": "2c5b5e7c57a4a299bdea02c19b2cabd48da74512530d20e21fa206afb9c7d51e",
+                "replayInputSha256": "abc2aa4838bc14431291da1b19050d36a86aee2cf5a46c0f40f8bdf02c44adcf",
+                "evaluationPath": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+                "evaluationCommit": "696981041adb7876b92090fe5486dc9ca68af575",
+                "evaluationArtifact": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+                "evaluationUtc": "2026-10-11T15:59:10.197Z",
+                "remainingScreens": 1,
+                "recordedSteps": 121,
+                "previousScreensMatched": 120,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 120,
+                    "total": 121
+                  },
+                  "rng": {
+                    "matched": 6674,
+                    "total": 6674
+                  },
+                  "cursors": {
+                    "matched": 120,
+                    "total": 121
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 119,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 119,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 24,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "V",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 119,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 119,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      37,
+                      17,
+                      1
+                    ],
+                    "jsCursor": [
+                      32,
+                      17,
+                      1
+                    ]
+                  }
+                },
+                "step": 119,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the final #conduct view after the hero enters Sokoban and reads an uncursed scroll of earth. C calls trap.c:sokoban_guilt() from read.c:seffect_earth(), incrementing u.uconduct.sokocheat and applying change_luck(-1); JavaScript currently records note_unported and leaves the count at zero. The existing insight.js:show_conduct() already reads that count, so the missing helper side effect explains the visible conduct line difference.",
+              "source": {
+                "file": "trap.c",
+                "branch": "trap.c:sokoban_guilt() tests the current level Sokoban flag; only on Sokoban it increments u.uconduct.sokocheat and calls change_luck(-1). The helper has no RNG or output, but mutates both conduct and luck state.",
+                "functions": [
+                  "sokoban_guilt"
+                ],
+                "callers": [
+                  "read.c:seffect_earth():1951 -> js/read.js:seffect_earth():2462, currently note_unported(\"trap.c sokoban_guilt\"). The admitted recipe reaches this path and the later insight.c:show_conduct() display.",
+                  "zap.c:poly_obj():1711 -> js/zap.js:poly_obj():2310, currently note_unported with the stale label \"sokoban.c sokoban_guilt\".",
+                  "zap.c:fracture_rock():5556 -> js/zap.js:fracture_rock():2779, currently note_unported with the stale label \"sokoban.c sokoban_guilt\".",
+                  "hack.c:cannot_push():299,307 -> js/hack.js:cannot_push():1935,1948, currently records the named gap.",
+                  "hack.c:moverock_core():398,403 -> js/hack.js:moverock_core():2388,2397, currently records the named gap.",
+                  "steed.c:dismount_steed():767 -> js/steed.js:dismount_steed():1028-1038. Both C and JavaScript teleds() reach a floor boulder destination; JavaScript currently throws after arrival instead of making the source sokoban_guilt() call. Replace that refusal with the helper call."
+                ],
+                "dependencies": [
+                  "attrib.c:change_luck(-1) already has the JavaScript owner change_luck() in js/moveloop_preamble.js; C discards the void result.",
+                  "insight.c:show_conduct() already reads u.uconduct.sokocheat in js/insight.js; the missing value is produced by sokoban_guilt()."
+                ]
+              },
+              "goalKind": "file-port",
+              "selectionReason": "Selected candidate 6, the first unreserved item in saved combined queue SHA-256 9d2425b60017f469943e7c22789e06736445e2c603c966cfcde87f3250e5d528 at accepted Main 696981041adb7876b92090fe5486dc9ca68af575. B owns the random-swamp case; C owns prayer, crystal-ball, and succubus; earlier A2 deliveries own troll-meal and lit-candle. This Sokoban guilt case is independent from those reservations.",
+              "evidence": [
+                "The immutable v46 manifest identifies source pointers read.c:seffect_earth and trap.c:sokoban_guilt. The saved queue reproduces the mismatch at segment 0 step 119/key newline: C and JavaScript match 6674 RNG calls; C has 120/121 screens and JS displays the unviolated-conduct text at the point where C has a violated-Sokoban-conduct line.",
+                "nethack-c/upstream/src/trap.c:7039-7054 defines the whole helper. The Sokoban guard is the current-level flag macro from include/rm.h:538; its only effects are incrementing u.uconduct.sokocheat and calling change_luck(-1).",
+                "All active direct C call sites are read.c:1951, zap.c:1711 and 5556, hack.c:cannot_push():299/307, hack.c:moverock_core():398/403, and steed.c:767. Current JS read/zap/hack sites record note_unported; the steed site throws after teleds() has placed the hero on the boulder instead of making the source helper call. C teleport.c:teleds() and a current JavaScript diagnostic both allow that boulder destination.",
+                "insight.c:2215-2225 and js/insight.js:2970-2983 show the conduct counter controls the observed final line. change_luck() already maps to js/moveloop_preamble.js; no RNG, message, or additional callee is introduced by this helper."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "sokoban_guilt",
+            "implementation": "js/trap.js",
+            "symbol": "sokoban_guilt",
+            "sourceReview": "Read the complete nethack-c/upstream/src/trap.c:sokoban_guilt() definition at lines 7039-7054. The function evaluates the current-level Sokoban flag; only on that branch it increments u.uconduct.sokocheat and calls change_luck(-1), whose void result is discarded. It has no RNG or output. The JavaScript implementation follows the same guard and update order. The prior refusal at the steed caller was removed for the covered DISMOUNT_POLY route; no extra effect substitutes for a callee.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_earth",
+                "source": "read.c:seffect_earth():1951 calls sokoban_guilt() after the earth-scroll boulder effect; the admitted v46 case reaches it through the normal scroll-read command."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "poly_obj",
+                "source": "zap.c:poly_obj():1711 calls sokoban_guilt() when the boulder polymorph branch runs in Sokoban."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "fracture_rock",
+                "source": "zap.c:fracture_rock():5556 calls sokoban_guilt() for the corresponding fracture result."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "cannot_push",
+                "source": "hack.c:cannot_push():299,307 calls sokoban_guilt() on each relevant refusal branch."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "moverock_core",
+                "source": "hack.c:moverock_core():398,403 calls sokoban_guilt() on its two boulder movement branches."
+              },
+              {
+                "path": "js/steed.js",
+                "symbol": "dismount_steed",
+                "source": "steed.c:dismount_steed():767 calls sokoban_guilt() after teleds() lands on a boulder. The active supporting route is polyself.c:polymon():964 -> js/polyself.js:polymon(), which now calls dismount_steed(DISMOUNT_POLY) when can_ride() rejects the transformed hero. That uses the pre-existing landing_spot() implementation; this task does not claim landing_spot() or the whole polymon()/dismount_steed() functions as completed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-sokoban-guilt.test.mjs",
+              "scripts/read-earth.test.mjs",
+              "scripts/zap-poly-obj.test.mjs",
+              "scripts/hack.test.mjs",
+              "scripts/dismount-steed.test.mjs",
+              "scripts/polyself.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/sokoban-guilt-poly-obj-a2.session.json",
+              "recordings/trap.c/sokoban-guilt-fracture-rock-a2.session.json",
+              "recordings/trap.c/sokoban-guilt-moverock-core-a2.session.json",
+              "recordings/trap.c/sokoban-guilt-cannot-push-a2.session.json",
+              "recordings/trap.c/sokoban-guilt-dismount-steed-a2.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 120,
+                "source": "read.c:seffect_earth -> trap.c:sokoban_guilt"
+              }
+            ],
+            "checkedAt": "6917a9a8a6e40a65525119b46094a4fc70ffe4d9"
+          }
+        ],
+        "entryPointReview": "The completed source unit is the whole trap.c:sokoban_guilt() helper. Its active direct callers are read.c:seffect_earth, zap.c:poly_obj, zap.c:fracture_rock, hack.c:cannot_push, hack.c:moverock_core, and steed.c:dismount_steed. The admitted v46 case covers seffect_earth; five independent patched-C recordings cover the other callers. Supporting caller wiring adds polyself.c:polymon -> dismount_steed(DISMOUNT_POLY) for the steed recording. This delivery does not claim whole polymon(), dismount_steed(), or landing_spot() source completion.",
+        "entryPoints": [
+          {
+            "name": "Read an earth scroll on Sokoban",
+            "functions": [
+              "sokoban_guilt"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 120,
+                "source": "read.c:seffect_earth -> trap.c:sokoban_guilt"
+              }
+            ]
+          },
+          {
+            "name": "Polymorph a boulder on Sokoban",
+            "functions": [
+              "sokoban_guilt"
+            ],
+            "recordings": [
+              "recordings/trap.c/sokoban-guilt-poly-obj-a2.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Fracture a rock on Sokoban",
+            "functions": [
+              "sokoban_guilt"
+            ],
+            "recordings": [
+              "recordings/trap.c/sokoban-guilt-fracture-rock-a2.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Refuse or move a boulder on Sokoban",
+            "functions": [
+              "sokoban_guilt"
+            ],
+            "recordings": [
+              "recordings/trap.c/sokoban-guilt-cannot-push-a2.session.json",
+              "recordings/trap.c/sokoban-guilt-moverock-core-a2.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Dismount onto a boulder on Sokoban after polymorph",
+            "functions": [
+              "sokoban_guilt"
+            ],
+            "recordings": [
+              "recordings/trap.c/sokoban-guilt-dismount-steed-a2.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "dd8f450f2864f2521a5a0948c027fc47a1bd310e",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-succubus-steal-v46-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port uhitm.c theft_petrifies and steal_it and restore the hero-attacker arm of mhitm_ad_sedu so polymorphed theft transfers monster inventory in C order.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v46/v46-succubus-steals-monster-item-attempt2"
+      ],
+      "selectionReason": "The only remaining post-Sokoban v46 mismatch reaches the explicit hero-attacker steal_it gap in mhitm_ad_sedu.",
+      "detail": "Port whole theft_petrifies and steal_it; wire the already verified mhitm_ad_sedu hero arm through damageum/mhitm_adtyping. Preserve the discarded mselftouch call as an explicit gap because its void minstapetrify dependency remains unfinished.",
+      "openedAt": "363f6cf5bbd01178edbf5ffabaf09fdad287295f",
+      "openStanding": {
+        "sha": "dd8f450f2864f2521a5a0948c027fc47a1bd310e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c383f0a96c6d303e1b62c4bdcef567ccdf1dc4aa",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "theft_petrifies",
+          "line": 2148,
+          "endLine": 2173,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "steal_it",
+          "line": 2174,
+          "endLine": 2280,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2148,
+        "to": 2280
+      },
+      "requiredFunctions": [
+        {
+          "name": "mhitm_ad_sedu",
+          "line": 4623,
+          "endLine": 4750,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v46/v46-succubus-steals-monster-item-attempt2": {
+          "session": "synthetic/v46/v46-succubus-steals-monster-item-attempt2",
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-succubus-steals-monster-item-attempt2",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recordingPath": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.session.json",
+          "recordingSha256": "da58190028a80439818aec2a99c67535cb786949db91c7ca833d7dc5e4ef5ddf",
+          "evaluationPath": "challenges/evaluations/accepted-dd8f450f2864f2521a5a0948c027fc47a1bd310e-v46.json",
+          "evaluationCommit": "dd8f450f2864f2521a5a0948c027fc47a1bd310e"
+        }
+      },
+      "activeStanding": {
+        "sha": "dd8f450f2864f2521a5a0948c027fc47a1bd310e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-succubus-steals-monster-item-attempt2",
+          "session": "synthetic/v46/v46-succubus-steals-monster-item-attempt2",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recording": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.session.json",
+          "recordingPath": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.session.json",
+          "recordingSha256": "da58190028a80439818aec2a99c67535cb786949db91c7ca833d7dc5e4ef5ddf",
+          "recipe": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.recipe.session.json",
+          "recipeSha256": "17c55e75d01c54ce141f214ff3910e91b0def061eb78079a1ccbfc23610cfc6a",
+          "replayInputSha256": "a92695ecc7a4f2833a713fea94e1e3f0240d441540198b3787b6b095fad06206",
+          "evaluationPath": "challenges/evaluations/accepted-dd8f450f2864f2521a5a0948c027fc47a1bd310e-v46.json",
+          "evaluationCommit": "dd8f450f2864f2521a5a0948c027fc47a1bd310e",
+          "evaluationArtifact": "challenges/evaluations/accepted-dd8f450f2864f2521a5a0948c027fc47a1bd310e-v46.json",
+          "evaluationUtc": "2026-10-11T20:03:12.967Z",
+          "remainingScreens": 1,
+          "recordedSteps": 55,
+          "previousScreensMatched": 54,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 54,
+              "total": 55
+            },
+            "rng": {
+              "matched": 2481,
+              "total": 2481
+            },
+            "cursors": {
+              "matched": 54,
+              "total": 55
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 54,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 54,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 31,
+              "cCell": {
+                "ch": "s",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "h",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2481,
+              "cCaller": null,
+              "jsEntry": "rn2(25)=16",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 54,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 54,
+                "key": "l"
+              },
+              "cCursor": [
+                73,
+                0,
+                1
+              ],
+              "jsCursor": [
+                59,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 54,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v46/v46-succubus-steals-monster-item-attempt2.json",
+            "result": {
+              "session": "synthetic/v46/v46-succubus-steals-monster-item-attempt2",
+              "corpus": "synthetic",
+              "batch": "v46",
+              "caseId": "v46-succubus-steals-monster-item-attempt2",
+              "manifestPath": "challenges/manifests/v46.json",
+              "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+              "recordingPath": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.session.json",
+              "recordingSha256": "da58190028a80439818aec2a99c67535cb786949db91c7ca833d7dc5e4ef5ddf",
+              "recipeSha256": "17c55e75d01c54ce141f214ff3910e91b0def061eb78079a1ccbfc23610cfc6a",
+              "evaluationPath": "challenges/evaluations/accepted-643e2279efd29389ff74a9fd5fe276f3aeaba62f-v46.json",
+              "evaluationCommit": "643e2279efd29389ff74a9fd5fe276f3aeaba62f",
+              "queueSha256": "e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2",
+              "remainingScreens": 1,
+              "recordedSteps": 55,
+              "status": "complete",
+              "commit": "c1b9c6ee9313dfb9a380172e4134ad050fc3cbd0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v46",
+                "caseId": "v46-succubus-steals-monster-item-attempt2",
+                "session": "synthetic/v46/v46-succubus-steals-monster-item-attempt2",
+                "manifestPath": "challenges/manifests/v46.json",
+                "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+                "recording": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.session.json",
+                "recordingPath": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.session.json",
+                "recordingSha256": "da58190028a80439818aec2a99c67535cb786949db91c7ca833d7dc5e4ef5ddf",
+                "recipe": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.recipe.session.json",
+                "recipeSha256": "17c55e75d01c54ce141f214ff3910e91b0def061eb78079a1ccbfc23610cfc6a",
+                "replayInputSha256": "8494a6f29dde40ec9e577d3fb6aafbfd751666428321e3a242dccb32039a9d62",
+                "evaluationPath": "challenges/evaluations/accepted-643e2279efd29389ff74a9fd5fe276f3aeaba62f-v46.json",
+                "evaluationCommit": "643e2279efd29389ff74a9fd5fe276f3aeaba62f",
+                "evaluationArtifact": "challenges/evaluations/accepted-643e2279efd29389ff74a9fd5fe276f3aeaba62f-v46.json",
+                "evaluationUtc": "2026-10-11T16:51:27.277Z",
+                "remainingScreens": 1,
+                "recordedSteps": 55,
+                "previousScreensMatched": 54,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 54,
+                    "total": 55
+                  },
+                  "rng": {
+                    "matched": 2481,
+                    "total": 2481
+                  },
+                  "cursors": {
+                    "matched": 54,
+                    "total": 55
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 54,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 54,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 31,
+                    "cCell": {
+                      "ch": "s",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "h",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2481,
+                    "cCaller": null,
+                    "jsEntry": "rn2(25)=16",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 54,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 54,
+                      "key": "l"
+                    },
+                    "cCursor": [
+                      73,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      59,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 54,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first C-only output at step 54 is the result of a polymorphed hero succubus landing an AD_SEDU attack on the adjacent orc-captain. uhitm.c:mhitm_ad_sedu calls steal_it() in its hero-attacker arm; the JavaScript arm still records note_unported('uhitm.c steal_it') and sets damage to zero, so it omits the C inventory transfer and “You steal:” prompt. The complete bounded source task is uhitm.c:theft_petrifies, steal_it, and mhitm_ad_sedu, with the existing damageum -> mhitm_adtyping caller retained.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "When a polymorphed hero lands an AD_SEDU item-theft attack against a monster, mhitm_ad_sedu delegates to steal_it. steal_it selects one item unless the target is seducible and wearing body armor, temporarily keeps monster gold out of the selection, transfers stolen items through hold_another_object, handles petrifying corpses and worn gear, and restores gold in source order.",
+                "functions": [
+                  "theft_petrifies() (2148-2172)",
+                  "steal_it() (2174-2281)",
+                  "mhitm_ad_sedu() (4623-4748)"
+                ],
+                "callers": [
+                  "uhitm.c:damageum() (4835-4883) calls mhitm_adtyping(); its AD_SITM and AD_SEDU cases (4782-4832) call mhitm_ad_sedu(). JavaScript follows uhitm.js:damageum -> mhitm_adtyping -> mhitm_ad_sedu; this is the selected hero-polymorph entry path.",
+                  "uhitm.c:mhitm_ad_ssex() (4751-4779) delegates to mhitm_ad_sedu() for its hero-attacker path and its non-specialized monster paths. The existing JavaScript mhitm_ad_ssex() has the corresponding calls.",
+                  "mhitu.c:mattacku() calls uhitm.c:mhitm_adtyping() for monster-versus-hero attacks; JavaScript mhitu.js dispatches through uhitm.js:mhitm_adtyping().",
+                  "mhitm.c:mdamagem() calls uhitm.c:mhitm_adtyping() for monster-versus-monster attacks; JavaScript mhitm.js:mdamagem() dispatches through uhitm.js:mhitm_adtyping()."
+                ],
+                "dependencies": [
+                  "steal_it() consumes theft_petrifies() as a boolean; both are in this uhitm.c task.",
+                  "theft_petrifies() consumes mondata.c:touch_petrifies() (pure and already ported in js/mondata.js) and calls trap.c:instapetrify() with a discarded void result (the existing js/trap.js implementation handles the hero death path).",
+                  "steal_it() consumes mhitu.c:could_seduce(), steal.c:findgold(), and invent.c:hold_another_object(); the corresponding existing JS functions are in mhitu.js, steal.js, and invent.js.",
+                  "steal_it() calls steal.c:mpickobj(), worn.c:extract_from_minvent(), weapon.c:possibly_unwield(), and trap.c:mselftouch() with discarded results; mpickobj, extract_from_minvent, and possibly_unwield have existing JavaScript implementations. trap.c:mselftouch is only partially implemented in trap_effects.js because its minstapetrify path is unported; preserve that void gap as note_unported('trap.c mselftouch') without using a result."
+                ]
+              },
+              "goalKind": "file-port",
+              "selectionReason": "This was the highest-priority unreserved v46 session after the crystal-ball task. Its first mismatch is distinct from the other live workers’ cases. The exact selected uhitm.c functions and the session reservation were checked against the shared ledger; no other task reserved theft_petrifies, steal_it, or mhitm_ad_sedu.",
+              "evidence": [
+                "Queue entry from e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2 identifies segment 0 step 54, key l, with 54/55 screens, 2481/2481 RNG calls, and 54/55 cursors matched. At row 0 column 31 C shows s and JavaScript shows h; C cursor is [73,0,1] and JavaScript cursor is [59,0,1].",
+                "The C recording at step 54 shows “You bite the orc-captain.  You steal:  o - a white-handed shield.--More--”. The source call is uhitm.c:mhitm_ad_sedu() at 4631, whose hero-attacker arm calls steal_it().",
+                "At examined commit c1b9c6ee9313dfb9a380172e4134ad050fc3cbd0, js/uhitm.js:mhitm_ad_sedu() (3923 onward) records note_unported('uhitm.c steal_it') in its hero-attacker arm, which is the missing inventory-transfer behavior.",
+                "Source dependency audit found the return-valued theft_petrifies() call is local to uhitm.c and included in the proposed scope. Other return-valued callees are already ported in their canonical JS modules. The discarded trap.c:mselftouch() call remains an explicit void gap because its current JS body stops at unported minstapetrify(); no return value is used."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "theft_petrifies",
+            "implementation": "js/uhitm.js",
+            "symbol": "theft_petrifies",
+            "sourceReview": "Read all of nethack-c/upstream/src/uhitm.c:2148-2173. Preserve the early false gate for worn gloves, non-corpse items, non-petrifying species, and stone resistance; the disabled poly_when_stoned block; then instapetrify(corpse_xname(...)) and TRUE even if the hero survives. JS theft_petrifies matches those predicates and awaits instapetrify with the source-form “stolen” corpse name. steal_it consumes this boolean to stop subsequent inventory theft. The independent wand recording and admitted shield route call this helper after hold_another_object, taking its non-petrifying return.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "steal_it",
+                "source": "uhitm.c:steal_it() lines 2246-2252 calls theft_petrifies() after hold_another_object() confirms the item remains in OBJ_INVENT; JavaScript follows the same sequence."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-steal-it.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/hero-succubus-steals-monster-item-v46-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-succubus-steals-monster-item-attempt2",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 54,
+                "source": "do_attack -> hmonas -> damageum -> mhitm_adtyping(AD_SEDU) -> mhitm_ad_sedu(hero attacker) -> steal_it -> hold_another_object -> theft_petrifies"
+              }
+            ],
+            "checkedAt": "d48d039c07d6744d83841770904171612bc595c6"
+          },
+          {
+            "name": "steal_it",
+            "implementation": "js/uhitm.js",
+            "symbol": "steal_it",
+            "sourceReview": "Read all of nethack-c/upstream/src/uhitm.c:2174-2280. Preserve the no-inventory/coin-only exit; could_seduce plus movable-target armor extraction/reinsertion; gold isolation and mpickobj restoration; Upolyd stop; artifact discovery before extraction; source-ordered monster extraction, final-suit output, hold_another_object transfer and inventory-location guard; petrification stop; W_WEP unwield and W_ARMG self-touch handling; one-item versus all-possession continuation; and final gold restoration. The JS call supplies pickup.c:encumber_msg through invent.c:hold_another_object’s required hook, so a real theft reaches the C inventory and burden continuation. C discards mselftouch()’s void result; because its minstapetrify path is incomplete, JS records note_unported('trap.c mselftouch') and skips that call without using the note result. The recorded wand route avoids W_ARMG, while the assigned shield route reaches the transferred-item path.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_sedu",
+                "source": "uhitm.c:mhitm_ad_sedu() line 4631 calls steal_it(mdef, mattk) in the hero-attacker arm; JavaScript awaits steal_it() before setting mhm.damage to zero."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-steal-it.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/hero-succubus-steals-monster-item-v46-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-succubus-steals-monster-item-attempt2",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 54,
+                "source": "do_attack -> hmonas -> damageum -> mhitm_adtyping(AD_SEDU) -> mhitm_ad_sedu(hero attacker) -> steal_it -> hold_another_object -> theft_petrifies"
+              }
+            ],
+            "checkedAt": "d48d039c07d6744d83841770904171612bc595c6"
+          },
+          {
+            "name": "mhitm_ad_sedu",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_sedu",
+            "sourceReview": "Read the complete nethack-c/upstream/src/uhitm.c:mhitm_ad_sedu() definition at 4623-4748. Preserve the hero-attacker call to steal_it and zero-damage write; the monster-versus-hero animal, hero-species seduction/brag, canceled-attacker, steal, teleport and fleeing branches; and the monster-versus-monster canceled-attacker gate, tame cursed-object selection, naming before extraction, saddle dismount boundary, inventory transfer/message, unwield, wait-strategy clear, self-touch, defender death/grow-up result, nymph relocation, and final damage clear. Only the formerly missing hero-attacker steal_it call is newly implemented here; the other arms remain as previously ported. The discarded void trap.c:mselftouch() call in steal_it is explicitly skipped with note_unported; no callee return is substituted.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping() lines 4798-4799 dispatches AD_SITM and AD_SEDU to mhitm_ad_sedu(); JavaScript mirrors those cases."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_ssex",
+                "source": "uhitm.c:mhitm_ad_ssex() lines 4754-4758 and 4773-4777 delegates its hero-attacker and monster-versus-monster arms to mhitm_ad_sedu(); the JavaScript wrapper preserves those calls."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum() line 4854 dispatches hero attacks through mhitm_adtyping(). The selected polymorphed hero path reaches that production caller before the hero-attacker arm."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu() dispatches monster-versus-hero attack effects through uhitm.c:mhitm_adtyping(); the matching JS entry is mhitu.js:hitmu()."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem() dispatches monster-versus-monster attack effects through uhitm.c:mhitm_adtyping(); the matching JS entry is mhitm.js:mdamagem()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-steal-it.test.mjs",
+              "scripts/uhitm-ad-ssex.test.mjs",
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/hero-succubus-steals-monster-item-v46-cfirst.session.json",
+              "recordings/mhitm.c/monster-nymph-seduction-boundary.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-succubus-steals-monster-item-attempt2",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 54,
+                "source": "do_attack -> hmonas -> damageum -> mhitm_adtyping(AD_SEDU) -> mhitm_ad_sedu(hero attacker) -> steal_it -> hold_another_object -> theft_petrifies"
+              }
+            ],
+            "checkedAt": "d48d039c07d6744d83841770904171612bc595c6"
+          }
+        ],
+        "entryPointReview": "The newly restored active entry is a polymorphed hero landing AD_SEDU on an item-carrying monster: hack.c do_attack -> uhitm.c hmonas -> damageum -> mhitm_adtyping -> mhitm_ad_sedu(hero arm) -> steal_it -> hold_another_object -> theft_petrifies. The admitted v46 case matches through segment 0 step 54 and reaches the shield transfer; the independent C-first recipe matches all 55 steps and steals a curved wand at step 54. Both execute theft_petrifies after the inventory transfer. The same complete mhitm_ad_sedu function also serves the existing monster-to-hero and monster-to-monster paths; those arms were already present before this task, and the accepted `port-uhitm-mhitm-ad-sedu` evidence retains the matching monster-nymph recording for the monster-to-monster arm. This task changes only the hero-attacker arm and its inventory continuation. The W_ARMG branch’s discarded trap.c:mselftouch call remains the explicit unported void gap and is not exercised by these two item choices.",
+        "entryPoints": [
+          {
+            "name": "Polymorphed hero lands AD_SEDU and transfers one monster item",
+            "functions": [
+              "theft_petrifies",
+              "steal_it",
+              "mhitm_ad_sedu"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/hero-succubus-steals-monster-item-v46-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-succubus-steals-monster-item-attempt2",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 54,
+                "source": "do_attack -> hmonas -> damageum -> mhitm_adtyping(AD_SEDU) -> mhitm_ad_sedu(hero attacker) -> steal_it -> hold_another_object -> theft_petrifies"
+              }
+            ]
+          },
+          {
+            "name": "Monster-versus-monster seduction arm (pre-existing port)",
+            "functions": [
+              "mhitm_ad_sedu"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/monster-nymph-seduction-boundary.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c383f0a96c6d303e1b62c4bdcef567ccdf1dc4aa",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47100108,
+      "datetime": "20570615201600",
+      "nethackrc": "OPTIONS=name:V47WhipDex,role:Archeologist,race:human,gender=female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizwish\n+5 ring of increase dexterity\nPil#wizwish\n+5 bullwhip\nwj#wizgenesis\nhostile captain\n. #wizmap\naji"
+    }
+  ],
+  "comment": "C-first refinement of the armed-monster bullwhip route. Raise experience enough to survive the armed captain, equip a wished +5 Dexterity ring to exercise the C fake-proficiency guard and higher extraction outcomes, then let the captain take one turn before whipping it. Count only if C confirms MON_WEP and JS first diverges in the reached use_whip/possibly_unwield branch."
+}

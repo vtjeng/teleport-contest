@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first alternative adjacency setup after attempt2 placed the hero between the red mold and Pestilence. Generate two hostile red molds adjacent to the hero before forcing Pestilence so its third adjacent spawn has multiple fungus targets; inspect C positions before any wait. This varies monster count and seed rather than assuming the missing AD_DISE branch was reached.",
+  "segments": [
+    {
+      "seed": 47001059,
+      "datetime": "20570615161721",
+      "nethackrc": "OPTIONS=name:V47PestConflict,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n 2#wizgenesis\nhostile red mold\n#wizgenesis\nhostile Pestilence\ny#wizmap\n"
+    }
+  ]
+}

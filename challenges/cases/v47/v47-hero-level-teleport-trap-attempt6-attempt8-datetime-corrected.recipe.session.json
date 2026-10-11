@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of attempt 5: C created the level teleporter, and stepping back reached its 'Really step into that level teleporter?' confirmation. Answer yes to activate the hero's level_tele_trap path; no JavaScript differential. Corrected-recipe copy of the preserved earlier probe: use valid calendar datetime 20570214091014; earlier recipe/recording remains intact as attempt history.",
+  "segments": [
+    {
+      "seed": 47047303,
+      "datetime": "20570214091014",
+      "nethackrc": "OPTIONS=name:V47LevelTrap3,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizmap\nl#wizwish\nlevel teleporter\n#wizmap\nhly"
+    }
+  ]
+}

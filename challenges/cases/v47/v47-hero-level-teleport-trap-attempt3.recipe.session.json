@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected hero level-teleport trap setup: attempt 2 established that makewish wants the C trap name 'level teleporter'. Wish that trap under the hero, reveal the small open starting room, then move east and return west to trigger the hero path. No JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047303,
+      "datetime": "20571317101318",
+      "nethackrc": "OPTIONS=name:V47LevelTrap3,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nlevel teleporter\n#wizmap\nlh"
+    }
+  ]
+}

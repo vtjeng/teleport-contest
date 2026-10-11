@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction from attempt2: #wizmap shows the rust monster at (52,4) and the hero at (53,5), so use forcefight northwest (y), not north. Attempt2's initial k inputs missed; retain them as direction setup evidence. The source target remains uhitm.c:hmon_hitmon -> mhitm.c:rustm.",
+  "segments": [
+    {
+      "seed": 47001057,
+      "datetime": "20570615161719",
+      "nethackrc": "OPTIONS=name:V47RustWeapon,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nlong sword\nwo#wizgenesis\nhostile rust monster\n#wizmap\nFy Fy Fy Fy Fy Fy Fy Fy Fy Fy Fy Fy Fy Fy Fy Fy Fy Fy Fy Fy"
+    }
+  ]
+}

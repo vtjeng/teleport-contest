@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47100115,
+      "datetime": "20571009112536",
+      "nethackrc": "OPTIONS=name:V47ShopSaleMap,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizlevelport\n3\n  #wizmap\n"
+    }
+  ],
+  "comment": "C-first continuation from the source-confirmed Upernavik general store at depth 3. Dismiss both level-entry/store pages, open the wizard map view, and establish the shop interior/hero/keeper coordinates before selecting any sale action."
+}

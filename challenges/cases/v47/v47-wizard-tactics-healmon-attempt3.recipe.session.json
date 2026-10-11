@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Wizard tactics healing route attempt 3 answers the C-confirmed force Wizard of Yendor prompt with y, then maps the created unique Wizard. No JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047103,
+      "datetime": "20571213111013",
+      "nethackrc": "OPTIONS=name:V47Tactics3,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizgenesis\nhostile Wizard of Yendor\ny#wizmap\n"
+    }
+  ]
+}

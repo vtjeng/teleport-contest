@@ -320,12 +320,12 @@ test('a hero with nowhere to stand refuses the dismount', async () => {
     assert.ok(state.u.usteed);
 });
 
-test('unported dismount reasons keep their explicit source boundary', async () => {
-    // These reasons still have separate callers and behavior outside this
-    // DISMOUNT_FELL branch.
+test('remaining unported dismount reasons keep their explicit source boundary',
+    async () => {
+    // These reasons still have separate callers and behavior outside the
+    // implemented DISMOUNT_POLY path.
     const reasons = [
         [DISMOUNT_THROWN, /reason 2, a fall from the saddle/u],
-        [DISMOUNT_POLY, /DISMOUNT_POLY/u],
         [DISMOUNT_ENGULFED, /DISMOUNT_ENGULFED/u],
         [DISMOUNT_BONES, /DISMOUNT_BONES/u],
     ];
@@ -339,6 +339,16 @@ test('unported dismount reasons keep their explicit source boundary', async () =
         );
     }
 });
+
+test('DISMOUNT_POLY reports the transformation and releases the steed',
+    async () => {
+        const state = await mounted();
+
+        await dismount_steed(DISMOUNT_POLY, state);
+
+        assert.match(toplines(), /You can no longer ride/u);
+        assert.equal(state.u.usteed, null);
+    });
 
 test('DISMOUNT_GENERIC releases a dead steed without a dismount message',
     async () => {

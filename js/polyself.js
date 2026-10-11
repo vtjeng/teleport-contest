@@ -30,6 +30,7 @@ import {
     DART_TRAP,
     DIED,
     DISINT_RES,
+    DISMOUNT_POLY,
     DRAIN_RES,
     ECMD_CANCEL,
     ECMD_OK,
@@ -1236,9 +1237,9 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
             );
             note_unported('trap.c instapetrify');
         }
-        const { can_ride } = await import('./steed.js');
+        const { can_ride, dismount_steed } = await import('./steed.js');
         if (!can_ride(u.usteed, state))
-            note_unported('steed.c dismount_steed');
+            await dismount_steed(DISMOUNT_POLY, state, env);
     }
 
     find_ac(state);

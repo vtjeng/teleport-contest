@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate to exercise the distinct top-level dat/Sam-fila.lua quest filler program. It is loaded from a matching-role debug game and then exposed with #wizmap; no JavaScript differential before the complete slate.",
+  "segments": [
+    {
+      "seed": 47047006,
+      "datetime": "20571511091011",
+      "nethackrc": "OPTIONS=name:V47Samfila,role:Samurai,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nSam-fila.lua\n#wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for trap.c:drown -> mon.c:split_mon. Become a Gremlin, wish a pool onto the current tile, then step away and return so the entered-pool branch can establish whether the Gremlin split runs before drowning resolves.",
+  "segments": [
+    {
+      "seed": 47001011,
+      "datetime": "20571011091014",
+      "nethackrc": "OPTIONS=name:V47GremlinPoolSplit,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\ngremlin\n#wizwish\npool\nhl"
+    }
+  ]
+}

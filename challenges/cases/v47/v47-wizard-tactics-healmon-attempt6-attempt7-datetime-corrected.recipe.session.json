@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of the source-verified attempt 5 setup: repeat aimed zaps from the same position against the adjacent Wizard of Yendor until a strike reaches its tactical low-HP branch or C shows the blocker. The deterministic first zap targets southwest from its observed placement; no JavaScript differential. Corrected-recipe copy of the preserved earlier probe: use valid calendar datetime 20570416091016; earlier recipe/recording remains intact as attempt history.",
+  "segments": [
+    {
+      "seed": 47047104,
+      "datetime": "20570416091016",
+      "nethackrc": "OPTIONS=name:V47Tactics4,role:Wizard,race:human,gender=female,align:neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nwand of striking\n#wizgenesis\nhostile Wizard of Yendor\ny#wizmap\nzobzobzob"
+    }
+  ]
+}

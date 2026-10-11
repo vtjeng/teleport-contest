@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first probe: seed 47111401 starts a new debug game, runs #wizmakemap on the current visited level, then #overview. This isolates cmd.c:makemap_prepost -> dungeon.c:rm_mapseen cleanup of the replaced level's overview record from monster-removal differences in prior wiz_makemap cases.",
+  "segments": [
+    {
+      "seed": 47111401,
+      "datetime": "20390611111401",
+      "nethackrc": "OPTIONS=name:Probe47111401,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizmakemap\n#overview\n"
+    }
+  ]
+}
