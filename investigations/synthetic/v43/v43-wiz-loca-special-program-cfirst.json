@@ -1,0 +1,58 @@
+{
+  "corpus": "synthetic",
+  "batch": "v43",
+  "caseId": "v43-wiz-loca-special-program-cfirst",
+  "remainingScreens": 0,
+  "status": "complete",
+  "commit": "a301ece4d8b5383d2f73b45a61b6cb4ff9adbb3d",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": "mklev.c",
+    "cFile": "mklev.c",
+    "luaFile": null,
+    "session": "synthetic/v43/v43-wiz-loca-special-program-cfirst",
+    "sessions": [
+      "synthetic/v43/v43-wiz-loca-special-program-cfirst"
+    ],
+    "remainingScreens": 0,
+    "earliestStep": 26,
+    "caseId": "v43-wiz-loca-special-program-cfirst",
+    "batch": "v43",
+    "recordingPath": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json"
+  },
+  "summary": "Room eligibility for generated stairs diverges on nested irregular rooms. C tests stair membership through has_dnstairs/has_upstairs and inside_room; JavaScript instead treats a stair in any room whose rectangular bounds overlap as belonging to that room. On the Wizard locate map this incorrectly excludes outer rooms and changes the candidate count from four to two before rn2.",
+  "source": {
+    "file": "mklev.c",
+    "branch": "mklev.c:generate_stairs_room_good() (2201-2215) checks needjoining, existing stair membership, and ordinary/theme room type. Its stair tests call mkroom.c:has_dnstairs()/has_upstairs(), whose inside_room() uses the map roomno and edge flag for irregular rooms, and a one-tile expanded rectangle for regular rooms. mklev.c:generate_stairs_find_room() (2219-2244) applies phases 2 through 0, chooses from the first nonempty candidate array with rn2(ai), then falls back to rn2(svn.nroom).",
+    "functions": [
+      "generate_stairs_room_good",
+      "generate_stairs_find_room"
+    ],
+    "callers": [
+      "mklev.c:generate_stairs_find_room() is called by generate_stairs() for down stairs at line 2260 and up stairs at line 2273. makelevel() calls generate_stairs() at line 1303 after room creation and sorting.",
+      "mklev.c:find_branch_room() calls generate_stairs_find_room() at line 1667 while makelevel() places a branch at line 1380. Its JavaScript counterpart remains wired through mklev.js:find_branch_room() -> generate_stairs_find_room().",
+      "JavaScript's existing generation callers are mklev.js:generate_stairs() and mklev.js:find_branch_room(); this correction changes the shared room predicate used by both paths. The selected recipe is the Wizard-mode direct load of dat/Wiz-loca.lua followed by #wizmap; the saved C trace locates the divergent draw at generate_stairs_find_room(mklev.c:2236)."
+    ],
+    "dependencies": [
+      "mkroom.c:has_dnstairs() and has_upstairs() are already implemented as js/mkroom.js:has_dnstairs()/has_upstairs(); both delegate to the existing room_coordinates.js:inside_room() source port. No ownership expansion into these helpers is needed.",
+      "room_coordinates.js:inside_room() already matches the C rule: irregular rooms use their room number and reject edge tiles; regular rooms include the rectangle expanded by one tile. The defect is that mklev.js:generate_stairs_room_good() bypasses these helpers and checks the unexpanded bounds for every room.",
+      "The two selected mklev.c functions have existing JavaScript implementations in js/mklev.js and all three C call sites retain existing JavaScript wiring in that module. This task will correct the complete predicate and keep the phase selection, candidate ordering, and RNG calls unchanged."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Authoritative saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json has SHA-256 788ffb0215945f980560974d2187c68156fc89d7a46b865655e161d65ee1d2f9. Its v43 entry identifies v43-wiz-loca-special-program-cfirst, 35/35 screens, 35/35 cursors, 4321/4322 RNG calls matched, and the first mismatch at segment 0 step 26 on newline: C rn2(4)=2 at generate_stairs_find_room(mklev.c:2236), JavaScript rn2(2)=0.",
+    "Queue provenance: manifest challenges/manifests/v43.json SHA-256 a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400; recording challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json SHA-256 f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224; recipe challenges/cases/v43/v43-wiz-loca-special-program-cfirst.recipe.session.json SHA-256 63daea169ed14512eead2eaf578fe378458f8a7765a5bb0dcc5c46f23f039316; replay input SHA-256 cb067c44d9035e95bdc931ce11e561804ae446d54200a404c243e2272101527c. The saved evaluation is challenges/evaluations/accepted-d2438d33b21ca5ecdd867cacd2b73876e21d274f-v43.json at commit d2438d33b21ca5ecdd867cacd2b73876e21d274f.",
+    "Upstream source mklev.c:generate_stairs_room_good() at lines 2201-2215 delegates stair checks to mkroom.c:has_dnstairs()/has_upstairs() at lines 639-663. Those helpers use mkroom.c:inside_room() at lines 677-687: irregular rooms require a matching roomno on a non-edge tile, while regular rooms use bounds expanded by one. The JavaScript predicate at mklev.js:7360-7373 instead searches every stair and requires its coordinate to lie inside the room's raw lx..hx/ly..hy rectangle.",
+    "The selected dat/Wiz-loca.lua source creates concentric irregular rooms whose rectangular bounds overlap. A read-only JS replay probe of the resulting five-room layout showed both stair coordinates fall inside the raw bounds of outer rooms 0 and 1, but neither coordinate belongs to those rooms under canonical irregular roomno/edge membership. The existing manual predicate therefore marks those parent rooms as stair-bearing and drops two otherwise eligible candidates, producing the saved rn2(2) call instead of C's rn2(4).",
+    "The candidate-selection loop and RNG behavior in mklev.js:generate_stairs_find_room() otherwise match C: phases 2, 1, 0 are visited in order, room indices are appended in source order, the first nonempty group consumes one rn2(group size), and the fallback consumes rn2(nroom). Correcting the room predicate should restore candidate membership without adding random calls or changing caller wiring. A source-pinned pure predicate test and fresh differential will verify the change."
+  ],
+  "session": "synthetic/v43/v43-wiz-loca-special-program-cfirst",
+  "manifestPath": "challenges/manifests/v43.json",
+  "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+  "recordingSha256": "f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224",
+  "evaluationPath": "challenges/evaluations/accepted-d2438d33b21ca5ecdd867cacd2b73876e21d274f-v43.json",
+  "evaluationCommit": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
+  "recordedSteps": 35
+}
