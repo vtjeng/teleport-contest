@@ -276858,7 +276858,7 @@
     {
       "id": "port-pray-desecrate-altar-v47-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port altar desecration and wire every active caller",
       "cFile": "pray.c",
       "sessions": [
@@ -276872,8 +276872,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4d4cf4f6962c13e1593841d07199632101339cd4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "desecrate_altar",
@@ -277276,6 +277279,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4d4cf4f6962c13e1593841d07199632101339cd4",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
