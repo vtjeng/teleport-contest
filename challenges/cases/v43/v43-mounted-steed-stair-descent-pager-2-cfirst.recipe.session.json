@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Pager-tail setup probe retained: one space advances the first combat message, and the prior > was still consumed at a second --More-- boundary. Add a second space before retrying >.",
+  "segments": [
+    {
+      "seed": 43000041,
+      "datetime": "20520320110523",
+      "nethackrc": "OPTIONS=name:V43RideDown,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u00173 blessed potions of full healing\nqoqoqo\u0007tame saddled pony\n#ride\nyy#wizmap\njlljjjjjkkkkkkllllllklkllllljjjjjlljjjljjjjjjhhh>#wizmap\njjlljjjljjjjjjhhh>#wizmap\nj > >"
+    }
+  ]
+}

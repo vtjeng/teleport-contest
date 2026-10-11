@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050015,
+      "datetime": "20530203121314",
+      "nethackrc": "OPTIONS=name:V43Demonpet,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #polyself\npit fiend\n\u0007hostile iron golem\nFn"
+    }
+  ],
+  "comment": "Direction correction from the observed map: the golem apostrophe is one row below and one column right of the Pit Fiend, so n is the C keypad southeast direction. This single C-first attack preserves the prior thin-air direction probes and confirms the first actual target branch."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050021,
+      "datetime": "20530121121314",
+      "nethackrc": "OPTIONS=name:V43KopDeath,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".  \u0007Keystone Kop\n     #wizkill\n   m.\u001b",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first v43 setup correction: two startup spaces clear Wizard welcome/new-moon pages before Ctrl-G creates a Keystone Kop; then #wizkill selects the adjacent monster. Candidate owner is mon.c:mondead S_KOP rnd(5). Preserve the previous startup-miss attempt. No JS comparison until C proves the Kop death branch and an independent replay matches."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050052,
+      "datetime": "20530214121314",
+      "nethackrc": "OPTIONS=name:V43BridgeCellScan,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ncastle.lua\n#wizmap\n\u0017wand of striking\n\u0014  hhkkkkhjljhllkkh\u001b"
+    }
+  ],
+  "comment": "C-only source map query. After the Castle level and striking wand, open wizard getpos, dismiss its two pages, sample accessible/drawn terrain around the source bridge and DBWALL coordinates via cursor movement, then cancel. Use C’s terrain descriptions to correct the legal teleport destination before the counted route."
+}

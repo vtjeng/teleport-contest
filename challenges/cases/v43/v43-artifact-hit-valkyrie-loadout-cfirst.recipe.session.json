@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050024,
+      "datetime": "20530124121314",
+      "nethackrc": "OPTIONS=name:V43ArtHit,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nExcalibur\ni\n#wizgenesis\nhostile zombie\n#wizmap\n"
+    }
+  ],
+  "comment": "C-only corrected setup for artifact.c:artifact_hit. Valkyrie lawful alignment avoids Excalibur disintegration; inspect inventory selector and adjacent zombie before the independent attack route."
+}

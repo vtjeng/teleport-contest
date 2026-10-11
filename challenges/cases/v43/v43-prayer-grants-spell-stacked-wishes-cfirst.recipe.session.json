@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050426,
+      "datetime": "20531026121314",
+      "nethackrc": "OPTIONS=name:V43SpellFavor,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".l\u0017blessed luckstone\n,\u0017neutral altar\n\u0017white unicorn corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n #offer\no\ny  #offer\np\ny  #offer\nq\ny  #offer\nr\ny  #offer\ns\ny  #offer\nt\ny  #offer\nu\ny  #offer\nv\ny  #pray\ny y        ..."
+    }
+  ],
+  "comment": "C-first source candidate for pray.c:pleased -> give_spell. Wish a luckstone, neutral altar, one lawful white unicorn corpse and seven red dragon corpses before offering any of them. This tests the source-relevant queued-wishes state: zap.c makewish increases u.ublesscnt, while aligned altar sacrifices reduce it; batching the high-value corpses lets the route reach positive Luck after the cooldown clears. Offer the pile in its observed floor-letter order with per-corpse confirmation, then use the wizard prayer-confirmation path and advance through pagers to inspect the actual pleased() case."
+}

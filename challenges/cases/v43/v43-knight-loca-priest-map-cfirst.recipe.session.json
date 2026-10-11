@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source setup for the Kni-loca shrine/priest. Load the Lua program, dismiss its confirmed entry pager, then map the full level so the hero, altar, priest and route can be identified before attempting any combat or offering. This is a map-only setup probe.",
+  "segments": [
+    {
+      "seed": 43100018,
+      "datetime": "20521115101500",
+      "nethackrc": "OPTIONS=name:V43TempleMap,role=Knight,race=human,gender=female,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nKni-loca.lua\n\n#wizmap\n"
+    }
+  ]
+}

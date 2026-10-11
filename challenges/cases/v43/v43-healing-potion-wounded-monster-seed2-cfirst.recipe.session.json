@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050050,
+      "datetime": "20530211121314",
+      "nethackrc": "OPTIONS=name:V43WoundedMonster,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017potion of healing\n #wizgenesis\nhostile ogre\nFb tfb"
+    }
+  ],
+  "comment": "C-first independent seed retry based on the recorded map: the ogre glyph O is one row below and one column left of the hero, so b attacks southwest. The wish put the potion in slot f. One attack precedes the throw; inspect the recorded message/HP to confirm the potion reaches a wounded target and mon.c:healmon."
+}

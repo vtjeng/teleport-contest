@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050017,
+      "datetime": "20530109121314",
+      "nethackrc": "OPTIONS=name:V43LampFloorRadius,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017oil lamp\nai di"
+    }
+  ],
+  "comment": "Independent C-first test of a lit inventory lamp dropped onto ordinary floor. The source observation must confirm end_burn/obj_adjust_light_radius changes the map light source; this is separate from engulf snuff behavior."
+}

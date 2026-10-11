@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Final C-first high-level first-prayer candidate. The prior C screens showed #levelchange produced individual More pages for levels 2 through 12 and needed one final newline to clear the level-12 page. This recipe applies exactly those C-derived acknowledgments, then makes one first prayer at the neutral shrine with no prior prayer or offering cooldown. No JavaScript result informed the correction.",
+  "segments": [
+    {
+      "seed": 43050123,
+      "datetime": "20530323121314",
+      "nethackrc": "OPTIONS=name:V43FreshPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".l\u0017blessed luckstone\n,\u0017neutral altar\n#levelchange\n12\n\n\n\n\n\n\n\n\n\n\n\n#pray\ny\nn..."
+    }
+  ]
+}

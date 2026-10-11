@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Second independently selected C-first attempt to find an initialized keeper on ordinary D:4. A new seed, date, role race/alignment, and movement order vary dungeon generation. Load D:4, inspect its C map, then detect monsters before a final map; this remains setup evidence unless C shows a shopkeeper.",
+  "segments": [
+    {
+      "seed": 43050315,
+      "datetime": "20521011121314",
+      "nethackrc": "OPTIONS=name:V43TameShopAlt2,role:Wizard,race:human,gender=male,align=chaotic,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n4\n#wizmap\n#wizdetect\n#wizmap\n"
+    }
+  ]
+}

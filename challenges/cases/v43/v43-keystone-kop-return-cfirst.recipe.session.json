@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050020,
+      "datetime": "20530120121314",
+      "nethackrc": "OPTIONS=name:V43KopDeath,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007Keystone Kop\n#wizkill\n  m.\u001b",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first v43 candidate: create one Keystone Kop with the wizard monster generator and kill it through #wizkill. Candidate source branch is mon.c:mondead S_KOP rnd(5), which may recreate the Kop. Retain only if C confirms the Kop-death branch and a fresh independent replay matches the recording. No JavaScript differential before C reachability and replay are established."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050071,
+      "datetime": "20530311121314",
+      "nethackrc": "OPTIONS=name:V43WoundedMonster,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017potion of blindness\n\u0017blessed potion of healing\n\u0017blessed potion of healing\n#wizgenesis\nhostile ogre\ntol\n\n\ntpl\n"
+    }
+  ],
+  "comment": "C-observed direction correction: the seed-71 screenshot places the ogre east of the hero, so both the blindness and healing potion throws use l. The prior y route hit the wall and preserved its setup miss. Dismiss the C-confirmed healing-potion hit pager to capture the resulting healmon/mcureblindness messages and final blind-state transition."
+}

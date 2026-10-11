@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050051,
+      "datetime": "20530213121314",
+      "nethackrc": "OPTIONS=name:V43BridgeZap,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ncastle.lua\n#wizmap\n\u0017wand of striking\nkkzoh"
+    }
+  ],
+  "comment": "C-first candidate for the explicitly unported dbridge.c:destroy_drawbridge path. Load dat/castle.lua so the real closed drawbridge exists, expose the map, and wish a wand of striking before selecting the precise target/direction from C state. The C map places the hero near the source bridge; move two squares north, then fire the striking wand west at the castle drawbridge/portcullis."
+}

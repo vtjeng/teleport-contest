@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050107,
+      "datetime": "20530307121314",
+      "nethackrc": "OPTIONS=name:V43KniGoal,role=Knight,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nKni-loca.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "Exploratory C-first candidate for Kni-loca.lua, whose source defines a temple room and priest setup. Load under Knight role and expose the map; preserve any context failure, and do not compare JavaScript until the C-first slate is complete."
+}

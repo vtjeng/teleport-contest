@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050137,
+      "datetime": "20530406121314",
+      "nethackrc": "OPTIONS=name:V43Sacrifice,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nblessed scroll of teleportation\n#wizloaddes\nKni-loca.lua\n rn   _.  #wizwish\nhuman corpse\n #offer\ny"
+    }
+  ],
+  "comment": "Corrected C-first offering recipe after C confirmed `neutral altar` selection, shrine entry, and `A human corpse lands on the altar.` Dismiss the corpse-drop pager before issuing #offer; preserve earlier pager failures. Keep only if C confirms the own-race sacrifice and priest.c:angry_priest branch."
+}

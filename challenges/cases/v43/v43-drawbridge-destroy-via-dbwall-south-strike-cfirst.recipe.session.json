@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050052,
+      "datetime": "20530214121314",
+      "nethackrc": "OPTIONS=name:V43BridgeDBWall,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ncastle.lua\n#wizmap\n\u0017+7 wand of striking\n\u0014  hhkkkk.zpj"
+    }
+  ],
+  "comment": "Correct target direction from source geometry: castle.lua defines an east-facing bridge at (5,8), so get_wall_for_db places its DBWALL at (6,8). From the C-verified clear floor (6,7), zap south (j) to strike the portcullis wall, not southwest into the bridge surface/adjacent wall."
+}

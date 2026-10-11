@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only setup probe for shk.c:check_unpaid_usage's altusage bag branch. Load the source-defined Minetown-3 shop map, map the hero's square and shops, wish a bag of tricks, and inspect inventory before freezing any guessed apply selector. This probe is not a JavaScript comparison and will remain a miss unless C confirms an unpaid bag with an active shopkeeper.",
+  "segments": [
+    {
+      "seed": 43050013,
+      "datetime": "20530113121314",
+      "nethackrc": "OPTIONS=name:V43ShopCharge,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-3.lua\n#wizmap\n\u0017bag of tricks\ni"
+    }
+  ]
+}

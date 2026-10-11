@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050106,
+      "datetime": "20530306121314",
+      "nethackrc": "OPTIONS=name:V43valkyrie,role=Valkyrie,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nval-strt.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "Exploratory C-first candidate for the unrepresented Valkyrie quest Lua source val-strt.lua. Use the matching role, load the source directly through the debug special-level loader, and expose its generated map. No JavaScript comparison until all C-first routes and independent replays are complete."
+}

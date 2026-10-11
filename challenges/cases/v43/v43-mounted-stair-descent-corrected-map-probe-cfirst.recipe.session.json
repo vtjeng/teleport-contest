@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Setup miss preserved: C placed the pony north of the hero, so the south ride direction failed. Corrected route uses north after the observed map position, then displays the map.",
+  "segments": [
+    {
+      "seed": 43000041,
+      "datetime": "20520320110523",
+      "nethackrc": "OPTIONS=name:V43RideDown,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u00173 blessed potions of full healing\nqoqoqo\u0007tame saddled pony\n#ride\nky#wizmap\n"
+    }
+  ]
+}

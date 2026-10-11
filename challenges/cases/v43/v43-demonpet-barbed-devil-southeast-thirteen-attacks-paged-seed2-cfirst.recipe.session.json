@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050045,
+      "datetime": "20530207121314",
+      "nethackrc": "OPTIONS=name:V43Demonpet,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #polyself\nbarbed devil\n\u0007hostile iron golem\nFn n n n n n n n n n n n n "
+    }
+  ],
+  "comment": "C-first source-gate route. The iron golem is southeast, and every previous combat result displays a More prompt: dismiss it with space, then attack again with n. The hero remains an unarmed polymorphed barbed devil; continue up to thirteen hits to reach the 1-in-13 damageum demonpet gate if it occurs."
+}

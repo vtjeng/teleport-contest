@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43051013,
+      "datetime": "20540212131415",
+      "nethackrc": "OPTIONS=name:V43Vorpal20,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                                   #wizwish\nVorpal Blade\n#wizgenesis\nhostile jabberwock\nwoFj"
+    }
+  ],
+  "comment": "Corrected from the prior C state: the level-20 Wizard receives Vorpal Blade in slot o (n is a magic marker), and the Jabberwock is south of @. Wield o and force-fight south. The slot/direction miss is preserved separately."
+}

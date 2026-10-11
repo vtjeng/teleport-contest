@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050008,
+      "datetime": "20530209121314",
+      "nethackrc": "OPTIONS=name:V43SpellPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .\u0017neutral altar\n\u0017blessed luckstone\n,n\u0017newt corpse\n#offer\no\ny"
+    }
+  ],
+  "comment": "C-first correction based only on the source recording: the luckstone was floor letter n and the newt corpse was floor letter o. Select the luckstone explicitly to avoid moving the altar, then choose the observed corpse letter at #offer; preserve the invalid p/blank-pickup attempt."
+}

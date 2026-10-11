@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v43 replacement candidate. Move from the observed starting tile toward the middle of the open startup room, wish a rolling-boulder trap, then step off and back. Keep only if C find_random_launch_coord creates a boulder and the trigger reaches the successful launch arm, distinct from v12’s matching no-boulder result.",
+  "segments": [
+    {
+      "seed": 43050412,
+      "datetime": "20521011161400",
+      "nethackrc": "OPTIONS=name:V43RollingLaunch,role:Wizard,race:human,gender=male,align:neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "  lll#wizwish\nrolling boulder trap\nlh"
+    }
+  ]
+}
