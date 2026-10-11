@@ -133,7 +133,8 @@ test('polymon preserves its C return and post-form branch order', () => {
     assert.match(js,
         /if \(u\.uswallow\)[\s\S]*?await expels\(engulfer[\s\S]*?wasExpelled = true/u);
     assert.match(js, /else if \(sticking && !sticks\(state\.youmonst\.data\)\)\s*\{\s*await uunstick/u);
-    assert.match(js, /if \(!can_ride\(u\.usteed, state\)\)\s*note_unported\('steed\.c dismount_steed'\)/u);
+    assert.match(js,
+        /if \(!can_ride\(u\.usteed, state\)\)\s*await dismount_steed\(DISMOUNT_POLY, state, env\)/u);
     assert.match(js, /await buried_ball_to_freedom\(state, env\)/u);
     assert.doesNotMatch(js,
         /note_unported\('dig\.c buried_ball_to_freedom'\)/u);
