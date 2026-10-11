@@ -270841,14 +270841,14 @@
           "line": 204,
           "endLine": 236,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "vault_summon_gd",
           "line": 237,
           "endLine": 243,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -270860,17 +270860,17 @@
           "name": "gd_sound",
           "line": 1272,
           "endLine": 1277,
-          "declared": false,
+          "declared": true,
           "sourceFile": "vault.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "vault_gd_watching",
           "line": 1278,
           "endLine": 1289,
-          "declared": false,
+          "declared": true,
           "sourceFile": "vault.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -271152,7 +271152,241 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "findgd",
+            "implementation": "js/vault.js",
+            "symbol": "findgd",
+            "sourceReview": "Read vault.c:204-234 in full. Checked the on-level list first (including healing a parked guard at <0,0> until gddone), then the pointer-to-pointer gm.migrating_mons scan, unlink/head insertion, mon_track_clear, mux/muy assignment, mx=my=0, parkguard, and null return in source order. No random draw or message; it mutates guard/list state. Existing callers vault_summon_gd, invault, paygd, gd_sound, vault_gd_watching, and teleport.c:teleds all resolve to this canonical implementation. teleds records the still-unported void vault.c:uleftvault exit effect with note_unported when leaving a vault.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "vault_summon_gd",
+                "source": "vault.c:vault_summon_gd"
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "invault",
+                "source": "vault.c:invault"
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "paygd",
+                "source": "vault.c:paygd"
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "gd_sound",
+                "source": "vault.c:gd_sound"
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "vault_gd_watching",
+                "source": "vault.c:vault_gd_watching"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "teleds",
+                "source": "teleport.c:teleds"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs",
+              "scripts/paybill-end-cleanup.test.mjs",
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json",
+              "recordings/vault.c/guard-watch-floor-gold-no-guard.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 133,
+                "source": "apply.c:use_whistle -> vault.c:vault_summon_gd -> findgd; moveloop -> vault.c:invault -> findgd"
+              },
+              {
+                "batch": "v45",
+                "caseId": "v45-voluntary-quit-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 8,
+                "source": "end.c:really_done -> vault.c:paygd -> findgd"
+              }
+            ],
+            "checkedAt": "7aca5589172c6091c90e84fb387b1b3b1fe06e83"
+          },
+          {
+            "name": "vault_summon_gd",
+            "implementation": "js/vault.js",
+            "symbol": "vault_summon_gd",
+            "sourceReview": "Read vault.c:237-241 in full. Preserved the short-circuit order: only when vault_occupied(u.urooms) is true does it call findgd; it sets u.uinvault to VAULT_GUARD_TIME-1 only when findgd returns null.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_whistle",
+                "source": "apply.c:use_whistle"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-whistle.test.mjs",
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 133,
+                "source": "apply.c:use_whistle -> vault_summon_gd"
+              }
+            ],
+            "checkedAt": "7aca5589172c6091c90e84fb387b1b3b1fe06e83"
+          },
+          {
+            "name": "gd_sound",
+            "implementation": "js/vault.js",
+            "symbol": "gd_sound",
+            "sourceReview": "Read vault.c:1272-1275 in full. Kept the negated short-circuit expression: occupied vault returns false without findgd; otherwise findgd runs and may park a migrating guard, and the result is negated.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "dosounds",
+                "source": "sounds.c:dosounds -> gd_sound"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sounds.test.mjs",
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "7aca5589172c6091c90e84fb387b1b3b1fe06e83"
+          },
+          {
+            "name": "vault_gd_watching",
+            "implementation": "js/vault.js",
+            "symbol": "vault_gd_watching",
+            "sourceReview": "Read vault.c:1278-1285 in full. Preserved findgd first, then the on-map, mcansee and m_canseeu short-circuit visibility checks, and only wrote EGD(guard).witness for GD_EATGOLD or GD_DESTROYGOLD. The C caller discards the return (void).",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "eatspecial",
+                "source": "eat.c:eatspecial -> vault_gd_watching"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-watch-floor-gold-no-guard.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "7aca5589172c6091c90e84fb387b1b3b1fe06e83"
+          }
+        ],
+        "entryPointReview": "The selected source units are reached through apply.c:use_whistle (cursed ordinary whistle), sounds.c:dosounds (vault-footsteps gate), eat.c:eatspecial (floor gold consumption), and teleport.c:teleds (same-level teleport lookup). Existing vault.c:invault and paygd callers also use the canonical findgd implementation; v45 cursed-whistle and voluntary-quit ranges cover those calls. The new no-guard floor-gold recipe calls vault_gd_watching through eat.c without activating the later gd_move witness branch. A guard-visible witness branch is pinned by the focused source test; an attempted live-guard C recipe reaches the known downstream vault.c:gd_move witness gap on the following monster turn and is not claimed as a passing recording. teleds leaving the vault still records the discarded void callee vault.c:uleftvault as an explicit gap.",
+        "entryPoints": [
+          {
+            "name": "Cursed whistle in occupied vault",
+            "functions": [
+              "vault_summon_gd",
+              "findgd"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 133,
+                "source": "apply.c:use_whistle -> vault_summon_gd -> findgd"
+              }
+            ]
+          },
+          {
+            "name": "Global vault-footsteps check",
+            "functions": [
+              "gd_sound",
+              "findgd"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Eat floor gold in vault",
+            "functions": [
+              "vault_gd_watching",
+              "findgd"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-watch-floor-gold-no-guard.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Same-level teleport while in vault",
+            "functions": [
+              "findgd"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-watch-floor-gold-no-guard.session.json",
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "End game with no active vault guard",
+            "functions": [
+              "findgd"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-voluntary-quit-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 8,
+                "source": "end.c:really_done -> paygd -> findgd"
+              }
+            ]
+          },
+          {
+            "name": "Turn-based vault guard discovery",
+            "functions": [
+              "findgd"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 133,
+                "source": "moveloop -> invault -> findgd"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
