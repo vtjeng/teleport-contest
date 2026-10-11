@@ -273851,6 +273851,14 @@
           "declared": true,
           "sourceFile": "mkroom.c",
           "complete": true
+        },
+        {
+          "name": "check_special_room",
+          "line": 3626,
+          "endLine": 3780,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -274156,7 +274164,7 @@
               "recordings/mkroom.c/mkswamp-depth16-arrival-outside-seed46101145.session.json"
             ],
             "synthetic": [],
-            "checkedAt": "869749842a7a4bfb78e9ee657874d0bf21028a1d"
+            "checkedAt": "9dcae1bcb35d4f2c923eae4a870ec6e73a4544ad"
           },
           {
             "name": "nexttodoor",
@@ -274182,10 +274190,89 @@
             ],
             "recordings": [],
             "synthetic": [],
-            "checkedAt": "869749842a7a4bfb78e9ee657874d0bf21028a1d"
+            "checkedAt": "9dcae1bcb35d4f2c923eae4a870ec6e73a4544ad"
+          },
+          {
+            "name": "check_special_room",
+            "implementation": "js/rooms.js",
+            "symbol": "check_special_room",
+            "sourceReview": "Read and ported the complete upstream hack.c:check_special_room (3626-3780). The implementation preserves move_update order; all special-room messages and temple/shop dispatch; blindness-sensitive SWAMP text; room_discovered state capture; one-time reset and has_* flag clearing; the source wake loop and RNG order; and the original encoded roomno/index comparison behavior. The old UnsupportedHeroMoveBoundaryError refusal is removed. Dynamic imports avoid module cycles while preserving the C call order.",
+            "callers": [
+              {
+                "path": "js/allmain.js",
+                "symbol": "newgame",
+                "source": "allmain.c:newgame:810"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "makemap_prepost",
+                "source": "cmd.c:makemap_prepost:1025,1062"
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c:goto_level:1615,1976"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "hurtle_step",
+                "source": "dothrow.c:hurtle_step:921"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "pooleffects",
+                "source": "hack.c:pooleffects:3287"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c:spoteffects:3352"
+              },
+              {
+                "path": "js/priest.js",
+                "symbol": "move_special",
+                "source": "priest.c:move_special:126"
+              },
+              {
+                "path": "js/jsmain.js",
+                "symbol": "runSegment",
+                "source": "restore.c:dorecover:949"
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "after_shk_move",
+                "source": "shk.c:after_shk_move:5006; callers include shk.c:shk_move, shk.c:home_shk, and monmove.c:postmov"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloc_to",
+                "source": "teleport.c:rloc_to_core:1693"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/level-arrival.test.mjs",
+              "scripts/priest.test.mjs",
+              "scripts/shk-move.test.mjs",
+              "scripts/monmove.test.mjs",
+              "scripts/restore-command.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "hack.c",
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-random-swamp-room-depth16-seed46101100",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 27,
+                "source": "cmd.c:makemap_prepost -> do.c:goto_level -> hack.c:check_special_room (SWAMP entry, room discovery/reset, and wake handling)"
+              }
+            ],
+            "checkedAt": "9dcae1bcb35d4f2c923eae4a870ec6e73a4544ad"
           }
         ],
-        "entryPointReview": "The recorder-backed impure entry point is depth-selected SWAMP generation: mklev.c:makelevel -> mkroom.c:do_mkroom(SWAMP) -> mkswamp, exercised by the independent matching recording; that same path exercises nexttodoor. The optional wizard SHOPTYPE override is source-traced but is not a replayable per-session entry point. Upstream mklev.c:1347-1348 selects do_mkroom(SHOPBASE) only when wizard and nh_getenv(\"SHOPTYPE\") are true; mkroom.c:mkshop at 102-143 reads SHOPTYPE and dispatches '}' to mkswamp. This C branch is compiled, but v5 sessions cannot bind the environment to one case: scripts/record-session.mjs:374-380 only validates version and segments, and recordSegment at 448-476 reads seg.nethackrc while constructing the child environment from process.env and fixed recorder values; it never reads a per-segment env field. Its output code at 758-762 preserves unknown segment fields without applying them. Thus ambient SHOPTYPE can affect an ad hoc recording invocation, but no serialized per-case value survives to replay, so that external environment variant is excluded from the active recorded entryPoints list. The JS branch remains source-pinned by scripts/mkroom-shop.test.mjs:580-605, which verifies the wizard SHOPTYPE='}' dispatch, mkswamp call and immediate return. fountain.c:gush is the second caller of pure nexttodoor; scripts/fountain.test.mjs exercises the shared helper through dogushforth. The admitted v46 replay reaches a separate, out-of-scope hack.c:check_special_room SWAMP-entry boundary after level generation.",
+        "entryPointReview": "The recorder-backed impure entry point is depth-selected SWAMP generation: mklev.c:makelevel -> mkroom.c:do_mkroom(SWAMP) -> mkswamp, exercised by the independent matching recording; that same path exercises nexttodoor. The optional wizard SHOPTYPE override is source-traced but is not a replayable per-session entry point. Upstream mklev.c:1347-1348 selects do_mkroom(SHOPBASE) only when wizard and nh_getenv(\"SHOPTYPE\") are true; mkroom.c:mkshop at 102-143 reads SHOPTYPE and dispatches '}' to mkswamp. This C branch is compiled, but v5 sessions cannot bind the environment to one case: scripts/record-session.mjs:374-380 only validates version and segments, and recordSegment at 448-476 reads seg.nethackrc while constructing the child environment from process.env and fixed recorder values; it never reads a per-segment env field. Its output code at 758-762 preserves unknown segment fields without applying them. Thus ambient SHOPTYPE can affect an ad hoc recording invocation, but no serialized per-case value survives to replay, so that external environment variant is excluded from the active recorded entryPoints list. The JS branch remains source-pinned by scripts/mkroom-shop.test.mjs:580-605, which verifies the wizard SHOPTYPE='}' dispatch, mkswamp call and immediate return. fountain.c:gush is the second caller of pure nexttodoor; scripts/fountain.test.mjs exercises the shared helper through dogushforth. The admitted v46 replay reaches the SWAMP-entry branch of hack.c:check_special_room after level generation; this is now implemented and verified through the complete selected session. The complete hack.c:check_special_room helper now covers all switch arms and shared reset/wake behavior. The direct active source caller inventory is: allmain.c:newgame; cmd.c:makemap_prepost; do.c:goto_level; dothrow.c:hurtle_step; hack.c:pooleffects; hack.c:spoteffects; priest.c:move_special; restore.c:dorecover; shk.c:after_shk_move; and teleport.c:rloc_to_core. Their active JavaScript counterparts are listed on the function evidence. Existing direct caller sites remain wired; this correction adds async/order-preserving wiring for priest movement, restored-game placement, and shopkeeper movement/re-entry. The v46 selected replay exercises the SWAMP room-entry arm through level transition and now matches through the complete admitted session.",
         "entryPoints": [
           {
             "name": "Depth-selected SWAMP level generation",
@@ -274197,6 +274284,26 @@
               "recordings/mkroom.c/mkswamp-depth16-arrival-outside-seed46101145.session.json"
             ],
             "synthetic": []
+          },
+          {
+            "name": "SWAMP entry after wizard level transition",
+            "functions": [
+              {
+                "sourceFile": "hack.c",
+                "name": "check_special_room"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-random-swamp-room-depth16-seed46101100",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 27,
+                "source": "cmd.c:makemap_prepost -> do.c:goto_level -> hack.c:check_special_room (SWAMP message, discovery/reset, and wake loop)"
+              }
+            ]
           }
         ]
       }
