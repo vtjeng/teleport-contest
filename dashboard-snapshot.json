@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T02:16:10.391Z",
+  "capturedAt": "2026-10-11T02:33:19.496Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -85560,22 +85560,120 @@
         "at": "2026-10-11T02:15:55.889Z",
         "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011",
         "delivery": "4eebdbb5df69f470f3fb410461520fdafd5b96b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-v43-keystone-ready-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:16:14.550Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C submitted the completed Kop and vault guard task; its natural runtime recordings now match and it awaits integration review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v43-makewish-red-dragon-corpse-stack-20261011-c32ff6c5f80842623cecacc3e09a12370ed6dadc",
+        "type": "published",
+        "at": "2026-10-11T02:16:19.353Z",
+        "task": "B-investigation-v43-makewish-red-dragon-corpse-stack-20261011",
+        "commit": "c32ff6c5f80842623cecacc3e09a12370ed6dadc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-boulder-submit-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:17:22.265Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v43-quest-nemesis-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T02:17:26.070Z",
+        "task": "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v43-quest-nemesis-await-C-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:18:08.938Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Waiting for C’s mon.c delivery to clear and for a refreshed queue to confirm the quest-nemesis case still mismatches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-v43-kop-a301ece4d",
+        "type": "received",
+        "at": "2026-10-11T02:18:33.017Z",
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
+        "delivery": "a301ece4d8b5383d2f73b45a61b6cb4ff9adbb3d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v43-wiz-loca-special-program-20261011",
+        "type": "assign",
+        "at": "2026-10-11T02:19:24.011Z",
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-active-v43-wiz-loca-investigation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:19:42.579Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C submitted the Kop and vault guard fix, then claimed the independent v43 Wizard location special-level case for source investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-v43-kop-1f2a222c9c4",
+        "type": "integrating",
+        "at": "2026-10-11T02:25:29.086Z",
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
+        "integration": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v43-priest-delivery-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:30:35.623Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 completed the priest response and active altar-name caller wiring; all focused checks pass and delivery is being prepared."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-v43-kop-38105131808",
+        "type": "validated",
+        "at": "2026-10-11T02:30:57.816Z",
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-52e80dc0bb1d38dd285cd3a6eddcdffbb615d83b",
+        "type": "ready",
+        "at": "2026-10-11T02:31:43.046Z",
+        "task": "A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011",
+        "delivery": "52e80dc0bb1d38dd285cd3a6eddcdffbb615d83b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v43-keystone-kop-return-startup2-20261011-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T02:32:37.203Z",
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
-        "worker": "C",
-        "goal": "port-v43-keystone-kop-mondead-vault-guard-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "a301ece4d8b5383d2f73b45a61b6cb4ff9adbb3d",
-        "since": "2026-10-11T02:15:29.077Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011",
         "worker": "B",
@@ -85584,6 +85682,17 @@
         "status": "ready",
         "delivery": "4eebdbb5df69f470f3fb410461520fdafd5b96b6",
         "since": "2026-10-11T02:15:55.889Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011",
+        "worker": "A2",
+        "goal": "fix-v43-priest-ghod-hitsu-north-corrected-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "52e80dc0bb1d38dd285cd3a6eddcdffbb615d83b",
+        "since": "2026-10-11T02:31:43.046Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -85934,8 +86043,8 @@
     ]
   },
   "development": {
-    "executionCommit": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
-    "measuredAt": "2026-10-11T02:14:02.267Z",
+    "executionCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+    "measuredAt": "2026-10-11T02:30:15.435Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

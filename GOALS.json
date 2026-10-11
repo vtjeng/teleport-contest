@@ -262411,7 +262411,7 @@
     {
       "id": "port-v43-keystone-kop-mondead-vault-guard-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete Keystone Kop death and vault guard removal paths",
       "cFile": "mon.c",
       "sessions": [
@@ -262425,15 +262425,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mondead",
           "line": 3081,
           "endLine": 3180,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -262447,7 +262450,7 @@
           "endLine": 3286,
           "declared": true,
           "sourceFile": "mon.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "clear_fcorr",
@@ -262455,7 +262458,7 @@
           "endLine": 122,
           "declared": true,
           "sourceFile": "vault.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "parkguard",
@@ -262463,15 +262466,15 @@
           "endLine": 174,
           "declared": true,
           "sourceFile": "vault.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "grddead",
           "line": 175,
           "endLine": 191,
-          "declared": false,
+          "declared": true,
           "sourceFile": "vault.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "in_fcorridor",
@@ -262479,7 +262482,7 @@
           "endLine": 203,
           "declared": true,
           "sourceFile": "vault.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -262657,7 +262660,252 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mondead",
+            "implementation": "js/mon.js",
+            "symbol": "mondead",
+            "sourceReview": "Read the complete mon.c:mondead() definition at lines 3081-3177. The port clears iflags.sad_feeling, handles lifesaving and vampire reversion, emits the pending sad-pet message, creates the harmless steam-vortex cloud, awaits grddead for vault guards and stops when it refuses disposal, restores form, increments the death count, logs/unmaps/detaches, then handles the Kop rnd(5) and makemon branches in C order. The discarded makemon results remain discarded. No refusal remains in the changed arms. The vault branch uses the complete same-task grddead family and the accepted A2 steal.c:relobj dependency at Main 043ba3ff2e1b7558f7e25ef1a9daa70130c173f6.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "xkilled",
+                "source": "cmd.c:#wizkill -> wizcmds.c:wiz_kill -> mon.c:xkilled -> mon.c:mondead; JavaScript runs cmd.js:runKillCommand -> wizcmds.js:wiz_kill -> mon.js:xkilled -> mon.js:mondead."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mondied",
+                "source": "mon.c:mondied calls mon.c:mondead before corpse handling; js/mon.js:mondied awaits mondead in the same order."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mondead",
+                "source": "The other active source callers include mon.c:minliquid_core, monstone, monkilled, kill_genocided_monsters, muse.c:mon_consume, explode.c:mon_explodes, mhitm.c:mon_explodes, and mhitu.c:gazeu; their existing JavaScript paths call the shared mon.js:mondead implementation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/keystone-kop-wizard-kill-runtime.session.json",
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-keystone-kop-return-startup2-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd.c:#wizkill -> wizcmds.c:wiz_kill -> mon.c:xkilled -> mon.c:mondead"
+              }
+            ],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "mongone",
+            "implementation": "js/mon.js",
+            "symbol": "mongone",
+            "sourceReview": "Read the complete mon.c:mongone() definition at lines 3267-3283. The port awaits grddead when isgd is set and returns without detach when grddead reports that the guard still occupies a fake-corridor square; the ordinary removal path continues to m_detach and dmonsfree. The return-bearing guard dependency is implemented in js/vault.js.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "restfakecorr",
+                "source": "vault.c:restfakecorr calls mongone(grd) after clear_fcorr succeeds; js/vault.js:restfakecorr calls mon.js:mongone."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_kill",
+                "source": "wizcmds.c:wiz_kill clears isgd and then calls mongone for the wizard removal route; js/wizcmds.js:wiz_kill awaits mon.js:mongone."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-kill.test.mjs",
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "clear_fcorr",
+            "implementation": "js/vault.js",
+            "symbol": "clear_fcorr",
+            "sourceReview": "Read vault.c:clear_fcorr() lines 48-116. The port checks the current level, source fake-corridor half-open range, hero/guard/ball occupancy, visibility and stopprint state; it waits for the pet yelp before restoring the map, applies blackout/unseen updates in loop order, advances fcbeg, emits the disappearance and encased messages, and returns the source boolean. grddead and restfakecorr consume that boolean. The direct C gd_move calls at lines 922 and 927 are in hostile paths still refused by the existing gd_move adapter and are outside this task scope; matching natural guard-death and escort-cleanup routes cover the implemented callers.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "grddead",
+                "source": "vault.c:grddead calls clear_fcorr(grd, TRUE) before and after parking the guard; js/vault.js:grddead awaits clear_fcorr and consumes both booleans."
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "restfakecorr",
+                "source": "vault.c:restfakecorr calls clear_fcorr(grd, FALSE) before mongone; js/vault.js:restfakecorr awaits clear_fcorr before removing the guard."
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "gd_move",
+                "source": "vault.c:gd_move has direct clear_fcorr calls at lines 922 and 927; the corresponding JavaScript hostile-guard route is an existing UnsupportedVaultGuardError and is explicitly outside this task."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json",
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "sourceFile": "vault.c",
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "parkguard",
+            "implementation": "js/vault.js",
+            "symbol": "parkguard",
+            "sourceReview": "Read the complete vault.c:parkguard() body at lines 155-171. It clears the polearm hitmon reference, removes and redraws the guard when mapped, moves it to (0,0) if needed, then stores the resulting coordinates in EGD. The same operations and order are implemented in js/vault.js.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "grddead",
+                "source": "vault.c:grddead calls parkguard after the first clear_fcorr returns false; js/vault.js:grddead awaits parkguard before retrying clear_fcorr."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "sourceFile": "vault.c",
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "grddead",
+            "implementation": "js/vault.js",
+            "symbol": "grddead",
+            "sourceReview": "Read the complete vault.c:grddead() body at lines 175-188. It calls clear_fcorr(TRUE), and on failure awaits the void side effects of relobj(grd, 0, FALSE), sets hp to zero, parks the guard, and retries clear_fcorr(TRUE), clearing isgd only when disposal succeeds. js/vault.js now awaits the accepted steal.js:relobj implementation for guard-gold removal and remaining inventory drops; no C return value is consumed.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mondead",
+                "source": "mon.c:mondead calls vault.c:grddead for isgd monsters and returns before detach when it is false; js/mon.js:mondead awaits vault.js:grddead and preserves that result."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mongone",
+                "source": "mon.c:mongone calls vault.c:grddead for isgd monsters and returns before detach when it is false; js/mon.js:mongone awaits vault.js:grddead and preserves that result."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs",
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "sourceFile": "vault.c",
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "in_fcorridor",
+            "implementation": "js/vault.js",
+            "symbol": "in_fcorridor",
+            "sourceReview": "Read the complete vault.c:in_fcorridor() definition at lines 192-201. It returns true only when (x,y) equals an active fakecorr entry in [fcbeg, fcend); the JavaScript loop uses the same bounds and comparisons.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "clear_fcorr",
+                "source": "vault.c:clear_fcorr calls in_fcorridor for hero occupancy; js/vault.js:clear_fcorr calls the same predicate."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "vault.c",
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          }
+        ],
+        "entryPointReview": "Active entry points for the assigned source units are a monster death through xkilled/mondead (including the admitted #wizkill Kop route), a vault guard death while occupying the temporary fake corridor (mondead -> grddead -> clear_fcorr -> relobj -> parkguard -> clear_fcorr), and a peaceful vault guard leaving after the escort (restfakecorr -> mongone). Independent recordings exercise each changed impure path; the admitted v43 Kop case now strictly matches through its final recorded step. in_fcorridor is pure and has a source-pinned boundary test. mon.c:mondead has additional existing callers that funnel into the same shared implementation and are enumerated in the source review. clear_fcorr also has direct C calls from vault.c:gd_move at lines 922/927, but those hostile-guard routes remain refused by the existing gd_move adapter and are outside this task; they are not claimed as covered entry points.",
+        "entryPoints": [
+          {
+            "name": "Wizard kills a Keystone Kop through #wizkill",
+            "functions": [
+              "mondead"
+            ],
+            "recordings": [
+              "recordings/mon.c/keystone-kop-wizard-kill-runtime.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-keystone-kop-return-startup2-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd.c:#wizkill -> wizcmds.c:wiz_kill -> mon.c:xkilled -> mon.c:mondead"
+              }
+            ]
+          },
+          {
+            "name": "Vault guard dies inside the temporary fake corridor",
+            "functions": [
+              "mondead",
+              {
+                "sourceFile": "vault.c",
+                "name": "grddead"
+              },
+              {
+                "sourceFile": "vault.c",
+                "name": "clear_fcorr"
+              },
+              {
+                "sourceFile": "vault.c",
+                "name": "parkguard"
+              }
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Peaceful vault guard leaves after its escort",
+            "functions": [
+              "mongone",
+              {
+                "sourceFile": "vault.c",
+                "name": "clear_fcorr"
+              }
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
