@@ -86,17 +86,21 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The first mismatch is the hallucinated attacker name in mthrowu.c:monshoot. C calls Monnam(mtmp), whose x_monnam path uses rndmonnam() and the display RNG. The existing JavaScript monsterMissileEnv adapter calls capitalizedMonsterName() without the displayRandom supplied by the planned monster scan, so it names the same missile action from the live display stream instead of the clone. Both direct monshoot callers are active and independently exercised: thrwmu against the hero in the selected case, and thrwmm against another monster in a fresh C probe.",
+  "summary": "The first screen mismatch is the hallucinated attacker name during mthrowu.c:monshoot, but the earliest incorrect display draw occurs earlier in its clone-only flight plan. m_throw calls obj_to_glyph(singleobj, rn2_on_display_rng) for the missile animation. The JavaScript monsterMissileEnv objectToGlyph adapter omitted env.displayRandom, so planning consumed the live display stream instead of its clone before the live action named the attacker. Forwarding the clone preserves C’s m_throw draw and monshoot Monnam ordering for both thrwmu and thrwmm.",
   "source": {
     "file": "mthrowu.c",
-    "branch": "When canseemon(mtmp) is true, monshoot() prints Monnam(mtmp). Under Hallucination, do_name.c:x_monnam() calls rndmonnam(), which draws from rn2_on_display_rng(). The JavaScript caller adapter must supply the display RNG clone when it names a planned missile action.",
+    "branch": "mthrowu.c:m_throw starts the missile animation with obj_to_glyph(singleobj, rn2_on_display_rng); mthrowu.c:monshoot announces Monnam(mtmp) before entering m_throw. During JavaScript planning, monsterMissileEnv must pass env.displayRandom into obj_to_glyph so the clone consumes the animation draw without advancing the live display RNG. The same adapter then supplies the display RNG to capitalizedMonsterName for the planned Monnam call.",
     "functions": [
-      "monshoot"
+      "monshoot",
+      "m_throw"
     ],
     "callers": [
       "mthrowu.c:thrwmu() calls monshoot() for the monster-to-hero missile path; mhitu.c:mattacku() dispatches to thrwmu() at line 886.",
       "mthrowu.c:thrwmm() calls monshoot() for a monster-to-monster missile path; mhitm.c:mattackm() dispatches to thrwmm() for an AT_WEAP attack when distmin() is greater than one at line 396.",
-      "dogmove.c:pet_ranged_attk() calls mattackm() for a selected nonhero target at line 923, establishing the active production route into thrwmm()."
+      "dogmove.c:pet_ranged_attk() calls mattackm() for a selected nonhero target at line 923, establishing the active production route into thrwmm().",
+      "mthrowu.c:monshoot() invokes m_throw() for each missile; both thrwmu() and thrwmm() enter monshoot() and therefore exercise the same animation adapter.",
+      "mthrowu.c:spitmm() also calls m_throw() at line 1055; its existing recipes/mthrowu.c/cobra-spits-venom.session.json is blocked at mon.c:mcalcmove:1164 before the spitmm route.",
+      "muse.c:use_offensive() calls m_throw() at line 2020; js/unported_monster_actions.js:useOffensiveItem() shares monsterMissileEnv(), and the existing gnome-king-hurls-sleep-r2 recording covers the non-hallucinatory potion path."
     ],
     "dependencies": []
   },
@@ -106,6 +110,9 @@
     "Upstream mthrowu.c:260-314 implements monshoot(). Its visible arm calls Monnam(mtmp) before announcing the selected projectile. mthrowu.c:1174-1263 shows thrwmu() calling monshoot() at line 1262; the selected C recording reaches this route from mhitu.c:mattacku() at line 886.",
     "Upstream mthrowu.c:968-1012 shows thrwmm() calling monshoot() at line 1005. mhitm.c:396-404 calls thrwmm() for an AT_WEAP attack when the target is farther than one square. dogmove.c:889-967 reaches that arm through pet_ranged_attk() line 923 when a pet chooses a nonhero target.",
     "A separate C-only probe at .cache/c47-thrwmm-hallu-probe27.recipe.session.json and .cache/c47-thrwmm-hallu-probe27.session.json (seed 47000754) exercises the pet route under hallucination. At steps 81-85, C announces “The sergeant throws a crude dagger at the lag monster!”; the step records score_targ(dogmove.c:830), m_throw(mthrowu.c:798), and ohitmon(mthrowu.c:350), matching the source route through mattackm(), thrwmm(), and monshoot().",
-    "In js/unported_monster_actions.js:1263-1360, monsterMissileEnv() adapts monshoot() naming with monsterName: subject => capitalizedMonsterName(subject, env.state), which omits env.displayRandom. do_name.c:946-955 establishes that hallucinated x_monnam() consumes rn2_on_display_rng(). js/do_name.js:1396-1401 expects x_monnam() to receive env.displayRandom, and js/unported_monster_actions.js:1964-1970 supplies a cloned displayRandom to planned monster scans. The faulty adapter drops that clone for both missile callers."
+    "The first faulty draw is mthrowu.c:m_throw at lines 651-653: C calls obj_to_glyph(singleobj, rn2_on_display_rng) while beginning the missile animation. In the clone-only JavaScript plan, js/unported_monster_actions.js:monsterMissileEnv() previously called obj_to_glyph(obj, state) without env.displayRandom; obj_to_glyph then defaulted to the live display RNG. This advanced live displayCtx before the real action replayed, so the later monshoot Monnam draw named the wrong attacker. The adapter now passes env.displayRandom, keeping the animation draw on the planning clone and preserving the live call order.",
+    "After the adapter correction, a fresh C/JavaScript differential of challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.recipe.session.json exercised the thrwmu -> monshoot -> m_throw route and passed: 5,548/5,548 gameplay RNG calls, 121/121 screens, 121/121 cursors, and 4/4 animation frames. Log: .cache/monshoot-thrwmu-display-rng-fresh.log.",
+    "A separate fresh differential of recipes/mthrowu.c/monshoot-thrwmm-hallucinated-pet-dagger-cfirst.recipe.session.json exercised dogmove.c:pet_ranged_attk -> mattackm -> thrwmm -> monshoot -> m_throw and passed: 2,723/2,723 gameplay RNG calls, 86/86 screens, 86/86 cursors, and 1/1 animation frame. Log: .cache/monshoot-thrwmm-display-rng-fresh.log.",
+    "The caller audit found mthrowu.c:spitmm() and muse.c:use_offensive() also enter m_throw(). The existing Cobra spit recipe remains blocked at mon.c:mcalcmove:1164 before reaching spitmm; the gnome-king hurl recording covers use_offensive without hallucination. Both use the corrected shared adapter, but the new hallucinated runtime evidence is specifically the requested thrwmu and thrwmm paths."
   ]
 }

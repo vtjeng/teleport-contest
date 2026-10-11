@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -36,11 +37,13 @@ import { losehp } from '../js/hack.js';
 import { add_to_minv, obj_extract_self, stackobj } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import {
+    LOW_PM,
     AD_FIRE,
     PM_GIANT_RAT,
     PM_NEWT,
     PM_STONE_GIANT,
     PM_URUK_HAI,
+    SPECIAL_PM,
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { clear_dknown, mksobj, mksobj_at, place_object, remove_object }
@@ -73,6 +76,11 @@ import { potionhit } from '../js/potion.js';
 import { passive_obj } from '../js/uhitm.js';
 import { block_point, vision_reset } from '../js/vision.js';
 import { dmgval, setmnotwielded } from '../js/weapon.js';
+
+const MTHROWU_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/mthrowu.c', import.meta.url),
+    'utf8',
+);
 
 // The same Valkyrie several other suites replay: a lit starting room on
 // dungeon level one, with the hero standing in it.
@@ -469,6 +477,57 @@ test('monshoot unseen arm sets m_shot.o to STRANGE_OBJECT and falls through',
         }), flight);
         // No announcement message when the monster is unseen.
         assert.deepEqual(messages, []);
+    });
+
+test('monshoot names its monster target with the injected display RNG',
+    async () => {
+        // mthrowu.c:289 calls some_mon_nam(mtarg) before Monnam(mtmp), both
+        // under hallucination. Select LOW_PM from the source's candidate range
+        // and the first gender so the display-RNG bounds are deterministic.
+        const monshootStart = MTHROWU_SOURCE.indexOf(
+            'monshoot(struct monst *mtmp, struct obj *otmp, struct obj *mwep)',
+        );
+        const monshootEnd = MTHROWU_SOURCE.indexOf(
+            '\n/* an object launched by someone/thing other than player',
+            monshootStart,
+        );
+        assert.ok(monshootStart >= 0 && monshootEnd > monshootStart);
+        const source = MTHROWU_SOURCE.slice(monshootStart, monshootEnd);
+        assert.match(source,
+            /some_mon_nam\(mtarg\)[\s\S]*Monnam\(mtmp\)/u);
+
+        const state = await hero();
+        state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+        const y = state.u.uy;
+        const subject = attacker(state, state.u.ux + 5, y, state.u.ux, y);
+        const target = attacker(state, state.u.ux + 1, y,
+            subject.mx, subject.my);
+        const dagger = mksobj(ORCISH_DAGGER, false, false, { state });
+        dagger.quan = 1;
+        state.gm.mtarget = target;
+        state.gt = { tbx: -1, tby: 0 };
+        const displayDraws = [];
+        const messages = [];
+        const flight = new Error('expected m_throw boundary');
+
+        await assert.rejects(monshoot(subject, dagger, null, {
+            state,
+            displayRandom: (bound) => {
+                displayDraws.push(bound);
+                return 0;
+            },
+            canSeeMonster: () => true,
+            monsterName: () => 'The giant rat',
+            message: (text) => { messages.push(text); },
+            throwMissile: () => { throw flight; },
+        }), flight);
+
+        // rndmonnam() chooses from SPECIAL_PM + 100 - LOW_PM candidates, then
+        // draws one of two genders; LOW_PM is the ordinary giant-ant entry.
+        assert.deepEqual(displayDraws, [SPECIAL_PM + 100 - LOW_PM, 2]);
+        assert.deepEqual(messages, [
+            'The giant rat throws a crude dagger at the giant ant!',
+        ]);
     });
 
 test('thrwmu carries an ordinary dagger hit through floor settlement',

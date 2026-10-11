@@ -222,6 +222,10 @@ const MONMOVE_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/monmove.c', import.meta.url),
     'utf8',
 );
+const MTHROWU_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/mthrowu.c', import.meta.url),
+    'utf8',
+);
 
 function rngSnapshot() {
     return {
@@ -3871,6 +3875,74 @@ test('starting-pet adapter wires dog_move reflection to mon_reflects',
             y: target.heroY,
         });
     });
+
+test('monshoot caller adapters preserve hallucinated display RNG', () => {
+    const mThrowStart = MTHROWU_SOURCE.indexOf('void\nm_throw(\n');
+    const mThrowEnd = MTHROWU_SOURCE.indexOf('\n#undef MT_FLIGHTCHECK', mThrowStart);
+    assert.ok(mThrowStart >= 0 && mThrowEnd > mThrowStart);
+    const sourceMThrow = MTHROWU_SOURCE.slice(mThrowStart, mThrowEnd);
+    assert.match(sourceMThrow,
+        /obj_to_glyph\(singleobj,\s*rn2_on_display_rng\)/u);
+
+    const sourceMonshootStart = MTHROWU_SOURCE.indexOf(
+        'monshoot(struct monst *mtmp, struct obj *otmp, struct obj *mwep)',
+    );
+    const sourceMonshootEnd = MTHROWU_SOURCE.indexOf(
+        '\n/* an object launched by someone/thing other than player',
+        sourceMonshootStart,
+    );
+    assert.ok(sourceMonshootStart >= 0 && sourceMonshootEnd > sourceMonshootStart);
+    const sourceMonshoot = MTHROWU_SOURCE.slice(
+        sourceMonshootStart,
+        sourceMonshootEnd,
+    );
+    assert.match(sourceMonshoot, /Monnam\(mtmp\)/u);
+
+    const thrwmmStart = MTHROWU_SOURCE.indexOf('\nthrwmm(struct monst *mtmp,');
+    const thrwmmEnd = MTHROWU_SOURCE.indexOf('\nspitmm(struct monst *mtmp,', thrwmmStart);
+    const thrwmuStart = MTHROWU_SOURCE.indexOf('\nthrwmu(struct monst *mtmp)');
+    const thrwmuEnd = MTHROWU_SOURCE.indexOf('\n/* monster spits substance at you', thrwmuStart);
+    assert.ok(thrwmmStart >= 0 && thrwmmEnd > thrwmmStart);
+    assert.ok(thrwmuStart >= 0 && thrwmuEnd > thrwmuStart);
+    assert.match(MTHROWU_SOURCE.slice(thrwmmStart, thrwmmEnd), /monshoot\(mtmp, otmp, mwep\)/u);
+    assert.match(MTHROWU_SOURCE.slice(thrwmuStart, thrwmuEnd), /monshoot\(mtmp, otmp, mwep\)/u);
+
+    const missileAdapterStart = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
+        'function monsterMissileEnv(',
+    );
+    const missileAdapterEnd = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
+        '\n// C ref: muse.c use_offensive()',
+        missileAdapterStart,
+    );
+    assert.ok(missileAdapterStart >= 0 && missileAdapterEnd > missileAdapterStart);
+    const missileAdapter = SIMPLE_ACTIONS_JS_SOURCE.slice(
+        missileAdapterStart,
+        missileAdapterEnd,
+    );
+    assert.match(missileAdapter,
+        /objectToGlyph: \(obj, state\) =>\s*obj_to_glyph\(obj, state, env\.displayRandom\)/u);
+    assert.ok(missileAdapter.includes(
+        'monsterName: (subject) => capitalizedMonsterName(',
+    ));
+    assert.ok(missileAdapter.includes(
+        'subject,\n            env.state,\n            { displayRandom: env.displayRandom },',
+    ));
+
+    const petAdapterStart = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
+        'export async function runPetRangedAttack(',
+    );
+    const petAdapterEnd = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
+        '\nexport async function wieldMonsterItemAgainstMonster',
+        petAdapterStart,
+    );
+    assert.ok(petAdapterStart >= 0 && petAdapterEnd > petAdapterStart);
+    const petAdapter = SIMPLE_ACTIONS_JS_SOURCE.slice(
+        petAdapterStart,
+        petAdapterEnd,
+    );
+    assert.match(petAdapter,
+        /mattackm: \(attacker, target, attackEnv\) => mattackm\([\s\S]*?\.\.\.monsterMissileEnv\(attacker, attackEnv\)/u);
+});
 
 test('a tame hatched species with edog state reaches dog_move planning',
     async () => {
