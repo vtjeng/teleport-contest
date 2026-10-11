@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 68321461,
+      "datetime": "20471027140200",
+      "nethackrc": "OPTIONS=name:LeashSlackA2,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait,pettype:dog,montelecontrol\n",
+      "moves": "\u0017uncursed leash\namh\u0014  lll.  hhhk."
+    }
+  ],
+  "_comment": "Independent C-first runtime recipe for apply.c:mleashed_next2u's uncursed slack/release branch. After wizard Ctrl-T relocates the hero, montelecontrol moves the pet to valid floor at squared distance greater than two, so the source releases the leash and reports it going slack."
+}

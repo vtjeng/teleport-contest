@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 68321460,
+      "datetime": "20471026140200",
+      "nethackrc": "OPTIONS=name:LeashFollowA2,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait,pettype:dog\n",
+      "moves": "\u0017uncursed leash\nakk\u0014  llll."
+    }
+  ],
+  "_comment": "Independent C-first runtime recipe for apply.c:mleashed_next2u/next_to_u via teleport.c:dotele. Attach the uncursed leash to the starting little dog, then wizard Ctrl-T teleports the hero; the post-teleport next_to_u() uses mnexto() to follow the dog to the new location."
+}
