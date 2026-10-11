@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for cmd.c:doextlist in ordinary non-wizard mode. Open the '?' extended-command list and immediately cancel; this reaches the regular command-list filtering and menu-close path without copying the earlier v34 debug-mode list interaction.",
+  "segments": [
+    {
+      "seed": 48070035,
+      "datetime": "20571022120741",
+      "nethackrc": "OPTIONS=name:V48ExtList,role:Valkyrie,race:human,gender=female,align=neutral,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "?\u001b"
+    }
+  ]
+}

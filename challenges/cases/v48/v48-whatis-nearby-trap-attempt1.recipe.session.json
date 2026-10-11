@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for pager.c:do_look choice 't' -> look_traps(TRUE). Wizard-create a seen teleportation trap at the hero tile, then inspect nearby seen or remembered traps; the older trap batches exercise activation effects rather than this query list.",
+  "segments": [
+    {
+      "seed": 48071245,
+      "datetime": "20571022110912",
+      "nethackrc": "OPTIONS=name:V48WhatisTrap,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nteleportation trap\n#whatis\nt"
+    }
+  ]
+}

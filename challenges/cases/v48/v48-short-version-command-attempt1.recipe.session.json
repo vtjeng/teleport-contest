@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for version.c:doversion, the V / #versionshort command. This source function emits the short build-version message and returns without spending a turn; it is separate from version.c:doextversion's text-window command.",
+  "segments": [
+    {
+      "seed": 48070031,
+      "datetime": "20571018120741",
+      "nethackrc": "OPTIONS=name:V48Version,role:Valkyrie,race:human,gender=female,align=neutral,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "V"
+    }
+  ]
+}

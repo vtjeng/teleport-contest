@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C route after attempt2 showed two getpos menu entries with accelerators a/b. Select one monster, then use . to pick its cursor location before naming.",
+  "segments": [
+    {
+      "seed": 48071227,
+      "datetime": "20571022110037",
+      "nethackrc": "OPTIONS=name:V48MenuMonster,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nnewt\n#wizmap\n #name\nm  !ma.V48MenuNewt\n"
+    }
+  ]
+}

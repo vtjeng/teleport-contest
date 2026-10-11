@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected getpos sequencing for the visible newt name branch: based on attempt5's C map the newt is immediately south; dismiss both getpos tip and verbose More, move south, pick the square, then name the newt.",
+  "segments": [
+    {
+      "seed": 48071007,
+      "datetime": "20571021101519",
+      "nethackrc": "OPTIONS=name:V48NameMonster,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizgenesis\nnewt\n#wizmap\n #name\nm  j.V48Newt\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first namefloorobj route: this seed's C inventory placed the wished ring in slot n (recorded in attempt2), so drop n, dismiss the success message, select #name's floor-type option, choose the current hero square, and assign an alias.",
+  "segments": [
+    {
+      "seed": 48071009,
+      "datetime": "20571023101519",
+      "nethackrc": "OPTIONS=name:V48NameFloor,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed ring of protection\ndn #name\nf@.V48ring\n"
+    }
+  ]
+}

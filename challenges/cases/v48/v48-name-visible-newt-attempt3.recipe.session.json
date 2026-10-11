@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first route to do_name.c:do_mgivenname. Select the menu's monster arm, use getpos next-monster to target the generated visible newt, accept the target, then assign its name.",
+  "segments": [
+    {
+      "seed": 48071005,
+      "datetime": "20571019101519",
+      "nethackrc": "OPTIONS=name:V48NameMonster,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizgenesis\nnewt\n#wizmap\n #name\nmm.V48Newt\n"
+    }
+  ]
+}

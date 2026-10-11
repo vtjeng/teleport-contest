@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first slot-corrected #wield route: the preceding C screen showed the wished long sword in inventory slot m, so this recording selects m and tests a real weapon switch through wield.c:dowield.",
+  "segments": [
+    {
+      "seed": 48072009,
+      "datetime": "20571023110730",
+      "nethackrc": "OPTIONS=name:V48ExtendedWield4,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nlong sword\n#wield\nm"
+    }
+  ]
+}

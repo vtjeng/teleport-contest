@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first route after attempt2 showed the inscription and returned to the command prompt without a More page. Drop the extra space, then use #whatis -> nearby engravings and retain the first C listing.",
+  "segments": [
+    {
+      "seed": 48071243,
+      "datetime": "20571022110740",
+      "nethackrc": "OPTIONS=name:V48WhatisEngr,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "i Em V48\n#whatis\ne"
+    }
+  ]
+}

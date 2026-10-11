@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-defined Hea-fila.lua load retry after preserving the first LR_BRANCH setup probe. Seed 48050000 was the first successful seed in the bounded preselected JavaScript startup scan range recorded in .cache/prep48/seed-scan-startup.json; scan only checks pre-command game generation so #wizloaddes can reach this Lua target.",
+  "segments": [
+    {
+      "seed": 48050000,
+      "datetime": "20571014091017",
+      "nethackrc": "OPTIONS=name:V48Healer,role:Healer,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nHea-fila.lua\n#wizmap\n"
+    }
+  ]
+}
