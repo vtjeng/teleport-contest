@@ -15,11 +15,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { VAULT } from '../js/const.js';
+import { CORR, MON_DETACH, ROOM, VAULT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { mondead, mongone } from '../js/mon.js';
+import { PM_GUARD } from '../js/monsters.js';
 import {
-    gd_move, newegd, UnsupportedVaultGuardError,
+    gd_move, grddead, in_fcorridor, newegd, UnsupportedVaultGuardError,
 } from '../js/vault.js';
 import { place_monster, remove_monster } from '../js/monst.js';
 
@@ -76,6 +78,24 @@ function messageCollector() {
     return fn;
 }
 
+function guardInCorridor() {
+    const gx = game.u.ux + 2;
+    const gy = game.u.uy;
+    const guard = makeGuard(gx, gy);
+    guard.data = game.mons[PM_GUARD];
+    place_monster(guard, gx, gy, game);
+    const egrd = guard.mextra.egd;
+    egrd.fcend = 1;
+    egrd.fakecorr[0] = {
+        fx: gx,
+        fy: gy,
+        ftyp: ROOM,
+        flags: 0,
+    };
+    game.level.at(gx, gy).typ = CORR;
+    return { guard, gx, gy, egrd };
+}
+
 // A deterministic RNG for testing. Returns the values from the array
 // in order; throws if exhausted.
 function fixedRng(values) {
@@ -88,6 +108,89 @@ function fixedRng(values) {
         },
     };
 }
+
+// vault.c:in_fcorridor() (192-201). C scans [fcbeg, fcend), so entries before
+// the active begin index and at the end index do not count as corridor tiles.
+test('in_fcorridor checks only the active half-open fake-corridor range', () => {
+    const grd = { mextra: { egd: {
+        fcbeg: 1,
+        fcend: 3,
+        fakecorr: [
+            { fx: 1, fy: 2 },
+            { fx: 4, fy: 5 },
+            { fx: 6, fy: 7 },
+            { fx: 8, fy: 9 },
+        ],
+    } } };
+
+    assert.equal(in_fcorridor(grd, 1, 2), false, 'before fcbeg');
+    assert.equal(in_fcorridor(grd, 4, 5), true, 'at fcbeg');
+    assert.equal(in_fcorridor(grd, 6, 7), true, 'before fcend');
+    assert.equal(in_fcorridor(grd, 8, 9), false, 'at fcend');
+    assert.equal(in_fcorridor(grd, 9, 8), false, 'unlisted square');
+});
+
+// vault.c:grddead() (175-188) retries corridor removal after the dead guard
+// is parked away from the fake-corridor square. relobj()'s void effects run
+// before the guard is parked.
+test('grddead parks a dead guard then removes its fake corridor', async () => {
+    await startedGame();
+    const { guard: grd, gx, gy, egrd } = guardInCorridor();
+    grd.mhp = 0;
+    const message = messageCollector();
+
+    const dispose = await grddead(grd, game, {
+        message,
+        unsupported: (operation) => { throw new Error(operation); },
+    });
+
+    assert.equal(dispose, true, 'second corridor clear succeeds');
+    assert.equal(grd.isgd, 0, 'guard is eligible for detach');
+    assert.equal(grd.mhp, 0, 'dead guard remains dead');
+    assert.deepEqual([grd.mx, grd.my], [0, 0], 'guard was parked off-map');
+    assert.equal(egrd.fcbeg, 1, 'fake corridor entry consumed');
+    assert.equal(game.level.at(gx, gy).typ, ROOM, 'original terrain restored');
+});
+
+// mon.c's two active callers both use grddead's return to decide whether the
+// guard can leave the monster chain. These exercise the direct production
+// call wiring for death and disappearance, including its promise boundary.
+test('mondead waits for grddead before detaching a vault guard', async () => {
+    await startedGame();
+    const { guard, gx, gy, egrd } = guardInCorridor();
+    const beforeDied = game.svm.mvitals[PM_GUARD].died;
+    const message = messageCollector();
+
+    await mondead(guard, game, {
+        message,
+        unsupported: (reason) => { throw new Error(reason); },
+    });
+
+    assert.equal(guard.isgd, 0, 'grddead permits removal');
+    assert.equal(guard.mstate & MON_DETACH, MON_DETACH, 'guard is detached');
+    assert.equal(game.level.at(gx, gy).typ, ROOM, 'corridor restored first');
+    assert.equal(egrd.fcbeg, 1, 'corridor clear finished before detach');
+    assert.equal(game.svm.mvitals[PM_GUARD].died, beforeDied + 1);
+    assert.equal(game.level.monsters[0][0], null, 'parked guard was detached');
+});
+
+test('mongone waits for grddead before disappearing a vault guard', async () => {
+    await startedGame();
+    const { guard, gx, gy, egrd } = guardInCorridor();
+    const message = messageCollector();
+
+    await mongone(guard, {
+        state: game,
+        message,
+        unsupported: (operation) => { throw new Error(operation); },
+    });
+
+    assert.equal(guard.isgd, 0, 'grddead permits removal');
+    assert.equal(guard.mstate & MON_DETACH, MON_DETACH, 'guard is detached');
+    assert.equal(game.level.at(gx, gy).typ, ROOM, 'corridor restored first');
+    assert.equal(egrd.fcbeg, 1, 'corridor clear finished before detach');
+    assert.equal(game.level.monsters[0][0], null, 'parked guard was detached');
+});
 
 // ── gd_move() early exits ──
 

@@ -1147,15 +1147,9 @@ test('mondead reverts a shifted form and counts the death', async () => {
     assert.equal(game.svm.mvitals[PM_NEWT].died, 255, 'capped');
 });
 
-// mon.c mondead():3096-3171, the arms that stop. Each is guarded by exactly
-// C's condition, and every one is reached before m_detach(). The message alone
-// says nothing about where a refusal sits: one moved below m_detach() would
-// still carry it while leaving a monster off the map, its inventory on the
-// floor and iflags.purge_monsters counting a death dmonsfree() cannot find.
-// So each row asserts the position instead -- nothing drawn, nothing printed,
-// still on the map, not detached, not purged -- and asserts the vanquished
-// count against 3135, which is above three of these arms and below three.
-test('mondead stops on the arms it does not own', async () => {
+// mon.c mondead() (3081-3177): common deaths finish removal, while lifesaving
+// still returns before the vanquished count or detach.
+test('mondead completes common deaths and stops after lifesaving', async () => {
     await hero();
 
     const stopped = async (mon, reason, diedDelta, label) => {
@@ -1177,17 +1171,10 @@ test('mondead stops on the arms it does not own', async () => {
                      `${label}: purge count`);
         assert.equal(game.svm.mvitals[mndx].died, died + diedDelta,
                      `${label}: vanquished count`);
-        // Teardown: spawn() takes the first free square beside the hero, and
-        // a refused kill leaves its fixture standing on one.
+        // A refused death leaves this fixture on its square.
         remove_monster(x, y, game);
     };
 
-    await stopped(spawn(PM_NEWT, { isgd: 1 }),
-                  "a vault guard's death", 0, 'vault guard');
-    // A Keystone Kop rolls rnd(5) for its return, which needs makemon(). It
-    // is the first arm below 3135, so its own death is already counted.
-    await stopped(spawn(PM_KEYSTONE_KOP),
-                  'a Keystone Kop coming back', 1, 'Kop');
     // A unique monster is now fully handled by mondead(): it increments the
     // vanquished count, appends C's first-kill major event (later kills retain
     // LL_UMONST), and detaches the monster. The mrevived exemption applies to
@@ -1228,6 +1215,53 @@ test('mondead stops on the arms it does not own', async () => {
     await stopped(saved, 'a monster saved by an amulet of life saving', 0,
                   'life saving');
 });
+
+// mon.c mondead():3147-3166. The Kop draw follows death counting and precedes
+// logdeadmon()/m_detach(). C's case 1 uses a down staircase when present and
+// falls through to random placement only when it is absent.
+test('mondead returns Kops with the source rnd(5) and makemon call shapes',
+    async () => {
+        await hero();
+        const oldStairs = game.stairs;
+        const cases = [
+            { roll: 1, stairs: true, expected: [17, 9] },
+            { roll: 1, stairs: false, expected: [0, 0] },
+            { roll: 2, stairs: false, expected: [0, 0] },
+            { roll: 4, stairs: false, expected: null },
+        ];
+
+        try {
+            for (const { roll, stairs, expected } of cases) {
+                // Force a down stair or a list with no eligible stair.
+                game.stairs = stairs
+                    ? { sx: 17, sy: 9, up: false, isladder: false, next: null }
+                    : { sx: 2, sy: 3, up: true, isladder: false, next: null };
+                const mon = spawn(PM_KEYSTONE_KOP);
+                const mndx = mon.data.pmidx;
+                const beforeDied = game.svm.mvitals[mndx].died;
+                const env = killEnv([roll]);
+                const calls = [];
+                env.makemon = async (...args) => { calls.push(args); return null; };
+
+                await mondead(mon, game, env);
+
+                assert.deepEqual(env.bounds, ['rnd(5)'], `roll ${roll}`);
+                assert.equal(game.svm.mvitals[mndx].died, beforeDied + 1);
+                assert.equal(m_at(mon.mx, mon.my, game), null, 'old Kop detached');
+                if (expected) {
+                    assert.equal(calls.length, 1, `roll ${roll}: one return attempt`);
+                    assert.deepEqual(calls[0].slice(1, 4), [
+                        expected[0], expected[1], 0,
+                    ], `roll ${roll}: source makemon coordinates/flags`);
+                    assert.equal(calls[0][0], game.mons[PM_KEYSTONE_KOP]);
+                } else {
+                    assert.deepEqual(calls, [], 'other rolls do not respawn');
+                }
+            }
+        } finally {
+            game.stairs = oldStairs;
+        }
+    });
 
 // mon.c killed() (3469-3473) passes XKILL_GIVEMSG, so the message is given and
 // neither the corpse nor the conduct is suppressed.
@@ -1656,9 +1690,9 @@ test('the monkilled line reads its verb and its clause off the arguments',
                          ['The kobold zombie is destroyed by the gas cloud!']);
     });
 
-// mon.c monkilled():3389-3391, the arm C reaches when the victim cannot be
-// seen. It writes iflags.sad_feeling, which mondead() reads and clears one
-// call later, and monkilled() is that flag's only writer in this port.
+// mon.c monkilled():3389-3391 and mondead():3092-3101. monkilled() writes
+// iflags.sad_feeling for an unseen pet; mondead() prints the source message
+// and clears the flag before completing the ordinary death path.
 test('an unwitnessed death files the sad feeling under the victim',
     async () => {
         await hero();
@@ -1672,20 +1706,20 @@ test('an unwitnessed death files the sad feeling under the victim',
         assert.equal(game.iflags.sad_feeling, false, 'cleared by mondead');
         assert.equal((wild.mstate ?? 0) & MON_DETACH, MON_DETACH, 'detached');
 
-        // A pet sets it, and mondead() stops on it rather than printing "You
-        // have a sad feeling for a moment, then it passes." That stop is
-        // above m_detach(), so the pet is still on the map.
+        // A pet sets it, and mondead() prints the source line before detach.
         const pet = spawn(PM_NEWT, { mtame: 1 });
+        const x = pet.mx;
+        const y = pet.my;
         const petEnv = killEnv([1]);
-        await refusesAsync(
-            () => monkilled(pet, null, AD_PHYS, game, petEnv),
-            'the sad feeling for a lost pet',
-        );
-        assert.deepEqual(petEnv.lines, [], 'nothing is printed');
-        assert.deepEqual(petEnv.bounds, [], 'nothing is drawn');
-        assert.equal(m_at(pet.mx, pet.my, game), pet, 'still on the map');
-        assert.equal((pet.mstate ?? 0) & MON_DETACH, 0, 'not detached');
-        remove_monster(pet.mx, pet.my, game);
+        await monkilled(pet, null, AD_PHYS, game, petEnv);
+        assert.deepEqual(petEnv.lines, [
+            'You have a sad feeling for a moment, then it passes.',
+        ]);
+        assert.deepEqual(petEnv.bounds, ['rn2(3)'],
+                         'ordinary newt corpse check follows mondead');
+        assert.equal(m_at(x, y, game), null, 'pet detached');
+        assert.equal((pet.mstate ?? 0) & MON_DETACH, MON_DETACH, 'detached');
+        assert.equal(game.iflags.sad_feeling, false, 'flag cleared');
     });
 
 // mon.c monkilled():3398-3403. The disintegration test chooses mondead()
