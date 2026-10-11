@@ -267366,7 +267366,7 @@
     {
       "id": "port-fountain-drinksink-v45-sink-gas-cloud-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete sink drinking outcomes and damaging gas-cloud creation.",
       "cFile": "fountain.c",
       "sessions": [
@@ -267380,8 +267380,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "drinksink",
@@ -267703,6 +267706,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
