@@ -262910,7 +262910,7 @@
     {
       "id": "fix-v43-rolling-boulder-launch-redraw-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix rolling boulder launch redraw and canonical path geometry",
       "cFile": "trap.c",
       "sessions": [],
@@ -262922,8 +262922,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c64928df44aa809954e15310a8f77544ce9b51ab",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "mkroll_launch",
       "session": "synthetic/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
       "step": 102,
@@ -263144,7 +263147,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c64928df44aa809954e15310a8f77544ce9b51ab",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
