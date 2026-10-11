@@ -5207,6 +5207,45 @@ test('wizard and intrinsic teleport crossing hunger status supply canonical oper
     }
 });
 
+test('#teleport extended command reaches the registered dotelecmd handler', async () => {
+    // This independent seed and clock give the wizard command a clean turn to
+    // exercise the controlled-teleport prompt through production dispatch.
+    const replay = await runSegment({
+        seed: 19423871,
+        datetime: '20611011093000',
+        nethackrc: 'OPTIONS=name:TeleportExtTest,role:Barbarian,'
+            + 'race:human,gender:male,align:neutral,playmode:debug,'
+            + 'pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,'
+            + '!acoustics\n',
+        moves: '#teleport\n. ',
+    });
+
+    assert.ok(replay.getScreens().some((screen) => (
+        screen.includes('Where do you want to be teleported?')
+    )));
+    assert.equal(game.context.move, 1);
+});
+
+test('control-T reaches dotelecmd through the direct command table route', async () => {
+    // This independently chosen seed and clock cover cmd.c's C('t') binding;
+    // the three spaces dismiss its prompt/help pages before h. picks a tile.
+    const replay = await runSegment({
+        seed: 72061102,
+        datetime: '20461011110000',
+        nethackrc: 'OPTIONS=name:DoteleKey,role:Wizard,race:human,'
+            + 'gender:male,align:neutral,playmode:debug,pettype:none,'
+            + '!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n',
+        moves: '\x14   h.',
+    });
+
+    assert.ok(replay.getScreens().some((screen) => (
+        screen.includes('Where do you want to be teleported?')
+    )));
+    assert.ok(replay.getScreens().some((screen) => (
+        screen.includes('You materialize in a different location!')
+    )));
+});
+
 test('wizard m-prefix teleport uses and restores a temporary spell slot', async () => {
     const replay = await runSegment({
         seed: 38149177,

@@ -269050,6 +269050,342 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-teleport-dotelecmd-dotele-v45-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the complete teleport command and relocation decision family, with direct and extended command dispatch plus the active drowning caller.",
+      "cFile": "teleport.c",
+      "sessions": [
+        "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst"
+      ],
+      "selectionReason": "The accepted v45 evaluation stops at step 30 because the extended teleport command does not dispatch to teleport.c:dotelecmd; the complete contiguous dotelecmd/dotele family owns that behavior and its consumed result.",
+      "detail": "The current accepted evaluation has 30/157 matching screens, 6984/7512 RNG calls, and 30/157 cursors. The investigation preserves the matching manifest and recording identities and traces cmd.c command registration plus trap.c:drown.",
+      "openedAt": "a8bb9ad345b320ca6fa5baf16a8ffade4b160212",
+      "openStanding": {
+        "sha": "ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dotelecmd",
+          "line": 919,
+          "endLine": 1033,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "dotele",
+          "line": 1034,
+          "endLine": 1164,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 919,
+        "to": 1164
+      },
+      "syntheticProvenance": {
+        "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst": {
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "evaluationPath": "challenges/evaluations/accepted-ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b-v45.json",
+          "evaluationCommit": "ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b"
+        }
+      },
+      "activeStanding": {
+        "sha": "ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+          "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+          "replayInputSha256": "920fb9d229a278994a69286d0fb9bb7d6b34e96348f5def5777ef8816be2b342",
+          "evaluationPath": "challenges/evaluations/accepted-ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b-v45.json",
+          "evaluationCommit": "ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b",
+          "evaluationArtifact": "challenges/evaluations/accepted-ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b-v45.json",
+          "evaluationUtc": "2026-10-11T11:43:12.661Z",
+          "remainingScreens": 127,
+          "recordedSteps": 157,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 157
+            },
+            "rng": {
+              "matched": 6984,
+              "total": 7512
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 157
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: dotelecmd() for the extended command 'teleport' is not ported",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": "teleport.c",
+          "function": "dotelecmd",
+          "message": "unsupported hero command: dotelecmd() for the extended command 'teleport' is not ported",
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.json",
+            "result": {
+              "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+              "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+              "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+              "remainingScreens": 127,
+              "recordedSteps": 157,
+              "status": "complete",
+              "commit": "5f052c056074160926d72b47e774fae9a7b18f86",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+                "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+                "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+                "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+                "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+                "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+                "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationUtc": "2026-10-11T09:20:20.964Z",
+                "remainingScreens": 127,
+                "recordedSteps": 157,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 157
+                  },
+                  "rng": {
+                    "matched": 6984,
+                    "total": 7512
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 157
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: dotelecmd() for the extended command 'teleport' is not ported",
+                  "step": 30
+                },
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": "teleport.c",
+                "function": "dotelecmd",
+                "message": "unsupported hero command: dotelecmd() for the extended command 'teleport' is not ported",
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The C-first recording reaches the #teleport extended command after levelporting to the Sanctum. cmd.c registers that row with dotelecmd; JavaScript extended-command dispatch falls through to its unsupported-handler boundary at cmd.js:5370, even though the direct key branch has separate inline teleport logic. Port the complete contiguous teleport.c:dotelecmd()/dotele() family into js/teleport.js and route both command dispatch and the active drowning caller through the canonical owner. The recorded C path is wizard controlled teleport: dotelecmd() calls dotele(TRUE), next_to_u() succeeds, and tele() calls scrolltele(NULL) to print the destination prompt at step 30.",
+              "source": {
+                "file": "teleport.c",
+                "branch": "Wizard human in debug mode invokes the #teleport extended command from the Sanctum without a teleport trap at the hero square. C dispatches cmd.c:1890-1891 to dotelecmd(); absent menu prefix, dotelecmd sets ignore_restrictions and calls dotele(TRUE). The hero is adjacent to a valid square, so dotele calls tele(), which calls scrolltele(NULL) and opens the controlled destination selector. The full family must also preserve nonwizard dotele(FALSE), menu modes, visible trap prompts, restriction/spell/energy checks, and the second next_to_u() check.",
+                "functions": [
+                  "teleport.c:dotelecmd() (919-1031), complete wizard/nonwizard command handler and temporary teleport-away spell save/restore.",
+                  "teleport.c:dotele() (1033-1162), complete trap, restriction, spell-energy, relocation, and hunger decision tree."
+                ],
+                "callers": [
+                  "cmd.c:1890-1891 registers dotelecmd as the C(t) command and the teleport extended command. Invoke canonical js/teleport.js:dotelecmd() from direct command-key and extended-command dispatch paths in js/cmd.js.",
+                  "teleport.c:dotelecmd() calls dotele() and consumes its integer result to produce ECMD_TIME or ECMD_OK.",
+                  "trap.c:drown() (5130-5132) calls dotele(FALSE) and discards its result. Active js/trap.js:drown() currently duplicates teleport eligibility/effect logic; route it through js/teleport.js:dotele().",
+                  "dig.c:escape_tomb() (2241-2248) calls dotele(FALSE) and discards its result. No JavaScript escape_tomb() implementation or active JS caller exists in js/dig.js, so this is an absent caller path rather than scope for this teleport.c port."
+                ],
+                "dependencies": [
+                  "dotelecmd() consumes dotele() return values; dotele() is therefore included in this source task.",
+                  "dotelecmd() consumes spell.c:tport_spell() results to reverse temporary spellbook addition/hiding. js/spell.js:tport_spell() is already source-mapped and present; do not reimplement it absent a missing-branch finding.",
+                  "dotele() consumes next_to_u() booleans and spelleffects() ECMD results from existing js/apply_next_to_u.js and js/spell.js owners. It calls tele(), teleds(), vault_tele(), deltrap(), newsym(), exercise(), and morehungry() with results discarded; those JavaScript source adapters exist.",
+                  "C dotele() calls level_tele_trap() with a discarded void result for an accepted visible level teleporter. No JS owner exists. Use note_unported('teleport.c level_tele_trap') and skip this call rather than throwing or inventing effects.",
+                  "dig.c:escape_tomb() has no current JavaScript counterpart; a future dig.c port must wire it to exported dotele()."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved queue SHA-256 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b selects this v45 session. Manifest challenges/manifests/v45.json SHA-256 c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649; recording challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json SHA-256 92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386; recipe SHA-256 cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27.",
+                "Baseline evaluation challenges/evaluations/v45-baseline-b317571a6.json records 30/157 screens, 30/157 cursors, 6984/7512 RNG calls, and stops at step 30: unsupported hero command dotelecmd() for extended command teleport is not ported.",
+                "At session step 30, C has entered dotelecmd() -> dotele(TRUE) -> next_to_u() -> tele() -> scrolltele(NULL) and emits the controlled destination prompt. JavaScript has not entered teleport code because cmd.js extended dispatch has no dotelecmd case and throws in the generic default at line 5370.",
+                "The complete family is contiguous in nethack-c/upstream/src/teleport.c: dotelecmd() lines 919-1031 and dotele() lines 1033-1162. cmd.c:1890-1891 registers dotelecmd; dotele() callers include dig.c:2247 and trap.c:5131. js/trap.js:drown() is the active duplicated caller; js/dig.js has no escape_tomb implementation."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dotelecmd",
+            "implementation": "js/teleport.js",
+            "symbol": "dotelecmd",
+            "sourceReview": "Read teleport.c:919-1031 in full. Preserved the non-wizard dotele(FALSE) result conversion; the wizard menu selection and temporary TELEPORT/spellbook edits; dotele(ignore_restrictions); and restoration of both teleport property fields and tport_spell state on every asynchronous exit. C callers are the cmd.c C(t) command-table row, also exposed as #teleport; the JavaScript direct-key and extended-command dispatchers both call this implementation. spell.c:tport_spell remains the existing owner.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:1890-1891 registers dotelecmd for the direct C(t) teleport command; rhack dispatches command === teleport to dotelecmd."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:1890-1891 registers the teleport extended-command name with dotelecmd; doextcmd dispatches that name to dotelecmd."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/teleport.c/dotelecmd-control-t-independent.session.json",
+              "recordings/teleport.c/dotelecmd-extended-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 72,
+                "source": "cmd.c #teleport dispatch -> teleport.c:dotelecmd -> dotele -> next_to_u -> tele -> scrolltele/getpos; C and JS match through the controlled destination cursor movement at step 72, before the later arrival-message mismatch."
+              }
+            ],
+            "checkedAt": "fcfb449a75acfca82e15e0f0c0e875afdf45658a"
+          },
+          {
+            "name": "dotele",
+            "implementation": "js/teleport.js",
+            "symbol": "dotele",
+            "sourceReview": "Read teleport.c:1033-1162 in full. Preserved visible trap handling, level-trap confirmation, one-shot vault-trap deletion, the restricted/spell and direct-energy branches, capacity and attribute checks, spell return handling, next_to_u relocation checks, trap-specific relocation, hunger loss, and return-value order. dotelecmd consumes the result; trap.c:drown discards it and now awaits its effects before checking whether the hero remains in the pool. teleport.c:level_tele_trap is void and still unported, so its call is explicitly noted and skipped without using note_unported as a result.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "dotelecmd",
+                "source": "teleport.c:dotelecmd returns dotele(ignore_restrictions) as ECMD_TIME or ECMD_OK."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "drown",
+                "source": "trap.c:drown:5128-5132 calls (void) dotele(FALSE) after the drowning teleport attempt and then checks whether the hero left the pool."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport.test.mjs",
+              "scripts/trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/teleport.c/dotelecmd-control-t-independent.session.json",
+              "recordings/teleport.c/drown-teleport-attempt-independent.session.json",
+              "recordings/teleport.c/dotelecmd-extended-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 72,
+                "source": "teleport.c:dotelecmd -> dotele(TRUE) -> next_to_u -> tele -> scrolltele/getpos; the selected route reaches the controlled destination prompt and cursor movement through step 72."
+              }
+            ],
+            "checkedAt": "fcfb449a75acfca82e15e0f0c0e875afdf45658a"
+          }
+        ],
+        "entryPointReview": "The whole selected C range is teleport.c:dotelecmd (919-1031) and dotele (1033-1162). The active command-table entry cmd.c:1890-1891 binds both C(t) and the #teleport name to dotelecmd; js/cmd.js:rhack covers the direct command key and js/cmd.js:doextcmd covers the extended name. Separate direct-key and #teleport C recordings strictly match JavaScript through materialization. The admitted v45 prefix covers the selected command route through controlled destination cursor movement at step 72; its later first mismatch is at the Sanctum arrival message after destination acceptance. teleport.c:dotelecmd consumes dotele return value; trap.c:drown:5128-5132 makes an independent active, result-discarding call now wired through js/trap.js:drown and covered by a strict fresh C recording. dig.c:escape_tomb contains another discarded dotele call in its definition, but a source search finds no C caller of escape_tomb and js/dig.js contains no escape_tomb implementation or call; it is not an active runtime entry point and remains outside this scope. The only unported dotele callee is void teleport.c:level_tele_trap; JS records note_unported and skips it as the source rule requires.",
+        "entryPoints": [
+          {
+            "name": "cmd.c direct C('t') teleport command",
+            "functions": [
+              "dotelecmd",
+              "dotele"
+            ],
+            "recordings": [
+              "recordings/teleport.c/dotelecmd-control-t-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "cmd.c #teleport extended command",
+            "functions": [
+              "dotelecmd",
+              "dotele"
+            ],
+            "recordings": [
+              "recordings/teleport.c/dotelecmd-extended-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 72,
+                "source": "cmd.c #teleport -> teleport.c:dotelecmd -> dotele -> teleds; this cited prefix matches through the controlled destination cursor movement, before the destination is confirmed."
+              }
+            ]
+          },
+          {
+            "name": "trap.c:drown teleport attempt",
+            "functions": [
+              "dotele"
+            ],
+            "recordings": [
+              "recordings/teleport.c/drown-teleport-attempt-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }

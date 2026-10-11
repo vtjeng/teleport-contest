@@ -97,6 +97,12 @@ const C_TELEPORT_SOURCE = readFileSync(
 const JS_TELEPORT_SOURCE = readFileSync(
     new URL('../js/teleport.js', import.meta.url), 'utf8',
 );
+const C_CMD_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8',
+);
+const JS_CMD_SOURCE = readFileSync(
+    new URL('../js/cmd.js', import.meta.url), 'utf8',
+);
 const C_MON_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/mon.c', import.meta.url), 'utf8',
 );
@@ -111,6 +117,57 @@ function sourceScrolltele(source, start, end) {
     assert.notEqual(endIndex, -1, `source contains ${end}`);
     return source.slice(startIndex, endIndex);
 }
+
+test('dotelecmd and dotele preserve the whole C dispatch and result order', () => {
+    const cDotelecmd = sourceScrolltele(
+        C_TELEPORT_SOURCE,
+        'int\ndotelecmd(void)',
+        '\nint\ndotele(',
+    );
+    const cDotele = sourceScrolltele(
+        C_TELEPORT_SOURCE,
+        'int\ndotele(\n    boolean break_the_rules)',
+        '\nvoid\nlevel_tele(',
+    );
+    const jsDotelecmd = sourceScrolltele(
+        JS_TELEPORT_SOURCE,
+        'export async function dotelecmd(',
+        '// C ref: teleport.c dotele()',
+    );
+    const jsDotele = sourceScrolltele(
+        JS_TELEPORT_SOURCE,
+        'export async function dotele(',
+        '// ── Hero relocation',
+    );
+
+    assert.match(cDotelecmd,
+        /if \(!wizard\)[\s\S]*return dotele\(FALSE\) \? ECMD_TIME : ECMD_OK;/u);
+    assert.match(cDotelecmd, /tport_spell\(HIDE_SPELL\)/u);
+    assert.match(cDotelecmd,
+        /res = dotele\(ignore_restrictions\);[\s\S]*HTeleportation = save_HTele/u);
+    assert.match(cDotelecmd, /tport_spell\(added \+ hidden - NOOP_SPELL\)/u);
+    assert.match(cDotele,
+        /trap->ttyp == LEVEL_TELEP[\s\S]*trap->ttyp == TELEP_TRAP/u);
+    assert.match(cDotele,
+        /if \(!trap && !break_the_rules\)[\s\S]*next_to_u\(\)[\s\S]*tele\(\)[\s\S]*\(void\) next_to_u\(\)/u);
+    assert.match(jsDotelecmd, /tport_spell\(TPORT_SPELL_ACTION\.HIDE, state\)/u);
+    assert.match(jsDotelecmd, /await dotele\(ignoreRestrictions, state, env\)/u);
+    assert.match(jsDotelecmd, /tport_spell\(spellRestore, state\)/u);
+    assert.match(jsDotele,
+        /if \(!trap && !breakTheRules\)[\s\S]*await next_to_u\(state, env\)[\s\S]*await tele\(state, env\)[\s\S]*await next_to_u\(state, env\)/u);
+    assert.match(jsDotele, /note_unported\('teleport\.c level_tele_trap'\)/u);
+
+    const cCommand = sourceScrolltele(
+        C_CMD_SOURCE,
+        "{ C('t'), \"teleport\", \"teleport around the level\",",
+        '\n    /*',
+    );
+    assert.match(cCommand, /dotelecmd, IFBURIED \| CMD_M_PREFIX/u);
+    assert.match(JS_CMD_SOURCE,
+        /case 'dotelecmd':[\s\S]*return await dotelecmd\(state\)/u);
+    assert.match(JS_CMD_SOURCE,
+        /if \(command === 'teleport'\)[\s\S]*await dotelecmd\(state\)/u);
+});
 
 function positionState() {
     const state = {
