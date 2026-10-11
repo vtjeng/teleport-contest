@@ -95,5 +95,5 @@
     "At the examined C worktree commit, js/mon.js:m_detach() still refuses the iswiz branch and calls it later than the C source order; js/mon.js:mongone() still records note_unported('end.c wizdeadorgone'). js/wizard.js has no implementation. The selected recording exercises the death route; a second independent recording is required to establish the live-removal route through #wizmakemap.",
     "An independent patched-C live-removal recording was created from a newly chosen seed/date and a distinct character setup. Its #wizmakemap route reaches wizdeadorgone at zero-based step 50 and records rn2(250)=93 at wizard.c:820; the recipe and recording hashes are captured in the task evidence."
   ],
-  "commit": "13f47fbd46de30d0daed953a5b2e175218e35ddd"
+  "commit": "7f6e87577c6e389c86653c728553bab68ff16c07"
 }
