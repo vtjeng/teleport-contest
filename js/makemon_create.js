@@ -1114,6 +1114,11 @@ function assertSupportedSpecies(species, env = {}) {
             // lifecycle; unique quest nemeses retain their separate boundary.
             && !(species.mlet === S_GIANT && is_giant(species)
                 && !(species.geno & G_UNIQ))
+            // Ettins share S_GIANT but are not M2_GIANT. makemon.c:m_initweap
+            // has their complete CLUB branch, and m_initinv intentionally
+            // skips true-giant gems for them; admit this source-valid species
+            // when runtime rndmonst() selects it beyond the D:5 reservoir.
+            && species.pmidx !== PM_ETTIN
             && species.pmidx !== PM_DJINNI
             // read.c seffect_light() creates cancelled tame light monsters
             // at the hero's square while a confused scroll is read.
