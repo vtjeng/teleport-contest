@@ -259701,6 +259701,1864 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-hack-still-chewing-v42-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port hack.c still_chewing and its active movement and eat-command callers",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v42/v42-rust-monster-still-chewing-bars"
+      ],
+      "selectionReason": "The admitted v42 rust-monster case diverges in the complete hack.c still_chewing iron-bars path, and an independent eat-command recording covers its second active entry point.",
+      "detail": "The investigation traces test_move and doeat to still_chewing, including source-ordered hunger, dissolve_bars, messages, vision cleanup, and explicit discarded-result shopkeeper gaps.",
+      "openedAt": "660106be814a482edebb0edac126892a14b92d28",
+      "openStanding": {
+        "sha": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "still_chewing",
+          "line": 647,
+          "endLine": 824,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 647,
+        "to": 824
+      },
+      "syntheticProvenance": {
+        "synthetic/v42/v42-rust-monster-still-chewing-bars": {
+          "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-rust-monster-still-chewing-bars",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+          "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+          "evaluationPath": "challenges/evaluations/accepted-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-v42.json",
+          "evaluationCommit": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185"
+        }
+      },
+      "activeStanding": {
+        "sha": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-rust-monster-still-chewing-bars",
+          "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+          "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+          "recipe": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "d1e5d18da934784573199c9a45e3f4e27f8e0f9dae60128c0f1e7105c921736c",
+          "replayInputSha256": "a0ebdffc55cfd79ac3cba91bbd812210a8fe9adbc2ee01e3fdd911fae59dfdad",
+          "evaluationPath": "challenges/evaluations/accepted-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-v42.json",
+          "evaluationCommit": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+          "evaluationArtifact": "challenges/evaluations/accepted-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-v42.json",
+          "evaluationUtc": "2026-10-10T22:10:51.681Z",
+          "remainingScreens": 1,
+          "recordedSteps": 53,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 53
+            },
+            "rng": {
+              "matched": 2849,
+              "total": 2849
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 23,
+              "column": 39,
+              "cCell": {
+                "ch": "S",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-rust-monster-still-chewing-bars.json",
+            "result": {
+              "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-rust-monster-still-chewing-bars",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+              "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+              "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+              "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+              "remainingScreens": 1,
+              "recordedSteps": 53,
+              "status": "complete",
+              "commit": "9b53af69f281954a8b21636768fbe759a7d888ce",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v42",
+                "caseId": "v42-rust-monster-still-chewing-bars",
+                "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+                "manifestPath": "challenges/manifests/v42.json",
+                "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+                "recording": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+                "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+                "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+                "recipe": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.recipe.session.json",
+                "recipeSha256": "d1e5d18da934784573199c9a45e3f4e27f8e0f9dae60128c0f1e7105c921736c",
+                "replayInputSha256": "a2722a4583f3fb4253c59de8d17926e6d6909913e67d4d98a882594af946eb4a",
+                "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+                "evaluationArtifact": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationUtc": "2026-10-10T21:08:15.151Z",
+                "remainingScreens": 1,
+                "recordedSteps": 53,
+                "previousScreensMatched": 52,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 53
+                  },
+                  "rng": {
+                    "matched": 2849,
+                    "total": 2849
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 53
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 23,
+                    "column": 39,
+                    "cCell": {
+                      "ch": "S",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 52,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The final completed iron-bars chew by a wizard polymorphed into a rust monster leaves all RNG, cursors, and earlier screens matched, but C changes the hunger status to Satiated while JavaScript omits that status. hack.c:still_chewing calls eat.c:morehungry(-nut) for metallivorous iron-bar eating and monmove.c:dissolve_bars after chewing; js/hack.js still_chewing currently has note_unported placeholders at both call sites. The missing morehungry side effect explains the exact final status mismatch; both existing canonical helpers must be wired to port this source path fully.",
+              "source": {
+                "file": "hack.c",
+                "branch": "test_move(DO_MOVE) targets IRONBARS and the current monster is metallivorous; after the chew effort exceeds 100, still_chewing awards rnd(20), then the IRONBARS branch grants iron nutrition with morehungry(-nut) and removes the bars with dissolve_bars.",
+                "functions": [
+                  "still_chewing"
+                ],
+                "callers": [
+                  "test_move (hack.c:991-1265)",
+                  "doeat (eat.c:2852)"
+                ],
+                "dependencies": [
+                  "eat.c:morehungry",
+                  "monmove.c:dissolve_bars"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v42 baseline 2634fa9f632f0bd97556887204d19f3fdb2645f2: 52/53 screens, 2849/2849 RNG calls, and 53/53 cursors; the only mismatch is final step 52, key \"l\", at screen row 23 column 39 where C prints 'S' and JS prints a blank.",
+                "The independently decoded final C/JS status rows are respectively `Dlvl:1 $:0 HP:26(26) Pw:6(6) AC:2 HD:5 Satiated` and `Dlvl:1 $:0 HP:26(26) Pw:6(6) AC:2 HD:5`; all 8 changed cells form the missing `Satiated` status text.",
+                "upstream/src/hack.c:647-822 implements the entire still_chewing function; lines 769-784 award metallivorous iron-bar nutrition with morehungry(-nut), select the completion text, and call dissolve_bars before final vision/redraw cleanup. Its production call sites are all in upstream/src/hack.c:test_move at lines 1029, 1040, 1090, and 1227.",
+                "js/hack.js:1978-2082 has the corresponding still_chewing port. Its IRONBARS branch at lines 2078-2081 calls note_unported('eat.c morehungry') and note_unported('trap.c dissolve_bars') instead of existing canonical JS implementations.",
+                "The required helpers are already implemented: upstream/src/eat.c:3281-3285 / js/eat.js:1902-1917 implement morehungry and newuhs; upstream/src/monmove.c:2170-2180 / js/monmove.js:4322-4334 implement dissolve_bars. Wire these existing owners from hack.js without duplicating their state logic.",
+                "A second direct C caller is upstream/src/eat.c:doeat (the `&hands_obj` arm at line 2852), which calls still_chewing on the hero’s current square and then prints “You pause to swallow.” while IRONBARS remain. js/eat.js:doeat at lines 4238-4244 already wires this caller to the canonical hack.js still_chewing implementation. No matching `recordings/` entry covers this `e`-command branch, so it needs its own matching recipe/recording as an entry point in addition to the admitted movement case."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "still_chewing",
+            "implementation": "js/hack.js",
+            "symbol": "still_chewing",
+            "sourceReview": "Read the complete upstream hack.c:still_chewing() definition (647-822), including every early refusal, initial and continued effort threshold, conduct/hunger update, boulder blocking return, and each terrain completion arm (wall, tree, iron bars, secret door, door, rock). Checked expression/RNG and side-effect order through the final recalc_block_point/newsym/messages/reset sequence. The IRONBARS branch reads objects[HEAVY_IRON_BALL].oc_weight, calls morehungry(-nut) only for metallivorous forms, chooses the hero-sensitive completion text, then calls dissolve_bars before common vision/redraw cleanup. The JavaScript branch now calls canonical eat.js:morehungry and monmove.js:dissolve_bars in that order and removes both stale note_unported placeholders. The remaining note_unported calls are only for discarded-result shopkeeper helpers shk.c:add_damage and shk.c:pay_for_damage; their side effects are not fabricated.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "hack.c:test_move() (991-1265) reaches still_chewing() from its four DO_MOVE obstacle arms at 1029, 1040, 1090 and 1227 (iron bars, tunnels, doors, and boulders); JavaScript's production chew callback resolves to still_chewing() and consumes the same Boolean to refuse movement while chewing continues."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:doeat() (2852) calls still_chewing(u.ux,u.uy) when floorfood('eat') returns &hands_obj on iron bars, then pauses to swallow while the bars remain; JavaScript preserves this production call and message order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/rust-monster-eat-bars-command.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-rust-monster-still-chewing-bars",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 52,
+                "source": "hack.c:domove_core -> hack.c:test_move(DO_MOVE, iron bars) -> hack.c:still_chewing(IRONBARS) -> eat.c:morehungry -> monmove.c:dissolve_bars"
+              }
+            ],
+            "checkedAt": "f43ad434ac6a39c975ef8acdf621b03ae91bb1fa"
+          }
+        ],
+        "entryPointReview": "The complete still_chewing source range has two active production entry paths. Movement calls still_chewing from four hack.c:test_move DO_MOVE obstacle arms (iron bars, tunnelable wall/rock, closed door, and boulder); JS test_move's shared chew callback is the corresponding caller. The admitted v42 rust-monster case executes the iron-bars movement entry through step 52, including morehungry and dissolve_bars. The independent C-first recording executes the eat command through eat.c:doeat's &hands_obj branch while the hero stands on iron bars, reaches still_chewing three times, pauses after the first two calls, then awards iron nutrition and dissolves the bars. A source search found no other direct C callers of still_chewing. Other callees in the selected function are implemented or explicitly skipped only where C discards their void result: the remaining shopkeeper add_damage/pay_for_damage gaps are outside this task's iron-bars path.",
+        "entryPoints": [
+          {
+            "name": "Move into iron bars while metallivorous",
+            "functions": [
+              "still_chewing"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-rust-monster-still-chewing-bars",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 52,
+                "source": "hack.c:domove_core -> hack.c:test_move(DO_MOVE) -> hack.c:still_chewing"
+              }
+            ]
+          },
+          {
+            "name": "Eat iron bars with the eat command while metallivorous",
+            "functions": [
+              "still_chewing"
+            ],
+            "recordings": [
+              "recordings/hack.c/rust-monster-eat-bars-command.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-pickup-quantum-cat-tip-checks-v42-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the complete quantum-box tip checks and validate the shared quantum-cat observer.",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v42/v42-observe-quantum-cat-box-tip-floor"
+      ],
+      "selectionReason": "Open the selected v42 quantum-box source port after validating the current one-screen mismatch and its complete investigation.",
+      "detail": "The current queue retains one unmatched screen at step 73 with matching v42 manifest and recording identity. C pickup.c:tipcontainer_checks calls observe_quantum_cat before spill checks; the observer consumes rn2(2), resolves the cat state, and uses makemon with NO_MINVENT|MM_ADJACENTOK|MM_NOMSG for the live branch.",
+      "openedAt": "012f6c9b6d85984df1adcff15256fd0fe52686a6",
+      "openStanding": {
+        "sha": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "tipcontainer_checks",
+          "line": 3954,
+          "endLine": 4058,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3954,
+        "to": 4058
+      },
+      "requiredFunctions": [
+        {
+          "name": "observe_quantum_cat",
+          "line": 2826,
+          "endLine": 2902,
+          "declared": true,
+          "sourceFile": "pickup.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v42/v42-observe-quantum-cat-box-tip-floor": {
+          "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-observe-quantum-cat-box-tip-floor",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+          "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+          "evaluationPath": "challenges/evaluations/accepted-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-v42.json",
+          "evaluationCommit": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb"
+        }
+      },
+      "activeStanding": {
+        "sha": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-observe-quantum-cat-box-tip-floor",
+          "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+          "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+          "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+          "recipe": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.recipe.session.json",
+          "recipeSha256": "9638bc8902bbdeddc1313bb7dd0e65ae4ceda0d4b99034d5cdbce3dd3765cf8b",
+          "replayInputSha256": "6718936003b34b91a086a286f3820b272b5717b71dbaf50b35231d5070c00b67",
+          "evaluationPath": "challenges/evaluations/accepted-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-v42.json",
+          "evaluationCommit": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+          "evaluationArtifact": "challenges/evaluations/accepted-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-v42.json",
+          "evaluationUtc": "2026-10-10T22:52:33.241Z",
+          "remainingScreens": 1,
+          "recordedSteps": 74,
+          "previousScreensMatched": 73,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 73,
+              "total": 74
+            },
+            "rng": {
+              "matched": 4840,
+              "total": 4851
+            },
+            "cursors": {
+              "matched": 73,
+              "total": 74
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 73,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "A",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 4840,
+              "cEntry": "rn2(2)=1",
+              "cCaller": "observe_quantum_cat(pickup.c:2832)",
+              "jsEntry": "rn2(12)=5",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "-"
+              },
+              "stepIndex": 73
+            },
+            "cursor": {
+              "index": 73,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "-"
+              },
+              "cCursor": [
+                76,
+                0,
+                1
+              ],
+              "jsCursor": [
+                48,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 73,
+          "kind": "rng",
+          "sourceFile": "pickup.c",
+          "function": "observe_quantum_cat",
+          "message": null,
+          "cFile": "pickup.c",
+          "luaFile": null,
+          "line": 2832,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-observe-quantum-cat-box-tip-floor.json",
+            "result": {
+              "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-observe-quantum-cat-box-tip-floor",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recording": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+              "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+              "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+              "recipe": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.recipe.session.json",
+              "recipeSha256": "9638bc8902bbdeddc1313bb7dd0e65ae4ceda0d4b99034d5cdbce3dd3765cf8b",
+              "replayInputSha256": "a2722a4583f3fb4253c59de8d17926e6d6909913e67d4d98a882594af946eb4a",
+              "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+              "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+              "evaluationUtc": "2026-10-10T21:08:15.151Z",
+              "remainingScreens": 1,
+              "recordedSteps": 74,
+              "status": "complete",
+              "commit": "f31623b6f35e2a273d9b9c96548967e19fa232dc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+                "manifestPath": "challenges/manifests/v42.json",
+                "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+                "recording": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+                "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+                "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+                "recipe": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.recipe.session.json",
+                "recipeSha256": "9638bc8902bbdeddc1313bb7dd0e65ae4ceda0d4b99034d5cdbce3dd3765cf8b",
+                "replayInputSha256": "a2722a4583f3fb4253c59de8d17926e6d6909913e67d4d98a882594af946eb4a",
+                "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+                "evaluationArtifact": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationUtc": "2026-10-10T21:08:15.151Z",
+                "remainingScreens": 1,
+                "recordedSteps": 74,
+                "previousScreensMatched": 73,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 73,
+                    "total": 74
+                  },
+                  "rng": {
+                    "matched": 4840,
+                    "total": 4851
+                  },
+                  "cursors": {
+                    "matched": 73,
+                    "total": 74
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 73,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "-"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "A",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 4840,
+                    "cEntry": "rn2(2)=1",
+                    "cCaller": "observe_quantum_cat(pickup.c:2832)",
+                    "jsEntry": "rn2(12)=5",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "-"
+                    },
+                    "stepIndex": 73
+                  },
+                  "cursor": {
+                    "index": 73,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "-"
+                    },
+                    "cCursor": [
+                      76,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      48,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 73,
+                "kind": "rng",
+                "sourceFile": "pickup.c",
+                "function": "observe_quantum_cat",
+                "message": null,
+                "cFile": "pickup.c",
+                "luaFile": null,
+                "line": 2832
+              },
+              "summary": "The first mismatch is the unported Schrödinger box observation on the #tip floor path. C observes the box before spilling its contents; JavaScript skips the observer in tipcontainer_checks. Wiring the existing observer also exposed an unsupported makemon runtime call shape in its live-cat arm.",
+              "source": {
+                "file": "pickup.c",
+                "branch": "When a LARGE_BOX with spe == 1 is tipped, pickup.c:tipcontainer_checks recognizes SchroedingersBox(box) and calls observe_quantum_cat(box, TRUE, TRUE) before the remaining-content check. For a dead result, the observer clears spe, prints the dead-cat message, resets the contained corpse age and corpsenm (starting its rot timer), and awards experience when the hero is not monster-moving. The same observer is called from use_container before its action prompt.",
+                "functions": [
+                  "observe_quantum_cat",
+                  "tipcontainer_checks"
+                ],
+                "callers": [
+                  "C pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat; JavaScript cmd.js #tip dispatch -> pickup.js:dotip -> tipcontainer -> tipcontainer_checks.",
+                  "C pickup.c:use_container -> observe_quantum_cat; JavaScript pickup.js:use_container has a fail-closed UnsupportedPickupError at the matching LARGE_BOX/spe branch.",
+                  "C end.c:disclose_to_monlist -> observe_quantum_cat(obj, FALSE, FALSE); JavaScript end.js already calls pickup.js:observe_quantum_cat with the same flags."
+                ],
+                "dependencies": [
+                  "makemon.c:makemon creates the live housecat at the box coordinates with NO_MINVENT | MM_ADJACENTOK | MM_NOMSG. C relocates a hero-square request with enexto_core and uses MM_ADJACENTOK if the requested square is occupied. JS must run this through makemon_runtime so its asynchronous source tail completes; js/makemon_create.js currently rejects this explicit-coordinate flag shape outside mklev. The correction is bounded to this source call shape and does not claim whole makemon.c:makemon completion.",
+                  "pickup.c:observe_quantum_cat calls get_obj_location, makemon, set_malign, visibility/message helpers, corpse extraction/freeing, weight, experience/newexplevel, set_corpsenm, and oname. Its JS owner is js/pickup.js:1910; source-aligned helper contracts are part of this caller path.",
+                  "obj.c:set_corpsenm/start_corpse_timeout supplies the corpse-aging RNG after a dead observation; its call must receive the complete random interface and preserve source order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved combined queue SHA-256 6889a7ab6f060b3cf8f6536df5fe921c893bc9abb7bb34f67702818e4b845e61 selects this v42 case with 1 unmatched screen at step 73. Its accepted evaluation at 2634fa9f632f0bd97556887204d19f3fdb2645f2 reports 73/74 screens, 4,840/4,851 RNG calls, and 73/74 cursors. The C and JavaScript outputs first diverge on segment 0, step 73, key '-'; C calls rn2(2)=1 from pickup.c:observe_quantum_cat:2832 while JavaScript calls rn2(12)=5. The first screen cell differs at row 0, column 0 (C 'T', JS 'A').",
+                "The admitted recording challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json has 74 steps. Its independent recipe creates a peaceful quantum mechanic, wishes an uncursed wand of death, kills the monster, enters #tip, confirms the large box, and chooses the preselected floor destination. The first 73 screens match, demonstrating that box creation and command setup reach the C observer only after the floor target is selected.",
+                "Upstream pickup.c:2826-2897 evaluates its rn2(2) coin flip before looking up the box location. On a dead result it clears box->spe, reports that the housecat is dead, sets deadcat->age to current moves, calls set_corpsenm(PM_HOUSECAT) to start the corpse timer, names the corpse, and awards experience/new level outside monster movement.",
+                "Upstream pickup.c:3953-4055 has the missing active #tip call in tipcontainer_checks: the SchroedingersBox branch calls observe_quantum_cat(box, TRUE, TRUE), then examines the now-resolved contents and sets cknown. JavaScript js/pickup.js:3959-3972 instead records note_unported(\"pickup.c observe_quantum_cat\") and proceeds with the floor spill.",
+                "The second active pickup caller is upstream pickup.c:3021-3024 in use_container. JavaScript js/pickup.js:2134-2139 throws UnsupportedPickupError for LARGE_BOX with spe===1 rather than invoking its existing observe_quantum_cat implementation. End-game disclosure is already wired at upstream end.c:1268-1271 and js/end.js:1091-1092.",
+                "The selected implementation scope is the complete pickup.c:observe_quantum_cat source function and source-aligned wiring at both active pickup callers. Complete the Schroedinger-box branch inside the whole pickup.c:tipcontainer_checks function and replace the matching use_container refusal with the observer call; preserve the already-wired end-disclosure path. The caller functions have other unrelated behaviors and are not claimed as whole-function ports.",
+                "The observed setup helper is upstream makemon.c:makemon S_QUANTMECH at lines 775-793, which creates the flagged large box and contained nonrotting housecat corpse. It is not the first mismatch owner and does not need expansion based on this recording.",
+                "The C live-cat call in pickup.c:2834-2835 passes the box coordinates and NO_MINVENT | MM_ADJACENTOK | MM_NOMSG to makemon(), then consumes the returned monster to set peacefulness, name it, remove the contained dead corpse, and update box weight. Upstream makemon.c:1147-1200 handles explicit coordinates, hero-square relocation, and the MM_ADJACENTOK occupied-square fallback. JS js/pickup.js passed a synchronous makemon() call without a runtime continuation; a focused #tip reproduction at seed 83001622 reaches UnsupportedMonsterCreationError: outside mklev. js/makemon_create.js:1277 currently admits explicit runtime NO_MINVENT only without the two additional flags, while makemon_runtime at 3315 owns the source-ordered asynchronous runtime tail.",
+                "Source-aligned observer wiring exposed two additional JS call-contract gaps before the live-cat path: set_corpsenm requires rn2/rnd/rn1/rne, so the observer must supply its full random interface; newexplevel can level the hero from the award and requires the tty message owner. The implementation now uses the full RNG bundle and passes {message: ttyPline, random}."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "tipcontainer_checks",
+            "implementation": "js/pickup.js",
+            "symbol": "tipcontainer_checks",
+            "sourceReview": "Read the complete pickup.c:3954-4055 definition and compared branch and call order with js/pickup.js:3866-3984. Preserved target bag-of-tricks handling before source-container checks; lknown and carried inventory refresh; locked and trapped exits; bag/horn special handling and repeat loop; the Schrödinger box observation before remaining-content check; and the empty-container exit. Replaced the observer note_unported gap with the awaitable observer call, then preserves C hasContents/allowempty result and cknown mutation. The only remaining note_unported in this function represents shk.c:check_unpaid_usage, whose C return is void and discarded; the existing guard records the gap and skips its effects. Other unrelated source branches remain as before.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer",
+                "source": "C pickup.c:dotip calls tipcontainer for a selected floor or inventory container; tipcontainer calls tipcontainer_checks before the spill loop. JS cmd.js dispatches #tip to pickup.js:dotip, then pickup.js:tipcontainer calls tipcontainer_checks."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "The #tip extended command is queued/dispatched to pickup.c:dotip; JavaScript command dispatch calls pickup.js:dotip."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-tip.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 73,
+                "source": "pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat -> makemon( PM_HOUSECAT, NO_MINVENT|MM_ADJACENTOK|MM_NOMSG )"
+              }
+            ],
+            "checkedAt": "6668b1c9650c4e6050659727bf1328de0e282945"
+          },
+          {
+            "name": "observe_quantum_cat",
+            "implementation": "js/pickup.js",
+            "symbol": "observe_quantum_cat",
+            "sourceReview": "Read the complete pickup.c:2826-2897 function and preserved coin-flip-before-location order; makecat/givemsg gates; live-cat creation and peaceful/malign/message/name transitions; corpse extraction/freeing; box weight/spe updates; dead-cat message, corpse age, set_corpsenm and naming order; and both experience/newexplevel paths outside monster movement. JS now supplies the complete random interface required by set_corpsenm and the tty message owner required by newexplevel. The live C call consumes makemon’s returned pointer, so the task uses makemon_runtime and extends existing js/makemon_create.js preflight only for the exact explicit NO_MINVENT|MM_ADJACENTOK|MM_NOMSG call shape from this source site. Focused source-pinned coverage verifies this call shape; the whole makemon.c:makemon function is not claimed complete. Existing end.js disclosure wiring remains unchanged.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer_checks",
+                "source": "C pickup.c:4038 calls observe_quantum_cat(box, TRUE, TRUE) before testing the resolved box contents; JavaScript pickup.js:tipcontainer_checks now awaits the same call."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "use_container",
+                "source": "C pickup.c:3023 calls observe_quantum_cat(gc.current_container, TRUE, TRUE); JavaScript pickup.js:use_container now awaits the same call before its action prompt. scripts/pickup-tip.test.mjs exercises the caller and cleanup."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "identifyInventoryForDisclosure",
+                "source": "C end.c:really_done:1268-1271 loops over unresolved inventory quantum boxes and calls observe_quantum_cat(obj, FALSE, FALSE); JavaScript end.js:identifyInventoryForDisclosure owns and awaits this existing observer call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-tip.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 73,
+                "source": "pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat -> makemon( PM_HOUSECAT, NO_MINVENT|MM_ADJACENTOK|MM_NOMSG )"
+              }
+            ],
+            "checkedAt": "6668b1c9650c4e6050659727bf1328de0e282945"
+          }
+        ],
+        "entryPointReview": "This task ports the complete pickup.c:tipcontainer_checks source unit and validates its existing pickup.c:observe_quantum_cat dependency. The selected active entry point is #tip on a LARGE_BOX with spe==1: pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat. The admitted v42 case v42-observe-quantum-cat-box-tip-floor matches segment 0 through step 73, including the formerly divergent live observation, corpse consumption, and #tip caller result. The same observer is now wired at pickup.c:use_container and remains wired at end.c:disclose_to_monlist; the secondary pickup caller is exercised by a focused JS test, while no separate end-disclosure source change or completion claim is made. The makemon.c:makemon correction is limited to the exact source call shape used by observe_quantum_cat and is not a whole-function completion claim. Pure function coverage is not applicable because both selected pickup functions consume RNG and mutate or print game state.",
+        "entryPoints": [
+          {
+            "name": "#tip resolves a floor quantum box before spill checks",
+            "functions": [
+              "tipcontainer_checks",
+              "observe_quantum_cat"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 73,
+                "source": "pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat -> makemon( PM_HOUSECAT, NO_MINVENT|MM_ADJACENTOK|MM_NOMSG )"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-muse-mbhitm-undead-turning-v42-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port monster beam-hit undead-turning effects and validate the shared hero unturn helper.",
+      "cFile": "muse.c",
+      "sessions": [
+        "synthetic/v42/v42-monster-undead-turning-lichen-corpse"
+      ],
+      "selectionReason": "Open the selected v42 monster undead-turning source port after validating the current four-screen mismatch and its complete investigation.",
+      "detail": "The current queue retains four unmatched screens with the same v42 manifest and recording identity. Source tracing shows the earlier monster wand hit omits mbhitm's WAN_UNDEAD_TURNING calls to unturn_you or unturn_dead, leaving future revived-corpse state and RNG out of sync before the visible teleport mismatch.",
+      "openedAt": "bb4c11caead5e9a32926abf67e1aa04bb63634e4",
+      "openStanding": {
+        "sha": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mbhitm",
+          "line": 1597,
+          "endLine": 1706,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1597,
+        "to": 1706
+      },
+      "requiredFunctions": [
+        {
+          "name": "unturn_you",
+          "line": 1225,
+          "endLine": 1238,
+          "declared": true,
+          "sourceFile": "zap.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v42/v42-monster-undead-turning-lichen-corpse": {
+          "session": "synthetic/v42/v42-monster-undead-turning-lichen-corpse",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-monster-undead-turning-lichen-corpse",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.session.json",
+          "recordingSha256": "eb20bba7b5aee1ae11159ab68138ee0567c0099fba9d644d2b7a0f67f642ec87",
+          "evaluationPath": "challenges/evaluations/accepted-81769a199b1df6e6234f7dbbe5654ec6270af878-v42.json",
+          "evaluationCommit": "81769a199b1df6e6234f7dbbe5654ec6270af878"
+        }
+      },
+      "activeStanding": {
+        "sha": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-monster-undead-turning-lichen-corpse",
+          "session": "synthetic/v42/v42-monster-undead-turning-lichen-corpse",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.session.json",
+          "recordingPath": "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.session.json",
+          "recordingSha256": "eb20bba7b5aee1ae11159ab68138ee0567c0099fba9d644d2b7a0f67f642ec87",
+          "recipe": "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.recipe.session.json",
+          "recipeSha256": "a78776c0ce0ddc6e167990adbd1ef694bf248d17b4b13815ff773a28876b84f7",
+          "replayInputSha256": "c97b6cc3b6e4e56011c7484beca4fd86a27a4f06f6b68f4ae2aa89e81c45b9f2",
+          "evaluationPath": "challenges/evaluations/accepted-81769a199b1df6e6234f7dbbe5654ec6270af878-v42.json",
+          "evaluationCommit": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+          "evaluationArtifact": "challenges/evaluations/accepted-81769a199b1df6e6234f7dbbe5654ec6270af878-v42.json",
+          "evaluationUtc": "2026-10-10T23:05:38.673Z",
+          "remainingScreens": 4,
+          "recordedSteps": 129,
+          "previousScreensMatched": 125,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 125,
+              "total": 129
+            },
+            "rng": {
+              "matched": 2675,
+              "total": 2734
+            },
+            "cursors": {
+              "matched": 126,
+              "total": 129
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 125,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 125,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 40,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2673,
+              "cEntry": "rn2(8)=0",
+              "cCaller": "collect_coords(teleport.c:700)",
+              "jsEntry": "rn2(5)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 125,
+                "key": "."
+              },
+              "stepIndex": 125
+            },
+            "cursor": {
+              "index": 125,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 125,
+                "key": "."
+              },
+              "cCursor": [
+                48,
+                0,
+                1
+              ],
+              "jsCursor": [
+                14,
+                4,
+                1
+              ]
+            }
+          },
+          "step": 125,
+          "kind": "rng",
+          "sourceFile": "teleport.c",
+          "function": "collect_coords",
+          "message": null,
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": 700,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-monster-undead-turning-lichen-corpse.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-monster-undead-turning-lichen-corpse",
+              "remainingScreens": 4,
+              "status": "complete",
+              "commit": "43f41f739f63b04d8fc28be32dc1e265af6a9bbd",
+              "mismatch": {
+                "kind": "synthetic",
+                "corpus": "synthetic",
+                "sourceFile": "teleport.c",
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "session": "synthetic/v42/v42-monster-undead-turning-lichen-corpse",
+                "sessions": [
+                  "synthetic/v42/v42-monster-undead-turning-lichen-corpse"
+                ],
+                "remainingScreens": 4,
+                "earliestStep": 125,
+                "caseId": "v42-monster-undead-turning-lichen-corpse",
+                "batch": "v42",
+                "recordingPath": "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.session.json"
+              },
+              "summary": "A hostile dwarf's wand of undead turning hits the hero, who carries a lichen corpse. C revives the corpse before the next turn boundary; JavaScript skips zap.c:unturn_you from muse.c:mbhitm, so revival and the resulting monster placement never occur.",
+              "source": {
+                "file": "muse.c",
+                "branch": "In mbhitm's WAN_UNDEAD_TURNING arm, a hit on the hero calls unturn_you(). A hit on another monster calls unturn_dead(mtmp); its nonzero result sets wake before undead resistance and wakeup handling.",
+                "functions": [
+                  "mbhitm"
+                ],
+                "callers": [
+                  "The selected recording reaches mhitu.c:mattacku() -> muse.c:use_offensive() -> mbhit() -> mbhitm() for a monster's wand of undead turning. The JavaScript route is unported_monster_actions.js:useOffensiveItem() -> muse.js:use_offensive() -> mbhit() -> mbhitm().",
+                  "The active defensive route is monmove.c:dochug()/monmove() -> muse.c:use_defensive() -> mbhit() -> mbhitm(); the JavaScript routes are monmove.js:use_defensive() and unported_monster_actions.js:usePreMoveItems() -> muse.js:use_defensive()."
+                ],
+                "dependencies": [
+                  "zap.c:unturn_you() already has a JavaScript implementation in js/zap.js, but it is private and muse.js currently records note_unported('zap.c unturn_you'). Exporting and calling it will reuse that implementation.",
+                  "zap.c:unturn_dead() already returns the revived-corpse count in js/zap.js. muse.js currently records note_unported('zap.c unturn_dead') instead of using that result to gate wakeup.",
+                  "zap.c:revive() and its makemon_revival() call shape already exist in the accepted-base JavaScript implementation. A2 currently owns source:makemon.c:makemon; the replay must not prompt edits to that scope without fresh evidence of a separate placement defect."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved combined queue has SHA-256 6889a7ab6f060b3cf8f6536df5fe921c893bc9abb7bb34f67702818e4b845e61. Its v42 entry identifies 4 unmatched screens from 129 and an earliest mismatch at step 125. The manifest SHA-256 is 85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418; the recording SHA-256 is eb20bba7b5aee1ae11159ab68138ee0567c0099fba9d644d2b7a0f67f642ec87; the recipe SHA-256 is a78776c0ce0ddc6e167990adbd1ef694bf248d17b4b13815ff773a28876b84f7. The saved evaluation is challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json at source commit 2634fa9f632f0bd97556887204d19f3fdb2645f2.",
+                "A fresh differential at worker base 43f41f739f63b04d8fc28be32dc1e265af6a9bbd (run-unC5um) reaches step 126, segment 1, key '.'. C makes rn2(8)=0 in teleport.c:collect_coords, while JavaScript makes rn2(5)=2. The C screen then shows the lichen corpse's revival; JavaScript does not. The mismatch queue attributes the accepted recording's boundary to step 125 because it records the preceding screen boundary.",
+                "The complete source comparison of muse.c:mbhitm() at lines 1597-1704 confirms two missing branches in js/muse.js: the hero-hit branch at lines 2291-2294 skips zap.c:unturn_you(), and the monster-hit branch at lines 2295-2302 skips zap.c:unturn_dead(mtmp) even though C uses its result to decide whether to wake the monster. js/zap.js already implements both helpers and revive(); the skipped calls explain why JavaScript never reaches the later makemon placement that produces the queue's collect_coords draw.",
+                "The C caller search finds three mbhitm call sites in muse.c: use_defensive() invokes it for WAN_TELEPORTATION and WAN_UNDEAD_TURNING at lines 864 and 978, and use_offensive() invokes it for teleportation, undead turning and striking at line 1884. The selected v42 replay exercises the offensive undead-turning arm. C's use_offensive caller is mhitu.c:mattacku() at lines 758-762; C's defensive callers are monmove.c:dochug() and monmove(). JavaScript has corresponding defensive wiring in muse.js:809 and :939 and offensive wiring at :2703, reached by the dispatchers named above. No caller wiring change is indicated by the source trace; the callback's two skipped effects are the missing behavior."
+              ],
+              "session": "synthetic/v42/v42-monster-undead-turning-lichen-corpse",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingSha256": "eb20bba7b5aee1ae11159ab68138ee0567c0099fba9d644d2b7a0f67f642ec87",
+              "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+              "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+              "recordedSteps": 129
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mbhitm",
+            "implementation": "js/muse.js",
+            "symbol": "mbhitm",
+            "sourceReview": "Read the complete muse.c:mbhitm() definition at lines 1596-1703. The callback preserves its wakeup-before-resistance order, hero versus monster target split, undead/vampshifter resistance branch, discovery timing, and invisible-map update. Its WAN_UNDEAD_TURNING hero arm now calls zap.c:unturn_you(); its monster arm uses zap.c:unturn_dead()'s result to gate wakeup. The JS callback passes its invocation random stream and message operation through both helpers. The remaining calls used by this function are implemented; no return-bearing unported callee remains. The separate bhito callback is outside mbhitm and remains the existing source gap at its callers.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:use_defensive() calls mbhit() with mbhitm for WAN_UNDEAD_TURNING at line 978; muse.c:use_offensive() calls mbhit() with the same callback for WAN_UNDEAD_TURNING at line 1884. JS use_defensive() and use_offensive() pass this callback to mbhit(). The selected recording reaches the offensive call through mhitu.c:mattacku() -> muse.c:use_offensive() -> mbhit() -> mbhitm(); JavaScript reaches it through unported_monster_actions.js:useOffensiveItem() -> muse.js:use_offensive() -> mbhit() -> mbhitm()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-monster-undead-turning-lichen-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "mhitu.c:mattacku -> muse.c:use_offensive -> muse.c:mbhitm -> zap.c:unturn_you -> zap.c:unturn_dead -> zap.c:revive -> makemon.c:makemon"
+              }
+            ],
+            "checkedAt": "37e6562d0e540cb5f4838e2be7590cb18aa83f9c"
+          },
+          {
+            "name": "unturn_you",
+            "implementation": "js/zap.js",
+            "symbol": "unturn_you",
+            "sourceReview": "Read the complete zap.c:unturn_you() definition at lines 1224-1235. It first calls unturn_dead() and discards the result; then undead heroes receive the frightened/stunned message and rnd(30) is added to the existing stun timeout before make_stunned(), while other heroes shudder in dread. The JS helper starts with the full live random API needed by corpse revival, then overlays any caller-supplied random functions. Direct self-zaps therefore retain live defaults, while muse.c:mbhitm preserves its cloned action RNG.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:mbhitm() calls unturn_you() when the wand hits the hero at line 1671; js/muse.js:mbhitm now awaits the existing helper with its callback random stream and message operation."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:zapyourself() calls unturn_you() for WAN_UNDEAD_TURNING and SPE_TURN_UNDEAD; js/zap.js:zapyourself retains that direct call and uses the helper's live-RNG default."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/bhitm-self-unturn-revive-witness-b53.session.json"
+            ],
+            "sourceFile": "zap.c",
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-monster-undead-turning-lichen-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "mhitu.c:mattacku -> muse.c:use_offensive -> muse.c:mbhitm -> zap.c:unturn_you"
+              }
+            ],
+            "checkedAt": "37e6562d0e540cb5f4838e2be7590cb18aa83f9c"
+          }
+        ],
+        "entryPointReview": "This task ports helper functions called during monster beam hits. The active monster-item entry sites are muse.c:use_defensive() line 978 and use_offensive() line 1884; both pass mbhitm to mbhit for a wand of undead turning. zap.c:zapyourself() is the existing direct caller of unturn_you(). The selected admitted v42 recording exercises the offensive caller with a hostile dwarf's wand hitting a hero carrying a lichen corpse. The defensive caller remains wired to the same callback, and the whole mbhitm source body is compared branch by branch. The direct zapyourself -> unturn_you route is exercised by recordings/zap.c/bhitm-self-unturn-revive-witness-b53.session.json; the correction preserves full live RNG defaults for revival and lets injected action functions override them.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "div-v42-baalz-wizloaddes-topology-finalization-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Correct themed-room postprocessing order for direct Baalz special-level finalization.",
+      "cFile": "mklev.c",
+      "sessions": [
+        "synthetic/v42/v42-baalz-special-program"
+      ],
+      "selectionReason": "Open the selected Baalz wizloaddes topology-order correction after validating its complete source investigation and current one-screen mismatch.",
+      "detail": "Move the C-equivalent themed post-level hook to makelevel after special-room fills and keep level_finalize_topology limited to its C source operations.",
+      "openedAt": "cb857c87456cc40f39e0173309f4dca4821cb868",
+      "openStanding": {
+        "sha": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "level_finalize_topology",
+      "session": "synthetic/v42/v42-baalz-special-program",
+      "step": 23,
+      "syntheticProvenance": {
+        "synthetic/v42/v42-baalz-special-program": {
+          "session": "synthetic/v42/v42-baalz-special-program",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-baalz-special-program",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-baalz-special-program.session.json",
+          "recordingSha256": "e9c61eb7ccd3bb01d963a220f7792ba4e5533458ffb93027f52315a5d9d6cf2e",
+          "evaluationPath": "challenges/evaluations/accepted-19f6a43d2e0643e804a1fc100a7fccb76e5d2577-v42.json",
+          "evaluationCommit": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577"
+        }
+      },
+      "activeStanding": {
+        "sha": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-baalz-special-program",
+          "session": "synthetic/v42/v42-baalz-special-program",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-baalz-special-program.session.json",
+          "recordingPath": "challenges/cases/v42/v42-baalz-special-program.session.json",
+          "recordingSha256": "e9c61eb7ccd3bb01d963a220f7792ba4e5533458ffb93027f52315a5d9d6cf2e",
+          "recipe": "challenges/cases/v42/v42-baalz-special-program.recipe.session.json",
+          "recipeSha256": "534bcaeafa66701701776fd3598e5fa4ad10eca0170e06a97fe8f902c78ab652",
+          "replayInputSha256": "9ad472a9a9b2b4b6b8f6b3aa8324ccd6b9348900668df4e924826785310541cb",
+          "evaluationPath": "challenges/evaluations/accepted-19f6a43d2e0643e804a1fc100a7fccb76e5d2577-v42.json",
+          "evaluationCommit": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+          "evaluationArtifact": "challenges/evaluations/accepted-19f6a43d2e0643e804a1fc100a7fccb76e5d2577-v42.json",
+          "evaluationUtc": "2026-10-10T23:29:54.523Z",
+          "remainingScreens": 1,
+          "recordedSteps": 32,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 31,
+              "total": 32
+            },
+            "rng": {
+              "matched": 4202,
+              "total": 4218
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 32
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 31,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 31,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 6,
+              "column": 28,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 4199,
+              "cEntry": "rn2(15)=3",
+              "cCaller": "place_lregion(mkmaze.c:396)",
+              "jsEntry": "rn2(1000)=403",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 23,
+                "key": "\n"
+              },
+              "stepIndex": 23
+            },
+            "cursor": null
+          },
+          "step": 23,
+          "kind": "rng",
+          "sourceFile": "mkmaze.c",
+          "function": "place_lregion",
+          "message": null,
+          "cFile": "mkmaze.c",
+          "luaFile": null,
+          "line": 396,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-baalz-special-program.json",
+            "result": {
+              "session": "synthetic/v42/v42-baalz-special-program",
+              "remainingScreens": 1,
+              "recordedSteps": 32,
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-baalz-special-program",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingSha256": "e9c61eb7ccd3bb01d963a220f7792ba4e5533458ffb93027f52315a5d9d6cf2e",
+              "evaluationPath": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
+              "evaluationCommit": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+              "status": "complete",
+              "commit": "14a37e2c12bf5955315486bf68f1f77ce826feed",
+              "mismatch": {
+                "kind": "rng",
+                "corpus": "synthetic",
+                "sourceFile": "mkmaze.c",
+                "cFile": "mkmaze.c",
+                "luaFile": null,
+                "sessions": [
+                  "synthetic/v42/v42-baalz-special-program"
+                ],
+                "remainingScreens": 1,
+                "remainingScreensUpperBound": null,
+                "earliestStep": 23,
+                "caseId": "v42-baalz-special-program",
+                "batch": "v42",
+                "recordingPath": "challenges/cases/v42/v42-baalz-special-program.session.json",
+                "session": "synthetic/v42/v42-baalz-special-program"
+              },
+              "summary": "The fresh Baalz replay first diverges when JavaScript mineralizes extra STONE cells after #wizloaddes. The C path loads the des-file through wiz_load_splua -> lspo_finalize_level -> level_finalize_topology; it does not rerun themed-room postprocessing there. JavaScript level_finalize_topology instead runs the retained themed-room postprocess and wallification whenever the current dungeon's theme state is loaded. This re-wallifies the newly loaded Baalz map and exposes 16 extra mineralize RNG calls before place_lregion. The source-matched correction is to run the theme hook after makelevel's special-room fill, matching C, and leave topology finalization without that hook.",
+              "source": {
+                "file": "mklev.c",
+                "branch": "C mklev.c:makelevel calls themerooms_post_level_generate after filling every special room; mklev.c:mklev then calls level_finalize_topology. In contrast, wizard wizcmds.c:wiz_load_splua resets, loads, and directly calls sp_lev.c:lspo_finalize_level, whose topology pass does not call the theme hook. The JS finalizer incorrectly makes that call conditional on the persistent _luathemes_loaded[dnum] flag, so a later wizard des-file load re-wallifies its map.",
+                "functions": [
+                  "themerooms_post_level_generate",
+                  "makelevel",
+                  "level_finalize_topology"
+                ],
+                "callers": [
+                  "C: mklev.c:makelevel fills special rooms at lines 1414-1418 and calls themerooms_post_level_generate at line 1420; mklev.c:mklev calls level_finalize_topology after makelevel at lines 1586-1589.",
+                  "C: wizcmds.c:wiz_load_splua calls lspo_reset_level(NULL), load_special(), and lspo_finalize_level(NULL) at lines 388-390; sp_lev.c:lspo_finalize_level calls level_finalize_topology at line 6055 without themed postprocessing.",
+                  "JavaScript: cmd.js dispatches wiz_load_splua to js/wizcmds.js:wiz_load_splua, which calls lspo_reset_level, load_special, then lspo_finalize_level; js/mklev.js:lspo_finalize_level calls level_finalize_topology.",
+                  "JavaScript: js/mklev.js:makelevel finishes the room fills at line 898 but defers the theme hook to level_finalize_topology at lines 900-901; level_finalize_topology runs it and full-map wallification at lines 8026-8033."
+                ],
+                "dependencies": [
+                  "C mklev.c:themerooms_post_level_generate is the source for the JS themed postprocess and subsequent wallification. It is called from makelevel after room filling, not from level_finalize_topology or sp_lev.c:lspo_finalize_level.",
+                  "The wizard command's branch condition is wizard mode. The offending JS branch additionally requires game._luathemes_loaded[game.u.uz.dnum] to remain true from earlier level generation; the recorded #wizloaddes input follows an initialized game and loads baalz.lua into that same game state."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved combined queue SHA-256 6b7666c76d93a7d42c763e7af49cb8c65b352e513ad5548b37e6a177e8b1359e identifies this admitted case at 31/32 screens, 4202/4218 RNG calls, and 32/32 cursors. Its zero-based first mismatch is step 23, RNG index 4199: C rn2(15)=3 from mkmaze.c:place_lregion, while JS makes rn2(1000)=403; the first screen mismatch is step 31, row 6 column 28, C '-' versus JS space.",
+                "The admitted recipe challenges/cases/v42/v42-baalz-special-program.recipe.session.json independently contains one segment with input ' #wizloaddes\\nbaalz.lua\\n#wizmap\\n'. Its input-only recording SHA-256 is 534bcaeafa66701701776fd3598e5fa4ad10eca0170e06a97fe8f902c78ab652; the evaluated recording SHA-256 is e9c61eb7ccd3bb01d963a220f7792ba4e5533458ffb93027f52315a5d9d6cf2e.",
+                "Fresh-process confirmation: node scripts/diff-fresh.mjs challenges/cases/v42/v42-baalz-special-program.recipe.session.json, run-lMDiR0, reproduced the mismatch (exit 1). It reports the first RNG mismatch at call 4200 (its one-based display) in segment 1 step 24, C rn2(15)=3 from place_lregion(mkmaze.c:396) versus JS rn2(1000)=403; screen boundary 32 differs at displayed row 7 column 29, C '-' versus JS space. The C and JS totals both contain 4218 RNG calls, and all cursors match.",
+                "Upstream nethack-c/upstream/src/mklev.c:1174-1193 shows the themed hook runs its post_level_generate callback and wallifies the full map. mklev.c:1414-1420 calls it after the common special-room fill loop. mklev.c:1544-1574 contains bound_digging, mineralize, topology updates, and no themed-room call; mklev.c:1586-1589 calls that function after makelevel.",
+                "Upstream nethack-c/upstream/src/wizcmds.c:376-391 routes #wizloaddes through reset, load, and lspo_finalize_level(NULL). Upstream sp_lev.c:6055-6059 calls level_finalize_topology before filling special rooms and contains no themerooms_post_level_generate call.",
+                "The JS condition is js/mklev.js:8026-8035: if _luathemes_loaded[dnum] it runs run_themeroom_postprocess and wallification before mineralize. js/mklev.js:898-902 fills special rooms but defers the hook to the shared topology finalizer. Because the wizard special-level command enters the same finalizer while the theme-loaded flag persists, the ordinary makelevel hook is repeated against the just-loaded Baalz map.",
+                "An isolated replay trace shows the repeated full-map wallification exposes 13 additional eligible STONE cells at x=77, y=5..17 to mineralize. The extra mineralization draws occur before C's next place_lregion call and account for the first RNG divergence; the remaining changed wall glyph accounts for the first screen divergence."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-trap-acid-damage-v42-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port acid damage through canonical erosion helpers and production callers.",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v42/v42-zhitu-acid-damage-dual-wield"
+      ],
+      "selectionReason": "Select the remaining v42 Zhitu acid-breath mismatch after its complete source investigation traced missing trap.c acid_damage behavior.",
+      "detail": "Port trap.c erode_obj, grease_protect, and acid_damage; wire the zap.c zhitu and zhitm, mhitu.c passiveum, and mhitm.c passivemm callers while preserving the armed monster-combat blocker as a separate gap.",
+      "openedAt": "2e5de53ec9a1c66aed41de2d6d5044e891191edd",
+      "openStanding": {
+        "sha": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "b73fdc85db11090859404e7c98f66b6e384dfbfc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "erode_obj",
+          "line": 171,
+          "endLine": 359,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "grease_protect",
+          "line": 360,
+          "endLine": 389,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 171,
+        "to": 389
+      },
+      "requiredFunctions": [
+        {
+          "name": "acid_damage",
+          "line": 4618,
+          "endLine": 4656,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v42/v42-zhitu-acid-damage-dual-wield": {
+          "session": "synthetic/v42/v42-zhitu-acid-damage-dual-wield",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-zhitu-acid-damage-dual-wield",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.session.json",
+          "recordingSha256": "50dae38203aeac670cf78b9b2deeafba38ca1ddecce804b23fcb13bb8a873a48",
+          "evaluationPath": "challenges/evaluations/accepted-0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337-v42.json",
+          "evaluationCommit": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337"
+        }
+      },
+      "activeStanding": {
+        "sha": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-zhitu-acid-damage-dual-wield",
+          "session": "synthetic/v42/v42-zhitu-acid-damage-dual-wield",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.session.json",
+          "recordingPath": "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.session.json",
+          "recordingSha256": "50dae38203aeac670cf78b9b2deeafba38ca1ddecce804b23fcb13bb8a873a48",
+          "recipe": "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.recipe.session.json",
+          "recipeSha256": "d1ebcc8e6b50c27ec36757190cc7492f8b5c754646cb9fe81dfb6fddf8bf2b0c",
+          "replayInputSha256": "ecdf07735476b3438d38f2efe3b3447a9d93470357779aa06ae243141120ccc6",
+          "evaluationPath": "challenges/evaluations/accepted-0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337-v42.json",
+          "evaluationCommit": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337",
+          "evaluationArtifact": "challenges/evaluations/accepted-0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337-v42.json",
+          "evaluationUtc": "2026-10-10T23:58:41.695Z",
+          "remainingScreens": 1,
+          "recordedSteps": 84,
+          "previousScreensMatched": 83,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 83,
+              "total": 84
+            },
+            "rng": {
+              "matched": 3005,
+              "total": 3005
+            },
+            "cursors": {
+              "matched": 83,
+              "total": 84
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 83,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 83,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 44,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 83,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 83,
+                "key": "l"
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                52,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 83,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-zhitu-acid-damage-dual-wield.json",
+            "result": {
+              "session": "synthetic/v42/v42-zhitu-acid-damage-dual-wield",
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-zhitu-acid-damage-dual-wield",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingPath": "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.session.json",
+              "recordingSha256": "50dae38203aeac670cf78b9b2deeafba38ca1ddecce804b23fcb13bb8a873a48",
+              "recipePath": "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.recipe.session.json",
+              "recipeSha256": "d1ebcc8e6b50c27ec36757190cc7492f8b5c754646cb9fe81dfb6fddf8bf2b0c",
+              "evaluationPath": "challenges/evaluations/accepted-0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337-v42.json",
+              "evaluationCommit": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337",
+              "status": "complete",
+              "remainingScreens": 1,
+              "recordedSteps": 84,
+              "commit": "9cdea202af88c860df94f59755ea1cbc5e70eba7",
+              "summary": "The selected dual-wield acid-breath mismatch was caused by the missing trap.c:acid_damage() helper. The full erode_obj(), grease_protect(), and acid_damage() family is now implemented in js/trap_erode_obj.js; zap.c:zhitu and zhitm plus mhitu.c:passiveum call the canonical helper, and the v42 replay now matches through step 83. Fresh C-first Zhitu, zhitm, passiveum, and greased acid-dip cases provide independent matching evidence. The armed monster-vs-monster passivemm caller is wired and source-pinned but its production entry remains blocked before passivemm at JavaScript step 132.",
+              "mismatch": {
+                "firstMismatch": {
+                  "segment": 0,
+                  "step": 83,
+                  "key": "l",
+                  "kind": "screen+cursor"
+                },
+                "metrics": {
+                  "screens": "83/84",
+                  "rng": "3005/3005",
+                  "cursors": "83/84"
+                },
+                "cObservation": "The blast of acid hits you! The acid burns! Your wakizashi corrodes!--More--",
+                "cSourceCalls": [
+                  "dobuzz(zap.c:4823)",
+                  "zap_hit(zap.c:4709)",
+                  "zhitu(zap.c:4535) d(4,6)=20",
+                  "zhitu(zap.c:4540) rn2(3)=1: main-hand acid_damage gate is false",
+                  "zhitu(zap.c:4542) rn2(3)=0: off-hand acid_damage gate is true",
+                  "zhitu(zap.c:4544) rn2(6)=2"
+                ],
+                "jsBehavior": "js/zap.js:zhitu preserves the source rn2(3) gates but calls note_unported('trap.c acid_damage') for the selected off-hand object, so it omits erosion and the corrosion message.",
+                "remainingScreens": 1,
+                "session": "synthetic/v42/v42-zhitu-acid-damage-dual-wield"
+              },
+              "source": {
+                "file": "trap.c",
+                "functions": [
+                  "acid_damage"
+                ],
+                "branch": "acid_damage returns on a null object or acid-resistant hero inventory; grease absorbs the effect; nonblank scrolls become blank paper; other objects are passed to erode_obj with ERODE_CORRODE and EF_GREASE|EF_VERBOSE.",
+                "callers": [
+                  "zap.c:zhitu calls acid_damage(uwep) and acid_damage(uswapwep) under distinct weapon gates; js/zap.js now passes the canonical state.uwep and state.uswapwep slots to trap_erode_obj.js:acid_damage.",
+                  "zap.c:zhitm calls acid_damage(MON_WEP(mon)); js/zap.js calls the same helper after the source rn2(6) gate.",
+                  "mhitu.c:passiveum calls acid_damage(MON_WEP(mtmp)); js/mhitu.js now calls the same helper after the source rn2(6) gate.",
+                  "mhitm.c:passivemm calls acid_damage(MON_WEP(magr)); js/mhitm.js now calls the helper and has source-pinned coverage, but the selected production route stops earlier in the existing armed monster-vs-monster mattackm path.",
+                  "uhitm.c:mhitm_ad_acid also calls acid_damage(MON_WEP(mdef)); the existing js/uhitm.js dispatch still marks this caller unported and it is outside this task."
+                ],
+                "dependencies": [
+                  "trap.c:erode_obj, grease_protect, and acid_damage share the canonical js/trap_erode_obj.js implementation; acid_damage retains the source order for hero acid resistance, grease, scroll blanking, then ERODE_CORRODE.",
+                  "zap.c:inventory_resistance_check is already implemented in js/zap.js.",
+                  "The dual-wield production fix uses the canonical top-level state.uwep and state.uswapwep slots that correspond to C u.uwep and u.uswapwep."
+                ]
+              },
+              "evidence": [
+                "The saved v42 queue selected this session at the final weapon-corrosion message. The accepted baseline at 990f9bc4c2964447a9adac4f0e54ea90728ee2cb had 83/84 screens, 3005/3005 RNG values, and 83/84 cursors; its first mismatch was step 83.",
+                "Upstream trap.c:acid_damage() (4618-4654) checks a null object, carried hero acid resistance, grease, blank-paper/mail exceptions, then erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE|EF_VERBOSE). The port preserves that order and maps carried objects to the canonical hero inventory state.",
+                "Upstream trap.c:grease_protect() (360-386) prints the source visibility-dependent message, rolls rn2(2), clears grease only on zero, and refreshes inventory only for a carried object. The port keeps this as one canonical helper shared by erode_obj() and acid_damage().",
+                "Upstream trap.c:erode_obj() (171-353) uses the source erosion tables, victim selection, inventory-resistance draw, grease guard, vulnerability and erosion-proof checks, message ordering, destruction cleanup, and return codes. The B42 changes retain the existing whole-function implementation and use it from acid_damage().",
+                "The matching fresh Zhitu dual-wield recording reaches zap.c:zhitu at step 81: the main-hand rn2(3) gate succeeds, the off-hand gate fails, and the katana corrodes. Its complete 82-step C-first recipe replay matches PRNG, screens, cursors, and animation frames.",
+                "The matching fresh zhitm recording reaches zap.c:zhitm at step 103, passes the source rn2(6) acid_damage gate, and matches the complete 104-step C-first replay. This recording does not show weapon corrosion, so it is evidence for the caller path only.",
+                "The matching fresh passiveum recording reaches mhitu.c:passiveum at step 65, including the successful rn2(6) acid_damage gate, and matches the complete 66-step C-first replay. The visible output does not establish an erode_obj effect for that call.",
+                "The matching fresh acid-dip recording reaches trap.c:grease_protect at step 61 (rn2(2)=0), reports grease protection, then dissolves the grease at step 62. Its complete 66-step C-first replay matches PRNG, screens, and cursors.",
+                "The preserved passivemm recipe records a C path through mhitm.c:passivemm: at step 135, rn2(30)=4 and rn2(6)=0 select acid_damage, followed by pick-axe corrosion at step 137. The JavaScript replay stops at step 132 with the existing UnsupportedTurnBoundaryError for an armed monster attacking another monster, before passivemm executes. Do not count that recipe or its removed nonmatching recording as runtime evidence."
+              ],
+              "implementation": {
+                "status": "ready-for-delivery",
+                "sourceFunctions": [
+                  "erode_obj",
+                  "grease_protect",
+                  "acid_damage"
+                ],
+                "behavior": "Implemented the complete trap.c source family in js/trap_erode_obj.js and wired zap.c:zhitu, zap.c:zhitm, mhitu.c:passiveum, and mhitm.c:passivemm callers. The dual-wield caller reads state.uwep and state.uswapwep, matching C u.uwep and u.uswapwep.",
+                "passivemmBoundary": "passivemm is source-aligned and source-pinned, but it is not a completed runtime entry point. The independent recipe reaches C corrosion at steps 135 and 137, while JavaScript halts at step 132 in mhitm.c:mattackm’s armed AT_WEAP branch before mhitm.c:passivemm. The related weapon.c:possibly_unwield path is also unported and remains outside this task.",
+                "tests": [
+                  "scripts/trap-erode-obj.test.mjs",
+                  "scripts/zap-ray.test.mjs",
+                  "scripts/zap-zhitu.test.mjs",
+                  "scripts/mhitu.test.mjs",
+                  "scripts/mhitm.test.mjs"
+                ],
+                "freshReplayLogs": [
+                  "/tmp/teleport-validation-1000/run-wNcY22/stdout.log",
+                  "/tmp/teleport-validation-1000/run-oXiqNx/stdout.log",
+                  "/tmp/teleport-validation-1000/run-uGD5IR/stdout.log",
+                  "/tmp/teleport-validation-1000/run-fbgVo7/stdout.log",
+                  "/tmp/teleport-validation-1000/run-6xtmSI/stdout.log"
+                ]
+              },
+              "runtimeEvidence": [
+                {
+                  "name": "Admitted v42 Zhitu case",
+                  "batch": "v42",
+                  "caseId": "v42-zhitu-acid-damage-dual-wield",
+                  "segment": 0,
+                  "fromStep": 0,
+                  "throughStep": 83,
+                  "recordingPath": "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.session.json",
+                  "recordingSha256": "50dae38203aeac670cf78b9b2deeafba38ca1ddecce804b23fcb13bb8a873a48",
+                  "source": "zap.c:dobuzz -> zap.c:zap_hit -> zap.c:zhitu -> trap.c:acid_damage -> trap.c:erode_obj",
+                  "result": "The current JavaScript replay matches this complete recorded prefix, including the final acid corrosion message."
+                },
+                {
+                  "name": "Fresh dual-wield Zhitu",
+                  "recipePath": "recipes/trap.c/acid-damage-zhitu-dual-wield.session.json",
+                  "recipeSha256": "5aaedf508df612a96f20306a2f1aa1e0e3a5f7e43c7b7f96b51ad0e84f2ab013",
+                  "recordingPath": "recordings/trap.c/acid-damage-zhitu-dual-wield.session.json",
+                  "recordingSha256": "be859227df353183c9f9b35ab8098d7a6d6f65010a1b428fd1710a6127d496e2",
+                  "segment": 0,
+                  "fromStep": 0,
+                  "throughStep": 81,
+                  "source": "zap.c:dobuzz -> zap.c:zap_hit -> zap.c:zhitu -> trap.c:acid_damage -> trap.c:erode_obj",
+                  "result": "The main-hand gate corrodes the katana; the off-hand gate declines. Full 82-step C-first replay matches."
+                },
+                {
+                  "name": "Fresh monster-targeted zhitm",
+                  "recipePath": "recipes/trap.c/acid-damage-zhitm-monster-weapon.session.json",
+                  "recipeSha256": "4dced9bbb317a3d49db8629cd2a7c527c1296cc94b97beeea0d71da62dc4d241",
+                  "recordingPath": "recordings/trap.c/acid-damage-zhitm-monster-weapon.session.json",
+                  "recordingSha256": "be6c05b2a9a59f534be798fb3c4d198e9c1a7299f3c4977a0ec357172508b68f",
+                  "segment": 0,
+                  "fromStep": 0,
+                  "throughStep": 103,
+                  "source": "zap.c:dobuzz -> zap.c:zap_hit -> zap.c:zhitm -> trap.c:acid_damage",
+                  "result": "The source acid_damage gate executes; no visible weapon corrosion occurs in this recording. Full 104-step C-first replay matches."
+                },
+                {
+                  "name": "Fresh passiveum hero-form acid",
+                  "recipePath": "recipes/trap.c/acid-damage-passiveum-hero-form.session.json",
+                  "recipeSha256": "f6145ba979474b32e48d1b3fd91b2257ed41218dcf9e5e1c4826c88369d4fbb2",
+                  "recordingPath": "recordings/trap.c/acid-damage-passiveum-hero-form.session.json",
+                  "recordingSha256": "322ba5c10e11c6a8b0bf5cf3de4b3ecc5dce70f9a48c4e54587f5b6cd6f3335c",
+                  "segment": 0,
+                  "fromStep": 0,
+                  "throughStep": 65,
+                  "source": "mhitu.c:mhitu -> mhitu.c:passiveum -> trap.c:acid_damage",
+                  "result": "The successful rn2(6) call is reached and the full 66-step C-first replay matches. The visible screen does not establish an erode_obj effect for this call."
+                },
+                {
+                  "name": "Fresh greased acid dip",
+                  "recipePath": "recipes/potion.c/acid-dip-greased-daggers.session.json",
+                  "recipeSha256": "115591e27bada743f04264b85876fc21a3a98d3289e5c98830de784be7ba2be6",
+                  "recordingPath": "recordings/potion.c/acid-dip-greased-daggers.session.json",
+                  "recordingSha256": "33e2edf4c6b1b4d055376cc6814b105c3151af6de808dd9063837af8760df419",
+                  "segment": 0,
+                  "fromStep": 0,
+                  "throughStep": 62,
+                  "source": "potion.c acid dip -> trap.c:erode_obj -> trap.c:grease_protect",
+                  "result": "The rn2(2)=0 protection gate and grease-dissolve message match; full 66-step C-first replay matches."
+                }
+              ],
+              "blockedRuntimeEvidence": {
+                "name": "passivemm armed monster-vs-monster acid passive",
+                "recipePath": "recipes/trap.c/acid-damage-passivemm-acid-blob-conflict.session.json",
+                "recipeSha256": "77b56bb88d1ee006c9e55d2e6687edd13a9dba4811f9561d2de55642487ee8c8",
+                "cObservation": {
+                  "step": 135,
+                  "rng": [
+                    "rn2(30)=4 @ passivemm(mhitm.c:1345)",
+                    "rn2(6)=0 @ passivemm(mhitm.c:1347)"
+                  ],
+                  "visibleCorrosionStep": 137,
+                  "message": "The dwarf's pick-axe corrodes!"
+                },
+                "javascriptBoundary": {
+                  "step": 132,
+                  "owner": "mhitm.c:mattackm AT_WEAP armed monster-vs-monster branch",
+                  "error": "UnsupportedTurnBoundaryError: simple monster action requires an armed monster attacking another monster"
+                },
+                "dependency": "mhitm.c:mattackm plus weapon.c:possibly_unwield",
+                "scope": "Do not expand this task into armed monster-vs-monster handling. passivemm remains source-aligned and source-pinned, with no completed runtime entry-point claim."
+              },
+              "recipeHashes": {
+                "recipes/trap.c/acid-damage-zhitu-dual-wield.session.json": "5aaedf508df612a96f20306a2f1aa1e0e3a5f7e43c7b7f96b51ad0e84f2ab013",
+                "recordings/trap.c/acid-damage-zhitu-dual-wield.session.json": "be859227df353183c9f9b35ab8098d7a6d6f65010a1b428fd1710a6127d496e2",
+                "recipes/trap.c/acid-damage-zhitm-monster-weapon.session.json": "4dced9bbb317a3d49db8629cd2a7c527c1296cc94b97beeea0d71da62dc4d241",
+                "recordings/trap.c/acid-damage-zhitm-monster-weapon.session.json": "be6c05b2a9a59f534be798fb3c4d198e9c1a7299f3c4977a0ec357172508b68f",
+                "recipes/trap.c/acid-damage-passiveum-hero-form.session.json": "f6145ba979474b32e48d1b3fd91b2257ed41218dcf9e5e1c4826c88369d4fbb2",
+                "recordings/trap.c/acid-damage-passiveum-hero-form.session.json": "322ba5c10e11c6a8b0bf5cf3de4b3ecc5dce70f9a48c4e54587f5b6cd6f3335c",
+                "recipes/trap.c/acid-damage-passivemm-acid-blob-conflict.session.json": "77b56bb88d1ee006c9e55d2e6687edd13a9dba4811f9561d2de55642487ee8c8"
+              },
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "erode_obj",
+            "implementation": "js/trap_erode_obj.js",
+            "symbol": "erode_obj",
+            "sourceReview": "Read the complete upstream trap.c:erode_obj() definition (171-353): the erosion lookup tables and type switch, victim selection, visibility and naming rules, hero inventory resistance draw, grease guard, erosion thresholds, proof handling, messages, worn-item removal, object destruction and ER_* return values. The existing canonical JavaScript implementation preserves those branches and order. Its only retained source gaps are discarded or impossible helper effects already represented by note_unported(); no result from note_unported() is used as game data.",
+            "callers": [
+              {
+                "path": "js/trap_erode_obj.js",
+                "symbol": "acid_damage",
+                "source": "trap.c:acid_damage() at 4653 calls erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE|EF_VERBOSE) after its null, inventory-resistance, grease and scroll branches."
+              },
+              {
+                "path": "js/trap_erode_obj.js",
+                "symbol": "burnarmor",
+                "source": "trap.c:burnarmor() calls the burn_dmg() macro, which calls erode_obj() for the selected carried armor item."
+              },
+              {
+                "path": "js/trap_water_damage.js",
+                "symbol": "fire_damage",
+                "source": "trap.c:fire_damage() at 4537 delegates its erodeable-item arm to erode_obj(ERODE_BURN, EF_DESTROY)."
+              },
+              {
+                "path": "js/trap_water_damage.js",
+                "symbol": "water_damage",
+                "source": "trap.c:rust_dmg() at 4849 is represented inside js/trap_water_damage.js:water_damage() default rust branch, which delegates to erode_obj(ERODE_RUST, EF_NONE)."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "destroy_arm",
+                "source": "do_wear.c:destroy_arm() at 3303 consumes erode_obj() return values to decide whether armor was damaged or destroyed."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "breakobj",
+                "source": "dothrow.c:breakobj() at 2490 consumes erode_obj() return value for crackable thrown objects."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dip_into",
+                "source": "potion.c acid-dip call at 2639 consumes erode_obj() return value before poofing the potion."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "cursed_book",
+                "source": "spell.c:cursed_book() at 158 sends contact-poison corrosion of worn gloves through erode_obj()."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "erode_armor",
+                "source": "uhitm.c:erode_armor() at 141-178 uses erode_obj() results to select and stop on an affected armor slot."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "passive",
+                "source": "uhitm.c:passive() directly erodes the hero armor slot for passive fire, acid, rust and corrosion attacks."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "passive_obj",
+                "source": "uhitm.c:passive_obj() at 6126-6190 erodes the attack object for passive fire, acid, rust and corrosion effects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-erode-obj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/acid-damage-zhitu-dual-wield.session.json",
+              "recordings/potion.c/acid-dip-greased-daggers.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-zhitu-acid-damage-dual-wield",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 83,
+                "source": "zap.c:dobuzz -> zap.c:zap_hit -> zap.c:zhitu -> trap.c:acid_damage -> trap.c:erode_obj"
+              }
+            ],
+            "checkedAt": "2d47a49d1c45a1290c56d3aee161f56f2606f4e7"
+          },
+          {
+            "name": "grease_protect",
+            "implementation": "js/trap_erode_obj.js",
+            "symbol": "grease_protect",
+            "sourceReview": "Read the complete upstream trap.c:grease_protect() definition (360-386). It prints the source visibility-dependent protection message before rn2(2), leaves grease on a nonzero result, clears it on zero, and prints the dissolve message and updates inventory only for a carried object. The JavaScript helper preserves that order and is shared by erode_obj() and acid_damage().",
+            "callers": [
+              {
+                "path": "js/trap_erode_obj.js",
+                "symbol": "erode_obj",
+                "source": "trap.c:erode_obj() at 246-250 calls grease_protect() only when the selected erosion type allows grease and EF_GREASE is set."
+              },
+              {
+                "path": "js/trap_erode_obj.js",
+                "symbol": "acid_damage",
+                "source": "trap.c:acid_damage() at 4640 calls grease_protect() directly for a greased object, before erode_obj() can perform its separate hero inventory-resistance check."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-erode-obj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/acid-dip-greased-daggers.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "2d47a49d1c45a1290c56d3aee161f56f2606f4e7"
+          },
+          {
+            "name": "acid_damage",
+            "implementation": "js/trap_erode_obj.js",
+            "symbol": "acid_damage",
+            "sourceReview": "Read the complete upstream trap.c:acid_damage() definition (4618-4654). It returns on NULL, resolves the carried hero/monster victim and sight, checks carried-hero AD_ACID inventory resistance, handles grease before scrolls, blanks eligible nonblank scrolls and clears enchantment/knowledge, then discards erode_obj() return from the corrosion branch. The port preserves that order and the MAIL_STRUCTURES exception used by the recorder build.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "zhitu",
+                "source": "zap.c:zhitu() at 4540-4544 calls acid_damage() for uwep and uswapwep under distinct C probability gates; JavaScript reads the canonical state.uwep and state.uswapwep slots."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zhitm",
+                "source": "zap.c:zhitm() at 4379 calls acid_damage(MON_WEP(mon)) after its rn2(6) gate."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "passiveum",
+                "source": "mhitu.c:passiveum() at 2479 calls acid_damage(MON_WEP(mtmp)) after its rn2(6) gate."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "passivemm",
+                "source": "mhitm.c:passivemm() at 1347 calls acid_damage(MON_WEP(magr)) after rn2(6); the matching unarmed giant-ant AT_BITE recording reaches this caller at step 102 with MON_WEP(magr)==NULL. The armed-dwarf AT_WEAP branch remains a documented blocked future path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-erode-obj.test.mjs",
+              "scripts/zap-ray.test.mjs",
+              "scripts/zap-zhitu.test.mjs",
+              "scripts/mhitu.test.mjs",
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/acid-damage-zhitu-dual-wield.session.json",
+              "recordings/trap.c/acid-damage-zhitm-monster-weapon.session.json",
+              "recordings/trap.c/acid-damage-passiveum-hero-form.session.json",
+              "recordings/trap.c/acid-damage-passivemm-unarmed-giant-ant.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-zhitu-acid-damage-dual-wield",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 83,
+                "source": "zap.c:dobuzz -> zap.c:zap_hit -> zap.c:zhitu -> trap.c:acid_damage"
+              }
+            ],
+            "checkedAt": "2d47a49d1c45a1290c56d3aee161f56f2606f4e7"
+          }
+        ],
+        "entryPointReview": "The selected trap.c source units have matching production evidence for the admitted v42 zhitu acid-breath path, fresh zap.c:zhitm, mhitu.c:passiveum, and mhitm.c:passivemm callers, and the greased acid-dip path through erode_obj()/grease_protect(). The unarmed giant-ant natural AT_BITE recording reaches mhitm.c:passivemm at zero-based step 102; rn2(6)=0 calls acid_damage(MON_WEP(magr)) with a null weapon, exercising acid_damage(NULL). The separate armed-dwarf recipe reaches the C corrosion branch but remains blocked in JavaScript at step 132 in mattackm.c:AT_WEAP before passivemm; keep it as a blocked future branch and do not count it as runtime evidence. weapon.c:possibly_unwield remains outside this task. The separate uhitm.c:mhitm_ad_acid caller remains behind the existing js/uhitm.js unported dispatch and is not included in this task’s source completion claim.",
+        "entryPoints": [
+          {
+            "name": "Acid breath corrodes the hero’s wielded weapon through zhitu",
+            "functions": [
+              "acid_damage",
+              "erode_obj"
+            ],
+            "recordings": [
+              "recordings/trap.c/acid-damage-zhitu-dual-wield.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-zhitu-acid-damage-dual-wield",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 83,
+                "source": "zap.c:dobuzz -> zap.c:zap_hit -> zap.c:zhitu -> trap.c:acid_damage -> trap.c:erode_obj"
+              }
+            ]
+          },
+          {
+            "name": "Acid breath reaches the monster weapon call through zhitm",
+            "functions": [
+              "acid_damage"
+            ],
+            "recordings": [
+              "recordings/trap.c/acid-damage-zhitm-monster-weapon.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Acid-form hero reaches acid weapon damage through passiveum",
+            "functions": [
+              "acid_damage"
+            ],
+            "recordings": [
+              "recordings/trap.c/acid-damage-passiveum-hero-form.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Greased weapon is dipped in acid through erode_obj and grease_protect",
+            "functions": [
+              "erode_obj",
+              "grease_protect"
+            ],
+            "recordings": [
+              "recordings/potion.c/acid-dip-greased-daggers.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Acid passive reaches acid_damage(NULL) through passivemm during a giant ant natural bite",
+            "functions": [
+              "acid_damage"
+            ],
+            "recordings": [
+              "recordings/trap.c/acid-damage-passivemm-unarmed-giant-ant.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b73fdc85db11090859404e7c98f66b6e384dfbfc",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

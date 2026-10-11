@@ -183,7 +183,7 @@ import {
     closed_door, dissolve_bars, monflee, monfleeMessage, onscary, set_apparxy, youHear, } from './monmove.js';
 import { stairway_at } from './stairs.js';
 
-import { burnarmor } from './trap_erode_obj.js';
+import { acid_damage, burnarmor } from './trap_erode_obj.js';
 import {
     conjoined_pits, delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, t_at, trapname, trap_ice_effects } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
@@ -1085,19 +1085,33 @@ export async function unturn_dead(monster, state = game, rawEnv = {}) {
 }
 
 // C ref: zap.c unturn_you() (1225-1234).
-async function unturn_you(state = game) {
-    await unturn_dead(state.youmonst, state);
+export async function unturn_you(state = game, rawEnv = {}) {
+    // Monster actions pass a cloned RNG through mbhitm(); direct self-zaps
+    // keep using the live game stream when no invocation stream is supplied.
+    const random = {
+        d,
+        rn1,
+        rn2,
+        rnd,
+        rne,
+        rnz,
+        ...(rawEnv.random ?? {}),
+    };
+    const env = { ...rawEnv, random };
+    const message = rawEnv.message ?? ttyPline;
+    await unturn_dead(state.youmonst, state, env);
     if (is_undead(state.youmonst?.data)) {
         const already = Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
-        await ttyPline(
+        await message(
             `You feel frightened and ${already ? 'even more ' : ''}stunned.`,
             state,
+            rawEnv,
         );
         const stunTimeout = (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0)
             & TIMEOUT;
-        await make_stunned(stunTimeout + rnd(30), false, state);
+        await make_stunned(stunTimeout + random.rnd(30), false, state, env);
     } else {
-        await ttyPline('You shudder in dread.', state);
+        await message('You shudder in dread.', state, rawEnv);
     }
 }
 
@@ -1593,9 +1607,8 @@ export function spell_damage_bonus(damage, state = game) {
 // the second element) to a piece of armor to disintegrate when appropriate.
 //
 // Every damage branch is kept here because dobuzz() uses zhitm()'s returned
-// damage and armor pointer to decide the rest of the monster arm. The acid
-// damage call still has a discarded-void gap for an equipped monster weapon;
-// the separate acid armor-erosion call is wired to erode_armor().
+// damage and armor pointer to decide the rest of the monster arm. Acid damage
+// corrodes its wielded object before the separate armor-erosion call.
 export async function zhitm(
     mon,
     type,
@@ -1749,10 +1762,10 @@ export async function zhitm(
             break;
         }
         tmp = random.d(nd, 6);
-        // trap.c:acid_damage() is a discarded-void gap. Preserve its roll,
-        // then run the now-ported armor selector on its separate source roll.
-        if (!random.rn2(6) && mon.mw)
-            note_unported('trap.c acid_damage');
+        // C discards acid_damage()'s result; preserve its weapon gate before
+        // the separate armor-corrosion gate.
+        if (!random.rn2(6))
+            await acid_damage(mon.mw, { ...env, state, random });
         if (!random.rn2(6))
             await erode_armor(mon, ERODE_CORRODE, state, env);
         break;
@@ -4830,12 +4843,12 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
             await exercise(A_STR, false, state, random, exerciseEnv);
             monstunseesu(M_SEEN_ACID, state);
         }
-        // C discards acid_damage()'s return. Preserve the source gates, but
-        // leave weapon corrosion as a named gap until trap.c is ported.
+        // C discards acid_damage()'s return; preserve both weapon slots and
+        // their distinct source probability gates.
         if (!random.rn2(state.u.twoweap ? 3 : 6))
-            note_unported('trap.c acid_damage');
+            await acid_damage(state.uwep, { ...env, state, random });
         if (state.u.twoweap && !random.rn2(3))
-            note_unported('trap.c acid_damage');
+            await acid_damage(state.uswapwep, { ...env, state, random });
         if (!random.rn2(6))
             await erode_armor(state.youmonst, ERODE_CORRODE, state, env);
         break;

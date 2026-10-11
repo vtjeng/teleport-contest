@@ -177,7 +177,7 @@ test('Tou-goal selection and natural quest-level caller trace matches upstream d
     assert.match(doJs, /export async function goto_level\([\s\S]*?await mklev\(\)/u);
     assert.match(makeLevelJs, /export async function mklev\([\s\S]*?await makelevel\(/u);
     assert.match(makeLevelJs,
-        /if \(hasLoader\) \{\s*await makemaz\(slev\.proto, slev, g\);\s*await fillSpecialRooms\(\)/u);
+        /if \(hasLoader\) \{\s*await makemaz\(slev\.proto, slev, g\);\s*await finishLevelGeneration\(\);\s*return;/u);
     assert.match(makeLevelJs, /\.\.\.QUEST_LEVEL_LOADERS/u);
     assert.match(questLevelsJs, /'Tou-goal': touGoal/u);
 

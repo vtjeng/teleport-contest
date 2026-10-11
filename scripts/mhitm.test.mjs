@@ -98,7 +98,7 @@ import { mksobj } from '../js/obj.js';
 import { cansee } from '../js/vision.js';
 import { mon_wield_item } from '../js/weapon.js';
 import { find_mac } from '../js/worn.js';
-import { APPLE } from '../js/objects.js';
+import { APPLE, SHORT_SWORD } from '../js/objects.js';
 import { S_hcdoor } from '../js/symbols.js';
 import {
     loadUnseenPetFightRecipe,
@@ -1006,13 +1006,22 @@ test('a defender with an acid passive resolves its damage rolls', async () => {
     const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
     const blob = fixture(PM_ACID_BLOB, dx, y);
     aim(blob);
+    const weapon = mksobj(SHORT_SWORD, false, false, { state: game });
+    add_to_minv(pet, weapon, { state: game });
+    pet.mw = weapon;
     const env = attackEnv([20]);
+    env.random.rn2 = (bound) => {
+        env.bounds.push(`rn2(${bound})`);
+        return bound === 6 ? 0 : 1;
+    };
 
     assert.equal(await mattackm(pet, blob, env), M_ATTK_MISS);
-    // C consumes the acid passive die, armor-corrosion chance and weapon-acid
-    // chance after the missed hit; null MON_WEP makes acid_damage return.
+    // The kitten's carried short sword reaches passivemm()'s source
+    // acid_damage(MON_WEP(magr)) call after the missed hit and corrodes.
     assert.deepEqual(env.bounds,
         ['rnd(20)', 'd(1,8)', 'rn2(30)', 'rn2(6)']);
+    assert.equal(weapon.oeroded2, 1);
+    assert.ok(env.lines.some(line => line.includes('short sword corrodes!')));
 });
 
 // mhitm.c passivemm():1349-1354, the AD_ENCH arm. Its whole body is a

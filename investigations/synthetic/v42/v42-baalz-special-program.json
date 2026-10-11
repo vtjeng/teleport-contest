@@ -1,0 +1,66 @@
+{
+  "session": "synthetic/v42/v42-baalz-special-program",
+  "remainingScreens": 1,
+  "recordedSteps": 32,
+  "corpus": "synthetic",
+  "batch": "v42",
+  "caseId": "v42-baalz-special-program",
+  "manifestPath": "challenges/manifests/v42.json",
+  "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+  "recordingSha256": "e9c61eb7ccd3bb01d963a220f7792ba4e5533458ffb93027f52315a5d9d6cf2e",
+  "evaluationPath": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
+  "evaluationCommit": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+  "status": "resolved",
+  "commit": "c9edd3a00e7192709862265e812dbed7931959d1",
+  "mismatch": {
+    "kind": "rng",
+    "corpus": "synthetic",
+    "sourceFile": "mkmaze.c",
+    "cFile": "mkmaze.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v42/v42-baalz-special-program"
+    ],
+    "remainingScreens": 1,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 23,
+    "caseId": "v42-baalz-special-program",
+    "batch": "v42",
+    "recordingPath": "challenges/cases/v42/v42-baalz-special-program.session.json",
+    "session": "synthetic/v42/v42-baalz-special-program"
+  },
+  "summary": "The divergence is resolved. JavaScript now runs the source-matched themed post-level hook after makelevel fills special rooms, then lets the later topology finalizer perform bound_digging and mineralize. Direct #wizloaddes finalization no longer invokes the hook or re-wallifies the loaded map. Fresh C/JavaScript replay matches all 32 screens, 4218 RNG calls, and 32 cursors.",
+  "source": {
+    "file": "mklev.c",
+    "branch": "C mklev.c:makelevel calls themerooms_post_level_generate after filling every special room; mklev.c:mklev then calls level_finalize_topology. In contrast, wizard wizcmds.c:wiz_load_splua resets, loads, and directly calls sp_lev.c:lspo_finalize_level, whose topology pass does not call the theme hook. The JS finalizer incorrectly makes that call conditional on the persistent _luathemes_loaded[dnum] flag, so a later wizard des-file load re-wallifies its map.",
+    "functions": [
+      "themerooms_post_level_generate",
+      "makelevel",
+      "level_finalize_topology"
+    ],
+    "callers": [
+      "C: mklev.c:makelevel fills special rooms at lines 1414-1418 and calls themerooms_post_level_generate at line 1420; mklev.c:mklev calls level_finalize_topology after makelevel at lines 1586-1589.",
+      "C: wizcmds.c:wiz_load_splua calls lspo_reset_level(NULL), load_special(), and lspo_finalize_level(NULL) at lines 388-390; sp_lev.c:lspo_finalize_level calls level_finalize_topology at line 6055 without themed postprocessing.",
+      "JavaScript: cmd.js dispatches wiz_load_splua to js/wizcmds.js:wiz_load_splua, which calls lspo_reset_level, load_special, then lspo_finalize_level; js/mklev.js:lspo_finalize_level calls level_finalize_topology.",
+      "JavaScript: js/mklev.js:makelevel finishes the room fills at line 898 but defers the theme hook to level_finalize_topology at lines 900-901; level_finalize_topology runs it and full-map wallification at lines 8026-8033."
+    ],
+    "dependencies": [
+      "C mklev.c:themerooms_post_level_generate is the source for the JS themed postprocess and subsequent wallification. It is called from makelevel after room filling, not from level_finalize_topology or sp_lev.c:lspo_finalize_level.",
+      "The wizard command's branch condition is wizard mode. The offending JS branch additionally requires game._luathemes_loaded[game.u.uz.dnum] to remain true from earlier level generation; the recorded #wizloaddes input follows an initialized game and loads baalz.lua into that same game state."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved combined queue SHA-256 6b7666c76d93a7d42c763e7af49cb8c65b352e513ad5548b37e6a177e8b1359e identifies this admitted case at 31/32 screens, 4202/4218 RNG calls, and 32/32 cursors. Its zero-based first mismatch is step 23, RNG index 4199: C rn2(15)=3 from mkmaze.c:place_lregion, while JS makes rn2(1000)=403; the first screen mismatch is step 31, row 6 column 28, C '-' versus JS space.",
+    "The admitted recipe challenges/cases/v42/v42-baalz-special-program.recipe.session.json independently contains one segment with input ' #wizloaddes\\nbaalz.lua\\n#wizmap\\n'. Its input-only recording SHA-256 is 534bcaeafa66701701776fd3598e5fa4ad10eca0170e06a97fe8f902c78ab652; the evaluated recording SHA-256 is e9c61eb7ccd3bb01d963a220f7792ba4e5533458ffb93027f52315a5d9d6cf2e.",
+    "Fresh-process confirmation: node scripts/diff-fresh.mjs challenges/cases/v42/v42-baalz-special-program.recipe.session.json, run-lMDiR0, reproduced the mismatch (exit 1). It reports the first RNG mismatch at call 4200 (its one-based display) in segment 1 step 24, C rn2(15)=3 from place_lregion(mkmaze.c:396) versus JS rn2(1000)=403; screen boundary 32 differs at displayed row 7 column 29, C '-' versus JS space. The C and JS totals both contain 4218 RNG calls, and all cursors match.",
+    "Upstream nethack-c/upstream/src/mklev.c:1174-1193 shows the themed hook runs its post_level_generate callback and wallifies the full map. mklev.c:1414-1420 calls it after the common special-room fill loop. mklev.c:1544-1574 contains bound_digging, mineralize, topology updates, and no themed-room call; mklev.c:1586-1589 calls that function after makelevel.",
+    "Upstream nethack-c/upstream/src/wizcmds.c:376-391 routes #wizloaddes through reset, load, and lspo_finalize_level(NULL). Upstream sp_lev.c:6055-6059 calls level_finalize_topology before filling special rooms and contains no themerooms_post_level_generate call.",
+    "The JS condition is js/mklev.js:8026-8035: if _luathemes_loaded[dnum] it runs run_themeroom_postprocess and wallification before mineralize. js/mklev.js:898-902 fills special rooms but defers the hook to the shared topology finalizer. Because the wizard special-level command enters the same finalizer while the theme-loaded flag persists, the ordinary makelevel hook is repeated against the just-loaded Baalz map.",
+    "An isolated replay trace shows the repeated full-map wallification exposes 13 additional eligible STONE cells at x=77, y=5..17 to mineralize. The extra mineralization draws occur before C's next place_lregion call and account for the first RNG divergence; the remaining changed wall glyph accounts for the first screen divergence.",
+    "Implementation commit c9edd3a00e7192709862265e812dbed7931959d1 adds the mklev.js themerooms_post_level_generate helper and calls it from makelevel after all special-room fills on each generation return path. It removes themed postprocessing and wallification from level_finalize_topology. This keeps the ordinary source ordering from mklev.c:1414-1420 and leaves sp_lev.c:lspo_finalize_level NULL finalization without a second theme pass.",
+    "Focused validation at c9edd3a00e7192709862265e812dbed7931959d1 passed: node --test scripts/sp-lev-reset-finalize-level.test.mjs scripts/mklev-themerooms.test.mjs (log .cache/A2-baalz-focused.log) and npm run lint (log .cache/A2-baalz-lint.log). The source-pinned test checks C makelevel/topology placement and the runtime NULL-finalize test verifies a loaded JS theme queue is not run or cleared.",
+    "Fresh post-change differential passed at c9edd3a00e7192709862265e812dbed7931959d1: node scripts/diff-fresh.mjs challenges/cases/v42/v42-baalz-special-program.recipe.session.json (log .cache/A2-baalz-fresh.log, run-YJv85i). C and JS match all 4218 RNG values, 32 complete screens and 32 cursor positions; the case now matches through its final step.",
+    "node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json passed at c9edd3a00e7192709862265e812dbed7931959d1: the admitted v42 Baalz recording matches through segment 0, step 31."
+  ]
+}
