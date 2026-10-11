@@ -268853,7 +268853,7 @@
     {
       "id": "divergence-v45-camera-wielded-melee-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore source-ordered demon release when an expensive camera is destroyed in melee.",
       "cFile": "uhitm.c",
       "sessions": [],
@@ -268865,8 +268865,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "hmon_hitmon_misc_obj",
       "session": "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst",
       "step": 57,
@@ -269040,7 +269043,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
