@@ -149,6 +149,32 @@ test('makelevel runs themed postprocessing after room fills, outside topology fi
     assert.doesNotMatch(topology, /themerooms_post_level_generate/);
 });
 
+test('level finalization promotes morgue levels and preserves prior graveyards', async () => {
+    const topology = mklevFunctionBody('level_finalize_topology');
+    assert.match(topology,
+        /if \(svl\.level\.flags\.has_morgue\)\s+svl\.level\.flags\.graveyard = 1;/u);
+
+    await runLoader(0x4e56, async des => {
+        des.room({ type: 'ordinary', x: 10, y: 5, w: 4, h: 3, lit: 1 });
+        game.level.flags.has_morgue = true;
+        game.level.flags.graveyard = false;
+
+        await des.finalize_level();
+
+        assert.equal(game.level.flags.graveyard, true);
+    });
+
+    await runLoader(0x4e57, async des => {
+        des.room({ type: 'ordinary', x: 10, y: 5, w: 4, h: 3, lit: 1 });
+        game.level.flags.has_morgue = false;
+        game.level.flags.graveyard = true;
+
+        await des.finalize_level();
+
+        assert.equal(game.level.flags.graveyard, true);
+    });
+});
+
 test('finalize_level finishes the topology and clears Lua testing', async () => {
     await runLoader(0x4e52, async (des) => {
         await des.reset_level();
