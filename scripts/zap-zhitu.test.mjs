@@ -15,7 +15,7 @@ import { PM_FLESH_GOLEM, PM_IRON_GOLEM, PM_HUMAN, NON_PM, AD_DRST, PM_BLACK_DRAG
 import { newMonster } from '../js/monst.js';
 import { breamm } from '../js/mthrowu.js';
 import { mksobj } from '../js/obj.js';
-import { TOWEL, POT_BOOZE } from '../js/objects.js';
+import { KATANA, SHORT_SWORD, TOWEL, POT_BOOZE } from '../js/objects.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
 
 async function hero() {
@@ -96,6 +96,54 @@ test('resistance suppresses only the source damage and retains mandatory draws',
         assert.deepEqual(random.calls, calls);
         assert.ok(messages.includes(message), `beam ${type}`);
     }
+});
+
+test('acid corrosion reads both canonical weapon slots from live state', async () => {
+    const state = await hero();
+    const katana = mksobj(KATANA, false, false, { state });
+    const shortSword = mksobj(SHORT_SWORD, false, false, { state });
+    katana.where = shortSword.where = OBJ_INVENT;
+    katana.nobj = shortSword;
+    shortSword.nobj = null;
+    state.invent = katana;
+    state.uwep = katana;
+    state.uswapwep = shortSword;
+    state.u.twoweap = true;
+
+    const calls = [];
+    // exercise(A_STR) runs before the two weapon gates, then the armor
+    // erosion gate is deliberately missed.
+    const answers = [0, 0, 0, 1];
+    const messages = [];
+    const random = {
+        ...scripted(),
+        d: (count, sides) => {
+            calls.push(['d', count, sides]);
+            return 7;
+        },
+        rn2: (bound) => {
+            calls.push(['rn2', bound]);
+            assert.ok(answers.length,
+                `unexpected rn2(${bound}) after ${JSON.stringify(calls)}`);
+            return answers.shift();
+        },
+    };
+
+    await zhitu(7, 2, 'acid breath', 1, 1, state, random, {
+        ...quiet,
+        message: async (line) => messages.push(line),
+    });
+
+    assert.deepEqual(calls, [
+        ['d', 2, 6], ['rn2', 2], ['rn2', 3], ['rn2', 3], ['rn2', 6],
+    ]);
+    assert.deepEqual(messages, [
+        'The acid burns!',
+        'Your samurai sword corrodes!',
+        'Your short sword corrodes!',
+    ]);
+    assert.equal(katana.oeroded2, 1);
+    assert.equal(shortSword.oeroded2, 1);
 });
 
 test('fatal death rays hand off exact killer and grave state without losehp', async () => {

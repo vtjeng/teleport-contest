@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Production evidence for mhitm.c:passivemm in an unarmed AT_BITE giant-ant attack. The acid blob passive selects rn2(6)=0, calling trap.c:acid_damage(MON_WEP(magr)) with null MON_WEP; the separately retained armed-dwarf recipe remains blocked before its AT_WEAP path.",
+  "segments": [
+    {
+      "seed": 42763123,
+      "datetime": "20351104153700",
+      "nethackrc": "OPTIONS=name:AcidAnt,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\nb\n #wizintrinsic\n>>h\n #wizgenesis\nhostile acid blob\n #wizgenesis\nhostile giant ant\n . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

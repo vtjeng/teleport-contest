@@ -73,9 +73,13 @@ test('special room filling belongs to makelevel or post-topology direct finaliza
     const cMake = makeSource.slice(makeSource.indexOf('makelevel(void)\n{'), makeSource.indexOf('makelevel(void)\n{') + 8500);
     assert.match(cMake, /Fill all special rooms now, regardless[\s\S]*fill_special_room\(&svr\.rooms\[i\]\);/u); // mklev.c1414–1418 common tail.
     const jsMake = js.slice(js.indexOf('async function makelevel('), js.indexOf('// C ref: mklev.c mk_knox_portal()'));
-    // Five special-generation returns and the ordinary common tail all fill.
-    assert.equal((jsMake.match(/await fillSpecialRooms\(\);/gu) ?? []).length, 6);
-    assert.equal((jsMake.match(/await (?:makemaz|specialLevelApi\.finish)\([^;]*;\n\s+await fillSpecialRooms\(\);\n\s+return;/gu) ?? []).length, 5);
+    // Five special-generation returns and the ordinary common tail all use
+    // the shared fill-then-theme helper.
+    assert.match(jsMake,
+        /const finishLevelGeneration = async \(\) => \{\s*await fillSpecialRooms\(\);\s*(?:\/\/[^\n]*\n\s*)?themerooms_post_level_generate\(g\);\s*\};/u);
+    assert.equal((jsMake.match(/await fillSpecialRooms\(\);/gu) ?? []).length, 1);
+    assert.equal((jsMake.match(/await finishLevelGeneration\(\);/gu) ?? []).length, 6);
+    assert.equal((jsMake.match(/await (?:makemaz|specialLevelApi\.finish)\([^;]*;\n\s+await finishLevelGeneration\(\);\n\s+return;/gu) ?? []).length, 5);
     const finalize = js.slice(js.indexOf('export async function lspo_finalize_level('), js.indexOf('async function finishFixupSpecial('));
     assert.ok(finalize.indexOf('level_finalize_topology();') < finalize.indexOf('await fill_special_room(')); // sp_lev.c6055–6059: mineralize first.
 });
