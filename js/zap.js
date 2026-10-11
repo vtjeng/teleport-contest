@@ -188,7 +188,7 @@ import { stairway_at } from './stairs.js';
 
 import { acid_damage, burnarmor } from './trap_erode_obj.js';
 import {
-    conjoined_pits, delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, t_at, trapname, trap_ice_effects } from './trap.js';
+    conjoined_pits, delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, sokoban_guilt, t_at, trapname, trap_ice_effects } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import {
     erode_armor, flash_hits_mon, m_is_steadfast, shade_miss,
@@ -2305,11 +2305,8 @@ export async function poly_obj(obj, id, state = game,
     const oldLocation = obj.where;
     let replacement;
 
-    // zap.c keeps Sokoban's guilt accounting even though the terrain owner is
-    // not part of this span.  Keep the discarded call visible rather than
-    // silently changing that source branch.
     if (obj.otyp === BOULDER)
-        note_unported('sokoban.c sokoban_guilt');
+        sokoban_guilt(state);
 
     if (id === STRANGE_OBJECT) {
         // A degraded unicorn horn has lost its magic status before the
@@ -2778,7 +2775,7 @@ export async function fracture_rock(obj, state = game, random = { rn1 }, rawEnv 
         }
     }
     if (byHero && obj.otyp === BOULDER)
-        note_unported('sokoban.c sokoban_guilt');
+        sokoban_guilt(state);
 
     obj.otyp = ROCK;
     obj.oclass = GEM_CLASS;

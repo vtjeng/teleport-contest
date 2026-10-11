@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent wizard Sokoban recipe for the boulder branch in zap.c:poly_obj; seed and timestamp selected for this source task.",
+  "segments": [{
+    "seed": 55791023,
+    "datetime": "20550304112800",
+    "nethackrc": "OPTIONS=name:GuiltPoly,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait,pettype:none\n",
+    "moves": "  #wizlevelport\n?\n>B\n   \u0017wand of polymorph\n\u0017boulder\nhznl#conduct\n"
+  }]
+}
