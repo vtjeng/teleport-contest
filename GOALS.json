@@ -266501,6 +266501,63 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-dog-keepdogs-v43-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port dog.c monster departure and keepdogs transfer handling",
+      "cFile": "dog.c",
+      "sessions": [
+        "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst"
+      ],
+      "selectionReason": "The current combined queue has one mismatching session; its complete source investigation attributes the step-165 stop to dog.c:keepdogs after the accepted apply.c work.",
+      "detail": "Port whole dog.c mon_leave, keep_mon_accessible, and keepdogs; wire do.c, end.c, and wizcmds.c callers; preserve mon_leave's returned worm count in migrate_to_level. dog.c losedogs and mon_arrive remain a downstream task.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mon_leave",
+          "line": 729,
+          "endLine": 767,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "keep_mon_accessible",
+          "line": 768,
+          "endLine": 788,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "keepdogs",
+          "line": 789,
+          "endLine": 886,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 729,
+        "to": 886
+      },
+      "syntheticProvenance": {
+        "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst": {
+          "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+          "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+          "evaluationPath": "challenges/evaluations/accepted-b567b6d2f72f23031b3f83d8996be9856dc36db9-v43.json",
+          "evaluationCommit": "b567b6d2f72f23031b3f83d8996be9856dc36db9"
+        }
+      }
     }
   ]
 }
