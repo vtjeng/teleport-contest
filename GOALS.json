@@ -271817,8 +271817,8 @@
           "name": "offer_real_amulet",
           "line": 1529,
           "endLine": 1591,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -272167,7 +272167,64 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "offer_real_amulet",
+            "implementation": "js/pray.js",
+            "symbol": "offer_real_amulet",
+            "sourceReview": "Read pray.c:1529-1589 in definition order. Ported Amulet_off, carried/useup versus useupf, the offering message, and all A_NONE, opposing-alignment, and matching-alignment branches in source evaluation order: alignment-record cap, death and life-saved continuation, fry_by_god and smoke/escape; alignment penalty and dominion messages; ascension state, alignment adjustment, godvoice, message-window flush, SetVoice macro, verbalize, rank message, and done. C makes no RNG calls. The called helpers with consumed return values (carried, a_gname/u_gname, s_suffix, hcolor) have existing JS owners; all other C helper results are discarded, and no additional callee was introduced. Removed the pray.c offer_real_amulet refusal.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "dosacrifice",
+                "source": "pray.c:dosacrifice at 1874-1879 calls offer_real_amulet after selecting a real AMULET_OF_YENDOR on a high altar."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/offer-real-amulet-moloch-continuation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+                "segment": 0,
+                "fromStep": 1,
+                "throughStep": 161,
+                "source": "cmd.c: extended #offer dispatch -> pray.c:dosacrifice -> pray.c:offer_real_amulet on the Sanctum high altar"
+              }
+            ],
+            "checkedAt": "7a282b9554f1b5c28e449615058ac7b741161e3d"
+          }
+        ],
+        "entryPointReview": "The selected static helper has one C call site, pray.c:dosacrifice. cmd.c exposes dosacrifice both as the extended #offer command and through MCMD_OFFER in act_on_act; the JS extended-command dispatcher and cmd.js act_on_act/queued-function path both reach pray.js:dosacrifice. The admitted case and new recipe exercise #offer on the Sanctum high altar with a real Amulet. The TTY recorder build includes all exercised calls; SetVoice is a TTY-build macro with no runtime effect. No excluded active caller or unported return-valued dependency remains in offer_real_amulet.",
+        "entryPoints": [
+          {
+            "name": "Extended command #offer with a real Amulet on the Sanctum high altar",
+            "functions": [
+              "offer_real_amulet"
+            ],
+            "recordings": [
+              "recordings/pray.c/offer-real-amulet-moloch-continuation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+                "segment": 0,
+                "fromStep": 1,
+                "throughStep": 161,
+                "source": "cmd.c: extended #offer dispatch -> pray.c:dosacrifice -> pray.c:offer_real_amulet on the Sanctum high altar"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
