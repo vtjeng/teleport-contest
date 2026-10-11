@@ -1,0 +1,158 @@
+{
+  "session": "synthetic/v46/v46-troll-meal-corrected-attempt1",
+  "corpus": "synthetic",
+  "batch": "v46",
+  "caseId": "v46-troll-meal-corrected-attempt1",
+  "manifestPath": "challenges/manifests/v46.json",
+  "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+  "recordingPath": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.session.json",
+  "recordingSha256": "7b21556fcbe35269105073a25f22182ca9b06c808a75e84910aa6c570581dc11",
+  "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+  "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+  "remainingScreens": 3,
+  "recordedSteps": 52,
+  "status": "resolved",
+  "commit": "660dcb56d1c8d1a6b7dfefd994f82213a6e89e6d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v46",
+    "caseId": "v46-troll-meal-corrected-attempt1",
+    "session": "synthetic/v46/v46-troll-meal-corrected-attempt1",
+    "manifestPath": "challenges/manifests/v46.json",
+    "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+    "recording": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.session.json",
+    "recordingPath": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.session.json",
+    "recordingSha256": "7b21556fcbe35269105073a25f22182ca9b06c808a75e84910aa6c570581dc11",
+    "recipe": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.recipe.session.json",
+    "recipeSha256": "57caf6728f7d37df89943ea9653544a3f488a4ff415187d88ef958252c4ba48b",
+    "replayInputSha256": "939a3647d9cd362f2f28248cb75d1d57e0b1034405e548296ad75973ec29fe2d",
+    "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+    "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+    "evaluationArtifact": "challenges/evaluations/v46-baseline-29c284d97.json",
+    "evaluationUtc": "2026-10-11T15:24:07.625Z",
+    "remainingScreens": 3,
+    "recordedSteps": 52,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 49,
+        "total": 52
+      },
+      "rng": {
+        "matched": 3505,
+        "total": 3505
+      },
+      "cursors": {
+        "matched": 51,
+        "total": 52
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 31,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 31,
+          "key": "o"
+        },
+        "kind": "ch",
+        "row": 15,
+        "column": 37,
+        "cCell": {
+          "ch": ".",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "T",
+          "color": 3,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3505,
+        "cCaller": null,
+        "jsEntry": "rn2(5)=1",
+        "stepIndex": null
+      },
+      "cursor": {
+        "index": 32,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 32,
+          "key": " "
+        },
+        "cCursor": [
+          41,
+          0,
+          1
+        ],
+        "jsCursor": [
+          38,
+          14,
+          1
+        ]
+      }
+    },
+    "step": 31,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v46 troll-meal divergence is resolved. js/eat.js now ports the whole eat.c:cant_finish_meal() state transition and js/zap.js calls it in C source order before corpse location or creation. The selected C/JavaScript replay matches all 3505 RNG calls, 52 screens, and 52 cursors through the end of the recording.",
+  "source": {
+    "file": "eat.c",
+    "branch": "When the corpse being revived is the current eatfood occupation piece, C clears the whole victual state, marks a previously unbitten corpse with oeaten=1, replaces the occupation with donull, then runs stop_occupation() and newuhs(FALSE) in source order. The v46 wished troll corpse reaches this branch from its object revival timeout while a meal is active.",
+    "functions": [
+      "cant_finish_meal"
+    ],
+    "callers": [
+      "C direct caller zap.c:revive():909; the admitted timeout route is timeout.c REVIVE_MON -> do.c:revive_mon():2251-2294 -> do.c:revive_corpse() -> zap.c:revive().",
+      "JavaScript direct caller js/zap.js:revive():573 currently calls note_unported; the admitted timeout route is js/timeout.js REVIVE_MON -> js/do.js:revive_mon() -> revive_corpse() -> js/zap.js:revive()."
+    ],
+    "dependencies": [
+      "Reuse js/eat.js:zero_victual() for the C zero_victual struct.",
+      "Reuse allmain.c:stop_occupation() through js/allmain.js; it is asynchronous and must be awaited after setting the non-eat occupation.",
+      "Reuse do.c:donull() through js/cmd.js:donull as the non-null C occupation callback, and reuse eat.c:newuhs(FALSE) through js/eat.js:newuhs(false)."
+    ]
+  },
+  "goalKind": "file-port",
+  "selectionReason": "Selected as the next unreserved source-distinct v46 candidate after the shopkeeper case; the saved combined queue SHA-256 is e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2. B owns the preceding swamp case and C owns the prayer-region case. The selected input is a Wizard wishing for and starting to eat a troll corpse; its short revival timer fires during the meal.",
+  "evidence": [
+    "The saved combined queue reports 3 unmatched screens over 52 recorded steps. At segment 0 step 31 on key o, the first differing cell is row 15 column 37: C shows floor and JavaScript shows a troll. RNG matches through all 3505 C calls, but JavaScript later makes an extra rn2(5)=1 at call 3506; the cursor differs at the next boundary.",
+    "Fresh differential run run-tJcyqO reproduced the baseline mismatch on the selected recipe: C has 3505 RNG calls versus JS 3515; screen boundary 32 first differs at row 16 column 38 (C floor, JS troll), with the cursor diverging at boundary 33. The independent full v46 C recording is immutable and has matching recipe inputs.",
+    "Upstream nethack-c/upstream/src/zap.c:revive():906-910 explicitly calls cant_finish_meal(corpse) before object-location and revival creation, so its side effects happen before makemon() can interrupt eating. Upstream src/eat.c:cant_finish_meal():3893-3912 guards on go.occupation==eatfood and victual.piece==corpse, then zeroes victual, sets oeaten to 1 only when absent, sets occupation to donull, calls stop_occupation(), and calls newuhs(FALSE).",
+    "JavaScript js/zap.js:573-575 has the same active call position but substitutes note_unported(\"eat.c cant_finish_meal\"). Existing helpers are already present: js/eat.js:zero_victual(), js/allmain.js:stop_occupation(), js/cmd.js:donull(), and js/eat.js:newuhs(). The whole missing source owner is the single eat.c:cant_finish_meal function; no extra source family is required.",
+    "The implementation ports the complete eat.c:cant_finish_meal() body to js/eat.js, preserving the matching eatfood-and-piece guard, zero_victual assignment, oeaten floor of 1, non-null donull assignment, stop_occupation(), and newuhs(FALSE) order. js/zap.js:revive now awaits the helper after its source-ordered corpse-type and reviver classification and before location lookup, replacing the note_unported gap.",
+    "Focused bounded tests pass: scripts/eat-occupation.test.mjs and scripts/do-revive.test.mjs, 46/46 total. They verify the exact matching-corpse guard, preserved oeaten object, occupation stop output and zeroed victual, and the zap.c:revive caller path with a locked corpse that cannot proceed to creation.",
+    "Fresh post-change differential run run-KaEqjE passes for synthetic/v46/v46-troll-meal-corrected-attempt1, segment 0 steps 0-51: C and JavaScript match 3505 RNG values, all 52 screens and attributes, and all 52 cursor positions."
+  ],
+  "resolution": {
+    "implementation": "js/eat.js ports eat.c:cant_finish_meal() (3893-3912) and js/zap.js:revive awaits the owner immediately after the C-equivalent reviver classification, before location lookup.",
+    "focusedTests": [
+      "scripts/eat-occupation.test.mjs",
+      "scripts/do-revive.test.mjs"
+    ],
+    "admittedSynthetic": {
+      "batch": "v46",
+      "caseId": "v46-troll-meal-corrected-attempt1",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 51,
+      "matchedScreens": 52,
+      "matchedRng": 3505,
+      "matchedCursors": 52
+    },
+    "freshRun": "run-KaEqjE",
+    "firstMismatch": null
+  }
+}
