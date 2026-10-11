@@ -1,0 +1,1775 @@
+{
+  "version": 1,
+  "batch": "v46",
+  "status": "prepared",
+  "preparationAssignmentBase": "0bc6e0e64358a89c2aff59ac973ae787297ad06d",
+  "deliveryBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+  "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+  "acceptedGameImplementationCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+  "priorBatch": "v45",
+  "priorBatchManifestEvidence": {
+    "path": "challenges/manifests/v45.json",
+    "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+  },
+  "priorBatchCaseIds": [
+    "v45-leash-sleep-wand-strain-cfirst-corrected",
+    "v45-quest-finish-thrown-artifact-cfirst-corrected",
+    "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+    "v45-camera-wielded-northwest-result-attempt9-cfirst",
+    "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+    "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+    "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+    "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+    "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+    "v45-stealamulet-wizard-demon-attempt10-cfirst",
+    "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+    "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+    "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+    "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+    "v45-arc-filb-level-program-cfirst",
+    "v45-pri-filb-level-program-cfirst",
+    "v45-bar-fila-level-program-cfirst",
+    "v45-discard-migrations-next-list-attempt8-cfirst",
+    "v45-voluntary-quit-cfirst"
+  ],
+  "currentUnresolvedQueueEvidence": {
+    "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+    "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+    "status": "ready",
+    "availability": "available",
+    "selectionBlocked": false,
+    "unmatchedSessions": 0,
+    "candidates": []
+  },
+  "unresolvedOlderCaseIds": [],
+  "caseCount": 14,
+  "qualifyingDistinctMismatchCount": 9,
+  "matchingControlCount": 5,
+  "validTargetMissCount": 0,
+  "cases": [
+    {
+      "id": "v46-lit-candle-split-attempt8",
+      "title": "Splitting a lit candle stack preserves light-source behavior",
+      "mission": "Correct the drop-quantity prompt to split a lit candle stack. The C source reaches obj_split_light_source and splitobj; all RNG/cursors match, but the floor/light display first differs at step 25.",
+      "sourcePointers": [
+        "light.c:obj_split_light_source",
+        "mkobj.c:splitobj"
+      ],
+      "sourceTrace": "Correct the drop-quantity prompt to split a lit candle stack. The C source reaches obj_split_light_source and splitobj; all RNG/cursors match, but the floor/light display first differs at step 25.",
+      "cOutcome": "Correct the drop-quantity prompt to split a lit candle stack. The C source reaches obj_split_light_source and splitobj; all RNG/cursors match, but the floor/light display first differs at step 25.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before JavaScript comparison; the first mismatch is source-traced and adjudicated distinct.",
+      "outcome": "mismatch",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46100104,
+            "datetime": "20561204081234",
+            "moves": "#wizwish\n5 candles\nand1n",
+            "nethackrc": "OPTIONS=name:V46CandleSplit8,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-lit-candle-split-attempt8.recipe.session.json",
+      "recipeSha256": "b712826483f5e46a3ee11bd892c344f25234321c5485521369d6a91be9763cae",
+      "recording": "challenges/cases/v46/v46-lit-candle-split-attempt8.session.json",
+      "recordingSha256": "03b8e83b6e60bf827d31e7e98e3c73eed129889d02a258a6d3f6d42d502a7341",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-lit-candle-split-attempt8",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-lit-candle-split-attempt8.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-lit-candle-split-attempt8.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-lit-candle-split-attempt8.log",
+        "logSha256": "fc2690aa7cea4ac19d853c61b24c522df8ab591e1d14a79f622f14d8f86a0a57",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-lit-candle-split-attempt8.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-lit-candle-split-attempt8.session.json",
+        "outputSha256": "03b8e83b6e60bf827d31e7e98e3c73eed129889d02a258a6d3f6d42d502a7341",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-lit-candle-split-attempt8",
+        "result": "FAIL",
+        "exitCode": 1,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-lit-candle-split-attempt8.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/diff-v46-lit-candle-attempt8-main249.log",
+        "logSha256": "342752c6a9cd9fcac9c535003143ea7addacbb7649e9d82002cd7664c6d1cfb5",
+        "summary": "bounded run-OiLnJw: teleport-validation-c07c5cb6a06d88a199fc74eb.service; logs /tmp/teleport-validation-1000/run-OiLnJw\nPRNG length: C=2891, JS=2891\nPRNG values: match\nScreen length: C=25, JS=25\nFirst screen mismatch at boundary 25 (segment 1, step 25, key \"n\"):\n  Cell row 1, column 30 (ch):\n  C: {ch:\" \", rendered:\" \", color:8, attr:0 (none), decgfx:0}\n  JS: {ch:\".\", rendered:\".\", color:8, attr:0 (none), decgfx:0}\nCursor length: C=25, JS=25\nCursor values: match\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL\nbounded run-OiLnJw: exit-code; receipt /tmp/teleport-validation-1000/run-OiLnJw/receipt.json"
+      },
+      "firstMismatch": {
+        "step": 25,
+        "boundary": 25,
+        "key": "n",
+        "rngCall": null,
+        "owner": "light.c:obj_split_light_source -> mkobj.c:splitobj",
+        "behavior": "Correct the drop-quantity prompt to split a lit candle stack. The C source reaches obj_split_light_source and splitobj; all RNG/cursors match, but the floor/light display first differs at step 25.",
+        "description": "Correct the drop-quantity prompt to split a lit candle stack. The C source reaches obj_split_light_source and splitobj; all RNG/cursors match, but the floor/light display first differs at step 25.",
+        "screenBoundary": 25
+      },
+      "distinctMismatch": true,
+      "mismatchOrdinal": 1,
+      "closestEarlierCases": [
+        "v25:v25-drop-lit-candle",
+        "v27:v27-merge-lit-candles"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v25:v25-drop-lit-candle",
+          "v27:v27-merge-lit-candles"
+        ],
+        "causalDistinction": "Prior cases cover candle merge/placement; this route splits a lit source stack with an explicit quantity."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-crystal-ball-furniture-attempt10",
+      "title": "Crystal-ball furniture detection follows browse_map",
+      "mission": "Use a crystal ball over furniture detection and select the hero’s position. C omits the JS rn2(70) draw at call 2545; first screen/cursor boundary is 40.",
+      "sourcePointers": [
+        "detect.c:use_crystal_ball",
+        "detect.c:furniture_detect",
+        "detect.c:browse_map"
+      ],
+      "sourceTrace": "Use a crystal ball over furniture detection and select the hero’s position. C omits the JS rn2(70) draw at call 2545; first screen/cursor boundary is 40.",
+      "cOutcome": "Use a crystal ball over furniture detection and select the hero’s position. C omits the JS rn2(70) draw at call 2545; first screen/cursor boundary is 40.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before JavaScript comparison; the first mismatch is source-traced and adjudicated distinct.",
+      "outcome": "mismatch",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46100301,
+            "datetime": "20561206091234",
+            "moves": " #wizwish\nblessed +3 crystal ball\nan < \u001b.",
+            "nethackrc": "OPTIONS=name:V46FurnitureScan10,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.recipe.session.json",
+      "recipeSha256": "de818c387f56428a626a50c0e00f47fc273cebb4e038c3951761a361422ee1fd",
+      "recording": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+      "recordingSha256": "dd5c6b89f329a04517f0d03aad17b4c6b959e358c63a9e682749da00d038d612",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-crystal-ball-furniture-attempt10",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-crystal-ball-furniture-attempt10.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-crystal-ball-furniture-attempt10.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-crystal-ball-furniture-attempt10.log",
+        "logSha256": "2e50e8bd6486cf109f946dc79deb8d4f982e8c4ef429c14a052e51e18e8913ad",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-crystal-ball-furniture-attempt10.session.json",
+        "outputSha256": "dd5c6b89f329a04517f0d03aad17b4c6b959e358c63a9e682749da00d038d612",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-crystal-ball-furniture-attempt10",
+        "result": "FAIL",
+        "exitCode": 1,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-crystal-ball-furniture-attempt10.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/diff-v46-crystal-ball-furniture-attempt10-main249.log",
+        "logSha256": "bbe4b160d97babfc54cdca9b3af24fb13d4e8e51aecf5a3ff2fe6727e7113d98",
+        "summary": "bounded run-VYmxtG: teleport-validation-7a6c9457d2ae1a45ed9d2b3d.service; logs /tmp/teleport-validation-1000/run-VYmxtG\nPRNG length mismatch: C=2544, JS=2547\nFirst PRNG mismatch at call 2545:\n  C: <missing>\n  C caller: <unavailable>\n  JS: rn2(70)=32\nScreen length: C=42, JS=42\nFirst screen mismatch at boundary 40 (segment 1, step 40, key \" \"):\n  Cell row 1, column 11 (ch):\n  C: {ch:\"T\", rendered:\"T\", color:8, attr:0 (none), decgfx:0}\n  JS: {ch:\" \", rendered:\" \", color:8, attr:0 (none), decgfx:0}\nCursor length: C=42, JS=42\nFirst cursor mismatch at boundary 40 (segment 1, step 40, key \" \"):\n  C: [16,8,1]\n  JS: [39,5,1]\nAnimation frame length: C=1, JS=1\nFirst animation mismatch at boundary 40 (segment 1, step 40, key \" \"):\n  C: 0 frame(s)\n  JS: 1 frame(s)\nRESULT: FAIL\nbounded run-VYmxtG: exit-code; receipt /tmp/teleport-validation-1000/run-VYmxtG/receipt.json"
+      },
+      "firstMismatch": {
+        "step": 40,
+        "boundary": 40,
+        "key": " ",
+        "rngCall": 2545,
+        "owner": "detect.c:use_crystal_ball -> furniture_detect -> browse_map",
+        "behavior": "Use a crystal ball over furniture detection and select the hero’s position. C omits the JS rn2(70) draw at call 2545; first screen/cursor boundary is 40.",
+        "description": "Use a crystal ball over furniture detection and select the hero’s position. C omits the JS rn2(70) draw at call 2545; first screen/cursor boundary is 40.",
+        "screenBoundary": 40
+      },
+      "distinctMismatch": true,
+      "mismatchOrdinal": 2,
+      "closestEarlierCases": [
+        "v27:v27-crystal-ball-object",
+        "v27:v27-crystal-ball-ghost-detection"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v27:v27-crystal-ball-object",
+          "v27:v27-crystal-ball-ghost-detection"
+        ],
+        "causalDistinction": "Earlier cases browse objects and monsters; this route reaches the separate furniture_detect source path."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-prayer-region-safety-attempt11",
+      "title": "Prayer TROUBLE_REGION invokes region_safety",
+      "mission": "Wish a blessed stinking-cloud scroll, invoke prayer, answer the source-observed prompt and inspect the map. RNG matches; C removes/updates the cloud region and JS shows a different map at boundary 61.",
+      "sourcePointers": [
+        "pray.c:pray",
+        "pray.c:TROUBLE_REGION",
+        "region.c:region_safety"
+      ],
+      "sourceTrace": "Wish a blessed stinking-cloud scroll, invoke prayer, answer the source-observed prompt and inspect the map. RNG matches; C removes/updates the cloud region and JS shows a different map at boundary 61.",
+      "cOutcome": "Wish a blessed stinking-cloud scroll, invoke prayer, answer the source-observed prompt and inspect the map. RNG matches; C removes/updates the cloud region and JS shows a different map at boundary 61.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before JavaScript comparison; the first mismatch is source-traced and adjudicated distinct.",
+      "outcome": "mismatch",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46100802,
+            "datetime": "20561208091234",
+            "moves": " #wizwish\nblessed scroll of stinking cloud\nrn    . #pray\ny y #wizmap\n",
+            "nethackrc": "OPTIONS=name:V46PrayerRegion2,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-prayer-region-safety-attempt11.recipe.session.json",
+      "recipeSha256": "1366e07953c1e3b9633e79a19fbb2e41f39d329e869d2f1729275f6973bb0f41",
+      "recording": "challenges/cases/v46/v46-prayer-region-safety-attempt11.session.json",
+      "recordingSha256": "7c5b0cc8de3c2b6553f98ac23dfe35875aac473ba02083946e754d03e6a65e1b",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-prayer-region-safety-attempt11",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-prayer-region-safety-attempt11.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-prayer-region-safety-attempt11.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-prayer-region-safety-attempt11.log",
+        "logSha256": "f51ac8144680f5021341b63ea5146d1e88dda00eeda6478763ce546a68e874cd",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-prayer-region-safety-attempt11.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-prayer-region-safety-attempt11.session.json",
+        "outputSha256": "7c5b0cc8de3c2b6553f98ac23dfe35875aac473ba02083946e754d03e6a65e1b",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-prayer-region-safety-attempt11",
+        "result": "FAIL",
+        "exitCode": 1,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-prayer-region-safety-attempt11.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/diff-v46-prayer-region-safety-attempt11-main249.log",
+        "logSha256": "6f80a4739d8b23a463317b2376751dd2df8234a983a3c2dcb8f571725de9cfdf",
+        "summary": "bounded run-vyEze4: teleport-validation-c31b3423ab012cbf499c260e.service; logs /tmp/teleport-validation-1000/run-vyEze4\nPRNG length: C=3317, JS=3317\nPRNG values: match\nScreen length: C=70, JS=70\nFirst screen mismatch at boundary 61 (segment 1, step 61, key \"y\"):\n  Cell row 1, column 59 (ch):\n  C: {ch:\"-\", rendered:\"-\", color:8, attr:0 (none), decgfx:0}\n  JS: {ch:\" \", rendered:\" \", color:8, attr:0 (none), decgfx:0}\nCursor length: C=70, JS=70\nFirst cursor mismatch at boundary 61 (segment 1, step 61, key \"y\"):\n  C: [66,0,1]\n  JS: [37,11,1]\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL\nbounded run-vyEze4: exit-code; receipt /tmp/teleport-validation-1000/run-vyEze4/receipt.json"
+      },
+      "firstMismatch": {
+        "step": 61,
+        "boundary": 61,
+        "key": "y",
+        "rngCall": null,
+        "owner": "pray.c:TROUBLE_REGION -> region.c:region_safety",
+        "behavior": "Wish a blessed stinking-cloud scroll, invoke prayer, answer the source-observed prompt and inspect the map. RNG matches; C removes/updates the cloud region and JS shows a different map at boundary 61.",
+        "description": "Wish a blessed stinking-cloud scroll, invoke prayer, answer the source-observed prompt and inspect the map. RNG matches; C removes/updates the cloud region and JS shows a different map at boundary 61.",
+        "screenBoundary": 61
+      },
+      "distinctMismatch": true,
+      "mismatchOrdinal": 3,
+      "closestEarlierCases": [
+        "v32:v32-prayer-stoning",
+        "v32:v32-prayer-strangulation",
+        "v32:v32-prayer-blindness",
+        "v32:v32-prayer-lycanthropy"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v32:v32-prayer-stoning",
+          "v32:v32-prayer-strangulation",
+          "v32:v32-prayer-blindness",
+          "v32:v32-prayer-lycanthropy"
+        ],
+        "causalDistinction": "Older prayer cases exercise other trouble/cooldown branches; this is the region-based TROUBLE_REGION side effect."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-troll-meal-corrected-attempt1",
+      "title": "Troll revival interrupts an unfinished meal",
+      "mission": "Eat a wished troll corpse through the C-observed revival. C reaches cant_finish_meal to end the active meal; first screen divergence is step 32 and first missing RNG is call 3506 (C=3505, JS=3515).",
+      "sourcePointers": [
+        "zap.c:revive",
+        "eat.c:cant_finish_meal"
+      ],
+      "sourceTrace": "Eat a wished troll corpse through the C-observed revival. C reaches cant_finish_meal to end the active meal; first screen divergence is step 32 and first missing RNG is call 3506 (C=3505, JS=3515).",
+      "cOutcome": "Eat a wished troll corpse through the C-observed revival. C reaches cant_finish_meal to end the active meal; first screen divergence is step 32 and first missing RNG is call 3506 (C=3505, JS=3515).",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before JavaScript comparison; the first mismatch is source-traced and adjudicated distinct.",
+      "outcome": "mismatch",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46100960,
+            "datetime": "20571213082345",
+            "moves": " #wizwish\ncorpse of a troll\n eo                    ",
+            "nethackrc": "OPTIONS=name:V46TrollMealCorrected1,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.recipe.session.json",
+      "recipeSha256": "57caf6728f7d37df89943ea9653544a3f488a4ff415187d88ef958252c4ba48b",
+      "recording": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.session.json",
+      "recordingSha256": "7b21556fcbe35269105073a25f22182ca9b06c808a75e84910aa6c570581dc11",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-troll-meal-corrected-attempt1",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-troll-meal-corrected-attempt1.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-troll-meal-corrected-attempt1.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-troll-meal-corrected-attempt1.log",
+        "logSha256": "c8807a69c738bd62b0c69a119f9d01ca3c97b41969b307f6f4a7c05184a59237",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-troll-meal-corrected-attempt1.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-troll-meal-corrected-attempt1.session.json",
+        "outputSha256": "7b21556fcbe35269105073a25f22182ca9b06c808a75e84910aa6c570581dc11",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-troll-meal-corrected-attempt1",
+        "result": "FAIL",
+        "exitCode": 1,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-troll-meal-corrected-attempt1.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/diff-v46-troll-meal-corrected-attempt1-main249.log",
+        "logSha256": "9a4b7fe5c0128cb3a732e08916392c725d436f8fb48c4563d63721543603a54e",
+        "summary": "bounded run-GhBTZo: teleport-validation-200fc68044c3c4b57ad36596.service; logs /tmp/teleport-validation-1000/run-GhBTZo\nPRNG length mismatch: C=3505, JS=3515\nFirst PRNG mismatch at call 3506:\n  C: <missing>\n  C caller: <unavailable>\n  JS: rn2(5)=1\nScreen length: C=52, JS=52\nFirst screen mismatch at boundary 32 (segment 1, step 32, key \"o\"):\n  Cell row 16, column 38 (ch):\n  C: {ch:\".\", rendered:\".\", color:8, attr:0 (none), decgfx:0}\n  JS: {ch:\"T\", rendered:\"T\", color:3, attr:0 (none), decgfx:0}\nCursor length: C=52, JS=52\nFirst cursor mismatch at boundary 33 (segment 1, step 33, key \" \"):\n  C: [41,0,1]\n  JS: [38,14,1]\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL\nbounded run-GhBTZo: exit-code; receipt /tmp/teleport-validation-1000/run-GhBTZo/receipt.json"
+      },
+      "firstMismatch": {
+        "step": 32,
+        "boundary": 32,
+        "key": "o",
+        "rngCall": 3506,
+        "owner": "zap.c:revive -> eat.c:cant_finish_meal",
+        "behavior": "Eat a wished troll corpse through the C-observed revival. C reaches cant_finish_meal to end the active meal; first screen divergence is step 32 and first missing RNG is call 3506 (C=3505, JS=3515).",
+        "description": "Eat a wished troll corpse through the C-observed revival. C reaches cant_finish_meal to end the active meal; first screen divergence is step 32 and first missing RNG is call 3506 (C=3505, JS=3515).",
+        "screenBoundary": 32
+      },
+      "distinctMismatch": true,
+      "mismatchOrdinal": 4,
+      "closestEarlierCases": [
+        "v24:v24-troll-corpse-revives",
+        "v24:v24-troll-corpse-revives-forced-wait"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v24:v24-troll-corpse-revives",
+          "v24:v24-troll-corpse-revives-forced-wait"
+        ],
+        "causalDistinction": "Earlier troll cases cover revival/eating outside the active meal-interruption contract."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+      "title": "Stone-to-flesh reaches bhitm’s statue-mimic message branch",
+      "mission": "Cast Stone to Flesh at the peaceful statue-mimic. The first screen difference is the explicit bhitm mimic message at boundary 134. The later next_ident RNG divergence at 2922 is downstream, not the owner.",
+      "sourcePointers": [
+        "zap.c:bhitm",
+        "zap.c:set_msg_xy",
+        "zap.c:that_is_a_mimic"
+      ],
+      "sourceTrace": "Cast Stone to Flesh at the peaceful statue-mimic. The first screen difference is the explicit bhitm mimic message at boundary 134. The later next_ident RNG divergence at 2922 is downstream, not the owner.",
+      "cOutcome": "Cast Stone to Flesh at the peaceful statue-mimic. The first screen difference is the explicit bhitm mimic message at boundary 134. The later next_ident RNG divergence at 2922 is downstream, not the owner.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before JavaScript comparison; the first mismatch is source-traced and adjudicated distinct.",
+      "outcome": "mismatch",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46101174,
+            "datetime": "20581116141129",
+            "moves": " #wizwish\nfigurine of a newt\nltoh #wizgenesis\npeaceful large mimic\n#levelchange\n8\n       #wizwish\nspellbook of stone to flesh\nr?p Zcn ",
+            "nethackrc": "OPTIONS=name:V46StoneFig,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.recipe.session.json",
+      "recipeSha256": "eff679886f2437530df5a1c7bf6bc7b0372e8975d7cd13704b20249bba59b436",
+      "recording": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json",
+      "recordingSha256": "df4b4bad1ea9cd83a53f92044b186a5aa123e949fb48686d848fddf28a0f2d6b",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-stone-to-flesh-statue-mimic-cast-attempt11.log",
+        "logSha256": "6fbc3b7f5ecd1da418cb5b6a982995acbd0c7dbed248be844ec352cd65e93eec",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json",
+        "outputSha256": "df4b4bad1ea9cd83a53f92044b186a5aa123e949fb48686d848fddf28a0f2d6b",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+        "result": "FAIL",
+        "exitCode": 1,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/diff-v46-stone-to-flesh-statue-mimic-cast-attempt11-main249.log",
+        "logSha256": "e634f3c61cf96014d4c706e804db9393696b52613cdaa44c2b76038da9bcca1f",
+        "summary": "bounded run-ugBPq8: teleport-validation-4bbd78d6234034cbce4802e8.service; logs /tmp/teleport-validation-1000/run-ugBPq8\nPRNG length mismatch: C=2987, JS=2926\nFirst PRNG mismatch at call 2922 (segment 1, step 134, key \"n\"):\n  C: rnd(2)=1\n  C caller: next_ident(mkobj.c:521)\n  JS: rn2(12)=4\nScreen length: C=135, JS=135\nFirst screen mismatch at boundary 134 (segment 1, step 134, key \"n\"):\n  Cell row 1, column 1 (ch):\n  C: {ch:\"T\", rendered:\"T\", color:8, attr:0 (none), decgfx:0}\n  JS: {ch:\" \", rendered:\" \", color:8, attr:0 (none), decgfx:0}\nCursor length: C=135, JS=135\nCursor values: match\nAnimation frame length: C=4, JS=4\nAnimation frames: match\nRESULT: FAIL\nbounded run-ugBPq8: exit-code; receipt /tmp/teleport-validation-1000/run-ugBPq8/receipt.json"
+      },
+      "firstMismatch": {
+        "step": 134,
+        "boundary": 134,
+        "key": "n",
+        "rngCall": 2922,
+        "owner": "zap.c:bhitm -> set_msg_xy/that_is_a_mimic",
+        "behavior": "Cast Stone to Flesh at the peaceful statue-mimic. The first screen difference is the explicit bhitm mimic message at boundary 134. The later next_ident RNG divergence at 2922 is downstream, not the owner.",
+        "description": "Cast Stone to Flesh at the peaceful statue-mimic. The first screen difference is the explicit bhitm mimic message at boundary 134. The later next_ident RNG divergence at 2922 is downstream, not the owner.",
+        "screenBoundary": 134
+      },
+      "distinctMismatch": true,
+      "mismatchOrdinal": 5,
+      "closestEarlierCases": [
+        "v19:cancellation-reveals-hostile-large-mimic-c62"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v19:cancellation-reveals-hostile-large-mimic-c62"
+        ],
+        "causalDistinction": "v19 exercises seemimic/cancel_monst, not bhitm’s set_msg_xy/that_is_a_mimic arm."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-random-swamp-room-depth16-seed46101100",
+      "title": "Ordinary depth-16 generation reaches mkswamp",
+      "mission": "Use #wizlevelport to enter depth 16 with the seed reaching SWAMP. At step 19 Enter, C consumes rn2(5)=1 at call 4185 in mkswamp(mkroom.c:559), while JS takes rn2(3)=0.",
+      "sourcePointers": [
+        "mklev.c:makelevel",
+        "mkroom.c:mkswamp"
+      ],
+      "sourceTrace": "Use #wizlevelport to enter depth 16 with the seed reaching SWAMP. At step 19 Enter, C consumes rn2(5)=1 at call 4185 in mkswamp(mkroom.c:559), while JS takes rn2(3)=0.",
+      "cOutcome": "Use #wizlevelport to enter depth 16 with the seed reaching SWAMP. At step 19 Enter, C consumes rn2(5)=1 at call 4185 in mkswamp(mkroom.c:559), while JS takes rn2(3)=0.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before JavaScript comparison; the first mismatch is source-traced and adjudicated distinct.",
+      "outcome": "mismatch",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46101100,
+            "datetime": "20561208091234",
+            "moves": " #wizlevelport\n16\n #wizmap\n",
+            "nethackrc": "OPTIONS=name:V46SwampDepth1646101100,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.recipe.session.json",
+      "recipeSha256": "f12a4b07fd9983175d9f265378febf62e1aa8d369379d6e532f052dcbfa438d2",
+      "recording": "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.session.json",
+      "recordingSha256": "14f8dfb253b1f4cc8c2b06583a0af45e9a759555349b562fa1c2beb0d3455151",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-random-swamp-room-depth16-seed46101100",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-random-swamp-room-depth16-seed46101100.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-random-swamp-room-depth16-seed46101100.log",
+        "logSha256": "afa90dffdc8d9dd66fa13ae3c9d42b4a8483a20c4f48e2826bb523fcf85c39ce",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-random-swamp-room-depth16-seed46101100.session.json",
+        "outputSha256": "14f8dfb253b1f4cc8c2b06583a0af45e9a759555349b562fa1c2beb0d3455151",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-random-swamp-room-depth16-seed46101100",
+        "result": "FAIL",
+        "exitCode": 1,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/diff-v46-random-swamp-room-depth16-seed46101100-main249.log",
+        "logSha256": "62506fc741427e74da0b5307f10009df07b2b89d3331f9bc4e123fdd6bc0dd92",
+        "summary": "bounded run-bulOy6: teleport-validation-4969e8aef5a50f83ff6615df.service; logs /tmp/teleport-validation-1000/run-bulOy6\nPRNG length mismatch: C=5183, JS=5741\nFirst PRNG mismatch at call 4185 (segment 1, step 19, key \"\\n\"):\n  C: rn2(5)=1\n  C caller: mkswamp(mkroom.c:559)\n  JS: rn2(3)=0\nScreen length: C=28, JS=28\nFirst screen mismatch at boundary 19 (segment 1, step 19, key \"\\n\"):\n  Cell row 1, column 38 (ch):\n  C: {ch:\"-\", rendered:\"-\", color:8, attr:0 (none), decgfx:0}\n  JS: {ch:\" \", rendered:\" \", color:8, attr:0 (none), decgfx:0}\nCursor length: C=28, JS=28\nFirst cursor mismatch at boundary 19 (segment 1, step 19, key \"\\n\"):\n  C: [45,0,1]\n  JS: [20,9,1]\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL\nbounded run-bulOy6: exit-code; receipt /tmp/teleport-validation-1000/run-bulOy6/receipt.json"
+      },
+      "firstMismatch": {
+        "step": 19,
+        "boundary": 19,
+        "key": "\n",
+        "rngCall": 4185,
+        "owner": "mkroom.c:mkswamp",
+        "behavior": "Use #wizlevelport to enter depth 16 with the seed reaching SWAMP. At step 19 Enter, C consumes rn2(5)=1 at call 4185 in mkswamp(mkroom.c:559), while JS takes rn2(3)=0.",
+        "description": "Use #wizlevelport to enter depth 16 with the seed reaching SWAMP. At step 19 Enter, C consumes rn2(5)=1 at call 4185 in mkswamp(mkroom.c:559), while JS takes rn2(3)=0.",
+        "screenBoundary": 19
+      },
+      "distinctMismatch": true,
+      "mismatchOrdinal": 6,
+      "closestEarlierCases": [
+        "v43:v43-minetn-6-special-program",
+        "v43:v43-wiz-loca-special-program-cfirst"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v43:v43-minetn-6-special-program",
+          "v43:v43-wiz-loca-special-program-cfirst"
+        ],
+        "causalDistinction": "Prior cases execute special Lua programs; the first mismatch is inside the ordinary level’s mkswamp room loop. A depth-five mkswamp full-match control is also retained."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+      "title": "Reading earth in Sokoban reaches sokoban_guilt",
+      "mission": "Enter Sokoban and read an uncursed earth scroll. The RNG trace matches; the first screen/cursor divergence at Enter boundary 120 follows the Sokoban-only guilt side effect.",
+      "sourcePointers": [
+        "read.c:seffect_earth",
+        "trap.c:sokoban_guilt"
+      ],
+      "sourceTrace": "Enter Sokoban and read an uncursed earth scroll. The RNG trace matches; the first screen/cursor divergence at Enter boundary 120 follows the Sokoban-only guilt side effect.",
+      "cOutcome": "Enter Sokoban and read an uncursed earth scroll. The RNG trace matches; the first screen/cursor divergence at Enter boundary 120 follows the Sokoban-only guilt side effect.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before JavaScript comparison; the first mismatch is source-traced and adjudicated distinct.",
+      "outcome": "mismatch",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46100953,
+            "datetime": "20571213082345",
+            "moves": "\u0016?\nd#wizmap\nhhhhhhhhkkkkkhhkkhhhkkkhhhhhhhhhhhhhhhhhhjjjjjhhjjjhjjlllll< #wizwish\nuncursed scroll of earth\nro #conduct\n ",
+            "nethackrc": "OPTIONS=name:V46SokoGuilt24,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.recipe.session.json",
+      "recipeSha256": "2c5b5e7c57a4a299bdea02c19b2cabd48da74512530d20e21fa206afb9c7d51e",
+      "recording": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+      "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-sokoban-earth-guilt-branch-entry-attempt24.log",
+        "logSha256": "cfc326e5c6844befa848304821ec06f49fe3fdaa037a8615b3131af50e5e4bfd",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+        "outputSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+        "result": "FAIL",
+        "exitCode": 1,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/diff-v46-sokoban-earth-guilt-attempt24-main249.log",
+        "logSha256": "46a7ad38e95e5e838f2d62ff8083311514cf23e0afbd967f58de87f8486f30ac",
+        "summary": "bounded run-7UgZiT: teleport-validation-50947e42f5d5bd3219683b9d.service; logs /tmp/teleport-validation-1000/run-7UgZiT\nPRNG length: C=6674, JS=6674\nPRNG values: match\nScreen length: C=121, JS=121\nFirst screen mismatch at boundary 120 (segment 1, step 120, key \"\\n\"):\n  Cell row 1, column 25 (ch):\n  C: {ch:\" \", rendered:\" \", color:8, attr:0 (none), decgfx:0}\n  JS: {ch:\"V\", rendered:\"V\", color:8, attr:0 (none), decgfx:0}\nCursor length: C=121, JS=121\nFirst cursor mismatch at boundary 120 (segment 1, step 120, key \"\\n\"):\n  C: [37,17,1]\n  JS: [32,17,1]\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL\nbounded run-7UgZiT: exit-code; receipt /tmp/teleport-validation-1000/run-7UgZiT/receipt.json"
+      },
+      "firstMismatch": {
+        "step": 120,
+        "boundary": 120,
+        "key": "\n",
+        "rngCall": null,
+        "owner": "read.c:seffect_earth -> trap.c:sokoban_guilt",
+        "behavior": "Enter Sokoban and read an uncursed earth scroll. The RNG trace matches; the first screen/cursor divergence at Enter boundary 120 follows the Sokoban-only guilt side effect.",
+        "description": "Enter Sokoban and read an uncursed earth scroll. The RNG trace matches; the first screen/cursor divergence at Enter boundary 120 follows the Sokoban-only guilt side effect.",
+        "screenBoundary": 120
+      },
+      "distinctMismatch": true,
+      "mismatchOrdinal": 7,
+      "closestEarlierCases": [
+        "v35:v35-earth-boulders",
+        "v33:v33-sokoban-special-level",
+        "v42:v42-soko4-2-special-program"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v35:v35-earth-boulders",
+          "v33:v33-sokoban-special-level",
+          "v42:v42-soko4-2-special-program"
+        ],
+        "causalDistinction": "v35 is ordinary floor with Sokoban false; v42/v45 cover setup/topology rather than the active guilt caller."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-shopkeeper-make-happy-scroll-attempt25",
+      "title": "Forced PM_SHK placement exercises the shopkeeper creation contract",
+      "mission": "Create an adjacent hostile shopkeeper, wish a blessed taming scroll, and read it. C reaches forced PM_SHK placement and collect_coords rn2(8)=4 at call 2733; JS ends at that input. The later taming outcome is secondary.",
+      "sourcePointers": [
+        "read.c:create_particular_creation",
+        "makemon.c:makemon(PM_SHK)",
+        "teleport.c:enexto_core",
+        "teleport.c:collect_coords"
+      ],
+      "sourceTrace": "Create an adjacent hostile shopkeeper, wish a blessed taming scroll, and read it. C reaches forced PM_SHK placement and collect_coords rn2(8)=4 at call 2733; JS ends at that input. The later taming outcome is secondary.",
+      "cOutcome": "Create an adjacent hostile shopkeeper, wish a blessed taming scroll, and read it. C reaches forced PM_SHK placement and collect_coords rn2(8)=4 at call 2733; JS ends at that input. The later taming outcome is secondary.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before JavaScript comparison; the first mismatch is source-traced and adjudicated distinct.",
+      "outcome": "mismatch",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46101237,
+            "datetime": "20581117122641",
+            "moves": " #wizgenesis\nhostile shopkeeper\ny#wizwish\nblessed scroll of taming\nro ",
+            "nethackrc": "OPTIONS=name:V46HappyScroll5,role:Wizard,race:human,gender=male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.recipe.session.json",
+      "recipeSha256": "e79bf7e4ab1f7de9e81c3e673e1845e4783200114ff37ad042c2c693b0b64df8",
+      "recording": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json",
+      "recordingSha256": "d9032a54424414c23b743845956070e6293d81a9345dc89b4adece6ffb7a7a5b",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-shopkeeper-make-happy-scroll-attempt25",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-shopkeeper-make-happy-scroll-attempt25.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-shopkeeper-make-happy-scroll-attempt25.log",
+        "logSha256": "e52b8aeb80c7deb3680afa68b35725538ecbbfdea88d5a0d4fb1273f761a9a3d",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-shopkeeper-make-happy-scroll-attempt25.session.json",
+        "outputSha256": "d9032a54424414c23b743845956070e6293d81a9345dc89b4adece6ffb7a7a5b",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-shopkeeper-make-happy-scroll-attempt25",
+        "result": "FAIL",
+        "exitCode": 1,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/diff-v46-shopkeeper-genesis-attempt25-main249.log",
+        "logSha256": "389a652da0b2f52a025ca8f2dbe0ed6e4bc17f0a886d6395b4f15760b5d0530d",
+        "summary": "bounded run-ppVZnf: teleport-validation-c7dff0c6fa6c2954e071908e.service; logs /tmp/teleport-validation-1000/run-ppVZnf\nPRNG length mismatch: C=2814, JS=2732\nFirst PRNG mismatch at call 2733 (segment 1, step 34, key \"y\"):\n  C: rn2(8)=4\n  C caller: collect_coords(teleport.c:700)\n  JS: <missing>\nScreen length mismatch: C=71, JS=33\nFirst screen mismatch at boundary 34 (segment 1, step 34, key \"y\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=71, JS=33\nFirst cursor mismatch at boundary 34 (segment 1, step 34, key \"y\"):\n  C: [50,13,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL\nbounded run-ppVZnf: exit-code; receipt /tmp/teleport-validation-1000/run-ppVZnf/receipt.json"
+      },
+      "firstMismatch": {
+        "step": 34,
+        "boundary": 34,
+        "key": "y",
+        "rngCall": 2733,
+        "owner": "read.c:create_particular_creation -> makemon(PM_SHK) -> teleport.c:enexto_core/collect_coords",
+        "behavior": "Create an adjacent hostile shopkeeper, wish a blessed taming scroll, and read it. C reaches forced PM_SHK placement and collect_coords rn2(8)=4 at call 2733; JS ends at that input. The later taming outcome is secondary.",
+        "description": "Create an adjacent hostile shopkeeper, wish a blessed taming scroll, and read it. C reaches forced PM_SHK placement and collect_coords rn2(8)=4 at call 2733; JS ends at that input. The later taming outcome is secondary.",
+        "screenBoundary": 34
+      },
+      "distinctMismatch": true,
+      "mismatchOrdinal": 8,
+      "closestEarlierCases": [
+        "v39:v39-counted-wizgenesis-mimic-population",
+        "v44:v44-wizgenesis-forced-neferet-leaddead-cfirst"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v39:v39-counted-wizgenesis-mimic-population",
+          "v44:v44-wizgenesis-forced-neferet-leaddead-cfirst"
+        ],
+        "causalDistinction": "v39 diverges in mkclass_aligned population selection; v44 forces Neferet. This route exercises PM_SHK-specific forced placement and occupied-square coordinates."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-succubus-steals-monster-item-attempt2",
+      "title": "A hero succubus steals a monster’s carried weapon",
+      "mission": "Polymorph into a succubus and hit an adjacent weapon-carrying orc captain. C reaches steal_it; JS leaves that monster-directed theft unported. First screen/cursor boundary is 55; C=2481 and JS=2486 RNG calls.",
+      "sourcePointers": [
+        "uhitm.c:hmonas",
+        "uhitm.c:mhitm_ad_ssex",
+        "uhitm.c:mhitm_ad_sedu",
+        "steal.c:steal_it"
+      ],
+      "sourceTrace": "Polymorph into a succubus and hit an adjacent weapon-carrying orc captain. C reaches steal_it; JS leaves that monster-directed theft unported. First screen/cursor boundary is 55; C=2481 and JS=2486 RNG calls.",
+      "cOutcome": "Polymorph into a succubus and hit an adjacent weapon-carrying orc captain. C reaches steal_it; JS leaves that monster-directed theft unported. First screen/cursor boundary is 55; C=2481 and JS=2486 RNG calls.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before JavaScript comparison; the first mismatch is source-traced and adjudicated distinct.",
+      "outcome": "mismatch",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46101303,
+            "datetime": "20561208091234",
+            "moves": " #polyself\nsuccubus\n#wizgenesis\nhostile orc-captain\nFl",
+            "nethackrc": "OPTIONS=name:V46Succubus2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.recipe.session.json",
+      "recipeSha256": "17c55e75d01c54ce141f214ff3910e91b0def061eb78079a1ccbfc23610cfc6a",
+      "recording": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.session.json",
+      "recordingSha256": "da58190028a80439818aec2a99c67535cb786949db91c7ca833d7dc5e4ef5ddf",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-succubus-steals-monster-item-attempt2",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-succubus-steals-monster-item-attempt2.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-succubus-steals-monster-item-attempt2.log",
+        "logSha256": "d43d5b9995115feb88869abd560be74770d408a7bb509f3e23df7c7de43a159d",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-succubus-steals-monster-item-attempt2.session.json",
+        "outputSha256": "da58190028a80439818aec2a99c67535cb786949db91c7ca833d7dc5e4ef5ddf",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-succubus-steals-monster-item-attempt2",
+        "result": "FAIL",
+        "exitCode": 1,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/diff-v46-succubus-steals-monster-item-attempt2-main249.log",
+        "logSha256": "fd060d68608f6bb943fccd1bed4c73b0c4e40bb6ad7e3113b7395b86e9ab2d24",
+        "summary": "bounded run-kEwPVG: teleport-validation-73629292fc2663e26eae68de.service; logs /tmp/teleport-validation-1000/run-kEwPVG\nPRNG length mismatch: C=2481, JS=2486\nFirst PRNG mismatch at call 2482:\n  C: <missing>\n  C caller: <unavailable>\n  JS: rn2(25)=16\nScreen length: C=55, JS=55\nFirst screen mismatch at boundary 55 (segment 1, step 55, key \"l\"):\n  Cell row 1, column 32 (ch):\n  C: {ch:\"s\", rendered:\"s\", color:8, attr:0 (none), decgfx:0}\n  JS: {ch:\"h\", rendered:\"h\", color:8, attr:0 (none), decgfx:0}\nCursor length: C=55, JS=55\nFirst cursor mismatch at boundary 55 (segment 1, step 55, key \"l\"):\n  C: [73,0,1]\n  JS: [59,0,1]\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL\nbounded run-kEwPVG: exit-code; receipt /tmp/teleport-validation-1000/run-kEwPVG/receipt.json"
+      },
+      "firstMismatch": {
+        "step": 55,
+        "boundary": 55,
+        "key": "l",
+        "rngCall": 2482,
+        "owner": "uhitm.c:hmonas -> mhitm_ad_ssex -> mhitm_ad_sedu -> steal.c:steal_it",
+        "behavior": "Polymorph into a succubus and hit an adjacent weapon-carrying orc captain. C reaches steal_it; JS leaves that monster-directed theft unported. First screen/cursor boundary is 55; C=2481 and JS=2486 RNG calls.",
+        "description": "Polymorph into a succubus and hit an adjacent weapon-carrying orc captain. C reaches steal_it; JS leaves that monster-directed theft unported. First screen/cursor boundary is 55; C=2481 and JS=2486 RNG calls.",
+        "screenBoundary": 55
+      },
+      "distinctMismatch": true,
+      "mismatchOrdinal": 9,
+      "closestEarlierCases": [
+        "v33:v33-nymph-steals-weapon",
+        "v41:v41-incubus-seduction-removes-worn-armor",
+        "v21:hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v33:v33-nymph-steals-weapon",
+          "v41:v41-incubus-seduction-removes-worn-armor",
+          "v21:hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation"
+        ],
+        "causalDistinction": "v33 diverges at missum before theft; v41 is the reverse direction through doseduce/mayberem; v21 did not reach a successful steal_it effect."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-temple-depth9-seed46101317",
+      "title": "Depth-nine mktemple generation matches JavaScript",
+      "mission": "Seed-search a depth-nine ordinary level that creates a temple room. The full C and JS traces match: 5,815 RNG, 27 screens/cursors, no frames.",
+      "sourcePointers": [
+        "mklev.c:makelevel",
+        "mkroom.c:mktemple"
+      ],
+      "sourceTrace": "Seed-search a depth-nine ordinary level that creates a temple room. The full C and JS traces match: 5,815 RNG, 27 screens/cursors, no frames.",
+      "cOutcome": "Seed-search a depth-nine ordinary level that creates a temple room. The full C and JS traces match: 5,815 RNG, 27 screens/cursors, no frames.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before comparison; this distinct reached behavior is retained as a full-match control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46101317,
+            "datetime": "20561208091234",
+            "moves": " #wizlevelport\n9\n #wizmap\n",
+            "nethackrc": "OPTIONS=name:V46Temple46101317,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-temple-depth9-seed46101317.recipe.session.json",
+      "recipeSha256": "6adc6a55df6b33de11592971cbcfa01fae68f99061719782bf1d3e114f4b90c5",
+      "recording": "challenges/cases/v46/v46-temple-depth9-seed46101317.session.json",
+      "recordingSha256": "db8f8cb1f20a78b6a62f8d25fe1811883411b70567d667c32b24369e5f474a3f",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-temple-depth9-seed46101317",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-temple-depth9-seed46101317.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-temple-depth9-seed46101317.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-temple-depth9-seed46101317.log",
+        "logSha256": "5af600c37fc38ea6f4fec21f80df409c62a6ac1fbbdb238b2d1e108a71be876d",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-temple-depth9-seed46101317.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-temple-depth9-seed46101317.session.json",
+        "outputSha256": "db8f8cb1f20a78b6a62f8d25fe1811883411b70567d667c32b24369e5f474a3f",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-temple-depth9-seed46101317",
+        "result": "PASS",
+        "exitCode": 0,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-temple-depth9-seed46101317.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/differentials/v46-temple-depth9-seed46101317-main249.log",
+        "logSha256": "c98634dfc79f49d7191b18ff14ec1f817ad9166072f095d252446a2081edf0f2",
+        "summary": "bounded run-r6uHcI: teleport-validation-58b1268eeb41c941b17b1a6f.service; logs /tmp/teleport-validation-1000/run-r6uHcI\nPRNG length: C=5815, JS=5815\nPRNG values: match\nScreen length: C=27, JS=27\nScreen cells and attributes: match\nCursor length: C=27, JS=27\nCursor values: match\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: PASS\nbounded run-r6uHcI: success; receipt /tmp/teleport-validation-1000/run-r6uHcI/receipt.json"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v43:v43-wiz-loca-special-program-cfirst",
+        "v43:v43-priest-temple-eight-direction-probe-cfirst"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v43:v43-wiz-loca-special-program-cfirst",
+          "v43:v43-priest-temple-eight-direction-probe-cfirst"
+        ],
+        "causalDistinction": "The former directly loads a Lua level; the latter attacks a priest. Neither reaches ordinary mktemple generation."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-shopkeeper-taming-natural-attempt27",
+      "title": "Natural peaceful shopkeeper taming reaches make_happy_shk and matches",
+      "mission": "Reach a naturally generated shop and peacefully aligned keeper, read the taming scroll and dismiss the result pager. The source-defined “Nothing interesting seems to happen” response matches: 5,779 RNG, 55 screens/cursors, no frames.",
+      "sourcePointers": [
+        "read.c:maybe_tame",
+        "dog.c:tamedog",
+        "shk.c:make_happy_shk"
+      ],
+      "sourceTrace": "Reach a naturally generated shop and peacefully aligned keeper, read the taming scroll and dismiss the result pager. The source-defined “Nothing interesting seems to happen” response matches: 5,779 RNG, 55 screens/cursors, no frames.",
+      "cOutcome": "Reach a naturally generated shop and peacefully aligned keeper, read the taming scroll and dismiss the result pager. The source-defined “Nothing interesting seems to happen” response matches: 5,779 RNG, 55 screens/cursors, no frames.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before comparison; this distinct reached behavior is retained as a full-match control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46101125,
+            "datetime": "20561208091234",
+            "moves": " #wizlevelport\n3\n  #wizwish\nscroll of taming\nllllljro ",
+            "nethackrc": "OPTIONS=name:V46ShopTame27,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-shopkeeper-taming-natural-attempt27.recipe.session.json",
+      "recipeSha256": "00392a559109bcc3415540e4fb38ea7c5867d683b6c4d9076cfbb3d32a72c348",
+      "recording": "challenges/cases/v46/v46-shopkeeper-taming-natural-attempt27.session.json",
+      "recordingSha256": "f548d4d11301c85ae5d49953d90711eb519cefa3580b5d51b5a6723d652cd495",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-shopkeeper-taming-natural-attempt27",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-shopkeeper-taming-natural-attempt27.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-shopkeeper-taming-natural-attempt27.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-shopkeeper-taming-natural-attempt27.log",
+        "logSha256": "a0d0b6610bd101e7d1aa42d941ea2d62a17f908d8c8c36cc6296273d3fa21fe8",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-shopkeeper-taming-natural-attempt27.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-shopkeeper-taming-natural-attempt27.session.json",
+        "outputSha256": "f548d4d11301c85ae5d49953d90711eb519cefa3580b5d51b5a6723d652cd495",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-shopkeeper-taming-natural-attempt27",
+        "result": "PASS",
+        "exitCode": 0,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-shopkeeper-taming-natural-attempt27.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/differentials/v46-shopkeeper-taming-natural-attempt27-main249.log",
+        "logSha256": "a621d0a61bb7eab2b28e2fd13c91b8feb867326b9526a9a51715e8ed4cd85ad3",
+        "summary": "bounded run-ZtxZgn: teleport-validation-d8fd9e7747e50f5dd4b896b1.service; logs /tmp/teleport-validation-1000/run-ZtxZgn\nPRNG length: C=5779, JS=5779\nPRNG values: match\nScreen length: C=55, JS=55\nScreen cells and attributes: match\nCursor length: C=55, JS=55\nCursor values: match\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: PASS\nbounded run-ZtxZgn: success; receipt /tmp/teleport-validation-1000/run-ZtxZgn/receipt.json"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v36:v36-taming-scroll",
+        "v40:v40-shop-floor-digdown-warning-live-shopkeeper"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v36:v36-taming-scroll",
+          "v40:v40-shop-floor-digdown-warning-live-shopkeeper"
+        ],
+        "causalDistinction": "This independently reaches natural peaceful shopkeeper behavior, distinct from ordinary pet taming; included as a full-match control."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-angel-figurine-minion-cleanup-cfirst",
+      "title": "Angel figurine minion cleanup matches JavaScript",
+      "mission": "Apply the figurine on the independently selected seed that creates an Angel minion and reaches free_emin. Full match: 2,843 RNG, 35 screens/cursors, no frames.",
+      "sourcePointers": [
+        "apply.c:use_figurine",
+        "makemon.c:makemon",
+        "dog.c:make_familiar",
+        "minion.c:free_emin"
+      ],
+      "sourceTrace": "Apply the figurine on the independently selected seed that creates an Angel minion and reaches free_emin. Full match: 2,843 RNG, 35 screens/cursors, no frames.",
+      "cOutcome": "Apply the figurine on the independently selected seed that creates an Angel minion and reaches free_emin. Full match: 2,843 RNG, 35 screens/cursors, no frames.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before comparison; this distinct reached behavior is retained as a full-match control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46100208,
+            "datetime": "20561205091234",
+            "moves": " #wizwish\nfigurine of an angel\naol",
+            "nethackrc": "OPTIONS=name:V46MinionCleanup4,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-angel-figurine-minion-cleanup-cfirst.recipe.session.json",
+      "recipeSha256": "76003212d05f5d2545dd968e6235d36001133b70bdca5f2565bf63bf9d3a69ff",
+      "recording": "challenges/cases/v46/v46-angel-figurine-minion-cleanup-cfirst.session.json",
+      "recordingSha256": "df5d9043c1cefbcc92cd43b00d66127d08aeaed59d4d167733eff11fc1feb999",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-angel-figurine-minion-cleanup-cfirst",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-angel-figurine-minion-cleanup-cfirst.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-angel-figurine-minion-cleanup-cfirst.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-angel-figurine-minion-cleanup-cfirst.log",
+        "logSha256": "0e237b02f180b5ae09b1a8882ef8a742877655528f303276850adb6d584399c2",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-angel-figurine-minion-cleanup-cfirst.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-angel-figurine-minion-cleanup-cfirst.session.json",
+        "outputSha256": "df5d9043c1cefbcc92cd43b00d66127d08aeaed59d4d167733eff11fc1feb999",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-angel-figurine-minion-cleanup-cfirst",
+        "result": "PASS",
+        "exitCode": 0,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-angel-figurine-minion-cleanup-cfirst.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/differentials/v46-angel-figurine-minion-cleanup-cfirst-main249.log",
+        "logSha256": "46ff8ca4e724a4de7c831273ddcf082b82ef4e52b2aed88a7ea1dde3d9371950",
+        "summary": "bounded run-E2Qme9: teleport-validation-b0cdbab4b4557b837079dc87.service; logs /tmp/teleport-validation-1000/run-E2Qme9\nPRNG length: C=2843, JS=2843\nPRNG values: match\nScreen length: C=35, JS=35\nScreen cells and attributes: match\nCursor length: C=35, JS=35\nCursor values: match\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: PASS\nbounded run-E2Qme9: success; receipt /tmp/teleport-validation-1000/run-E2Qme9/receipt.json"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v14:wizard-applies-uncursed-figurine",
+        "v32:v32-figurine-transform"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v14:wizard-applies-uncursed-figurine",
+          "v32:v32-figurine-transform"
+        ],
+        "causalDistinction": "This reaches the Angel minion/familiar cleanup branch. Other angel seed probes are preserved as setup variants, not separate source behaviors."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-revive-death-corpse-pickup-attempt10",
+      "title": "Rider corpse pickup after levitation recovery matches JavaScript",
+      "mission": "Create and kill Death while levitating, move onto the corpse, remove levitation, dismiss float_down and pick up the corpse. Full match: 2,623 RNG, 79 screens/cursors, no frames.",
+      "sourcePointers": [
+        "pickup.c:pickup_object",
+        "mon.c:revive",
+        "trap.c:float_down"
+      ],
+      "sourceTrace": "Create and kill Death while levitating, move onto the corpse, remove levitation, dismiss float_down and pick up the corpse. Full match: 2,623 RNG, 79 screens/cursors, no frames.",
+      "cOutcome": "Create and kill Death while levitating, move onto the corpse, remove levitation, dismiss float_down and pick up the corpse. Full match: 2,623 RNG, 79 screens/cursors, no frames.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before comparison; this distinct reached behavior is retained as a full-match control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46100931,
+            "datetime": "20561208091234",
+            "moves": " #wizwish\nring of levitation\nPor #wizgenesis\nhostile Death\ny#wizkill\n  l.\u001blR ,",
+            "nethackrc": "OPTIONS=name:V46DeathRevive10,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-revive-death-corpse-pickup-attempt10.recipe.session.json",
+      "recipeSha256": "f6a9d303c9ff745b633a38dc86828106753e2d2463d69172c2650dc0d38b3685",
+      "recording": "challenges/cases/v46/v46-revive-death-corpse-pickup-attempt10.session.json",
+      "recordingSha256": "761305dafae6a7c4dd9de8aa6e9fbce8ee7a28d58ac83fb83333503ddc037d05",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-revive-death-corpse-pickup-attempt10",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-revive-death-corpse-pickup-attempt10.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-revive-death-corpse-pickup-attempt10.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-revive-death-corpse-pickup-attempt10.log",
+        "logSha256": "a14b296799028901f13dada7741b510876ddc1d49939dac9507342a17516642c",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-revive-death-corpse-pickup-attempt10.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-revive-death-corpse-pickup-attempt10.session.json",
+        "outputSha256": "761305dafae6a7c4dd9de8aa6e9fbce8ee7a28d58ac83fb83333503ddc037d05",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-revive-death-corpse-pickup-attempt10",
+        "result": "PASS",
+        "exitCode": 0,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-revive-death-corpse-pickup-attempt10.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/differentials/v46-revive-death-corpse-pickup-attempt10-main249.log",
+        "logSha256": "c9dbfbca2b703d4c142cbaab201a2872393786e0b930d5c5d765f6ef19113f54",
+        "summary": "bounded run-sunWDv: teleport-validation-bf9598ae8085faf254a67213.service; logs /tmp/teleport-validation-1000/run-sunWDv\nPRNG length: C=2623, JS=2623\nPRNG values: match\nScreen length: C=79, JS=79\nScreen cells and attributes: match\nCursor length: C=79, JS=79\nCursor values: match\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: PASS\nbounded run-sunWDv: success; receipt /tmp/teleport-validation-1000/run-sunWDv/receipt.json"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v28:v28-tin-rider-inventory",
+        "v33:v33-cockatrice-corpse-upward"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v28:v28-tin-rider-inventory",
+          "v33:v33-cockatrice-corpse-upward"
+        ],
+        "causalDistinction": "Different corpse class and action/state history from tinning or bare-handed cockatrice pickup; retained as a valid match."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    },
+    {
+      "id": "v46-random-swamp-room-seed46101022-depth5",
+      "title": "Ordinary depth-five mkswamp generation matches JavaScript",
+      "mission": "Seed-search a reached depth-five mkswamp room. Full match: 6,815 RNG, 27 screens/cursors, no frames; retained as a shallow-state control for the counted depth-16 branch.",
+      "sourcePointers": [
+        "mklev.c:makelevel",
+        "mkroom.c:mkswamp"
+      ],
+      "sourceTrace": "Seed-search a reached depth-five mkswamp room. Full match: 6,815 RNG, 27 screens/cursors, no frames; retained as a shallow-state control for the counted depth-16 branch.",
+      "cOutcome": "Seed-search a reached depth-five mkswamp room. Full match: 6,815 RNG, 27 screens/cursors, no frames; retained as a shallow-state control for the counted depth-16 branch.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned and recorded in the C-first slate before comparison; this distinct reached behavior is retained as a full-match control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 46101022,
+            "datetime": "20561208091234",
+            "moves": " #wizlevelport\n5\n #wizmap\n",
+            "nethackrc": "OPTIONS=name:V46Swamp46101022,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v46/v46-random-swamp-room-seed46101022-depth5.recipe.session.json",
+      "recipeSha256": "e4cf4bfff2371ad86ca9a0e9180c10ff7232ac0409bb55a08cb2ab366238d5f1",
+      "recording": "challenges/cases/v46/v46-random-swamp-room-seed46101022-depth5.session.json",
+      "recordingSha256": "6eac62d8891f6387c6541f300e1e619df9760f8d176757de34b5f9b8b530ff0d",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v46-random-swamp-room-seed46101022-depth5",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-random-swamp-room-seed46101022-depth5.recipe.session.json",
+          "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-random-swamp-room-seed46101022-depth5.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replay-logs/v46-random-swamp-room-seed46101022-depth5.log",
+        "logSha256": "8be03f61dd89a591092cb202e6f687120e24c3a4cf913b830912572ecc25c624",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-random-swamp-room-seed46101022-depth5.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/replays/v46-random-swamp-room-seed46101022-depth5.session.json",
+        "outputSha256": "6eac62d8891f6387c6541f300e1e619df9760f8d176757de34b5f9b8b530ff0d",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v46-random-swamp-room-seed46101022-depth5",
+        "result": "PASS",
+        "exitCode": 0,
+        "comparisonBase": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "acceptedGameCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v46/v46-random-swamp-room-seed46101022-depth5.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/differentials/v46-random-swamp-room-seed46101022-depth5-main249.log",
+        "logSha256": "dc4f1403f18583435858720e43873d379ded2b83c5eea5a1d53b0b10aab2382d",
+        "summary": "bounded run-mtkRQS: teleport-validation-a3602b09eef0d2c1015fad3f.service; logs /tmp/teleport-validation-1000/run-mtkRQS\nPRNG length: C=6815, JS=6815\nPRNG values: match\nScreen length: C=27, JS=27\nScreen cells and attributes: match\nCursor length: C=27, JS=27\nCursor values: match\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: PASS\nbounded run-mtkRQS: success; receipt /tmp/teleport-validation-1000/run-mtkRQS/receipt.json"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v43:v43-minetn-6-special-program",
+        "v43:v43-wiz-loca-special-program-cfirst"
+      ],
+      "priorBatchComparison": {
+        "batch": "v45",
+        "manifest": {
+          "path": "challenges/manifests/v45.json",
+          "sha256": "84197368d0f01c34a57e2b2cc90108f2fbb164e058e36864cc3f07860a3064a1"
+        },
+        "caseIds": [
+          "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+          "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+          "v45-arc-filb-level-program-cfirst",
+          "v45-pri-filb-level-program-cfirst",
+          "v45-bar-fila-level-program-cfirst",
+          "v45-discard-migrations-next-list-attempt8-cfirst",
+          "v45-voluntary-quit-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v43:v43-minetn-6-special-program",
+          "v43:v43-wiz-loca-special-program-cfirst"
+        ],
+        "causalDistinction": "Those cases run separate Lua programs; this case reaches ordinary depth-five mkswamp with a distinct depth/parameter contract."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "4ef067b9792e076799d37b0c9683e058c3e56dc5140ebce3d84bbf987db106f3",
+        "caseIds": [],
+        "result": "The refreshed combined queue has no unresolved candidates; source distinction was checked against the prior-batch and closest historical cases listed above."
+      }
+    }
+  ],
+  "excludedOverlaps": [
+    {
+      "family": "role-specific Lua level-port filler probes",
+      "owner": "place_lregion / LR_BRANCH",
+      "caseIds": [
+        "v46-caveman-filler-quest-level-a",
+        "v46-caveman-filler-quest-level-b",
+        "v46-healer-filler-quest-level-a",
+        "v46-knight-filler-quest-level-a",
+        "v46-monk-filler-quest-level-a",
+        "v46-ranger-filler-quest-level-a",
+        "v46-rogue-filler-quest-level-a",
+        "v46-samurai-filler-quest-level-a",
+        "v46-samurai-filler-quest-level-b",
+        "v46-tourist-filler-quest-level-a",
+        "v46-tourist-filler-quest-level-b",
+        "v46-valkyrie-filler-quest-level-a"
+      ],
+      "sourceObservation": "The C-first programs load and generate maps, but their first JS mismatch collapses to the already represented generic place_lregion/LR_BRANCH behavior from v40 Knox/v42 Baalz; the different programs do not establish independent first mismatches.",
+      "closestEarlierCases": [
+        "v40:v40-fort-ludios-knox-wizloaddes-generation",
+        "v42:v42-baalz-special-program"
+      ],
+      "disposition": "Exclude as duplicate first-mismatch owner; all recordings are preserved and hashed in the attempt inventory."
+    },
+    {
+      "caseId": "v46-wizwish-pool-water-damage-chain-attempt4",
+      "owner": "do.c:dropx/dropy -> flooreffects -> water_damage",
+      "cObservation": "C drops a scroll into water; the full differential matches JS after the current accepted source state.",
+      "closestEarlierCases": [
+        "v32:v32-pool-paper-drop"
+      ],
+      "reason": "The source caller, pool-floor scroll destruction, and action history duplicate admitted v32.",
+      "recipe": "challenges/cases/v46/v46-wizwish-pool-water-damage-chain-attempt4.recipe.session.json",
+      "recording": "challenges/cases/v46/v46-wizwish-pool-water-damage-chain-attempt4.session.json",
+      "recipeSha256": "6054b90256a46e69f9b41f254746456aca4d79d984ca2f917a14f25ab88c45c3",
+      "recordingSha256": "4440bc50c6d7b17c43c4864cd1b4e3f3d363aa14b543c5784bfc045435c074eb",
+      "differential": {
+        "path": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/differentials/v46-wizwish-pool-water-damage-chain-attempt4-main249.log",
+        "sha256": "22798ce15d1a49840e1382b52f61e34431966feaac17d583b1136fa711c81879"
+      }
+    },
+    {
+      "family": "wand digging and dighole variants",
+      "owner": "zap.c:zap_dig -> dig.c:dighole",
+      "caseIds": [
+        "v46-wand-digging-down-dighole-attempt2",
+        "v46-wand-digging-down-dighole-attempt3",
+        "v46-wand-digging-down-dighole-attempt4"
+      ],
+      "closestEarlierCases": [
+        "v13:wand-digging-opens-wall",
+        "v26:v26-digging-down"
+      ],
+      "reason": "These routes target the already admitted dighole result/placement behavior; no distinct first mismatch survived source review.",
+      "disposition": "Preserved as overlap probes only."
+    }
+  ],
+  "unresolvedProbes": [
+    {
+      "family": "Hostile shopkeeper taming",
+      "attempts": [
+        "v46-shopkeeper-make-happy-attempt17",
+        "v46-shopkeeper-make-happy-attempt18",
+        "v46-shopkeeper-make-happy-attempt19",
+        "v46-shopkeeper-make-happy-scroll-attempt21",
+        "v46-shopkeeper-make-happy-scroll-attempt22",
+        "v46-shopkeeper-make-happy-scroll-attempt23"
+      ],
+      "result": "After two materially different setups the hostile keeper died before reaching the planned make_happy_shk branch. The forced PM_SHK case is counted separately; the peaceful natural shopkeeper path is retained as a match control.",
+      "disposition": "Deferred after source-valid setup attempts failed."
+    },
+    {
+      "family": "Monster disease and energy-vortex candidate",
+      "attempts": [
+        "v46-energy-vortex-drains-dragon-attempt2",
+        "v46-energy-vortex-drains-dragon-attempt3",
+        "v46-energy-vortex-drains-dragon-attempt4",
+        "v46-energy-vortex-drains-dragon-attempt5",
+        "v46-energy-vortex-drains-dragon-attempt6",
+        "v46-energy-vortex-drains-dragon-attempt7",
+        "v46-energy-vortex-drains-dragon-attempt8",
+        "v46-energy-vortex-drains-dragon-attempt9",
+        "v46-energy-vortex-drains-dragon-scout"
+      ],
+      "result": "C setup did not establish the intended disease/energy contract in a valid reached case.",
+      "disposition": "Deferred as setup infeasible; evidence retained by file inventory."
+    }
+  ],
+  "excludedSetupMisses": [
+    {
+      "caseId": "v46-sokoban-earth-scroll-guilt-attempt13",
+      "sourceOwner": "read.c:seffect_earth -> trap.c:sokoban_guilt",
+      "cOutcome": "Fresh differential matches. C is on ordinary floor (Sokoban false), so the scroll does not reach sokoban_guilt.",
+      "disposition": "Target miss; do not count as mismatch and do not cite stale pre-teleport differential."
+    },
+    {
+      "family": "Castle drawbridge and Sokoban last-pit setup",
+      "caseIds": [
+        "v46-castle-drawbridge-west-ray-attempt18",
+        "v46-sokoban-final-pit-setup-attempt14",
+        "v46-sokoban-wizlevelport-menu-probe"
+      ],
+      "cOutcome": "The bounded recorded routes did not establish their source target branches.",
+      "disposition": "Preserve as setup evidence only."
+    }
+  ],
+  "searchSummary": "The initial twelve-candidate C-first slate was completed before comparison, then expanded to under-exercised source owners across game, room-generation, prayer, combat, and item-use behaviors. Nine source-distinct first mismatches and five distinct full-match controls remain. Source/overlap review excludes generic place_lregion/LR_BRANCH and the v32 pool-water duplicate. The remaining searches produced a matching temple, a matching peaceful shopkeeper, two materially different hostile-shopkeeper setup failures, and an infeasible monster-disease setup. The queue is empty; the coordinator directed a smaller batch to restore worker capacity. All 780 v46 case-file hashes are included in the preserved attempt inventory.",
+  "decision": "Coordinator-directed smaller v46 batch: the refreshed admitted queue is empty and A/B/C have no selectable work. Nine source-distinct mismatches restore independent work. After planning well over twelve candidates, materially different replacements produced matching controls, duplicate first-mismatch owners, or concrete setup deferrals: depth-nine temple generation matched; peaceful natural shopkeeper taming matched; the hostile shopkeeper died before its branch after two materially different setup routes; monster-disease setup remained infeasible. Preserve recordings and hashes; do not invent cases.",
+  "preservedAttemptInventory": {
+    "path": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep10-v46/final-validation/attempt-file-inventory.json",
+    "sha256": "9e3f65791d6fe4e5fe6eeb93a15844a4c1d273030ea496948ce57a30b4db854d",
+    "fileCount": 780
+  }
+}
