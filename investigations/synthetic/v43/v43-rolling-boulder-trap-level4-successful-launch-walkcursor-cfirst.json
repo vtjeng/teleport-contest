@@ -1,0 +1,119 @@
+{
+  "session": "synthetic/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+  "corpus": "synthetic",
+  "batch": "v43",
+  "caseId": "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+  "manifestPath": "challenges/manifests/v43.json",
+  "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+  "recordingPath": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.session.json",
+  "recordingSha256": "af6ecccfdeb743dd8ecd0fc23d3b502b98e9d4e8342983ac87f660e7ca19341e",
+  "recipe": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.recipe.session.json",
+  "recipeSha256": "6ec774050be36fdd1180da75b2a77b2313b492eff76ac6644c3c8de968a2f998",
+  "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f",
+  "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+  "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
+  "remainingScreens": 2,
+  "recordedSteps": 106,
+  "status": "complete",
+  "goalKind": "divergence-fix",
+  "commit": "173d2c1b567c2756e4840203ca319b945734511c",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v43",
+    "caseId": "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+    "session": "synthetic/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+    "manifestPath": "challenges/manifests/v43.json",
+    "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+    "recording": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.session.json",
+    "recordingPath": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.session.json",
+    "recordingSha256": "af6ecccfdeb743dd8ecd0fc23d3b502b98e9d4e8342983ac87f660e7ca19341e",
+    "recipe": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.recipe.session.json",
+    "recipeSha256": "6ec774050be36fdd1180da75b2a77b2313b492eff76ac6644c3c8de968a2f998",
+    "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f",
+    "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+    "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
+    "evaluationArtifact": "challenges/evaluations/v43-baseline-d89e1af6.json",
+    "evaluationUtc": "2026-10-11T01:16:14.974Z",
+    "remainingScreens": 2,
+    "recordedSteps": 106,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 104,
+        "total": 106
+      },
+      "rng": {
+        "matched": 4807,
+        "total": 4807
+      },
+      "cursors": {
+        "matched": 106,
+        "total": 106
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 102,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 102,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 15,
+        "column": 64,
+        "cCell": {
+          "ch": "`",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": ".",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": null
+    },
+    "step": 102,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The admitted C-first wizard wish creates a rolling-boulder trap at the hero’s square. C and JavaScript choose the same launch coordinate and create the same boulder, but the first screen differs at the boulder’s floor glyph: C shows ` while JavaScript still shows . In trap.c:mkroll_launch(), C unconditionally calls newsym() after assigning launch/launch2; the existing JavaScript makeRollingBoulderLaunch() makes this callback optional, and the wizard wish reaches maketrap without a newsym capability or a DEFAULT_CAPABILITIES fallback. Add the canonical display redraw default in js/trap.js. This is a source-order display defect, not a launch-coordinate or RNG defect.",
+  "source": {
+    "file": "trap.c",
+    "functions": [
+      "find_random_launch_coord",
+      "mkroll_launch",
+      "isclearpath"
+    ],
+    "callers": [
+      "C: cmd.c:rhack -> wizcmds.c:wiz_wish -> zap.c:makewish -> objnam.c:readobjnam/wizterrainwish -> trap.c:maketrap -> trap.c:mkroll_launch; maketrap consumes find_random_launch_coord’s Boolean result, which itself consumes both isclearpath results.",
+      "JavaScript: js/cmd.js:runWishCommand -> js/wizcmds.js:wiz_wish -> js/zap.js:makewish -> js/objnam_readobjnam.js:readobjnam/apply_wizterrainwish -> js/trap.js:maketrap -> makeRollingBoulderLaunch -> findRandomLaunchCoordinate -> clearLaunchPath."
+    ],
+    "dependencies": [
+      "trap.c:maketrap already wires the rolling-boulder branch; its return from mkroll_launch is discarded.",
+      "mkobj.c:mksobj, weight, place_object and stackobj already own boulder construction and placement.",
+      "display.c:newsym is already ported as js/display.js:newsym; it is not supplied through objectGenerationEnv."
+    ],
+    "sourceReview": "Read complete upstream trap.c:find_random_launch_coord() (3599-3656), mkroll_launch() (3659-3692), and isclearpath() (3694-3722), plus their trap.c:maketrap() caller (456-588), objnam.c:wizterrainwish() (3554-3916), and the objnam.c readobjnam wizard-trap dispatch (4975-4979). find_random_launch_coord returns whether a launch coordinate was found and consumes isclearpath results; mkroll_launch uses that result to create/place the boulder or fall back to the trap square, assigns launch and mirrored launch2, calls newsym unconditionally, and returns 1 (discarded by maketrap). The existing JavaScript family already preserves the draw sequence, path checks, object creation, coordinates and order, but makeRollingBoulderLaunch invokes newsym with optional chaining and no default provider exists in DEFAULT_CAPABILITIES. The wizard-wish environment carries object-generation hooks but not a display callback, so the C redraw is omitted."
+  },
+  "evidence": [
+    "Saved queue SHA-256 1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093 identifies this v43 case with a screen-cell mismatch at segment 0, step 102, on the newline after the wish text. The first differing cell is row 15, column 64: C has backtick (`), JavaScript has floor (.). The queue reports no RNG mismatch at that boundary.",
+    "The admitted C recording’s step 102 draws rn2(5)=0 and rn2(8)=1 in trap.c:find_random_launch_coord, then rnd(2)=2 in next_ident; JavaScript replay of the same 102 input keys records the same three values. C shows “A rolling boulder trap.” and the launch boulder glyph; JavaScript shows the same message but not the new boulder glyph.",
+    "A worker-local JavaScript replay through the trap-creation input confirms that the trap is at (61,14), its launch coordinate is (65,14), and a floor boulder object exists at (65,14). The map grid still displays floor at that coordinate. This distinguishes missing newsym display refresh from a missing object, wrong coordinate, or random-call defect.",
+    "Source comparison: trap.c:mkroll_launch lines 3683-3691 stores both launch coordinates then always calls newsym(ttmp->launch.x, ttmp->launch.y). js/trap.js:makeRollingBoulderLaunch lines 543-550 stores the same coordinates but calls capability(env, 'newsym')?.(...); js/trap.js:DEFAULT_CAPABILITIES does not define newsym, and objnam_readobjnam.js passes the wish environment directly to maketrap."
+  ],
+  "queueSha256": "1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093"
+}
