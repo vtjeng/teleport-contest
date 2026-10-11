@@ -263158,7 +263158,7 @@
     {
       "id": "fix-v43-priest-ghod-hitsu-north-corrected-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore temple priest deity retaliation and altar deity naming",
       "cFile": "priest.c",
       "sessions": [
@@ -263172,8 +263172,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "ghod_hitsu",
       "session": "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst",
       "step": 79,
@@ -263379,7 +263382,744 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-v43-mounted-steed-stair-descent-pager-2-cfirst-20261011",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port mounted steed transfer across level descent",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst"
+      ],
+      "selectionReason": "The current v43 queue stops at step 165 in apply.c next_to_u before a non-Amulet mounted descent; source tracing requires the mounted branches in dog.c keepdogs and mon_arrive.",
+      "detail": "Implement the exercised non-Amulet steed branch and its level-transfer path. Preserve explicit frontiers for leashed companions, other keepdogs branches, and independent mon_arrive placement.",
+      "openedAt": "f19b342c15db7c10e5bedcc1d84d7b3a8f47165e",
+      "openStanding": {
+        "sha": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "next_to_u",
+          "line": 919,
+          "endLine": 930,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 919,
+        "to": 930
+      },
+      "requiredFunctions": [
+        {
+          "name": "keepdogs",
+          "line": 789,
+          "endLine": 886,
+          "declared": true,
+          "sourceFile": "dog.c",
+          "complete": false
+        },
+        {
+          "name": "mon_arrive",
+          "line": 420,
+          "endLine": 626,
+          "declared": true,
+          "sourceFile": "dog.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst": {
+          "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+          "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+          "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+          "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494"
+        }
+      },
+      "activeStanding": {
+        "sha": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+          "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+          "recipe": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.recipe.session.json",
+          "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
+          "replayInputSha256": "06a6abfc0a0a484f27b5b045f98d2ae806023dccfc7cd604709230bef25c268a",
+          "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+          "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+          "evaluationArtifact": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+          "evaluationUtc": "2026-10-11T03:14:40.052Z",
+          "remainingScreens": 1,
+          "recordedSteps": 166,
+          "previousScreensMatched": 165,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 165,
+              "total": 166
+            },
+            "rng": {
+              "matched": 3913,
+              "total": 6320
+            },
+            "cursors": {
+              "matched": 165,
+              "total": 166
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: next_to_u() with a steed",
+            "step": 165
+          },
+          "step": 165,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "next_to_u",
+          "message": "unsupported hero move: next_to_u() with a steed",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.json",
+            "result": {
+              "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+              "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
+              "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+              "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+              "remainingScreens": 1,
+              "recordedSteps": 166,
+              "status": "complete",
+              "commit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+                "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+                "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+                "recipe": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.recipe.session.json",
+                "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
+                "replayInputSha256": "06a6abfc0a0a484f27b5b045f98d2ae806023dccfc7cd604709230bef25c268a",
+                "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+                "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+                "evaluationArtifact": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+                "evaluationUtc": "2026-10-11T03:14:40.052Z",
+                "remainingScreens": 1,
+                "recordedSteps": 166,
+                "previousScreensMatched": 165,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 165,
+                    "total": 166
+                  },
+                  "rng": {
+                    "matched": 3913,
+                    "total": 6320
+                  },
+                  "cursors": {
+                    "matched": 165,
+                    "total": 166
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: next_to_u() with a steed",
+                  "step": 165
+                },
+                "step": 165,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "next_to_u",
+                "message": "unsupported hero move: next_to_u() with a steed",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the only unmatched screen, a mounted Wizard presses > on a down staircase. C apply.c:next_to_u() returns true for a steed that does not carry the Amulet, so do.c:dodown() calls next_level() and do.c:goto_level() transfers the steed. JavaScript throws at the mounted-steed guard. The required runtime path continues through dog.c:keepdogs() and dog.c:mon_arrive(), whose current JavaScript mounted-steed branches also throw. Implement the source branches as one transfer path; preserve the separate Amulet refusal.",
+              "source": {
+                "file": "apply.c and dog.c",
+                "branch": "After the leash predicate scan, apply.c:next_to_u() returns false only when a leashed follower cannot remain within two squares or when the mounted steed carries the Amulet; otherwise it returns true. For the selected > command, do.c:dodown() reaches this helper on a down staircase, then do.c:goto_level() calls dog.c:keepdogs(FALSE), which moves u.usteed to gm.mydogs. After the new level is built, dog.c:losedogs() calls dog.c:mon_arrive(mtmp, With_you); mon_arrive() links the same u.usteed into fmon and returns before placing it as a separate map occupant.",
+                "functions": [
+                  "apply.c:next_to_u() (918-928), the exercised non-Amulet mounted return branch",
+                  "dog.c:keepdogs() (789-884), its ordinary level-transfer branch for mtmp == u.usteed",
+                  "dog.c:mon_arrive() (420-623), its mtmp == u.usteed early-return branch after restore_cham()"
+                ],
+                "callers": [
+                  "do.c:dodown() (1251, 1290): the selected > command tests next_to_u() and calls next_level(TRUE).",
+                  "dungeon.c:next_level() (1497-1514) passes the destination to do.c:goto_level().",
+                  "do.c:goto_level() (1624, 1816) calls keepdogs(FALSE) before saving the old level and losedogs() after arrival.",
+                  "dog.c:losedogs() (381-383) drains gm.mydogs through mon_arrive(mtmp, With_you).",
+                  "Other direct next_to_u() callers are do.c:doup() (1336), do.c:goto_level() (1567), trap.c:dotrap() (643), artifact.c:arti_invoke() (1921), dig.c:dig() (762), teleport.c:level_tele()/tele_trap()/teleds()/teleport_pet() (1145, 1154, 1304, 1453, 1506), and allmain.c:moveloop_core() (313). Existing JavaScript callers use js/apply_next_to_u.js from do.js, trap.js, artifacts.js, dig.js, teleport.js, allmain.js, and cmd.js."
+                ],
+                "dependencies": [
+                  "The downstream transfer is required because the C true return is consumed by do.c:dodown() and leads directly to goto_level(). JavaScript dog.js:keepdogs() currently throws at the mounted-steed branch; C instead clears mtrapped and meating, calls the already implemented steal.c:mdrop_special_objs(), removes the steed from the departing level, and appends it to gm.mydogs.",
+                  "The next C caller is dog.c:losedogs(), already wired by do.js:goto_level(). Its With_you path reaches dog.c:mon_arrive(), whose C branch inserts u.usteed into the destination monster list, restores its transfer flags, and returns before mnexto(). JavaScript dog.js currently throws at this same branch.",
+                  "The separate apply.c:mleashed_next2u() leash branch remains incomplete because its source mnexto() call is synchronous while JavaScript mon.js:mnexto() is asynchronous. The selected session has no leashed companion; the existing callback returns false for every un-leashed monster. Do not claim the leash branch complete.",
+                  "No active ledger reservation names apply.c:next_to_u, dog.c:keepdogs, or dog.c:mon_arrive. The submitted A2 priest delivery reserves separate priest.c, pray.c, invent.c, mon.c:wakeup, and uhitm.c:hmon functions."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved queue SHA-256 838fd8b7d9ca8b5a65fb81039abf06462c427031179073a72753bc4dc416e5f4 selects this v43 case at step 165 with one unmatched screen.",
+                "The accepted 57c44fa48bff87c33541a147cedd6d9a0018a494 v43 evaluation records 165/166 screens, 165/166 cursors, and 3913/6320 RNG calls; JavaScript stops at apply.c:next_to_u before the mounted descent.",
+                "A focused scan at worker base f79ab4080d5e831bb1bdbe83a27a7c35ce0f86ac (`node scripts/scan-sessions.mjs --json --synthetic v43/v43-mounted-steed-stair-descent-pager-2-cfirst`, bounded run I4Zbvh) emits 165 screens from 166 recorded steps and stops at step 165 with boundary `unsupported hero move: next_to_u() with a steed`; the recorded C message is `You descend the stairs.--More--`.",
+                "The selected recording has role Wizard, no starting pet, and action history that uses #wizgenesis to create and tame a saddled pony, #ride to mount it, #wizmap to reach the down staircase, then >. Step 165 has 2407 C RNG calls from new-level generation after the accepted descent; the JavaScript boundary stops before that source path.",
+                "Source comparison: apply.c:918-928 permits a mounted steed to accompany the hero unless mon_has_amulet() returns true. The selected call is do.c:dodown() at 1251, which consumes next_to_u() and calls next_level(TRUE) at 1290. The required C transfer is do.c:1624 keepdogs(FALSE), dog.c:789-884, followed by do.c:1816 losedogs(), dog.c:381-383, and dog.c:420-623. JavaScript refusal sites are apply_next_to_u.js:34-38, dog.js:922-928, and dog.js:1033-1039.",
+                "The currently implemented non-leashed path in apply.c:mleashed_next2u() returns false before checking m_next2u(), so the session does not reach its asynchronous mnexto() limitation. This evidence covers the selected no-leash steed path only."
+              ],
+              "replayInputSha256": "06a6abfc0a0a484f27b5b045f98d2ae806023dccfc7cd604709230bef25c268a",
+              "evaluationArtifact": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+              "evaluationUtc": "2026-10-11T03:14:40.052Z",
+              "queueSha256": "838fd8b7d9ca8b5a65fb81039abf06462c427031179073a72753bc4dc416e5f4"
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e73625ecb2d254fe9147c1d1d402f857b87e976c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Whole-source review found next_to_u, keepdogs, and mon_arrive cannot be completed independently: they require incomplete leash, mon_leave, mon_catchup_elapsed_time, migration placement, and active caller families. Resume only after those source families are selected with complete caller and entry evidence."
+    },
+    {
+      "id": "port-v43-quest-nemesis-death-and-fumes-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port quest nemesis death handling and fumes",
+      "cFile": "quest.c",
+      "sessions": [
+        "synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst"
+      ],
+      "selectionReason": "The refreshed v43 queue remains at the nemesis death boundary after accepted monster-death caller work; source tracing selects quest.c nemdead, questpgr.c stinky_nemesis, and quest.c nemesis_stinks as the complete death-and-fumes family.",
+      "detail": "Port the three whole source functions and wire the bounded due-to-death MS_NEMESIS branch in mon.c m_detach. The admitted Wizard case covers the false-fumes path and an independent Archeologist recording covers gas-cloud creation.",
+      "openedAt": "e920febfc621d789df467aa84c47f99383122a4d",
+      "openStanding": {
+        "sha": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "nemdead",
+          "line": 107,
+          "endLine": 115,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 107,
+        "to": 115
+      },
+      "requiredFunctions": [
+        {
+          "name": "stinky_nemesis",
+          "line": 150,
+          "endLine": 198,
+          "declared": true,
+          "sourceFile": "questpgr.c",
+          "complete": true
+        },
+        {
+          "name": "nemesis_stinks",
+          "line": 426,
+          "endLine": 440,
+          "declared": true,
+          "sourceFile": "quest.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst": {
+          "session": "synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.session.json",
+          "recordingSha256": "ab1bd854844156185abb66f58ce22e0eabc7c035cf7ad7018e8555b3b160949d",
+          "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+          "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494"
+        }
+      },
+      "activeStanding": {
+        "sha": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "session": "synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.session.json",
+          "recordingSha256": "ab1bd854844156185abb66f58ce22e0eabc7c035cf7ad7018e8555b3b160949d",
+          "recipe": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "1acd456e93f145b5c35d0194254fafa4f17150c2d92716c29850755b98aa4489",
+          "replayInputSha256": "06a6abfc0a0a484f27b5b045f98d2ae806023dccfc7cd604709230bef25c268a",
+          "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+          "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+          "evaluationArtifact": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+          "evaluationUtc": "2026-10-11T03:14:40.052Z",
+          "remainingScreens": 2,
+          "recordedSteps": 40,
+          "previousScreensMatched": 38,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 38,
+              "total": 40
+            },
+            "rng": {
+              "matched": 3233,
+              "total": 3235
+            },
+            "cursors": {
+              "matched": 38,
+              "total": 40
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 38,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 38,
+                "key": "j"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 22,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3233,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+              "jsEntry": "rn2(6)=5",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 38,
+                "key": "j"
+              },
+              "stepIndex": 38
+            },
+            "cursor": {
+              "index": 38,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 38,
+                "key": "j"
+              },
+              "cCursor": [
+                30,
+                0,
+                1
+              ],
+              "jsCursor": [
+                62,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 38,
+          "kind": "rng",
+          "sourceFile": "nhlib.lua",
+          "function": "shuffle",
+          "message": null,
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.json",
+            "result": {
+              "session": "synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst",
+              "remainingScreens": 2,
+              "recordedSteps": 40,
+              "status": "complete",
+              "commit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-quest-nemesis-death-wizard-corrected-cfirst",
+                "session": "synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.session.json",
+                "recordingSha256": "ab1bd854844156185abb66f58ce22e0eabc7c035cf7ad7018e8555b3b160949d",
+                "recipe": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.recipe.session.json",
+                "recipeSha256": "1acd456e93f145b5c35d0194254fafa4f17150c2d92716c29850755b98aa4489",
+                "replayInputSha256": "06a6abfc0a0a484f27b5b045f98d2ae806023dccfc7cd604709230bef25c268a",
+                "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+                "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+                "evaluationArtifact": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+                "evaluationUtc": "2026-10-11T03:14:40.052Z",
+                "remainingScreens": 2,
+                "recordedSteps": 40,
+                "previousScreensMatched": 38,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 38,
+                    "total": 40
+                  },
+                  "rng": {
+                    "matched": 3233,
+                    "total": 3235
+                  },
+                  "cursors": {
+                    "matched": 38,
+                    "total": 40
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 38,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": "j"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 22,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3233,
+                    "cEntry": "rn2(3)=2",
+                    "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+                    "jsEntry": "rn2(6)=5",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": "j"
+                    },
+                    "stepIndex": 38
+                  },
+                  "cursor": {
+                    "index": 38,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": "j"
+                    },
+                    "cCursor": [
+                      30,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      62,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 38,
+                "kind": "rng",
+                "sourceFile": "nhlib.lua",
+                "function": "shuffle",
+                "message": null,
+                "cFile": null,
+                "luaFile": "nhlib.lua",
+                "line": 19,
+                "helper": {
+                  "function": "random",
+                  "luaFile": "nhlib.lua",
+                  "line": 8
+                }
+              },
+              "summary": "The accepted mon.c change leaves the v43 case at the nemesis death boundary. C m_detach calls quest.c:nemdead, questpgr.c:stinky_nemesis, and conditionally quest.c:nemesis_stinks before relobj; JavaScript had only a note_unported stop at nemdead. The coherent fix also completes com_pager_core raw-text retrieval so the gas decision reads the same unconverted role text that qt_pager displayed.",
+              "source": {
+                "file": "quest.c",
+                "branch": "For a due-to-death MS_NEMESIS in mon.c:m_detach, nemdead marks killed_nemesis before qt_pager; stinky_nemesis fetches the same role-specific killed_nemesis text without output, normalizes newlines, and tests noxious/poisonous/toxic followed by gas/fumes; only a positive result runs nemesis_stinks, which sets mon_moving around create_gas_cloud(mx,my,5,8). Keep the m_detach order before relobj.",
+                "functions": [
+                  "nemdead",
+                  "nemesis_stinks",
+                  "questpgr.c:stinky_nemesis",
+                  "questpgr.c:com_pager_core"
+                ],
+                "callers": [
+                  "mon.c:m_detach is called with due_to_death=true from mondead and false from mongone; only mondead enters the nemesis-death arm. m_detach orders nemdead -> stinky_nemesis -> conditional nemesis_stinks -> relobj."
+                ],
+                "dependencies": [
+                  "questpgr.c:qt_pager and com_pager_core are existing JS pager implementations; com_pager_core gains the rawtext out-parameter path. region.c:create_gas_cloud is an existing JS implementation and requires blockPoint, canSee, newsym, and message operations at this live caller."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Refreshed queue SHA-256 838fd8b7d9ca8b5a65fb81039abf06462c427031179073a72753bc4dc416e5f4: this session remains at step 38 with 38/40 screens and cursors plus 3233/3235 RNG calls matched; C reaches the quest pager shuffle before JavaScript continues to the later drop-path draw.",
+                "nethack-c/upstream/src/quest.c:107-114 — nemdead guards killed_nemesis, marks it before qt_pager(\"killed_nemesis\"), and emits no repeated message.",
+                "nethack-c/upstream/src/questpgr.c:150-194 — stinky_nemesis asks com_pager_core for raw role text, normalizes newlines, then checks noxious/poisonous/toxic before gas/fumes.",
+                "nethack-c/upstream/src/quest.c:426-439 — nemesis_stinks saves mon_moving, creates a size-5, damage-8 gas cloud, then restores the flag.",
+                "nethack-c/upstream/src/mon.c:2768-2776 — m_detach calls nemdead, tests stinky_nemesis, conditionally creates the cloud, then releases inventory.",
+                "investigations/synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.json — accepted Wizard-role false-fumes C trace exercises nemdead and the false stinky branch; the original saved evaluation diverged at step 38 because JavaScript stopped at the unported nemdead call.",
+                "recordings/quest.c/v43-quest-nemesis-archeologist-fumes-cfirst.session.json — independent Archeologist C recording shows the role text and reaches create_gas_cloud with 9 recorded RNG calls at step 39."
+              ],
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-quest-nemesis-death-wizard-corrected-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "ab1bd854844156185abb66f58ce22e0eabc7c035cf7ad7018e8555b3b160949d",
+              "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+              "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+              "queueSha256": "838fd8b7d9ca8b5a65fb81039abf06462c427031179073a72753bc4dc416e5f4",
+              "postImplementationDifferential": [
+                {
+                  "recipe": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.recipe.session.json",
+                  "result": "PASS",
+                  "rng": "3235/3235",
+                  "screens": "40/40",
+                  "cursors": "40/40"
+                },
+                {
+                  "recipe": "recipes/quest.c/v43-quest-nemesis-archeologist-fumes-cfirst.session.json",
+                  "result": "PASS",
+                  "rng": "3029/3029",
+                  "screens": "40/40",
+                  "cursors": "40/40"
+                }
+              ],
+              "replayInputSha256": "06a6abfc0a0a484f27b5b045f98d2ae806023dccfc7cd604709230bef25c268a",
+              "evaluationArtifact": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+              "evaluationUtc": "2026-10-11T03:14:40.052Z"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "nemdead",
+            "implementation": "js/quest.js",
+            "symbol": "nemdead",
+            "sourceReview": "Read quest.c:nemdead() (107-114) in full. If Qstat(killed_nemesis) is already true it returns without output; otherwise it sets the flag before calling qt_pager(\"killed_nemesis\"). JavaScript sets state.svq.quest_status.killed_nemesis before awaiting the pager and preserves the one-time ordering.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c:m_detach (2768-2770) calls nemdead() only in due_to_death && mtmp->data->msound == MS_NEMESIS; mondead passes TRUE and mongone passes FALSE."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-death.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/v43-quest-nemesis-archeologist-fumes-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-quest-nemesis-death-wizard-corrected-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "mon.c:mondead -> m_detach -> quest.c:nemdead; the quest completion state is set before the role pager is shown."
+              }
+            ],
+            "checkedAt": "aa059a096d741543042220cd9ba56e3ced4840b5"
+          },
+          {
+            "name": "stinky_nemesis",
+            "implementation": "js/questpgr.js",
+            "symbol": "stinky_nemesis",
+            "sourceReview": "Read questpgr.c:stinky_nemesis() (150-196) in full, including the active #else branch. The active C implementation ignores mon, retrieves the hero role's raw killed_nemesis text with com_pager_core, normalizes every newline to a space, then checks in order for noxious, poisonous, or toxic and searches from that match for gas or fumes. JavaScript preserves this role choice and check order. The required raw-text mode returns the original non-array message text without selecting alternatives or delivering output.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c:m_detach (2771-2773) calls stinky_nemesis(mtmp) after nemdead() and consumes its integer result to decide whether nemesis_stinks runs."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-death.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/v43-quest-nemesis-archeologist-fumes-cfirst.session.json"
+            ],
+            "sourceFile": "questpgr.c",
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-quest-nemesis-death-wizard-corrected-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "mon.c:m_detach -> questpgr.c:stinky_nemesis; the Wizard role's raw text takes the false result branch."
+              }
+            ],
+            "checkedAt": "aa059a096d741543042220cd9ba56e3ced4840b5"
+          },
+          {
+            "name": "nemesis_stinks",
+            "implementation": "js/quest.js",
+            "symbol": "nemesis_stinks",
+            "sourceReview": "Read quest.c:nemesis_stinks() (426-439) in full. It saves context.mon_moving, sets it true around create_gas_cloud(mx,my,5,8), then restores the saved value. JavaScript uses the existing region create_gas_cloud implementation with the source-equivalent block_point, cansee, newsym, and output operations, and restores mon_moving in a finally block.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c:m_detach (2772-2773) conditionally calls nemesis_stinks(mx,my) only when stinky_nemesis returns true."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-death.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/v43-quest-nemesis-archeologist-fumes-cfirst.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "aa059a096d741543042220cd9ba56e3ced4840b5"
+          }
+        ],
+        "entryPointReview": "The selected active entry is the due-to-death MS_NEMESIS branch in mon.c:m_detach. Its active caller is mondead (mon.c:3175), which calls m_detach(..., TRUE); mongone calls m_detach(..., FALSE) (mon.c:3282) and therefore skips all of this death handling. In source order m_detach removes the monster from the map, then calls nemdead, stinky_nemesis, conditionally nemesis_stinks, then relobj. This task ports those three whole source functions and wires only that bounded m_detach branch; it does not claim whole m_detach completion. questpgr.c:stinky_nemesis intentionally ignores its monster argument and requests the same role-specific killed_nemesis text that nemdead displayed. Its required raw-text retrieval is an added path through the existing JS comPagerCore; the wider com_pager_core source function remains a separately partial implementation and is not claimed complete here. The admitted Wizard case reaches the false-fumes branch; the independent Archeologist recording reaches the true-fumes cloud branch.",
+        "entryPoints": [
+          {
+            "name": "Due-to-death removal of an MS_NEMESIS monster with the Wizard role's false-fumes message",
+            "functions": [
+              {
+                "sourceFile": "quest.c",
+                "name": "nemdead"
+              },
+              {
+                "sourceFile": "questpgr.c",
+                "name": "stinky_nemesis"
+              },
+              {
+                "sourceFile": "quest.c",
+                "name": "nemesis_stinks"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-quest-nemesis-death-wizard-corrected-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "mon.c:mondead -> m_detach(due_to_death=TRUE) -> quest.c:nemdead -> questpgr.c:stinky_nemesis -> quest.c:nemesis_stinks is skipped because the role message does not mention noxious gas/fumes; m_detach then continues to relobj."
+              }
+            ]
+          },
+          {
+            "name": "Due-to-death removal of an MS_NEMESIS monster with the Archeologist true-fumes message",
+            "functions": [
+              {
+                "sourceFile": "quest.c",
+                "name": "nemdead"
+              },
+              {
+                "sourceFile": "questpgr.c",
+                "name": "stinky_nemesis"
+              },
+              {
+                "sourceFile": "quest.c",
+                "name": "nemesis_stinks"
+              }
+            ],
+            "recordings": [
+              "recordings/quest.c/v43-quest-nemesis-archeologist-fumes-cfirst.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }

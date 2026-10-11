@@ -3,7 +3,7 @@
   "remainingScreens": 2,
   "recordedSteps": 40,
   "status": "complete",
-  "commit": "331c2a91bf336e8b212cd933e58a4b7640ae9151",
+  "commit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v43",
@@ -16,11 +16,11 @@
     "recordingSha256": "ab1bd854844156185abb66f58ce22e0eabc7c035cf7ad7018e8555b3b160949d",
     "recipe": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.recipe.session.json",
     "recipeSha256": "1acd456e93f145b5c35d0194254fafa4f17150c2d92716c29850755b98aa4489",
-    "replayInputSha256": "d652fa57c326bf68debc5c2fcd23217a0c0127a05049046723d9062066dc7630",
-    "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
-    "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
-    "evaluationArtifact": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
-    "evaluationUtc": "2026-10-11T02:29:19.784Z",
+    "replayInputSha256": "06a6abfc0a0a484f27b5b045f98d2ae806023dccfc7cd604709230bef25c268a",
+    "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+    "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+    "evaluationArtifact": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+    "evaluationUtc": "2026-10-11T03:14:40.052Z",
     "remainingScreens": 2,
     "recordedSteps": 40,
     "previousScreensMatched": 38,
@@ -129,6 +129,7 @@
   },
   "goalKind": "file-port",
   "evidence": [
+    "Refreshed queue SHA-256 838fd8b7d9ca8b5a65fb81039abf06462c427031179073a72753bc4dc416e5f4: this session remains at step 38 with 38/40 screens and cursors plus 3233/3235 RNG calls matched; C reaches the quest pager shuffle before JavaScript continues to the later drop-path draw.",
     "nethack-c/upstream/src/quest.c:107-114 — nemdead guards killed_nemesis, marks it before qt_pager(\"killed_nemesis\"), and emits no repeated message.",
     "nethack-c/upstream/src/questpgr.c:150-194 — stinky_nemesis asks com_pager_core for raw role text, normalizes newlines, then checks noxious/poisonous/toxic before gas/fumes.",
     "nethack-c/upstream/src/quest.c:426-439 — nemesis_stinks saves mon_moving, creates a size-5, damage-8 gas cloud, then restores the flag.",
@@ -142,9 +143,9 @@
   "manifestPath": "challenges/manifests/v43.json",
   "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
   "recordingSha256": "ab1bd854844156185abb66f58ce22e0eabc7c035cf7ad7018e8555b3b160949d",
-  "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
-  "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
-  "queueSha256": "daf596ad43e6d480fef4ebcc59e8f886f44e362b1ceabda10e010899d9d3362b",
+  "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+  "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+  "queueSha256": "838fd8b7d9ca8b5a65fb81039abf06462c427031179073a72753bc4dc416e5f4",
   "postImplementationDifferential": [
     {
       "recipe": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.recipe.session.json",
@@ -160,5 +161,8 @@
       "screens": "40/40",
       "cursors": "40/40"
     }
-  ]
+  ],
+  "replayInputSha256": "06a6abfc0a0a484f27b5b045f98d2ae806023dccfc7cd604709230bef25c268a",
+  "evaluationArtifact": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+  "evaluationUtc": "2026-10-11T03:14:40.052Z"
 }

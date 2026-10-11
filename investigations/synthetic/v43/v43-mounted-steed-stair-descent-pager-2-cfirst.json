@@ -1,0 +1,103 @@
+{
+  "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+  "corpus": "synthetic",
+  "batch": "v43",
+  "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+  "manifestPath": "challenges/manifests/v43.json",
+  "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+  "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+  "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
+  "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+  "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+  "remainingScreens": 1,
+  "recordedSteps": 166,
+  "status": "complete",
+  "commit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v43",
+    "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+    "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+    "manifestPath": "challenges/manifests/v43.json",
+    "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+    "recording": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+    "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+    "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+    "recipe": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.recipe.session.json",
+    "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
+    "replayInputSha256": "06a6abfc0a0a484f27b5b045f98d2ae806023dccfc7cd604709230bef25c268a",
+    "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+    "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+    "evaluationArtifact": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+    "evaluationUtc": "2026-10-11T03:14:40.052Z",
+    "remainingScreens": 1,
+    "recordedSteps": 166,
+    "previousScreensMatched": 165,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 165,
+        "total": 166
+      },
+      "rng": {
+        "matched": 3913,
+        "total": 6320
+      },
+      "cursors": {
+        "matched": 165,
+        "total": 166
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: next_to_u() with a steed",
+      "step": 165
+    },
+    "step": 165,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "next_to_u",
+    "message": "unsupported hero move: next_to_u() with a steed",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At the only unmatched screen, a mounted Wizard presses > on a down staircase. C apply.c:next_to_u() returns true for a steed that does not carry the Amulet, so do.c:dodown() calls next_level() and do.c:goto_level() transfers the steed. JavaScript throws at the mounted-steed guard. The required runtime path continues through dog.c:keepdogs() and dog.c:mon_arrive(), whose current JavaScript mounted-steed branches also throw. Implement the source branches as one transfer path; preserve the separate Amulet refusal.",
+  "source": {
+    "file": "apply.c and dog.c",
+    "branch": "After the leash predicate scan, apply.c:next_to_u() returns false only when a leashed follower cannot remain within two squares or when the mounted steed carries the Amulet; otherwise it returns true. For the selected > command, do.c:dodown() reaches this helper on a down staircase, then do.c:goto_level() calls dog.c:keepdogs(FALSE), which moves u.usteed to gm.mydogs. After the new level is built, dog.c:losedogs() calls dog.c:mon_arrive(mtmp, With_you); mon_arrive() links the same u.usteed into fmon and returns before placing it as a separate map occupant.",
+    "functions": [
+      "apply.c:next_to_u() (918-928), the exercised non-Amulet mounted return branch",
+      "dog.c:keepdogs() (789-884), its ordinary level-transfer branch for mtmp == u.usteed",
+      "dog.c:mon_arrive() (420-623), its mtmp == u.usteed early-return branch after restore_cham()"
+    ],
+    "callers": [
+      "do.c:dodown() (1251, 1290): the selected > command tests next_to_u() and calls next_level(TRUE).",
+      "dungeon.c:next_level() (1497-1514) passes the destination to do.c:goto_level().",
+      "do.c:goto_level() (1624, 1816) calls keepdogs(FALSE) before saving the old level and losedogs() after arrival.",
+      "dog.c:losedogs() (381-383) drains gm.mydogs through mon_arrive(mtmp, With_you).",
+      "Other direct next_to_u() callers are do.c:doup() (1336), do.c:goto_level() (1567), trap.c:dotrap() (643), artifact.c:arti_invoke() (1921), dig.c:dig() (762), teleport.c:level_tele()/tele_trap()/teleds()/teleport_pet() (1145, 1154, 1304, 1453, 1506), and allmain.c:moveloop_core() (313). Existing JavaScript callers use js/apply_next_to_u.js from do.js, trap.js, artifacts.js, dig.js, teleport.js, allmain.js, and cmd.js."
+    ],
+    "dependencies": [
+      "The downstream transfer is required because the C true return is consumed by do.c:dodown() and leads directly to goto_level(). JavaScript dog.js:keepdogs() currently throws at the mounted-steed branch; C instead clears mtrapped and meating, calls the already implemented steal.c:mdrop_special_objs(), removes the steed from the departing level, and appends it to gm.mydogs.",
+      "The next C caller is dog.c:losedogs(), already wired by do.js:goto_level(). Its With_you path reaches dog.c:mon_arrive(), whose C branch inserts u.usteed into the destination monster list, restores its transfer flags, and returns before mnexto(). JavaScript dog.js currently throws at this same branch.",
+      "The separate apply.c:mleashed_next2u() leash branch remains incomplete because its source mnexto() call is synchronous while JavaScript mon.js:mnexto() is asynchronous. The selected session has no leashed companion; the existing callback returns false for every un-leashed monster. Do not claim the leash branch complete.",
+      "No active ledger reservation names apply.c:next_to_u, dog.c:keepdogs, or dog.c:mon_arrive. The submitted A2 priest delivery reserves separate priest.c, pray.c, invent.c, mon.c:wakeup, and uhitm.c:hmon functions."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved queue SHA-256 838fd8b7d9ca8b5a65fb81039abf06462c427031179073a72753bc4dc416e5f4 selects this v43 case at step 165 with one unmatched screen.",
+    "The accepted 57c44fa48bff87c33541a147cedd6d9a0018a494 v43 evaluation records 165/166 screens, 165/166 cursors, and 3913/6320 RNG calls; JavaScript stops at apply.c:next_to_u before the mounted descent.",
+    "A focused scan at worker base f79ab4080d5e831bb1bdbe83a27a7c35ce0f86ac (`node scripts/scan-sessions.mjs --json --synthetic v43/v43-mounted-steed-stair-descent-pager-2-cfirst`, bounded run I4Zbvh) emits 165 screens from 166 recorded steps and stops at step 165 with boundary `unsupported hero move: next_to_u() with a steed`; the recorded C message is `You descend the stairs.--More--`.",
+    "The selected recording has role Wizard, no starting pet, and action history that uses #wizgenesis to create and tame a saddled pony, #ride to mount it, #wizmap to reach the down staircase, then >. Step 165 has 2407 C RNG calls from new-level generation after the accepted descent; the JavaScript boundary stops before that source path.",
+    "Source comparison: apply.c:918-928 permits a mounted steed to accompany the hero unless mon_has_amulet() returns true. The selected call is do.c:dodown() at 1251, which consumes next_to_u() and calls next_level(TRUE) at 1290. The required C transfer is do.c:1624 keepdogs(FALSE), dog.c:789-884, followed by do.c:1816 losedogs(), dog.c:381-383, and dog.c:420-623. JavaScript refusal sites are apply_next_to_u.js:34-38, dog.js:922-928, and dog.js:1033-1039.",
+    "The currently implemented non-leashed path in apply.c:mleashed_next2u() returns false before checking m_next2u(), so the session does not reach its asynchronous mnexto() limitation. This evidence covers the selected no-leash steed path only."
+  ],
+  "replayInputSha256": "06a6abfc0a0a484f27b5b045f98d2ae806023dccfc7cd604709230bef25c268a",
+  "evaluationArtifact": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+  "evaluationUtc": "2026-10-11T03:14:40.052Z",
+  "queueSha256": "838fd8b7d9ca8b5a65fb81039abf06462c427031179073a72753bc4dc416e5f4"
+}
