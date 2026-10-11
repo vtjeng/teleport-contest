@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 58304271,
+      "datetime": "20450715123456",
+      "nethackrc": "OPTIONS=name:DogArrivalProbe,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none,playmode:debug\n",
+      "moves": " #wizgenesis\npeaceful newt\n#migratemons\n -1\n..\u00162\n"
+    }
+  ],
+  "comment": "Independent Healer debug input migrates an existing peaceful newt to the next level, lets elapsed turns accrue, then levelports to exercise dog.c:losedogs, mon_arrive, and mon_catchup_elapsed_time through do.c:goto_level."
+}

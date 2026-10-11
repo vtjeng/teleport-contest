@@ -1,8 +1,9 @@
 // Starting-pet creation, tame-monster state, and the companions that leave a
 // level with the hero, escape the dungeon, or move out of a wizard-made map.
 // C refs: dog.c pick_familiar_pm(), make_familiar(), newedog(), initedog(),
-// pet_type(), makedog(), mon_leave(),
-// keep_mon_accessible(), keepdogs(), migrate_to_level(), wary_dog() and abuse_dog();
+// pet_type(), makedog(), mon_leave(), keep_mon_accessible(), keepdogs(),
+// losedogs(), mon_arrive(), mon_catchup_elapsed_time(), migrate_to_level(),
+// wary_dog() and abuse_dog();
 // mon.c relmon(),
 // mon_leaving_level() and see_monster_closeup();
 // do_name.c christen_monst().
@@ -22,6 +23,8 @@ import {
     HALLUC,
     HALLUC_RES,
     LL_CONDUCT,
+    LARGEST_INT,
+    MAGIC_PORTAL,
     M_AP_MONSTER,
     M_AP_NOTHING,
     M_AP_TYPMASK,
@@ -39,6 +42,20 @@ import {
     NO_TRAP_FLAGS,
     MAXMONNO,
     NEED_HTH_WEAPON,
+    MIGR_APPROX_XY,
+    MIGR_EXACT_XY,
+    MIGR_LADDER_DOWN,
+    MIGR_LADDER_UP,
+    MIGR_LEFTOVERS,
+    MIGR_PORTAL,
+    MIGR_RANDOM,
+    MIGR_SSTAIRS,
+    MIGR_STAIRS_DOWN,
+    MIGR_STAIRS_UP,
+    MIGR_WITH_HERO,
+    COLNO,
+    ROWNO,
+    ROOMOFFSET,
     ACCFOOD,
     DOGFOOD,
     FULL_MOON,
@@ -59,6 +76,7 @@ import {
     depth,
     ledger_to_dlev,
     ledger_to_dnum,
+    builds_up,
 } from './dungeon.js';
 import { newsym } from './display.js';
 import { m_unleash } from './apply.js';
@@ -74,7 +92,9 @@ import {
 import { update_inventory } from './invent.js';
 import { mbirth_limit, rndmonst_adj, set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
-import { minliquid, mnexto } from './mon.js';
+import {
+    healmon, mnearto, minliquid, mnexto,
+} from './mon.js';
 import {
     attacktype,
     haseyes,
@@ -83,6 +103,9 @@ import {
     is_demon,
     is_human,
     levl_follower,
+    carnivorous,
+    herbivorous,
+    regenerates,
     sticks,
 } from './mondata.js';
 import { monnear } from './monmove.js';
@@ -131,7 +154,7 @@ import { P_SKILL, spell_skilltype } from './startup_skills.js';
 import { messageAt } from './startup_a11y.js';
 import { night } from './calendar.js';
 import { acurr } from './attrib.js';
-import { rloc_to } from './teleport.js';
+import { rloc, rloc_to } from './teleport.js';
 import { vision_recalc } from './vision.js';
 import { mon_wield_item } from './weapon.js';
 import { mon_has_amulet } from './wizard.js';
@@ -143,10 +166,15 @@ import { finish_meating } from './dogmove.js';
 import { body_part } from './polyself.js';
 import { mintrap } from './trap_effects.js';
 import { mdrop_special_objs } from './steal.js';
-import { count_wsegs, wormgone } from './worm.js';
+import { count_wsegs, get_wormno, initworm, wormgone } from './worm.js';
 
 import { has_oname, ONAME } from './const.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
+import { in_rooms } from './rooms.js';
+import { somexy } from './room_coordinates.js';
+import {
+    stairway_find, stairway_find_dir, stairway_find_from,
+} from './stairs.js';
 
 export { christen_monst } from './do_name.js';
 // Re-export for existing dog-related callers. The source implementations live
@@ -834,7 +862,7 @@ function mon_leave(monster, state) {
 
 // C refs: mon.c relmon() (2558-2594) and mon_leaving_level() (2695-2730),
 // which relmon() runs first. `listName` names the gm list the monster joins:
-// 'mydogs' for keepdogs(), 'migrating_mons' for migrate_to_level().
+// 'mydogs', 'migrating_mons', or dog.c losedogs()'s temporary failed list.
 //
 // 2695-2730 has three JavaScript homes: js/mon.js mon_leaving_level() for the
 // kill path, js/makemon_create.js mongone() with it merged in, and this one.
@@ -849,9 +877,9 @@ function mon_leave(monster, state) {
 //   2703  unstuck() and 2721-2722's seemimic() are handled by this copy's
 //         callers instead, which refuse a monster holding the hero or wearing
 //         a disguise, so no `unsupported` operation is threaded through here.
-//   2706  and 2717, the two `onmap` gates, which this copy does not need: both
-//         callers have already established that the monster stands on its own
-//         coordinates.
+//   2706 and 2717: keep C's on-map gates for failed arrivals too. Those
+//         monsters have mx == 0 and leave the level chain without touching the
+//         map or requesting floor effects/redraws.
 //
 // Every injected operation resolves before the first mutation, so a caller
 // that omits one cannot leave the monster half off the map.
@@ -859,15 +887,21 @@ function relmon(monster, listName, state, env) {
     const oldX = monster.mx;
     const oldY = monster.my;
     const previous = levelMonsterPredecessor(monster, state);
-    const boulder = floorBoulder(oldX, oldY, state);
+    const onMap = isok(oldX, oldY) && m_at(oldX, oldY, state) === monster;
+    const vaultGuard = oldX === 0 && oldY === 0
+        && m_at(0, 0, state) === monster;
+    const onGrid = onMap || vaultGuard;
+    const boulder = onMap ? floorBoulder(oldX, oldY, state) : null;
     const fillPit = boulder ? migratingOperation(env, 'fillPit') : null;
-    const redraw = migratingOperation(env, 'newsym', newsym);
+    const redraw = onMap ? migratingOperation(env, 'newsym', newsym) : null;
 
     monster.mtrapped = false;
-    remove_monster(oldX, oldY, state);
-    monster.mundetected = false;
-    if (boulder) fillPit(oldX, oldY, boulder, env);
-    redraw(oldX, oldY, state);
+    if (onGrid) remove_monster(oldX, oldY, state);
+    if (onMap) {
+        monster.mundetected = false;
+        if (boulder) fillPit(oldX, oldY, boulder, env);
+        redraw(oldX, oldY, state);
+    }
 
     if (previous) previous.nmon = monster.nmon;
     else state.level.monlist = monster.nmon;
@@ -1027,122 +1061,326 @@ export function update_mlstmv(state = game) {
     }
 }
 
-// C ref: dog.c mon_arrive() (419-620), bounded to `when == With_you`, the arm
-// losedogs() reaches for every monster on gm.mydogs. The independent-arrival
-// arms below it -- the xyloc switch, mon_catchup_elapsed_time(), the `wander`
-// displacement and mnearto()/rloc() -- serve gm.migrating_mons, which is empty
-// on a first descent because keep_mon_accessible() admits only the Wizard, a
-// shopkeeper, a priest or a vault guard.
-async function mon_arrive(monster, when, env) {
-    const { state } = env;
-    const u = state.u;
-
-    if (when !== MON_ARRIVE_WITH_YOU) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            `mon_arrive(${when}) for a monster arriving on its own`,
-        );
-    }
-    if (monster.data?.pmidx === PM_LONG_WORM) {
-        // dog.c mon_leave() preserves the segment count in wormno. Rebuilding
-        // that tail is still outside this With_you arrival implementation.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'mon_arrive() with a long worm',
-        );
-    }
-    monster.mstate |= MON_STILL_ARRIVING;
-    monster.nmon = state.level.monlist;
-    state.level.monlist = monster;
-    if (monster.isshk)
-        set_residency(monster, false, state);
-    monster.wormno = 0;
-    monster.mstrategy |= STRAT_ARRIVE;
-    monster.mstate &= ~(MON_MIGRATING | MON_LIMBO);
-    // Keep mnexto(rloc_to(set_apparxy())) from reading a stale guess.
-    monster.mux = u.ux;
-    monster.muy = u.uy;
-    // C reads the destination fields overloaded into mtrack here; the
-    // With_you arm below uses none of them.
-    mon_track_clear(monster);
-    await restore_cham(monster, state, env);
-
-    if (monster === u.usteed) {
-        // js/apply_next_to_u.js refuses a mounted hero before the descent, so
-        // no steed reaches gm.mydogs; C returns here without placing it.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'mon_arrive() with the hero\'s steed',
-        );
-    }
-
-    // "When a monster accompanies you, sometimes it will arrive at your
-    // intended destination and you'll end up next to that spot." A tame
-    // follower takes the hero's own square one time in ten, a peaceful one
-    // time in five and a hostile stalker one time in two; do.c u_collide_m()
-    // then decides which of the two moves off it.
-    if (!m_at(u.ux, u.uy, state)
-        && !env.random.rn2(monster.mtame ? 10 : monster.mpeaceful ? 5 : 2)) {
-        await rloc_to(monster, u.ux, u.uy, env);
-    } else {
-        await mnexto(monster, RLOC_NOMSG, env);
-    }
-    monster.mstate &= ~MON_STILL_ARRIVING;
-}
-
-// C ref: dog.c losedogs() (304-414), which do.c goto_level() calls once the
-// destination level exists. It places the monsters that came with the hero and
-// the ones migrating to this level.
-//
-// Four of its five phases have nothing to do on a first descent, and each is
-// written out below with the state that empties it. What runs is the gm.mydogs
-// walk, which drains the list keepdogs() filled on the way out.
+// C ref: dog.c losedogs() (304-417). failed_arrivals is a file-static C list;
+// keep its one live-game counterpart with the other global monster lists.
 export async function losedogs(rawEnv = {}) {
     const env = dogEnv(rawEnv);
     const { state } = env;
     state.gm ??= {};
+    state.gm.failed_arrivals = null;
 
-    // Phases one and two, the shopkeeper scans and make_happy_shoppers(), read
-    // ESHK(mtmp)->dismiss_kops. They run only for shopkeepers on the
-    // migrating_mons list; the With_you list that keepdogs() fills is handled
-    // in phase four.
-    for (let mtmp = state.gm.migrating_mons; mtmp; mtmp = mtmp.nmon) {
-        if (mtmp.isshk) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'losedogs() with a shopkeeper returning to its shop level',
-            );
+    let dismissKops = 0;
+    for (let monster = state.gm.migrating_mons; monster;
+        monster = monster.nmon) {
+        if (monster.mux !== state.u.uz.dnum
+            || monster.muy !== state.u.uz.dlevel
+            || !monster.isshk) continue;
+        const shop = monster.mextra?.eshk;
+        if (shop?.dismiss_kops) {
+            if (dismissKops === 0) dismissKops = 1;
+            shop.dismiss_kops = false;
+        } else if (!monster.mpeaceful) {
+            dismissKops = -1;
+        }
+    }
+    for (let monster = state.gm.mydogs;
+        monster && dismissKops >= 0; monster = monster.nmon) {
+        if (monster.isshk && !monster.mpeaceful) dismissKops = -1;
+    }
+    if (dismissKops > 0) note_unported('shk.c make_happy_shoppers');
+
+    // Exact-position migrants reclaim their squares before followers arrive.
+    let previous = null;
+    let monster = state.gm.migrating_mons;
+    while (monster) {
+        const next = monster.nmon;
+        if (monster.mux === state.u.uz.dnum
+            && monster.muy === state.u.uz.dlevel
+            && monster.mtrack?.[0]?.x === MIGR_EXACT_XY) {
+            if (previous) previous.nmon = next;
+            else state.gm.migrating_mons = next;
+            await mon_arrive(monster, 'Before_you', env);
+        } else {
+            previous = monster;
+        }
+        monster = next;
+    }
+
+    while (state.gm.mydogs) {
+        monster = state.gm.mydogs;
+        state.gm.mydogs = monster.nmon;
+        await mon_arrive(monster, MON_ARRIVE_WITH_YOU, env);
+    }
+
+    previous = null;
+    monster = state.gm.migrating_mons;
+    while (monster) {
+        const next = monster.nmon;
+        if (monster.mux === state.u.uz.dnum
+            && monster.muy === state.u.uz.dlevel
+            && monster.mtrack?.[0]?.x !== MIGR_EXACT_XY) {
+            if (previous) previous.nmon = next;
+            else state.gm.migrating_mons = next;
+            await mon_arrive(monster, 'After_you', env);
+        } else {
+            previous = monster;
+        }
+        monster = next;
+    }
+
+    while (state.gm.failed_arrivals) {
+        monster = state.gm.failed_arrivals;
+        state.gm.failed_arrivals = monster.nmon;
+        // C re-adds the failed arrival to fmon before mon.c:m_into_limbo(),
+        // which reaches the still-partial dog.c:migrate_to_level adapter.
+        // Record that precise void-callee boundary without invoking it.
+        monster.nmon = state.level.monlist;
+        state.level.monlist = monster;
+        note_unported('dog.c migrate_to_level');
+    }
+}
+
+// C ref: dog.c mon_arrive() (420-624), including With_you, independent, and
+// existing-Wizard arrival modes. The steed return intentionally leaves
+// MON_STILL_ARRIVING set and does not place the mounted monster on the map.
+export async function mon_arrive(monster, when, rawEnv = {}) {
+    const env = dogEnv(rawEnv);
+    const { state, random } = env;
+    const u = state.u;
+    const whenIsWizard = when === 'Wiz_arrive';
+
+    monster.mstate |= MON_STILL_ARRIVING;
+    monster.nmon = state.level.monlist;
+    state.level.monlist = monster;
+    if (monster.isshk) set_residency(monster, false, state);
+
+    const numSegs = monster.wormno;
+    if (monster.data?.pmidx === PM_LONG_WORM) {
+        monster.wormno = get_wormno(state);
+        if (monster.wormno) initworm(monster, numSegs, env);
+    } else {
+        monster.wormno = 0;
+    }
+
+    monster.mstrategy |= STRAT_ARRIVE;
+    monster.mstate &= ~(MON_MIGRATING | MON_LIMBO);
+    monster.mux = u.ux;
+    monster.muy = u.uy;
+    const xyloc = monster.mtrack?.[0]?.x ?? MIGR_RANDOM;
+    const xyflags = monster.mtrack?.[0]?.y ?? 0;
+    let xlocale = monster.mtrack?.[1]?.x ?? 0;
+    let ylocale = monster.mtrack?.[1]?.y ?? 0;
+    const fromdlev = {
+        dnum: monster.mtrack?.[2]?.x ?? 0,
+        dlevel: monster.mtrack?.[2]?.y ?? 0,
+    };
+    mon_track_clear(monster);
+    await restore_cham(monster, state, env);
+
+    if (monster === u.usteed) return;
+    if (when === MON_ARRIVE_WITH_YOU) {
+        if (!m_at(u.ux, u.uy, state)
+            && !random.rn2(monster.mtame ? 10 : monster.mpeaceful ? 5 : 2)) {
+            await rloc_to(monster, u.ux, u.uy, env);
+        } else {
+            await mnexto(monster, RLOC_NOMSG, env);
+        }
+        monster.mstate &= ~MON_STILL_ARRIVING;
+        return;
+    }
+
+    const destinationCode = whenIsWizard ? MIGR_WITH_HERO : xyloc;
+    let wander = 0;
+    if (monster.mlstmv < state.moves - 1) {
+        const elapsed = state.moves - 1 - monster.mlstmv;
+        mon_catchup_elapsed_time(monster, elapsed, env);
+        wander = Math.min(elapsed, 8);
+    }
+
+    switch (destinationCode) {
+    case MIGR_APPROX_XY:
+        break;
+    case MIGR_EXACT_XY:
+        wander = 0;
+        break;
+    case MIGR_WITH_HERO:
+        xlocale = u.ux;
+        ylocale = u.uy;
+        break;
+    case MIGR_STAIRS_UP:
+    case MIGR_STAIRS_DOWN: {
+        const stairway = stairway_find_from(fromdlev, false, state);
+        if (stairway) {
+            xlocale = stairway.sx;
+            ylocale = stairway.sy;
+        }
+        break;
+    }
+    case MIGR_LADDER_UP:
+    case MIGR_LADDER_DOWN: {
+        const stairway = stairway_find_from(fromdlev, true, state);
+        if (stairway) {
+            xlocale = stairway.sx;
+            ylocale = stairway.sy;
+        }
+        break;
+    }
+    case MIGR_SSTAIRS: {
+        const stairway = stairway_find(fromdlev, state);
+        if (stairway) {
+            xlocale = stairway.sx;
+            ylocale = stairway.sy;
+        }
+        break;
+    }
+    case MIGR_PORTAL: {
+        if (state.astral_level
+            && u.uz.dnum === state.astral_level.dnum) {
+            const destination = state.updest;
+            xlocale = random.rn1(destination.hx - destination.lx + 1,
+                destination.lx);
+            ylocale = random.rn1(destination.hy - destination.ly + 1,
+                destination.ly);
+            break;
+        }
+        const portal = state.level.traps?.find(
+            (trap) => trap.ttyp === MAGIC_PORTAL,
+        );
+        if (portal) {
+            xlocale = portal.tx;
+            ylocale = portal.ty;
+            break;
+        }
+        if (state.iflags?.debug_fuzzer) {
+            const stairway = stairway_find_dir(!builds_up(u.uz, state), state);
+            if (stairway) {
+                xlocale = stairway.sx;
+                ylocale = stairway.sy;
+                break;
+            }
+        }
+        const questStart = (level) => level
+            && level.dnum === state.qstart_level?.dnum
+            && level.dlevel === state.qstart_level?.dlevel;
+        if (!(u.uevent?.qexpelled
+            && (questStart(u.uz0) || questStart(u.uz)))) {
+            note_unported('pline.c impossible');
+        }
+        // C falls through to MIGR_RANDOM when the portal is absent after
+        // quest expulsion.
+        xlocale = 0;
+        ylocale = 0;
+        break;
+    }
+    case MIGR_RANDOM:
+    default:
+        xlocale = 0;
+        ylocale = 0;
+        break;
+    }
+
+    if ((monster.migflags & MIGR_LEFTOVERS) && state.gm.migrating_objs)
+        note_unported('dokick.c deliver_obj_to_mon');
+
+    if (xlocale && wander) {
+        const roomNumbers = in_rooms(xlocale, ylocale, 0, state);
+        if (roomNumbers.length) {
+            const room = state.level.rooms?.[roomNumbers[0] - ROOMOFFSET];
+            const coordinate = {};
+            if (room && somexy(room, coordinate, env)) {
+                xlocale = coordinate.x;
+                ylocale = coordinate.y;
+            } else {
+                xlocale = 0;
+                ylocale = 0;
+            }
+        } else {
+            let low = Math.max(1, xlocale - wander);
+            let high = Math.min(COLNO - 1, xlocale + wander);
+            xlocale = random.rn1(high - low, low);
+            low = Math.max(0, ylocale - wander);
+            high = Math.min(ROWNO - 1, ylocale + wander);
+            ylocale = random.rn1(high - low, low);
         }
     }
 
-    // Phase three returns the monsters that went onto gm.migrating_mons only
-    // to stay reachable while the hero was away, and phase five delivers the
-    // monsters migrating here. Both select on the destination the monster
-    // carries, and every entry on that list targets a level the hero has left
-    // rather than the one she is arriving on, so both walks find nothing on a
-    // first descent. mon_arrive() refuses the Before_you and After_you modes
-    // they use.
-    // mux/muy are overloaded here and hold no map position. While a monster
-    // sits on gm.migrating_mons, C stores its destination in them -- mux is
-    // the dungeon number and muy the level -- and mon_arrive() overwrites the
-    // pair with a real position once the monster lands. Comparing them
-    // against u.uz.dnum and u.uz.dlevel is therefore a destination test, not a
-    // proximity test.
-    for (let mtmp = state.gm.migrating_mons; mtmp; mtmp = mtmp.nmon) {
-        if (mtmp.mux === state.u.uz.dnum && mtmp.muy === state.u.uz.dlevel) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'losedogs() with a monster migrating to the arrival level',
-            );
+    monster.mx = 0;
+    monster.my = xyflags;
+    const placed = xlocale
+        ? await mnearto(monster, xlocale, ylocale, false, RLOC_NOMSG, env)
+        : await rloc(monster, RLOC_NOMSG, env);
+    if (!placed) {
+        if (!whenIsWizard) {
+            relmon(monster, 'failed_arrivals', state, env);
+        } else {
+            // mon.c m_into_limbo() delegates to the still-partial
+            // dog.c:migrate_to_level() adapter; C discards the void result.
+            note_unported('dog.c migrate_to_level');
         }
     }
+    monster.mstate &= ~MON_STILL_ARRIVING;
+}
 
-    // Phase four: the monsters that accompany the hero, in the order
-    // keepdogs() pushed them onto the list.
-    let mtmp;
-    while ((mtmp = state.gm.mydogs) !== null && mtmp !== undefined) {
-        state.gm.mydogs = mtmp.nmon;
-        await mon_arrive(mtmp, MON_ARRIVE_WITH_YOU, env);
+// C ref: dog.c mon_catchup_elapsed_time() (627-724). This is shared by level
+// restore, migrating-monster arrival, and Wizard resurrection.
+export function mon_catchup_elapsed_time(monster, nmv, rawEnv = {}) {
+    const env = dogEnv(rawEnv);
+    const { state, random } = env;
+    let imv = 0;
+    if (nmv < 0) throw new Error('catchup from future time?');
+    if (nmv === 0) note_unported('pline.c impossible');
+    if (nmv >= LARGEST_INT) imv = LARGEST_INT - 1;
+    else imv = Math.trunc(nmv);
+
+    for (const field of ['mblinded', 'mfrozen', 'mfleetim']) {
+        if (monster[field]) {
+            if (imv >= monster[field]) monster[field] = 1;
+            else monster[field] -= imv;
+        }
+    }
+    if (monster.mtrapped && random.rn2(imv + 1) > 20)
+        monster.mtrapped = false;
+    if (monster.mconf && random.rn2(imv + 1) > 25)
+        monster.mconf = false;
+    if (monster.mstun && random.rn2(imv + 1) > 5)
+        monster.mstun = false;
+
+    if (monster.meating) {
+        if (imv > monster.meating) finish_meating(monster, env);
+        else monster.meating -= imv;
+    }
+    if (imv > monster.mspec_used) monster.mspec_used = 0;
+    else monster.mspec_used -= imv;
+
+    if (monster.mtame) {
+        const wilder = Math.trunc((imv + 75) / 150);
+        if (monster.mtame > wilder) {
+            monster.mtame -= wilder;
+        } else if (monster.mtame > random.rn2(wilder)) {
+            monster.mtame = 0;
+        } else {
+            monster.mtame = 0;
+            monster.mpeaceful = 0;
+        }
+    }
+    if (monster.mtame && !monster.isminion
+        && (carnivorous(monster.data) || herbivorous(monster.data))) {
+        const edog = EDOG(monster);
+        if (edog
+            && ((state.moves > edog.hungrytime + 500 && monster.mhp < 3)
+                || state.moves > edog.hungrytime + 750)) {
+            monster.mtame = 0;
+            monster.mpeaceful = 0;
+        }
+    }
+    if (!monster.mtame && monster.mleashed) {
+        note_unported('pline.c impossible');
+        m_unleash(monster, false, { ...env, state });
     }
 
-    // The failed_arrivals list is filled by mon_arrive()'s independent-arrival
-    // arms alone, all of which refuse above, so m_into_limbo() has no caller
-    // here.
+    if (!regenerates(monster.data)) imv = Math.trunc(imv / 20);
+    healmon(monster, imv, 0);
+    set_mon_lastmove(monster, state);
 }
 
 // C refs: dog.c mon_leave()/migrate_to_level() and mon.c relmon()/
