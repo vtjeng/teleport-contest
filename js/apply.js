@@ -55,6 +55,7 @@ import {
     FIG_TRANSFORM,
     FLASHED_LIGHT,
     FREE_ACTION,
+    FM_FMON,
     FEMALE,
     FACE,
     FOOT,
@@ -79,6 +80,7 @@ import {
     ICE,
     IS_WALL,
     MELT_ICE_AWAY,
+    MS_SILENT,
     N_DIRS,
     NO_MINVENT,
     MM_NOMSG,
@@ -168,6 +170,7 @@ import {
     TT_WEB,
     Trap_Killed_Mon,
     UNENCUMBERED,
+    XKILL_NOMSG,
     WEAK,
     MAXULEV,
     MAX_SPELL_STUDY,
@@ -283,7 +286,7 @@ import { bagotricks, mkclass } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { mkundead } from './mkroom.js';
 import {
-    killed, m_in_air, mnexto, seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto,
+    killed, m_in_air, mnexto, seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto, xkilled,
 } from './mon.js';
 import {
     can_blow,
@@ -320,6 +323,7 @@ import {
     little_to_big,
     big_to_little,
     poly_when_stoned,
+    breathless,
 } from './mondata.js';
 import {
     accessible, closed_door, monflee, onscary, set_apparxy, youHear,
@@ -599,14 +603,14 @@ import { SPE_JUMPING, BOULDER } from './objects.js';
 import { S_goodpos } from './symbols.js';
 import { in_rooms } from './rooms.js';
 import { On_stairs, stairway_at } from './stairs.js';
-import { set_voice } from './sounds.js';
+import { growl, set_voice, whimper, yelp } from './sounds.js';
 import {
     attack_checks,
     check_caitiff,
     flash_hits_mon,
     force_attack,
 } from './uhitm.js';
-import { get_obj_location, obj_merge_light_sources, transient_light_cleanup } from './light.js';
+import { find_mid, get_obj_location, obj_merge_light_sources, transient_light_cleanup } from './light.js';
 import {
     bhit,
     bhitm,
@@ -1316,6 +1320,86 @@ export function get_mleash(monster, state = game) {
             return object;
     }
     return null;
+}
+
+// C ref: apply.c check_leash() (931-996). Called after a hero relocation:
+// only movement that increases squared distance from an attached pet can pull
+// the leash. Keep C's radius checks, RNG order, and feedback before the caller's
+// redraw and floor effects.
+export async function check_leash(x, y, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    // allmain's planning pass can inject a partial cloned stream; preserve the
+    // live defaults and let the caller's random operations override them.
+    const random = { rnd, rn2, ...(rawEnv.random ?? {}) };
+
+    for (let leash = state.invent; leash; leash = leash.nobj) {
+        if (leash.otyp !== LEASH || leash.leashmon === 0)
+            continue;
+        const monster = find_mid(leash.leashmon, FM_FMON, state);
+        if (!monster) {
+            note_unported('pline.c impossible');
+            leash.leashmon = 0;
+            continue;
+        }
+        if (dist2(state.u.ux, state.u.uy, monster.mx, monster.my)
+            <= dist2(x, y, monster.mx, monster.my))
+            continue;
+
+        if (!um_dist(monster.mx, monster.my, 3, state))
+            continue;
+
+        if (leash.cursed && !breathless(monster.data)) {
+            if (um_dist(monster.mx, monster.my, 5, state)
+                || (monster.mhp -= random.rnd(2)) <= 0) {
+                const savePacifism = state.u.uconduct.killer;
+                await message(
+                    `Your leash chokes ${mon_nam(monster, state, rawEnv)} to death!`,
+                    state,
+                    rawEnv,
+                );
+                await xkilled(monster, XKILL_NOMSG, state, {
+                    ...rawEnv,
+                    state,
+                    random,
+                    message,
+                });
+                if (monster.mhp >= 1)
+                    state.u.uconduct.killer = savePacifism;
+            } else {
+                await pline_mon(
+                    monster,
+                    `${Monnam(monster, state, rawEnv)} is choked by the leash!`,
+                    state,
+                    { ...rawEnv, message },
+                );
+                if (monster.mtame && random.rn2(monster.mtame))
+                    monster.mtame--;
+            }
+        } else if (um_dist(monster.mx, monster.my, 5, state)) {
+            await message(
+                `${s_suffix(Monnam(monster, state, rawEnv))} leash snaps loose!`,
+                state,
+                rawEnv,
+            );
+            m_unleash(monster, false, { ...rawEnv, state });
+        } else {
+            await message('You pull on the leash.', state, rawEnv);
+            if (monster.data?.msound !== MS_SILENT) {
+                switch (random.rn2(3)) {
+                case 0:
+                    await growl(monster, state, random);
+                    break;
+                case 1:
+                    await yelp(monster, state, random);
+                    break;
+                default:
+                    await whimper(monster, { ...rawEnv, state, random, message });
+                    break;
+                }
+            }
+        }
+    }
 }
 
 // C ref: apply.c grapple_range(), can_grapple_location(),

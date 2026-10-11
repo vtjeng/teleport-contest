@@ -197,6 +197,7 @@ import {
 } from './detect.js';
 import { age_spells } from './spell.js';
 import { settrack } from './track.js';
+import { check_leash } from './apply.js';
 import { clear_splitobjs } from './obj.js';
 import { makewish } from './zap.js';
 import { clear_bypasses } from './worn.js';
@@ -1024,8 +1025,15 @@ async function finishElapsedTurnAfterTimeout(
                 if (!(await next_to_u(state, {
                     random,
                     message: turnMessage,
-                })))
-                    note_unported('dog.c check_leash');
+                }))) {
+                    // C ref: allmain.c moveloop_core():314, after a changed
+                    // teleport leaves an attached pet unable to stay adjacent.
+                    await check_leash(oldUx, oldUy, {
+                        state,
+                        random,
+                        message: turnMessage,
+                    });
+                }
                 cmdq_clear(CQ_CANNED, state);
                 cmdq_clear(CQ_REPEAT, state);
             }
