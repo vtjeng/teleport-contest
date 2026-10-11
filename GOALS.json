@@ -276653,6 +276653,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-cmd-rhack-queued-adjust-split-v47-20261011",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Dispatch IA_ADJUST_STACK queued adjust_split commands through cmd.c rhack semantics.",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v47/v47-itemactions-adjust-stack-egg-split"
+      ],
+      "selectionReason": "The largest admitted v47 mismatch is a complete investigation of cmd.c:rhack: itemactions queues adjust_split and its inventory letter, but JavaScript falls through to the unsupported command boundary before calling the existing split implementation.",
+      "detail": "Add the missing queued function-pointer dispatch for adjust_split in js/cmd.js:rhack. Preserve cmd.c ECMD result handling and the queued inventory-letter order, using the existing invent.js adjust_split implementation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "rhack",
+      "session": "synthetic/v47/v47-itemactions-adjust-stack-egg-split",
+      "step": 33,
+      "syntheticProvenance": {
+        "synthetic/v47/v47-itemactions-adjust-stack-egg-split": {
+          "session": "synthetic/v47/v47-itemactions-adjust-stack-egg-split",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-itemactions-adjust-stack-egg-split",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-timed-egg-stack-split-attempt6.session.json",
+          "recordingSha256": "a7526166f2dcfafdf4a8c9907d557dc5991aa6b3e292945e360348a29455eba9",
+          "evaluationPath": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
+          "evaluationCommit": "56fe7fb916a1ffdf783a557694a1c1c18af784de"
+        }
+      }
     }
   ]
 }
