@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T00:02:48.509Z",
+  "capturedAt": "2026-10-11T00:37:36.773Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -84833,23 +84833,192 @@
         "type": "accepted",
         "at": "2026-10-11T00:01:07.706Z",
         "task": "A2-investigation-v42-baalz-special-program-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v42-baalz-special-program-20261010-665aadc3fffddd0c76cb26a79b4ea7c4a5f4f322",
+        "type": "published",
+        "at": "2026-10-11T00:02:56.646Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
+        "commit": "665aadc3fffddd0c76cb26a79b4ea7c4a5f4f322"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-idle-after-baalz-accepted-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:03:05.991Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Idle at accepted Baalz Main. The only saved-queue candidate is B’s reserved Zhitu case; A2 is available after v43 admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-b-zhitu-895802817",
+        "type": "received",
+        "at": "2026-10-11T00:05:25.708Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "delivery": "895802817641637644dee93cd9ed1288f054aea5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-b-zhitu-investigation-complete",
+        "type": "feedback",
+        "at": "2026-10-11T00:08:49.730Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "delivery": "895802817641637644dee93cd9ed1288f054aea5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-zhitu-metadata-correction-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:11:18.242Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Correcting the B42 investigation cache entry so it validates as complete for goal selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-v42-zhitu-correction-20261011",
+        "type": "resume",
+        "at": "2026-10-11T00:11:56.920Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8aadf9c103276108e32b85dad4efdbd18a3eae41",
+        "type": "ready",
+        "at": "2026-10-11T00:12:18.094Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "delivery": "8aadf9c103276108e32b85dad4efdbd18a3eae41"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-b-zhitu-correction-8aadf9c10",
+        "type": "received",
+        "at": "2026-10-11T00:12:48.628Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "delivery": "8aadf9c103276108e32b85dad4efdbd18a3eae41"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-zhitu-correction-idle-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:12:58.924Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B42 cache correction is ready for integration; no independent mismatch session remains in the saved queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-b-zhitu-7462bfe2dac3",
+        "type": "integrating",
+        "at": "2026-10-11T00:19:13.656Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "integration": "7462bfe2dac3283983b536d94598fe8606737e94"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-b42-passivemm-entrypoint-20261011",
+        "type": "feedback",
+        "at": "2026-10-11T00:20:59.857Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "delivery": "8aadf9c103276108e32b85dad4efdbd18a3eae41"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-passivemm-route-correction-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:22:00.583Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating a matching unarmed monster-vs-monster entry for B42 passivemm acid damage."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-v42-passivemm-evidence-20261011",
+        "type": "resume",
+        "at": "2026-10-11T00:22:02.402Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-eleven-kop-20261010",
+        "type": "turn",
+        "at": "2026-10-11T00:25:35.666Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has eleven approved distinct C-first mismatches; continuing the final candidate search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-25ae844467737a3d837ab25b49a0fe584b8078fc",
+        "type": "ready",
+        "at": "2026-10-11T00:29:07.731Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "delivery": "25ae844467737a3d837ab25b49a0fe584b8078fc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-b42-passivemm-25ae844467",
+        "type": "received",
+        "at": "2026-10-11T00:29:26.092Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "delivery": "25ae844467737a3d837ab25b49a0fe584b8078fc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-passivemm-correction-idle-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:29:44.935Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Passivemm evidence correction is ready for integration; no independent mismatch session remains in the saved queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-b42-correction-b73fdc85db11",
+        "type": "integrating",
+        "at": "2026-10-11T00:30:15.986Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "integration": "b73fdc85db11090859404e7c98f66b6e384dfbfc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-b42-b73fdc85",
+        "type": "validated",
+        "at": "2026-10-11T00:35:09.321Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-v42-zhitu-acid-damage-dual-wield-investigation-20261010-b73fdc85db11090859404e7c98f66b6e384dfbfc-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T00:35:57.139Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-sync-b73fdc85-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:36:26.427Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B42 was accepted; syncing its published boundary before the next queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-b73-main-sync-idle-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:36:40.463Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Accepted B42 Main is synced; waiting for the refreshed v43 queue."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
-        "worker": "B",
-        "goal": "port-trap-acid-damage-v42-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "895802817641637644dee93cd9ed1288f054aea5",
-        "since": "2026-10-10T23:54:27.261Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -85185,8 +85354,8 @@
     ]
   },
   "development": {
-    "executionCommit": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337",
-    "measuredAt": "2026-10-10T23:59:52.610Z",
+    "executionCommit": "b73fdc85db11090859404e7c98f66b6e384dfbfc",
+    "measuredAt": "2026-10-11T00:34:53.111Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

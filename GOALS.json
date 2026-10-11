@@ -260968,7 +260968,7 @@
     {
       "id": "port-trap-acid-damage-v42-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port acid damage through canonical erosion helpers and production callers.",
       "cFile": "trap.c",
       "sessions": [
@@ -260982,8 +260982,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b73fdc85db11090859404e7c98f66b6e384dfbfc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "erode_obj",
@@ -261549,6 +261552,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b73fdc85db11090859404e7c98f66b6e384dfbfc",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
