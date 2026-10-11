@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050101,
+      "datetime": "20530301121314",
+      "nethackrc": "OPTIONS=name:V43KniGoal,role=Knight,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nKni-goal.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "Exploratory C-first candidate for the unrepresented Knight quest-goal Lua source. Use the matching Knight role, load Kni-goal.lua directly through the debug special-level loader, and expose the generated map. No JavaScript comparison until all C-first routes and independent replays are complete."
+}

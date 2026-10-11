@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050428,
+      "datetime": "20531028121314",
+      "nethackrc": "OPTIONS=name:V43SpellFavor,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .l\u0017blessed luckstone\n,\u0017neutral altar\n\u0017white unicorn corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n #offer\no\ny  #offer\np\ny  #offer\nq\ny  #offer\nr\ny  #offer\ns\ny  #offer\nt\ny  #offer\nu\ny  #offer\nv\ny  #pray\ny y "
+    }
+  ],
+  "comment": "Corrected C-first source candidate for pray.c:pleased -> give_spell. Dismiss the startup pager before moving east. Wish a blessed luckstone, neutral altar, one lawful white unicorn corpse and seven red dragon corpses before offering; this batches wiz-wish cooldown increments so high-value altar offerings can clear the initial ublesscnt and then add Luck. The corpse pile is offered in floor-letter order o-v with confirmation, followed by the wizard-only force-success prayer response. The previous stacked-wish attempt lacked the initial welcome-page dismissal and is preserved as setup evidence."
+}

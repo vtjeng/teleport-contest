@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43051011,
+      "datetime": "20540210131415",
+      "nethackrc": "OPTIONS=name:V43Vorpal,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nVorpal Blade\n#wizgenesis\nhostile jabberwock\nweFl"
+    }
+  ],
+  "comment": "Fresh Wizard C-first probe for artifact.c:artifact_hit Vorpal beheading against an adjacent hostile Jabberwock. Planned before any JS comparison; the C trace must confirm a landed hit and the Vorpal arm."
+}

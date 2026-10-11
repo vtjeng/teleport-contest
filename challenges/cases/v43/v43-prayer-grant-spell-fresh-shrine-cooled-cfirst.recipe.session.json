@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only source-corrected first-prayer candidate. u_init.c initializes u.ublesscnt to 300, so the previous fresh prayer was too soon. This recipe gives the hero 350 turns of wizard invulnerability, reaches experience level 12 while acknowledging each C-observed More page, waits 300 turns with safe_wait disabled, then prays for the first time at a neutral shrine. Its source target is pray.c:prayer_done -> pleased/prayer_success and the spell-gift case; all input choices are driven by C screens and source preconditions, not JavaScript.",
+  "segments": [
+    {
+      "seed": 43050123,
+      "datetime": "20530323121314",
+      "nethackrc": "OPTIONS=name:V43FreshPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".l\u0017blessed luckstone\n,\u0017neutral altar\n#wizintrinsic\n350a\n#levelchange\n12\n\n\n\n\n\n\n\n\n\n\n\n300.#pray\ny\nn..."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Prep7 C-first replacement for the too-soon prayer route. Use a fresh neutral Wizard with a blessed luckstone, create and stand on a neutral shrine, set experience level 12 through the source debug command, and make the first prayer without any prior offerings or prayer cooldown. C must show the prayer_success choice or a source-explained miss; no JavaScript result informs this route.",
+  "segments": [
+    {
+      "seed": 43050123,
+      "datetime": "20530323121314",
+      "nethackrc": "OPTIONS=name:V43FreshPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".l\u0017blessed luckstone\n,\u0017neutral altar\n#levelchange\n12\n#pray\ny\nn..."
+    }
+  ]
+}

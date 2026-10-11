@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050045,
+      "datetime": "20530207121314",
+      "nethackrc": "OPTIONS=name:V43Demonpet,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #polyself\nbarbed devil\n\u0007hostile iron golem\nFnnnnnnnnnnnnn"
+    }
+  ],
+  "comment": "C-first repeated attack route: after the source map confirms the hostile iron golem is southeast, one `F n` attack is followed by twelve ordinary attacks while remaining unarmed as a barbed devil. The first attack has rn2(13)=11; later attacks test the same source gate until demonpet is reached or the target/hero state ends the route."
+}

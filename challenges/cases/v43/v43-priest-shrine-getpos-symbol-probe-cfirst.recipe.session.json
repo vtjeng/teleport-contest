@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050137,
+      "datetime": "20530406121314",
+      "nethackrc": "OPTIONS=name:V43Sacrifice,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nblessed scroll of teleportation\n#wizloaddes\nKni-loca.lua\n ro   _."
+    }
+  ],
+  "comment": "C-only route probe using the inventory-confirmed wished teleport scroll in slot o. After loading the Kni-loca source temple, dismiss the read result, destination prompt, and first-use farlook tip before searching for the altar with the getpos background symbol. Stop before the offering to inspect C's selected destination."
+}

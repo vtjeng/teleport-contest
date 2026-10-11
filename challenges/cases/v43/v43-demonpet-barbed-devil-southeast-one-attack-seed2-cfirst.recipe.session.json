@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050045,
+      "datetime": "20530207121314",
+      "nethackrc": "OPTIONS=name:V43Demonpet,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #polyself\nbarbed devil\n\u0007hostile iron golem\nFn"
+    }
+  ],
+  "comment": "Corrected from the C map: the hostile iron golem is southeast of the unarmed barbed devil, so force-fight uses n. Check whether this actual attack reaches uhitm.c:damageum demonpet."
+}

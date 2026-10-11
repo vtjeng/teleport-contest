@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050135,
+      "datetime": "20530404121314",
+      "nethackrc": "OPTIONS=name:V43Sacrifice,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017blessed scroll of teleportation\ni"
+    }
+  ],
+  "comment": "C-only inventory-slot probe after the teleport item prompt varied across seed setups; record C's actual blessed-scroll inventory letter before constructing another controlled-location recipe. This is setup evidence, not an offering candidate."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Prep7 C-first whole-program candidate frozen before JavaScript comparison. Load the Wizard quest-locate source with a matching Wizard role and reveal the generated level. Crosswalk against v36's Wizard quest-locate search probe and all admitted special programs; retain only if the reached program behavior and first divergence are source-distinct.",
+  "segments": [
+    {
+      "seed": 43050124,
+      "datetime": "20530324121314",
+      "nethackrc": "OPTIONS=name:V43WizardLocate,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nWiz-loca.lua\n#wizmap\n"
+    }
+  ]
+}

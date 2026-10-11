@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Prep7 C-first candidate frozen before JavaScript comparison. Load the unrepresented Samurai quest-start source program using its matching Samurai role and reveal the generated map. Crosswalk against all admitted role quest programs and retain only if C executes Sam-strt.lua's own source actions.",
+  "segments": [
+    {
+      "seed": 43050122,
+      "datetime": "20530322121314",
+      "nethackrc": "OPTIONS=name:V43SamStart,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nSam-strt.lua\n#wizmap\n"
+    }
+  ]
+}

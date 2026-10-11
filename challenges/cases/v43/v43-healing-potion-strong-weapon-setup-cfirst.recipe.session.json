@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050060,
+      "datetime": "20530308121314",
+      "nethackrc": "OPTIONS=name:V43WoundedMonster,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed +5 dagger\n\u0017potion of healing\n"
+    }
+  ],
+  "comment": "C-first improved healing test setup: a source-backed +5 dagger should make the conditioning hit reliable while leaving a high-HP ogre alive; a separate healing potion is saved for the subsequent throw. This setup recording preserves the C-assigned inventory letters before the monster branch."
+}

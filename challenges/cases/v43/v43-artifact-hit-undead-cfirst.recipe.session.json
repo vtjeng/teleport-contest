@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050022,
+      "datetime": "20530122121314",
+      "nethackrc": "OPTIONS=name:V43ArtHit,role:Wizard,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nExcalibur\n#wizgenesis\nhostile zombie\nweFl"
+    }
+  ],
+  "comment": "C-first v43 candidate for artifact.c:artifact_hit. Wish Excalibur, generate a hostile adjacent zombie, wield Excalibur, and attack east."
+}

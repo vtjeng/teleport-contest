@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050424,
+      "datetime": "20531024121314",
+      "nethackrc": "OPTIONS=name:V43SpellFavor,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".l\u0017blessed luckstone\n,\u0017neutral altar\n\u0017white unicorn corpse\n #offer\ny  \u0017red dragon corpse\n #offer\ny  \u0017red dragon corpse\n #offer\ny  #pray\ny  ..."
+    }
+  ],
+  "comment": "C-first source probe for pray.c:pleased -> give_spell. Move off the stair, wish a luckstone and neutral altar, offer a lawful white unicorn for the +5 alignment change, and offer two red dragon corpses for Luck. Each heavy-corpse wish has a space to dismiss its Oops page; each sacrifice confirmation is y followed by two spaces for the source messages/pagers. The prayer confirmation is followed by y, two pager dismissals, then three wait turns. This preserves the earlier input-shape failures and records the actual C branch."
+}

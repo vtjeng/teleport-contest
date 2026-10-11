@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050008,
+      "datetime": "20530209121314",
+      "nethackrc": "OPTIONS=name:V43SpellPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .\u0017blessed luckstone\n,\u0017neutral altar\n\u0017newt corpse\n#offer\no\ny"
+    }
+  ],
+  "comment": "C-first correction from the recorded floor state: wish the blessed luckstone on ordinary floor and pick it up before creating the altar, then wish a newt corpse onto the altar and offer the C-observed object letter o. Preserve the prior attempts that created an altar with floor objects and moved off it."
+}

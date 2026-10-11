@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050133,
+      "datetime": "20530402121314",
+      "nethackrc": "OPTIONS=name:V43Sacrifice,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017blessed scroll of teleportation\n#wizloaddes\nKni-loca.lua\n ro  _.\u0017human corpse\n#offery"
+    }
+  ],
+  "comment": "Corrected C-only branch probe: use the C-observed scroll slot o, dismiss the two source messages before getpos, and search for the altar glyph before confirming. This retains the earlier input/pager failures as setup evidence; do not count until the corpse-sacrifice path is reached."
+}

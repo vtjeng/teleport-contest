@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only map probe based on the preserved Dark One creation result. It repeats the same seed and setup and adds #wizmap after C confirmed Dark One creation, so the target square can be selected from the C screen before a kill recipe is frozen. No JavaScript result informed this correction.",
+  "segments": [
+    {
+      "seed": 43050019,
+      "datetime": "20530119121314",
+      "nethackrc": "OPTIONS=name:V43Nemesis,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017wand of death\n\u0007hostile Dark One\ny#wizmap\n"
+    }
+  ]
+}

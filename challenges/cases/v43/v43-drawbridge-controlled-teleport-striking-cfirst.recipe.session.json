@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050052,
+      "datetime": "20530214121314",
+      "nethackrc": "OPTIONS=name:V43BridgeTeleport,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ncastle.lua\n#wizmap\n\u0017wand of striking\n\u0014kk.zoh"
+    }
+  ],
+  "comment": "C-first drawbridge route using wizard controlled teleport as setup: directly load castle.lua, wish a striking wand, Ctrl-T, move the target cursor two squares north of the C-observed starting position and pick with .; then zap west toward the closed bridge. Preserve the C result whether the selected target or bridge branch is reached."
+}

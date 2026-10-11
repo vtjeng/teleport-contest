@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first route correction from the exact revealed position after the initial attempted route: the steed is at the upper edge of the central room (18,7), and the map-derived lower route is two south, two east, three south, one east, six south, three west. Then invoke >; map the level afterward if it misses.",
+  "segments": [
+    {
+      "seed": 43000041,
+      "datetime": "20520320110523",
+      "nethackrc": "OPTIONS=name:V43RideDown,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u00173 blessed potions of full healing\nqoqoqo\u0007tame saddled pony\n#ride\nyy#wizmap\njlljjjjjkkkkkklllllklkllllljjjjjlljjjljjjjjjhhh>#wizmap\njjlljjjljjjjjjhhh>#wizmap\n"
+    }
+  ]
+}

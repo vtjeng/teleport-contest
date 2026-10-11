@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43051012,
+      "datetime": "20540211131415",
+      "nethackrc": "OPTIONS=name:V43Vorpal2,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nVorpal Blade\n#wizgenesis\nhostile jabberwock\nwnFj"
+    }
+  ],
+  "comment": "Corrected from the prior C map and inventory: wield the wished long sword from observed slot n and force-fight south toward the adjacent Jabberwock. This remains C-first; compare only if the C recording confirms the Vorpal beheading arm."
+}

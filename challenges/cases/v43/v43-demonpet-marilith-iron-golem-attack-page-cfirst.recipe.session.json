@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050047,
+      "datetime": "20530208121314",
+      "nethackrc": "OPTIONS=name:V43Demonpet,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #polyself\nmarilith\n\u0007hostile iron golem\nFn "
+    }
+  ],
+  "comment": "Source-based demonpet replacement after the Barbed Devil false-side attempts: marilith is a demon whose source attack array includes four AT_CLAW attacks, each eligible for damageum when unarmed. Preserve the source-observed adjacent golem location before choosing a direction. The C map places the iron-golem apostrophe one row below and one column right of the Marilith, so n attacks southeast. Dismiss the C-observed multiattack page once so the source can continue through remaining Marilith attacks in this turn."
+}

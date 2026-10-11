@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first attempt to reach read.c:maybe_tame -> dog.c:tamedog -> shk.c:make_happy_shk. Use a new seed and neutral Wizard, levelport to an ordinary D:4 generation, inspect its map, move east from the recorder-confirmed landing square, then ask wizard detection to establish whether an initialized shopkeeper is present. Wish taming only after generation so it cannot affect the target map. This remains setup evidence unless C identifies and reaches an isshk target.",
+  "segments": [
+    {
+      "seed": 43050314,
+      "datetime": "20521010164000",
+      "nethackrc": "OPTIONS=name:V43TameShopAlt,role:Wizard,race:elf,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n4\n#wizmap\nl#wizdetect\n#wizmap\n\u0017uncursed scroll of taming\n"
+    }
+  ]
+}

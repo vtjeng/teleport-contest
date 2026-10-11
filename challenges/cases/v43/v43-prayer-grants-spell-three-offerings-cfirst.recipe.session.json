@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050008,
+      "datetime": "20530209121314",
+      "nethackrc": "OPTIONS=name:V43SpellPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .l\u0017blessed luckstone\n,\u0017neutral altar\n\u0017newt corpse\n#offer\no\n\u0017newt corpse\n#offer\no\n\u0017newt corpse\n#offer\no\n#pray\n..."
+    }
+  ],
+  "comment": "C-first prayer gift attempt following source and recorded setup: move off the starting stair, carry the wished blessed luckstone, establish a coaligned altar, offer three source-wished newt corpses to build alignment record, then pray through the source occupation. Preserve all individual offer and prayer outcomes; count the give_spell mission only if C reaches prayer_success case 6."
+}

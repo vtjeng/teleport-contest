@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050052,
+      "datetime": "20530214121314",
+      "nethackrc": "OPTIONS=name:V43BridgeTeleport,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ncastle.lua\n#wizmap\n\u0017wand of striking\n\u0014  hkkk.zph"
+    }
+  ],
+  "comment": "C-first corrected drawbridge target: Castle defines east-facing bridge (5,8) and portcullis wall at (6,8). Dismiss both Ctrl-T pages, teleport the Wizard to source-defined clear floor (7,8) east of the wall, then strike west to hit the DBWALL cell rather than the DRAWBRIDGE_UP surface."
+}
