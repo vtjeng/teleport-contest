@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T12:16:36.908Z",
+  "capturedAt": "2026-10-11T12:30:43.674Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -88134,22 +88134,59 @@
         "worker": "C",
         "state": "active",
         "reason": "Resumed quest-finish implementation after accepted iron-ball dependency; tracing finish_quest callers and scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-quest-finish-thrown-artifact-20261011",
+        "type": "implement",
+        "at": "2026-10-11T12:20:40.579Z",
+        "task": "C-investigation-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011",
+        "goal": "port-quest-finish-thrown-artifact-synthetic-v45-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-cockatrice-1d37277547",
+        "type": "integrating",
+        "at": "2026-10-11T12:23:12.534Z",
+        "task": "B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011",
+        "integration": "1d37277547f03e37af5f2159baa0655c3830b8cd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0de38ac5d27d117737b9324a53fcb8c80913d1e6",
+        "type": "ready",
+        "at": "2026-10-11T12:24:41.808Z",
+        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011",
+        "delivery": "0de38ac5d27d117737b9324a53fcb8c80913d1e6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-intemple-submit-20261011T122523Z",
+        "type": "turn",
+        "at": "2026-10-11T12:25:45.072Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "The B Sanctum priest-name fix is ready to merge. No independent v45 session is currently free: A2 owns the vault case, C owns iron-ball and quest-finish, and B has cockatrice/nohandglow deliveries queued. Resume after integration or a refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-cockatrice-38139118365",
+        "type": "validated",
+        "at": "2026-10-11T12:29:16.342Z",
+        "task": "B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011-1d37277547f03e37af5f2159baa0655c3830b8cd-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T12:30:16.280Z",
+        "task": "B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011",
-        "worker": "B",
-        "goal": "port-uhitm-mhitm-ad-ston-seed4500-20260917",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "0480c536b69181defd20cef5309a9747e53beb35",
-        "since": "2026-10-11T11:11:39.158Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011",
         "worker": "B",
@@ -88158,8 +88195,19 @@
         "status": "ready",
         "delivery": "b9b3f3d44a8125ed564e2eb82762fadc57a8c2a6",
         "since": "2026-10-11T11:46:15.952Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011",
+        "worker": "B",
+        "goal": "fix-v45-intemple-monname-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "0de38ac5d27d117737b9324a53fcb8c80913d1e6",
+        "since": "2026-10-11T12:24:41.808Z",
         "blockedBy": [
-          "B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011"
+          "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011"
         ],
         "unblocks": 0
       }
@@ -88545,8 +88593,8 @@
     ]
   },
   "development": {
-    "executionCommit": "cfead60783b397097e20e05274512010fec57464",
-    "measuredAt": "2026-10-11T12:13:34.178Z",
+    "executionCommit": "1d37277547f03e37af5f2159baa0655c3830b8cd",
+    "measuredAt": "2026-10-11T12:28:37.745Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

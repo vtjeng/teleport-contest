@@ -62129,7 +62129,7 @@
     {
       "id": "port-uhitm-mhitm-ad-ston-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete stoning attack dispatch and source-ordered petrification gates",
       "cFile": "uhitm.c",
       "sessions": [
@@ -62154,8 +62154,11 @@
         "screens": 11142,
         "rng": 785819
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1d37277547f03e37af5f2159baa0655c3830b8cd",
+      "delivered": {
+        "screens": 15,
+        "rng": 135
+      },
       "functions": [
         {
           "name": "mhitm_ad_ston",
@@ -62330,6 +62333,12 @@
           "evaluationPath": "challenges/evaluations/accepted-cfead60783b397097e20e05274512010fec57464-v45.json",
           "evaluationCommit": "cfead60783b397097e20e05274512010fec57464"
         }
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1d37277547f03e37af5f2159baa0655c3830b8cd",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
