@@ -2478,7 +2478,7 @@ export async function dodown(state = game, env = {}) {
         u.uevent.gehennom_entered = 1;
     }
 
-    if (!next_to_u(state)) {
+    if (!(await next_to_u(state, env))) {
         await ttyPline('You are held back by your pet!', state);
         return ECMD_OK;
     }
@@ -2587,7 +2587,7 @@ export async function doup(state = game) {
         );
         if (answer !== 'y'.charCodeAt(0)) return ECMD_OK;
     }
-    if (!next_to_u(state)) {
+    if (!(await next_to_u(state))) {
         await ttyPline('You are held back by your pet!', state);
         return ECMD_OK;
     }
@@ -2740,7 +2740,7 @@ export async function goto_level(
             state.context.mysteryforce += rn2(forceDistance + 2);
             if (on_level(newlevel, u.uz)) {
                 await safe_teleds(TELEDS_NO_FLAGS, state);
-                next_to_u(state);
+                await next_to_u(state);
                 return;
             }
             new_ledger = ledger_no(newlevel, state);

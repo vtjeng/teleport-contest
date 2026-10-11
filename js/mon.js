@@ -881,6 +881,19 @@ export function get_iter_mons(bfunc, state = game) {
     return null;
 }
 
+// Async counterpart for C mon.c get_iter_mons() callers whose callbacks await
+// source operations. Cache nmon before awaiting so callback mutations preserve
+// the same next monster and first-match short circuit as the C loop.
+export async function get_iter_mons_async(bfunc, state = game) {
+    let next = null;
+    for (let mtmp = state.level?.monlist ?? null; mtmp; mtmp = next) {
+        next = mtmp.nmon;
+        if (mtmp.mhp < 1 /* DEADMONSTER() */ || mon_offmap(mtmp)) continue;
+        if (await bfunc(mtmp)) return mtmp;
+    }
+    return null;
+}
+
 // C ref: mon.c iter_mons(). Cache nmon before invoking the callback so a
 // callback may unlink or otherwise mutate the current monster safely.
 export function iter_mons(vfunc, state = game) {

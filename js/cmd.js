@@ -6484,11 +6484,11 @@ export async function rhack(key, state = game) {
                 // ignore_restrictions=TRUE → dotele(TRUE) skips all checks.
                 if (state.wizard && (!state.iflags?.menu_requested
                     || selectedTeleportMode === 'w')) {
-                    if (next_to_u(state)) {
+                    if (await next_to_u(state)) {
                         if (state.iflags)
                             state.iflags.travelcc = { x: 0, y: 0 };
                         await tele(state);
-                        next_to_u(state);
+                        await next_to_u(state);
                     } else {
                         await ttyPline(
                             'You shudder for a moment.',
@@ -6527,11 +6527,11 @@ export async function rhack(key, state = game) {
                     state.u.uen -= energy;
                     state.disp = state.disp || {};
                     state.disp.botl = true;
-                    if (next_to_u(state)) {
+                    if (await next_to_u(state)) {
                         if (state.iflags)
                             state.iflags.travelcc = { x: 0, y: 0 };
                         await tele(state);
-                        next_to_u(state);
+                        await next_to_u(state);
                     } else {
                         await ttyPline(
                             'You shudder for a moment.',
