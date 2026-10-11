@@ -2371,7 +2371,7 @@ test('mattacku resets mon_currwep before a nonweapon attack slot', async () => {
     assert.equal(state.unported.has('zap.c drain_item'), false);
 });
 
-test('mattacku reveals an eel the moment it strikes', async () => {
+test('mattacku reveals striking eels and names a seen invisible miss', async () => {
     // mhitu.c:720-724. An invisible eel on a square the hero can see becomes
     // visible before the attack resolves, and the square is repainted.
     const state = await meleeHero();
@@ -2417,20 +2417,16 @@ test('mattacku reveals an eel the moment it strikes', async () => {
     assert.deepEqual(marked, [[rat.mx, rat.my]]);
     assert.equal(rat.minvis, true);
 
-    // See Invisible makes the monster spottable, but do_name.c Monnam() then
-    // needs the unported invisible adjective (and hallucination can add display
-    // RNG). The narrower boundary must stay ahead of the miss message.
+    // See Invisible makes the monster spottable while it remains invisible.
+    // C's Monnam() then uses x_monnam()'s "invisible" adjective before the
+    // ordinary miss message; this source path must complete without a refusal.
     const spottedMarks = [];
     const spotted = meleeEnv(state, [20], {
         canSpotMonster: () => true,
         markInvisible: (x, y) => spottedMarks.push([x, y]),
     });
-    await assert.rejects(
-        () => mattacku(rat, spotted.env),
-        (error) => error.reason
-            === 'a miss by an invisible monster the hero can see',
-    );
-    assert.deepEqual(spotted.lines, []);
+    assert.equal(await mattacku(rat, spotted.env), false);
+    assert.deepEqual(spotted.lines, ['The invisible sewer rat misses!']);
     assert.deepEqual(spottedMarks, []);
 });
 
