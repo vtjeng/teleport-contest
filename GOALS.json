@@ -276343,8 +276343,8 @@
           "name": "wizdeadorgone",
           "line": 815,
           "endLine": 845,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -276558,7 +276558,92 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wizdeadorgone",
+            "implementation": "js/wizard.js",
+            "symbol": "wizdeadorgone",
+            "sourceReview": "Read the complete wizard.c:wizdeadorgone() definition at 812-822. It always decrements svc.context.no_of_wizards; only when u.uevent.udemigod is false does it set that flag and assign u.udg_cnt = rn1(250, 50), so later removals consume no draw. mon.c:m_detach() calls it after mon_leaving_level() and mhp=0, before due_to_death-only nemesis/leader/inventory effects. The JavaScript function preserves that order in both m_detach routes; the old iswiz refusal and mongone note_unported shim are removed. The function has no other C return-value callee.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c:m_detach() at 2756-2762 is the direct guarded caller; it invokes wizdeadorgone() when mtmp->iswiz regardless of due_to_death."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mondead",
+                "source": "mon.c:mondead() at 3175 calls m_detach(mtmp, mptr, TRUE) for a Wizard's death."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mongone",
+                "source": "mon.c:mongone() at 3282 calls m_detach(mdef, mdef->data, FALSE) when a Wizard is removed alive."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_kill",
+                "source": "wizcmds.c:wiz_kill() calls xkilled(), which reaches mon.c:mondead() and m_detach()."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_makemap",
+                "source": "wizcmds.c:wiz_makemap() calls cmd.c:makemap_prepost(TRUE); that path reaches wizcmds.c:makemap_remove_mons(), makemap_unmakemon(), mon.c:mongone(), then m_detach()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard.test.mjs",
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizard.c/wizdeadorgone-live-level-replacement-cfirst-c1.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 59,
+                "source": "wizcmds.c:wiz_kill -> mon.c:xkilled -> mondead -> m_detach -> wizard.c:wizdeadorgone"
+              }
+            ],
+            "checkedAt": "77375605933e205758c6a67b0654e369d13da563"
+          }
+        ],
+        "entryPointReview": "The whole source function has one active direct caller, mon.c:m_detach(), on both its due_to_death values. The death route is #wizkill -> xkilled -> mondead -> m_detach. The separate live-removal route is #wizmakemap -> makemap_prepost(TRUE) -> makemap_remove_mons -> makemap_unmakemon -> mongone -> m_detach. Both active entry points have runtime evidence below; no other C direct caller or inactive build branch exists.",
+        "entryPoints": [
+          {
+            "name": "#wizkill removes the Wizard of Yendor by death",
+            "functions": [
+              "wizdeadorgone"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 59,
+                "source": "wizcmds.c:wiz_kill -> mon.c:xkilled -> mondead -> m_detach -> wizard.c:wizdeadorgone"
+              }
+            ]
+          },
+          {
+            "name": "#wizmakemap removes the Wizard alive while replacing a level",
+            "functions": [
+              "wizdeadorgone"
+            ],
+            "recordings": [
+              "recordings/wizard.c/wizdeadorgone-live-level-replacement-cfirst-c1.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
