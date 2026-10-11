@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first seed-search attempt for the random depth-9 mklev.c -> do_mkroom(TEMPLE) -> mkroom.c:mktemple branch.",
+  "segments": [
+    {
+      "seed": 46101317,
+      "datetime": "20561208091234",
+      "nethackrc": "OPTIONS=name:V46Temple46101317,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n9\n #wizmap\n"
+    }
+  ]
+}

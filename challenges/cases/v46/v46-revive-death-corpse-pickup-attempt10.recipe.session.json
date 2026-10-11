@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 46100931,
+      "datetime": "20561208091234",
+      "nethackrc": "OPTIONS=name:V46DeathRevive10,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nring of levitation\nPor #wizgenesis\nhostile Death\ny#wizkill\n  l.\u001blR ,"
+    }
+  ],
+  "comment": "C-first Rider corpse touch/pickup: equip a wished levitation ring, create and select adjacent Death, kill it, move to the corpse, remove the ring, dismiss the float-down pager, then pick up the corpse."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 46101100,
+      "datetime": "20561208091234",
+      "nethackrc": "OPTIONS=name:V46SwampDepth1646101100,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n16\n #wizmap\n"
+    }
+  ],
+  "comment": "C-first seed search for ordinary depth-16 generation reaching mklev.c:makelevel -> do_mkroom(SWAMP) -> mkroom.c:mkswamp. Seeds vary only to search the source-defined 1-in-6 depth gate after earlier special-room tests."
+}
