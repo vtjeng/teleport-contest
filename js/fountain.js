@@ -1397,8 +1397,20 @@ export async function drinksink(state = game, env = {}) {
     }
     case 13:
         await message('Ew, what a stench!', state);
-        // Positive-damage gas clouds are not ported. C discards this return.
-        note_unported('region.c create_gas_cloud');
+        // C ref: fountain.c:698. The sink creates a damaging one-square
+        // region at the hero; region.js owns its TTL draw and activation.
+        await create_gas_cloud(x, y, 1, 4, {
+            ...env,
+            state,
+            random,
+            blockPoint: (cx, cy) => block_point(cx, cy, state),
+            unblockPoint: (cx, cy) => unblock_point(cx, cy, state),
+            doesBlock: (cx, cy, region) =>
+                does_block(cx, cy, region, state),
+            canSee: (cx, cy) => cansee(cx, cy, state),
+            newsym: (cx, cy) => newsym(cx, cy, state),
+            message,
+        });
         break;
     case 19:
         if (hallucination) {
