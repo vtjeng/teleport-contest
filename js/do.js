@@ -1585,7 +1585,7 @@ export function dropCommandEnv(state, env = {}) {
     };
 }
 
-// C ref: do.c dodrop() (28-42), the 'd' command.
+// C ref: do.c dodrop() (29-49), the 'd' command.
 export async function dodrop(state = game) {
     let result;
 
@@ -1593,22 +1593,16 @@ export async function dodrop(state = game) {
     // hero stands in; hack.c move_update() maintains it and js/rooms.js stores
     // it as a fixed five-entry array, so an empty list reads as a zero here
     // exactly as an empty string does there.
-    if (state.u?.ushops?.[0]) {
-        // shk.c sellobj_state() switches the shopkeeper's billing mode either
-        // side of the drop, which is what makes a deliberate drop an offer to
-        // sell. Both calls stop together, because the drop between them is
-        // what they bracket.
-        throw new UnsupportedDropError('sellobj_state() inside a shop');
-    }
+    if (state.u?.ushops?.[0])
+        sellobj_state(SELL_DELIBERATE, state);
     result = await drop(
         await getobj(
             'drop', any_obj_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
         ),
         state,
     );
-    // do.c:37-38's second `if (*u.ushops)` reads the same value, which the
-    // drop cannot change; the arm above has already stopped every hero it
-    // would be true for.
+    if (state.u?.ushops?.[0])
+        sellobj_state(SELL_NORMAL, state);
     if (result)
         reset_occupations(state);
 
