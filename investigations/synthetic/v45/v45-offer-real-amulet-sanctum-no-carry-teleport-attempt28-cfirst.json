@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v45.json",
   "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
   "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
-  "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
-  "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
-  "remainingScreens": 127,
+  "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+  "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+  "remainingScreens": 84,
   "recordedSteps": 157,
   "status": "complete",
-  "commit": "5f052c056074160926d72b47e774fae9a7b18f86",
+  "commit": "67d757adfce6fb701df5218060e04b6318f47626",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v45",
@@ -24,72 +24,105 @@
     "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
     "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
     "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
-    "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
-    "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
-    "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
-    "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
-    "evaluationUtc": "2026-10-11T09:20:20.964Z",
-    "remainingScreens": 127,
+    "replayInputSha256": "84060dd7b48fcae242ce5b79a23a72a39cf1cc9e922c8a93918a65f2a91e7de1",
+    "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+    "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+    "evaluationArtifact": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+    "evaluationUtc": "2026-10-11T11:57:28.052Z",
+    "remainingScreens": 84,
     "recordedSteps": 157,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 30,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 30,
+        "matched": 73,
         "total": 157
       },
       "rng": {
-        "matched": 6984,
+        "matched": 6986,
         "total": 7512
       },
       "cursors": {
-        "matched": 30,
+        "matched": 73,
         "total": 157
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: dotelecmd() for the extended command 'teleport' is not ported",
-      "step": 30
+      "screen": {
+        "index": 73,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 73,
+          "key": "."
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 42,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "H",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 73,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 73,
+          "key": "."
+        },
+        "cCursor": [
+          74,
+          0,
+          1
+        ],
+        "jsCursor": [
+          70,
+          0,
+          1
+        ]
+      }
     },
-    "step": 30,
-    "kind": "stop",
-    "sourceFile": "teleport.c",
-    "function": "dotelecmd",
-    "message": "unsupported hero command: dotelecmd() for the extended command 'teleport' is not ported",
-    "cFile": "teleport.c",
+    "step": 73,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
     "luaFile": null,
     "line": null
   },
-  "summary": "The C-first recording reaches the #teleport extended command after levelporting to the Sanctum. cmd.c registers that row with dotelecmd; JavaScript extended-command dispatch falls through to its unsupported-handler boundary at cmd.js:5370, even though the direct key branch has separate inline teleport logic. Port the complete contiguous teleport.c:dotelecmd()/dotele() family into js/teleport.js and route both command dispatch and the active drowning caller through the canonical owner. The recorded C path is wizard controlled teleport: dotelecmd() calls dotele(TRUE), next_to_u() succeeds, and tele() calls scrolltele(NULL) to print the destination prompt at step 30.",
+  "summary": "After the accepted teleport.c:dotelecmd/dotele port, this case now reaches the same temple-entry mismatch as the advanced Sanctum approach case. At step 73, priest.c:intemple() temporarily clears priest->ispriest and calls Monnam(priest), producing “The high priest intones:”. JavaScript performs the same temporary state change but calls priestname() directly and capitalizes its raw return. priestname() takes its non-priest early return and omits ARTICLE_THE, producing “High priest intones:”. Route the caller through the existing canonical Monnam() formatter; the prior screen and RNG history match through this point.",
   "source": {
-    "file": "teleport.c",
-    "branch": "Wizard human in debug mode invokes the #teleport extended command from the Sanctum without a teleport trap at the hero square. C dispatches cmd.c:1890-1891 to dotelecmd(); absent menu prefix, dotelecmd sets ignore_restrictions and calls dotele(TRUE). The hero is adjacent to a valid square, so dotele calls tele(), which calls scrolltele(NULL) and opens the controlled destination selector. The full family must also preserve nonwizard dotele(FALSE), menu modes, visible trap prompts, restriction/spell/energy checks, and the second next_to_u() check.",
+    "file": "priest.c",
     "functions": [
-      "teleport.c:dotelecmd() (919-1031), complete wizard/nonwizard command handler and temporary teleport-away spell save/restore.",
-      "teleport.c:dotele() (1033-1162), complete trap, restriction, spell-energy, relocation, and hunger decision tree."
+      "priest.c:intemple()"
     ],
+    "branch": "A visible, non-hallucinated hero teleports into a Sanctum TEMPLE room while a speaking high priest is present and intone_time has elapsed. intemple() saves priest->ispriest, clears it for the name-formatting call, emits the introduction, then restores the value before scheduling the next intone.",
     "callers": [
-      "cmd.c:1890-1891 registers dotelecmd as the C(t) command and the teleport extended command. Invoke canonical js/teleport.js:dotelecmd() from direct command-key and extended-command dispatch paths in js/cmd.js.",
-      "teleport.c:dotelecmd() calls dotele() and consumes its integer result to produce ECMD_TIME or ECMD_OK.",
-      "trap.c:drown() (5130-5132) calls dotele(FALSE) and discards its result. Active js/trap.js:drown() currently duplicates teleport eligibility/effect logic; route it through js/teleport.js:dotele().",
-      "dig.c:escape_tomb() (2241-2248) calls dotele(FALSE) and discards its result. No JavaScript escape_tomb() implementation or active JS caller exists in js/dig.js, so this is an absent caller path rather than scope for this teleport.c port."
+      "teleport.c:teleds() calls spoteffects(TRUE) after relocation; hack.c:spoteffects() calls check_special_room(FALSE); hack.c:check_special_room() calls intemple() for an entered TEMPLE.",
+      "JavaScript mirrors this route through teleport.js:teleds(), hack.js:spoteffects(), rooms.js:check_special_room(), and priest.js:intemple()."
     ],
     "dependencies": [
-      "dotelecmd() consumes dotele() return values; dotele() is therefore included in this source task.",
-      "dotelecmd() consumes spell.c:tport_spell() results to reverse temporary spellbook addition/hiding. js/spell.js:tport_spell() is already source-mapped and present; do not reimplement it absent a missing-branch finding.",
-      "dotele() consumes next_to_u() booleans and spelleffects() ECMD results from existing js/apply_next_to_u.js and js/spell.js owners. It calls tele(), teleds(), vault_tele(), deltrap(), newsym(), exercise(), and morehungry() with results discarded; those JavaScript source adapters exist.",
-      "C dotele() calls level_tele_trap() with a discarded void result for an accepted visible level teleporter. No JS owner exists. Use note_unported('teleport.c level_tele_trap') and skip this call rather than throwing or inventing effects.",
-      "dig.c:escape_tomb() has no current JavaScript counterpart; a future dig.c port must wire it to exported dotele()."
+      "priest.c:intemple() calls do_name.c:Monnam(priest) after temporarily clearing ispriest. The existing canonical js/do_name.js:Monnam() delegates to x_monnam(), whose ordinary-species path retains ARTICLE_THE after the priest/minion special case no longer applies."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    "Saved queue SHA-256 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b selects this v45 session. Manifest challenges/manifests/v45.json SHA-256 c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649; recording challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json SHA-256 92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386; recipe SHA-256 cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27.",
-    "Baseline evaluation challenges/evaluations/v45-baseline-b317571a6.json records 30/157 screens, 30/157 cursors, 6984/7512 RNG calls, and stops at step 30: unsupported hero command dotelecmd() for extended command teleport is not ported.",
-    "At session step 30, C has entered dotelecmd() -> dotele(TRUE) -> next_to_u() -> tele() -> scrolltele(NULL) and emits the controlled destination prompt. JavaScript has not entered teleport code because cmd.js extended dispatch has no dotelecmd case and throws in the generic default at line 5370.",
-    "The complete family is contiguous in nethack-c/upstream/src/teleport.c: dotelecmd() lines 919-1031 and dotele() lines 1033-1162. cmd.c:1890-1891 registers dotelecmd; dotele() callers include dig.c:2247 and trap.c:5131. js/trap.js:drown() is the active duplicated caller; js/dig.js has no escape_tomb implementation."
+    "Queue actionable from 7 current sessions at SHA-256 8e3cc52f29759118832c5b4a20bc5b578638d7adccd7c89524d205a4916496ff records the current v45 evaluation challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json at 671938b9bce6f6f152d2f38a1cc5b3db8e38e36c, with 84 remaining screens and first divergence at segment 0, step 73.",
+    "The recorded step 73 is input `.`. Its C RNG entry is d(10,500)=2345 at priest.c:443; the full recorded screen says “You materialize in a different location!  The high priest intones:”. Queue comparison reports C row 0, column 42 as `T` and JavaScript as `H`, with the cursor also diverging at that screen.",
+    "nethack-c/upstream/src/priest.c:intemple() lines 430-444 temporarily sets priest->ispriest to zero for a visible non-hallucinated Sanctum introduction, then calls Monnam(priest) and restores the saved field. nethack-c/upstream/src/do_name.c:x_monnam() lines 876-885 only takes its priestname() special case while ispriest or isminion is set; after the temporary clear, its ordinary naming path applies ARTICLE_THE to mon_pmname(priest).",
+    "js/priest.js:intemple() lines 817-832 performs the temporary ispriest clear but directly calls priestname(priest, ARTICLE_THE, false) and highc(). js/priest.js:priestname() lines 718-722 returns mon_pmname() immediately when both ispriest and isminion are false, dropping the article. Use the already imported Monnam(priest, state) at this source call site instead of duplicating the formatter.",
+    "The current queue entry for v45-offer-real-amulet-sanctum-approach-attempt17-cfirst reaches the same C d(10,500) at priest.c:443 on step 130 and the same `T` versus `H` name boundary. It corroborates this priest.c:intemple scope; it is not a source-independent second task."
   ]
 }
