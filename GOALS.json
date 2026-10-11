@@ -265814,6 +265814,56 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-mleashed-next2u-v43-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete leash-aware level-exit eligibility and await every production caller.",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst"
+      ],
+      "selectionReason": "The corrected synthetic v43 mounted descent investigation selects apply.c:mleashed_next2u through next_to_u as the first whole-source stage. Complete async leash relocation and every active caller before the separately staged dog.c transfer and arrival families.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mleashed_next2u",
+          "line": 891,
+          "endLine": 918,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "next_to_u",
+          "line": 919,
+          "endLine": 930,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 891,
+        "to": 930
+      },
+      "syntheticProvenance": {
+        "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst": {
+          "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+          "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+          "evaluationPath": "challenges/evaluations/accepted-34643f3e2165ce7769358970812543c951d2b27d-v43.json",
+          "evaluationCommit": "34643f3e2165ce7769358970812543c951d2b27d"
+        }
+      }
     }
   ]
 }
