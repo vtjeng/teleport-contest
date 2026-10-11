@@ -114,7 +114,8 @@
       "read.c:seffect_earth():1951 -> js/read.js:seffect_earth():2462, currently note_unported(\"trap.c sokoban_guilt\"). The admitted recipe reaches this path and the later insight.c:show_conduct() display.",
       "zap.c:poly_obj():1711 -> js/zap.js:poly_obj():2310, currently note_unported with the stale label \"sokoban.c sokoban_guilt\".",
       "zap.c:fracture_rock():5556 -> js/zap.js:fracture_rock():2779, currently note_unported with the stale label \"sokoban.c sokoban_guilt\".",
-      "hack.c:moverock_core():299,307,398,403 -> js/hack.js:moverock_core():1935,1948,2388,2397, each currently records the named gap.",
+      "hack.c:cannot_push():299,307 -> js/hack.js:cannot_push():1935,1948, currently records the named gap.",
+      "hack.c:moverock_core():398,403 -> js/hack.js:moverock_core():2388,2397, currently records the named gap.",
       "steed.c:dismount_steed():767 -> js/steed.js:dismount_steed():1028-1038. Both C and JavaScript teleds() reach a floor boulder destination; JavaScript currently throws after arrival instead of making the source sokoban_guilt() call. Replace that refusal with the helper call."
     ],
     "dependencies": [
@@ -127,7 +128,7 @@
   "evidence": [
     "The immutable v46 manifest identifies source pointers read.c:seffect_earth and trap.c:sokoban_guilt. The saved queue reproduces the mismatch at segment 0 step 119/key newline: C and JavaScript match 6674 RNG calls; C has 120/121 screens and JS displays the unviolated-conduct text at the point where C has a violated-Sokoban-conduct line.",
     "nethack-c/upstream/src/trap.c:7039-7054 defines the whole helper. The Sokoban guard is the current-level flag macro from include/rm.h:538; its only effects are incrementing u.uconduct.sokocheat and calling change_luck(-1).",
-    "All active direct C call sites are read.c:1951, zap.c:1711 and 5556, hack.c:299/307/398/403, and steed.c:767. Current JS read/zap/hack sites record note_unported; the steed site throws after teleds() has placed the hero on the boulder instead of making the source helper call. C teleport.c:teleds() and a current JavaScript diagnostic both allow that boulder destination.",
+    "All active direct C call sites are read.c:1951, zap.c:1711 and 5556, hack.c:cannot_push():299/307, hack.c:moverock_core():398/403, and steed.c:767. Current JS read/zap/hack sites record note_unported; the steed site throws after teleds() has placed the hero on the boulder instead of making the source helper call. C teleport.c:teleds() and a current JavaScript diagnostic both allow that boulder destination.",
     "insight.c:2215-2225 and js/insight.js:2970-2983 show the conduct counter controls the observed final line. change_luck() already maps to js/moveloop_preamble.js; no RNG, message, or additional callee is introduced by this helper."
   ]
 }
