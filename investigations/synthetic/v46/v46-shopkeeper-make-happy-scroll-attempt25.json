@@ -11,7 +11,7 @@
   "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
   "remainingScreens": 38,
   "recordedSteps": 71,
-  "status": "complete",
+  "status": "resolved",
   "commit": "31a5d76c38043a8aeefc014471f58e9db310aa4b",
   "mismatch": {
     "corpus": "synthetic",
@@ -64,7 +64,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The first mismatch is a JavaScript refusal of a source-valid wizard Genesis PM_SHOPKEEPER request. C read.c:create_particular_creation() asks whether to force PM_SHOPKEEPER after cant_revive() substitutes a human zombie, then calls makemon() with MM_NOEXCLAM and without MM_ESHK. C makemon.c:makemon() relocates the hero-square request through enexto_core(); it has no PM_SHOPKEEPER creation prohibition. JavaScript already recognizes the _createParticular call shape, but preflightCreation() refuses that shape at its separate shopkeeper gate before placement. The correct owner is makemon.c:makemon, not teleport.c:collect_coords; coordinate collection is the next already-ported callee that C reaches.",
+  "summary": "The divergence is resolved. The recognized read.c:create_particular_creation() PM_SHOPKEEPER call now passes makemon.c:makemon() preflight while the separate MM_ESHK validation remains intact. Fresh C/JavaScript replay matches all 2,814 RNG calls, 71 complete screens, and 71 cursor positions through the end of the admitted case.",
   "source": {
     "file": "makemon.c",
     "branch": "With wizard Genesis requesting PM_SHOPKEEPER, the user answers y to read.c:create_particular_creation() after cant_revive() temporarily substitutes PM_HUMAN_ZOMBIE. The C caller then invokes makemon(PM_SHOPKEEPER, u.ux, u.uy, MM_NOEXCLAM) outside mklev and without MM_ESHK. makemon() must run its ordinary hero-square enexto_core() placement branch; the only shopkeeper extension allocation is conditional on MM_ESHK. JS preflightCreation() has an explicit createParticularCall marker for this source shape but the PM_SHOPKEEPER guard does not exempt it.",
@@ -87,6 +87,25 @@
     "Upstream teleport.c:enexto_core():242-257 gathers and checks nearby coordinates through collect_coords(); collect_coords():697-708 shuffles each ring with rn2(). The v46 manifest C trace identifies call 2733 as rn2(8)=4 in teleport.c:collect_coords. This RNG is the observable next step after makemon admits the call; it is not the first responsible source owner.",
     "In js/makemon_create.js:1377-1381 preflightCreation() already recognizes the hero-square _createParticular call with MM_NOEXCLAM. However, :1520-1527 throws “shopkeeper creation outside shkinit” for PM_SHOPKEEPER without excluding createParticularCall. This occurs before js/makemon_create.js:makemon() can call the existing js/teleport.js:enexto_core().",
     "GOALS.json records the complete makemon.c:makemon() function (lines 1147-1513) as a closed file port into js/makemon_create.js. Existing wiring in js/wizcmds.js and js/read.js reaches the same source call. The narrow correction is to exempt the already-recognized createParticularCall shape from the PM_SHOPKEEPER-only refusal while retaining the independent MM_ESHK validation; no read.js, wizcmds.js, or teleport.js change is implied.",
-    "The recorded recipe continues after Genesis to wish and read a blessed taming scroll. This task addresses only the current first mismatch in makemon.c:makemon; any later shopkeeper-scroll mismatch must be source-traced separately after this first mismatch moves past makemon()."
-  ]
+    "The recorded recipe continues after Genesis to wish and read a blessed taming scroll. This task addresses only the current first mismatch in makemon.c:makemon; any later shopkeeper-scroll mismatch must be source-traced separately after this first mismatch moves past makemon().",
+    "Implementation changes only the PM_SHOPKEEPER preflight boundary in js/makemon_create.js: the existing createParticularCall shape is exempted from the shopkeeper-outside-shkinit refusal, while the separate MM_ESHK branch is unchanged. scripts/makemon-create.test.mjs adds the forced Genesis source shape PM_SHOPKEEPER + MM_NOEXCLAM and asserts it is admitted.",
+    "Focused validation passed: the bounded test for “particular creation requires its runtime owner for source flag variants” passed, the full scripts/makemon-create.test.mjs suite passed 167/167, scripts/wizard-genesis.test.mjs passed 28/28, and npm run lint passed.",
+    "Fresh C/JavaScript differential passed for the admitted v46 case at commit after this fix: C and JavaScript match all 2,814 RNG calls, 71 screens including attributes, and 71 cursor positions; no mismatch remains in the 71-step recording."
+  ],
+  "resolution": {
+    "implementation": "js/makemon_create.js:preflightCreation exempts the already-recognized createParticularCall PM_SHOPKEEPER shape, while preserving the independent MM_ESHK requirement for shopkeeper extensions.",
+    "focusedTest": "scripts/makemon-create.test.mjs source-pins a forced PM_SHOPKEEPER Genesis request with MM_NOEXCLAM and no MM_ESHK; scripts/wizard-genesis.test.mjs provides caller-level regression coverage.",
+    "admittedSynthetic": {
+      "batch": "v46",
+      "caseId": "v46-shopkeeper-make-happy-scroll-attempt25",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 70,
+      "matchedScreens": 71,
+      "matchedRng": 2814,
+      "matchedCursors": 71
+    },
+    "freshRun": "run-oW7zYo",
+    "firstMismatch": null
+  }
 }
