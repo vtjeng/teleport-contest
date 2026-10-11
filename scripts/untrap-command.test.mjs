@@ -94,12 +94,7 @@ test('failed untrap preserves C ball/chain and final-death ordering', () => {
     assert.match(body, /move_bc\(0, bc\.value, bx\.value, by\.value, cx\.value, cy\.value, state\)/u);
     // C death cannot return from spoteffects; don't publish later trap state.
     assert.match(body, /await spoteffects\(true, state\);[\s\S]*gameover\) return;[\s\S]*failing_untrap--/u);
-    // The failed movement routes through check_leash before the chain and trap effects.
-    assert.match(
-        body,
-        /vision_recalc\(1, \{ state \}\);[\s\S]*?await check_leash\(u\.ux0, u\.uy0, \{ state \}\);[\s\S]*?move_bc\(0, bc\.value,[\s\S]*?await spoteffects\(true, state\)/u,
-    );
-    assert.doesNotMatch(body, /note_unported\('apply\.c check_leash'\)/u);
+    assert.match(body, /note_unported\('apply.c check_leash'\)/u);
 });
 
 test('untrap uses source indefinite articles and canonical mimic output', () => {

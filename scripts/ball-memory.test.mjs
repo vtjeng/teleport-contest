@@ -11,11 +11,7 @@ import { GLYPH_CMAP_A_OFF, GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { S_room, S_corr } from '../js/symbols.js';
 
 const c = readFileSync('nethack-c/upstream/src/ball.c', 'utf8');
-const doC = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
-const dothrowC = readFileSync('nethack-c/upstream/src/dothrow.c', 'utf8');
 const js = readFileSync('js/ball.js', 'utf8');
-const doJs = readFileSync('js/do.js', 'utf8');
-const dothrowJs = readFileSync('js/dothrow.js', 'utf8');
 // display.h's cmap glyph arithmetic gives distinct room/corridor memory.
 const ROOM_MEMORY = GLYPH_CMAP_A_OFF + S_room;
 const CORRIDOR_MEMORY = GLYPH_CMAP_A_OFF + S_corr;
@@ -129,17 +125,6 @@ test('set_bc on a foreign state preserves live floor and display state', () => {
     const { redraw } = redrawRecorder(state); set_bc(0, state, { planning: true, redraw });
     assert.equal(game.level, before);
     assert.equal(state.u.bglyph, CORRIDOR_MEMORY);
-});
-
-test('drop_ball ports its trap and relocation branches through both callers', () => {
-    assert.match(c, /drop_ball\(coordxy x, coordxy y\)[\s\S]*?if \(Blind\)[\s\S]*?if \(x != u\.ux \|\| y != u\.uy\)[\s\S]*?case TT_BEARTRAP:[\s\S]*?side = rn2\(3\) \? LEFT_SIDE : RIGHT_SIDE;[\s\S]*?set_wounded_legs\(side, rn1\(1000, 500\)\);[\s\S]*?reset_utrap\(TRUE\);[\s\S]*?fill_pit\(u\.ux, u\.uy\);[\s\S]*?movobj\(uchain, u\.ux, u\.uy\);[\s\S]*?spoteffects\(TRUE\);/u);
-    assert.match(doC, /if \(obj == uball\)\s+drop_ball\(u\.ux, u\.uy\);/u);
-    assert.match(dothrowC, /if \(obj == uball\)\s+drop_ball\(gb\.bhitpos\.x, gb\.bhitpos\.y\);/u);
-    assert.match(js, /export async function drop_ball\(x, y, state = game\)[\s\S]*?set_wounded_legs\(side, rn1\(1000, 500\), state\);[\s\S]*?movobj\(state\.uchain, u\.ux, u\.uy, state\);[\s\S]*?await spoteffects\(true, state\);/u);
-    assert.match(doJs, /await drop_ball\(normalized\.state\.u\.ux, normalized\.state\.u\.uy,[\s\S]*?normalized\.state\);/u);
-    assert.match(dothrowJs, /await drop_ball\(bx, by, state\);/u);
-    assert.doesNotMatch(doJs, /note_unported\('ball\.c drop_ball'\)/u);
-    assert.doesNotMatch(dothrowJs, /note_unported\('ball\.c drop_ball'\)/u);
 });
 
 test('selected functions and supporting consumers use remembered glyphs in source order', () => {

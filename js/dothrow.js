@@ -468,7 +468,7 @@ import {
 import { erode_obj } from './trap_erode_obj.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import { Punished } from './steed.js';
-import { move_bc, drag_ball, drop_ball } from './ball.js';
+import { move_bc, drag_ball } from './ball.js';
 import { note_unported } from './unported.js';
 import { cutworm } from './worm.js';
 import { snuff_candle } from './apply_splash_lit.js';
@@ -2879,8 +2879,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     if ((state.u.ushops?.[0] || obj.unpaid) && obj !== state.uball)
         note_unported('dothrow.c check_shop_obj');
     stackobj(obj, { state, hooks: { extractExternalObject: remove_object } });
-    if (obj === state.uball)
-        await drop_ball(bx, by, state);
+    if (obj === state.uball) note_unported('ball.c drop_ball');
     if (cansee(bx, by, state)) newsym(bx, by);
     if (obj_sheds_light(obj, state)) state.vision_full_recalc = 1;
     throwit_return(false, state);

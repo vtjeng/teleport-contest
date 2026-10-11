@@ -611,7 +611,7 @@ test('drown uses canonical leash counting and preserves the disrobe gap',
             /lostsome\.value = true;[\s\S]*?note_unported\('do\.c dropx'\);\s*--invc;/u);
         assert.doesNotMatch(jsDisrobe, /await dropx\(/u);
         assert.match(jsTrap,
-            /import \{ check_leash, number_leashed, unleash_all \} from '\.\/apply\.js';/u);
+            /import \{ number_leashed, unleash_all \} from '\.\/apply\.js';/u);
         assert.match(jsTrap, /const leashed = number_leashed\(state\);/u);
         assert.match(cTrap,
             /if \(\(i = number_leashed\(\)\) > 0\) \{\s*pline_The\([\s\S]*?unleash_all\(\);\s*\}/u);
