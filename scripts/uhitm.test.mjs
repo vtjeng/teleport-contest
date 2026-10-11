@@ -2073,6 +2073,47 @@ test('mhitm_ad_ston preserves each source direction and gate draws',
     assert.equal(reverse.damage, 0);
     assert.equal(reverse.done, false);
     assert.ok(game.unported.has('trap.c minstapetrify'));
+
+    // The monster-to-monster arm skips the helper for a cancelled attacker.
+    // An uncancelled AD_STON blow calls do_stone_mon, whose stone-resistant
+    // target arm absorbs this special damage without marking the hit done.
+    await runSegment({
+        seed: 7710059, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const monsterAttacker = {
+        data: game.mons[PM_COCKATRICE], m_id: 92007, mcan: true,
+    };
+    const resistantDefender = {
+        data: game.mons[PM_STONE_GOLEM], m_id: 92008,
+        mhp: 50, mhpmax: 50, minvent: null, mcan: false,
+    };
+    const monsterAttack = {
+        aatyp: AT_CLAW, adtyp: AD_STON, damn: 0, damd: 0,
+    };
+    const cancelled = { damage: 8, hitflags: 0, done: false };
+    await mhitm_ad_ston(
+        monsterAttacker,
+        monsterAttack,
+        resistantDefender,
+        cancelled,
+        game,
+        { message: async () => {} },
+    );
+    assert.deepEqual(cancelled, { damage: 8, hitflags: 0, done: false });
+    assert.ok(!game.unported.has('uhitm.c do_stone_mon'));
+
+    monsterAttacker.mcan = false;
+    const uncancelled = { damage: 8, hitflags: 0, done: false };
+    await mhitm_ad_ston(
+        monsterAttacker,
+        monsterAttack,
+        resistantDefender,
+        uncancelled,
+        game,
+        { message: async () => {} },
+    );
+    assert.deepEqual(uncancelled, { damage: 0, hitflags: 0, done: false });
+    assert.ok(!game.unported.has('uhitm.c do_stone_mon'));
 });
 
 test('do_stone_mon runs post_stone checks after a curing item is consumed',
