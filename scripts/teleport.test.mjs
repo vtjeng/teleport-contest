@@ -30,8 +30,10 @@ import {
     RLOC_MSG,
     RLOC_NOMSG,
     ROOM,
+    ROOMOFFSET,
     ROWNO,
     SWIMMING,
+    VAULT,
     TELEPORT_CONTROL,
     TELEDS_TELEPORT,
     WWALKING,
@@ -50,6 +52,7 @@ import {
     PM_LONG_WORM,
     PM_ORCUS,
     PM_JUIBLEX,
+    PM_GUARD,
     PM_PONY,
     PM_SMALL_MIMIC,
     PM_SEWER_RAT,
@@ -90,6 +93,7 @@ import { BOULDER, ROCK, SCR_SCARE_MONSTER } from '../js/objects.js';
 import { newObject, place_object } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { newegd } from '../js/vault.js';
 
 const C_TELEPORT_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/teleport.c', import.meta.url), 'utf8',
@@ -997,9 +1001,17 @@ test('teleds awaits spoteffects on an occupied destination', () => {
 
     assert.match(cTeleds, /u_on_newpos\(nux, nuy\)/u);
     assert.match(cTeleds, /spoteffects\(TRUE\)/u);
+    assert.match(cTeleds,
+        /vault_occupied\(u\.urooms\) \? findgd\(\) : 0/u);
+    assert.match(cTeleds,
+        /Strcpy\(u\.urooms, in_rooms\(u\.ux, u\.uy, VAULT\)\)[\s\S]*?if \(!vault_occupied\(u\.urooms\)\)\s+uleftvault\(vault_guard\);[\s\S]*?spoteffects\(TRUE\)/u);
     assert.doesNotMatch(cTeleds, /m_at\(nux, nuy\)/u);
     assert.match(jsTeleds, /u_on_newpos\(nux, nuy, state, \{/u);
     assert.match(jsTeleds, /await spoteffects\(true, state, env\)/u);
+    assert.match(jsTeleds,
+        /vault_occupied\(u\.urooms, state\)[\s\S]*?\? findgd\(state\)/u);
+    assert.match(jsTeleds,
+        /u\.urooms = in_rooms\(u\.ux, u\.uy, VAULT, state\);[\s\S]*?note_unported\('vault\.c uleftvault'\);[\s\S]*?u\.urooms = savedUrooms;/u);
     assert.doesNotMatch(jsTeleds, /m_at\(nux, nuy, state\)/u);
     assert.match(cTeleds,
         /if \(!hideunder\(&gy\.youmonst\) && gy\.youmonst\.data->mlet == S_MIMIC\)\s*\{\s*\/\* mimics stop being unnoticed \*\/\s*gy\.youmonst\.m_ap_type = M_AP_NOTHING;/u);
@@ -1038,6 +1050,59 @@ test('teleds clears a mimic appearance after hideunder loses concealment',
 
         assert.deepEqual([game.u.ux, game.u.uy], [destX, destY]);
         assert.equal(game.youmonst.m_ap_type, M_AP_NOTHING);
+    });
+
+test('teleds looks up a vault guard and restores the room list before effects',
+    async () => {
+        await runSegment({
+            seed: 840034,
+            datetime: '20310314151027',
+            nethackrc: 'OPTIONS=name:TeledsVault,role:Wizard,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        const u = game.u;
+        const start = { x: u.ux, y: u.uy };
+        const destination = { x: start.x + 1, y: start.y };
+        const vaultIndex = game.level.rooms.length;
+        const vaultRoom = vaultIndex + ROOMOFFSET;
+        game.level.rooms.push({
+            hx: destination.x,
+            hy: destination.y,
+            lx: start.x,
+            ly: start.y,
+            rtype: VAULT,
+        });
+        for (const { x, y } of [start, destination]) {
+            const loc = game.level.at(x, y);
+            loc.roomno = vaultRoom;
+            loc.typ = ROOM;
+        }
+        u.urooms = [vaultRoom, 0, 0, 0, 0];
+
+        const guard = newMonster({
+            data: game.mons[PM_GUARD],
+            m_id: 990034,
+            mhp: 12,
+            mhpmax: 12,
+        });
+        guard.isgd = true;
+        guard.nmon = game.level.monlist;
+        game.level.monlist = guard;
+        newegd(guard);
+        guard.mextra.egd.gdlevel = { ...u.uz };
+        place_monster(guard, start.x + 3, start.y, game);
+        game.nhDisplay.terminal._inputQueue.push(32);
+
+        await teleds(destination.x, destination.y, TELEDS_TELEPORT, game);
+
+        assert.equal(u.urooms[0], vaultRoom,
+            'the temporary vault room string is restored before spoteffects');
+        assert.equal(game.unported.has('vault.c uleftvault'), false,
+            'a destination still inside the vault does not reach uleftvault');
+        assert.equal(game.level.monlist, guard,
+            'findgd leaves the already local guard linked to the level');
     });
 
 test('goodpos reads hero pool and lava properties directly from source state', () => {

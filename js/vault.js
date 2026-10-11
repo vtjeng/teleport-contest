@@ -1,6 +1,7 @@
 // vault.js -- gold the hero is carrying out of sight, vault occupancy, guard
 // entry, guard escort (gd_move), and the end-of-game vault-guard settlement.
-// C ref: src/vault.c hidden_gold(), vault_occupied(), findgd(), newegd(),
+// C ref: src/vault.c hidden_gold(), vault_occupied(), findgd(),
+// vault_summon_gd(), gd_sound(), vault_gd_watching(), newegd(),
 // in_fcorridor(), find_guard_dest(), invault(), gd_move(), paygd().
 
 import {
@@ -17,6 +18,8 @@ import {
     DOOR,
     EGD,
     FCSIZ,
+    GD_DESTROYGOLD,
+    GD_EATGOLD,
     HWALL,
     IN_SIGHT,
     IS_OBSTRUCTED,
@@ -55,7 +58,9 @@ import { money_cnt, obj_extract_self, obfree, sobj_at } from './invent.js';
 import { set_malign } from './makemon.js';
 import { gender, is_silent, sticks } from './mondata.js';
 import { PM_GUARD } from './monsters.js';
-import { m_at, place_monster, remove_monster } from './monst.js';
+import {
+    m_at, mon_track_clear, place_monster, remove_monster,
+} from './monst.js';
 import { m_into_limbo, mongone, mpickgold } from './mon.js';
 import {
     capitalizedAlwaysVisibleMonsterName,
@@ -78,7 +83,9 @@ import {
     displayPendingTtyMessageWindow,
     ttyPline,
 } from './tty_message.js';
-import { block_point, cansee, couldsee, recalc_block_point, unblock_point } from './vision.js';
+import {
+    block_point, cansee, couldsee, m_canseeu, recalc_block_point, unblock_point,
+} from './vision.js';
 import { getlin } from './windows.js';
 import { canspotmon } from './display.js';
 
@@ -104,10 +111,10 @@ export function vault_occupied(array, state = game) {
     return 0;
 }
 
-// C ref: vault.c findgd() (208-238). Only the first loop is ported: it finds a
-// guard already on the level's monster chain. The second loop pulls a guard off
-// gm.migrating_mons and parks it, which needs mon_track_clear() and
-// parkguard(); no ported code migrates a guard, so that loop stops instead.
+// C ref: vault.c findgd() (204-234). Search the level monster chain first,
+// healing a guard parked at <0,0> until its fake corridor is complete. If none
+// is on this level, unlink its migrating guard from gm.migrating_mons, put it
+// on the level chain, clear its track and park it at <0,0>.
 export function findgd(state = game) {
     for (let mtmp = state.level?.monlist ?? null; mtmp; mtmp = mtmp.nmon) {
         if (mtmp.isgd && on_level(mtmp.mextra?.egd?.gdlevel, state.u.uz)) {
@@ -116,14 +123,48 @@ export function findgd(state = game) {
             return mtmp;
         }
     }
-    for (let mtmp = state.gm?.migrating_mons ?? null; mtmp; mtmp = mtmp.nmon) {
+    let previous = null;
+    for (let mtmp = state.gm?.migrating_mons ?? null; mtmp;) {
         if (mtmp.isgd && on_level(mtmp.mextra?.egd?.gdlevel, state.u.uz)) {
-            throw new UnsupportedVaultGuardError(
-                'findgd() parking a guard migrating to this level',
-            );
+            if (previous) previous.nmon = mtmp.nmon;
+            else state.gm.migrating_mons = mtmp.nmon;
+            mtmp.nmon = state.level.monlist ?? null;
+            state.level.monlist = mtmp;
+            mon_track_clear(mtmp);
+            mtmp.mux = state.u.ux;
+            mtmp.muy = state.u.uy;
+            mtmp.mx = 0;
+            mtmp.my = 0;
+            parkguard(mtmp, state);
+            return mtmp;
         }
+        previous = mtmp;
+        mtmp = mtmp.nmon;
     }
     return null;
+}
+
+// C ref: vault.c vault_summon_gd() (237-241). A cursed ordinary tin whistle
+// starts the guard timer only when the hero is in a vault with no guard.
+export function vault_summon_gd(state = game) {
+    if (vault_occupied(state.u?.urooms, state) && !findgd(state))
+        state.u.uinvault = VAULT_GUARD_TIME - 1;
+}
+
+// C ref: vault.c gd_sound() (1272-1275). This predicate calls findgd(); that
+// call may pull a migrating guard onto the level and park it at <0,0>.
+export function gd_sound(state = game) {
+    return !(vault_occupied(state.u?.urooms, state) || findgd(state));
+}
+
+// C ref: vault.c vault_gd_watching() (1278-1285). Eating or destroying gold
+// is witnessed only by an on-map guard that can see the hero.
+export function vault_gd_watching(activity, state = game) {
+    const guard = findgd(state);
+    if (guard && guard.mx && guard.mcansee && m_canseeu(guard, state)) {
+        if (activity === GD_EATGOLD || activity === GD_DESTROYGOLD)
+            EGD(guard).witness = activity;
+    }
 }
 
 // C ref: vault.c newegd() (23-32). Allocates the extra guard data on a

@@ -451,6 +451,7 @@ import { m_in_air, minliquid, setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj, remove_worn_item } from './steal.js';
 import { goodpos, rloc, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
+import { finish_quest } from './quest.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
@@ -3025,7 +3026,7 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
                     note_unported('dothrow.c check_shop_obj');
                 mpickobj(mon, obj, operationEnv);
             } else {
-                note_unported('quest.c finish_quest');
+                await finish_quest(obj, operationEnv);
                 const next2u = monnear(mon, u.ux, u.uy, state);
                 await message(
                     `${Some_Monnam(mon, state, operationEnv)} `

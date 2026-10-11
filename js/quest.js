@@ -15,21 +15,37 @@ import {
     UTOTYPE_NONE,
     UTOTYPE_PORTAL,
 } from './const.js';
+import {
+    AMULET_OF_YENDOR,
+    BELL_OF_OPENING,
+    FAKE_AMULET_OF_YENDOR,
+} from './objects.js';
 import { yn_function } from './cmd.js';
 import { exercise, exercise_nonphysical } from './attrib.js';
 import { dungeon_branch, Is_special, on_level } from './dungeon.js';
 import { schedule_goto } from './do.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
+import { carrying, fully_identify_obj, update_inventory } from './invent.js';
 import { setmangry } from './mon.js';
 import { align_str } from './insight.js';
 import { monnear } from './monmove.js';
 import { MS_DJINNI, MS_NEMESIS } from './monsters.js';
-import { qt_pager, QUEST_PAGER_OUTPUT } from './questpgr.js';
+import {
+    com_pager,
+    is_quest_artifact,
+    qt_pager,
+    QUEST_PAGER_OUTPUT,
+} from './questpgr.js';
 import { rn2, rnd } from './rng.js';
-import { ttyPline } from './tty_message.js';
+import { the, xname } from './objnam.js';
 import { noit_mon_nam } from './do_name.js';
-import { livelog_printf } from './pline.js';
+import { ttyPline } from './tty_message.js';
+import {
+    heroDeaf,
+    livelog_printf,
+    verbalize,
+} from './pline.js';
 import { observe_object } from './o_init.js';
 
 // Everything a quest conversation needs from the world outside quest.c: the
@@ -42,18 +58,27 @@ import { observe_object } from './o_init.js';
 function questConversation(env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };
+    const pagerRandom = typeof random === 'function'
+        ? random : random.rn2 ?? rn2;
     if (typeof env.unsupported !== 'function')
         throw new TypeError('a quest conversation requires an unsupported operation');
     return {
+        ...env,
         state,
         random,
         displayRandom: env.displayRandom,
         unsupported: env.unsupported,
         message: env.message ?? ttyPline,
         yn: env.yn ?? yn_function,
-        pager: (msgid) => qt_pager(
-            msgid, state, random.rn2, env.output ?? QUEST_PAGER_OUTPUT,
-        ),
+        pager: env.pager ?? ((msgid) => qt_pager(
+            msgid, state, pagerRandom, env.output ?? QUEST_PAGER_OUTPUT,
+        )),
+        commonPager: env.commonPager ?? ((msgid) => com_pager(
+            msgid, state, {
+                message: env.message ?? ttyPline,
+                random: pagerRandom,
+            },
+        )),
     };
 }
 
@@ -202,12 +227,76 @@ function expulsion(seal, ops) {
     schedule_goto(dest, portal_flag, null, null, state);
 }
 
-// C ref: quest.c chat_with_leader() (281-368). Rule 5's first meeting carries
-// the leader_first pager and two of its four verdicts: badalign, which expels
-// the hero, and assignquest. Rules 1-4 need finish_quest(),
-// fully_identify_obj() and the posthanks/encourage text, and the purity < 0
-// arm needs com_pager("banished") and the livelog entry; each refuses here,
-// as does badlevel, for the reason its own comment gives.
+// C ref: quest.c finish_quest() (226-279). The pager and inventory helpers
+// remain owned by questpgr.c and invent.c; env carries their live RNG, output,
+// message, and inventory hooks through both dothrow and quest conversation.
+export async function finish_quest(obj, env = {}) {
+    const state = env.state ?? game;
+    const u = state.u;
+    const qs = state.svq.quest_status;
+    const random = env.random ?? { rn2 };
+    const pagerRandom = typeof random === 'function'
+        ? random : random.rn2 ?? rn2;
+    const message = env.message ?? ttyPline;
+    const pager = env.pager ?? ((msgid) => qt_pager(
+        msgid, state, pagerRandom, env.output ?? QUEST_PAGER_OUTPUT,
+    ));
+    const commonPager = env.commonPager ?? ((msgid) => com_pager(
+        msgid, state, { message, random: pagerRandom },
+    ));
+    const identifyObject = env.identifyObject ?? fully_identify_obj;
+    const carryingObject = env.carrying ?? carrying;
+    const refreshInventory = env.refreshInventory ?? update_inventory;
+    const isQuestArtifact = env.isQuestArtifact ?? is_quest_artifact;
+    const inventoryEnv = { ...env, state };
+    let otmp;
+
+    if (obj && !isQuestArtifact(obj, state)) {
+        /* tossed an invocation item (or [fake] Amulet) at the leader */
+        if (heroDeaf(state)) return;
+        identifyObject(obj, state);
+        if (obj.otyp === AMULET_OF_YENDOR) {
+            await pager('hasamulet');
+        } else if (obj.otyp === FAKE_AMULET_OF_YENDOR) {
+            await verbalize(
+                'Sorry to say, this is a mere imitation of the true Amulet of Yendor.',
+                state,
+                { message },
+            );
+        } else {
+            await verbalize(
+                `Ah, I see you've found ${the(xname(obj, state), state)}.`,
+                state,
+                { message },
+            );
+        }
+        return;
+    }
+
+    if (u.uhave.amulet) {
+        await pager('hasamulet');
+        otmp = carryingObject(AMULET_OF_YENDOR, state);
+        if (otmp) {
+            identifyObject(otmp, state);
+            refreshInventory(inventoryEnv);
+        }
+    } else {
+        await pager(qs.got_thanks ? 'offeredit2' : 'offeredit');
+        if (!carryingObject(BELL_OF_OPENING, state))
+            await commonPager('quest_complete_no_bell');
+    }
+    qs.got_thanks = true;
+
+    if (obj) {
+        u.uevent.qcompleted = 1;
+        identifyObject(obj, state);
+        refreshInventory(inventoryEnv);
+    }
+}
+
+// C ref: quest.c chat_with_leader() (281-368). Rules 1 and 3 now wire the
+// complete finish_quest() owner. The posthanks/encourage text and the remaining
+// first-meeting verdicts retain their existing bounded refusals.
 async function chat_with_leader(mtmp, ops) {
     const state = ops.state;
     const qs = state.svq.quest_status;
@@ -221,10 +310,16 @@ async function chat_with_leader(mtmp, ops) {
 
     if (qs.got_thanks) {
         /* Rules 1 and 2: you've gone back after the leader's thanks. */
-        ops.unsupported('a quest leader who has already given thanks');
+        if (u.uhave.amulet)
+            await finish_quest(null, ops);
+        else
+            ops.unsupported('returning the quest artifact before the Amulet');
     } else if (u.uhave.questart) {
         /* Rule 3: you've got the artifact and are back to return it. */
-        ops.unsupported('returning the quest artifact to its leader');
+        let otmp = state.invent;
+        while (otmp && !is_quest_artifact(otmp, state))
+            otmp = otmp.nobj;
+        await finish_quest(otmp, ops);
     } else if (qs.got_quest) {
         /* Rule 4: you haven't got the artifact yet. */
         ops.unsupported('a quest leader encouraging the hero');

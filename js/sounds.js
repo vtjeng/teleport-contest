@@ -211,7 +211,7 @@ import { noisy_shop, shop_object, tended_shop } from './shk.js';
 import { SOUND_EFFECT_BASE_FILENAMES } from './sound_effects_data.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, couldsee } from './vision.js';
-import { vault_occupied } from './vault.js';
+import { gd_sound, vault_occupied } from './vault.js';
 import { which_armor } from './worn.js';
 import { t_at } from './trap.js';
 import { note_unported } from './unported.js';
@@ -269,30 +269,8 @@ function roomStringContainsValue(buffer, value) {
     return false;
 }
 
-function roomStringContainsType(buffer, roomType, state) {
-    for (const rawRoomNumber of buffer ?? []) {
-        const roomNumber = Math.trunc(rawRoomNumber ?? 0);
-        if (!roomNumber) break;
-        if (state.level?.rooms?.[roomNumber - ROOMOFFSET]?.rtype === roomType)
-            return roomNumber;
-    }
-    return 0;
-}
-
-function vaultGuardPresent(state) {
-    for (let monster = state.level?.monlist ?? null;
-        monster;
-        monster = monster.nmon) {
-        if (!monster.isgd) continue;
-        const guardLevel = monster.mextra?.egd?.gdlevel;
-        if (!guardLevel || on_level(guardLevel, state.u?.uz)) return true;
-    }
-    return false;
-}
-
 function vaultSoundAllowed(state) {
-    return !roomStringContainsType(state.u?.urooms, VAULT, state)
-        && !vaultGuardPresent(state);
+    return gd_sound(state);
 }
 
 function vaultContainsGold(room, state) {

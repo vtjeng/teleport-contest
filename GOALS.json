@@ -270815,6 +270815,974 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-vault-guard-discovery-v45-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port vault guard discovery helpers and production callers",
+      "cFile": "vault.c",
+      "sessions": [
+        "synthetic/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst"
+      ],
+      "selectionReason": "The current v45 queue identifies the cursed-whistle vault path; its production flow reaches vault_summon_gd and findgd, with related live callers gd_sound and vault_gd_watching in the same guard-discovery family.",
+      "detail": "Port the complete four-function guard-discovery family, wire existing production callers, and retain vault.c:uleftvault plus the later gd_move witness branch as explicit separate gaps.",
+      "openedAt": "2de6c72ae8728420f23aeab751f4f0cba5ef0625",
+      "openStanding": {
+        "sha": "88b2206624a4f646c63e69dcafec6a73a250d3e2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "d6db550a19ff73dc442cabfd0acb3f89118d5b90",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "findgd",
+          "line": 204,
+          "endLine": 236,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "vault_summon_gd",
+          "line": 237,
+          "endLine": 243,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 204,
+        "to": 243
+      },
+      "requiredFunctions": [
+        {
+          "name": "gd_sound",
+          "line": 1272,
+          "endLine": 1277,
+          "declared": true,
+          "sourceFile": "vault.c",
+          "complete": true
+        },
+        {
+          "name": "vault_gd_watching",
+          "line": 1278,
+          "endLine": 1289,
+          "declared": true,
+          "sourceFile": "vault.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst": {
+          "session": "synthetic/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.session.json",
+          "recordingSha256": "684655663fd3e2adef1f4d6a7dbbb652c649504a539510affdcf08d29e78e1bf",
+          "evaluationPath": "challenges/evaluations/accepted-88b2206624a4f646c63e69dcafec6a73a250d3e2-v45.json",
+          "evaluationCommit": "88b2206624a4f646c63e69dcafec6a73a250d3e2"
+        }
+      },
+      "activeStanding": {
+        "sha": "88b2206624a4f646c63e69dcafec6a73a250d3e2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "session": "synthetic/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.session.json",
+          "recordingSha256": "684655663fd3e2adef1f4d6a7dbbb652c649504a539510affdcf08d29e78e1bf",
+          "recipe": "challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.recipe.session.json",
+          "recipeSha256": "cd75c605c424595aab5aeff8e45452654602f86d73c7a6c5dd105d1ab1b47e53",
+          "replayInputSha256": "d80380803f70e38236e44d5608c9e03515a9c3526390a8d38b477a1111411bc1",
+          "evaluationPath": "challenges/evaluations/accepted-88b2206624a4f646c63e69dcafec6a73a250d3e2-v45.json",
+          "evaluationCommit": "88b2206624a4f646c63e69dcafec6a73a250d3e2",
+          "evaluationArtifact": "challenges/evaluations/accepted-88b2206624a4f646c63e69dcafec6a73a250d3e2-v45.json",
+          "evaluationUtc": "2026-10-11T12:51:25.191Z",
+          "remainingScreens": 3,
+          "recordedSteps": 134,
+          "previousScreensMatched": 131,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 131,
+              "total": 134
+            },
+            "rng": {
+              "matched": 2813,
+              "total": 2876
+            },
+            "cursors": {
+              "matched": 131,
+              "total": 134
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 131,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 131,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 37,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2813,
+              "cEntry": "rnd(2)=2",
+              "cCaller": "next_ident(mkobj.c:521)",
+              "jsEntry": "rn2(76)=11",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 131,
+                "key": "o"
+              },
+              "stepIndex": 131
+            },
+            "cursor": {
+              "index": 131,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 131,
+                "key": "o"
+              },
+              "cCursor": [
+                45,
+                0,
+                1
+              ],
+              "jsCursor": [
+                60,
+                19,
+                1
+              ]
+            }
+          },
+          "step": 131,
+          "kind": "rng",
+          "sourceFile": "mkobj.c",
+          "function": "next_ident",
+          "message": null,
+          "cFile": "mkobj.c",
+          "luaFile": null,
+          "line": 521,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.json",
+            "result": {
+              "session": "synthetic/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingSha256": "684655663fd3e2adef1f4d6a7dbbb652c649504a539510affdcf08d29e78e1bf",
+              "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+              "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+              "remainingScreens": 3,
+              "recordedSteps": 134,
+              "status": "complete",
+              "commit": "b47fe908a56f4be02479606efa57b62a04357f8d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+                "session": "synthetic/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.session.json",
+                "recordingSha256": "684655663fd3e2adef1f4d6a7dbbb652c649504a539510affdcf08d29e78e1bf",
+                "recipe": "challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.recipe.session.json",
+                "recipeSha256": "cd75c605c424595aab5aeff8e45452654602f86d73c7a6c5dd105d1ab1b47e53",
+                "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+                "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+                "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationUtc": "2026-10-11T09:20:20.964Z",
+                "remainingScreens": 3,
+                "recordedSteps": 134,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 131,
+                    "total": 134
+                  },
+                  "rng": {
+                    "matched": 2813,
+                    "total": 2876
+                  },
+                  "cursors": {
+                    "matched": 131,
+                    "total": 134
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 131,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 131,
+                      "key": "o"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 37,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2813,
+                    "cEntry": "rnd(2)=2",
+                    "cCaller": "next_ident(mkobj.c:521)",
+                    "jsEntry": "rn2(76)=11",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 131,
+                      "key": "o"
+                    },
+                    "stepIndex": 131
+                  },
+                  "cursor": {
+                    "index": 131,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 131,
+                      "key": "o"
+                    },
+                    "cCursor": [
+                      45,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      60,
+                      19,
+                      1
+                    ]
+                  }
+                },
+                "step": 131,
+                "kind": "rng",
+                "sourceFile": "mkobj.c",
+                "function": "next_ident",
+                "message": null,
+                "cFile": "mkobj.c",
+                "luaFile": null,
+                "line": 521
+              },
+              "summary": "A cursed tin whistle blown while the hero is inside a vault should schedule the vault guard by setting u.uinvault to VAULT_GUARD_TIME - 1. C apply.c:use_whistle() calls vault.c:vault_summon_gd(); JS apply.js:use_whistle() instead records vault.c vault_summon_gd as unported, so the following allmain.c:invault() turn does not create the guard. The queue attributes the resulting RNG divergence to mkobj.c:next_ident(), but next_ident() itself is already ported and is only reached because C creates the guard. The coherent vault.c port also completes findgd()'s migrating-guard return path and its active consumers: gd_sound()/sounds, vault_gd_watching()/eating gold, and teleds().",
+              "source": {
+                "file": "vault.c",
+                "branch": "When apply.c:use_whistle() blows a cursed ordinary tin whistle while u.urooms includes a VAULT and no same-level or migrating vault guard is found, vault_summon_gd() sets u.uinvault to VAULT_GUARD_TIME - 1. The next elapsed-turn invault() call reaches the guard creation branch.",
+                "functions": [
+                  "vault.c:findgd() (204-234), whole current-level and migrating-monster search; the JS migrating-monster branch currently throws UnsupportedVaultGuardError.",
+                  "vault.c:vault_summon_gd() (237-241), whole cursed-whistle scheduling helper; JS currently has no owner and apply.js:use_whistle() records it as unported.",
+                  "vault.c:gd_sound() (1272-1275), whole guard-presence predicate; its boolean result controls sounds.c:dosounds(), and its findgd() callee can mutate game state while relocating a migrating guard.",
+                  "vault.c:vault_gd_watching() (1278-1285), whole gold-eating witness update; it consumes findgd()'s returned guard and updates EGD(guard)->witness when the guard sees the hero."
+                ],
+                "callers": [
+                  "apply.c:use_whistle() (470-492) calls vault_summon_gd() for a cursed ordinary whistle; active JS js/apply.js:use_whistle() at line 4444 must call the canonical vault.js owner.",
+                  "vault.c:invault() (317-629) calls findgd() before spawning a new guard; JS js/vault.js:invault() already calls findgd(). allmain.c:moveloop_core() calls invault() after hunger and exercise at line 357; JS js/allmain.js:finishElapsedTurnAfterHunger() already wires that call.",
+                  "vault.c:paygd() (1204-1247) calls findgd(); JS js/vault.js:paygd() already wires it. Its later payment branches remain independently incomplete and outside this session's cause.",
+                  "vault.c:gd_sound() calls vault_occupied() and findgd(); sounds.c:dosounds() calls gd_sound() at line 244. JS js/sounds.js:vaultGuardPresent()/vaultSoundAllowed() is the corresponding active path but scans only level.monlist; replace that duplicate predicate with the canonical vault.js:gd_sound() result so migrating guards also count.",
+                  "vault.c:vault_gd_watching() calls findgd(); eat.c:eatfood() calls it for eaten gold at line 2429. JS js/eat.js:eatspecial() currently skips the helper with note_unported('vault.c vault_gd_watching'); wire this active caller to the canonical vault.js owner.",
+                  "teleport.c:teleds() calls findgd() when the hero starts in a vault; active JS js/teleport.js:teleds() currently refuses the occupied-vault path before performing that lookup. Wire the return-dependent lookup and caller branch. C later calls void vault.c:uleftvault(); record and skip that still-unported void helper rather than claiming its behavior. This touches js/teleport.js already changed by the submitted A2 delivery and must be sequenced against that delivery.",
+                  "apply.c:use_whistle() (470-492) calls vault_summon_gd() for a cursed ordinary whistle; active JS js/apply.js:use_whistle() at line 4444 must call the canonical vault.js owner."
+                ],
+                "dependencies": [
+                  "vault_summon_gd() consumes vault_occupied() and findgd() truth values; js/vault.js:vault_occupied() is already source-mapped and complete, while findgd() must be completed in this same task because C uses its returned pointer.",
+                  "The migrating-guard branch of findgd() calls mon_track_clear() and parkguard() with discarded void results. js/monst.js:mon_track_clear() and the local js/vault.js:parkguard() are already source-mapped owners.",
+                  "gd_sound() depends on vault_occupied() and findgd(), then returns their negated combined predicate; port it in vault.js and test the return branches, with recorded runtime evidence for the impure migrating-guard call path. sounds.js should call that canonical owner rather than maintain a second guard scan.",
+                  "vault_gd_watching() depends on findgd() and the vision.h m_canseeu() macro; js/vision.js already owns that predicate. Wire eatspecial() so guard witness state changes under the same caller condition. The helper's C result is void and discarded by eatfood().",
+                  "teleds() uses findgd()'s returned pointer. Its later uleftvault() call is void and outside the selected vault function group; preserve it as an explicit note_unported('vault.c uleftvault') gap while allowing the selected findgd lookup to run.",
+                  "mkobj.c:next_ident() is not the defect: js/obj.js:next_ident() already implements the C rnd(2), nonzero-wrap handling. Its call is a consequence of invault() making the missing guard."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved combined queue at SHA-256 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b selects the exact session. Its saved baseline challenges/evaluations/v45-baseline-b317571a6.json (evaluation commit b317571a6e76a6dfab39e023745bcec4ea758e55) reports 131/134 screens and cursors, 2813/2876 RNG calls; at step 131/key o, C first calls rnd(2)=2 at mkobj.c:next_ident while JS calls rn2(76)=11 from allmain.c:360.",
+                "C recording challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.session.json shows the independent setup wishing a cursed tin whistle, entering the vault and applying it. At step 131 C reports “You produce a shrill whistling sound”; the next captured message at step 132 is “Suddenly one of the Vault’s guards enters!”, confirming the guard-summoning path.",
+                "Source nethack-c/upstream/src/apply.c:use_whistle() calls vault_summon_gd() only for a cursed ordinary whistle after the wake-nearby call. nethack-c/upstream/src/vault.c:vault_summon_gd() sets u.uinvault to VAULT_GUARD_TIME - 1 exactly when vault_occupied(u.urooms) is nonzero and findgd() returns null. allmain.c:moveloop_core() calls invault() after the whistle turn; invault() then calls makemon(), whose object/monster identity draw reaches mkobj.c:next_ident().",
+                "Worker replay diagnostic .cache/v45-vault-cursed-whistle-diagnosis.json was produced at examined commit b47fe908a56f4be02479606efa57b62a04357f8d. After replay, JS state has urooms [10], uinvault 3, no vault guard, and unported contains vault.c vault_summon_gd. This directly confirms that the hero is in the vault and the missing call prevents the guard timer update.",
+                "C source nethack-c/upstream/src/vault.c:findgd() lines 204-234 searches fmon, heals an off-map not-yet-done guard, then searches gm.migrating_mons, unlinks a matching guard, clears its track, sets mux/muy and mx/my, parks it at (0,0), and returns it. JS js/vault.js:findgd() currently implements only the fmon loop and throws at the migrating loop; the selected file-port must finish that whole return-valued function.",
+                "The complete selected vault.c group is findgd(), vault_summon_gd(), gd_sound(), and vault_gd_watching(). Active callers are apply.c:use_whistle(), vault.c:invault(), vault.c:paygd(), sounds.c:dosounds(), eat.c:eatfood(), and teleport.c:teleds(); preserve already-wired invault/paygd callers while routing the currently missing calls through vault.js. gd_sound()'s returned predicate affects sounds, and vault_gd_watching() consumes findgd()'s returned pointer to mutate guard witness state, so neither caller can remain a duplicate JS approximation or an unported gap.",
+                "The teleds caller later invokes void vault.c:uleftvault(); this function is not part of the selected source range and must remain an explicit skipped gap. A fresh independent recipe/recording under recipes/vault.c/ and recordings/vault.c/ is needed for cursed-whistle guard scheduling; a separate C recipe should exercise the migrating findgd branch unless an exact matching existing recording can be verified. Add runtime evidence for gd_sound/sounds, vault_gd_watching/eating gold, and the teleds vault-guard lookup if no admitted matching range covers those impure entry points."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "findgd",
+            "implementation": "js/vault.js",
+            "symbol": "findgd",
+            "sourceReview": "Read vault.c:204-234 in full. Checked the on-level list first (including healing a parked guard at <0,0> until gddone), then the pointer-to-pointer gm.migrating_mons scan, unlink/head insertion, mon_track_clear, mux/muy assignment, mx=my=0, parkguard, and null return in source order. No random draw or message; it mutates guard/list state. Existing callers vault_summon_gd, invault, paygd, gd_sound, vault_gd_watching, and teleport.c:teleds all resolve to this canonical implementation. teleds records the still-unported void vault.c:uleftvault exit effect with note_unported when leaving a vault.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "vault_summon_gd",
+                "source": "vault.c:vault_summon_gd"
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "invault",
+                "source": "vault.c:invault"
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "paygd",
+                "source": "vault.c:paygd"
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "gd_sound",
+                "source": "vault.c:gd_sound"
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "vault_gd_watching",
+                "source": "vault.c:vault_gd_watching"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "teleds",
+                "source": "teleport.c:teleds"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs",
+              "scripts/paybill-end-cleanup.test.mjs",
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json",
+              "recordings/vault.c/guard-watch-floor-gold-no-guard.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 133,
+                "source": "apply.c:use_whistle -> vault.c:vault_summon_gd -> findgd; moveloop -> vault.c:invault -> findgd"
+              },
+              {
+                "batch": "v45",
+                "caseId": "v45-voluntary-quit-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 8,
+                "source": "end.c:really_done -> vault.c:paygd -> findgd"
+              }
+            ],
+            "checkedAt": "7aca5589172c6091c90e84fb387b1b3b1fe06e83"
+          },
+          {
+            "name": "vault_summon_gd",
+            "implementation": "js/vault.js",
+            "symbol": "vault_summon_gd",
+            "sourceReview": "Read vault.c:237-241 in full. Preserved the short-circuit order: only when vault_occupied(u.urooms) is true does it call findgd; it sets u.uinvault to VAULT_GUARD_TIME-1 only when findgd returns null.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_whistle",
+                "source": "apply.c:use_whistle"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-whistle.test.mjs",
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 133,
+                "source": "apply.c:use_whistle -> vault_summon_gd"
+              }
+            ],
+            "checkedAt": "7aca5589172c6091c90e84fb387b1b3b1fe06e83"
+          },
+          {
+            "name": "gd_sound",
+            "implementation": "js/vault.js",
+            "symbol": "gd_sound",
+            "sourceReview": "Read vault.c:1272-1275 in full. Kept the negated short-circuit expression: occupied vault returns false without findgd; otherwise findgd runs and may park a migrating guard, and the result is negated.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "dosounds",
+                "source": "sounds.c:dosounds -> gd_sound"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sounds.test.mjs",
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "7aca5589172c6091c90e84fb387b1b3b1fe06e83"
+          },
+          {
+            "name": "vault_gd_watching",
+            "implementation": "js/vault.js",
+            "symbol": "vault_gd_watching",
+            "sourceReview": "Read vault.c:1278-1285 in full. Preserved findgd first, then the on-map, mcansee and m_canseeu short-circuit visibility checks, and only wrote EGD(guard).witness for GD_EATGOLD or GD_DESTROYGOLD. The C caller discards the return (void).",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "eatspecial",
+                "source": "eat.c:eatspecial -> vault_gd_watching"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-watch-floor-gold-no-guard.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "7aca5589172c6091c90e84fb387b1b3b1fe06e83"
+          }
+        ],
+        "entryPointReview": "The selected source units are reached through apply.c:use_whistle (cursed ordinary whistle), sounds.c:dosounds (vault-footsteps gate), eat.c:eatspecial (floor gold consumption), and teleport.c:teleds (same-level teleport lookup). Existing vault.c:invault and paygd callers also use the canonical findgd implementation; v45 cursed-whistle and voluntary-quit ranges cover those calls. The new no-guard floor-gold recipe calls vault_gd_watching through eat.c without activating the later gd_move witness branch. A guard-visible witness branch is pinned by the focused source test; an attempted live-guard C recipe reaches the known downstream vault.c:gd_move witness gap on the following monster turn and is not claimed as a passing recording. teleds leaving the vault still records the discarded void callee vault.c:uleftvault as an explicit gap.",
+        "entryPoints": [
+          {
+            "name": "Cursed whistle in occupied vault",
+            "functions": [
+              "vault_summon_gd",
+              "findgd"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 133,
+                "source": "apply.c:use_whistle -> vault_summon_gd -> findgd"
+              }
+            ]
+          },
+          {
+            "name": "Global vault-footsteps check",
+            "functions": [
+              "gd_sound",
+              "findgd"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Eat floor gold in vault",
+            "functions": [
+              "vault_gd_watching",
+              "findgd"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-watch-floor-gold-no-guard.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Same-level teleport while in vault",
+            "functions": [
+              "findgd"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-watch-floor-gold-no-guard.session.json",
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "End game with no active vault guard",
+            "functions": [
+              "findgd"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-voluntary-quit-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 8,
+                "source": "end.c:really_done -> paygd -> findgd"
+              }
+            ]
+          },
+          {
+            "name": "Turn-based vault guard discovery",
+            "functions": [
+              "findgd"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 133,
+                "source": "moveloop -> invault -> findgd"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d6db550a19ff73dc442cabfd0acb3f89118d5b90",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-quest-finish-thrown-artifact-synthetic-v45-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port quest finish and wire leader interactions",
+      "cFile": "quest.c",
+      "sessions": [
+        "synthetic/v45/v45-quest-finish-thrown-artifact-cfirst-corrected"
+      ],
+      "selectionReason": "The current v45 quest-finish mismatch reaches quest.c:finish_quest when the peaceful quest leader catches the thrown role artifact.",
+      "detail": "Port the complete finish_quest function and wire both source callers: dothrow.c:thitmonst and quest.c:chat_with_leader. Validate the thrown route with the admitted v45 range and the carried-artifact chat route with an independent recording.",
+      "openedAt": "ab74f755daeae431e5ea67c46232c6d6e40f1c27",
+      "openStanding": {
+        "sha": "d6db550a19ff73dc442cabfd0acb3f89118d5b90",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "finish_quest",
+          "line": 226,
+          "endLine": 281,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 226,
+        "to": 281
+      },
+      "syntheticProvenance": {
+        "synthetic/v45/v45-quest-finish-thrown-artifact-cfirst-corrected": {
+          "session": "synthetic/v45/v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.session.json",
+          "recordingSha256": "7d78dbdbcb2f002923618be436ab22115fd3401f18b3580d9a69538011b6eab5",
+          "evaluationPath": "challenges/evaluations/accepted-d6db550a19ff73dc442cabfd0acb3f89118d5b90-v45.json",
+          "evaluationCommit": "d6db550a19ff73dc442cabfd0acb3f89118d5b90"
+        }
+      },
+      "activeStanding": {
+        "sha": "d6db550a19ff73dc442cabfd0acb3f89118d5b90",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "session": "synthetic/v45/v45-quest-finish-thrown-artifact-cfirst-corrected",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.session.json",
+          "recordingPath": "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.session.json",
+          "recordingSha256": "7d78dbdbcb2f002923618be436ab22115fd3401f18b3580d9a69538011b6eab5",
+          "recipe": "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.recipe.session.json",
+          "recipeSha256": "efb3a40cb225cac793818580732e8a8bef85437e6dd3b6bbe76e1c54a2f8bd3e",
+          "replayInputSha256": "9ac66d634a9f72a1d98c2c62d3fef89aa4f4ccb31c5eae9a576d9b30a72955be",
+          "evaluationPath": "challenges/evaluations/accepted-d6db550a19ff73dc442cabfd0acb3f89118d5b90-v45.json",
+          "evaluationCommit": "d6db550a19ff73dc442cabfd0acb3f89118d5b90",
+          "evaluationArtifact": "challenges/evaluations/accepted-d6db550a19ff73dc442cabfd0acb3f89118d5b90-v45.json",
+          "evaluationUtc": "2026-10-11T13:11:36.572Z",
+          "remainingScreens": 1,
+          "recordedSteps": 63,
+          "previousScreensMatched": 62,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 62,
+              "total": 63
+            },
+            "rng": {
+              "matched": 3301,
+              "total": 3303
+            },
+            "cursors": {
+              "matched": 62,
+              "total": 63
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 62,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 18,
+              "cCell": {
+                "ch": "n",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "h",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3301,
+              "cEntry": "rn2(3)=1",
+              "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 61,
+                "key": "b"
+              },
+              "stepIndex": 61
+            },
+            "cursor": {
+              "index": 62,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": " "
+              },
+              "cCursor": [
+                8,
+                23,
+                1
+              ],
+              "jsCursor": [
+                20,
+                1,
+                1
+              ]
+            }
+          },
+          "step": 61,
+          "kind": "rng",
+          "sourceFile": "nhlib.lua",
+          "function": "shuffle",
+          "message": null,
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.json",
+            "result": {
+              "session": "synthetic/v45/v45-quest-finish-thrown-artifact-cfirst-corrected",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-quest-finish-thrown-artifact-cfirst-corrected",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingPath": "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.session.json",
+              "recordingSha256": "7d78dbdbcb2f002923618be436ab22115fd3401f18b3580d9a69538011b6eab5",
+              "evaluationPath": "challenges/evaluations/accepted-cfead60783b397097e20e05274512010fec57464-v45.json",
+              "evaluationCommit": "cfead60783b397097e20e05274512010fec57464",
+              "remainingScreens": 1,
+              "recordedSteps": 63,
+              "status": "complete",
+              "commit": "cfead60783b397097e20e05274512010fec57464",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-quest-finish-thrown-artifact-cfirst-corrected",
+                "session": "synthetic/v45/v45-quest-finish-thrown-artifact-cfirst-corrected",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.session.json",
+                "recordingPath": "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.session.json",
+                "recordingSha256": "7d78dbdbcb2f002923618be436ab22115fd3401f18b3580d9a69538011b6eab5",
+                "recipe": "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.recipe.session.json",
+                "recipeSha256": "efb3a40cb225cac793818580732e8a8bef85437e6dd3b6bbe76e1c54a2f8bd3e",
+                "replayInputSha256": "e96d3dedc27ed86251003f8fbd736d5c185dc88169eab77ebd37b063ccf3b2ba",
+                "evaluationPath": "challenges/evaluations/accepted-cfead60783b397097e20e05274512010fec57464-v45.json",
+                "evaluationCommit": "cfead60783b397097e20e05274512010fec57464",
+                "evaluationArtifact": "challenges/evaluations/accepted-cfead60783b397097e20e05274512010fec57464-v45.json",
+                "evaluationUtc": "2026-10-11T12:12:54.731Z",
+                "remainingScreens": 1,
+                "recordedSteps": 63,
+                "previousScreensMatched": 62,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 62,
+                    "total": 63
+                  },
+                  "rng": {
+                    "matched": 3301,
+                    "total": 3303
+                  },
+                  "cursors": {
+                    "matched": 62,
+                    "total": 63
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 62,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 62,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 18,
+                    "cCell": {
+                      "ch": "n",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "h",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3301,
+                    "cEntry": "rn2(3)=1",
+                    "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 61,
+                      "key": "b"
+                    },
+                    "stepIndex": 61
+                  },
+                  "cursor": {
+                    "index": 62,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 62,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      8,
+                      23,
+                      1
+                    ],
+                    "jsCursor": [
+                      20,
+                      1,
+                      1
+                    ]
+                  }
+                },
+                "step": 61,
+                "kind": "rng",
+                "sourceFile": "nhlib.lua",
+                "function": "shuffle",
+                "message": null,
+                "cFile": null,
+                "luaFile": "nhlib.lua",
+                "line": 19,
+                "helper": {
+                  "function": "random",
+                  "luaFile": "nhlib.lua",
+                  "line": 8
+                }
+              },
+              "summary": "The current v45 queue labels the first extra RNG calls as the nhlib.lua shuffle, but the missing source owner is quest.c:finish_quest. The admitted Wizard case throws the Eye of the Aethiopica into peaceful, mobile quest leader Neferet; dothrow.c:thitmonst calls finish_quest(obj), whose offeredit pager initializes Lua and emits the two draws. The same source function also runs when quest.c:chat_with_leader finishes a #chat or passive leader conversation. The accepted iron-ball delivery freed the previously overlapping dothrow.js path, so both production caller paths are available for this task.",
+              "source": {
+                "file": "quest.c",
+                "branch": "When a peaceful quest leader is able to move after catching a thrown quest artifact, and the hero has not already completed the quest or obtained the Amulet, finish_quest(obj) selects offeredit/offeredit2, displays the quest completion pager, sets got_thanks and qcompleted, identifies the returned artifact, and updates inventory. If the hero has the Amulet, it uses hasamulet instead; non-quest unique items follow their own identify/verbalize branches.",
+                "functions": [
+                  "finish_quest"
+                ],
+                "callers": [
+                  "dothrow.c:thitmonst (line 2138) calls finish_quest(obj) after a peaceful, mobile quest leader catches a thrown quest artifact.",
+                  "quest.c:chat_with_leader (lines 297 and 311) calls finish_quest(NULL) with the Amulet or finish_quest(otmp) when the hero carries the quest artifact; quest_chat and leader_speaks/quest_talk reach this caller."
+                ],
+                "dependencies": [
+                  "questpgr.c:qt_pager/com_pager_core and dat/quest.lua supply the offeredit text; js/questpgr.js already implements the pager and its nhlib.lua initialization draws.",
+                  "nhlua.c:nhl_init loads dat/nhlib.lua before dat/quest.lua; the helper random calls at nhlib.lua:8 and shuffle at line 19 are downstream pager initialization, not the missing behavior owner.",
+                  "The dothrow.c:thitmonst/js/dothrow.js caller path had overlapped the iron-ball delivery; that delivery is accepted at Main cfead60783b397097e20e05274512010fec57464 and the caller path is now available."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved combined queue SHA-256 dffed0961b2d40e2dc0a09e4b6d769a775a520c1e74ce97b95be29930b0e88b3 places the selected case at segment 0 step 61: C rn2(3)=1 then rn2(2)=0 from random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19); the first screen mismatch is screen 62 and one screen remains. The current evaluation is challenges/evaluations/accepted-cfead60783b397097e20e05274512010fec57464-v45.json at cfead60783b397097e20e05274512010fec57464.",
+                "The admitted C recipe independently wishes the Wizard quest artifact Eye of the Aethiopica and throws it southwest with key b; at step 61 Neferet catches it and enters the peaceful leader branch.",
+                "nethack-c/upstream/src/dothrow.c:thitmonst lines 2104-2149 calls finish_quest(obj) at line 2138 before returning the artifact, adding it to inventory, and recalculating encumbrance.",
+                "nethack-c/upstream/src/quest.c:finish_quest lines 226-279 chooses hasamulet, offeredit, or offeredit2 pager behavior, updates got_thanks and qcompleted, identifies returned objects, and refreshes inventory. quest.c:chat_with_leader lines 281-369 has two additional direct callers.",
+                "nethack-c/upstream/src/quest.c:quest_chat is reached from sounds.c:dotalk for #chat, and quest.c:quest_talk reaches leader_speaks/chat_with_leader on the monster-turn path. Both can call finish_quest through chat_with_leader.",
+                "nethack-c/upstream/src/questpgr.c:com_pager_core calls nhl_init before reading quest text; nhlua.c:nhl_init loads nhlib.lua, whose top-level shuffle at dat/nhlib.lua:17-25 consumes the two matching random draws.",
+                "js/dothrow.js:thitmonst currently calls note_unported('quest.c finish_quest') before the returned-object path; js/quest.js:chat_with_leader refuses its got_thanks/Amulet and carried-quest-artifact branches. js/questpgr.js already provides qt_pager and com_pager.",
+                "The formerly overlapping C iron-ball delivery 064be92725ba74d474ee0e8f42fe45517f27e34d is accepted at Main cfead60783b397097e20e05274512010fec57464; the quest-finish implementation can now wire dothrow.js and quest.js without overlapping that delivery."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "finish_quest",
+            "implementation": "js/quest.js",
+            "symbol": "finish_quest",
+            "sourceReview": "Read the complete upstream quest.c:finish_quest definition at lines 226-279 and all direct call sites. The port preserves the Deaf early return for a non-quest object; identification before the imitation/Amulet/other-item message; the held-Amulet pager and identification/inventory refresh; offeredit versus offeredit2 and the missing-Bell common pager; then got_thanks and, only when obj is non-null, qcompleted, object identification and inventory refresh. It uses existing complete ports for is_quest_artifact, fully_identify_obj, qt_pager, com_pager, carrying, update_inventory, heroDeaf, verbalize, the and xname. No C callee is substituted with note_unported or a fabricated effect.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "C dothrow.c:thitmonst (line 2138) calls finish_quest(obj) after a peaceful, mobile quest leader catches a thrown quest artifact. The v45 recording reaches this call from the thrown-item path."
+              },
+              {
+                "path": "js/quest.js",
+                "symbol": "chat_with_leader",
+                "source": "C quest.c:chat_with_leader (lines 297 and 311) calls finish_quest(NULL) after the hero has the Amulet and got_thanks, or finish_quest(otmp) when the hero returns carrying the role quest artifact. quest_chat reaches this function from sounds.c:dotalk; quest_talk reaches it through leader_speaks on the monster-turn route."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "dotalk",
+                "source": "C sounds.c:dotalk (line 731) dispatches MS_LEADER to quest_chat; C quest.c:quest_chat (line 475) calls chat_with_leader. The independent C recipe uses #chat and reaches its Rule 3 finish_quest(otmp) call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-finish.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/finish-quest-chat-wizard-neferet-cfirst-20261011.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-quest-finish-thrown-artifact-cfirst-corrected",
+                "segment": 0,
+                "fromStep": 61,
+                "throughStep": 62,
+                "source": "dothrow.c:thitmonst -> quest.c:finish_quest(obj); the peaceful leader catches the thrown Eye and completes the returned-artifact pager path."
+              }
+            ],
+            "checkedAt": "b265888745552127ea0678ad6ff6bddba50b2bad"
+          }
+        ],
+        "entryPointReview": "The selected mismatch enters quest.c:finish_quest through dothrow.c:thitmonst when a peaceful mobile leader catches the thrown Eye. The second direct caller is quest.c:chat_with_leader, reached from quest.c:quest_chat via the #chat dispatch in sounds.c:dotalk and from quest.c:leader_speaks via quest_talk on the monster-turn path. The independent recording covers the #chat Rule 3 call with a carried quest artifact; the admitted v45 range covers the thrown-object call. The port keeps the source ordering for all other finish_quest branches, including the NULL-object/Amulet branch.",
+        "entryPoints": [
+          {
+            "name": "Throw the role quest artifact at a peaceful quest leader",
+            "functions": [
+              "finish_quest"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-quest-finish-thrown-artifact-cfirst-corrected",
+                "segment": 0,
+                "fromStep": 61,
+                "throughStep": 62,
+                "source": "dothrow.c:thitmonst -> quest.c:finish_quest(obj)"
+              }
+            ]
+          },
+          {
+            "name": "Return the carried role quest artifact through #chat",
+            "functions": [
+              "finish_quest"
+            ],
+            "recordings": [
+              "recordings/quest.c/finish-quest-chat-wizard-neferet-cfirst-20261011.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
