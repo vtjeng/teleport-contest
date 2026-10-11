@@ -274342,7 +274342,7 @@
           "line": 1091,
           "endLine": 1141,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -274608,7 +274608,72 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "furniture_detect",
+            "implementation": "js/detect.js",
+            "symbol": "furniture_detect",
+            "sourceReview": "Read detect.c:furniture_detect() (1091-1134) completely. Preserved the unconstrain-first map scan over y then x, source-specific found/revealed counts, mimic visibility handling, no-found/already-visible messages, and final map_redisplay order. The revealed-glyph branch now calls the existing browse_map() with TER_DETECT | TER_MAP | TER_TRP | TER_OBJ | TER_MON and the source goal 'location'; browse_map() enters getpos(), where the first-use TIP_GETPOS path is already ported. furniture_detect returns 0 as C does, and use_crystal_ball consumes that value. The separate no-new-glyph display_nhwindow(WIN_MAP, TRUE) arm remains the named void gap note_unported('detect.c display_nhwindow'); it is not the selected revealed-glyph route. No unported return value is used as data.",
+            "callers": [
+              {
+                "path": "js/detect.js",
+                "symbol": "use_crystal_ball",
+                "source": "detect.c:use_crystal_ball() at 1340-1343 selects furniture_detect() when def_char_is_furniture(ch) >= 0. apply.c:doapply() 4358-4360 and artifact.c:arti_invoke() 2140-2145 both call use_crystal_ball() for a regular crystal ball; their JavaScript dispatchers are apply.js:doapply and artifacts.js:arti_invoke."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-furniture-invoke-v46-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-crystal-ball-furniture-attempt10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 41,
+                "source": "apply.c:doapply(CRYSTAL_BALL) -> detect.c:use_crystal_ball(furniture symbol) -> furniture_detect -> browse_map -> getpos -> handle_tip(TIP_GETPOS), followed by map_redisplay"
+              }
+            ],
+            "checkedAt": "c7cf618cc49ee013225e685ae894370565a69bd6"
+          }
+        ],
+        "entryPointReview": "The selected behavior has two active command entry paths into detect.c:use_crystal_ball(): the 'a' apply command reaches apply.c:doapply()'s CRYSTAL_BALL arm at 4358-4360, and #invoke reaches artifact.c:arti_invoke()'s regular-crystal-ball arm at 2140-2145. Both dispatchers are wired in apply.js and artifacts.js. use_crystal_ball() dispatches furniture symbols to furniture_detect() at detect.c:1340-1343. The admitted v46 apply route matches through segment 0 step 41 and covers the newly revealed furniture scan, browse_map/getpos first-use tip, selected location, and map_redisplay. The independent artifact-invocation recording covers the same source path through #invoke. detect.c:browse_map() and getpos.c:getpos() were already ported and wired; the only retained gap in furniture_detect() is its alternate no-new-glyph display_nhwindow(WIN_MAP, TRUE) call, represented by note_unported('detect.c display_nhwindow') and not reached by the selected routes.",
+        "entryPoints": [
+          {
+            "name": "Apply a crystal ball to browse newly revealed furniture locations",
+            "functions": [
+              "furniture_detect"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-crystal-ball-furniture-attempt10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 41,
+                "source": "apply.c:doapply(CRYSTAL_BALL) -> detect.c:use_crystal_ball -> furniture_detect -> browse_map -> getpos/TIP_GETPOS"
+              }
+            ]
+          },
+          {
+            "name": "Invoke a regular crystal ball to browse newly revealed furniture locations",
+            "functions": [
+              "furniture_detect"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-furniture-invoke-v46-cfirst.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
