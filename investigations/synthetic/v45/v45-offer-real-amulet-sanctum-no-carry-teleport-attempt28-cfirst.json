@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v45.json",
   "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
   "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
-  "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
-  "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
-  "remainingScreens": 84,
+  "evaluationPath": "challenges/evaluations/accepted-24970688b92d3929c8723c8b39f3ac86465a45ef-v45.json",
+  "evaluationCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+  "remainingScreens": 83,
   "recordedSteps": 157,
   "status": "complete",
-  "commit": "67d757adfce6fb701df5218060e04b6318f47626",
+  "commit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v45",
@@ -24,20 +24,20 @@
     "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
     "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
     "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
-    "replayInputSha256": "84060dd7b48fcae242ce5b79a23a72a39cf1cc9e922c8a93918a65f2a91e7de1",
-    "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
-    "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
-    "evaluationArtifact": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
-    "evaluationUtc": "2026-10-11T11:57:28.052Z",
-    "remainingScreens": 84,
+    "replayInputSha256": "c26bb2cb91c6b081af64ee6b9818edc0b576299929b02b06c53ca196f3a2b19b",
+    "evaluationPath": "challenges/evaluations/accepted-24970688b92d3929c8723c8b39f3ac86465a45ef-v45.json",
+    "evaluationCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+    "evaluationArtifact": "challenges/evaluations/accepted-24970688b92d3929c8723c8b39f3ac86465a45ef-v45.json",
+    "evaluationUtc": "2026-10-11T13:44:16.187Z",
+    "remainingScreens": 83,
     "recordedSteps": 157,
-    "previousScreensMatched": 30,
+    "previousScreensMatched": 74,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 73,
+        "matched": 74,
         "total": 157
       },
       "rng": {
@@ -45,84 +45,49 @@
         "total": 7512
       },
       "cursors": {
-        "matched": 73,
+        "matched": 74,
         "total": 157
       }
     },
     "firstMismatch": {
-      "screen": {
-        "index": 73,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 73,
-          "key": "."
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 42,
-        "cCell": {
-          "ch": "T",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": "H",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": null,
-      "cursor": {
-        "index": 73,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 73,
-          "key": "."
-        },
-        "cCursor": [
-          74,
-          0,
-          1
-        ],
-        "jsCursor": [
-          70,
-          0,
-          1
-        ]
-      }
+      "kind": "stop",
+      "message": "unsupported initial-level monster creation: makemon() monster 174",
+      "step": 74
     },
-    "step": 73,
-    "kind": "screen",
-    "sourceFile": null,
-    "function": null,
-    "message": null,
-    "cFile": null,
+    "step": 74,
+    "kind": "stop",
+    "sourceFile": "makemon.c",
+    "function": "makemon",
+    "message": "unsupported initial-level monster creation: makemon() monster 174",
+    "cFile": "makemon.c",
     "luaFile": null,
     "line": null
   },
-  "summary": "After the accepted teleport.c:dotelecmd/dotele port, this case now reaches the same temple-entry mismatch as the advanced Sanctum approach case. At step 73, priest.c:intemple() temporarily clears priest->ispriest and calls Monnam(priest), producing “The high priest intones:”. JavaScript performs the same temporary state change but calls priestname() directly and capitalizes its raw return. priestname() takes its non-priest early return and omits ARTICLE_THE, producing “High priest intones:”. Route the caller through the existing canonical Monnam() formatter; the prior screen and RNG history match through this point.",
+  "summary": "At segment 0, step 74, allmain.c:maybe_generate_rnd_mon reaches makemon(NULL, 0, 0, NO_MM_FLAGS), and the source-selected PM_ETTIN (174) is rejected by the JavaScript runtime species allowlist. C makemon() calls rndmonst() without that species gate. Ettin already has its matching m_initweap and m_initinv behavior; the actionable defect is the over-restrictive runtime admission check in js/makemon_create.js.",
   "source": {
-    "file": "priest.c",
+    "file": "makemon.c",
     "functions": [
-      "priest.c:intemple()"
+      "makemon"
     ],
-    "branch": "A visible, non-hallucinated hero teleports into a Sanctum TEMPLE room while a speaking high priest is present and intone_time has elapsed. intemple() saves priest->ispriest, clears it for the name-formatting call, emits the introduction, then restores the value before scheduling the next intone.",
+    "branch": "During ordinary play, a successful maybe_generate_rnd_mon gate calls makemon(NULL, 0, 0, NO_MM_FLAGS). makemon() selects a common species through rndmonst(), checks goodpos(), then enters the shared creation and inventory lifecycle. The accepted C trace selects PM_ETTIN. JavaScript selects the same species but assertSupportedSpecies rejects it: its ordinary reservoir is capped at difficulty 9 and its S_GIANT class does not make is_giant true for this Ettin.",
     "callers": [
-      "teleport.c:teleds() calls spoteffects(TRUE) after relocation; hack.c:spoteffects() calls check_special_room(FALSE); hack.c:check_special_room() calls intemple() for an entered TEMPLE.",
-      "JavaScript mirrors this route through teleport.js:teleds(), hack.js:spoteffects(), rooms.js:check_special_room(), and priest.js:intemple()."
+      "allmain.c:moveloop_core -> maybe_generate_rnd_mon -> makemon(NULL, 0, 0, NO_MM_FLAGS); js/allmain.js:finishElapsedTurn -> maybe_generate_rnd_mon -> makemon_runtime.",
+      "makemon.c:makemon random-species branch -> rndmonst -> goodpos -> shared creation lifecycle; js/makemon_create.js:makemon random-species branch -> rndmonst -> assertSupportedSpecies."
     ],
     "dependencies": [
-      "priest.c:intemple() calls do_name.c:Monnam(priest) after temporarily clearing ispriest. The existing canonical js/do_name.js:Monnam() delegates to x_monnam(), whose ordinary-species path retains ARTICLE_THE after the priest/minion special case no longer applies."
+      "makemon.c:rndmonst and rndmonst_adj choose the source-valid species using level difficulty and weighted reservoir sampling.",
+      "makemon.c:makemon calls m_initweap, m_initinv, and m_dowear for inventory-enabled creation. The existing JavaScript Ettin weapon branch and inventory behavior are source-pinned; the regression is the earlier runtime species refusal."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "Queue actionable from 7 current sessions at SHA-256 8e3cc52f29759118832c5b4a20bc5b578638d7adccd7c89524d205a4916496ff records the current v45 evaluation challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json at 671938b9bce6f6f152d2f38a1cc5b3db8e38e36c, with 84 remaining screens and first divergence at segment 0, step 73.",
-    "The recorded step 73 is input `.`. Its C RNG entry is d(10,500)=2345 at priest.c:443; the full recorded screen says “You materialize in a different location!  The high priest intones:”. Queue comparison reports C row 0, column 42 as `T` and JavaScript as `H`, with the cursor also diverging at that screen.",
-    "nethack-c/upstream/src/priest.c:intemple() lines 430-444 temporarily sets priest->ispriest to zero for a visible non-hallucinated Sanctum introduction, then calls Monnam(priest) and restores the saved field. nethack-c/upstream/src/do_name.c:x_monnam() lines 876-885 only takes its priestname() special case while ispriest or isminion is set; after the temporary clear, its ordinary naming path applies ARTICLE_THE to mon_pmname(priest).",
-    "js/priest.js:intemple() lines 817-832 performs the temporary ispriest clear but directly calls priestname(priest, ARTICLE_THE, false) and highc(). js/priest.js:priestname() lines 718-722 returns mon_pmname() immediately when both ispriest and isminion are false, dropping the article. Use the already imported Monnam(priest, state) at this source call site instead of duplicating the formatter.",
-    "The current queue entry for v45-offer-real-amulet-sanctum-approach-attempt17-cfirst reaches the same C d(10,500) at priest.c:443 on step 130 and the same `T` versus `H` name boundary. It corroborates this priest.c:intemple scope; it is not a source-independent second task."
+    "The saved combined queue SHA-256 is 8a0d13e2ac1af34a34102367fb5781530390f8ed4fe2510a4768935d1237b8dd. Its v45 entry records a stop at segment 0, step 74: unsupported initial-level monster creation, makemon() monster 174; 74/157 screens, 6986/7512 RNG calls, and 74/157 cursors match against evaluation challenges/evaluations/accepted-24970688b92d3929c8723c8b39f3ac86465a45ef-v45.json.",
+    "nethack-c/upstream/src/allmain.c:162-167 gates a random creation with rn2(25), rn2(50), or rn2(70) and then calls makemon(NULL, 0, 0, NO_MM_FLAGS); moveloop_core calls it at lines 236-239. js/allmain.js:418-444 uses the same gate and arguments, and finishElapsedTurn calls it at lines 833-840.",
+    "nethack-c/upstream/src/makemon.c:1220-1231 handles a null ptr by calling rndmonst() and retrying only for throws_rocks/Sokoban or goodpos. There is no species allowlist there. rndmonst() delegates to rndmonst_adj() at lines 1654-1671, which uses the current level difficulty to form the selectable pool.",
+    "js/makemon_create.js:3013-3017 picks through rndmonst() and then calls assertSupportedSpecies(). The check at lines 1047-1053 admits the ordinary reservoir only through difficulty 9; its separate true-giant clause at lines 1112-1116 excludes Ettin because the species does not satisfy is_giant. This is a JavaScript support guard, not a C makemon branch.",
+    "The source has an explicit Ettin initialization path: makemon.c:m_initweap at lines 179-185 gives S_GIANT Ettins a CLUB and skips the non-Ettin rn2(5) gate. js/makemon_create.js:1832-1848 already matches it, and scripts/makemon-create.test.mjs:6236-6282 pins the Ettin inventory behavior. makemon.c:1441-1445 invokes m_initweap, m_initinv, and m_dowear in the common creation lifecycle.",
+    "The exact C-to-JS cause is established by the saved evaluation stop and the matching PM_ETTIN rejection. A minimal general correction is to admit the already-supported Ettin runtime species through the existing guard and verify the admitted replay; later first mismatches, if any, remain separate findings.",
+    "After the Ettin admission change, `node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json` verified the admitted v45 segment 0 through zero-based step 90 against the C recording.",
+    "A fresh C/JavaScript replay now passes the former makemon.c:makemon stop. Its first remaining divergence is at one-based segment 1, step 92: C calls rn2(3) from xkilled(mon.c:3574), while JavaScript calls rn2(6); the first screen and cursor mismatches are also at boundary 92. Replaying the 91-key prefix leaves JS level.flags.has_morgue=true but level.flags.graveyard=false. C mklev.c:level_finalize_topology (1556-1560) promotes graveyard whenever has_morgue is set; js/mklev.js:level_finalize_topology (8038 onward) omits that promotion. This is the concrete downstream reason LEVEL_SPECIFIC_NOCORPSE skips its graveyard-undead draw for the demilich. It is a separate mklev finalization boundary, recorded for follow-up rather than included in this makemon fix."
   ]
 }
