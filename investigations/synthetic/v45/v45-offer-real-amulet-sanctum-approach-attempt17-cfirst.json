@@ -5,13 +5,126 @@
   "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
   "manifestPath": "challenges/manifests/v45.json",
   "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+  "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
   "recordingSha256": "6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca",
-  "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
-  "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
-  "remainingScreens": 2,
+  "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.recipe.session.json",
+  "recipeSha256": "1c35cd806beff1d162ddd353766d798eb8847fb0ee51589f2cdc4884d34e7e7c",
+  "replayInputSha256": "1f0a9d0aeb93d48e20664b622881befd3bf5b5422b9d5b5986051825dff83ffd",
+  "evaluationPath": "challenges/evaluations/accepted-3b603348e895b1e73580096f4b456acc946e8469-v45.json",
+  "evaluationCommit": "3b603348e895b1e73580096f4b456acc946e8469",
+  "evaluationUtc": "2026-10-11T13:24:46.950Z",
+  "remainingScreens": 1,
   "recordedSteps": 162,
+  "previousScreensMatched": 161,
+  "regression": false,
+  "passed": false,
+  "error": null,
+  "metrics": {
+    "screens": {
+      "matched": 161,
+      "total": 162
+    },
+    "rng": {
+      "matched": 7856,
+      "total": 7856
+    },
+    "cursors": {
+      "matched": 161,
+      "total": 162
+    }
+  },
+  "firstMismatch": {
+    "screen": {
+      "index": 161,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 161,
+        "key": "p"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 0,
+      "cCell": {
+        "ch": "Y",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "N",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "rng": {
+      "index": 7856,
+      "cCaller": null,
+      "jsEntry": "rn2(5)=4",
+      "stepIndex": null
+    },
+    "cursor": {
+      "index": 161,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 161,
+        "key": "p"
+      },
+      "cCursor": [
+        51,
+        0,
+        1
+      ],
+      "jsCursor": [
+        20,
+        10,
+        1
+      ]
+    }
+  },
+  "step": 161,
+  "kind": "screen",
+  "sourceFile": "pray.c",
+  "function": "offer_real_amulet",
+  "message": null,
+  "cFile": "pray.c",
+  "luaFile": null,
+  "line": 1529,
   "status": "complete",
-  "commit": "852dd3237664b6965c7d983e72d55f0e3366539c",
+  "summary": "After the accepted priest and vault changes, this session reaches the source gap at step 161: #offer selects the real Amulet on the Sanctum high altar, and C prints 'You offer the Amulet of Yendor to Moloch...' while JavaScript falls through the dosacrifice() 'Nothing happens.' arm. The caller's current note_unported('pray.c offer_real_amulet') is the exact missing branch. Port the whole pray.c:offer_real_amulet() function and wire it at its existing dosacrifice() call.",
+  "goalKind": "file-port",
+  "selectionReason": "Selected from the fresh saved combined queue at SHA-256 47aecfde597781bf11c6ebded0bbec66423b7577d3cd5f5a2665595a48db1274, evaluated at accepted Main d6db550a19ff73dc442cabfd0acb3f89118d5b90. This is the only current unreserved source-distinct candidate: B owns the other Sanctum/no-carry session's makemon.c:makemon stop, and C owns quest.c:finish_quest. The selected approach case is independently reserved by A2; it now reaches pray.c:offer_real_amulet() after the accepted priest fix.",
+  "source": {
+    "file": "pray.c",
+    "functions": [
+      "pray.c:offer_real_amulet()"
+    ],
+    "branch": "The recorded command sequence reaches a Sanctum TEMPLE high altar, places a real Amulet of Yendor on the floor, invokes #offer, and selects it with p. C's dosacrifice() sees AMULET_OF_YENDOR and AM_SANCTUM, then calls offer_real_amulet(otmp, altaralign). The emitted 'to Moloch' identifies the A_NONE branch: it consumes the Amulet, announces the offering, reduces alignment record, and proceeds into Moloch's death outcome. The recording ends at the first --More-- boundary after the announcement.",
+    "callers": [
+      "nethack-c/upstream/src/pray.c:dosacrifice() (1874-1881) is the sole direct C caller: its real-Amulet arm calls offer_real_amulet() only when highaltar is true.",
+      "js/pray.js:dosacrifice() (428-470) is the existing caller port. The high-altar real-Amulet arm currently records note_unported('pray.c offer_real_amulet') at lines 453-456 and then continues to the generic nothing_happens arm.",
+      "The running command path is C cmd.c's #offer/MCMD_OFFER dispatch to dosacrifice(); JavaScript cmd.js:extcmd dispatch (around 5205) and cmd.js:act_on_act MCMD.OFFER dispatch (around 5651) both await pray.js:dosacrifice(). No caller edit outside pray.js is indicated by the current call map."
+    ],
+    "dependencies": [
+      "Whole C definition at pray.c:1529-1589 has three altar-alignment arms and must be ported in source order. The currently reached A_NONE arm consumes the Amulet, calls done(DIED), and if death is declined continues through fry_by_god(A_NONE, TRUE), smoke feedback, and done(ESCAPED). Other arms handle a differently aligned deity's escape and aligned ascension.",
+      "Return-valued callees read from this function are carried(otmp), a_gname(), u_gname(), s_suffix(Moloch), and hcolor(NH_BLACK/NH_ORANGE); matching JavaScript helpers already exist in obj.js, pray.js, hacklib.js, and do_name.js respectively. No additional return-valued C source unit is currently required.",
+      "The remaining callees are void operations. Existing JS owners include do_wear.js:Amulet_off(), invent.js:useup()/useupf(), end.js:done(), pray.js:fry_by_god()/godvoice(), and pray.js:adjalign(). SetVoice is empty in the recorder's TTY build; the aligned arm's display_nhwindow(WIN_MESSAGE,FALSE) must follow existing TTY message-flush behavior. Keep any unsupported void-only call explicit with note_unported('<file.c> <function>') rather than inventing effects.",
+      "The companion no-carry Sanctum case is currently reserved by B and stops earlier at makemon.c:makemon. Do not bundle or edit that session; re-evaluate its first remaining mismatch after B publishes."
+    ],
+    "evidencePlan": [
+      "Use the admitted v45 approach session through segment 0 step 161 after the fix to verify production command dispatch and the recorded A_NONE branch entry.",
+      "The existing case stops at the first pager after the Amulet announcement. Add a new independent recipes/pray.c recipe and matching recording with enough pager input to cover the reached branch's subsequent Moloch/death outcome; vary seed and date from the admitted case while retaining Wizard/debug setup needed for the Sanctum route.",
+      "The whole source function also has non-A_NONE escape and same-alignment ascension arms. Confirm from source and current high-altar generation whether either is a valid recorder entry point; if a valid setup exists, add the smallest independent recipe variation. Otherwise record the source precondition that keeps the only active recorder route in A_NONE and test or pin the unreachable state arms without claiming runtime evidence for them."
+    ]
+  },
+  "evidence": [
+    "Saved queue SHA-256 47aecfde597781bf11c6ebded0bbec66423b7577d3cd5f5a2665595a48db1274 is current against accepted evaluation challenges/evaluations/accepted-d6db550a19ff73dc442cabfd0acb3f89118d5b90-v45.json; the case has 161/162 screens and cursors, 7,856/7,856 C RNG calls, with its sole remaining screen at segment 0 step 161.",
+    "The admitted recording digest is 6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca; its companion recipe digest is 1c35cd806beff1d162ddd353766d798eb8847fb0ee51589f2cdc4884d34e7e7c. Step 161 input is p; C's recorded first line is 'You offer the Amulet of Yendor to Moloch...--More--'.",
+    "At nethack-c/upstream/src/pray.c:1874-1881, dosacrifice() dispatches a real Amulet from a high altar to offer_real_amulet(). The entire helper at pray.c:1529-1589 immediately consumes the Amulet, emits the deity-specific offer line, and then branches by altar alignment.",
+    "js/pray.js:448-457 contains the matching caller arm and the exact refusal. Because the helper is skipped, dosacrifice() reaches the generic nothing_happens line; this produces the observed C Y versus JS N at row 0 column 0 and allows an extra JavaScript rn2(5)=4 after all 7,856 recorded C RNG calls.",
+    "The previous investigation named priest.c:intemple(), but that article mismatch was corrected in accepted Main before this evaluation. The first mismatch has advanced to the Amulet-offering source gap; this report is rewritten for the current source stop."
+  ],
+  "commit": "6bcfe84d919ad0dcee25a84fd0f475d23dc95eca",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v45",
@@ -24,20 +137,20 @@
     "recordingSha256": "6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca",
     "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.recipe.session.json",
     "recipeSha256": "1c35cd806beff1d162ddd353766d798eb8847fb0ee51589f2cdc4884d34e7e7c",
-    "replayInputSha256": "84060dd7b48fcae242ce5b79a23a72a39cf1cc9e922c8a93918a65f2a91e7de1",
-    "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
-    "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
-    "evaluationArtifact": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
-    "evaluationUtc": "2026-10-11T11:57:28.052Z",
-    "remainingScreens": 2,
+    "replayInputSha256": "1f0a9d0aeb93d48e20664b622881befd3bf5b5422b9d5b5986051825dff83ffd",
+    "evaluationPath": "challenges/evaluations/accepted-3b603348e895b1e73580096f4b456acc946e8469-v45.json",
+    "evaluationCommit": "3b603348e895b1e73580096f4b456acc946e8469",
+    "evaluationArtifact": "challenges/evaluations/accepted-3b603348e895b1e73580096f4b456acc946e8469-v45.json",
+    "evaluationUtc": "2026-10-11T13:24:46.950Z",
+    "remainingScreens": 1,
     "recordedSteps": 162,
-    "previousScreensMatched": 75,
+    "previousScreensMatched": 161,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 160,
+        "matched": 161,
         "total": 162
       },
       "rng": {
@@ -45,29 +158,29 @@
         "total": 7856
       },
       "cursors": {
-        "matched": 160,
+        "matched": 161,
         "total": 162
       }
     },
     "firstMismatch": {
       "screen": {
-        "index": 130,
+        "index": 161,
         "location": {
           "segmentIndex": 0,
-          "stepIndex": 130,
-          "key": "."
+          "stepIndex": 161,
+          "key": "p"
         },
         "kind": "ch",
         "row": 0,
-        "column": 42,
+        "column": 0,
         "cCell": {
-          "ch": "T",
+          "ch": "Y",
           "color": 8,
           "attr": 0,
           "decgfx": 0
         },
         "jsCell": {
-          "ch": "H",
+          "ch": "N",
           "color": 8,
           "attr": 0,
           "decgfx": 0
@@ -80,25 +193,25 @@
         "stepIndex": null
       },
       "cursor": {
-        "index": 130,
+        "index": 161,
         "location": {
           "segmentIndex": 0,
-          "stepIndex": 130,
-          "key": "."
+          "stepIndex": 161,
+          "key": "p"
         },
         "cCursor": [
-          77,
+          51,
           0,
           1
         ],
         "jsCursor": [
-          73,
-          0,
+          20,
+          10,
           1
         ]
       }
     },
-    "step": 130,
+    "step": 161,
     "kind": "screen",
     "sourceFile": null,
     "function": null,
@@ -106,28 +219,5 @@
     "cFile": null,
     "luaFile": null,
     "line": null
-  },
-  "summary": "This approach session reaches the same priest.c:intemple() name-formatting defect as the related no-carry Sanctum session. At step 130, C emits “The high priestess intones:” after clearing priest->ispriest and calling Monnam(); JavaScript clears ispriest but calls priestname() directly, whose ordinary-monster early return omits ARTICLE_THE and produces “High priestess intones:”. This is corroborating runtime evidence for the same divergence-fix scope, not a separate source task.",
-  "source": {
-    "file": "priest.c",
-    "functions": [
-      "priest.c:intemple()"
-    ],
-    "branch": "A visible, non-hallucinated hero teleports into a Sanctum TEMPLE room while a speaking high priestess is present and intone_time has elapsed. intemple() saves priest->ispriest, clears it for Monnam(), emits the introduction, then restores the value before scheduling the next intone.",
-    "callers": [
-      "teleport.c:teleds() calls spoteffects(TRUE) after relocation; hack.c:spoteffects() calls check_special_room(FALSE); hack.c:check_special_room() calls intemple() for an entered TEMPLE.",
-      "JavaScript mirrors this route through teleport.js:teleds(), hack.js:spoteffects(), rooms.js:check_special_room(), and priest.js:intemple()."
-    ],
-    "dependencies": [
-      "priest.c:intemple() calls do_name.c:Monnam(priest) after temporarily clearing ispriest. The existing canonical js/do_name.js:Monnam() delegates to x_monnam(), whose ordinary-species path retains ARTICLE_THE after the priest/minion special case no longer applies."
-    ]
-  },
-  "goalKind": "divergence-fix",
-  "evidence": [
-    "Queue actionable from 7 current sessions at SHA-256 8e3cc52f29759118832c5b4a20bc5b578638d7adccd7c89524d205a4916496ff records challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json at 671938b9bce6f6f152d2f38a1cc5b3db8e38e36c, with 2 remaining screens and first divergence at segment 0, step 130.",
-    "The recorded step 130 is input `.`. Its C RNG entry is d(10,500)=2204 at priest.c:443; the full recorded screen says “You materialize in a different location!  The high priestess intones:”. Queue comparison reports C row 0, column 42 as `T` and JavaScript as `H`, while all 7856 recorded C RNG calls still match at that first visual divergence.",
-    "nethack-c/upstream/src/priest.c:intemple() lines 430-444 temporarily sets priest->ispriest to zero for a visible non-hallucinated Sanctum introduction, then calls Monnam(priest) and restores the saved field. nethack-c/upstream/src/do_name.c:x_monnam() lines 876-885 bypasses its priestname() case after that temporary clear and applies ARTICLE_THE to mon_pmname(priest).",
-    "js/priest.js:intemple() lines 817-832 performs the temporary ispriest clear but directly calls priestname(priest, ARTICLE_THE, false) and highc(). js/priest.js:priestname() lines 718-722 returns mon_pmname() immediately when both ispriest and isminion are false, dropping the article. Use the existing Monnam(priest, state) at this caller.",
-    "The no-carry Sanctum companion v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst reaches the same C d(10,500) branch at step 73 and the same `T` versus `H` boundary. The two sessions therefore share priest.c:intemple and should be bundled under one fix."
-  ]
+  }
 }
