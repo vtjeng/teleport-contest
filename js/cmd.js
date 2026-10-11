@@ -234,6 +234,7 @@ import {
     ledger_no,
     on_level,
     recalc_mapseen,
+    rm_mapseen,
     u_on_rndspot,
 } from './dungeon.js';
 import {
@@ -2563,7 +2564,7 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
     if (pre) {
         await makemap_remove_mons(state);
         const ledger = ledger_no(state.u.uz, state);
-        note_unported('dungeon.c rm_mapseen');
+        rm_mapseen(ledger, state);
         state.context.achieveo ??= {};
         if (on_level(state.u.uz, state.mineend_level)) {
             if (remove_achievement(ACH_MINE_PRIZE, state))

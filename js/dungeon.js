@@ -2361,6 +2361,25 @@ function find_mapseen_by_str(value, state = game) {
     ) ?? null;
 }
 
+// C ref: dungeon.c rm_mapseen() (2665-2691). Remove the first overview node
+// for this bookkeeping ledger number. The C linked-list node owns its custom
+// annotation and final-resting-place chain; unlinking the JS array entry lets
+// the node and those nested values be reclaimed together.
+export function rm_mapseen(ledgerNumber, state = game) {
+    const mapseen = state.svm?.mapseenchn;
+    if (!mapseen) return;
+
+    for (let index = 0; index < mapseen.length; index += 1) {
+        const entry = mapseen[index];
+        const entryLedger = state.dungeons[entry.lev.dnum].ledger_start
+            + entry.lev.dlevel;
+        if (entryLedger !== ledgerNumber) continue;
+
+        mapseen.splice(index, 1);
+        return;
+    }
+}
+
 // C ref: dungeon.c init_mapseen() (2834-2872). An array represents C's linked
 // list while preserving its sorted dungeon-and-level order.
 export function init_mapseen(lev, state = game) {

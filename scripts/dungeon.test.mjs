@@ -83,6 +83,7 @@ import {
     print_mapseen,
     recbranch_mapseen,
     recalc_mapseen,
+    rm_mapseen,
     room_discovered,
     surface,
     u_on_newpos,
@@ -352,6 +353,68 @@ test('init_mapseen sorts records without erasing the departing map', () => {
     assert.equal(state.level.lastseentyp[0][0], FOUNTAIN);
     assert.equal(new GameMap().lastseentyp, undefined,
         'a separately allocated destination owns its clear remembered grid');
+});
+
+test('rm_mapseen removes the first node for its source ledger number', () => {
+    const cSource = readFileSync(
+        new URL('../nethack-c/upstream/src/dungeon.c', import.meta.url),
+        'utf8',
+    );
+    const cStart = cSource.indexOf('\nrm_mapseen(int ledger_num)');
+    const cEnd = cSource.indexOf('\nstaticfn void\nsave_mapseen', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'the complete upstream rm_mapseen definition is present');
+    const cFunction = cSource.slice(cStart, cEnd);
+    assert.match(cFunction,
+        /svd\.dungeons\[mptr->lev\.dnum\]\.ledger_start \+ mptr->lev\.dlevel\s*== ledger_num/u);
+    assert.match(cFunction, /if \(!mptr\)\s+return;/u);
+    assert.match(cFunction, /if \(mptr->custom\)\s+free\([^;]+mptr->custom/u);
+    assert.match(cFunction,
+        /bpnext = mptr->final_resting_place;\s+while \(\(bp = bpnext\) != NULL\)/u);
+    assert.match(cFunction, /mprev->next = mptr->next;/u);
+    assert.match(cFunction, /svm\.mapseenchn = mptr->next;/u);
+
+    const state = resetGame();
+    state.dungeons = [
+        { ledger_start: 0 },
+        { ledger_start: 20 },
+    ];
+    state.svm ??= {};
+    const head = { lev: { dnum: 0, dlevel: 1 } };
+    const removed = {
+        lev: { dnum: 1, dlevel: 1 },
+        custom: 'old level',
+        custom_lth: 9,
+        final_resting_place: { next: { next: null } },
+    };
+    const duplicate = { lev: { dnum: 1, dlevel: 1 } };
+    const tail = { lev: { dnum: 0, dlevel: 3 } };
+    state.svm.mapseenchn = [head, removed, duplicate, tail];
+
+    // C stops at the first matching node and unlinks it through its previous
+    // node; if duplicate data already exists, the later node remains.
+    rm_mapseen(21, state);
+    assert.deepEqual(state.svm.mapseenchn, [head, duplicate, tail]);
+
+    // The next matching node is now at the head, the C `mprev == NULL` arm.
+    rm_mapseen(21, state);
+    assert.deepEqual(state.svm.mapseenchn, [head, tail]);
+
+    // The no-match branch returns without replacing or mutating the chain.
+    const chain = state.svm.mapseenchn;
+    rm_mapseen(99, state);
+    assert.equal(state.svm.mapseenchn, chain);
+    assert.deepEqual(chain, [head, tail]);
+});
+
+test('makemap_prepost removes the old overview node before replacing a level', () => {
+    const cmdSource = readFileSync(
+        new URL('../js/cmd.js', import.meta.url),
+        'utf8',
+    );
+    assert.match(cmdSource,
+        /await makemap_remove_mons\(state\);\s+const ledger = ledger_no\(state\.u\.uz, state\);\s+rm_mapseen\(ledger, state\);/u);
+    assert.doesNotMatch(cmdSource, /note_unported\('dungeon\.c rm_mapseen'\)/u);
 });
 
 test('recalc_mapseen takes altar alignment from mimics and Astral sight', () => {
