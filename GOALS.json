@@ -277629,7 +277629,7 @@
     {
       "id": "div-monshoot-hallucinated-display-rng-v47-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Keep hallucinated monster missile naming and projectile glyphs on the injected display RNG in live and planned callers.",
       "cFile": "mthrowu.c",
       "sessions": [],
@@ -277641,8 +277641,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b43246ec1a9272603cd098324ed32ef2d3054292",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "monshoot",
       "session": "synthetic/v47/v47-hallucinated-monster-missile-name",
       "step": 106,
@@ -277859,7 +277862,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b43246ec1a9272603cd098324ed32ef2d3054292",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
