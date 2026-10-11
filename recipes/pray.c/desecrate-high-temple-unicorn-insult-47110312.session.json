@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47110312,
+      "datetime": "20581120121314",
+      "nethackrc": "OPTIONS=name:A2HighAltarRogue,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>J       gold piece\n#teleport\n   kkyyyyyyyy. #wizwish\ngray unicorn corpse\n #offer\ny     n   n n"
+    }
+  ],
+  "comment": "Independent C recording for pray.c:offer_negative_valued high-altar handling. The same chaotic Rogue reaches Astral’s neutral central sanctum; a wished gray unicorn corpse matches that altar alignment, so eval_offering returns -1 and the cross-alignment highaltar branch calls desecrate_altar. The space after the corpse wish clears its drop pager, y accepts the floor corpse, and the remaining spaces/n keys finish the helper retaliation and decline debug-mode death."
+}
