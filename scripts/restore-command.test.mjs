@@ -17,6 +17,16 @@ import { dorestore } from '../js/restore.js';
 import { welcomeBackMessage } from '../js/role_init.js';
 import { InMemoryStorage } from '../js/storage.js';
 
+const JS_MAIN_SOURCE = readFileSync('js/jsmain.js', 'utf8');
+
+test('successful restore checks the room immediately after welcome', () => {
+    const start = JS_MAIN_SOURCE.indexOf('if (await dorestore(g))');
+    const end = JS_MAIN_SOURCE.indexOf('// C ref: unixmain.c:266-272.', start);
+    const restorePath = JS_MAIN_SOURCE.slice(start, end);
+    assert.match(restorePath,
+        /await ttyPline\(welcomeBackMessage\(g\), g\);[\s\S]*?await check_special_room\(false, g\);/u);
+});
+
 // ── welcomeBackMessage unit tests ──
 
 // Rogue, human, female, chaotic -- no alignment/gender change.

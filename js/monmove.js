@@ -3642,7 +3642,10 @@ export async function postmov(
         }
         // C ref: monmove.c:1700-1702.  after_shk_move() re-enters the shop
         // for a shopkeeper that moved.
-        if (monster.isshk) after_shk_move(monster, state);
+        if (monster.isshk) await after_shk_move(monster, state, {
+            message,
+            random: random.rn2,
+        });
     }
     return outcome;
 }

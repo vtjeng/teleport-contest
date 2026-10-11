@@ -137,6 +137,14 @@ import {
 const ENGRAVE_C = readFileSync('nethack-c/upstream/src/engrave.c', 'utf8');
 const ENGRAVE_JS = readFileSync('js/engrave.js', 'utf8');
 const MONMOVE_C = readFileSync('nethack-c/upstream/src/monmove.c', 'utf8');
+const MONMOVE_JS = readFileSync('js/monmove.js', 'utf8');
+
+test('m_move awaits shopkeeper room checks after its source movement hooks', () => {
+    assert.match(MONMOVE_C,
+        /if \(mtmp->isshk\) \{\s*after_shk_move\(mtmp\);/u);
+    assert.match(MONMOVE_JS,
+        /if \(monster\.isshk\) await after_shk_move\(monster, state, \{\s*message,\s*random: random\.rn2,/u);
+});
 // mon_allowflags() is a mon.c function and lives in js/mon.js. Its cases stay
 // here because makeState() and ordinaryMonster() below build the level, hero
 // and species records they need, and mfndpos() -- the one caller C wrote it

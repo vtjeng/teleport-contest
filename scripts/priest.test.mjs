@@ -297,3 +297,17 @@ test('pri_move preserves altar draws then awaits its adjacent hostile attack', a
     assert.equal(settled, true);
     assert.deepEqual(order, ['rn1(3,-1)', 'rn1(3,-1)', 'attack']);
 });
+
+test('move_special checks the hero room after a shopkeeper enters its shop', () => {
+    const cStart = PRIEST_C_SOURCE.indexOf('move_special(struct monst *mtmp');
+    const cEnd = PRIEST_C_SOURCE.indexOf('\n}\n', cStart);
+    const cFunction = PRIEST_C_SOURCE.slice(cStart, cEnd);
+    assert.match(cFunction,
+        /place_monster\(mtmp, nix, niy\);\s*newsym\(nix, niy\);\s*if \(mtmp->isshk && !in_his_shop && inhishop\(mtmp\)\)\s*check_special_room\(FALSE\);/u);
+
+    const jsStart = PRIEST_JS_SOURCE.indexOf('export async function move_special(');
+    const jsEnd = PRIEST_JS_SOURCE.indexOf('// C ref: priest.c pri_move()', jsStart);
+    const jsFunction = PRIEST_JS_SOURCE.slice(jsStart, jsEnd);
+    assert.match(jsFunction,
+        /place_monster\(mtmp, nix, niy, state\);\s*redraw\(nix, niy\);\s*if \(mtmp\.isshk && !inHisShop\)[\s\S]*?await check_special_room\(false, state,/u);
+});

@@ -560,7 +560,7 @@ function onlineu(xx, yy, state) {
 // C ref: priest.c move_special(). Handles pathfinding for priests and
 // shopkeepers. Returns 1 (moved), 0 (didn't move), or -2 (died during
 // aggression).
-export function move_special(
+export async function move_special(
     mtmp, inHisShop, appr, uondoor, avoid,
     omx, omy, ggx, ggy, env = {},
 ) {
@@ -646,6 +646,16 @@ export function move_special(
         remove_monster(omx, omy, state);
         place_monster(mtmp, nix, niy, state);
         redraw(nix, niy);
+        if (mtmp.isshk && !inHisShop) {
+            const { inhishop } = await import('./shk.js');
+            if (inhishop(mtmp, state)) {
+                const { check_special_room } = await import('./rooms.js');
+                await check_special_room(false, state, {
+                    message: env.message ?? ttyPline,
+                    random: random.rn2,
+                });
+            }
+        }
         return 1;
     }
     return 0;
@@ -653,7 +663,7 @@ export function move_special(
 
 // C ref: priest.c pri_move(). Returns 1 (moved), 0 (didn't), -1 (let
 // m_move do it), or -2 (died). Called from m_move() for ispriest monsters.
-export function pri_move(priest, env = {}) {
+export async function pri_move(priest, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn1, rn2 };
 
@@ -679,18 +689,16 @@ export function pri_move(priest, env = {}) {
         && !resist_conflict(priest, state, random))) {
         if (monnear(priest, state.u.ux, state.u.uy, state)) {
             // priest.c:199-203 completes its discarded attack before returning.
-            return (async () => {
-                const displaced = state.u.uprops?.[DISPLACED];
-                if (displaced?.intrinsic || displaced?.extrinsic) {
-                    if (!env.planning)
-                        await (env.message ?? ttyPline)(
-                            `Your displaced image doesn't fool ${mon_nam(priest, state)}!`,
-                            state, env,
-                        );
-                }
-                await (env.attackHero ?? mattacku)(priest, { ...env, state });
-                return 0;
-            })();
+            const displaced = state.u.uprops?.[DISPLACED];
+            if (displaced?.intrinsic || displaced?.extrinsic) {
+                if (!env.planning)
+                    await (env.message ?? ttyPline)(
+                        `Your displaced image doesn't fool ${mon_nam(priest, state)}!`,
+                        state, env,
+                    );
+            }
+            await (env.attackHero ?? mattacku)(priest, { ...env, state });
+            return 0;
         }
         // The separate hostile pursuit arm remains outside this caller seam.
         throw new Error('pri_move: hostile priest pursuit unported');
