@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 58304273,
+      "datetime": "20450717123456",
+      "nethackrc": "OPTIONS=name:ResurrectionProbe,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none,playmode:debug\n",
+      "moves": " #wizgenesis\nWizard of Yendor\ny\u0017Amulet of Yendor\n  wand of teleportation\n#migratemons\n -1\n.#levelchange\n20\n                     \u0016?\n>>L  "
+    }
+  ],
+  "comment": "Independent Healer debug input creates a Wizard and the real Amulet, uses the debug migration command to put that existing Wizard in transit, then levelports to the Plane of Fire. The do.c goto_level endgame arrival calls wizard.c:resurrect(), whose existing-Wizard branch catches up and arrives the Wizard."
+}

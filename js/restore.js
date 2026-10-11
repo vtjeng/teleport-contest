@@ -9,6 +9,7 @@
 // message follow in the caller (jsmain.js).
 
 import { rest_region_capacity } from './region.js';
+import { mon_catchup_elapsed_time } from './dog.js';
 import {
     COLNO,
     COULD_SEE,
@@ -580,7 +581,7 @@ export async function getlev(ledger, state = game) {
 
         // C ref: restore.c:1212-1213. Non-ghostly elapsed-time catch-up.
         if (elapsed > 0) {
-            mon_catchup_elapsed_time(mtmp, elapsed);
+            mon_catchup_elapsed_time(mtmp, elapsed, { state });
         }
 
         // C ref: restore.c:1217. Update shape-changers.
@@ -610,72 +611,6 @@ export async function getlev(ledger, state = game) {
     // Drop the snapshot from the store; it's been restored. A future savelev()
     // will re-capture it.
     delete state._savedLevels[ledger];
-}
-
-// ── mon_catchup_elapsed_time ──
-//
-// C ref: dog.c mon_catchup_elapsed_time() (627-690). Adjusts a monster's
-// temporary-condition counters for the time the hero spent away from this
-// level. Each counter ticks down by the elapsed turns, stopping at 1 so
-// that movemon()'s own decrement takes the final step.
-//
-// The rn2() calls for mtrapped, mconf, and mstun match C's source and their
-// RNG draws are part of the game's deterministic sequence.
-function mon_catchup_elapsed_time(mtmp, nmv) {
-    let imv;
-    if (nmv >= 0x7FFFFFFF) {  // LARGEST_INT paranoia
-        imv = 0x7FFFFFFF - 1;
-    } else {
-        imv = Math.trunc(nmv);
-    }
-
-    // "might stop being afraid, blind or frozen"
-    // "set to 1 and allow final decrement in movemon()"
-    if (mtmp.mblinded) {
-        if (imv >= mtmp.mblinded) mtmp.mblinded = 1;
-        else mtmp.mblinded -= imv;
-    }
-    if (mtmp.mfrozen) {
-        if (imv >= mtmp.mfrozen) mtmp.mfrozen = 1;
-        else mtmp.mfrozen -= imv;
-    }
-    if (mtmp.mfleetim) {
-        if (imv >= mtmp.mfleetim) mtmp.mfleetim = 1;
-        else mtmp.mfleetim -= imv;
-    }
-
-    // C dog.c:670-675 makes conditional rn2() calls for mtrapped, mconf, and
-    // mstun. The port defers them: no development session has a trapped,
-    // confused, or stunned monster on a revisited level, so none fire. When a
-    // case exercises them, uncomment and import rn2.
-    //
-    // C ref: dog.c:670-675:
-    //   if (mtmp->mtrapped && rn2(imv + 1) > 40 / 2) mtmp->mtrapped = 0;
-    //   if (mtmp->mconf && rn2(imv + 1) > 50 / 2) mtmp->mconf = 0;
-    //   if (mtmp->mstun && rn2(imv + 1) > 10 / 2) mtmp->mstun = 0;
-    //
-    // These conditions are unlikely when elapsed is small (imv=1: rn2(2) > 20
-    // is always false). Skip them without calling rn2 when the monster lacks
-    // the status, matching C's guard.
-    // if (mtmp.mtrapped && rn2(imv + 1) > 20) mtmp.mtrapped = 0;
-    // if (mtmp.mconf && rn2(imv + 1) > 25) mtmp.mconf = 0;
-    // if (mtmp.mstun && rn2(imv + 1) > 5) mtmp.mstun = 0;
-
-    // C ref: dog.c:678-683. finish_meating / meating decrement.
-    if (mtmp.meating) {
-        if (imv > mtmp.meating) {
-            mtmp.meating = 0; // finish_meating() clears it
-        } else {
-            mtmp.meating -= imv;
-        }
-    }
-
-    // C ref: dog.c:684-688. mspec_used decrement.
-    if (imv > (mtmp.mspec_used ?? 0)) {
-        mtmp.mspec_used = 0;
-    } else {
-        mtmp.mspec_used = (mtmp.mspec_used ?? 0) - imv;
-    }
 }
 
 // ── hide_monst ──

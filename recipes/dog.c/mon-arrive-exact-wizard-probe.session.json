@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 58304272,
+      "datetime": "20450716123456",
+      "nethackrc": "OPTIONS=name:ExactArrivalProbe,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none,playmode:debug\n",
+      "moves": " #wizgenesis\nWizard of Yendor\ny\u00162\n\u00161\n"
+    }
+  ],
+  "comment": "Independent Healer debug input creates the Wizard, changes levels twice, and returns to the Wizard's saved level. Its keep_mon_accessible exact-coordinate migration exercises losedogs Before_you and dog.c:mon_arrive from the do.c level-transition caller."
+}

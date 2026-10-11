@@ -24,6 +24,7 @@ import {
     STRAT_WAITMASK,
     STRAT_WAITFORU,
     MM_NOMSG,
+    LARGEST_INT,
     u_at,
     helpless,
 } from './const.js';
@@ -163,7 +164,7 @@ function wizardAppearanceMessage(monster, state, displayRandom) {
     );
 }
 
-// C ref: wizard.c resurrect() (715-780), new-Wizard arm only. The generic
+// C ref: wizard.c resurrect() (715-780), new-Wizard arm. The generic
 // runtime constructor currently admits only its verified call shapes and does
 // not admit MM_NOWAIT or the Wizard species. Reuse its complete constructor by
 // selecting the source coordinate first, then temporarily using its mklev
@@ -176,7 +177,8 @@ export async function resurrect(state = game, rawEnv = {}) {
 
     state.context ??= {};
     const wizardCount = state.context.no_of_wizards ?? 0;
-    if (wizardCount) return null;
+    if (wizardCount)
+        return resurrectMigratingWizard(state, rawEnv);
 
     const species = state.mons?.[PM_WIZARD_OF_YENDOR];
     if (!species)
@@ -255,6 +257,62 @@ export async function resurrect(state = game, rawEnv = {}) {
         await message('A voice booms out...', state, rawEnv);
         await message(
             '"So thou thought thou couldst kill me, fool."',
+            state,
+            rawEnv,
+        );
+    }
+    return monster;
+}
+
+// The existing-Wizard arm of wizard.c resurrect(). Caller-supplied dog.c
+// operations keep the source file ownership explicit and avoid a module cycle.
+async function resurrectMigratingWizard(state, rawEnv) {
+    const arrive = rawEnv.monArrive;
+    const catchUp = rawEnv.monCatchupElapsedTime;
+    if (typeof arrive !== 'function' || typeof catchUp !== 'function') {
+        throw new TypeError(
+            'resurrect requires the dog.c arrival and catch-up operations',
+        );
+    }
+    const random = rawEnv.random ?? { rn2 };
+    state.gm ??= {};
+    let previous = null;
+    let monster = state.gm.migrating_mons ?? null;
+    while (monster) {
+        const next = monster.nmon;
+        const elapsed = state.moves - monster.mlstmv;
+        if (monster.iswiz && !mon_has_amulet(monster) && elapsed > 0) {
+            catchUp(monster, elapsed);
+            const boundedElapsed = Math.min(elapsed, LARGEST_INT - 1);
+            const recoveryTime = Math.trunc(boundedElapsed / 50);
+            if (monster.msleeping && random.rn2(recoveryTime + 1))
+                monster.msleeping = false;
+            if (monster.mfrozen === 1) {
+                monster.mfrozen = 0;
+                monster.mcanmove = true;
+            }
+            if (!helpless(monster)) {
+                if (previous) previous.nmon = next;
+                else state.gm.migrating_mons = next;
+                await arrive(monster);
+                if (!monster.mx) monster = null;
+                break;
+            }
+        }
+        previous = monster;
+        monster = next;
+    }
+
+    if (!monster) return null;
+    monster.mstrategy &= ~STRAT_WAITMASK;
+    monster.mtame = 0;
+    monster.mpeaceful = false;
+    set_malign(monster, state);
+    if (!heroIsDeaf(state)) {
+        const message = rawEnv.message ?? ttyPline;
+        await message('A voice booms out...', state, rawEnv);
+        await message(
+            '"So thou thought thou couldst elude me, fool."',
             state,
             rawEnv,
         );

@@ -4,11 +4,20 @@ import test from 'node:test';
 import {
     MIGR_EXACT_XY,
     MIGR_RANDOM,
+    COLNO,
+    ROWNO,
     MON_MIGRATING,
+    MON_STILL_ARRIVING,
+    ROOM,
 } from '../js/const.js';
 import { ledger_no } from '../js/dungeon.js';
 import {
-    keep_mon_accessible, keepdogs, migrate_to_level,
+    keep_mon_accessible,
+    keepdogs,
+    losedogs,
+    migrate_to_level,
+    mon_arrive,
+    mon_catchup_elapsed_time,
 } from '../js/dog.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
@@ -230,6 +239,158 @@ test('migration rejects other future lifecycle owners before item mutation', () 
         assert.deepEqual([monster.mx, monster.my], [MONSTER_X, MONSTER_Y]);
         assert.equal(state.level.monlist, monster);
     }
+});
+
+test('dog.c mon_catchup_elapsed_time updates conditions, healing, and last move', () => {
+    const state = migrationState();
+    const { monster } = onMapMonster(state);
+    Object.assign(monster, {
+        mblinded: 50,
+        mfrozen: 100,
+        mfleetim: 3,
+        mtrapped: true,
+        mconf: true,
+        mstun: true,
+        meating: 5,
+        mspec_used: 40,
+        mhp: 2,
+        mhpmax: 10,
+        mtame: 0,
+        mlstmv: 1,
+    });
+    const calls = [];
+    const values = [21, 26, 6];
+
+    mon_catchup_elapsed_time(monster, 50, {
+        state,
+        redraw: () => {},
+        random: {
+            rn2(range) {
+                calls.push(range);
+                return values.shift();
+            },
+        },
+    });
+
+    assert.deepEqual(calls, [51, 51, 51]);
+    assert.deepEqual(
+        [monster.mblinded, monster.mfrozen, monster.mfleetim],
+        [1, 50, 1],
+    );
+    assert.equal(monster.mtrapped, false);
+    assert.equal(monster.mconf, false);
+    assert.equal(monster.mstun, false);
+    assert.equal(monster.meating, 0);
+    assert.equal(monster.mspec_used, 0);
+    assert.equal(monster.mhp, 4);
+    assert.equal(monster.mlstmv, state.moves);
+});
+
+test('dog.c mon_arrive preserves the mounted-steed early return state', async () => {
+    const state = migrationState();
+    const { monster } = onMapMonster(state);
+    migrate_to_level(
+        monster,
+        ledger_no(CROSS_DUNGEON_DESTINATION, state),
+        MIGR_RANDOM,
+        null,
+        { state, newsym: () => {} },
+    );
+    state.gm.migrating_mons = null;
+    state.u.usteed = monster;
+    monster.my = 6;
+
+    await mon_arrive(monster, 'With_you', { state, redraw: () => {} });
+
+    assert.equal(state.level.monlist, monster);
+    assert.deepEqual([monster.mx, monster.my], [0, 6]);
+    assert.equal(monster.mstate & MON_MIGRATING, 0);
+    assert.notEqual(monster.mstate & MON_STILL_ARRIVING, 0);
+    assert.deepEqual(monster.mtrack.slice(0, 3), [
+        { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
+    ]);
+});
+
+test('failed Wizard arrival records the void limbo gap without throwing', async () => {
+    const state = migrationState();
+    const monster = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 4,
+        mhpmax: 4,
+    });
+    game.unported?.delete('dog.c migrate_to_level');
+
+    await assert.doesNotReject(() => mon_arrive(monster, 'Wiz_arrive', {
+        state,
+        random: { rn1: (_range, low) => low, rn2: () => 1 },
+    }));
+
+    assert.equal(state.level.monlist, monster);
+    assert.equal(monster.mstate & MON_STILL_ARRIVING, 0);
+    assert.equal(game.unported.has('dog.c migrate_to_level'), true);
+});
+
+test('dog.c losedogs places exact and random migrants in source order', async () => {
+    const state = migrationState();
+    for (let x = 1; x < COLNO - 1; ++x)
+        for (let y = 0; y < ROWNO; ++y)
+            state.level.at(x, y).typ = ROOM;
+    const first = onMapMonster(state).monster;
+    const second = newMonster({
+        data: state.mons[PM_YELLOW_LIGHT],
+        mhp: 4,
+        mhpmax: 4,
+        nmon: state.level.monlist,
+    });
+    state.level.monlist = second;
+    place_monster(second, MONSTER_X + 2, MONSTER_Y, state);
+    const destinationLedger = ledger_no(CURRENT_LEVEL, state);
+    migrate_to_level(first, destinationLedger, MIGR_EXACT_XY,
+        { x: MONSTER_X, y: MONSTER_Y }, { state, newsym: () => {} });
+    migrate_to_level(second, destinationLedger, MIGR_RANDOM,
+        null, { state, newsym: () => {} });
+    state.moves += 4;
+
+    await losedogs({
+        state,
+        random: {
+            rn1: (_range, low) => low,
+            rn2: () => 1,
+            rnd: () => 79,
+        },
+    });
+
+    assert.equal(state.gm.migrating_mons, null);
+    assert.equal(state.level.monlist, second);
+    assert.equal(second.nmon, first);
+    assert.notEqual(first.mstate & MON_STILL_ARRIVING, MON_STILL_ARRIVING);
+    assert.notEqual(second.mstate & MON_STILL_ARRIVING, MON_STILL_ARRIVING);
+});
+
+test('failed dog arrivals record the void limbo boundary without map access', async () => {
+    const state = migrationState();
+    state.gm.mydogs = null;
+    const { monster } = onMapMonster(state);
+    const destinationLedger = ledger_no(CURRENT_LEVEL, state);
+    migrate_to_level(monster, destinationLedger, MIGR_EXACT_XY,
+        { x: MONSTER_X, y: MONSTER_Y }, { state, newsym: () => {} });
+    state.moves += 2;
+
+    game.unported?.delete('dog.c migrate_to_level');
+    await assert.doesNotReject(() => losedogs({
+        state,
+        random: {
+            rn1: (_range, low) => low,
+            rn2: () => 1,
+            rnd: () => 1,
+        },
+    }));
+
+    assert.equal(state.level.monlist, monster);
+    assert.equal(state.gm.failed_arrivals, null);
+    assert.equal(state.level.monsters[0][monster.my], null);
+    assert.equal(monster.mstate & MON_STILL_ARRIVING, 0);
+    assert.equal(game.unported.has('dog.c migrate_to_level'), true);
 });
 
 test('a migrating light invalidates vision after leaving the map', () => {
