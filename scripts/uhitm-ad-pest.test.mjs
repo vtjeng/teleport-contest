@@ -15,10 +15,25 @@ import { find_delayed_killer } from '../js/end.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { AD_PEST, AT_TUCH, PM_ORC, PM_PESTILENCE } from '../js/monsters.js';
+import {
+    AD_DISE,
+    AD_PEST,
+    AT_TUCH,
+    PM_GHOUL,
+    PM_GREEN_DRAGON,
+    PM_JUIBLEX,
+    PM_ORC,
+    PM_PESTILENCE,
+    PM_RED_MOLD,
+    S_FUNGUS,
+} from '../js/monsters.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { diseasemu } from '../js/mhitu.js';
-import { mhitm_ad_pest, mhitm_adtyping } from '../js/uhitm.js';
+import {
+    mhitm_ad_dise,
+    mhitm_ad_pest,
+    mhitm_adtyping,
+} from '../js/uhitm.js';
 import { getRngLog } from '../js/rng.js';
 
 const UHITM_C = readFileSync(
@@ -26,6 +41,9 @@ const UHITM_C = readFileSync(
 );
 const MHITU_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8',
+);
+const MHITM_C = readFileSync(
+    new URL('../nethack-c/upstream/src/mhitm.c', import.meta.url), 'utf8',
 );
 const MONSTERS_H = readFileSync(
     new URL('../nethack-c/upstream/include/monsters.h', import.meta.url),
@@ -66,7 +84,10 @@ function addMonster(state, species, id, dx = 1, dy = 0) {
 }
 
 function sourceBody(source, name) {
-    const signature = source.indexOf(`${name}(`);
+    // A helper can be called before its definition in C, so find the function
+    // declaration at the start of a line rather than the first call site.
+    const match = new RegExp(`^${name}\\s*\\(`, 'mu').exec(source);
+    const signature = match?.index ?? -1;
     assert.notEqual(signature, -1, `${name} has a C definition`);
     const open = source.indexOf('{', signature);
     assert.notEqual(open, -1);
@@ -211,22 +232,129 @@ test('AD_PEST dispatch snapshots the attacker and keeps normal damage', async ()
     assert.match(messages[0], /reaches out, and you feel fever and chills\.$/u);
 });
 
-test('AD_PEST retains source-named void mhitm_ad_dise boundaries', async () => {
+test('mhitm_ad_dise preserves C monster defenses and ordinary damage', async () => {
+    const cBody = sourceBody(UHITM_C, 'mhitm_ad_dise');
+    assert.match(cBody,
+        /hero can't polymorph into anything with this attack/u);
+    assert.match(cBody,
+        /if\s*\(magr == &gy\.youmonst\)[\s\S]*?goto mhitm_dise;[\s\S]*?else if\s*\(mdef == &gy\.youmonst\)[\s\S]*?hitmsg\(magr, mattk\);[\s\S]*?if\s*\(!diseasemu\(pa\)\)\s*mhm->damage = 0;/u);
+    assert.match(cBody,
+        /pd->mlet == S_FUNGUS \|\| pd == &mons\[PM_GHOUL\][\s\S]*?defended\(mdef, AD_DISE\)[\s\S]*?mhm->damage = 0;/u);
+    for (const [monster, symbol] of [
+        ['Juiblex', 'JUIBLEX'],
+        ['Demogorgon', 'DEMOGORGON'],
+        ['Scorpius', 'SCORPIUS'],
+    ]) {
+        const start = MONSTERS_H.indexOf(`NAM("${monster}")`);
+        const end = MONSTERS_H.indexOf(`${symbol})`, start);
+        assert.notEqual(start, -1, `${monster} has a source definition`);
+        assert.notEqual(end, -1, `${monster} definition ends at ${symbol}`);
+        assert.match(MONSTERS_H.slice(start, end), /M2_NOPOLY/u,
+            `${monster}'s source attack cannot be selected by hero polymorph`);
+    }
+
+    // Seed 9300107 gives this fixture a fresh game before the disease guards
+    // are tested.
+    await startGame(9300107);
+    // IDs and neighboring offsets keep the monsters distinct while testing
+    // the fungus, exact-Ghoul, adult-dragon and ordinary branches.
+    const magr = addMonster(game, PM_PESTILENCE, 93017);
+    const redMold = addMonster(game, PM_RED_MOLD, 93018, 0, 1);
+    // Damage 36 is a nonzero sentinel that the S_FUNGUS guard must clear.
+    const fungusDamage = { damage: 36 };
+    await mhitm_ad_dise(magr,
+        { aatyp: AT_TUCH, adtyp: AD_DISE }, redMold, fungusDamage, game);
+    assert.equal(redMold.data.mlet, S_FUNGUS);
+    assert.equal(fungusDamage.damage, 0,
+        'C suppresses attack damage to every fungus-class monster');
+
+    const ghoul = addMonster(game, PM_GHOUL, 93019, -1, 0);
+    // Damage 12 makes the exact-PM_GHOUL damage reset observable.
+    const ghoulDamage = { damage: 12 };
+    await mhitm_ad_dise(magr,
+        { aatyp: AT_TUCH, adtyp: AD_DISE }, ghoul, ghoulDamage, game);
+    assert.equal(ghoulDamage.damage, 0,
+        'C also suppresses damage to the exact PM_GHOUL species');
+
+    const greenDragon = addMonster(game, PM_GREEN_DRAGON, 93020, 1, 1);
+    // Damage 18 is a nonzero sentinel for the AD_DISE scale-defense path.
+    const dragonDamage = { damage: 18 };
+    await mhitm_ad_dise(magr,
+        { aatyp: AT_TUCH, adtyp: AD_DISE }, greenDragon, dragonDamage, game);
+    assert.equal(dragonDamage.damage, 0,
+        'C treats an adult green dragon as its own disease-blocking scales');
+
+    const orc = addMonster(game, PM_ORC, 93021, 0, -1);
+    // Damage 12 distinguishes ordinary damage from each suppressing branch.
+    const ordinaryDamage = { damage: 12 };
+    await mhitm_ad_dise(magr,
+        { aatyp: AT_TUCH, adtyp: AD_DISE }, orc, ordinaryDamage, game);
+    assert.equal(ordinaryDamage.damage, 12,
+        'unprotected monsters retain the ordinary attack damage');
+});
+
+test('AD_DISE dispatch calls the source helper for monster pairs', async () => {
+    const dispatchBody = sourceBody(UHITM_C, 'mhitm_adtyping');
+    assert.match(dispatchBody,
+        /case AD_DISE:\s*mhitm_ad_dise\(magr, mattk, mdef, mhm\);\s*break;/u);
+    assert.match(sourceBody(MHITM_C, 'mdamagem'),
+        /mhitm_adtyping\(magr, mattk, mdef, &mhm\)/u);
+    assert.match(sourceBody(MHITU_C, 'hitmu'),
+        /mhitm_adtyping\(mtmp, mattk, &gy\.youmonst, &mhm\)/u);
+    assert.match(sourceBody(UHITM_C, 'damageum'),
+        /mhitm_adtyping\(&gy\.youmonst, mattk, mdef, &mhm\)/u);
+    assert.match(MONSTERS_H,
+        /NAM\("Juiblex"\)[\s\S]*?ATTK\(AT_ENGL, AD_DISE/u);
+    assert.match(MONSTERS_H,
+        /NAM\("Scorpius"\)[\s\S]*?ATTK\(AT_STNG, AD_DISE/u);
+
+    // Seed 9300108 and IDs 93021-93022 make the direct dispatcher fixture
+    // deterministic and keep its source monsters distinct.
+    await startGame(9300108);
+    const juiblex = addMonster(game, PM_JUIBLEX, 93021);
+    const redMold = addMonster(game, PM_RED_MOLD, 93022, 0, 1);
+    // The C mhitm_data defaults plus sentinel damage 40 make the fungus guard
+    // visible without changing the dispatcher inputs.
+    const mhm = { damage: 40, specialdmg: 0, done: false, hitflags: 0 };
+    await mhitm_adtyping(juiblex,
+        { aatyp: AT_TUCH, adtyp: AD_DISE }, redMold, mhm, game, {
+            unsupported: (reason) => assert.fail(reason),
+        });
+    assert.equal(mhm.damage, 0,
+        'the AD_DISE switch arm reaches the shared helper');
+    assert.equal(game.unported.has('mhitm_ad_dise'), false);
+});
+
+test('AD_PEST converts the monster-pair attack to AD_DISE behavior', async () => {
+    const cBody = sourceBody(UHITM_C, 'mhitm_ad_pest');
+    assert.match(cBody,
+        /alt_attk = \*mattk;\s*alt_attk\.adtyp = AD_DISE;\s*mhitm_ad_dise\(magr, &alt_attk, mdef, mhm\);/u);
+
+    // Seed 9300105 and IDs 93015-93023 set up distinct monsters for the
+    // Pestilence-to-fungus and Pestilence-to-ordinary-target paths.
     await startGame(9300105);
     game.unported.clear();
     const magr = addMonster(game, PM_PESTILENCE, 93015);
-    const mdef = addMonster(game, PM_ORC, 93016, -1, 0);
-    const mhm = { damage: 7, specialdmg: 0, done: false, hitflags: 0 };
+    const redMold = addMonster(game, PM_RED_MOLD, 93016, -1, 0);
+    const mhm = { damage: 36, specialdmg: 0, done: false, hitflags: 0 };
     const messages = [];
     const env = {
         unsupported: (reason) => assert.fail(reason),
         message: async (line) => messages.push(line),
     };
     await mhitm_ad_pest(magr,
-        { aatyp: AT_TUCH, adtyp: AD_PEST }, mdef, mhm, game, env);
-    assert.equal(game.unported.has('uhitm.c mhitm_ad_dise'), true);
-    assert.equal(mhm.damage, 7,
-        'the discarded void callee gap does not invent damage or resistance effects');
+        { aatyp: AT_TUCH, adtyp: AD_PEST }, redMold, mhm, game, env);
+    assert.equal(game.unported.has('uhitm.c mhitm_ad_dise'), false);
+    assert.equal(mhm.damage, 0,
+        'Pestilence’s copied AD_DISE attack reaches the fungus guard');
+
+    const orc = addMonster(game, PM_ORC, 93023, 0, 1);
+    // Damage 7 must remain unchanged for an ordinary defender.
+    const ordinaryDamage = { damage: 7, specialdmg: 0, done: false, hitflags: 0 };
+    await mhitm_ad_pest(magr,
+        { aatyp: AT_TUCH, adtyp: AD_PEST }, orc, ordinaryDamage, game, env);
+    assert.equal(ordinaryDamage.damage, 7,
+        'the helper leaves normal damage unchanged for ordinary monsters');
 
     game.unported.clear();
     const impossibleHeroAttack = {
@@ -237,12 +365,14 @@ test('AD_PEST retains source-named void mhitm_ad_dise boundaries', async () => {
     assert.equal(impossibleHeroState.youmonst, impossibleHeroAttack,
         'C tests identity against &gy.youmonst, not species equality');
     game.u.uprops[SICK].intrinsic = 0;
+    // Damage 7 is cleared by the source hero goto into the fungus guard.
+    const impossibleDamage = { damage: 7 };
     await mhitm_ad_pest(impossibleHeroAttack,
-        { aatyp: AT_TUCH, adtyp: AD_PEST }, mdef, mhm,
+        { aatyp: AT_TUCH, adtyp: AD_PEST }, redMold, impossibleDamage,
         impossibleHeroState, env);
-    assert.equal(game.unported.has('uhitm.c mhitm_ad_dise'), true);
-    assert.equal(mhm.damage, 7,
-        'the hero-attacker branch retains the source void-callee boundary');
+    assert.equal(game.unported.has('uhitm.c mhitm_ad_dise'), false);
+    assert.equal(impossibleDamage.damage, 0,
+        'the source goto shares the monster-pair fungus guard');
     assert.equal(game.u.uprops[SICK].intrinsic, 0,
         'the impossible attack does not run the monster-to-hero disease arm');
     assert.deepEqual(messages, [],
