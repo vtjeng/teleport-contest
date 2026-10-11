@@ -1,0 +1,64 @@
+{
+  "session": "synthetic/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+  "corpus": "synthetic",
+  "batch": "v47",
+  "caseId": "v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+  "manifestPath": "challenges/manifests/v47.json",
+  "manifestSha256": "1477974e87becdf484ee24d23333bbecbc039fac1fce53c89ec18ab612d627ef",
+  "recordingPath": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.session.json",
+  "recordingSha256": "055b0d2e456aa6703b9dacaeec95c64c71341abd4426922d7ec5bedce561cf6a",
+  "recipePath": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.recipe.session.json",
+  "recipeSha256": "7c7e1f77eb5b2072191acdd690fcf7d5de9b40279737ebf2c37af3c4e7e9a969",
+  "evaluationPath": "challenges/evaluations/baseline-a6e3a17cc-v47.json",
+  "evaluationCommit": "a6e3a17ccec81295850d6e03e10d9a4353b25c54",
+  "queueSha256": "2e8b3e804b97958332bd671398c4be5bc87ed1064c8a2f90de33c0b1adf2cd58",
+  "examinedCommit": "13f47fbd46de30d0daed953a5b2e175218e35ddd",
+  "remainingScreens": 2,
+  "recordedSteps": 61,
+  "status": "investigation",
+  "mismatch": {
+    "session": "synthetic/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+    "remainingScreens": 2,
+    "step": 59,
+    "boundary": 60,
+    "key": ".",
+    "screen": {
+      "row": 10,
+      "column": 51,
+      "c": { "ch": "!", "color": 3, "attr": 0, "decgfx": 0 },
+      "js": { "ch": "*", "color": 5, "attr": 0, "decgfx": 0 }
+    },
+    "cursor": {
+      "c": [70, 0, 1],
+      "js": [70, 0, 1]
+    },
+    "rng": { "matched": 2759, "cTotal": 2765, "jsTotal": 2759 },
+    "cursors": { "matched": 61, "total": 61 }
+  },
+  "summary": "Killing the Wizard of Yendor reaches mon.c:m_detach(), where the JavaScript caller still refuses the Wizard-specific bookkeeping. C decrements the live Wizard count, marks the hero demigod once, and draws rn1(250,50); the first RNG difference and resulting status-screen mismatch occur during the kill command.",
+  "source": {
+    "file": "wizard.c",
+    "branch": "wizdeadorgone() (812-822) unconditionally decrements svc.context.no_of_wizards; only on the first call before u.uevent.udemigod is set does it set that event flag and assign u.udg_cnt = rn1(250, 50). The function is impure through state writes and the conditional random draw.",
+    "functions": [
+      "wizard.c:wizdeadorgone"
+    ],
+    "caller": "mon.c:m_detach() (2733-2803), after mon_leaving_level() and mtmp->mhp = 0, invokes wizdeadorgone() whenever mtmp->iswiz, before the due_to_death branch and its relobj()/nemesis/leader effects. mondead() (3080-3177) reaches m_detach(mtmp, mptr, TRUE); mongone() (3267-3283) reaches m_detach(mdef, mdef->data, FALSE). The function therefore handles both death and removal alive.",
+    "productionRoutes": [
+      "Selected death route: wizard-mode #wizgenesis creates the Wizard of Yendor; #wizkill selects it and invokes wizcmds.c:wiz_kill() -> xkilled() -> mondead() -> m_detach() -> wizdeadorgone(). JavaScript command dispatch is cmd.js -> wizcmds.js:wiz_kill() -> mon.js:xkilled() -> mondead() -> m_detach().",
+      "Live-removal route requiring independent recorded evidence: #wizgenesis creates the Wizard, then #wizmakemap invokes cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons() -> makemap_unmakemon() -> mongone() -> m_detach() -> wizdeadorgone(). The corresponding JS route exists in cmd.js:makemap_prepost() -> wizcmds.js:makemap_remove_mons()/wiz_makemap() -> mon.js:mongone() -> m_detach()."
+    ],
+    "javascriptAtBase": "js/wizard.js has no wizdeadorgone implementation. js/mon.js:m_detach() currently calls its unsupported handler for iswiz in finishDetach(), which runs after the due-to-death relobj path; this is both missing behavior and the wrong source order. js/mon.js:mongone() has a second obsolete note_unported('end.c wizdeadorgone') shim. Port the C function in js/wizard.js, invoke it at the C source location before death effects, and remove both placeholders.",
+    "dependencies": [
+      "wizdeadorgone() has no C return-value dependencies; rn1() already exists in js/rng.js and the wizard.js source family imports it.",
+      "mon.c:m_detach() is the only direct C caller. Keep its integration in this task and preserve the call for both due_to_death values; no makemap source implementation is required because the JS makemap removal route is already present.",
+      "A wizard.js -> mon.js import already exists while mon.js will need to call the new wizard.js function. Verify the ESM cycle at focused-test/runtime time and retain synchronous source ordering; do not hide the source action behind an unawaited promise."
+    ]
+  },
+  "goalKind": "file-port",
+  "selectionReason": "Selected from the admitted v47 saved queue at SHA-256 2e8b3e804b97958332bd671398c4be5bc87ed1064c8a2f90de33c0b1adf2cd58 as an unreserved wizard.c mismatch. The annotation is source-correct: the complete missing owner is wizard.c:wizdeadorgone(), with its sole direct caller mon.c:m_detach().",
+  "evidence": [
+    "The v47 baseline evaluation at commit a6e3a17ccec81295850d6e03e10d9a4353b25c54 records this session at 59/61 screens, 2759/2765 RNG calls, and 61/61 cursors. The first mismatching action is step 59, key '.', killing the Wizard of Yendor; C's source trace logs rn2(250)=156 at wizard.c:820, the implementation of rn1(250,50).",
+    "Upstream wizard.c:812-822 defines the whole function. Upstream mon.c:2756-2762 places its only call immediately after mon_leaving_level() and setting mhp to zero, before the death-only branch. mondead and mongone are the production callers of m_detach for death and live removal respectively.",
+    "At the examined C worktree commit, js/mon.js:m_detach() still refuses the iswiz branch and calls it later than the C source order; js/mon.js:mongone() still records note_unported('end.c wizdeadorgone'). js/wizard.js has no implementation. The selected recording exercises the death route; a second independent recording is required to establish the live-removal route through #wizmakemap."
+  ]
+}
