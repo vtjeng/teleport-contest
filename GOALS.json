@@ -276854,6 +276854,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-pray-desecrate-altar-v47-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port altar desecration and wire every active caller",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v47/v47-earthquake-desecrates-generated-altar"
+      ],
+      "selectionReason": "The largest remaining accepted v47 mismatch has a complete current investigation selecting whole pray.c:desecrate_altar. The admitted earthquake route stops at step 195 before the missing helper; active digactualhole and three high-altar offering callers require the same source-ordered alignment, message, godvoice, and retaliation effects.",
+      "detail": "Port pray.c:desecrate_altar lines 1501-1523 and wire music.c:do_earthquake, dig.c:digactualhole, pray.c:offer_negative_valued, pray.c:sacrifice_your_race, and pray.c:offer_corpse. Verify the admitted v47 earthquake range and independent recordings for every other active caller.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "desecrate_altar",
+          "line": 1501,
+          "endLine": 1528,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1501,
+        "to": 1528
+      },
+      "syntheticProvenance": {
+        "synthetic/v47/v47-earthquake-desecrates-generated-altar": {
+          "session": "synthetic/v47/v47-earthquake-desecrates-generated-altar",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-earthquake-desecrates-generated-altar",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-earthquake-desecrates-generated-altar-attempt6-trap-avoided.session.json",
+          "recordingSha256": "49625b455cd146909fa6fe22482b9c1e8c2234bda49b786eef003bcbe04c67a0",
+          "evaluationPath": "challenges/evaluations/accepted-47ce6cdb703dac648a39587abe9512daf2ee2e50-v47.json",
+          "evaluationCommit": "47ce6cdb703dac648a39587abe9512daf2ee2e50"
+        }
+      }
     }
   ]
 }
