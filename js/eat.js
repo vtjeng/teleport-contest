@@ -49,6 +49,7 @@ import {
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
+    GD_EATGOLD,
     GLIB,
     Has_contents,
     IRONBARS,
@@ -161,6 +162,7 @@ import { is_ice,
     is_pool_or_lava,
 } from './dbridge.js';
 import { note_unported } from './unported.js';
+import { vault_gd_watching } from './vault.js';
 import { unpunish } from './read.js';
 import { heroDeaf, livelog_printf, verbalize, youHear } from './pline.js';
 import {
@@ -4028,9 +4030,7 @@ async function eatspecial(state, env) {
             await useupall(otmp, env);
         else
             await useupf(otmp, otmp.quan, env);
-        // The watcher result is discarded by C. Its source owner is not
-        // ported, so do not invent a shop update for eaten gold.
-        note_unported('vault.c vault_gd_watching');
+        vault_gd_watching(GD_EATGOLD, state);
         return;
     }
 

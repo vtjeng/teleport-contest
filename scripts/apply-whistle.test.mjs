@@ -7,7 +7,9 @@ import {
     HALLUC,
     HALLUC_RES,
     PLNMSG_enum,
+    ROOMOFFSET,
     STRANGLED,
+    VAULT,
 } from '../js/const.js';
 import * as M from '../js/monsters.js';
 import { TIN_WHISTLE, objects_globals_init } from '../js/objects.js';
@@ -117,6 +119,24 @@ test('ordinary whistles do not wake underwater and deaf whistles still do', asyn
     assert.equal(deafEvents[0][0], 'message');
     assert.match(deafEvents[0][1], /^You feel rushing air tickle your /);
     assert.deepEqual(deafEvents[1], ['wake', true]);
+});
+
+test('a cursed tin whistle starts the guard timer only inside a vault', async () => {
+    const state = whistleState();
+    state.u.urooms = [ROOMOFFSET, 0, 0, 0, 0];
+    state.u.uz = { dnum: 0, dlevel: 2 };
+    state.level.rooms = [{ rtype: VAULT }];
+    state.gm = { migrating_mons: null };
+    state.level.monlist = null;
+    state.u.uinvault = 0;
+
+    await use_whistle(tinWhistle(state, { cursed: true }), state, {
+        message: async () => {},
+        wakeNearby: async () => {},
+    });
+
+    assert.equal(state.u.uinvault, 29,
+        'apply.c:use_whistle calls vault_summon_gd after waking nearby monsters');
 });
 
 test('use_magic_whistle preserves cursed vibration draws before relocation', async () => {
