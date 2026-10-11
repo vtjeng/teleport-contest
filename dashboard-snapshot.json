@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T04:11:07.087Z",
+  "capturedAt": "2026-10-11T04:27:34.378Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -86291,6 +86291,72 @@
         "type": "accepted",
         "at": "2026-10-11T04:10:32.358Z",
         "task": "C-investigation-v43-wiz-loca-special-program-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v43-wiz-loca-special-program-20261011-7c3f855add6e1461ad9a9526bc98d4d09bf6a081",
+        "type": "published",
+        "at": "2026-10-11T04:11:15.806Z",
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
+        "commit": "7c3f855add6e1461ad9a9526bc98d4d09bf6a081"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c-idle-after-stair-accept-20261011",
+        "type": "turn",
+        "at": "2026-10-11T04:11:18.032Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C is synced to accepted Main and available after the refreshed queue is published."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-prayer-5f2f280bf",
+        "type": "received",
+        "at": "2026-10-11T04:16:07.759Z",
+        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011",
+        "delivery": "5f2f280bf6c2c72c3fa744e9aed8a478699a723a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-prayer-c7271e507",
+        "type": "integrating",
+        "at": "2026-10-11T04:19:19.542Z",
+        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011",
+        "integration": "c7271e507384b244820f4b96872f6bc085862a85"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-prayer-c7271e507",
+        "type": "validated",
+        "at": "2026-10-11T04:25:44.033Z",
+        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011-c7271e507384b244820f4b96872f6bc085862a85-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T04:26:39.488Z",
+        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-active-sync-prayer-accepted-20261011",
+        "type": "turn",
+        "at": "2026-10-11T04:27:00.724Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is syncing accepted prayer Main and preserving the delivery ancestry."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-prayer-acceptance-sync-20261011",
+        "type": "turn",
+        "at": "2026-10-11T04:27:19.167Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B synced accepted prayer Main and is idle, waiting for the refreshed queue."
       }
     ]
   },
@@ -86307,17 +86373,6 @@
         "blockedBy": [
           "A2-investigation-v43-mounted-steed-stair-descent-20261011"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011",
-        "worker": "B",
-        "goal": "port-priest-angry-priest-sacrifice-v43-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "5f2f280bf6c2c72c3fa744e9aed8a478699a723a",
-        "since": "2026-10-11T03:36:16.312Z",
-        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -86689,8 +86744,8 @@
     ]
   },
   "development": {
-    "executionCommit": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
-    "measuredAt": "2026-10-11T04:09:08.946Z",
+    "executionCommit": "c7271e507384b244820f4b96872f6bc085862a85",
+    "measuredAt": "2026-10-11T04:25:07.109Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
