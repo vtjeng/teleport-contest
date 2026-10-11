@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first extended-command entry to cmd.c:dotelecmd. Seed 72061103 and the 2046-10-11 clock are newly chosen; debug Wizard mode permits teleportation without an intrinsic, and the three observed spaces dismiss the location prompt/help before h. selects a nearby floor square.",
+  "segments": [
+    {
+      "seed": 72061103,
+      "datetime": "20461011113000",
+      "nethackrc": "OPTIONS=name:DoteleExt,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#teleport\n   h."
+    }
+  ]
+}

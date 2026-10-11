@@ -1456,9 +1456,9 @@ export async function drown(state = game) {
     if (teleports && !unaware
         && (teleportControl || rn2(3) < (u.uluck ?? 0) + 2)) {
         await ttyPline('You attempt a teleport spell.', state);
-        const { noteleport_level, tele } = await import('./teleport.js');
+        const { dotele, noteleport_level } = await import('./teleport.js');
         if (!noteleport_level(state.youmonst, state)) {
-            await tele(state);
+            await dotele(false, state);
             if (!is_pool(u.ux, u.uy, state)) return true;
         } else {
             await ttyPline('The attempted teleport spell fails.', state);
