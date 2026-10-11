@@ -276879,8 +276879,8 @@
           "name": "desecrate_altar",
           "line": 1501,
           "endLine": 1528,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -277156,7 +277156,127 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "desecrate_altar",
+            "implementation": "js/pray.js",
+            "symbol": "desecrate_altar",
+            "sourceReview": "Read the complete pray.c:desecrate_altar() definition at lines 1501-1523. The helper first applies adjalign(-20) and increments u.ugangr by 5 when altaralign matches u.ualign.type, then emits the charged-air and noticed-by-deity messages, selects High Temple versus altar in the godvoice text from highaltar, calls godvoice, and finally calls god_zaps_you. The JavaScript follows the same branch, message, and call order. It consumes no return value from its callees; adjalign, align_gname, godvoice, and god_zaps_you have existing JavaScript owners. The helper itself makes no direct RNG call, but is impure because it changes alignment/anger state and emits output.",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_earthquake",
+                "source": "music.c:do_earthquake():428 calls desecrate_altar(FALSE, algn) from the ALTAR case after preserving sanctums and deriving the altar alignment, before do_pit()."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "digactualhole",
+                "source": "dig.c:digactualhole():721 calls desecrate_altar(FALSE, old_aligntyp) after hero-caused removal of an altar and before post-trap creation effects."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_negative_valued",
+                "source": "pray.c:offer_negative_valued():1595 calls desecrate_altar(highaltar, altaralign) when the offered item has negative value at a misaligned high altar."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "sacrifice_your_race",
+                "source": "pray.c:sacrifice_your_race():1715 calls desecrate_altar(highaltar, altaralign) for a qualifying same-race corpse offered at a high altar."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_corpse",
+                "source": "pray.c:offer_corpse():2021 calls desecrate_altar(highaltar, altaralign) for a positive-valued corpse offered at a high altar of another alignment."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs",
+              "scripts/music.test.mjs",
+              "scripts/dig.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/digactualhole-wished-altar-47110318.session.json",
+              "recordings/pray.c/desecrate-high-temple-own-race-47110313.session.json",
+              "recordings/pray.c/desecrate-high-temple-positive-corpse-47110312.session.json",
+              "recordings/pray.c/desecrate-high-temple-unicorn-insult-47110312.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-earthquake-desecrates-generated-altar",
+                "segment": 0,
+                "fromStep": 195,
+                "throughStep": 197,
+                "source": "music.c:do_earthquake ALTAR case -> pray.c:desecrate_altar(FALSE, algn) -> godvoice -> god_zaps_you"
+              }
+            ],
+            "checkedAt": "eadc0fc849d645064bed69c9162a4bab6e9ccd4b"
+          }
+        ],
+        "entryPointReview": "The selected source unit is the whole pray.c:desecrate_altar() helper. All five active direct call sites are wired: music.c:do_earthquake, dig.c:digactualhole, and pray.c:offer_negative_valued, sacrifice_your_race, and offer_corpse. The admitted v47 recording covers the earthquake caller. Four independent recipes/recordings cover digactualhole and each of the three high-altar offering branches; the latter exercise highaltar=true at the neutral Astral High Temple. The source evidence for each recording is named in its entry point below.",
+        "entryPoints": [
+          {
+            "name": "Earthquake collapses a non-sanctum altar",
+            "functions": [
+              "desecrate_altar"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-earthquake-desecrates-generated-altar",
+                "segment": 0,
+                "fromStep": 195,
+                "throughStep": 197,
+                "source": "music.c:do_earthquake ALTAR case -> pray.c:desecrate_altar(FALSE, algn)"
+              }
+            ]
+          },
+          {
+            "name": "Hero-caused altar destruction in digactualhole",
+            "functions": [
+              "desecrate_altar"
+            ],
+            "recordings": [
+              "recordings/pray.c/digactualhole-wished-altar-47110318.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Same-race corpse sacrifice at a high altar",
+            "functions": [
+              "desecrate_altar"
+            ],
+            "recordings": [
+              "recordings/pray.c/desecrate-high-temple-own-race-47110313.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Positive-valued corpse offering at a high altar",
+            "functions": [
+              "desecrate_altar"
+            ],
+            "recordings": [
+              "recordings/pray.c/desecrate-high-temple-positive-corpse-47110312.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Negative-valued unicorn offering at a high altar",
+            "functions": [
+              "desecrate_altar"
+            ],
+            "recordings": [
+              "recordings/pray.c/desecrate-high-temple-unicorn-insult-47110312.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
