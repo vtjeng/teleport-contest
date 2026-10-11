@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000847,
+      "datetime": "20561011142307",
+      "nethackrc": "OPTIONS=name:V44WishedHole,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\nj  #wizwish\nhole\n>",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first Stronghold fall route using the source-defined wizard terrain wish: at the Stronghold, wish for a hole on the hero square, then issue the down command. C should either create the hole and reach do.c:dodown -> dungeon.c:goto_hell(FALSE, TRUE), or explain why Can_fall_thru prevents this setup."
+}

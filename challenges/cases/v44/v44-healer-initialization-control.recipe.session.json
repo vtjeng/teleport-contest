@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Setup control retaining the exact seed, clock, and role from the Hea-fila failed differential but stopping before #wizloaddes to locate the lregion type 3 error boundary.",
+  "segments": [
+    {
+      "seed": 44000002,
+      "datetime": "20540202111213",
+      "nethackrc": "OPTIONS=name:healer-fill,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ""
+    }
+  ]
+}

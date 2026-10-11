@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000306,
+      "datetime": "20540716171819",
+      "nethackrc": "OPTIONS=name:V44QuestOffering,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nhostile Neferet the Green\ny#wizmap\n#wizwish\nThe Eye of the Aethiopica\n#chat\nl",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first quest artifact offering probe: force the Wizard leader Neferet through wizard genesis, wish her quest artifact, then use #chat toward her. The recording determines whether the current quest-state preconditions admit chat_with_leader/finish_quest or block the route."
+}

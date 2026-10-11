@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000703,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44QuestCycle,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>y  #wizkill\n  mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm\u001b",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-only source-target selection probe for the role-generated Neferet on Wiz-strt; cycle #wizkill monster targets without selecting one, to identify the source-placed leader."
+}

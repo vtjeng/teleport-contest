@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000702,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44QuestEntry,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>y  #wizkill\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhk.\u001b",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Target the source-placed Neferet directly in actual Wiz-strt: the level arrival is at (63,6), Wiz-strt.lua places Neferet at (23,5), and wizard getpos moves west 40 and north 1 before selecting."
+}

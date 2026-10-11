@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000854,
+      "datetime": "20561014192309",
+      "nethackrc": "OPTIONS=name:V44MagicbaneProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n30\n                             \u0017Magicbane\n.\u0007hostile stone giant\nwokkl l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l ",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected Magicbane C-first route. From the observed northeast spawn, step north once and attack east with a space to dismiss each confirmed More page. Count only if C reaches artifact.c:Mb_hit MB_INDEX_PROBE -> probe_monster."
+}

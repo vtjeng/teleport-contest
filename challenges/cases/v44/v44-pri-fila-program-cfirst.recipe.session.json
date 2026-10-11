@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000403,
+      "datetime": "20541013141516",
+      "nethackrc": "OPTIONS=name:V44Priest,role:Priest,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nPri-fila.lua\n#wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first independent whole-program candidate: load and display Pri-fila.lua, preserving its role-specific generated layout and source-declared content."
+}

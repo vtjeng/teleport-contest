@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000896,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44QuestRealLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                   #wizlevelport\n?\n>y  #wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Preserved C-only coordinate probe after the pager-corrected Wizard quest-start route. Load Wiz-strt through #wizlevelport, dismiss its two story pages, and display the complete source level map before choosing an adjacent hero coordinate for Neferet."
+}

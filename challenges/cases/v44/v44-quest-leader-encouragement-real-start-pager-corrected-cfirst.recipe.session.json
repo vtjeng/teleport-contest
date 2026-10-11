@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000895,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44QuestRealLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                   #wizlevelport\n?\n>y  #teleport\n  lllllllllllllllljjjj.#chat\nl#chat\nl",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first follow-up to the preserved pager-miss probe: set Wizard to level 20, load dat/Wiz-strt.lua, clear the two observed controlled-teleport pages, target the source-mapped tile immediately west of Neferet (dat/Wiz-strt.lua des.monster coord 23,5 plus lspo_map offset), then request two audiences for quest.c chat_with_leader Rule 4."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000801,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44StrongholdTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\nj  #wizmap\nluyykkkkullnbbnnjjjjbh",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first Stronghold falling-trap route probe. Load the Stronghold/Castle map, reveal its fixed geometry, then reach the nearby mapped trap at screen coordinate (74,14) from the right-side arrival room. The observed trap type determines whether this reaches do.c:dotrap -> dungeon.c:goto_hell; retain it as setup evidence if the random entry-side trap is a different type."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000876,
+      "datetime": "20580124173612",
+      "nethackrc": "OPTIONS=name:V44SanctumOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsanctum.lua\n#wizmap\n#wizwish\nAmulet of Yendor\n \nnothing\n#teleport\n y  hjjj.#offer\np"
+    }
+  ],
+  "comment": "C-first no-kill route: #wizloaddes loads Sanctum, the real Amulet is created and its pickup wish is declined; from the C-observed world start (22,6), controlled teleport selects source-local altar (18,8) at absolute (21,9), then #offer selects Amulet inventory letter p."
+}

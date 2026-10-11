@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000502,
+      "datetime": "20550318192021",
+      "nethackrc": "OPTIONS=name:V44KnightSteed,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizmap\n#ride\nly#wizwish\nuncursed potion of polymorph\nqi",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first corrected mounted polymorph route: #wizmap showed the starting horse east of the Knight; #ride uses direction l, then the wizard wishes a polymorph potion and immediately begins the quaff selector."
+}

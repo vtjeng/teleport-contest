@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000849,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44NemesisSpeaks,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\npeaceful Dark One\ny.",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first automatic quest nemesis speech: generate the Wizard role’s PM_DARK_ONE peacefully next to the hero, then wait without #chat so monmove.c:dochug -> quest_talk -> quest.c:nemesis_speaks is the first quest interaction."
+}

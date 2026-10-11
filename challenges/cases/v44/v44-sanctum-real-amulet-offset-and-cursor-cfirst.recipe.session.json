@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000876,
+      "datetime": "20580124173612",
+      "nethackrc": "OPTIONS=name:V44SanctumOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsanctum.lua\n#wizmap\n#wizkill\n  lllllllllllljjjj.y #wizwish\nAmulet of Yendor\n \nnothing\n#teleport\nlllllllllllljjjj.#offer\np"
+    }
+  ],
+  "comment": "C-first target correction: sanctum.lua des.map centers at xstart=3,ystart=1, while getpos screen cursor includes a one-cell terminal offset from game x/y. From the hero at game (9,5), source altar/monster local (18,8) is absolute (21,9), reached with 12 east/4 south cursor inputs. Clear its barbed devil, create/decline the Amulet wishes, teleport, and offer inventory p."
+}

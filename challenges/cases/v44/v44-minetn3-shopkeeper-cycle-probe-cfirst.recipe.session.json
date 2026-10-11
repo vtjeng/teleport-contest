@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000828,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44AlleyTargetProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nminetn-3.lua\n#wizmap\n#wizkill\n  mmmmmmmmmm\u001b"
+    }
+  ],
+  "comment": "C-only Alley Town shopkeeper discovery: cycle #wizkill getpos over visible monsters on the source-defined shop level without selecting a target, recording each monster name and coordinate to determine whether the home_shk route is available without moving into a shop."
+}

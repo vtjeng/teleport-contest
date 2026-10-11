@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000815,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44MineTownScout,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>w  #wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-only Minetown source-variant selection probe; inspect the generated variant map to seek a live shop without reusing v41 minetn-5."
+}

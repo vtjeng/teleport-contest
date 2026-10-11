@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000602,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44EnergyDrain,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\ntame energy vortex\n#wizgenesis\nhostile arch-lich\n#wizmap\n.....",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first mhitm_ad_dren candidate: create a tame energy vortex and hostile spellcasting arch-lich in the same room, then allow monster turns so C can confirm whether the vortex drains the lich’s energy/cooldown."
+}

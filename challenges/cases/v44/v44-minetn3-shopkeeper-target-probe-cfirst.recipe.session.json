@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000828,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44AlleyTargetProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nminetn-3.lua\n#wizmap\n#wizkill\n  m\u001b"
+    }
+  ],
+  "comment": "C-only Alley Town target probe: after loading minetn-3.lua and showing the map, enter #wizkill's first-use getpos mode and cycle to the nearest monster without selecting it. Use the returned monster name/location to assess whether shopkeeper home behavior is cheaply reachable; ESC preserves the live keeper."
+}

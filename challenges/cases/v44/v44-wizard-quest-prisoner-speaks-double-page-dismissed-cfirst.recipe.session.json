@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000871,
+      "datetime": "20571122201019",
+      "nethackrc": "OPTIONS=name:V44PrisonerSelect,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-goal.lua\n#teleport\n  hhhhhhhhhhhhhjjj."
+    }
+  ],
+  "comment": "Second pager-corrected C-first attempt for quest.c:prisoner_speaks. Dismiss both the teleport question page and getpos tip, move the selection from (49,8) to the source-defined floor at (36,11) adjacent to the awake prisoner at (35,11), and accept the teleport destination."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000844,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44Encourage4,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                   #wizgenesis\npeaceful Neferet the Green\ny#wizmap\n#chat\nl",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first quest Rule 4 route with corrected level-up pages and map-confirmed direction: the Wizard reaches level 20, creates peaceful Neferet, then selects her eastward with l for the initial audience. Verify the assignment state and pager before adding the second audience."
+}

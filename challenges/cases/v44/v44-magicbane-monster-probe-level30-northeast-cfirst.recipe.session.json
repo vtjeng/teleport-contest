@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000854,
+      "datetime": "20561014192309",
+      "nethackrc": "OPTIONS=name:V44MagicbaneProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n30\n                             \u0017Magicbane\n.\u0007hostile stone giant\nwokkllllllllllllllllllllllllllllllllllllllllllllllll",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected C-first Magicbane route. The saved C screen puts the stone giant diagonally northeast; move north once to align, then attack east. Count only if C reaches artifact.c:Mb_hit MB_INDEX_PROBE -> probe_monster."
+}

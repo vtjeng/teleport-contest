@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000876,
+      "datetime": "20580124173612",
+      "nethackrc": "OPTIONS=name:V44SanctumOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsanctum.lua\n#wizmap\n#wizkill\n  lllllllljj.y #wizwish\nAmulet of Yendor\n \nnothing\n#teleport\n y  lllllllljj.#offer\no"
+    }
+  ],
+  "comment": "C-first target setup: load and reveal Sanctum; use the already-ported #wizkill command to clear the barbed devil occupying the high altar at (18,8); create the real Amulet, decline its pickup wish, then use controlled wizard teleport to the cleared altar and #offer it."
+}

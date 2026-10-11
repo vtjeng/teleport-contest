@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Completed C-first create-monster scroll route. After the observed wished scroll j is read, clear the C more prompt and display the resulting map so the create-monster effect and placement are visible.",
+  "segments": [
+    {
+      "seed": 44000201,
+      "datetime": "20540611121314",
+      "nethackrc": "OPTIONS=name:V44CreateMon,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nuncursed scroll of create monster\n rj #wizmap\n"
+    }
+  ]
+}

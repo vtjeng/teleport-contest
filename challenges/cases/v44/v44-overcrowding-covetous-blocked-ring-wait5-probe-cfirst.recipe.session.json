@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000834,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44OvercrowdingWait5,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "8#wizgenesis\ntame gnome\n  #wizgenesis\nhostile Wizard of Yendor\ny....."
+    }
+  ],
+  "comment": "C-only overcrowding reachability attempt 2: reuse the count-generated tame monster ring, force a hostile Wizard of Yendor, and wait five actions so the source tactics branch gets repeated opportunities for rn2(5) -> mnexto -> deal_with_overcrowding. Retain as source evidence whether or not relocation is reached."
+}

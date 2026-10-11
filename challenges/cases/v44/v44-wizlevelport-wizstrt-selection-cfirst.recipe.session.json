@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000702,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44QuestEntry,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>y",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first route to the actual Wizard quest-start special level: use level_tele’s destination menu, advance to page 2, and select Wiz-strt. The recording establishes the source-generated quest entry/leader state before any follow-up action."
+}

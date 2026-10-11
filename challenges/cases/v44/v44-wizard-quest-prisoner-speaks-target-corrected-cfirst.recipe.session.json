@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000872,
+      "datetime": "20571223114408",
+      "nethackrc": "OPTIONS=name:V44PrisonerTarget,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-goal.lua\n#teleport\n  lllllllkk."
+    }
+  ],
+  "comment": "Coordinate-corrected C-first route for quest.c:prisoner_speaks. After the teleport prompt and getpos help are both dismissed, select (36,11) using seven east/two north movements from C's observed initial cursor (29,13), adjacent to Wiz-goal.lua's awake captive prisoner at (35,11)."
+}

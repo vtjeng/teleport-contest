@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000306,
+      "datetime": "20540716171819",
+      "nethackrc": "OPTIONS=name:V44QuestOffering,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nhostile Neferet the Green\ny#wizmap\n#wizwish\nThe Eye of the Aethiopica\n #chat\ny",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first corrected quest artifact offer: answer the source wizard-genesis force query, wish the Eye, dismiss its More page, then actually dispatch #chat and choose northwest from the recorded map. Preserve the C quest-status outcome."
+}

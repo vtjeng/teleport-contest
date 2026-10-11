@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000305,
+      "datetime": "20540715161718",
+      "nethackrc": "OPTIONS=name:V44QuestLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nhostile Neferet the Green\n#wizmap\n#wizkill\n  m.y \u001b",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first leaddead branch probe: create the role-specific Neferet species through wizard genesis, reveal its map position, then use wiz_kill and the getpos monster selector to verify the exact target/death source path."
+}

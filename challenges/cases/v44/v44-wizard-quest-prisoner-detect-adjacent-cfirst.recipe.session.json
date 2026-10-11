@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000872,
+      "datetime": "20571223114408",
+      "nethackrc": "OPTIONS=name:V44PrisonerTarget,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-goal.lua\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhj.#wizdetect\n"
+    }
+  ],
+  "comment": "Use the accepted (36,11) target route, then apply wizard detection near the captive cells to determine whether Wiz-goal.lua's random monsters displaced the fixed prisoner from its source coordinate before pursuing quest.c:prisoner_speaks."
+}
