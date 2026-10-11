@@ -1,0 +1,93 @@
+{
+  "session": "synthetic/v47/v47-itemactions-adjust-stack-egg-split",
+  "corpus": "synthetic",
+  "batch": "v47",
+  "caseId": "v47-itemactions-adjust-stack-egg-split",
+  "manifestPath": "challenges/manifests/v47.json",
+  "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+  "recordingSha256": "a7526166f2dcfafdf4a8c9907d557dc5991aa6b3e292945e360348a29455eba9",
+  "evaluationPath": "challenges/evaluations/baseline-a6e3a17cc-v47.json",
+  "evaluationCommit": "a6e3a17ccec81295850d6e03e10d9a4353b25c54",
+  "remainingScreens": 214,
+  "recordedSteps": 247,
+  "status": "complete",
+  "commit": "a7ffb6fdcd4230a51335aec0bb9011ef10c40ee3",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v47",
+    "caseId": "v47-itemactions-adjust-stack-egg-split",
+    "session": "synthetic/v47/v47-itemactions-adjust-stack-egg-split",
+    "manifestPath": "challenges/manifests/v47.json",
+    "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+    "recording": "challenges/cases/v47/v47-timed-egg-stack-split-attempt6.session.json",
+    "recordingPath": "challenges/cases/v47/v47-timed-egg-stack-split-attempt6.session.json",
+    "recordingSha256": "a7526166f2dcfafdf4a8c9907d557dc5991aa6b3e292945e360348a29455eba9",
+    "recipe": "challenges/cases/v47/v47-timed-egg-stack-split-attempt6.recipe.session.json",
+    "recipeSha256": "bb69cf5aeea16d7f9b7aa2c2e7d90719244e2727e8e412f0d1e0a13d5a0b9699",
+    "replayInputSha256": "7c7c10f06e50785384e44bb2af327a5607f2de8ad0ddec73a73619667d9c88bb",
+    "evaluationPath": "challenges/evaluations/baseline-a6e3a17cc-v47.json",
+    "evaluationCommit": "a6e3a17ccec81295850d6e03e10d9a4353b25c54",
+    "evaluationArtifact": "challenges/evaluations/baseline-a6e3a17cc-v47.json",
+    "evaluationUtc": "2026-10-11T20:47:25.561Z",
+    "remainingScreens": 214,
+    "recordedSteps": 247,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 33,
+        "total": 247
+      },
+      "rng": {
+        "matched": 4619,
+        "total": 5176
+      },
+      "cursors": {
+        "matched": 33,
+        "total": 247
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+      "step": 33
+    },
+    "step": 33,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Selecting “Adjust inventory by splitting this stack” queues the internal altadjust row and its inventory letter. C cmd.c:rhack executes the queued row’s function pointer, but JS rhack has no queued adjust_split branch and falls through to its generic unsupported-command boundary before invent.c:adjust_split runs. The direct extended-command switch and existing adjust_split/splitobj owners are already present; the missing behavior is the queued function-pointer dispatch and its ECMD result handling.",
+  "source": {
+    "file": "cmd.c",
+    "branch": "When a non-gold object stack has quantity greater than one, iactions.c:itemactions offers IA_ADJUST_STACK on I. Selecting it queues the altadjust extcmd row and the object inventory letter. The row has a null ef_txt and ef_funct=adjust_split, so C cmd.c:rhack must dispatch that queued function pointer before reading another user key. JS currently normalizes the queued row to adjust_split, but the main rhack path has no corresponding queued-function branch.",
+    "functions": [
+      "rhack"
+    ],
+    "callers": [
+      "allmain.c:moveloop_core enters cmd.c:rhack(0) for normal hero input and queued-command dispatch.",
+      "invent.c:ddoinv -> invent.c:dispinv_with_action -> iactions.c:itemactions -> iactions.c:itemactions_pushkeys(IA_ADJUST_STACK) queues adjust_split and the selected inventory letter; this is the recorded entry path.",
+      "invent.c:doI -> query_objlist -> iactions.c:itemactions can reach the same IA_ADJUST_STACK menu and queues the same function pointer."
+    ],
+    "dependencies": [
+      "The existing js/invent.js:adjust_split implementation remains the canonical callee; it consumes the result of mkobj.c:splitobj and then calls doorganize_core.",
+      "The existing js/obj.js:splitobj implementation and its next_ident, inventory insertion, and split-context behavior are already source-pinned; the mismatch occurs before this code runs.",
+      "The existing js/iactions.js:itemactions_pushkeys branch queues extcmdRow(altadjust) followed by the inventory letter; the missing dispatch belongs in js/cmd.js:rhack."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved combined queue SHA-256 is 2e8b3e804b97958332bd671398c4be5bc87ed1064c8a2f90de33c0b1adf2cd58. Its v47 entry identifies 214 remaining screens of 247, with 33/247 screens, 4619/5176 RNG values, and 33/247 cursors matched at the baseline evaluation. The original stop is zero-based recording step 33 (manifest boundary 34), input I.",
+    "The admitted recording challenges/cases/v47/v47-timed-egg-stack-split-attempt6.session.json shows C opening the item-actions menu at step 32 with “Adjust inventory by splitting this stack” on I. At step 33 C prints “Split 1 to what [o-zA-Z] (? see used letters)?” and records rnd(2)=2 at mkobj.c:next_ident; step 34 selects z and prints “Splitting: z - an egg.” The recipe itself states the later 180-turn wait is only a retained egg-hatch target probe.",
+    "Upstream iactions.c:itemactions() offers IA_ADJUST_STACK only for quan>1 and non-COIN_CLASS at lines 467-469. itemactions_pushkeys() lines 195-198 queues adjust_split, then otmp->invlet. invent.c:dispinv_with_action() reaches itemactions after the selected inventory letter; invent.c:ddoinv() is the recorded caller.",
+    "Upstream cmd.c:rhack() lines 3639-3648 pops CMDQ_EXTCMD and jumps to do_cmdq_extcmd; lines 3681-3686 uses the queued extcmd table row; lines 3717-3720 assigns tlist->ef_funct and lines 3753-3755 call (*func)(). cmd.c:2062 defines altadjust with a null key/text and adjust_split as ef_funct.",
+    "The current JS replay of the admitted recording through js/jsmain.js:runSegment stops at the same point with UnsupportedHeroCommandBoundaryError, key 0; the inventory remains at slot n with quan=2 and context.ident remains 63. js/iactions.js:299 queues extcmdRow(altadjust) and the selected invlet; js/extcmdlist_data.js:209 maps altadjust to adjust_split. In js/cmd.js:5424 rhack falls back from ef_txt to ef_funct, and it has a doorganize queued-function arm at lines 5662-5671 but no adjust_split arm before its generic fallback at lines 6520-6534.",
+    "The direct JS extended-command switch already has case adjust_split at js/cmd.js:5102, and js/invent.js:adjust_split plus js/obj.js:splitobj are present. Existing scripts/cmd.test.mjs:3793 covers IA_ADJUST_OBJ queue dispatch, but no focused test exercises IA_ADJUST_STACK through the real inventory-menu, queue, adjust_split, and destination-letter sequence. The implementation scope is therefore a bounded cmd.c:rhack divergence fix with production-path coverage, not a new adjust_split or splitobj port."
+  ]
+}
