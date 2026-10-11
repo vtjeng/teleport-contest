@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026032,
+      "datetime": "20581011132700",
+      "nethackrc": "OPTIONS=name:V45MimicDetach,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nsmall mimic\n#wizkill\n  u."
+    }
+  ],
+  "comment": "C-first source candidate for mon.c:mon_leaving_level -> seemimic during detachment of a disguised small mimic. Wizard removal targets the source-observed northeast mimic square, whether it appears as an object or monster glyph."
+}

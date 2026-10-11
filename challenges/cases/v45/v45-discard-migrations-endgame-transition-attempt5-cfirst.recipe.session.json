@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction of the Amulet bonus-wish/pager boundaries. After wishing the real Amulet, dismiss its More and answer the source-granted bonus wish with a harmless healing potion; dismiss the potion message, send one monster to D:2 using #migratemons with its observed report boundary, then select N - earth from Ctrl-V. Preserve all setup and transition screens.",
+  "segments": [
+    {
+      "seed": 45024505,
+      "datetime": "20581013132300",
+      "nethackrc": "OPTIONS=name:V45DiscardEndgame3,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nAmulet of Yendor\n  \nuncursed potion of healing\n #migratemons\n 1\n\u0016?\n  N"
+    }
+  ]
+}

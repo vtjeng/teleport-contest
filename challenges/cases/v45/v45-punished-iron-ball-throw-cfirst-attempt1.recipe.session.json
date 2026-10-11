@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first attempt 1 for dothrow.c:throwit -> ball.c:drop_ball. The immediately preceding C inventory probe showed the wished uncursed punishment scroll in slot o; read that observed slot and inspect the inventory/map before choosing how to relocate or throw the punished ball. No JavaScript comparison has run.",
+  "segments": [
+    {
+      "seed": 45101202,
+      "datetime": "20581010102600",
+      "nethackrc": "OPTIONS=name:V45BallThrow,role:Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\nro i"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026031,
+      "datetime": "20581011132600",
+      "nethackrc": "OPTIONS=name:V45MimicDetach,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nsmall mimic\n#wizkill\n  l."
+    }
+  ],
+  "comment": "C-first source candidate for mon.c:mon_leaving_level -> seemimic during detachment of a disguised small mimic. The C creation message and map show the mimic disguised as a scroll immediately east of the hero; wizard removal selects that observed square."
+}

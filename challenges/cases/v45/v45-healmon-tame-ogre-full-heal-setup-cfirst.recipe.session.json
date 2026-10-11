@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052007,
+    "datetime": "20561207131617",
+    "nethackrc": "OPTIONS=name:V45HealOgre,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": " \u0007tame ogre\n\u0017wand of striking\n\u0017potion of full healing\nz o j i",
+    "recorderIsDst": true
+  }],
+  "comment": "C-only source correction: NetHack has no wand of healing, and the previous wish returned a random wand. Use the source-supported thrown full-healing potion -> potion.c:potionhit -> mon.c:healmon path after a striking-wand injury, then inspect C-observed slots."
+}

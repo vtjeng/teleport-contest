@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052004,
+    "datetime": "20561204101314",
+    "nethackrc": "OPTIONS=name:V45Leash,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": "\u0007tame dog\n\u0017leash\ni",
+    "recorderIsDst": true
+  }],
+  "comment": "C-first source candidate setup for dog.c:check_leash: create a tame dog, wish leash, and inspect the C-observed inventory and initial geometry before selecting the leash."
+}

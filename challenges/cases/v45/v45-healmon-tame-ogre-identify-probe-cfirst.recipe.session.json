@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052007,
+    "datetime": "20561207131617",
+    "nethackrc": "OPTIONS=name:V45HealOgre,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": " \u0007tame ogre\n\u0017wand of striking\n\u0017wand of healing\n#wizidentify\n",
+    "recorderIsDst": true
+  }],
+  "comment": "C-only inventory identification probe after the ogre route exposed an unexpected probing effect; #wizidentify reveals actual types before further selector correction. Preserve the earlier two-strike trial."
+}

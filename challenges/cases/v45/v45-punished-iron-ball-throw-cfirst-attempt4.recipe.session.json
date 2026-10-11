@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first attempt 4 corrects the observed pickup pager boundary: use slot o, dismiss the punishment pager, invoke pickup, dismiss the lifting message pager, and inspect the resulting inventory.",
+  "segments": [
+    {
+      "seed": 45101202,
+      "datetime": "20581010102600",
+      "nethackrc": "OPTIONS=name:V45BallThrow,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\nro , i"
+    }
+  ]
+}

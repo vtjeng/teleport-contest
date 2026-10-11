@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only attempt 6 locates the actual plane monster after southwest was a floor tile. From the #wizkill cursor at the hero, probe each adjacent cursor direction with its opposite to return to the origin; preserve exact C descriptions to select only a confirmed Wizard of Yendor. No gameplay input or JavaScript comparison follows this scout.",
+  "segments": [
+    {
+      "seed": 45101205,
+      "datetime": "20581010131400",
+      "nethackrc": "OPTIONS=name:V45EarthCaveScout,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #wizmap\n#wizkill\n  lhnyjkbuhlkjubyn\u001bi"
+    }
+  ]
+}

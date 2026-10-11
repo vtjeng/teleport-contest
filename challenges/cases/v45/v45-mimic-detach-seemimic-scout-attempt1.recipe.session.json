@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026029,
+      "datetime": "20581011132400",
+      "nethackrc": "OPTIONS=name:V45MimicScout,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizgenesis\nsmall mimic\n#wizmap\n"
+    }
+  ],
+  "comment": "C-first source scout for mon.c:mon_leaving_level -> seemimic during detachment of a disguised mimic. Inspect C map and appearance before constructing the separate removal action."
+}

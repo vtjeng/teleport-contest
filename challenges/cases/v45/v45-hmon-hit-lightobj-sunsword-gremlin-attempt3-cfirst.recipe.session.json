@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024711,
+      "datetime": "20591017141613",
+      "nethackrc": "OPTIONS=name:V45LightGremlin,role:Valkyrie,race:dwarf,gender=female,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nSunsword\nwe #wizgenesis\nhostile gremlin\n#wizmap\nFb"
+    }
+  ],
+  "comment": "C-first corrected Sunsword-light setup. Attempt2 confirmed wielded Sunsword is lit and the gremlin spawned southwest; this recipe forcefights down-left without spending a turn after the target is generated."
+}

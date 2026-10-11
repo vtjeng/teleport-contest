@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Vrock gas setup probe. Generate a hostile vrock beside the level-1 Wizard and reveal the map with #wizmap so a follow-up can choose an exact attack path into uhitm.c:hmon -> monmove.c:monflee's Vrock gas call.",
+  "segments": [
+    {
+      "seed": 45024532,
+      "datetime": "20581013132800",
+      "nethackrc": "OPTIONS=name:V45VrockCloud,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nhostile vrock\n#wizmap\n"
+    }
+  ]
+}

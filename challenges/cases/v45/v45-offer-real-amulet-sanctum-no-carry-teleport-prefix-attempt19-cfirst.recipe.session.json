@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024720,
+      "datetime": "20610318151617",
+      "nethackrc": "OPTIONS=name:V45SanctumOfferBare,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n?\n>v #wizmap\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkk. #wizkill\n  ll. lj. \u001bll#wizwish\nAmulet of Yendor\n  potion of "
+    }
+  ],
+  "comment": "Truncated recorder diagnostic for attempt18. The original C run stopped after 154 of 170 input keys; this preserves its reached prefix for source inspection and is not a candidate recording."
+}

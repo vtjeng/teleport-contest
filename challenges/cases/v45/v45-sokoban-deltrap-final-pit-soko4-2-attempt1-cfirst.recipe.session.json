@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Sokoban completion setup: load soko4-2.lua with #wizloaddes and reveal its trap topology. The intended behavior is the last non-hero-made pit removed through trap.c:deltrap -> maybe_finish_sokoban; the loaded source has many puzzle pits, so this records whether a compact route exists.",
+  "segments": [
+    {
+      "seed": 45024535,
+      "datetime": "20581013133100",
+      "nethackrc": "OPTIONS=name:V45SokoRemoval,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nsoko4-2.lua\n#wizmap\n"
+    }
+  ]
+}

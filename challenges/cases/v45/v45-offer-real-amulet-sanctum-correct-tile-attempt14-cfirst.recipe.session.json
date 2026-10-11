@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024583,
+      "datetime": "20601215151617",
+      "nethackrc": "OPTIONS=name:V45SanctumOfferCorrectTile,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>v #wizmap\n#wizwish\nAmulet of Yendor\n  potion of healing\n#wizkill\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkk. #teleport\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkk.#offer\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Attempt13 showed the selected tile at terminal cursor (18,10), two columns west of the source altar at (18,8), which renders at terminal (20,10). With the same levelport seed and C-confirmed arrival location (67,13), this attempt adjusts the monster selector and controlled teleport to move west 47 and north 3; the high priest is removed before selecting the altar tile."
+}

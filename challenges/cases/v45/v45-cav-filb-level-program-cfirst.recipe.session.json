@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052011,
+    "datetime": "20561211101111",
+    "nethackrc": "OPTIONS=name:V45CavFilb,role:Caveman,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": " #wizloaddes\nCav-filb.lua\n#wizmap\n",
+    "recorderIsDst": true
+  }],
+  "comment": "C-first whole-program replacement for the source-dead reset_hostility helper. Load the unrepresented Cav-filb.lua program under its own role so C shows its source-defined mines map."
+}

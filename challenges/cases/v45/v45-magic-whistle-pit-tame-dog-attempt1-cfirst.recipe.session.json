@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45025141,
+      "datetime": "20581011131800",
+      "nethackrc": "OPTIONS=name:V45MagicWhistlePit,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\ntame dog\n#wizmap\n#wizwish\npit\n#wizmap\nl..i"
+    }
+  ]
+}

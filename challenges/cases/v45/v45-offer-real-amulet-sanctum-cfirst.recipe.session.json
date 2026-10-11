@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate for pray.c:dosacrifice -> offer_real_amulet at the Sanctum high altar. Load the upstream Sanctum program, record its map and hero arrival, then continue only with C-observed movement and the #offer path. This is separate from v42 Sanctum map generation and the quest completion/dialogue cases.",
+  "segments": [
+    {
+      "seed": 45101201,
+      "datetime": "20581010094100",
+      "nethackrc": "OPTIONS=name:V45SanctumOffer,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsanctum.lua\n#wizmap\n"
+    }
+  ]
+}

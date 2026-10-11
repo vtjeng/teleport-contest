@@ -179,7 +179,9 @@ import {
     y_monnam, obj_pmname,
 } from './do_name.js';
 import { setwornEnv } from './do_wear.js';
-import { keepdogs, losedogs, update_mlstmv } from './dog.js';
+import {
+    keepdogs, losedogs, mon_arrive, mon_catchup_elapsed_time, update_mlstmv,
+} from './dog.js';
 import { can_reach_floor, engr_at } from './engrave.js';
 import { make_grave } from './grave.js';
 import { fruitname, makeplural } from './fruit.js';
@@ -3156,7 +3158,15 @@ export async function goto_level(
         } else if (newdungeon && u.uhave?.amulet) {
             // C resurrect() returns no value and is already the canonical
             // caller for this arm.
-            await resurrect(state, { makemon, redraw: newsym });
+            await resurrect(state, {
+                makemon,
+                redraw: newsym,
+                monArrive: (monster) => mon_arrive(monster, 'Wiz_arrive', {
+                    state,
+                }),
+                monCatchupElapsedTime: (monster, elapsed) =>
+                    mon_catchup_elapsed_time(monster, elapsed, { state }),
+            });
         }
     } else if (In_quest(u.uz)) {
         // C ref: do.c:1891-1892.

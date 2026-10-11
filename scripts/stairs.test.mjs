@@ -29,6 +29,7 @@ import {
     stairway_add,
     stairway_at,
     stairway_find_dir,
+    stairway_find,
     stairway_find_special_dir,
     u_on_sstairs,
 } from '../js/stairs.js';
@@ -61,6 +62,12 @@ test('the stairway list answers every stairs.c lookup', () => {
 
     assert.equal(stairway_at(7, 8).sy, 8);
     assert.equal(stairway_at(1, 1), null);
+    assert.deepEqual(
+        [stairway_find({ dnum: 0, dlevel: 2 }).sx,
+            stairway_find({ dnum: 0, dlevel: 2 }).sy],
+        [7, 8],
+    );
+    assert.equal(stairway_find({ dnum: 4, dlevel: 1 }), null);
     assert.equal(On_stairs(4, 5), true);
     assert.equal(On_stairs(4, 6), false);
     // The list is newest-first, so the branch stairway added last wins.

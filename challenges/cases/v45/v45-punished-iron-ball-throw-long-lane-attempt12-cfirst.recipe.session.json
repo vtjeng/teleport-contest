@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Long-lane refinement of the reached `dothrow.c:throwit -> ball.c:drop_ball` route. In the deterministic starter room, open the observed north door before throwing carried ball slot g north; this tests a multi-square thrown-ball landing where drop_ball can reposition the hero and chain rather than the one-square matching control.",
+  "segments": [
+    {
+      "seed": 45101207,
+      "datetime": "20581010102600",
+      "nethackrc": "OPTIONS=name:V45BallThrowBarbarian,role=Barbarian,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\nrf , oktgk"
+    }
+  ]
+}

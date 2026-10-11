@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026030,
+      "datetime": "20581011132500",
+      "nethackrc": "OPTIONS=name:V45MimicDetach,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nsmall mimic\n#wizmap\n#wizkill\n  ulll."
+    }
+  ],
+  "comment": "C-first source candidate for mon.c:mon_leaving_level -> seemimic during detachment of a disguised small mimic. The observed generated mimic square is three east and one north of the hero; the getpos selection targets that square for wizard removal."
+}

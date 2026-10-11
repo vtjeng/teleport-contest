@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only cursor correction. The earlier attempt selected a floor tile; the adjacent farlook cursor scan records the Wizard of Yendor at (71,5), directly south of the hero at (71,4). Select only this C-confirmed monster, then stop before any JS comparison.",
+  "segments": [
+    {
+      "seed": 45101205,
+      "datetime": "20581010131400",
+      "nethackrc": "OPTIONS=name:V45EarthCaveScout,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #wizmap\n#wizkill\n  j.\u001bi"
+    }
+  ]
+}

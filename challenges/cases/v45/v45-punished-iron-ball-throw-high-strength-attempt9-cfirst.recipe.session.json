@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected selector from C observation: the wished scroll is in slot f for this Barbarian inventory. Read it, dismiss the punishment pager, pick up the chained iron ball, dismiss the weight pager, then select it from throw and send it west.",
+  "segments": [
+    {
+      "seed": 45101208,
+      "datetime": "20581010102600",
+      "nethackrc": "OPTIONS=name:V45BallThrowBarbarian,role=Barbarian,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\nrf , tph"
+    }
+  ]
+}

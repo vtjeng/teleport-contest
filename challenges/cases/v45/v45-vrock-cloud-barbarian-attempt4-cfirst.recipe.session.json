@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Vrock retreat attempt. Use a Barbarian start for stronger melee, create a sleeping hostile Vrock adjacent to the hero, then repeatedly attack the direction identified from the immediate C screen. This bypasses the earlier map-screen route.",
+  "segments": [
+    {
+      "seed": 45024578,
+      "datetime": "20581013132800",
+      "nethackrc": "OPTIONS=name:V45VrockCloudB,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nsleeping hostile vrock\nuuuuuuuu"
+    }
+  ]
+}

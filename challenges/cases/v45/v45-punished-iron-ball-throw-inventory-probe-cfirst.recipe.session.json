@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only inventory and punishment setup probe for the planned dothrow.c:throwit -> ball.c:drop_ball candidate. Wish a punishment scroll with fresh independent inputs, then inspect the actual item slot before writing the throw route; this probe is not a JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 45101202,
+      "datetime": "20581010102600",
+      "nethackrc": "OPTIONS=name:V45BallThrowProbe,role:Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\ni"
+    }
+  ]
+}

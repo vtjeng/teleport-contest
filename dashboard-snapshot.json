@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T06:32:26.384Z",
+  "capturedAt": "2026-10-11T08:29:11.417Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -86852,6 +86852,334 @@
         "type": "accepted",
         "at": "2026-10-11T06:31:43.032Z",
         "task": "B-investigation-v44-magicbane-monster-probe-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v44-magicbane-monster-probe-20261011-6924f9fe77f5f291348d4ec7b8be6ea747e9c8d8",
+        "type": "published",
+        "at": "2026-10-11T06:32:35.222Z",
+        "task": "B-investigation-v44-magicbane-monster-probe-20261011",
+        "commit": "6924f9fe77f5f291348d4ec7b8be6ea747e9c8d8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-b567-sync-20261011",
+        "type": "turn",
+        "at": "2026-10-11T06:32:54.562Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Synced accepted Main b567b6d2. The only saved queue candidate is reserved by A2, and Prep owns v45; waiting for the next queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep9-v45-slate2-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T06:33:23.679Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v45 has two confirmed distinct mismatches; Prep is recording and crosschecking a second source-based candidate slate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-6924-sync-20261011",
+        "type": "turn",
+        "at": "2026-10-11T06:37:40.486Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Synced published accepted Main 6924f9fe. The only saved candidate is reserved by A2, and Prep owns v45; waiting for a refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-dog-keepdogs-v43-20261011",
+        "type": "implement",
+        "at": "2026-10-11T06:37:46.374Z",
+        "task": "A2-investigation-v43-dog-keepdogs-20261011",
+        "goal": "port-dog-keepdogs-v43-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-sync-6924f9-active-20261011-1",
+        "type": "turn",
+        "at": "2026-10-11T06:38:31.429Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C synced accepted Main and checked the current source queue for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-6924f9-v43-v45-20261011-1",
+        "type": "turn",
+        "at": "2026-10-11T06:38:36.121Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C has no independent task: A2 owns the remaining v43 mounted-steed case and Prep owns v45. C is available when A2 releases the task or v45 is admitted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-dog-port-after-promotion-20261011",
+        "type": "turn",
+        "at": "2026-10-11T06:38:40.090Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing dog level departure bookkeeping and pet transfer, wiring the existing callers, then validating the admitted mounted-steed case and fresh records."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-201c3428222d469d20aa80beb2f10990d26ea358",
+        "type": "ready",
+        "at": "2026-10-11T07:03:29.116Z",
+        "task": "A2-investigation-v43-dog-keepdogs-20261011",
+        "delivery": "201c3428222d469d20aa80beb2f10990d26ea358"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-dog-201c3428",
+        "type": "received",
+        "at": "2026-10-11T07:04:04.740Z",
+        "task": "A2-investigation-v43-dog-keepdogs-20261011",
+        "delivery": "201c3428222d469d20aa80beb2f10990d26ea358"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-dog-submit-20261011",
+        "type": "turn",
+        "at": "2026-10-11T07:04:10.350Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 has submitted the dog.c departure port. The only saved mismatch candidate is reserved by A2 pending acceptance; Prep owns v45. No independent implementation candidate is available."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-dog-61ad0c2ff0d4",
+        "type": "integrating",
+        "at": "2026-10-11T07:04:29.306Z",
+        "task": "A2-investigation-v43-dog-keepdogs-20261011",
+        "integration": "61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep9-active-20261011-candidates-replayed",
+        "type": "turn",
+        "at": "2026-10-11T07:09:36.051Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v45 has three approved distinct C-first mismatch candidates. Current-Main replay confirms two reached candidates; camera caller and remaining slate are under review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-dog-38120219438",
+        "type": "validated",
+        "at": "2026-10-11T07:10:33.198Z",
+        "task": "A2-investigation-v43-dog-keepdogs-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v43-dog-keepdogs-20261011-61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T07:12:09.589Z",
+        "task": "A2-investigation-v43-dog-keepdogs-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v43-dog-keepdogs-20261011-8254b2fd86d8fc28db35545976e7a2e035f17fed",
+        "type": "published",
+        "at": "2026-10-11T07:12:57.243Z",
+        "task": "A2-investigation-v43-dog-keepdogs-20261011",
+        "commit": "8254b2fd86d8fc28db35545976e7a2e035f17fed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-mon-arrive-investigation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T07:13:59.134Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is investigating the newly exposed dog.c:mon_arrive mismatch after the accepted keepdogs port."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v43-mon-arrive-losedogs-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T07:14:10.415Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-report-committed-awaiting-promotion-20261011",
+        "type": "turn",
+        "at": "2026-10-11T07:20:31.398Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 completed the mounted-steed source investigation; Main must integrate the report and promote the dog.c arrival scope before implementation begins."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-dog-mon-arrive-v43-20261011",
+        "type": "implement",
+        "at": "2026-10-11T07:21:06.506Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011",
+        "goal": "port-dog-mon-arrive-losedogs-v43-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-dog-mon-arrive-port-20261011",
+        "type": "turn",
+        "at": "2026-10-11T07:21:36.870Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is porting dog level arrival and elapsed catch-up, including the mounted-steed C return and restore/resurrection callers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep9-active-20261011-five-approved",
+        "type": "turn",
+        "at": "2026-10-11T07:32:36.553Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v45 has five approved distinct C-first mismatches; continuing the remaining slate and packaging evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e3b14bad5b021bc022e527f97ebc2f102b5c0722",
+        "type": "ready",
+        "at": "2026-10-11T07:43:45.669Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011",
+        "delivery": "e3b14bad5b021bc022e527f97ebc2f102b5c0722"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-dog-arrival-submit-20261011",
+        "type": "turn",
+        "at": "2026-10-11T07:44:02.329Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 submitted the dog.c arrival and catch-up port. The only queued mismatch remains reserved by this delivery pending integration; Prep is preparing v45, so A2 has no independent case to claim."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-dog-mon-arrive-v43-20261011",
+        "type": "received",
+        "at": "2026-10-11T07:44:24.319Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011",
+        "delivery": "e3b14bad5b021bc022e527f97ebc2f102b5c0722"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-dog-mon-arrive-v43-20261011",
+        "type": "integrating",
+        "at": "2026-10-11T07:45:06.283Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011",
+        "integration": "3bbebb411dfaa4238e5f24ad282c8970eaa7f8da"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep9-active-20261011-six-approved",
+        "type": "turn",
+        "at": "2026-10-11T07:49:39.114Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v45 has six approved distinct C-first mismatches; continuing the remaining slate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-failed-A2-dog-mon-arrive-v43-20261011-3bbebb411",
+        "type": "validated",
+        "at": "2026-10-11T07:56:39.595Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-dog-mon-arrive-stale-level-arrival-test-20261011",
+        "type": "feedback",
+        "at": "2026-10-11T07:57:00.461Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011",
+        "delivery": "e3b14bad5b021bc022e527f97ebc2f102b5c0722"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-dog-mon-arrive-test-correction-20261011",
+        "type": "resume",
+        "at": "2026-10-11T07:57:13.208Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep9-active-20261011-seven-approved",
+        "type": "turn",
+        "at": "2026-10-11T07:59:15.055Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v45 has seven approved distinct C-first mismatches; continuing the remaining slate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-38769cacf29b22a7063d10b21f3c4479250099d1",
+        "type": "ready",
+        "at": "2026-10-11T08:01:29.503Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011",
+        "delivery": "38769cacf29b22a7063d10b21f3c4479250099d1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-level-arrival-correction-20261011",
+        "type": "turn",
+        "at": "2026-10-11T08:01:35.668Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 submitted the level-arrival stale-test correction. Its test and lint pass; the only queued mismatch remains reserved by this task pending validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-dog-mon-arrive-test-correction-20261011",
+        "type": "received",
+        "at": "2026-10-11T08:01:49.344Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011",
+        "delivery": "38769cacf29b22a7063d10b21f3c4479250099d1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-dog-mon-arrive-corrected-20261011-87e183f4",
+        "type": "integrating",
+        "at": "2026-10-11T08:02:17.024Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011",
+        "integration": "87e183f4e58cd1ceae71086f9149a84419ab7c1a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-dog-mon-arrive-corrected-20261011-87e183f4",
+        "type": "validated",
+        "at": "2026-10-11T08:21:20.361Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep9-v45-active-eight-approved-20261011",
+        "type": "turn",
+        "at": "2026-10-11T08:22:17.924Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v45 has eight approved distinct C-first mismatches; continuing the remaining source routes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep9-v45-active-nine-sink-gas-20261011",
+        "type": "turn",
+        "at": "2026-10-11T08:26:55.658Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v45 has nine approved distinct C-first mismatches; continuing the final source routes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v43-mon-arrive-losedogs-20261011-87e183f4e58cd1ceae71086f9149a84419ab7c1a-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T08:28:36.802Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011"
       }
     ]
   },
@@ -87238,8 +87566,8 @@
     ]
   },
   "development": {
-    "executionCommit": "b567b6d2f72f23031b3f83d8996be9856dc36db9",
-    "measuredAt": "2026-10-11T06:28:26.524Z",
+    "executionCommit": "87e183f4e58cd1ceae71086f9149a84419ab7c1a",
+    "measuredAt": "2026-10-11T08:11:47.628Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

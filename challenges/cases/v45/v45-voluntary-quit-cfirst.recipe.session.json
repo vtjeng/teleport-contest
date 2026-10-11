@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052003,
+    "datetime": "20561203091213",
+    "nethackrc": "OPTIONS=name:V45Quit,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": "#quit\nyq",
+    "recorderIsDst": true
+  }],
+  "comment": "C-only continuation after the first recording reached end.c:done’s second `Dump core? [ynq]` prompt. Confirm quitting, then answer q to finish at the observed termination boundary. Preserve the earlier unanswered probe recording."
+}

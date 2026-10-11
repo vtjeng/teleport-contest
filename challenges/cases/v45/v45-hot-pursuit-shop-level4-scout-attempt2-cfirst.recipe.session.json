@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Second and final distinct level-4 generation setup for the hot_pursuit route. Inspect a fresh seed for a live shopkeeper and stock before attempting item theft; if none is present, defer the source branch with both generated maps retained.",
+  "segments": [
+    {
+      "seed": 73144722,
+      "datetime": "20581011141500",
+      "nethackrc": "OPTIONS=name:V45HotPursuitScout2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\n"
+    }
+  ]
+}

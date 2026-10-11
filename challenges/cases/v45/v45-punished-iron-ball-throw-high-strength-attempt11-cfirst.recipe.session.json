@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-observed sequence: the punishment scroll is slot f and the picked-up chained iron ball is slot g. Choose g explicitly from the throw menu (the prompt's suggested list does not include it) and throw west to test ball.c:drop_ball.",
+  "segments": [
+    {
+      "seed": 45101207,
+      "datetime": "20581010102600",
+      "nethackrc": "OPTIONS=name:V45BallThrowBarbarian,role=Barbarian,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\nrf , tgh"
+    }
+  ]
+}

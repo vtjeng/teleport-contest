@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024722,
+      "datetime": "20610718151617",
+      "nethackrc": "OPTIONS=name:V45SanctumOfferBare,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>v #wizmap\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhjjjjjj. #wizkill\n  ll. lj. \u001bll#wizwish\nAmulet of Yendor\n  potion of healing\n#offer\np"
+    }
+  ],
+  "comment": "Corrected C-first isolation of pray.c:offer_real_amulet. The observed target selector starts at screen cursor (66,7) while the high altar is at (20,13), so move 46 west and 6 south, confirm the altar, and only wish the Amulet after teleport to avoid scrolltele's carried-Amulet guard."
+}

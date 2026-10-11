@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052002,
+    "datetime": "20561202081112",
+    "nethackrc": "OPTIONS=name:V45RingCall,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": "\u0017ring\n#call\nopV45 poison ring\n",
+    "recorderIsDst": true
+  }],
+  "comment": "C-only correction after source and prompt inspection. The docallcmd menu accelerator o selects object-type calling; immediately select the ring in slot p with no intervening space, then enter the user call. Earlier selection misses remain preserved."
+}

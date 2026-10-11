@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026000,
+      "datetime": "20581011131700",
+      "nethackrc": "OPTIONS=name:V45VaultTarget,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizintrinsic\n150o>>150j\n  \n#wizwish\ncursed tin whistle\n#wizmap\n\u0014  llllllllllllllllllllllllllllllllllllllllllllllllllll. #wizmap\nao ."
+    }
+  ],
+  "comment": "C continuation after attempt 12 confirmed vault treasure and the cursed whistle prompt. Dismiss the whistle pager, then spend one turn to allow vault_summon_gd/invault to summon the guard."
+}

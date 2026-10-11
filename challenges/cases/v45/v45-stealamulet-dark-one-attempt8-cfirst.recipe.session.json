@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026033,
+      "datetime": "20581011132800",
+      "nethackrc": "OPTIONS=name:V45StealAmulet,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n10\n\u0017Amulet of Yendor\n  blessed potion of full healing\n#wizgenesis\nhostile Dark One\ny#wizmap\n . . . . . . . . . ."
+    }
+  ],
+  "comment": "C-first source route for steal.c:stealamulet through the Wizard role's quest nemesis, the Dark One. Raise hero level for survivability, wish the real Amulet, create the hostile Dark One, inspect the C placement, then allow several turns for its AT_CLAW/AD_SAMU attack to reach the steal check."
+}

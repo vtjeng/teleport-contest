@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of attempt11, which reached `You hit the newt!--More--` with the Wizard empty-handed. Append one space to dismiss that pager and expose the following nohandglow effect while the target survives.",
+  "segments": [
+    {
+      "seed": 45024817,
+      "datetime": "20611012131420",
+      "nethackrc": "OPTIONS=name:V45NoHandGlow9,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of confuse monster\nrn confuse\nw-#wizgenesis\nhostile newt\n#wizmap\nFj "
+    }
+  ]
+}

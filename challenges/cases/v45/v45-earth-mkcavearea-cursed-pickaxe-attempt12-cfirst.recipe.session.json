@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first uninterrupted Earth dig. The adjacent tile east of the hero was farlooked as stone. Kill the Wizard at the C-confirmed southern tile, dismiss the level-up message and cancel Next monster, directly wield pick-axe slot o, apply it east (a-o-l), and continue with periods so no command interrupts the Earth dig occupation.",
+  "segments": [
+    {
+      "seed": 45101205,
+      "datetime": "20581010131400",
+      "nethackrc": "OPTIONS=name:V45EarthCave,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #wizmap\n#wizkill\n  j.\u001b\u001bwoaol................"
+    }
+  ]
+}

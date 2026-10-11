@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first reached-hit attempt for uhitm.c:nohandglow. Attempt2 C map showed the hostile newt at `:` immediately west of the hero at `@`; forcefight west with `Fh` after the map inspection. This tests the already-reached `u.umconf` state with empty hands.",
+  "segments": [
+    {
+      "seed": 45024812,
+      "datetime": "20611012131415",
+      "nethackrc": "OPTIONS=name:V45NoHandGlow,role:Monk,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of confuse monster\nrj confuse\nw-#wizgenesis\nhostile newt\n#wizmap\nFh"
+    }
+  ]
+}

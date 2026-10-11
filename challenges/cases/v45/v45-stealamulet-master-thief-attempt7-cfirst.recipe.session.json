@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024607,
+      "datetime": "20600117131415",
+      "nethackrc": "OPTIONS=name:V45SamuThief,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nAmulet of Yendor\n  uncursed potion of healing\n #wizgenesis\nhostile Master of Thieves\ny#wizmap\nm.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ],
+  "comment": "Third C-first AD_SAMU setup with the unique Master of Thieves, whose source attack list reaches AD_SAMU without the Wizard of Yendor's repeated relocation. The blank after the extra wish dismisses the inventory-discovery pager. Preserve unless C reaches steal.c:stealamulet."
+}
