@@ -12,6 +12,7 @@ import { is_fainted } from './eat.js';
 import { unconscious } from './trap.js';
 import { messageAt } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
+import { isok } from './cmd_isok.js';
 
 // C refs: pline.c You_hear() (436-451), youprop.h Deaf/Unaware, and
 // trap.c unconscious(). C's Deaf macro includes timeout, worn and roleplay
@@ -47,6 +48,25 @@ export async function pline_mon(monster, line, state = game, env = {}) {
     const y = monster === state.youmonst ? 0 : monster.my;
     const message = env.message ?? ttyPline;
     await message(messageAt(line, x, y, state), state, env);
+}
+
+// C ref: pline.c set_msg_xy() (93-97) stores the coordinate for the next
+// vpline() call. This port keeps the location in the same a11y state and
+// consumes it at the call site that emits the associated message.
+export function set_msg_xy(x, y, state = game) {
+    state.a11y ??= {};
+    state.a11y.msg_loc = { x, y };
+}
+
+// C ref: pline.c vpline() (162-176) resets msg_loc before handling each
+// message and prefixes a valid location only when accessiblemsg is enabled.
+export function consume_msg_xy(line, state = game) {
+    const a11y = state.a11y;
+    const location = a11y?.msg_loc;
+    if (a11y) a11y.msg_loc = { x: 0, y: 0 };
+    if (!location || !a11y?.accessiblemsg
+        || !isok(location.x, location.y)) return line;
+    return messageAt(line, location.x, location.y, state);
 }
 
 // C ref: pline.c verbalize() (476-490). This helper is already used by

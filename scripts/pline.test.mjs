@@ -3,7 +3,15 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { DEAF, FAINTED } from '../js/const.js';
-import { heroDeaf, heroUnaware, pline_mon, youHear } from '../js/pline.js';
+import {
+    consume_msg_xy,
+    heroDeaf,
+    heroUnaware,
+    pline_mon,
+    set_msg_xy,
+    youHear,
+} from '../js/pline.js';
+import { messageAt } from '../js/startup_a11y.js';
 
 const C_PLINE_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/pline.c', import.meta.url),
@@ -113,4 +121,27 @@ test('pline_mon forwards its formatted line through the source owner', async () 
         message: async (line) => seen.push(line),
     });
     assert.deepEqual(seen, ['The leash pulls free.']);
+});
+
+test('set_msg_xy annotates and resets the next message location', () => {
+    const start = C_PLINE_SOURCE.indexOf('\nset_msg_xy(coordxy x, coordxy y)');
+    const end = C_PLINE_SOURCE.indexOf('\n}\n', start) + 2;
+    const cBody = C_PLINE_SOURCE.slice(start, end);
+    assert.ok(start >= 0 && end > start);
+    assert.match(cBody, /a11y\.msg_loc\.x\s*=\s*x;/u);
+    assert.match(cBody, /a11y\.msg_loc\.y\s*=\s*y;/u);
+
+    const state = {
+        a11y: { accessiblemsg: true },
+        u: { ux: 1, uy: 1 },
+    };
+    set_msg_xy(7, 9, state);
+    assert.deepEqual(state.a11y.msg_loc, { x: 7, y: 9 });
+    assert.equal(
+        consume_msg_xy('The disguise falls away.', state),
+        messageAt('The disguise falls away.', 7, 9, state),
+    );
+    assert.deepEqual(state.a11y.msg_loc, { x: 0, y: 0 });
+    assert.equal(consume_msg_xy('The next line is ordinary.', state),
+        'The next line is ordinary.');
 });

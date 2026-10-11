@@ -114,11 +114,13 @@ import {
     EXACT_NAME,
     IS_OBSTRUCTED,
     MMOVE_DIED,
+    MIM_OMIT_WAIT,
     MIM_REVEAL,
     M_AP_FURNITURE,
     M_AP_MONSTER,
     M_AP_OBJECT,
     M_AP_NOTHING,
+    OBJ_FREE,
     PROT_FROM_SHAPE_CHANGERS,
     SEE_INVIS,
     SICK,
@@ -199,7 +201,11 @@ import {
     x_monnam,
     y_monnam,
 } from './do_name.js';
-import { livelog_printf, verbalize } from './pline.js';
+import {
+    consume_msg_xy,
+    livelog_printf,
+    verbalize,
+} from './pline.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
@@ -215,7 +221,6 @@ import {
     glyph_is_warning,
     glyph_to_cmap,
     glyph_to_mon,
-    glyph_to_obj,
     map_invisible,
     map_location,
     mon_to_glyph,
@@ -584,6 +589,7 @@ import {
     POTION_CLASS,
     ROCK,
     SILVER,
+    STRANGE_OBJECT,
     SPBOOK_CLASS,
     VEGGY,
     ARMOR_CLASS,
@@ -671,7 +677,7 @@ import {
 import { delayed_killer, done, done_in_by } from './end.js';
 import { observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
-import { mhidden_description } from './pager.js';
+import { mhidden_description, object_from_map } from './pager.js';
 import { cutworm } from './worm.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { erode_obj } from './trap_erode_obj.js';
@@ -1021,10 +1027,12 @@ export async function mhitm_mgc_atk_negated(
 // object, monster, blind) choose the format string, and four what-branches
 // (invisible, M_AP_MONSTER, sleeping S_MIMIC, default) choose the substitute.
 // `mimic_flags` carries MIM_REVEAL and MIM_OMIT_WAIT.
-async function that_is_a_mimic(mtmp, mimic_flags, state = game, env = {}) {
+export async function that_is_a_mimic(
+    mtmp, mimic_flags, state = game, env = {},
+) {
     const S_trapped_chest = 73; // defsym.h PCHAR 73
     const reveal_it = (mimic_flags & MIM_REVEAL) !== 0;
-    const omit_wait = (mimic_flags & 2 /* MIM_OMIT_WAIT */) !== 0;
+    const omit_wait = (mimic_flags & MIM_OMIT_WAIT) !== 0;
     const generic = 'a monster';
     let fmtbuf = "Wait!  That's %s!";
     let what = null;
@@ -1054,13 +1062,22 @@ async function that_is_a_mimic(mtmp, mimic_flags, state = game, env = {}) {
                 fmtbuf = `That ${explanation} actually is %s!`;
             }
         } else if (glyph_is_object(glyph)) {
-            // C ref: pager.c object_from_map() line 317.
-            const otyp = glyph_to_obj(glyph);
-            const otmp = mksobj(otyp, false, false, { state });
-            const otmp_name = simpleonames(otmp, state);
-            const those = is_plural(otmp, state) ? 'Those' : 'That';
-            const verb = otense(otmp, 'are', state);
-            fmtbuf = `${those} ${otmp_name} ${verb} %s!`;
+            const { object: otmp, fakeobj } = object_from_map(
+                glyph, x, y, state,
+            );
+            try {
+                const otmp_name = otmp && otmp.otyp !== STRANGE_OBJECT
+                    ? simpleonames(otmp, state) : 'strange object';
+                const those = otmp && is_plural(otmp, state)
+                    ? 'Those' : 'That';
+                const verb = otmp ? otense(otmp, 'are', state) : 'is';
+                fmtbuf = `${those} ${otmp_name} ${verb} %s!`;
+            } finally {
+                if (fakeobj && otmp) {
+                    otmp.where = OBJ_FREE;
+                    dealloc_obj(otmp, { state });
+                }
+            }
         } else if (glyph_is_monster(glyph)) {
             const mndx = glyph_to_mon(glyph);
             const mtmp_name = pmname(
@@ -1087,7 +1104,10 @@ async function that_is_a_mimic(mtmp, mimic_flags, state = game, env = {}) {
 
     if (what) {
         const i = (omit_wait && fmtbuf.startsWith('Wait!  ')) ? 7 : 0;
-        await env.pline?.(fmtbuf.substring(i).replace('%s', what), state);
+        const line = consume_msg_xy(
+            fmtbuf.substring(i).replace('%s', what), state,
+        );
+        await (env.pline ?? env.message ?? ttyPline)(line, state, env);
     }
     if (reveal_it)
         seemimic(mtmp, state);
