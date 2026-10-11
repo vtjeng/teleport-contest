@@ -268849,6 +268849,198 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "divergence-v45-camera-wielded-melee-20261011",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Restore source-ordered demon release when an expensive camera is destroyed in melee.",
+      "cFile": "uhitm.c",
+      "sessions": [],
+      "selectionReason": "The accepted v45 queue retains one camera screen mismatch; the C-first replay reaches uhitm.c hmon_hitmon_misc_obj expensive-camera destruction and the queued delivery restores source-ordered demon release before canonical wield teardown.",
+      "detail": "Repair only the EXPENSIVE_CAMERA branch: await dothrow.c release_camera_demon before invent.c useup, passing the existing worn.c setnotworn adapter. Preserve all other hmon_hitmon_misc_obj object branches.",
+      "openedAt": "0fe1e2cd35e18a6e46614bbc0909921ddf3f0a4e",
+      "openStanding": {
+        "sha": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "hmon_hitmon_misc_obj",
+      "session": "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst",
+      "step": 57,
+      "syntheticProvenance": {
+        "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst": {
+          "session": "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json",
+          "recordingSha256": "9012243d2235a7461f9b360d0df220a1ebdd102ebd41afac8a9e00fa4d813bad",
+          "evaluationPath": "challenges/evaluations/accepted-eecc04ac077b05f740cf2e3f57e11c4301552c26-v45.json",
+          "evaluationCommit": "eecc04ac077b05f740cf2e3f57e11c4301552c26"
+        }
+      },
+      "activeStanding": {
+        "sha": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "session": "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json",
+          "recordingSha256": "9012243d2235a7461f9b360d0df220a1ebdd102ebd41afac8a9e00fa4d813bad",
+          "recipe": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.recipe.session.json",
+          "recipeSha256": "d50bf4178ba0f9c318ef5ee93860a05f8b92afaad5eccd7afb913cbabe7ed1a1",
+          "replayInputSha256": "f12a3152d8beb2b19b3f4c0927cc9aebac2b36629d613237284cab5d81aa41ec",
+          "evaluationPath": "challenges/evaluations/accepted-eecc04ac077b05f740cf2e3f57e11c4301552c26-v45.json",
+          "evaluationCommit": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+          "evaluationArtifact": "challenges/evaluations/accepted-eecc04ac077b05f740cf2e3f57e11c4301552c26-v45.json",
+          "evaluationUtc": "2026-10-11T11:27:50.961Z",
+          "remainingScreens": 1,
+          "recordedSteps": 58,
+          "previousScreensMatched": 57,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 57,
+              "total": 58
+            },
+            "rng": {
+              "matched": 2954,
+              "total": 2960
+            },
+            "cursors": {
+              "matched": 57,
+              "total": 58
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 229",
+            "step": 57
+          },
+          "step": 57,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 229",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-camera-wielded-northwest-result-attempt9-cfirst",
+              "session": "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingSha256": "9012243d2235a7461f9b360d0df220a1ebdd102ebd41afac8a9e00fa4d813bad",
+              "evaluationPath": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+              "evaluationCommit": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+              "evaluationArtifact": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+              "evaluationUtc": "2026-10-11T09:59:16.363Z",
+              "replayInputSha256": "4044080e4efdfdb0b59832522405707840dde5930b2833dc24614114489fccb8",
+              "remainingScreens": 1,
+              "recordedSteps": 58,
+              "status": "complete",
+              "commit": "3ef09acaf86104dd0feb2ff0a76c117a59da45f3",
+              "queueSha256": "1d07a7380e0d22c5e5eee819110569cf42e2585a29f7e826babbe3a4ddb7d24d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-camera-wielded-northwest-result-attempt9-cfirst",
+                "session": "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json",
+                "recordingSha256": "9012243d2235a7461f9b360d0df220a1ebdd102ebd41afac8a9e00fa4d813bad",
+                "recipe": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.recipe.session.json",
+                "recipeSha256": "d50bf4178ba0f9c318ef5ee93860a05f8b92afaad5eccd7afb913cbabe7ed1a1",
+                "replayInputSha256": "4044080e4efdfdb0b59832522405707840dde5930b2833dc24614114489fccb8",
+                "evaluationPath": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+                "evaluationCommit": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+                "evaluationArtifact": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+                "evaluationUtc": "2026-10-11T09:59:16.363Z",
+                "remainingScreens": 1,
+                "recordedSteps": 58,
+                "previousScreensMatched": 57,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 57,
+                    "total": 58
+                  },
+                  "rng": {
+                    "matched": 2954,
+                    "total": 2960
+                  },
+                  "cursors": {
+                    "matched": 57,
+                    "total": 58
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 229",
+                  "step": 57
+                },
+                "step": 57,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 229",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v45 melee hit reaches uhitm.c:hmon_hitmon_misc_obj(EXPENSIVE_CAMERA). C calls dothrow.c:release_camera_demon before invent.c:useup removes the wielded camera. JavaScript skips the already ported release helper, then its useup call stops because the life environment lacks the setNotWorn adapter. Wire the helper in source order and pass the canonical worn-state hooks into object consumption.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "hmon_hitmon_misc_obj"
+                ],
+                "branch": "A hero uses an expensive camera as a held nonweapon in melee. hmon_hitmon_do_hit dispatches to this nonweapon switch; the camera arm prints the destruction message, calls release_camera_demon(obj, u.ux, u.uy), calls useup(obj), and returns through hmd.doreturn/hmd.retval. For the singleton wielded camera, invent.c:useup calls useupall, which calls setnotworn before freeinv and obfree. JavaScript currently reaches useup without the required setNotWorn adapter and stops before the early return.",
+                "callers": [
+                  "C direct caller: uhitm.c:hmon_hitmon_do_hit calls hmon_hitmon_misc_obj for a non-weapon object after its shade check; uhitm.c:hmon_hitmon calls hmon_hitmon_do_hit and returns hmd.retval when doreturn is set. JavaScript mirrors these calls in js/uhitm.js:hmon_hitmon_do_hit and hmon_hitmon.",
+                  "Runtime entry: the admitted C-first v45 recipe wishes and wields an expensive camera, creates a hostile newt, confirms the northwest adjacent melee hit, and sends the next space input after the camera arm. Its C step 57 records release_camera_demon before the continuing turn; JS stops at the object-removal hook."
+                ],
+                "dependencies": [
+                  "dothrow.c:release_camera_demon is already ported in js/dothrow.js and its independent camera-throw path. The helper is void in C; the melee caller must execute it before useup. A dynamic import follows the existing dothrow.js import pattern in js/uhitm.js and avoids an eager module cycle.",
+                  "invent.c:useup/useupall are already implemented in js/invent.js. useupall requires setNotWorn for an equipped inventory object; the existing do_wear.js:setwornEnv and worn.js:setnotworn owners provide the canonical adapter and must run before freeinv/obfree."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved combined queue 1d07a7380e0d22c5e5eee819110569cf42e2585a29f7e826babbe3a4ddb7d24d and baseline evaluation 42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e identify the stop at zero-based step 57, with 57/58 screens, 2954/2960 RNG calls, and 57/58 cursors matched. The queue message is the missing setNotWorn hook for object type 229.",
+                "Read the complete upstream uhitm.c:hmon_hitmon_misc_obj (1119-1384) and hmon_hitmon_do_hit (1387-1433). The camera case calls release_camera_demon before useup and sets doreturn/retval only after object consumption; the production nonweapon dispatch calls this case for the recorded held camera.",
+                "The admitted C recording challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json has a confirmed northwest melee input at zero-based step 56. At step 57, C records rn2(3)=1 @ release_camera_demon(dothrow.c:2460), then later calls in the same turn; the fresh comparison identifies that call as the first RNG divergence at the next input boundary, with the JS screen and cursor also absent.",
+                "In js/uhitm.js:hmon_hitmon_misc_obj, the EXPENSIVE_CAMERA arm records note_unported(dothrow.c release_camera_demon), then awaits useup. Its lifeEnv currently contains only env, state, and random. js/dothrow.js:release_camera_demon is the canonical implementation; js/invent.js:useupall invokes requiredHook(setNotWorn) before extraction, so the missing caller adapter causes the observed stop.",
+                "The canonical unworn path already exists: js/do_wear.js:setwornEnv supplies cancelDoff, monsterUnseesProperty, and setArtifactIntrinsic, and js/worn.js:setnotworn applies the source state changes and inventory refresh. The bounded fix belongs at the uhitm caller and preserves the C ordering of release, unworn transition, extraction, and deletion.",
+                "Manifest challenges/manifests/v45.json identifies this as the wielded-camera melee arm. The closest earlier v33 camera case reaches dothrow.c:breakobj after throwing at a wall, while v16/v18 apply or flash the camera; none reaches this uhitm.c melee caller."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
