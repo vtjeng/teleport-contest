@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T11:31:43.482Z",
+  "capturedAt": "2026-10-11T11:47:44.130Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -87936,6 +87936,79 @@
         "type": "accepted",
         "at": "2026-10-11T11:30:43.548Z",
         "task": "B-investigation-v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v45-nohandglow-investigation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T11:31:53.187Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the remaining unreserved v45 bare-handed hit mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v45-nohandglow-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T11:31:57.350Z",
+        "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-B-camera-ee9b8593",
+        "type": "integrating",
+        "at": "2026-10-11T11:38:10.798Z",
+        "task": "B-investigation-v45-camera-wielded-northwest-result-attempt9-cfirst-20261011",
+        "integration": "ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v45-nohandglow-implementation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T11:39:21.938Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v45-nohandglow-20261011",
+        "type": "implement",
+        "at": "2026-10-11T11:39:23.823Z",
+        "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011",
+        "goal": "port-uhitm-nohandglow-v45-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-camera-ee9b8593",
+        "type": "validated",
+        "at": "2026-10-11T11:45:27.260Z",
+        "task": "B-investigation-v45-camera-wielded-northwest-result-attempt9-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v45-nohandglow-implementation-progress-20261011",
+        "type": "turn",
+        "at": "2026-10-11T11:45:43.701Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b9b3f3d44a8125ed564e2eb82762fadc57a8c2a6",
+        "type": "ready",
+        "at": "2026-10-11T11:46:15.952Z",
+        "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011",
+        "delivery": "b9b3f3d44a8125ed564e2eb82762fadc57a8c2a6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v45-camera-wielded-northwest-result-attempt9-cfirst-20261011-ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T11:46:50.570Z",
+        "task": "B-investigation-v45-camera-wielded-northwest-result-attempt9-cfirst-20261011"
       }
     ]
   },
@@ -87964,17 +88037,6 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v45-camera-wielded-northwest-result-attempt9-cfirst-20261011",
-        "worker": "B",
-        "goal": "divergence-v45-camera-wielded-melee-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "3f60049a8f2d15f90a39fb6a0544a26ece01229e",
-        "since": "2026-10-11T10:27:35.432Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
         "task": "B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011",
         "worker": "B",
         "goal": "port-uhitm-mhitm-ad-ston-seed4500-20260917",
@@ -87982,8 +88044,20 @@
         "status": "ready",
         "delivery": "0480c536b69181defd20cef5309a9747e53beb35",
         "since": "2026-10-11T11:11:39.158Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011",
+        "worker": "B",
+        "goal": "port-uhitm-nohandglow-v45-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "b9b3f3d44a8125ed564e2eb82762fadc57a8c2a6",
+        "since": "2026-10-11T11:46:15.952Z",
         "blockedBy": [
-          "B-investigation-v45-camera-wielded-northwest-result-attempt9-cfirst-20261011"
+          "C-investigation-v45-punished-iron-ball-throw-long-lane-attempt13-cfirst-20261011",
+          "B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011"
         ],
         "unblocks": 0
       }
@@ -88369,8 +88443,8 @@
     ]
   },
   "development": {
-    "executionCommit": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
-    "measuredAt": "2026-10-11T11:22:50.675Z",
+    "executionCommit": "ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b",
+    "measuredAt": "2026-10-11T11:44:03.396Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
