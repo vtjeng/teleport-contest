@@ -177,9 +177,9 @@ test('wakeup grows sleeping monsters and preserves the prior peaceful flag', asy
     assert.equal(asleep.msleeping, 0);
     assert.equal(asleep.mstrategy, 0);
 
-    // mon.c:4356-4361 remembers peacefulness before setmangry(); the helper
-    // calls are then considered even when the tame priest/shopkeeper remains
-    // peaceful. The discarded-result gaps are recorded by note_unported().
+    // mon.c:4356-4361 remembers peacefulness before setmangry(); the temple
+    // response is gated by actual temple occupancy and the shop response is
+    // still recorded as an unported discarded-result gap.
     const priest = target({ mpeaceful: 1, mtame: 1, ispriest: 1 });
     await wakeup(priest, true, reactionEnv());
     assert.equal(priest.mpeaceful, 1);

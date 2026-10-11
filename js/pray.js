@@ -13,7 +13,8 @@
 //        pray_revive() (2177-2195),
 //        dopray() (2199-2273), prayer_done() (2276-2346),
 //        maybe_turn_mon_iter() (2347-2405), doturn() (2407-2489),
-//        u_gname() (2524), and align_gname() (2530).
+//        a_gname() (2507), a_gname_at() (2514), u_gname() (2524), and
+//        align_gname() (2530).
 //
 // prayer_done() handles delayed prayer resolution; pray_revive() scans the
 // hero-square floor pile for a saved tame pet to restore. pleased() is ported below;
@@ -372,6 +373,21 @@ export function altarmask_at(x, y, state = game) {
     return IS_ALTAR(location?.typ)
         ? location.flags ?? 0
         : 0;
+}
+
+// C ref: pray.c a_gname_at() (2514-2520). Unlike altarmask_at(), this reads
+// the real level tile and returns null when that square is not an altar.
+export function a_gname_at(x, y, state = game) {
+    const location = state.level.at(x, y);
+    if (!IS_ALTAR(location.typ)) return null;
+    return align_gname(a_align(x, y, state), state);
+}
+
+// C ref: pray.c a_gname() (2507-2509). This deliberately reads the hero's
+// current square through a_gname_at(), including its non-altar null result.
+export function a_gname(state = game) {
+    const { u } = state;
+    return a_gname_at(u.ux, u.uy, state);
 }
 
 // C ref: pray.c dosacrifice() (1854-1896). The floorfood() selector is shared
@@ -776,7 +792,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
             );
             await consume_offering(otmp, state);
             await ttyPline(
-                `${align_gname(altaralign, state)} accepts your allegiance.`,
+                `${a_gname(state)} accepts your allegiance.`,
                 state,
             );
             await uchangealign(altaralign, A_CG_CONVERT, state);
@@ -786,7 +802,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
             u.ugangr += 3;
             adjalign(-5, state);
             await ttyPline(
-                `${align_gname(altaralign, state)} rejects your sacrifice!`,
+                `${a_gname(state)} rejects your sacrifice!`,
                 state,
             );
             await godvoice(altaralign, 'Suffer, infidel!', state);
@@ -800,7 +816,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
     await consume_offering(otmp, state);
     await ttyPline(
         `You sense a conflict between ${u_gname(state)} and `
-            + `${align_gname(altaralign, state)}.`,
+            + `${a_gname(state)}.`,
         state,
     );
     if (rn2(8 + u.ulevel) > 5) {
@@ -853,7 +869,7 @@ async function offer_corpse(otmp, highaltar, altaralign, state) {
         livelog_printf(
             LL_CONDUCT,
             `rejected atheism by offering ${corpse_xname(otmp, null, CXN_ARTICLE, state)}`
-                + ` on an altar of ${align_gname(altaralign, state)}`,
+                + ` on an altar of ${a_gname(state)}`,
             state,
         );
     }
