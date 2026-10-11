@@ -21,7 +21,17 @@ import {
     SLT_ENCUMBER,
     HALF_PHDAM,
     HEAD,
+    KILLED_BY,
+    LEG,
+    LEFT_SIDE,
     Is_waterlevel,
+    RIGHT_SIDE,
+    TT_BEARTRAP,
+    TT_BURIEDBALL,
+    TT_INFLOOR,
+    TT_LAVA,
+    TT_PIT,
+    TT_WEB,
     KILLED_BY_AN,
     NO_KILLER_PREFIX,
     is_hole,
@@ -32,7 +42,7 @@ import {
     is_pool,
 } from './dbridge.js';
 import { exercise } from './attrib.js';
-import { canletgo, flooreffects } from './do.js';
+import { canletgo, flooreffects, set_wounded_legs } from './do.js';
 import { game } from './gstate.js';
 import {
     cls,
@@ -53,16 +63,21 @@ import {
     losehp,
     near_capacity,
     nomul,
+    movobj,
     spoteffects,
     weight_cap,
 } from './hack.js';
 import {
+    deltrap,
+    fill_pit,
     Levitation,
+    reset_utrap,
     t_at,
 } from './trap.js';
 import { find_mac } from './worn.js';
 import { hmon } from './uhitm.js';
 import { miss } from './zap.js';
+import { hliquid } from './do_name.js';
 import { otense, xnameFresh, yname, Yname2 } from './objnam.js';
 import { body_part } from './polyself.js';
 import { hard_helmet } from './do_wear.js';
@@ -738,4 +753,88 @@ async function dragBallTail(
     }
     setPointer(causeDelay, true);
     return true;
+}
+
+// C ref: ball.c drop_ball() (882-961). The ball is already on the floor at
+// (x,y); if it has moved away from the hero, the chain pulls the hero behind
+// it, then refreshes the old square and runs arrival effects.
+export async function drop_ball(x, y, state = game) {
+    const { u } = state;
+    if (heroIsBlind(state)) {
+        u.bc_order = bc_order(state);
+        u.bglyph = u.bc_order ? u.cglyph : memoryGlyph(x, y, state);
+    }
+
+    if (x === u.ux && y === u.uy) return;
+
+    const pullmsg = 'The ball pulls you out of the ';
+    let trap;
+    if (u.utrap && u.utraptype !== TT_INFLOOR
+        && u.utraptype !== TT_BURIEDBALL) {
+        switch (u.utraptype) {
+        case TT_PIT:
+            await ttyPline(`${pullmsg}pit!`, state);
+            break;
+        case TT_WEB:
+            await ttyPline(`${pullmsg}web!`, state);
+            // Soundeffect(se_destroy_web, 30) has no recorder-visible effect.
+            await ttyPline('The web is destroyed!', state);
+            deltrap(t_at(u.ux, u.uy, state), state);
+            break;
+        case TT_LAVA:
+            await ttyPline(`${pullmsg}${hliquid('lava', { state })}!`, state);
+            break;
+        case TT_BEARTRAP: {
+            const side = rn2(3) ? LEFT_SIDE : RIGHT_SIDE;
+            await ttyPline(`${pullmsg}bear trap!`, state);
+            await set_wounded_legs(side, rn1(1000, 500), state);
+            if (!u.usteed) {
+                await ttyPline(
+                    `Your ${(side === LEFT_SIDE ? 'left' : 'right')} `
+                        + `${body_part(LEG, state.youmonst)} is severely damaged.`,
+                    state,
+                );
+                await losehp(
+                    maybeHalfPhysical(2, state),
+                    'leg damage from being pulled out of a bear trap',
+                    KILLED_BY,
+                    state,
+                );
+            }
+            break;
+        }
+        default:
+            break;
+        }
+        await reset_utrap(true, state);
+        fill_pit(u.ux, u.uy, state);
+    }
+
+    u.ux0 = u.ux;
+    u.uy0 = u.uy;
+    if (!Levitation(state) && !m_at(x, y, state) && !u.utrap
+        && (is_pool(x, y, state)
+            || ((trap = t_at(x, y, state))
+                && (is_pit(trap.ttyp) || is_hole(trap.ttyp))))) {
+        u.ux = x;
+        u.uy = y;
+    } else {
+        u.ux = x - u.dx;
+        u.uy = y - u.dy;
+    }
+    state.vision_full_recalc = 1;
+
+    if (heroIsBlind(state)) {
+        if (u.bc_felt & BC_CHAIN) {
+            state.level.at(state.uchain.ox, state.uchain.oy).remembered_glyph =
+                rememberedGlyph(u.cglyph);
+        }
+        u.bc_felt = 0;
+        u.cglyph = u.bc_order ? u.bglyph : memoryGlyph(u.ux, u.uy, state);
+    }
+    movobj(state.uchain, u.ux, u.uy, state);
+    if (heroIsBlind(state)) u.bc_order = bc_order(state);
+    newsym(u.ux0, u.uy0, state);
+    if (u.ux0 !== u.ux || u.uy0 !== u.uy)
+        await spoteffects(true, state);
 }
