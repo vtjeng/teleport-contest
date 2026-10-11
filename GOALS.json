@@ -269075,15 +269075,15 @@
           "name": "dotelecmd",
           "line": 919,
           "endLine": 1033,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dotele",
           "line": 1034,
           "endLine": 1164,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -269260,7 +269260,132 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dotelecmd",
+            "implementation": "js/teleport.js",
+            "symbol": "dotelecmd",
+            "sourceReview": "Read teleport.c:919-1031 in full. Preserved the non-wizard dotele(FALSE) result conversion; the wizard menu selection and temporary TELEPORT/spellbook edits; dotele(ignore_restrictions); and restoration of both teleport property fields and tport_spell state on every asynchronous exit. C callers are the cmd.c C(t) command-table row, also exposed as #teleport; the JavaScript direct-key and extended-command dispatchers both call this implementation. spell.c:tport_spell remains the existing owner.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:1890-1891 registers dotelecmd for the direct C(t) teleport command; rhack dispatches command === teleport to dotelecmd."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:1890-1891 registers the teleport extended-command name with dotelecmd; doextcmd dispatches that name to dotelecmd."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/teleport.c/dotelecmd-control-t-independent.session.json",
+              "recordings/teleport.c/dotelecmd-extended-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 72,
+                "source": "cmd.c #teleport dispatch -> teleport.c:dotelecmd -> dotele -> next_to_u -> tele -> scrolltele/getpos; C and JS match through the controlled destination cursor movement at step 72, before the later arrival-message mismatch."
+              }
+            ],
+            "checkedAt": "fcfb449a75acfca82e15e0f0c0e875afdf45658a"
+          },
+          {
+            "name": "dotele",
+            "implementation": "js/teleport.js",
+            "symbol": "dotele",
+            "sourceReview": "Read teleport.c:1033-1162 in full. Preserved visible trap handling, level-trap confirmation, one-shot vault-trap deletion, the restricted/spell and direct-energy branches, capacity and attribute checks, spell return handling, next_to_u relocation checks, trap-specific relocation, hunger loss, and return-value order. dotelecmd consumes the result; trap.c:drown discards it and now awaits its effects before checking whether the hero remains in the pool. teleport.c:level_tele_trap is void and still unported, so its call is explicitly noted and skipped without using note_unported as a result.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "dotelecmd",
+                "source": "teleport.c:dotelecmd returns dotele(ignore_restrictions) as ECMD_TIME or ECMD_OK."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "drown",
+                "source": "trap.c:drown:5128-5132 calls (void) dotele(FALSE) after the drowning teleport attempt and then checks whether the hero left the pool."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport.test.mjs",
+              "scripts/trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/teleport.c/dotelecmd-control-t-independent.session.json",
+              "recordings/teleport.c/drown-teleport-attempt-independent.session.json",
+              "recordings/teleport.c/dotelecmd-extended-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 72,
+                "source": "teleport.c:dotelecmd -> dotele(TRUE) -> next_to_u -> tele -> scrolltele/getpos; the selected route reaches the controlled destination prompt and cursor movement through step 72."
+              }
+            ],
+            "checkedAt": "fcfb449a75acfca82e15e0f0c0e875afdf45658a"
+          }
+        ],
+        "entryPointReview": "The whole selected C range is teleport.c:dotelecmd (919-1031) and dotele (1033-1162). The active command-table entry cmd.c:1890-1891 binds both C(t) and the #teleport name to dotelecmd; js/cmd.js:rhack covers the direct command key and js/cmd.js:doextcmd covers the extended name. Separate direct-key and #teleport C recordings strictly match JavaScript through materialization. The admitted v45 prefix covers the selected command route through controlled destination cursor movement at step 72; its later first mismatch is at the Sanctum arrival message after destination acceptance. teleport.c:dotelecmd consumes dotele return value; trap.c:drown:5128-5132 makes an independent active, result-discarding call now wired through js/trap.js:drown and covered by a strict fresh C recording. dig.c:escape_tomb contains another discarded dotele call in its definition, but a source search finds no C caller of escape_tomb and js/dig.js contains no escape_tomb implementation or call; it is not an active runtime entry point and remains outside this scope. The only unported dotele callee is void teleport.c:level_tele_trap; JS records note_unported and skips it as the source rule requires.",
+        "entryPoints": [
+          {
+            "name": "cmd.c direct C('t') teleport command",
+            "functions": [
+              "dotelecmd",
+              "dotele"
+            ],
+            "recordings": [
+              "recordings/teleport.c/dotelecmd-control-t-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "cmd.c #teleport extended command",
+            "functions": [
+              "dotelecmd",
+              "dotele"
+            ],
+            "recordings": [
+              "recordings/teleport.c/dotelecmd-extended-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 72,
+                "source": "cmd.c #teleport -> teleport.c:dotelecmd -> dotele -> teleds; this cited prefix matches through the controlled destination cursor movement, before the destination is confirmed."
+              }
+            ]
+          },
+          {
+            "name": "trap.c:drown teleport attempt",
+            "functions": [
+              "dotele"
+            ],
+            "recordings": [
+              "recordings/teleport.c/drown-teleport-attempt-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
