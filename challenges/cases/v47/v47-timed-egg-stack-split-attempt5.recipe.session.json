@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first inventory-letter correction from attempt4's displayed list: the actual egg stack is slot n, not o. Invoke inventory, select n, choose the I split-stack item action, then assign the child to z.",
+  "segments": [
+    {
+      "seed": 47001017,
+      "datetime": "20571011141014",
+      "nethackrc": "OPTIONS=name:V47EggTimerSplitE,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\n2 eggs of giant ant\ninIz"
+    }
+  ]
+}

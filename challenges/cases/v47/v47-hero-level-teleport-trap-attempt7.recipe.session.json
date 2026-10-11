@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent-seed C-first continuation of the confirmed hero level-teleporter route. Enter the level-teleporter activation prompt and answer yes; observe whether level_tele_trap escapes or performs level travel. No JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047304,
+      "datetime": "20571417101419",
+      "nethackrc": "OPTIONS=name:V47LevelTrap4,role:Wizard,race:human,gender=male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizmap\nl#wizwish\nlevel teleporter\n#wizmap\nhly"
+    }
+  ]
+}

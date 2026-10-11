@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47001081,
+      "datetime": "20570615201510",
+      "nethackrc": "OPTIONS=name:V47WhipDisarm,role:Archeologist,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n10\n         #wizwish\n+5 bullwhip\nwi#wizgenesis\nhostile captain\n#wizmap\n. #wizmap\naiy"
+    }
+  ],
+  "comment": "C-only correction after attempt6 showed that PM_CAPTAIN owns a generated sword in inventory but had not yet taken a monster turn to wield it before the immediate whip. Let the captain take one normal turn after creation, dismiss any combat pager, reveal again, then whip from the C-confirmed direction. Count only if the reached branch reports wrapping the whip around its active weapon."
+}

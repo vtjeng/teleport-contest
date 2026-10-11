@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only correction of attempt1: observe whether the wizard intrinsic menu accepts an explicit 20-turn hallucination duration, then inspect inventory and begin the mimic meal. No JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 47000132,
+      "datetime": "20571111111214",
+      "nethackrc": "OPTIONS=name:V47EatMimicTimeout,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nsmall mimic corpse\n#wizintrinsic\n20h\n #timeout\n #inven\ne"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Clean C-first route to the source-visible eat.c:eatmupdate branch, omitting attempt10's nonproductive wizard-kill selector. A 10-turn hallucination timeout ends during the temporary orange-object mimic occupation after a wished small mimic corpse is consumed; preserve the updated completion message and appearance boundary.",
+  "segments": [
+    {
+      "seed": 47000134,
+      "datetime": "20571111111214",
+      "nethackrc": "OPTIONS=name:V47EatMimicTimeout,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nsmall mimic corpse\n#wizintrinsic\n10h\n ep   "
+    }
+  ]
+}

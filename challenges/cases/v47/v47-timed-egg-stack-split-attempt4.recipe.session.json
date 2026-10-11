@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction of attempt3: include the inventory command before selecting slot o, then use its I split-stack action and assign the child stack to z. The goal is to reach active HATCH_EGG timer duplication during splitobj.",
+  "segments": [
+    {
+      "seed": 47001016,
+      "datetime": "20571011131014",
+      "nethackrc": "OPTIONS=name:V47EggTimerSplitD,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\n2 eggs of giant ant\nioIz"
+    }
+  ]
+}

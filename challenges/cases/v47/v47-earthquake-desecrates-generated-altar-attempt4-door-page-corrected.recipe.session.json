@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first source-based correction after attempt3 confirmed the +7 wand is in slot p and the levelport arrival. The zap direction unlocks the door, the next movement opens it, and four more north steps leave the first room; no extra space belongs between those actions. The second door is opened from a cardinally adjacent square in the same way. The route ends on ordinary floor adjacent to the generated altar at display coordinate (25,13), then repeatedly plays a 127-charge drum. Keep only if C reaches music.c:do_earthquake ALTAR -> pray.c:desecrate_altar.",
+  "segments": [
+    {
+      "seed": 47000147,
+      "datetime": "20571111091011",
+      "nethackrc": "OPTIONS=name:V47AltarQuake,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n9\n #wizwish\n+7 wand of opening\n #wizmap\nkyhzpkkkkkkukyhyyyhhhhbhyyhkzphhhhhhhhhhhhhhhhhhbbjjbjjjjjbhhyyh #wizwish\nuncursed drum of earthquake (0:127)\naqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy ",
+      "comment": "C-first corrected route for music.c:do_earthquake -> pray.c:desecrate_altar. The first route reached a locked door before the source-mapped altar. This independently reruns the selected level seed, wishes a charged wand of opening before travel, opens both observed locked doors, reaches the ordinary generated altar at map coordinate (25,13), steps one square away, then wishes a charged drum of earthquake and plays it repeatedly. Keep only if C reaches the ALTAR arm and desecrate_altar."
+    }
+  ]
+}

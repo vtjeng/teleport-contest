@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47001081,
+      "datetime": "20570615201510",
+      "nethackrc": "OPTIONS=name:V47WhipDisarm,role:Archeologist,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n10\n         #wizwish\n+5 bullwhip\n#wizgenesis\nhostile watchman\n#wizmap\nwjajy"
+    }
+  ],
+  "comment": "C-only correction after attempt3 revealed that #levelchange reaches the requested level 10 but emits nine separate More boundaries, one per added level, and swallowed subsequent commands. This recipe dismisses all nine boundaries before wishing and spawning. Target branch remains the weapon-holding watchman whip disarm; continue only after C confirms it."
+}

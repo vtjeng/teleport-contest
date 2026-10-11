@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47070104,
+      "datetime": "20570104090100",
+      "nethackrc": "OPTIONS=name:V47HornedPet,role:Monk,race:human,gender=female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "Da\nabcdefghijkl\n     #polyself\nhorned devil\n#wizgenesis\nhostile newt\nFkFkFkFk"
+    }
+  ],
+  "comment": "C-first candidate refines demonpet setup after source confirmed manes lacks M2_DEMON. Drop selectable inventory, polymorph into a demon-flag horned devil, create an adjacent hostile newt, and test the 1/13 demonpet gate with north force-fight actions. No JavaScript comparison yet."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47070101,
+      "datetime": "20570101090100",
+      "nethackrc": "OPTIONS=name:V47BareDemon,role:Monk,race:human,gender=female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\nmanes\n#wizgenesis\nhostile newt\nFhFhFlFlFjFjFkFk"
+    }
+  ],
+  "comment": "C-first candidate: polymorph an unarmed Monk into a non-excluded demon form and attack a hostile newt repeatedly. Keep only if C takes uhitm.c's 1/13 demonpet gate and prints the summon result; no JavaScript comparison yet."
+}

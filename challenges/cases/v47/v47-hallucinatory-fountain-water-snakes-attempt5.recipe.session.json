@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Correct attempt 4's route using the C #wizmap screenshot at the same seed: the hero starts at (34,6), the first accessible fountain is at (42,10), and its shortest path begins through the northeast door at (35,5). Use the wand in slot n toward u, then follow the mapped path into the fountain.",
+  "segments": [
+    {
+      "seed": 47000203,
+      "datetime": "20571112101014",
+      "nethackrc": "OPTIONS=name:V47HallucFountain,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-2.lua\n #wizmap\n#wizwish\nwand of opening\n#wizwish\npotion of hallucination\nqoznuullnnnnnqy"
+    }
+  ]
+}

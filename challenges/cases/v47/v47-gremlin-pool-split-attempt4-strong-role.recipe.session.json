@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Attempt4: preserve the startup and polyself pager dismissals, and use a high-strength Barbarian so the Gremlin form can move despite its reduced carrying capacity. After the pool wish, step off, wait once to leave run context, and return.",
+  "segments": [
+    {
+      "seed": 47001011,
+      "datetime": "20571011091014",
+      "nethackrc": "OPTIONS=name:V47GremlinPoolSplitB,role:Barbarian,race:human,gender=female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #polyself\ngremlin\n #wizwish\npool\nh.l"
+    }
+  ]
+}

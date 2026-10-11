@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first correction after attempt5: the independent fresh differential found its first mismatch at the nearby polymorph-trap activation, before the intended earthquake effect, so this route bypasses every visible ^ trap on the source map. It opens both locked doors with the charged slot-p wand and reaches ordinary floor beside the generated altar. Five extra spaces after each drum play absorb any C pagers caused by pit/fountain/altar messages without consuming a game turn when no page is present. Keep only if the first mismatch is source-distinct and the altar branch is reached.",
+  "segments": [
+    {
+      "seed": 47000147,
+      "datetime": "20571111091011",
+      "nethackrc": "OPTIONS=name:V47AltarQuake,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n9\n #wizwish\n+7 wand of opening\n #wizmap\nkyhzpkkkkkkukyyyhyhhhhbhyyhkzphhhhhhhhhhhhhhhhhhbbjjbjjjjjbhhyyh #wizwish\nuncursed drum of earthquake (0:127)\naqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     aqy     ",
+      "comment": "C-first corrected route for music.c:do_earthquake -> pray.c:desecrate_altar. The first route reached a locked door before the source-mapped altar. This independently reruns the selected level seed, wishes a charged wand of opening before travel, opens both observed locked doors, reaches the ordinary generated altar at map coordinate (25,13), steps one square away, then wishes a charged drum of earthquake and plays it repeatedly. Keep only if C reaches the ALTAR arm and desecrate_altar."
+    }
+  ]
+}

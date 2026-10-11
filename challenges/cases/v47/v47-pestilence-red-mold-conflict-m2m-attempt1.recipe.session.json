@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first exploratory candidate: use wizard Conflict to make a hostile Pestilence and hostile red mold fight; C must show Pestilence's AD_PEST attack against a fungus-class victim entering mhitm_ad_pest -> mhitm_ad_dise. This is separate from v20 Pestilence-to-hero diseasemu. No JavaScript comparison informs the recipe.",
+  "segments": [
+    {
+      "seed": 47001058,
+      "datetime": "20570615161720",
+      "nethackrc": "OPTIONS=name:V47PestConflict,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\nhostile red mold\n#wizgenesis\nhostile Pestilence\n#wizmap\n  . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

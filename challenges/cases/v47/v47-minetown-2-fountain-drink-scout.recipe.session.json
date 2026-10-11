@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first alternate source route for fountain.c:drinkfountain after the Minetown 1 route stopped at a blocked corridor. Load the distinct, previously verified Minetown 2 level program with an independent seed and map its fountains and hero route.",
+  "segments": [
+    {
+      "seed": 47000150,
+      "datetime": "20571111091014",
+      "nethackrc": "OPTIONS=name:V47FountainScout2,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-2.lua\n #wizmap\n"
+    }
+  ]
+}

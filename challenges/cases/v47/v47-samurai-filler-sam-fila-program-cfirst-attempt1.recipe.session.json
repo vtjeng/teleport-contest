@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47001082,
+      "datetime": "20570615201710",
+      "nethackrc": "OPTIONS=name:V47SamFila,role:Samurai,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizloaddes\nSam-fila.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "C-first candidate for dat/Sam-fila.lua, an independently scoped Samurai quest filler Lua program. Directly load the upstream source program and reveal its generated mines-style maze, fixed object/trap placements and monster set. Compare only after C confirms the program completed; no JavaScript result informed the recipe."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first replacement candidate for fountain.c:drinkfountain. Load the source-defined Minetown 1 program with a new seed, follow the C-observed open route to its fountain at level coordinates 16,9, and answer the explicit fountain drinking prompt yes.",
+  "segments": [
+    {
+      "seed": 47000148,
+      "datetime": "20571111091012",
+      "nethackrc": "OPTIONS=name:V47FountainDrink,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-1.lua\n #wizmap\nlllkkklllllllllqy"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47047199,
+      "datetime": "20581011121314",
+      "nethackrc": "OPTIONS=name:V47WizGone,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nhostile Wizard of Yendor\ny#wizmap\n#wizkill\n  j. ",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first successful Wizard death recipe: force the unique Wizard of Yendor, reveal the map, dismiss both the prior message pager and getpos tip, move the location cursor south to the adjacent Wizard, select it, then dismiss the death/experience pager."
+}
