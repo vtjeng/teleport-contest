@@ -264133,7 +264133,7 @@
     {
       "id": "port-v43-prayer-divine-spell-gift-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port prayer divine spell gift and direct spell learning",
       "cFile": "pray.c",
       "sessions": [
@@ -264147,8 +264147,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5129203208b9223c3504a2b5e2abbf7f04890762",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "give_spell",
@@ -264569,6 +264572,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5129203208b9223c3504a2b5e2abbf7f04890762",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
