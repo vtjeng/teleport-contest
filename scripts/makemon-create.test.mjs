@@ -20,6 +20,7 @@ import {
     MM_FEMALE,
     MM_ESHK,
     MM_EPRI,
+    MM_EDOG,
     MM_IGNOREWATER,
     MM_MALE,
     MM_MINVIS,
@@ -136,6 +137,7 @@ import {
     PM_GIANT_RAT,
     PM_GIANT_MUMMY,
     PM_GIANT_EEL,
+    PM_GREMLIN,
     PM_ELECTRIC_EEL,
     PM_PIRANHA,
     PM_GIANT_ZOMBIE,
@@ -3204,6 +3206,67 @@ test('makemon admits the explicit hero-square NO_MM_FLAGS pointer from C',
         });
         assert.ok(messages.some(([kind, text]) => kind === 'norep'
             && text.includes('ghoul')));
+    });
+
+test('makemon cloneu hero-square call relocates before pool accessibility',
+    async () => {
+        const cMakemonStart = MAKEMON_C_SOURCE.indexOf(
+            'makemon(', MAKEMON_C_SOURCE.indexOf('called with [x,y]'),
+        );
+        const cMakemonEnd = MAKEMON_C_SOURCE.indexOf('\nunmakemon(', cMakemonStart);
+        const cMakemon = MAKEMON_C_SOURCE.slice(
+            cMakemonStart, cMakemonEnd,
+        );
+        assert.ok(cMakemonStart >= 0 && cMakemonEnd > cMakemonStart);
+        const relocate = cMakemon.indexOf(
+            'else if (byyou && !gi.in_mklev)',
+        );
+        const sanityCheck = cMakemon.indexOf('/* sanity check */', relocate);
+        assert.ok(relocate >= 0 && sanityCheck > relocate);
+        assert.match(
+            cMakemon.slice(relocate, sanityCheck),
+            /enexto_core\(&cc, u\.ux, u\.uy, ptr, gpflags\)/u,
+        );
+
+        const jsCloneCall = MAKEMON_JS_SOURCE.indexOf('const cloneuCall =');
+        const jsAccessibleGuard = MAKEMON_JS_SOURCE.indexOf(
+            '&& (!isok(x, y) || !ACCESSIBLE(', jsCloneCall,
+        );
+        assert.ok(jsCloneCall >= 0 && jsAccessibleGuard > jsCloneCall);
+        assert.match(
+            MAKEMON_JS_SOURCE.slice(jsCloneCall, jsAccessibleGuard),
+            /&& !cloneuCall/u,
+        );
+
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        state.youmonst = { data: state.mons[PM_GREMLIN] };
+        state.level.at(MON_X, MON_Y).typ = POOL;
+        for (let dx = -1; dx <= 1; ++dx)
+            for (let dy = -1; dy <= 1; ++dy)
+                if (dx || dy)
+                    state.level.at(MON_X + dx, MON_Y + dy).typ = ROOM;
+        const random = recordingRandom();
+        const monster = await makemon_runtime(
+            state.youmonst.data,
+            state.u.ux,
+            state.u.uy,
+            NO_MINVENT | MM_EDOG | MM_NOMSG,
+            {
+                state,
+                random: random.random,
+                message: async () => {},
+                norepMessage: async () => {},
+                _cloneu: true,
+            },
+        );
+
+        assert.equal(monster.data, state.youmonst.data);
+        assert.notDeepEqual([monster.mx, monster.my], [state.u.ux, state.u.uy]);
+        assert.notEqual(state.level.at(monster.mx, monster.my).typ, POOL);
+        assert.equal(state.level.monsters[monster.mx][monster.my], monster);
     });
 
 test('makemon uses a non-hero explicit NO_MM_FLAGS coordinate directly',

@@ -1572,6 +1572,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !explicitCoordinateNoFlagsRuntimeCall
         && !explicitCoordinateNoMinventRuntimeCall
         && !vaultGuardCall
+        && !cloneuCall
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
         throw new UnsupportedMonsterCreationError(
             `non-accessible location <${x},${y}>`,
