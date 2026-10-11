@@ -7,26 +7,35 @@
   "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
   "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
   "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
-  "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
-  "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+  "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+  "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
   "remainingScreens": 1,
   "recordedSteps": 166,
   "status": "complete",
-  "commit": "f79ab4080d5e831bb1bdbe83a27a7c35ce0f86ac",
+  "commit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v43",
     "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
     "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
-    "sourceFile": "apply.c",
+    "manifestPath": "challenges/manifests/v43.json",
+    "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+    "recording": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
     "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
     "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
-    "recipePath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.recipe.session.json",
+    "recipe": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.recipe.session.json",
     "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
-    "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
-    "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+    "replayInputSha256": "06a6abfc0a0a484f27b5b045f98d2ae806023dccfc7cd604709230bef25c268a",
+    "evaluationPath": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+    "evaluationCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+    "evaluationArtifact": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+    "evaluationUtc": "2026-10-11T03:14:40.052Z",
     "remainingScreens": 1,
     "recordedSteps": 166,
+    "previousScreensMatched": 165,
+    "regression": false,
+    "passed": false,
+    "error": null,
     "metrics": {
       "screens": {
         "matched": 165,
@@ -42,13 +51,18 @@
       }
     },
     "firstMismatch": {
-      "kind": "screen",
-      "step": 165,
-      "sourceFile": "apply.c",
-      "function": "next_to_u",
-      "line": 921,
-      "message": "C accepts the mounted hero and descends; JavaScript refuses next_to_u() with a steed before the level transition."
-    }
+      "kind": "stop",
+      "message": "unsupported hero move: next_to_u() with a steed",
+      "step": 165
+    },
+    "step": 165,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "next_to_u",
+    "message": "unsupported hero move: next_to_u() with a steed",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
   },
   "summary": "At the only unmatched screen, a mounted Wizard presses > on a down staircase. C apply.c:next_to_u() returns true for a steed that does not carry the Amulet, so do.c:dodown() calls next_level() and do.c:goto_level() transfers the steed. JavaScript throws at the mounted-steed guard. The required runtime path continues through dog.c:keepdogs() and dog.c:mon_arrive(), whose current JavaScript mounted-steed branches also throw. Implement the source branches as one transfer path; preserve the separate Amulet refusal.",
   "source": {
@@ -75,11 +89,15 @@
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json (SHA-256 daf596ad43e6d480fef4ebcc59e8f886f44e362b1ceabda10e010899d9d3362b) selects this v43 case at step 165 with one unmatched screen. The immutable manifest is challenges/manifests/v43.json; the selected recording is 166 steps and its identity hashes are retained above.",
-    "The accepted v43 evaluation at 1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c records 165/166 screens, 165/166 cursors, and 3913/6320 RNG calls. Its first screen mismatch is the final step, key >.",
+    "Saved queue SHA-256 838fd8b7d9ca8b5a65fb81039abf06462c427031179073a72753bc4dc416e5f4 selects this v43 case at step 165 with one unmatched screen.",
+    "The accepted 57c44fa48bff87c33541a147cedd6d9a0018a494 v43 evaluation records 165/166 screens, 165/166 cursors, and 3913/6320 RNG calls; JavaScript stops at apply.c:next_to_u before the mounted descent.",
     "A focused scan at worker base f79ab4080d5e831bb1bdbe83a27a7c35ce0f86ac (`node scripts/scan-sessions.mjs --json --synthetic v43/v43-mounted-steed-stair-descent-pager-2-cfirst`, bounded run I4Zbvh) emits 165 screens from 166 recorded steps and stops at step 165 with boundary `unsupported hero move: next_to_u() with a steed`; the recorded C message is `You descend the stairs.--More--`.",
     "The selected recording has role Wizard, no starting pet, and action history that uses #wizgenesis to create and tame a saddled pony, #ride to mount it, #wizmap to reach the down staircase, then >. Step 165 has 2407 C RNG calls from new-level generation after the accepted descent; the JavaScript boundary stops before that source path.",
     "Source comparison: apply.c:918-928 permits a mounted steed to accompany the hero unless mon_has_amulet() returns true. The selected call is do.c:dodown() at 1251, which consumes next_to_u() and calls next_level(TRUE) at 1290. The required C transfer is do.c:1624 keepdogs(FALSE), dog.c:789-884, followed by do.c:1816 losedogs(), dog.c:381-383, and dog.c:420-623. JavaScript refusal sites are apply_next_to_u.js:34-38, dog.js:922-928, and dog.js:1033-1039.",
     "The currently implemented non-leashed path in apply.c:mleashed_next2u() returns false before checking m_next2u(), so the session does not reach its asynchronous mnexto() limitation. This evidence covers the selected no-leash steed path only."
-  ]
+  ],
+  "replayInputSha256": "06a6abfc0a0a484f27b5b045f98d2ae806023dccfc7cd604709230bef25c268a",
+  "evaluationArtifact": "challenges/evaluations/accepted-57c44fa48bff87c33541a147cedd6d9a0018a494-v43.json",
+  "evaluationUtc": "2026-10-11T03:14:40.052Z",
+  "queueSha256": "838fd8b7d9ca8b5a65fb81039abf06462c427031179073a72753bc4dc416e5f4"
 }
