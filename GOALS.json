@@ -263158,7 +263158,7 @@
     {
       "id": "fix-v43-priest-ghod-hitsu-north-corrected-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore temple priest deity retaliation and altar deity naming",
       "cFile": "priest.c",
       "sessions": [
@@ -263172,8 +263172,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "ghod_hitsu",
       "session": "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst",
       "step": 79,
@@ -263379,7 +263382,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

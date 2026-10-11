@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T03:04:12.187Z",
+  "capturedAt": "2026-10-11T03:18:53.215Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -85938,22 +85938,118 @@
         "at": "2026-10-11T03:03:11.333Z",
         "task": "B-investigation-v43-makewish-rnd-class-followup-20261011",
         "goal": "port-v43-prayer-divine-spell-gift-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011-13e66f29b37407b772de60b18e44267c17ba1797",
+        "type": "published",
+        "at": "2026-10-11T03:04:21.556Z",
+        "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011",
+        "commit": "13e66f29b37407b772de60b18e44267c17ba1797"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep8-v44-turn-quest-diffs-pending-20261011",
+        "type": "turn",
+        "at": "2026-10-11T03:07:32.542Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v44 has three independently replayed quest-path differentials; source-owner and overlap review is underway, with C-first exploration continuing."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-72a82c6a6b107f6e7e235a3872f7981f47315217",
+        "type": "ready",
+        "at": "2026-10-11T03:10:05.096Z",
+        "task": "A2-investigation-v43-monster-cures-blindness-two-heals-20261011",
+        "delivery": "72a82c6a6b107f6e7e235a3872f7981f47315217"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-monster-blindness-72a82c6a6",
+        "type": "received",
+        "at": "2026-10-11T03:11:42.581Z",
+        "task": "A2-investigation-v43-monster-cures-blindness-two-heals-20261011",
+        "delivery": "72a82c6a6b107f6e7e235a3872f7981f47315217"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-v43-all-candidates-reserved-20261011-1",
+        "type": "turn",
+        "at": "2026-10-11T03:13:10.010Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 is synced to accepted Main and idle; every remaining saved v43 candidate is assigned, pending, or dependency-blocked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v43-prayer-gift-implementation-20261011T0328Z",
+        "type": "turn",
+        "at": "2026-10-11T03:13:22.699Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Ported the v43 divine spell gift and direct spell learning; both book and direct-learning evidence match C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b5b2e7abdb26a64537319e28e44f038e41e4f11f",
+        "type": "ready",
+        "at": "2026-10-11T03:16:14.762Z",
+        "task": "B-investigation-v43-makewish-rnd-class-followup-20261011",
+        "delivery": "b5b2e7abdb26a64537319e28e44f038e41e4f11f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-priest-52e80dc0b",
+        "type": "received",
+        "at": "2026-10-11T03:16:23.310Z",
+        "task": "A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011",
+        "delivery": "52e80dc0bb1d38dd285cd3a6eddcdffbb615d83b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-priest-57c44fa48",
+        "type": "integrating",
+        "at": "2026-10-11T03:16:28.759Z",
+        "task": "A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011",
+        "integration": "57c44fa48bff87c33541a147cedd6d9a0018a494"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-priest-57c44fa48",
+        "type": "validated",
+        "at": "2026-10-11T03:16:38.692Z",
+        "task": "A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-v43-spell-gift-20261011T0320Z",
+        "type": "turn",
+        "at": "2026-10-11T03:16:45.195Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B’s spell-gift delivery is ready for integration; the remaining v43 queue is reserved by B, A2, or C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011-57c44fa48bff87c33541a147cedd6d9a0018a494-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T03:18:05.211Z",
+        "task": "A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-spell-gift-b5b2e7abd",
+        "type": "received",
+        "at": "2026-10-11T03:18:17.821Z",
+        "task": "B-investigation-v43-makewish-rnd-class-followup-20261011",
+        "delivery": "b5b2e7abdb26a64537319e28e44f038e41e4f11f"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011",
-        "worker": "A2",
-        "goal": "fix-v43-priest-ghod-hitsu-north-corrected-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "52e80dc0bb1d38dd285cd3a6eddcdffbb615d83b",
-        "since": "2026-10-11T02:31:43.046Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "A2-investigation-v43-mounted-steed-stair-descent-20261011",
         "worker": "A2",
@@ -85963,7 +86059,7 @@
         "delivery": "62a839cd330b48bd6d5386a482c80787a2887592",
         "since": "2026-10-11T02:46:46.889Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
@@ -85974,7 +86070,7 @@
         "delivery": "26b8b007292b62a956a8b971da3d0678a78782a3",
         "since": "2026-10-11T02:54:16.873Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "C-investigation-v43-wiz-loca-special-program-20261011",
@@ -85985,6 +86081,32 @@
         "delivery": "3b1dd1c57aa9bb67e5a41ca8ff0d88b3361365b8",
         "since": "2026-10-11T02:57:56.593Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v43-monster-cures-blindness-two-heals-20261011",
+        "worker": "A2",
+        "goal": "A2-divergence-v43-potionhit-monster-blindness-cure-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "72a82c6a6b107f6e7e235a3872f7981f47315217",
+        "since": "2026-10-11T03:10:05.096Z",
+        "blockedBy": [
+          "A2-investigation-v43-mounted-steed-stair-descent-20261011"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v43-makewish-rnd-class-followup-20261011",
+        "worker": "B",
+        "goal": "port-v43-prayer-divine-spell-gift-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "b5b2e7abdb26a64537319e28e44f038e41e4f11f",
+        "since": "2026-10-11T03:16:14.762Z",
+        "blockedBy": [
+          "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011"
+        ],
         "unblocks": 0
       }
     ],
@@ -86345,8 +86467,8 @@
     ]
   },
   "development": {
-    "executionCommit": "c64928df44aa809954e15310a8f77544ce9b51ab",
-    "measuredAt": "2026-10-11T03:00:41.336Z",
+    "executionCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+    "measuredAt": "2026-10-11T03:15:48.739Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
