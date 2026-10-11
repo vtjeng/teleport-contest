@@ -639,7 +639,7 @@ import {
     set_twoweap,
     which_armor,
 } from './worn.js';
-import { findgold, steal, stealgold } from './steal.js';
+import { findgold, steal, stealgold, stealamulet } from './steal.js';
 import { rloc, tele, tele_restrict, u_teleport_mon } from './teleport.js';
 import {
     Flying,
@@ -6470,7 +6470,8 @@ export async function mhitm_ad_samu(
     } else if (mdef === state.youmonst) {
         await hitmsg(magr, mattk, state, env);
         const random = env.random ?? { rn2 };
-        if (!random.rn2(20)) note_unported('steal.c stealamulet');
+        if (!random.rn2(20))
+            await stealamulet(magr, { ...env, state });
     } else {
         mhm.damage = 0;
     }
