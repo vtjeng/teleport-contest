@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T19:03:20.620Z",
+  "capturedAt": "2026-10-11T19:26:42.267Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -89652,22 +89652,60 @@
         "type": "accepted",
         "at": "2026-10-11T19:02:41.248Z",
         "task": "A2-investigation-v46-lit-candle-split-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-faaac-20261011",
+        "type": "turn",
+        "at": "2026-10-11T19:03:44.298Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Idle: remaining v46 candidates are reserved by C/B or covered by A2’s ready Sokoban delivery. Waiting for acceptance and the next queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-stone-34287484",
+        "type": "integrating",
+        "at": "2026-10-11T19:07:30.856Z",
+        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
+        "integration": "34287484a30d00e42da741c0a2ea369df7e096e7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-stone-34287484",
+        "type": "validated",
+        "at": "2026-10-11T19:17:50.980Z",
+        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-active-nine-20261011-1915",
+        "type": "turn",
+        "at": "2026-10-11T19:21:35.579Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has nine approved distinct C-first mismatches; continuing source-based candidate work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011-34287484a30d00e42da741c0a2ea369df7e096e7-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T19:26:09.106Z",
+        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-stone-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T19:26:38.034Z",
+        "worker": "B",
+        "state": "active"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
-        "worker": "B",
-        "goal": "port-zap-bhitm-mimic-reveal-v46-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "cdc48ee5377c2a0647766f8e0c2467beaa9ab38c",
-        "since": "2026-10-11T16:54:46.198Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
         "worker": "A2",
@@ -90072,8 +90110,8 @@
     ]
   },
   "development": {
-    "executionCommit": "faaac209f210ecca8b50ad1fe834b07d5132c80e",
-    "measuredAt": "2026-10-11T18:54:45.411Z",
+    "executionCommit": "34287484a30d00e42da741c0a2ea369df7e096e7",
+    "measuredAt": "2026-10-11T19:17:43.068Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

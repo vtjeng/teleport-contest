@@ -274995,7 +274995,7 @@
     {
       "id": "port-zap-bhitm-mimic-reveal-v46-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port bhitm mimic reveal path",
       "cFile": "zap.c",
       "sessions": [
@@ -275009,8 +275009,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "34287484a30d00e42da741c0a2ea369df7e096e7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "bhitm",
@@ -275411,6 +275414,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "34287484a30d00e42da741c0a2ea369df7e096e7",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
