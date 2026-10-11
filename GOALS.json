@@ -271400,7 +271400,7 @@
     {
       "id": "port-quest-finish-thrown-artifact-synthetic-v45-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port quest finish and wire leader interactions",
       "cFile": "quest.c",
       "sessions": [
@@ -271414,8 +271414,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3b603348e895b1e73580096f4b456acc946e8469",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "finish_quest",
@@ -271782,6 +271785,1062 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3b603348e895b1e73580096f4b456acc946e8469",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-pray-offer-real-amulet-v45-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port real Amulet offering on high altars",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst"
+      ],
+      "selectionReason": "The current v45 Sanctum approach mismatch reaches pray.c:offer_real_amulet through #offer and dosacrifice on the high altar.",
+      "detail": "Port the complete offer_real_amulet helper and wire its dosacrifice caller. Validate the admitted approach route and an independent Moloch continuation recording through the final pray.c-owned message.",
+      "openedAt": "30f67a242c4a3351b89d169a000f5357b9db0309",
+      "openStanding": {
+        "sha": "3b603348e895b1e73580096f4b456acc946e8469",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "offer_real_amulet",
+          "line": 1529,
+          "endLine": 1591,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1529,
+        "to": 1591
+      },
+      "syntheticProvenance": {
+        "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst": {
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+          "recordingSha256": "6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca",
+          "evaluationPath": "challenges/evaluations/accepted-3b603348e895b1e73580096f4b456acc946e8469-v45.json",
+          "evaluationCommit": "3b603348e895b1e73580096f4b456acc946e8469"
+        }
+      },
+      "activeStanding": {
+        "sha": "3b603348e895b1e73580096f4b456acc946e8469",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+          "recordingSha256": "6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.recipe.session.json",
+          "recipeSha256": "1c35cd806beff1d162ddd353766d798eb8847fb0ee51589f2cdc4884d34e7e7c",
+          "replayInputSha256": "1f0a9d0aeb93d48e20664b622881befd3bf5b5422b9d5b5986051825dff83ffd",
+          "evaluationPath": "challenges/evaluations/accepted-3b603348e895b1e73580096f4b456acc946e8469-v45.json",
+          "evaluationCommit": "3b603348e895b1e73580096f4b456acc946e8469",
+          "evaluationArtifact": "challenges/evaluations/accepted-3b603348e895b1e73580096f4b456acc946e8469-v45.json",
+          "evaluationUtc": "2026-10-11T13:24:46.950Z",
+          "remainingScreens": 1,
+          "recordedSteps": 162,
+          "previousScreensMatched": 161,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 161,
+              "total": 162
+            },
+            "rng": {
+              "matched": 7856,
+              "total": 7856
+            },
+            "cursors": {
+              "matched": 161,
+              "total": 162
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 161,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 161,
+                "key": "p"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "N",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 7856,
+              "cCaller": null,
+              "jsEntry": "rn2(5)=4",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 161,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 161,
+                "key": "p"
+              },
+              "cCursor": [
+                51,
+                0,
+                1
+              ],
+              "jsCursor": [
+                20,
+                10,
+                1
+              ]
+            }
+          },
+          "step": 161,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.json",
+            "result": {
+              "session": "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+              "recordingSha256": "6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca",
+              "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.recipe.session.json",
+              "recipeSha256": "1c35cd806beff1d162ddd353766d798eb8847fb0ee51589f2cdc4884d34e7e7c",
+              "replayInputSha256": "1f0a9d0aeb93d48e20664b622881befd3bf5b5422b9d5b5986051825dff83ffd",
+              "evaluationPath": "challenges/evaluations/accepted-3b603348e895b1e73580096f4b456acc946e8469-v45.json",
+              "evaluationCommit": "3b603348e895b1e73580096f4b456acc946e8469",
+              "evaluationUtc": "2026-10-11T13:24:46.950Z",
+              "remainingScreens": 1,
+              "recordedSteps": 162,
+              "previousScreensMatched": 161,
+              "regression": false,
+              "passed": false,
+              "error": null,
+              "metrics": {
+                "screens": {
+                  "matched": 161,
+                  "total": 162
+                },
+                "rng": {
+                  "matched": 7856,
+                  "total": 7856
+                },
+                "cursors": {
+                  "matched": 161,
+                  "total": 162
+                }
+              },
+              "firstMismatch": {
+                "screen": {
+                  "index": 161,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 161,
+                    "key": "p"
+                  },
+                  "kind": "ch",
+                  "row": 0,
+                  "column": 0,
+                  "cCell": {
+                    "ch": "Y",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  },
+                  "jsCell": {
+                    "ch": "N",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  }
+                },
+                "rng": {
+                  "index": 7856,
+                  "cCaller": null,
+                  "jsEntry": "rn2(5)=4",
+                  "stepIndex": null
+                },
+                "cursor": {
+                  "index": 161,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 161,
+                    "key": "p"
+                  },
+                  "cCursor": [
+                    51,
+                    0,
+                    1
+                  ],
+                  "jsCursor": [
+                    20,
+                    10,
+                    1
+                  ]
+                }
+              },
+              "step": 161,
+              "kind": "screen",
+              "sourceFile": "pray.c",
+              "function": "offer_real_amulet",
+              "message": null,
+              "cFile": "pray.c",
+              "luaFile": null,
+              "line": 1529,
+              "status": "complete",
+              "summary": "After the accepted priest and vault changes, this session reaches the source gap at step 161: #offer selects the real Amulet on the Sanctum high altar, and C prints 'You offer the Amulet of Yendor to Moloch...' while JavaScript falls through the dosacrifice() 'Nothing happens.' arm. The caller's current note_unported('pray.c offer_real_amulet') is the exact missing branch. Port the whole pray.c:offer_real_amulet() function and wire it at its existing dosacrifice() call.",
+              "goalKind": "file-port",
+              "selectionReason": "Selected from the fresh saved combined queue at SHA-256 47aecfde597781bf11c6ebded0bbec66423b7577d3cd5f5a2665595a48db1274, evaluated at accepted Main d6db550a19ff73dc442cabfd0acb3f89118d5b90. This is the only current unreserved source-distinct candidate: B owns the other Sanctum/no-carry session's makemon.c:makemon stop, and C owns quest.c:finish_quest. The selected approach case is independently reserved by A2; it now reaches pray.c:offer_real_amulet() after the accepted priest fix.",
+              "source": {
+                "file": "pray.c",
+                "functions": [
+                  "pray.c:offer_real_amulet()"
+                ],
+                "branch": "The recorded command sequence reaches a Sanctum TEMPLE high altar, places a real Amulet of Yendor on the floor, invokes #offer, and selects it with p. C's dosacrifice() sees AMULET_OF_YENDOR and AM_SANCTUM, then calls offer_real_amulet(otmp, altaralign). The emitted 'to Moloch' identifies the A_NONE branch: it consumes the Amulet, announces the offering, reduces alignment record, and proceeds into Moloch's death outcome. The recording ends at the first --More-- boundary after the announcement.",
+                "callers": [
+                  "nethack-c/upstream/src/pray.c:dosacrifice() (1874-1881) is the sole direct C caller: its real-Amulet arm calls offer_real_amulet() only when highaltar is true.",
+                  "js/pray.js:dosacrifice() (428-470) is the existing caller port. The high-altar real-Amulet arm currently records note_unported('pray.c offer_real_amulet') at lines 453-456 and then continues to the generic nothing_happens arm.",
+                  "The running command path is C cmd.c's #offer/MCMD_OFFER dispatch to dosacrifice(); JavaScript cmd.js:extcmd dispatch (around 5205) and cmd.js:act_on_act MCMD.OFFER dispatch (around 5651) both await pray.js:dosacrifice(). No caller edit outside pray.js is indicated by the current call map."
+                ],
+                "dependencies": [
+                  "Whole C definition at pray.c:1529-1589 has three altar-alignment arms and must be ported in source order. The currently reached A_NONE arm consumes the Amulet, calls done(DIED), and if death is declined continues through fry_by_god(A_NONE, TRUE), smoke feedback, and done(ESCAPED). Other arms handle a differently aligned deity's escape and aligned ascension.",
+                  "Return-valued callees read from this function are carried(otmp), a_gname(), u_gname(), s_suffix(Moloch), and hcolor(NH_BLACK/NH_ORANGE); matching JavaScript helpers already exist in obj.js, pray.js, hacklib.js, and do_name.js respectively. No additional return-valued C source unit is currently required.",
+                  "The remaining callees are void operations. Existing JS owners include do_wear.js:Amulet_off(), invent.js:useup()/useupf(), end.js:done(), pray.js:fry_by_god()/godvoice(), and pray.js:adjalign(). SetVoice is empty in the recorder's TTY build; the aligned arm's display_nhwindow(WIN_MESSAGE,FALSE) must follow existing TTY message-flush behavior. Keep any unsupported void-only call explicit with note_unported('<file.c> <function>') rather than inventing effects.",
+                  "The companion no-carry Sanctum case is currently reserved by B and stops earlier at makemon.c:makemon. Do not bundle or edit that session; re-evaluate its first remaining mismatch after B publishes."
+                ],
+                "evidencePlan": [
+                  "Use the admitted v45 approach session through segment 0 step 161 after the fix to verify production command dispatch and the recorded A_NONE branch entry.",
+                  "The existing case stops at the first pager after the Amulet announcement. Add a new independent recipes/pray.c recipe and matching recording with enough pager input to cover the reached branch's subsequent Moloch/death outcome; vary seed and date from the admitted case while retaining Wizard/debug setup needed for the Sanctum route.",
+                  "The whole source function also has non-A_NONE escape and same-alignment ascension arms. Confirm from source and current high-altar generation whether either is a valid recorder entry point; if a valid setup exists, add the smallest independent recipe variation. Otherwise record the source precondition that keeps the only active recorder route in A_NONE and test or pin the unreachable state arms without claiming runtime evidence for them."
+                ]
+              },
+              "evidence": [
+                "Saved queue SHA-256 47aecfde597781bf11c6ebded0bbec66423b7577d3cd5f5a2665595a48db1274 is current against accepted evaluation challenges/evaluations/accepted-d6db550a19ff73dc442cabfd0acb3f89118d5b90-v45.json; the case has 161/162 screens and cursors, 7,856/7,856 C RNG calls, with its sole remaining screen at segment 0 step 161.",
+                "The admitted recording digest is 6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca; its companion recipe digest is 1c35cd806beff1d162ddd353766d798eb8847fb0ee51589f2cdc4884d34e7e7c. Step 161 input is p; C's recorded first line is 'You offer the Amulet of Yendor to Moloch...--More--'.",
+                "At nethack-c/upstream/src/pray.c:1874-1881, dosacrifice() dispatches a real Amulet from a high altar to offer_real_amulet(). The entire helper at pray.c:1529-1589 immediately consumes the Amulet, emits the deity-specific offer line, and then branches by altar alignment.",
+                "js/pray.js:448-457 contains the matching caller arm and the exact refusal. Because the helper is skipped, dosacrifice() reaches the generic nothing_happens line; this produces the observed C Y versus JS N at row 0 column 0 and allows an extra JavaScript rn2(5)=4 after all 7,856 recorded C RNG calls.",
+                "The previous investigation named priest.c:intemple(), but that article mismatch was corrected in accepted Main before this evaluation. The first mismatch has advanced to the Amulet-offering source gap; this report is rewritten for the current source stop."
+              ],
+              "commit": "6bcfe84d919ad0dcee25a84fd0f475d23dc95eca",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+                "session": "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+                "recordingSha256": "6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca",
+                "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.recipe.session.json",
+                "recipeSha256": "1c35cd806beff1d162ddd353766d798eb8847fb0ee51589f2cdc4884d34e7e7c",
+                "replayInputSha256": "1f0a9d0aeb93d48e20664b622881befd3bf5b5422b9d5b5986051825dff83ffd",
+                "evaluationPath": "challenges/evaluations/accepted-3b603348e895b1e73580096f4b456acc946e8469-v45.json",
+                "evaluationCommit": "3b603348e895b1e73580096f4b456acc946e8469",
+                "evaluationArtifact": "challenges/evaluations/accepted-3b603348e895b1e73580096f4b456acc946e8469-v45.json",
+                "evaluationUtc": "2026-10-11T13:24:46.950Z",
+                "remainingScreens": 1,
+                "recordedSteps": 162,
+                "previousScreensMatched": 161,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 161,
+                    "total": 162
+                  },
+                  "rng": {
+                    "matched": 7856,
+                    "total": 7856
+                  },
+                  "cursors": {
+                    "matched": 161,
+                    "total": 162
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 161,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 161,
+                      "key": "p"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "N",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 7856,
+                    "cCaller": null,
+                    "jsEntry": "rn2(5)=4",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 161,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 161,
+                      "key": "p"
+                    },
+                    "cCursor": [
+                      51,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      20,
+                      10,
+                      1
+                    ]
+                  }
+                },
+                "step": 161,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "offer_real_amulet",
+            "implementation": "js/pray.js",
+            "symbol": "offer_real_amulet",
+            "sourceReview": "Read pray.c:1529-1589 in definition order. Ported Amulet_off, carried/useup versus useupf, the offering message, and all A_NONE, opposing-alignment, and matching-alignment branches in source evaluation order: alignment-record cap, death and life-saved continuation, fry_by_god and smoke/escape; alignment penalty and dominion messages; ascension state, alignment adjustment, godvoice, message-window flush, SetVoice macro, verbalize, rank message, and done. C makes no RNG calls. The called helpers with consumed return values (carried, a_gname/u_gname, s_suffix, hcolor) have existing JS owners; all other C helper results are discarded, and no additional callee was introduced. Removed the pray.c offer_real_amulet refusal.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "dosacrifice",
+                "source": "pray.c:dosacrifice at 1874-1879 calls offer_real_amulet after selecting a real AMULET_OF_YENDOR on a high altar."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/offer-real-amulet-moloch-continuation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+                "segment": 0,
+                "fromStep": 1,
+                "throughStep": 161,
+                "source": "cmd.c: extended #offer dispatch -> pray.c:dosacrifice -> pray.c:offer_real_amulet on the Sanctum high altar"
+              }
+            ],
+            "checkedAt": "7a282b9554f1b5c28e449615058ac7b741161e3d"
+          }
+        ],
+        "entryPointReview": "The selected static helper has one C call site, pray.c:dosacrifice. cmd.c exposes dosacrifice both as the extended #offer command and through MCMD_OFFER in act_on_act; the JS extended-command dispatcher and cmd.js act_on_act/queued-function path both reach pray.js:dosacrifice. The admitted case and new recipe exercise #offer on the Sanctum high altar with a real Amulet. The TTY recorder build includes all exercised calls; SetVoice is a TTY-build macro with no runtime effect. No excluded active caller or unported return-valued dependency remains in offer_real_amulet.",
+        "entryPoints": [
+          {
+            "name": "Extended command #offer with a real Amulet on the Sanctum high altar",
+            "functions": [
+              "offer_real_amulet"
+            ],
+            "recordings": [
+              "recordings/pray.c/offer-real-amulet-moloch-continuation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+                "segment": 0,
+                "fromStep": 1,
+                "throughStep": 161,
+                "source": "cmd.c: extended #offer dispatch -> pray.c:dosacrifice -> pray.c:offer_real_amulet on the Sanctum high altar"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-makemon-ettin-admission-v45-20261011",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Admit source-supported Ettins in runtime monster creation",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "selectionReason": "Integrate B delivery fafd9a2419bd9d0512dc02efbce1f0218c7e45fc for the sole current v45 mismatch.",
+      "detail": "C makemon accepts rndmonst selections without a JavaScript species allowlist; Ettin weapon and inventory behavior are already implemented and source-pinned.",
+      "openedAt": "10a9d80b163decd0a5c63af382a4e9af76ac628f",
+      "openStanding": {
+        "sha": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4155c38654a493477fa04e1f3089882aa2110af0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "makemon",
+      "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+      "step": 74,
+      "syntheticProvenance": {
+        "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst": {
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "evaluationPath": "challenges/evaluations/accepted-24970688b92d3929c8723c8b39f3ac86465a45ef-v45.json",
+          "evaluationCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef"
+        }
+      },
+      "activeStanding": {
+        "sha": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+          "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+          "replayInputSha256": "c26bb2cb91c6b081af64ee6b9818edc0b576299929b02b06c53ca196f3a2b19b",
+          "evaluationPath": "challenges/evaluations/accepted-24970688b92d3929c8723c8b39f3ac86465a45ef-v45.json",
+          "evaluationCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+          "evaluationArtifact": "challenges/evaluations/accepted-24970688b92d3929c8723c8b39f3ac86465a45ef-v45.json",
+          "evaluationUtc": "2026-10-11T13:44:16.187Z",
+          "remainingScreens": 83,
+          "recordedSteps": 157,
+          "previousScreensMatched": 74,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 74,
+              "total": 157
+            },
+            "rng": {
+              "matched": 6986,
+              "total": 7512
+            },
+            "cursors": {
+              "matched": 74,
+              "total": 157
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported initial-level monster creation: makemon() monster 174",
+            "step": 74
+          },
+          "step": 74,
+          "kind": "stop",
+          "sourceFile": "makemon.c",
+          "function": "makemon",
+          "message": "unsupported initial-level monster creation: makemon() monster 174",
+          "cFile": "makemon.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.json",
+            "result": {
+              "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+              "evaluationPath": "challenges/evaluations/accepted-24970688b92d3929c8723c8b39f3ac86465a45ef-v45.json",
+              "evaluationCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+              "remainingScreens": 83,
+              "recordedSteps": 157,
+              "status": "complete",
+              "commit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+                "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+                "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+                "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+                "replayInputSha256": "c26bb2cb91c6b081af64ee6b9818edc0b576299929b02b06c53ca196f3a2b19b",
+                "evaluationPath": "challenges/evaluations/accepted-24970688b92d3929c8723c8b39f3ac86465a45ef-v45.json",
+                "evaluationCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+                "evaluationArtifact": "challenges/evaluations/accepted-24970688b92d3929c8723c8b39f3ac86465a45ef-v45.json",
+                "evaluationUtc": "2026-10-11T13:44:16.187Z",
+                "remainingScreens": 83,
+                "recordedSteps": 157,
+                "previousScreensMatched": 74,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 74,
+                    "total": 157
+                  },
+                  "rng": {
+                    "matched": 6986,
+                    "total": 7512
+                  },
+                  "cursors": {
+                    "matched": 74,
+                    "total": 157
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported initial-level monster creation: makemon() monster 174",
+                  "step": 74
+                },
+                "step": 74,
+                "kind": "stop",
+                "sourceFile": "makemon.c",
+                "function": "makemon",
+                "message": "unsupported initial-level monster creation: makemon() monster 174",
+                "cFile": "makemon.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At segment 0, step 74, allmain.c:maybe_generate_rnd_mon reaches makemon(NULL, 0, 0, NO_MM_FLAGS), and the source-selected PM_ETTIN (174) is rejected by the JavaScript runtime species allowlist. C makemon() calls rndmonst() without that species gate. Ettin already has its matching m_initweap and m_initinv behavior; the actionable defect is the over-restrictive runtime admission check in js/makemon_create.js.",
+              "source": {
+                "file": "makemon.c",
+                "functions": [
+                  "makemon"
+                ],
+                "branch": "During ordinary play, a successful maybe_generate_rnd_mon gate calls makemon(NULL, 0, 0, NO_MM_FLAGS). makemon() selects a common species through rndmonst(), checks goodpos(), then enters the shared creation and inventory lifecycle. The accepted C trace selects PM_ETTIN. JavaScript selects the same species but assertSupportedSpecies rejects it: its ordinary reservoir is capped at difficulty 9 and its S_GIANT class does not make is_giant true for this Ettin.",
+                "callers": [
+                  "allmain.c:moveloop_core -> maybe_generate_rnd_mon -> makemon(NULL, 0, 0, NO_MM_FLAGS); js/allmain.js:finishElapsedTurn -> maybe_generate_rnd_mon -> makemon_runtime.",
+                  "makemon.c:makemon random-species branch -> rndmonst -> goodpos -> shared creation lifecycle; js/makemon_create.js:makemon random-species branch -> rndmonst -> assertSupportedSpecies."
+                ],
+                "dependencies": [
+                  "makemon.c:rndmonst and rndmonst_adj choose the source-valid species using level difficulty and weighted reservoir sampling.",
+                  "makemon.c:makemon calls m_initweap, m_initinv, and m_dowear for inventory-enabled creation. The existing JavaScript Ettin weapon branch and inventory behavior are source-pinned; the regression is the earlier runtime species refusal."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved combined queue SHA-256 is 8a0d13e2ac1af34a34102367fb5781530390f8ed4fe2510a4768935d1237b8dd. Its v45 entry records a stop at segment 0, step 74: unsupported initial-level monster creation, makemon() monster 174; 74/157 screens, 6986/7512 RNG calls, and 74/157 cursors match against evaluation challenges/evaluations/accepted-24970688b92d3929c8723c8b39f3ac86465a45ef-v45.json.",
+                "nethack-c/upstream/src/allmain.c:162-167 gates a random creation with rn2(25), rn2(50), or rn2(70) and then calls makemon(NULL, 0, 0, NO_MM_FLAGS); moveloop_core calls it at lines 236-239. js/allmain.js:418-444 uses the same gate and arguments, and finishElapsedTurn calls it at lines 833-840.",
+                "nethack-c/upstream/src/makemon.c:1220-1231 handles a null ptr by calling rndmonst() and retrying only for throws_rocks/Sokoban or goodpos. There is no species allowlist there. rndmonst() delegates to rndmonst_adj() at lines 1654-1671, which uses the current level difficulty to form the selectable pool.",
+                "js/makemon_create.js:3013-3017 picks through rndmonst() and then calls assertSupportedSpecies(). The check at lines 1047-1053 admits the ordinary reservoir only through difficulty 9; its separate true-giant clause at lines 1112-1116 excludes Ettin because the species does not satisfy is_giant. This is a JavaScript support guard, not a C makemon branch.",
+                "The source has an explicit Ettin initialization path: makemon.c:m_initweap at lines 179-185 gives S_GIANT Ettins a CLUB and skips the non-Ettin rn2(5) gate. js/makemon_create.js:1832-1848 already matches it, and scripts/makemon-create.test.mjs:6236-6282 pins the Ettin inventory behavior. makemon.c:1441-1445 invokes m_initweap, m_initinv, and m_dowear in the common creation lifecycle.",
+                "The exact C-to-JS cause is established by the saved evaluation stop and the matching PM_ETTIN rejection. A minimal general correction is to admit the already-supported Ettin runtime species through the existing guard and verify the admitted replay; later first mismatches, if any, remain separate findings.",
+                "After the Ettin admission change, `node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json` verified the admitted v45 segment 0 through zero-based step 90 against the C recording.",
+                "A fresh C/JavaScript replay now passes the former makemon.c:makemon stop. Its first remaining divergence is at one-based segment 1, step 92: C calls rn2(3) from xkilled(mon.c:3574), while JavaScript calls rn2(6); the first screen and cursor mismatches are also at boundary 92. Replaying the 91-key prefix leaves JS level.flags.has_morgue=true but level.flags.graveyard=false. C mklev.c:level_finalize_topology (1556-1560) promotes graveyard whenever has_morgue is set; js/mklev.js:level_finalize_topology (8038 onward) omits that promotion. This is the concrete downstream reason LEVEL_SPECIFIC_NOCORPSE skips its graveyard-undead draw for the demilich. It is a separate mklev finalization boundary, recorded for follow-up rather than included in this makemon fix."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+          "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+          "replayInputSha256": "dac61d81e93232da0f457c8a633e69ea5323b4793ea6d359497ed6d9144eb276",
+          "evaluationPath": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+          "evaluationCommit": "4155c38654a493477fa04e1f3089882aa2110af0",
+          "evaluationArtifact": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+          "evaluationUtc": "2026-10-11T14:00:02.298Z",
+          "remainingScreens": 2,
+          "recordedSteps": 157,
+          "previousScreensMatched": 74,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 155,
+              "total": 157
+            },
+            "rng": {
+              "matched": 7511,
+              "total": 7512
+            },
+            "cursors": {
+              "matched": 156,
+              "total": 157
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 91,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 91,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 27,
+              "cCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 7233,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "xkilled(mon.c:3574)",
+              "jsEntry": "rn2(6)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 91,
+                "key": "."
+              },
+              "stepIndex": 91
+            },
+            "cursor": {
+              "index": 91,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 91,
+                "key": "."
+              },
+              "cCursor": [
+                65,
+                0,
+                1
+              ],
+              "jsCursor": [
+                74,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 91,
+          "kind": "rng",
+          "sourceFile": "mon.c",
+          "function": "xkilled",
+          "message": null,
+          "cFile": "mon.c",
+          "luaFile": null,
+          "line": 3574,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.json",
+            "previousRemainingScreens": 83
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "4155c38654a493477fa04e1f3089882aa2110af0",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-mklev-graveyard-promotion-v45-20261011",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Promote morgue levels to graveyards during topology finalization",
+      "cFile": "mklev.c",
+      "sessions": [],
+      "selectionReason": "Integrate B work for the sole accepted v45 mismatch after Ettin admission.",
+      "detail": "C mklev.c:level_finalize_topology conditionally sets graveyard when has_morgue is true; both production callers are already wired and the JavaScript port omits only this state promotion.",
+      "openedAt": "151c39d4779cbff620d0f1cc5cef6b125f0fbff5",
+      "openStanding": {
+        "sha": "4155c38654a493477fa04e1f3089882aa2110af0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "960efc2aac7081f5501bedb82d87b99dafd6431c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "level_finalize_topology",
+      "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+      "step": 91,
+      "syntheticProvenance": {
+        "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst": {
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "evaluationPath": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+          "evaluationCommit": "4155c38654a493477fa04e1f3089882aa2110af0"
+        }
+      },
+      "activeStanding": {
+        "sha": "4155c38654a493477fa04e1f3089882aa2110af0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+          "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+          "replayInputSha256": "dac61d81e93232da0f457c8a633e69ea5323b4793ea6d359497ed6d9144eb276",
+          "evaluationPath": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+          "evaluationCommit": "4155c38654a493477fa04e1f3089882aa2110af0",
+          "evaluationArtifact": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+          "evaluationUtc": "2026-10-11T14:00:02.298Z",
+          "remainingScreens": 2,
+          "recordedSteps": 157,
+          "previousScreensMatched": 74,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 155,
+              "total": 157
+            },
+            "rng": {
+              "matched": 7511,
+              "total": 7512
+            },
+            "cursors": {
+              "matched": 156,
+              "total": 157
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 91,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 91,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 27,
+              "cCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 7233,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "xkilled(mon.c:3574)",
+              "jsEntry": "rn2(6)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 91,
+                "key": "."
+              },
+              "stepIndex": 91
+            },
+            "cursor": {
+              "index": 91,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 91,
+                "key": "."
+              },
+              "cCursor": [
+                65,
+                0,
+                1
+              ],
+              "jsCursor": [
+                74,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 91,
+          "kind": "rng",
+          "sourceFile": "mon.c",
+          "function": "xkilled",
+          "message": null,
+          "cFile": "mon.c",
+          "luaFile": null,
+          "line": 3574,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.json",
+            "result": {
+              "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+              "evaluationPath": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+              "evaluationCommit": "4155c38654a493477fa04e1f3089882aa2110af0",
+              "remainingScreens": 2,
+              "recordedSteps": 157,
+              "status": "complete",
+              "commit": "4155c38654a493477fa04e1f3089882aa2110af0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+                "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+                "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+                "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+                "replayInputSha256": "dac61d81e93232da0f457c8a633e69ea5323b4793ea6d359497ed6d9144eb276",
+                "evaluationPath": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+                "evaluationCommit": "4155c38654a493477fa04e1f3089882aa2110af0",
+                "evaluationArtifact": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+                "evaluationUtc": "2026-10-11T14:00:02.298Z",
+                "remainingScreens": 2,
+                "recordedSteps": 157,
+                "previousScreensMatched": 74,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 155,
+                    "total": 157
+                  },
+                  "rng": {
+                    "matched": 7511,
+                    "total": 7512
+                  },
+                  "cursors": {
+                    "matched": 156,
+                    "total": 157
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 91,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 91,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 27,
+                    "cCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 7233,
+                    "cEntry": "rn2(3)=2",
+                    "cCaller": "xkilled(mon.c:3574)",
+                    "jsEntry": "rn2(6)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 91,
+                      "key": "."
+                    },
+                    "stepIndex": 91
+                  },
+                  "cursor": {
+                    "index": 91,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 91,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      65,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      74,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 91,
+                "kind": "rng",
+                "sourceFile": "mon.c",
+                "function": "xkilled",
+                "message": null,
+                "cFile": "mon.c",
+                "luaFile": null,
+                "line": 3574
+              },
+              "summary": "After Ettin admission, the Sanctum case reaches a demilich death at zero-based step 91. C calls rn2(3) because level_finalize_topology promotes graveyard when has_morgue is set; JavaScript leaves graveyard false, so xkilled skips that undead-graveyard draw and calls rn2(6). The fix belongs in the existing mklev.c:level_finalize_topology port.",
+              "source": {
+                "file": "mklev.c",
+                "functions": [
+                  "level_finalize_topology"
+                ],
+                "branch": "After special-level fixup and room generation set level.flags.has_morgue, level_finalize_topology must set level.flags.graveyard true and preserve any earlier true value when has_morgue is false. The current v45 Sanctum replay enters mklev() after the Lua level loader has set has_morgue.",
+                "callers": [
+                  "C: mklev.c:mklev() calls level_finalize_topology() after makelevel(); the Sanctum Lua load/fill has set has_morgue by then. JavaScript: js/mklev.js:mklev() calls level_finalize_topology() after makelevel().",
+                  "C: sp_lev.c:lspo_finalize_level() also calls level_finalize_topology() after fixup_special() and before fill_special_room(). JavaScript: js/mklev.js:lspo_finalize_level() mirrors this source call order."
+                ],
+                "dependencies": []
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved combined queue SHA-256 b0094a909ce515982d005e205b4d70f84590cdba10fb14584792217c51e11e26, current against evaluation challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json at 4155c38654a493477fa04e1f3089882aa2110af0. The only candidate is synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst; it has 155/157 screens and 156/157 cursors matching, and its first mismatch is zero-based segment 0 step 91 on key \".\": C rn2(3)=2 at xkilled(mon.c:3574), JS rn2(6)=2.",
+                "The C recording identifies the target at step 90 as a demilich and records “You destroy the demilich!” on step 91. nethack-c/upstream/src/mon.c:44-47 defines LEVEL_SPECIFIC_NOCORPSE as rogue-level || !deathdrops || (graveyard && is_undead(mdat) && rn2(3)); xkilled() tests it at line 3574. js/mon.js:5315 implements the same predicate and xkilled() invokes it at line 6026.",
+                "A replay of the accepted segment through recorded step 90 yields current level D:20 with JS flags has_morgue=true, graveyard=false, and deathdrops=true. The source-level RNG difference therefore comes from the missing flag transition, not a missing xkilled random call.",
+                "nethack-c/upstream/src/mklev.c:1544-1574 implements level_finalize_topology(). Immediately after clearing the Lua coordinate frame, lines 1556-1560 preserve graveyard when has_morgue is true; JavaScript js/mklev.js:8038-8058 currently omits this source branch before topologize() and set_wall_state().",
+                "C sets has_morgue from MORGUE rooms in mkroom.c:fill_special_room() and sp_lev.c:fill_special_room(). The active C special-level route runs makelevel() through mklev.c:mklev(), which invokes level_finalize_topology() once room setup has completed; sp_lev.c:lspo_finalize_level() is the other direct caller and retains its source order. The corresponding JS callers already exist in js/mklev.js.",
+                "This is a bounded divergence fix in the existing mklev.c:level_finalize_topology implementation. The source change is to mirror its conditional state promotion; xkilled(), the graveyard predicate, and the existing has_morgue producers are not the defect."
+              ],
+              "step": 91,
+              "kind": "rng",
+              "sourceFile": "mklev.c",
+              "function": "level_finalize_topology",
+              "message": "Missing has_morgue-to-graveyard promotion changes the demilich death RNG branch.",
+              "cFile": "mklev.c",
+              "luaFile": null,
+              "line": 1559
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "960efc2aac7081f5501bedb82d87b99dafd6431c",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

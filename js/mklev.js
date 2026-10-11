@@ -8044,6 +8044,10 @@ function level_finalize_topology() {
     // level.  Later special-level operations must start from the zero frame.
     game.xstart = 0;
     game.ystart = 0;
+    // mklev.c keeps graveyard active after entering one and promotes it when
+    // level generation found a morgue. Do not clear an earlier graveyard.
+    if (game.level.flags.has_morgue)
+        game.level.flags.graveyard = true;
     if (!game.level?.flags?.is_maze_lev) {
         const nroom = game.level?.nroom ?? 0;
         for (let i = 0; i < nroom; i++)

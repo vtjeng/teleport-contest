@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 46100960,
+      "datetime": "20571213082345",
+      "nethackrc": "OPTIONS=name:V46TrollMealCorrected1,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\ncorpse of a troll\n eo                    "
+    }
+  ],
+  "comment": "Corrected C-first troll meal route: dismiss the wish inventory pager, eat the C-observed o slot, and advance through eating to test the short corpse timer."
+}

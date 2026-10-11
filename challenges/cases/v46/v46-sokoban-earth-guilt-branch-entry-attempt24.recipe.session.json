@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 46100953,
+      "datetime": "20571213082345",
+      "nethackrc": "OPTIONS=name:V46SokoGuilt24,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0016?\nd#wizmap\nhhhhhhhhkkkkkhhkkhhhkkkhhhhhhhhhhhhhhhhhhjjjjjhhjjjhjjlllll< #wizwish\nuncursed scroll of earth\nro #conduct\n "
+    }
+  ],
+  "comment": "C-first Sokoban branch route with attempt23's observed second-door resistance handled by a fifth southward input. Preserve all prior routes; this is a source-guided final check of the branch stair at [12,14] and earth-scroll conduct behavior."
+}

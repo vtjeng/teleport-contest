@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 46101174,
+      "datetime": "20581116141129",
+      "nethackrc": "OPTIONS=name:V46StoneFig,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nfigurine of a newt\nltoh #wizgenesis\npeaceful large mimic\n#levelchange\n8\n       #wizwish\nspellbook of stone to flesh\nr?p Zcn "
+    }
+  ],
+  "comment": "C-only attempt to learn and cast Stone to Flesh at the adjacent peaceful large mimic disguised as a statue; spell c and southeast direction are confirmed from the prior C prompts and map."
+}

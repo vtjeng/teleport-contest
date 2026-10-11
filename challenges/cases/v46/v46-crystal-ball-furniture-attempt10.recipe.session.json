@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 46100301,
+    "datetime": "20561206091234",
+    "nethackrc": "OPTIONS=name:V46FurnitureScan10,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": " #wizwish\nblessed +3 crystal ball\nan < \u001b."
+  }],
+  "comment": "C-only cursor correction after attempt9: Escape dismissed the farlook help pager and exposed `Move cursor to location`; select the hero's current location with `.` to finish browse_map."
+}

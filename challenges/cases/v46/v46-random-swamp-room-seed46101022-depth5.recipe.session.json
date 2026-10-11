@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 46101022,
+      "datetime": "20561208091234",
+      "nethackrc": "OPTIONS=name:V46Swamp46101022,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n5\n #wizmap\n"
+    }
+  ],
+  "comment": "C-first seed search for ordinary depth-five room generation reaching mkroom.c:mkswamp; each seed is a probe within one randomized-room candidate."
+}

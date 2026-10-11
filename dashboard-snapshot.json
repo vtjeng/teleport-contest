@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T13:15:06.584Z",
+  "capturedAt": "2026-10-11T14:21:19.722Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -88433,23 +88433,308 @@
         "type": "accepted",
         "at": "2026-10-11T13:14:21.157Z",
         "task": "A2-investigation-v45-vault-cursed-whistle-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-next-after-vault-20261011",
+        "type": "turn",
+        "at": "2026-10-11T13:15:13.506Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is checking the remaining v45 sessions and will claim an independent source scope if one is available."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-investigate-v45-approach-intemple-20261011",
+        "type": "turn",
+        "at": "2026-10-11T13:16:20.061Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v45-sanctum-approach-intemple-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T13:16:22.101Z",
+        "task": "A2-investigation-v45-sanctum-approach-intemple-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-post-quest-submit-reservations-20261011T1320Z",
+        "type": "turn",
+        "at": "2026-10-11T13:16:55.346Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Quest-finish is ready for integration; the current queue has no unreserved session for C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-quest-fcea0e51-20261011",
+        "type": "received",
+        "at": "2026-10-11T13:17:30.210Z",
+        "task": "C-investigation-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011",
+        "delivery": "fcea0e51a064242b91c3e915b79e193f8effb3d5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-quest-3b603348e",
+        "type": "integrating",
+        "at": "2026-10-11T13:20:25.848Z",
+        "task": "C-investigation-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011",
+        "integration": "3b603348e895b1e73580096f4b456acc946e8469"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-pray-offer-real-amulet-v45-20261011",
+        "type": "implement",
+        "at": "2026-10-11T13:21:01.419Z",
+        "task": "A2-investigation-v45-sanctum-approach-intemple-20261011",
+        "goal": "port-pray-offer-real-amulet-v45-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-quest-3b603348e",
+        "type": "validated",
+        "at": "2026-10-11T13:26:15.233Z",
+        "task": "C-investigation-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011-3b603348e895b1e73580096f4b456acc946e8469-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T13:27:12.029Z",
+        "task": "C-investigation-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-quest-accepted-sync-20261011T1330Z",
+        "type": "turn",
+        "at": "2026-10-11T13:29:08.307Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Synced accepted quest-finish Main; checking for an independent unreserved task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-accepted-quest-no-free-v45-20261011T1331Z",
+        "type": "turn",
+        "at": "2026-10-11T13:29:16.953Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted quest-finish is synced; both remaining queue sessions are claimed by other workers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e138fd461f8856d29ecf2e76e5526b0f1b16f7f6",
+        "type": "ready",
+        "at": "2026-10-11T13:33:33.943Z",
+        "task": "A2-investigation-v45-sanctum-approach-intemple-20261011",
+        "delivery": "e138fd461f8856d29ecf2e76e5526b0f1b16f7f6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-offer-amulet-e138fd46-20261011",
+        "type": "received",
+        "at": "2026-10-11T13:33:50.108Z",
+        "task": "A2-investigation-v45-sanctum-approach-intemple-20261011",
+        "delivery": "e138fd461f8856d29ecf2e76e5526b0f1b16f7f6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-offer-real-amulet-e138fd-20261011",
+        "type": "turn",
+        "at": "2026-10-11T13:35:28.706Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 is idle after submitting the real-Amulet offering port; the v45 queue has only the pending A2 case and B reserved makemon case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-offer-24970688b",
+        "type": "integrating",
+        "at": "2026-10-11T13:39:18.980Z",
+        "task": "A2-investigation-v45-sanctum-approach-intemple-20261011",
+        "integration": "24970688b92d3929c8723c8b39f3ac86465a45ef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fafd9a2419bd9d0512dc02efbce1f0218c7e45fc",
+        "type": "ready",
+        "at": "2026-10-11T13:44:59.930Z",
+        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011",
+        "delivery": "fafd9a2419bd9d0512dc02efbce1f0218c7e45fc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-fafd9a241",
+        "type": "turn",
+        "at": "2026-10-11T13:45:57.952Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B delivery submitted; remaining queue sessions are reserved by B and A2, so B is idle pending acceptance or queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-offer-amulet-24970688b-hosted-38144131666",
+        "type": "validated",
+        "at": "2026-10-11T13:46:15.757Z",
+        "task": "A2-investigation-v45-sanctum-approach-intemple-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v45-sanctum-approach-intemple-20261011-24970688b92d3929c8723c8b39f3ac86465a45ef-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T13:47:23.822Z",
+        "task": "A2-investigation-v45-sanctum-approach-intemple-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-pray-accepted-stale-queue-20261011T1350Z",
+        "type": "turn",
+        "at": "2026-10-11T13:48:26.352Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Accepted A2 work is synced; waiting for a queue refresh because the saved v45 candidates are accepted or reserved by B."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-post-accepted-queue-9f541df4-20261011T1348Z",
+        "type": "turn",
+        "at": "2026-10-11T13:49:00.755Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Synced accepted Main; the only unresolved v45 case is reserved by B, so A2 is idle pending reservation release or new admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-ettin-fafd9a241-20261011",
+        "type": "received",
+        "at": "2026-10-11T13:51:44.310Z",
+        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011",
+        "delivery": "fafd9a2419bd9d0512dc02efbce1f0218c7e45fc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-ettin-4155c3865",
+        "type": "integrating",
+        "at": "2026-10-11T13:55:39.532Z",
+        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011",
+        "integration": "4155c38654a493477fa04e1f3089882aa2110af0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-ettin-4155c3865-hosted-38145180352",
+        "type": "validated",
+        "at": "2026-10-11T14:01:40.190Z",
+        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011-4155c38654a493477fa04e1f3089882aa2110af0-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T14:02:34.931Z",
+        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v45-sanctum-morgue-finalize-attempt28-20261011",
+        "type": "assign",
+        "at": "2026-10-11T14:03:57.719Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-v45-sanctum-morgue-finalize-20261011",
+        "type": "turn",
+        "at": "2026-10-11T14:04:19.628Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is investigating the newly exposed v45 graveyard flag mismatch; implementation scope has not been claimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep10-active-20261011-v46-seven-confirmed",
+        "type": "turn",
+        "at": "2026-10-11T14:05:15.824Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v46 has seven approved distinct C-first mismatches; continuing source-diverse search toward a complete batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-mklev-graveyard-promotion-v45-20261011",
+        "type": "implement",
+        "at": "2026-10-11T14:08:38.544Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "goal": "fix-mklev-graveyard-promotion-v45-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-mklev-graveyard-delivery-20261011",
+        "type": "turn",
+        "at": "2026-10-11T14:12:14.234Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7b3c6f19ed1aff6baf56db00877fd62fe1415b05",
+        "type": "ready",
+        "at": "2026-10-11T14:12:40.849Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "delivery": "7b3c6f19ed1aff6baf56db00877fd62fe1415b05"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-mklev-7b3c6f19e-20261011",
+        "type": "received",
+        "at": "2026-10-11T14:12:59.942Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "delivery": "7b3c6f19ed1aff6baf56db00877fd62fe1415b05"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-mklev-post-submit-idle-20261011",
+        "type": "turn",
+        "at": "2026-10-11T14:13:10.704Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B has a tested v45 fix ready for integration. The only current synthetic candidate is the same session reserved by this delivery, so B is idle until integration or a queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-mklev-960efc2aa",
+        "type": "integrating",
+        "at": "2026-10-11T14:13:32.961Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "integration": "960efc2aac7081f5501bedb82d87b99dafd6431c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-mklev-960efc2aa-hosted-38146363047",
+        "type": "validated",
+        "at": "2026-10-11T14:19:13.513Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011-960efc2aac7081f5501bedb82d87b99dafd6431c-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T14:20:03.759Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "C-investigation-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011",
-        "worker": "C",
-        "goal": "port-quest-finish-thrown-artifact-synthetic-v45-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "fcea0e51a064242b91c3e915b79e193f8effb3d5",
-        "since": "2026-10-11T13:11:44.081Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -88831,8 +89116,8 @@
     ]
   },
   "development": {
-    "executionCommit": "d6db550a19ff73dc442cabfd0acb3f89118d5b90",
-    "measuredAt": "2026-10-11T13:12:37.821Z",
+    "executionCommit": "960efc2aac7081f5501bedb82d87b99dafd6431c",
+    "measuredAt": "2026-10-11T14:18:43.654Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
