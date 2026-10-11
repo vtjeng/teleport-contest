@@ -4,14 +4,14 @@
   "batch": "v42",
   "caseId": "v42-zhitu-acid-damage-dual-wield",
   "manifestPath": "challenges/manifests/v42.json",
-  "manifestSha256": "59839eb0c0958a187bc44638b55dafca3726adb7aba5e2a7b1522ce0ec6e2912",
+  "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
   "recordingPath": "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.session.json",
   "recordingSha256": "50dae38203aeac670cf78b9b2deeafba38ca1ddecce804b23fcb13bb8a873a48",
   "recipePath": "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.recipe.session.json",
   "recipeSha256": "d1ebcc8e6b50c27ec36757190cc7492f8b5c754646cb9fe81dfb6fddf8bf2b0c",
-  "evaluationPath": "challenges/evaluations/accepted-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-v42.json",
-  "evaluationCommit": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
-  "status": "diagnosed",
+  "evaluationPath": "challenges/evaluations/accepted-0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337-v42.json",
+  "evaluationCommit": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337",
+  "status": "complete",
   "remainingScreens": 1,
   "recordedSteps": 84,
   "commit": "9cdea202af88c860df94f59755ea1cbc5e70eba7",
@@ -37,7 +37,9 @@
       "zhitu(zap.c:4542) rn2(3)=0: off-hand acid_damage gate is true",
       "zhitu(zap.c:4544) rn2(6)=2"
     ],
-    "jsBehavior": "js/zap.js:zhitu preserves the source rn2(3) gates but calls note_unported('trap.c acid_damage') for the selected off-hand object, so it omits erosion and the corrosion message."
+    "jsBehavior": "js/zap.js:zhitu preserves the source rn2(3) gates but calls note_unported('trap.c acid_damage') for the selected off-hand object, so it omits erosion and the corrosion message.",
+    "remainingScreens": 1,
+    "session": "synthetic/v42/v42-zhitu-acid-damage-dual-wield"
   },
   "source": {
     "file": "trap.c",
@@ -184,5 +186,6 @@
     "recipes/trap.c/acid-damage-passiveum-hero-form.session.json": "f6145ba979474b32e48d1b3fd91b2257ed41218dcf9e5e1c4826c88369d4fbb2",
     "recordings/trap.c/acid-damage-passiveum-hero-form.session.json": "322ba5c10e11c6a8b0bf5cf3de4b3ecc5dce70f9a48c4e54587f5b6cd6f3335c",
     "recipes/trap.c/acid-damage-passivemm-acid-blob-conflict.session.json": "77b56bb88d1ee006c9e55d2e6687edd13a9dba4811f9561d2de55642487ee8c8"
-  }
+  },
+  "goalKind": "file-port"
 }
