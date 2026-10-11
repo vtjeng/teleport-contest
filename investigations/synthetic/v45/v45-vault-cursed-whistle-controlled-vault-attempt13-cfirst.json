@@ -120,7 +120,7 @@
     "functions": [
       "vault.c:findgd() (204-234), whole current-level and migrating-monster search; the JS migrating-monster branch currently throws UnsupportedVaultGuardError.",
       "vault.c:vault_summon_gd() (237-241), whole cursed-whistle scheduling helper; JS currently has no owner and apply.js:use_whistle() records it as unported.",
-      "vault.c:gd_sound() (1272-1275), whole pure guard-presence predicate; its boolean result controls sounds.c:dosounds().",
+      "vault.c:gd_sound() (1272-1275), whole guard-presence predicate; its boolean result controls sounds.c:dosounds(), and its findgd() callee can mutate game state while relocating a migrating guard.",
       "vault.c:vault_gd_watching() (1278-1285), whole gold-eating witness update; it consumes findgd()'s returned guard and updates EGD(guard)->witness when the guard sees the hero."
     ],
     "callers": [
@@ -135,7 +135,7 @@
     "dependencies": [
       "vault_summon_gd() consumes vault_occupied() and findgd() truth values; js/vault.js:vault_occupied() is already source-mapped and complete, while findgd() must be completed in this same task because C uses its returned pointer.",
       "The migrating-guard branch of findgd() calls mon_track_clear() and parkguard() with discarded void results. js/monst.js:mon_track_clear() and the local js/vault.js:parkguard() are already source-mapped owners.",
-      "gd_sound() depends on vault_occupied() and findgd(), then returns their negated combined predicate; port it in vault.js and test the pure return value. sounds.js should call that canonical owner rather than maintain a second guard scan.",
+      "gd_sound() depends on vault_occupied() and findgd(), then returns their negated combined predicate; port it in vault.js and test the return branches, with recorded runtime evidence for the impure migrating-guard call path. sounds.js should call that canonical owner rather than maintain a second guard scan.",
       "vault_gd_watching() depends on findgd() and the vision.h m_canseeu() macro; js/vision.js already owns that predicate. Wire eatspecial() so guard witness state changes under the same caller condition. The helper's C result is void and discarded by eatfood().",
       "teleds() uses findgd()'s returned pointer. Its later uleftvault() call is void and outside the selected vault function group; preserve it as an explicit note_unported('vault.c uleftvault') gap while allowing the selected findgd lookup to run.",
       "mkobj.c:next_ident() is not the defect: js/obj.js:next_ident() already implements the C rnd(2), nonzero-wrap handling. Its call is a consequence of invault() making the missing guard."
