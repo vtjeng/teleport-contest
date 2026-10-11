@@ -262,7 +262,7 @@ import {
     make_stunned,
     set_itimeout,
 } from './potion.js';
-import { region_danger } from './region.js';
+import { region_danger, region_safety } from './region.js';
 import { losexp, pluslvl } from './exper.js';
 import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
 import { aggravate } from './wizard.js';
@@ -285,7 +285,7 @@ import {
     p_coaligned,
     temple_occupied,
 } from './priest.js';
-import { couldsee } from './vision.js';
+import { cansee, couldsee, does_block, unblock_point } from './vision.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import { Monnam, a_monnam, mon_nam } from './do_name.js';
 import { killed, mon_offmap, wake_nearby, xkilled } from './mon.js';
@@ -1465,7 +1465,15 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
         await make_sick(0, null, false, SICK_ALL, state);
         break;
     case TROUBLE_REGION:
-        note_unported('region.c region_safety');
+        await region_safety(state, {
+            safeTeleds: (flags) => safe_teleds(flags, state),
+            message: (text) => ttyPline(text, state),
+            doesBlock: (x, y, location) => does_block(x, y, location, state),
+            unblockPoint: (x, y) => unblock_point(x, y, state),
+            canSee: (x, y) => cansee(x, y, state),
+            newsym: (x, y) => newsym(x, y),
+            random: { d },
+        });
         break;
     case TROUBLE_HIT: {
         await ttyPline('You feel much better.', state);
