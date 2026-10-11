@@ -1,18 +1,17 @@
 {
   "session": "synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+  "remainingScreens": 2,
+  "recordedSteps": 301,
   "corpus": "synthetic",
   "batch": "v43",
   "caseId": "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
   "manifestPath": "challenges/manifests/v43.json",
   "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
   "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
-  "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
-  "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
-  "remainingScreens": 201,
-  "recordedSteps": 301,
+  "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
+  "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
   "status": "complete",
-  "goalKind": "divergence-fix",
-  "commit": "42b8e23687eab4b71988b73708c121750093abe7",
+  "commit": "26b8b007292b62a956a8b971da3d0678a78782a3",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v43",
@@ -25,118 +24,119 @@
     "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
     "recipe": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json",
     "recipeSha256": "b8e4ca41d452d1a4edfa0c9edf79687a46e0528b22985093b4d5f39b1a69003c",
-    "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f",
-    "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
-    "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
-    "evaluationArtifact": "challenges/evaluations/v43-baseline-d89e1af6.json",
-    "evaluationUtc": "2026-10-11T01:16:14.974Z",
-    "remainingScreens": 201,
+    "replayInputSha256": "d652fa57c326bf68debc5c2fcd23217a0c0127a05049046723d9062066dc7630",
+    "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
+    "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+    "evaluationArtifact": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
+    "evaluationUtc": "2026-10-11T02:29:19.784Z",
+    "remainingScreens": 2,
     "recordedSteps": 301,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 299,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 100,
+        "matched": 299,
         "total": 301
       },
       "rng": {
-        "matched": 2399,
+        "matched": 2607,
         "total": 2617
       },
       "cursors": {
-        "matched": 100,
+        "matched": 300,
         "total": 301
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: isReviver is not available for otyp 265",
-      "step": 100
+      "screen": {
+        "index": 291,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 291,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 31,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2607,
+        "cEntry": "rnd(999)=358",
+        "cCaller": "rnd_class(objnam.c:5413)",
+        "jsEntry": "rn2(1000)=579",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 291,
+          "key": " "
+        },
+        "stepIndex": 291
+      },
+      "cursor": {
+        "index": 291,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 291,
+          "key": " "
+        },
+        "cCursor": [
+          39,
+          0,
+          1
+        ],
+        "jsCursor": [
+          61,
+          13,
+          1
+        ]
+      }
     },
-    "step": 100,
-    "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "unsupported hero command: an unported branch of this command: isReviver is not available for otyp 265",
-    "cFile": null,
+    "step": 291,
+    "kind": "rng",
+    "sourceFile": "objnam.c",
+    "function": "rnd_class",
+    "message": null,
+    "cFile": "objnam.c",
     "luaFile": null,
-    "line": null
+    "line": 5413
   },
-  "summary": "The original wizard-wish corpse-stack stop is fixed by wiring makewish’s canonical isReviver hook. Continued replay exposed two bounded source-path defects, also fixed here: do.js preflight now admits the timed corpse pile merge allowed by invent.c:mergable, and pray.js imports canonical align_str for eval_offering’s unicorn branch. After these fixes the admitted v43 replay matches through step 290 (291 screens, cursors, and RNG prefix); its first remaining divergence at step 291 is the separate pray.c:give_spell spellbook-generation path, which is intentionally outside this delivery.",
+  "summary": "After the accepted bounded makewish, corpse-drop, and offering fixes, the v43 same-seed replay first differs at step 291: successful prayer reaches pray.c:pleased case 6, which calls the wholly unported pray.c:give_spell. C creates a spellbook through mkobj and objnam.c:rnd_class before the JS skipped branch proceeds to a later prayer draw. The 25% direct-learning branch also consumes the return from the unported spell.c:force_learn_spell, so both complete C functions and the exact pleased caller wiring form the coherent source scope. A2 reserves other pray.c functions; this function-scoped task is disjoint.",
   "source": {
-    "file": "zap.c",
-    "branch": "In zap.c:makewish, when a wizard wish creates a CORPSE and hold_another_object adds it to inventory, invent.c:mergable reaches its corpse branch after candidate objects have matching corpsenm values; for corpsenm >= LOW_PM it calls is_reviver(&mons[otmp->corpsenm]) and refuses to merge if true. JavaScript reaches the same branch in js/invent.js:mergable, which requires hooks.isReviver. The makewish-specific holdEnv omits the adapter already supplied by objectGenerationEnv, producing the step-100 UnsupportedObjectOperationError instead of C’s predicate result.",
+    "file": "pray.c",
     "functions": [
-      "makewish",
-      "dropx",
-      "eval_offering"
+      "give_spell"
     ],
+    "branch": "On the successful-prayer reward case 6, create a spellbook and retry selection while the candidate is a usable known/restricted spell; sometimes teach the spell directly, otherwise discover/bless/place the book at the hero’s feet and update the map. Preserve the exact object-generation, spell-learning, message, and RNG order for every branch.",
     "callers": [
-      "cmd.c:rhack dispatches C(w) through wizcmds.c:wiz_wish to zap.c:makewish; JavaScript follows js/cmd.js:runWishCommand -> js/wizcmds.js:wiz_wish -> js/zap.js:makewish.",
-      "zap.c:makewish passes its inventory/drop callbacks to hold_another_object, which reaches do.c:dropx when the wished object is dropped; js/zap.js:makewish supplies dropObject: js/do.js:dropx, whose preflight_dropx previously rejected a timed corpse merge admitted by invent.c:mergable.",
-      "pray.c:dosacrifice -> offer_corpse -> eval_offering; JavaScript js/pray.js:dosacrifice -> offer_corpse -> eval_offering."
+      "pray.c:pleased case 6 calls give_spell at line 1349 after the successful prayer reward switch; JavaScript’s matching caller is js/pray.js:pleased case 6, currently a note_unported placeholder around line 2267."
     ],
     "dependencies": [
-      "invent.c:hold_another_object -> addinv_core0 -> mergable at 4442-4445",
-      "mondata.h:is_reviver, already ported as js/mondata.js:is_reviver",
-      "js/object_generation.js:objectGenerationEnv already provides the canonical hooks.isReviver adapter"
-    ],
-    "additionalUnits": [
-      {
-        "file": "do.c",
-        "function": "dropx",
-        "lines": "786-796",
-        "implementation": "js/do.js:dropx / preflight_dropx",
-        "correction": "Preflight admits a timed corpse pile member only when both objects are corpses with matching species and the member is neither lamplit nor globby, preserving the downstream merged() timer stop."
-      },
-      {
-        "file": "pray.c",
-        "function": "eval_offering",
-        "lines": "1899-1956",
-        "implementation": "js/pray.js:eval_offering",
-        "correction": "Added the canonical align_str import used by the source branch when a unicorn is offered on an altar aligned with the hero; the source function logic was already ported."
-      }
+      "The initial spellbook creation and retry selection use already-ported js/obj.js:mkobj and rnd_class; no second owner is needed for those helpers.",
+      "The 25% direct-learning branch consumes spell.c:force_learn_spell’s returned casting letter. That C helper has no JavaScript owner, so the same coherent task must implement it in js/spell.js; its spellid, known_spell, spellet, and KEEN-slot state helpers already exist.",
+      "A2’s ready priest delivery reserves pray.c:offer_corpse and pray.c:offer_different_alignment_altar, not pray.c:give_spell or the case-6 branch in pleased. Parent approved this function-scoped js/pray.js edit; B will keep the textual edit confined to pleased’s case 6."
     ]
   },
+  "goalKind": "file-port",
   "evidence": [
-    "Saved combined queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json (SHA-256 1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093) identifies synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst, with first stop at step 100: unsupported hero command: an unported branch of this command: isReviver is not available for otyp 265; it records 201 remaining screens over 301 steps.",
-    "Fresh differential of the admitted input-only recipe challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json at examined commit 42b8e23687eab4b71988b73708c121750093abe7 reproduces the early JS stop: the reference has 2,617 RNG calls and continues past step 100, while JavaScript stops at 2,399 calls; the next reference draw is zap.c:makewish at line 6421.",
-    "Upstream nethack-c/upstream/src/zap.c:6314-6422 builds the wished object and calls hold_another_object at 6419. Upstream nethack-c/upstream/src/invent.c:1208-1311 adds the object through inventory handling; mergable at 4442-4445 checks eggs and revivable corpses with is_reviver. The C branch already defines the expected behavior.",
-    "JavaScript js/zap.js:1942-1971 creates a custom holdEnv whose hooks cover inventory effects but omit isReviver. js/invent.js:3553-3554 requires that hook at the corpse branch. js/object_generation.js:42-50 already exports the canonical adapter, and js/mondata.js:1382 already ports is_reviver. The actionable scope is limited to wiring that adapter in js/zap.js and adding a source-pinned production-path regression in scripts/wizard-wish.test.mjs.",
-    "A trimmed input-only recipe ending at zero-based step 290 was freshly recorded and replayed with exact parity: 2,605 RNG calls, 291 screens, and 291 cursors match. This prefix reaches makewish’s reviver hook, the compatible timed corpse drop/stack path, and the later hero-aligned unicorn offering branch.",
-    "Implementation replay after the three bounded corrections: full C and JavaScript output contains 301 screens and cursors each. The first differing boundary is 292 (zero-based input step 291), when C begins pray.c:give_spell and reaches objnam.c:rnd_class. First RNG difference is call index 2608: C rnd(999)=358 @ rnd_class(objnam.c:5413), JavaScript rn2(1000)=579."
+    "Saved combined queue SHA-256 daf596ad43e6d480fef4ebcc59e8f886f44e362b1ceabda10e010899d9d3362b records the current admitted v43 session with 2 remaining screens, 299/301 screens and 300/301 cursors matched, and the first mismatch at segment 0, zero-based step 291, key space. C shows a horizontal More line at row 0 column 31; JavaScript has a blank cell.",
+    "C path: pray.c:pleased (1071-1386), successful prayer reward switch at 1344-1350, enters case 6 and calls give_spell(). Whole give_spell is pray.c:999-1067. Its initial mkobj(SPBOOK_no_NOVEL, TRUE) reaches mkobj.c:mkobj then objnam.c:rnd_class; its retry loop calls rnd_class directly and preserves known-spell, restricted-skill, discovery, direct-learning, blessing, object-free, placement, and newsym behavior.",
+    "JavaScript path: js/pray.js:pleased has a matching case-6 branch at about line 2267 but only calls note_unported(\"pray.c give_spell\"). This explains why C begins object generation at the recorded boundary while JS falls through to the later prayer timer path.",
+    "Current queue annotation cites objnam.c:rnd_class at line 5413: C records rnd(999)=358 and JS next records rn2(1000)=579 at RNG index 2607. The source trace places this at the start of the omitted give_spell object-generation path; the existing js/obj.js mkobj/rnd_class functions remain the canonical helpers.",
+    "The prior accepted B v43 makewish report identifies the 291-step exact prefix and explicitly leaves pray.c:give_spell outside that delivery. Implementation scope is not yet claimed; A2’s reservations are limited to pray.c:offer_corpse and pray.c:offer_different_alignment_altar, so the exact caller branch does not overlap its source reservation.",
+    "Required-callee audit: pray.c:give_spell calls spell.c:force_learn_spell at lines 1028-1045 and tests its returned spell letter to choose whether to discard the book or report learned/restored knowledge. The helper is missing from js/spell.js; whole-source completion must include this return-valued callee. Its incrnknow operation is a C macro assigning the shared spell knowledge slot, not another function owner."
   ],
-  "queueSha256": "1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093",
-  "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f",
-  "postImplementationDifferential": {
-    "command": "node scripts/diff-fresh.mjs challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json",
-    "result": "The full admitted replay now has an exact matching C/JavaScript prefix through zero-based step 290: 2,605 RNG calls, 291 of 301 screens, and 291 of 301 cursors match. The admitted white-unicorn offering reaches eval_offering’s align_str message branch before the cited prefix ends.",
-    "firstRemainingMismatch": {
-      "zeroBasedStep": 291,
-      "oneBasedBoundary": 292,
-      "rngIndex": 2608,
-      "source": "pray.c:pleased -> give_spell -> mkobj -> rnd_class (objnam.c:5413)",
-      "cRng": "rnd(999)=358 @ rnd_class(objnam.c:5413)",
-      "jsRng": "rn2(1000)=579",
-      "screen": "At boundary 292, C displays “You feel that Thoth is pleased.--More--”; JavaScript does not pause for that page because js/pray.js:pleased still calls note_unported('pray.c give_spell').",
-      "scope": "Separate source unit; pray.c:give_spell is not reserved, edited, or claimed in this delivery."
-    },
-    "fullReplayMetrics": {
-      "c": {
-        "screens": 301,
-        "rng": 2617,
-        "cursors": 301
-      },
-      "js": {
-        "screens": 301,
-        "rng": 2612,
-        "cursors": 301
-      }
-    },
-    "fullReplayLog": "/tmp/B-v43-makewish-after-pray-diff.log",
-    "exactPrefixRecipe": "/tmp/B-v43-makewish-prefix-291.recipe.session.json",
-    "exactPrefixLog": "/tmp/B-v43-makewish-prefix-291-diff.log"
-  }
+  "queueSha256": "daf596ad43e6d480fef4ebcc59e8f886f44e362b1ceabda10e010899d9d3362b"
 }
