@@ -242,7 +242,7 @@ import { somexyspace } from './mklev.js';
 import { search_special } from './mkroom.js';
 import { settrack } from './track.js';
 import { ttyPline } from './tty_message.js';
-import { vault_occupied } from './vault.js';
+import { findgd, vault_occupied } from './vault.js';
 import { couldsee, vision_recalc } from './vision.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 
@@ -1784,14 +1784,9 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
     const u = state.u;
     let allow_drag = (teleds_flags & TELEDS_ALLOW_DRAG) !== 0;
     const is_teleport = (teleds_flags & TELEDS_TELEPORT) !== 0;
-    const vault_guard = vault_occupied(u.urooms, state);
-
-    if (vault_guard) {
-        // findgd() and uleftvault() own the guard's shrill whistle.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'teleds() out of an occupied vault',
-        );
-    }
+    const vault_guard = vault_occupied(u.urooms, state)
+        ? findgd(state)
+        : null;
     if (u.utraptype === TT_BURIEDBALL) {
         await buried_ball_to_punishment(state);
     }
@@ -1917,6 +1912,15 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
        unblocked; do this after map+vision has been updated */
     if (state.level.at(u.ux, u.uy).typ !== state.level.at(u.ux0, u.uy0).typ)
         await switch_terrain(state, env);
+    // C teleds() temporarily recalculates u.urooms so uleftvault() can sound
+    // the guard's alarm before spoteffects() emits room-entry messages.
+    if (vault_guard) {
+        const savedUrooms = u.urooms;
+        u.urooms = in_rooms(u.ux, u.uy, VAULT, state);
+        if (!vault_occupied(u.urooms, state))
+            note_unported('vault.c uleftvault');
+        u.urooms = savedUrooms;
+    }
     /* possible shop entry message comes after guard's shrill whistle */
     // C teleds() does not exclude an occupied destination; spoteffects() owns
     // the resident monster's surprise after the hero has arrived.

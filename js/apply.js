@@ -604,6 +604,7 @@ import { S_goodpos } from './symbols.js';
 import { in_rooms } from './rooms.js';
 import { On_stairs, stairway_at } from './stairs.js';
 import { growl, set_voice, whimper, yelp } from './sounds.js';
+import { vault_summon_gd } from './vault.js';
 import {
     attack_checks,
     check_caitiff,
@@ -4525,7 +4526,7 @@ export async function use_whistle(obj, state = game, env = {}) {
     await (env.wakeNearby ?? wake_nearby)(true, {
         ...env, state, random: env.random ?? whistleRandom,
     });
-    if (obj.cursed) note_unported('vault.c vault_summon_gd');
+    if (obj.cursed) vault_summon_gd(state);
 }
 
 export async function use_magic_whistle(obj, state = game, env = {}) {
