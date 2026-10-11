@@ -1944,6 +1944,10 @@ export async function makewish(state = game) {
         hooks: {
             message: ttyPline,
             encumberMessage: encumber_msg,
+            // C's invent.c:mergable() can compare a second corpse while
+            // addinv() handles the wish. Reuse the canonical object-generation
+            // adapter instead of letting that source branch hit a missing hook.
+            isReviver: objectGenerationEnv({ state }).hooks.isReviver,
             // do.c dropz() -> stackobj() -> invent.c merged() reaches
             // mkobj.c obj_extract_self() for the pile member the landing
             // object absorbs, and that member is on the floor.

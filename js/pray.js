@@ -21,6 +21,7 @@
 
 import { you_unwere } from './were.js';
 import { buried_ball_to_freedom } from './dig.js';
+import { align_str } from './insight.js';
 import {
     A_CHAOTIC,
     A_CURRENT,

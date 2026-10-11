@@ -809,6 +809,64 @@ test('a timed pile member is refused before the object leaves the pack',
         );
     });
 
+// C ref: do.c:dropx() -> dropy() -> dropz() -> flooreffects() ->
+// invent.c:stackobj() -> merged().  Unlike eggs, invent.c:mergable() permits
+// matching non-reviver corpses with different timer state, and merged() stops
+// the absorbed floor corpse's timer.
+test('a timed non-reviver corpse stack is admitted and stops the absorbed timer',
+    async () => {
+        const doSource = readFileSync(
+            new URL('../nethack-c/upstream/src/do.c', import.meta.url), 'utf8',
+        );
+        const inventSource = readFileSync(
+            new URL('../nethack-c/upstream/src/invent.c', import.meta.url), 'utf8',
+        );
+        assert.match(doSource,
+            /dropx\(struct obj \*obj\)[\s\S]*?dropy\(obj\);/u);
+        assert.match(inventSource,
+            /obj->otyp == EGG && \(obj->timed \|\| otmp->timed\)[\s\S]*?obj->otyp == CORPSE && otmp->corpsenm >= LOW_PM\s*&& is_reviver/u);
+        assert.match(inventSource,
+            /if \(obj->timed\)\s*obj_stop_timers\(obj\);/u);
+
+        const state = await startedGame();
+        const { ux, uy } = state.u;
+        state.level.at(ux, uy).typ = ROOM;
+
+        const dropped = mksobj(CORPSE, false, false, { state });
+        dropped.corpsenm = PM_SMALL_MIMIC;
+        dropped.timed = 0;
+        dropped.how_lost = LOST_DROPPED;
+        addinv(dropped, { state });
+
+        const oldPile = state.level.objects[ux][uy] ?? null;
+        const member = newObject({
+            ...dropped,
+            how_lost: LOST_DROPPED,
+            nobj: state.level.objlist ?? null,
+            o_id: dropped.o_id + 10000,
+            ox: ux,
+            oy: uy,
+            timed: 1,
+            where: OBJ_FLOOR,
+            nexthere: oldPile,
+        });
+        state.level.objects[ux][uy] = member;
+        state.level.objlist = member;
+
+        const env = dropCommandEnv(state, {
+            hooks: { isReviver: () => false },
+        });
+        assert.doesNotThrow(() => preflight_dropx(dropped, env));
+        await dropx(dropped, env);
+
+        assert.equal(dropped.where, OBJ_FLOOR);
+        assert.equal(dropped.quan, 2);
+        assert.equal(member.timed, 0,
+            'merged() stops the timer on its absorbed pile object');
+        assert.ok(!pileAt(state, ux, uy).includes(member));
+        assert.ok(pileAt(state, ux, uy).includes(dropped));
+    });
+
 // The other answer of the same conjunct. mergable() decides which members
 // merged() can reach, so a lit or timed member the dropped object cannot merge
 // with is not a hazard and must not stop the drop. Without this row, replacing
