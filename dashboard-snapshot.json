@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T10:05:24.942Z",
+  "capturedAt": "2026-10-11T10:26:09.221Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -87669,6 +87669,98 @@
         "at": "2026-10-11T10:05:17.090Z",
         "task": "B-investigation-v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst-20261011",
         "delivery": "3ef09acaf86104dd0feb2ff0a76c117a59da45f3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B-stealamulet-review-20261011",
+        "type": "activity",
+        "at": "2026-10-11T10:06:14.667Z",
+        "task": "B-investigation-v45-stealamulet-wizard-demon-attempt10-cfirst-20261011",
+        "phase": "review",
+        "reason": "Inspect the queued stealamulet delivery, its exact source scope, caller wiring, and saved validation before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-stealamulet-70c31c250-20261011",
+        "type": "integrating",
+        "at": "2026-10-11T10:08:16.582Z",
+        "task": "B-investigation-v45-stealamulet-wizard-demon-attempt10-cfirst-20261011",
+        "integration": "70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-064be92725ba74d474ee0e8f42fe45517f27e34d",
+        "type": "ready",
+        "at": "2026-10-11T10:12:34.563Z",
+        "task": "C-investigation-v45-punished-iron-ball-throw-long-lane-attempt13-cfirst-20261011",
+        "delivery": "064be92725ba74d474ee0e8f42fe45517f27e34d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v45-camera-melee-20261011",
+        "type": "implement",
+        "at": "2026-10-11T10:12:51.350Z",
+        "task": "B-investigation-v45-camera-wielded-northwest-result-attempt9-cfirst-20261011",
+        "goal": "divergence-v45-camera-wielded-melee-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v45-camera-melee-implementation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T10:13:10.931Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the v45 wielded-camera melee continuation and checking its C source order."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C-iron-ball-064be92725ba74d474ee0e8f42fe45517f27e34d",
+        "type": "received",
+        "at": "2026-10-11T10:13:47.415Z",
+        "task": "C-investigation-v45-punished-iron-ball-throw-long-lane-attempt13-cfirst-20261011",
+        "delivery": "064be92725ba74d474ee0e8f42fe45517f27e34d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v45-quest-finish-thrown-artifact-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T10:14:51.939Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Starting an independent v45 quest-finish mismatch investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011",
+        "type": "assign",
+        "at": "2026-10-11T10:15:14.738Z",
+        "task": "C-investigation-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-stealamulet-70c31c250-20261011",
+        "type": "validated",
+        "at": "2026-10-11T10:18:14.882Z",
+        "task": "B-investigation-v45-stealamulet-wizard-demon-attempt10-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v45-quest-finish-blocked-on-ball-delivery-20261011",
+        "type": "turn",
+        "at": "2026-10-11T10:19:09.933Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Quest-finish implementation is waiting for C iron-ball delivery to clear the shared throwit caller; resume after acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v45-stealamulet-wizard-demon-attempt10-cfirst-20261011-70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T10:25:57.799Z",
+        "task": "B-investigation-v45-stealamulet-wizard-demon-attempt10-cfirst-20261011"
       }
     ]
   },
@@ -87686,17 +87778,6 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v45-stealamulet-wizard-demon-attempt10-cfirst-20261011",
-        "worker": "B",
-        "goal": "port-steal-stealamulet-v45-wizard-demon-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "f848e37cfd483c3a1bc0bbcf5755b8c2efd24ad3",
-        "since": "2026-10-11T09:48:06.792Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
         "task": "C-v45-leash-sleep-wand-strain-cfirst-corrected-20261011",
         "worker": "C",
         "goal": "port-apply-check-leash-v45-20261011",
@@ -87705,7 +87786,7 @@
         "delivery": "9349ba8849738861f8ffb834a25e1afb6de91652",
         "since": "2026-10-11T09:57:10.976Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "B-investigation-v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst-20261011",
@@ -87715,8 +87796,19 @@
         "status": "ready",
         "delivery": "3ef09acaf86104dd0feb2ff0a76c117a59da45f3",
         "since": "2026-10-11T10:00:58.261Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v45-punished-iron-ball-throw-long-lane-attempt13-cfirst-20261011",
+        "worker": "C",
+        "goal": "port-ball-drop-ball-v45-ironball-longlane-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "064be92725ba74d474ee0e8f42fe45517f27e34d",
+        "since": "2026-10-11T10:12:34.563Z",
         "blockedBy": [
-          "B-investigation-v45-stealamulet-wizard-demon-attempt10-cfirst-20261011"
+          "C-v45-leash-sleep-wand-strain-cfirst-corrected-20261011"
         ],
         "unblocks": 0
       }
@@ -88102,8 +88194,8 @@
     ]
   },
   "development": {
-    "executionCommit": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
-    "measuredAt": "2026-10-11T09:50:45.237Z",
+    "executionCommit": "70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d",
+    "measuredAt": "2026-10-11T10:18:09.626Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

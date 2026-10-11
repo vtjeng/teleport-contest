@@ -267717,7 +267717,7 @@
     {
       "id": "port-steal-stealamulet-v45-wizard-demon-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port Wizard and quest-nemesis special-item theft from the complete stealamulet source function.",
       "cFile": "steal.c",
       "sessions": [
@@ -267731,8 +267731,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "stealamulet",
@@ -268077,6 +268080,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
