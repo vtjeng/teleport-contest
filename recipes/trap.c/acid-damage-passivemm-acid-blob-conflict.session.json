@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked runtime-evidence recipe for mhitm.c:passivemm’s AD_ACID branch and its trap.c:acid_damage call. Level-30 Conflict setup brings a hostile dwarf with a pick-axe into melee with a hostile acid blob. The C recording reaches passivemm’s successful acid_damage gate at step 135 and corrodes the pick-axe at step 137. JavaScript stops at step 132 in mhitm.c:mattackm’s unported armed monster-vs-monster AT_WEAP path, before passivemm runs; the recipe does not establish matching passivemm evidence until mattackm and weapon.c:possibly_unwield are implemented.",
+  "segments": [
+    {
+      "seed": 9600622,
+      "datetime": "20341223134000",
+      "nethackrc": "OPTIONS=name:AcidPair,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n30\n                              #wizintrinsic\n>>h\n #wizgenesis\nhostile acid blob\n #wizgenesis\nhostile dwarf\n . . . . . . . . . ."
+    }
+  ]
+}

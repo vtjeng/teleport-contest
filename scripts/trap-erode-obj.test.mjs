@@ -9,6 +9,7 @@ import {
     EF_PAY,
     EF_VERBOSE,
     COST_RUST,
+    ACID_RES,
     ERODE_BURN,
     ERODE_CORRODE,
     ERODE_CRACK,
@@ -24,6 +25,7 @@ import {
     OBJ_FREE,
     OBJ_INVENT,
     OBJ_MINVENT,
+    W_ACCESSORY,
     W_ARM,
     W_ARMC,
     W_ARMH,
@@ -37,8 +39,11 @@ import {
     IRON_SHOES,
     LEATHER_CLOAK,
     LEATHER_GLOVES,
+    SCR_BLANK_PAPER,
+    SCR_IDENTIFY,
+    SHORT_SWORD,
 } from '../js/objects.js';
-import { erode_obj } from '../js/trap_erode_obj.js';
+import { acid_damage, erode_obj } from '../js/trap_erode_obj.js';
 import { addinv } from '../js/invent.js';
 import { mksobj } from '../js/obj.js';
 import { setworn } from '../js/worn.js';
@@ -50,6 +55,111 @@ const TRAP_C_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/trap.c', import.meta.url),
     'utf8',
 );
+
+test('acid_damage preserves the source order for resistance, grease, scrolls, and erosion', () => {
+    const start = TRAP_C_SOURCE.indexOf('\nacid_damage(struct obj *obj)');
+    const end = TRAP_C_SOURCE.indexOf('\nstaticfn void\npot_acid_damage(', start);
+    const source = TRAP_C_SOURCE.slice(start, end);
+
+    // trap.c:4626-4653. The acid resistance gate precedes grease, which
+    // precedes scroll blanking and the shared ERODE_CORRODE fallback.
+    assert.match(source,
+        /victim == &gy\.youmonst && inventory_resistance_check\(AD_ACID\)[\s\S]*?if \(obj->greased\)[\s\S]*?grease_protect\(obj, \(char \*\) 0, victim\)[\s\S]*?else if \(obj->oclass == SCROLL_CLASS[\s\S]*?obj->otyp = SCR_BLANK_PAPER[\s\S]*?erode_obj\(obj, \(char \*\) 0, ERODE_CORRODE, EF_GREASE \| EF_VERBOSE\)/u);
+});
+
+test('acid_damage corrodes an ordinary carried weapon through erode_obj', async () => {
+    // This seed only initializes a live hero; the short sword tests the
+    // ordinary corrodeable-object arm without granting acid resistance.
+    await runSegment({
+        seed: 983600,
+        datetime: '20260724120000',
+        nethackrc: 'OPTIONS=name:AcidErosion,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+    const sword = addinv(
+        mksobj(SHORT_SWORD, false, false, { state: game }), { state: game },
+    );
+    const messages = [];
+
+    await acid_damage(sword, {
+        message: async text => messages.push(text),
+        random: {
+            rn2: () => assert.fail('unprotected acid corrosion spends no draw'),
+            rnl: () => assert.fail('unblessed weapon needs no luck draw'),
+        },
+        state: game,
+    });
+
+    assert.equal(sword.oeroded2, 1);
+    assert.deepEqual(messages, ['Your short sword corrodes!']);
+});
+
+test('acid_damage blanks an eligible scroll and clears its enchantment', async () => {
+    // The identify scroll is an ordinary scroll; C blanks it, clears spe and
+    // forgets dknown, while the fixed seed only supplies an initialized hero.
+    await runSegment({
+        seed: 983601,
+        datetime: '20260724120000',
+        nethackrc: 'OPTIONS=name:AcidScroll,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+    const scroll = addinv(
+        mksobj(SCR_IDENTIFY, false, false, { state: game }), { state: game },
+    );
+    scroll.spe = 2;
+    scroll.dknown = true;
+    const messages = [];
+
+    await acid_damage(scroll, {
+        message: async text => messages.push(text),
+        random: { rn2: () => assert.fail('scroll blanking spends no draw') },
+        state: game,
+    });
+
+    assert.equal(scroll.otyp, SCR_BLANK_PAPER);
+    assert.equal(scroll.spe, 0);
+    assert.equal(scroll.dknown, false);
+    assert.match(messages[0], /fade/u);
+});
+
+test('acid_damage checks inventory protection before consuming grease', async () => {
+    // The accessory extrinsic gives the source's 99% protection roll. Returning
+    // 99 fails that check, then zero wears off the greased weapon's layer.
+    await runSegment({
+        seed: 983602,
+        datetime: '20260724120000',
+        nethackrc: 'OPTIONS=name:GreasedAcid,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+    const sword = addinv(
+        mksobj(SHORT_SWORD, false, false, { state: game }), { state: game },
+    );
+    sword.greased = true;
+    game.u.uprops[ACID_RES].extrinsic = W_ACCESSORY;
+    const draws = [];
+    const messages = [];
+
+    await acid_damage(sword, {
+        message: async text => messages.push(text),
+        random: {
+            rn2: bound => {
+                draws.push(bound);
+                return bound === 100 ? 99 : 0;
+            },
+        },
+        state: game,
+    });
+
+    assert.deepEqual(draws, [100, 2]);
+    assert.equal(sword.greased, false);
+    assert.deepEqual(messages, [
+        'Your short sword is protected by the layer of grease!',
+        'The grease dissolves.',
+    ]);
+});
 
 async function initializedMonster(seed, name) {
     await runSegment({

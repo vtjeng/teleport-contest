@@ -196,12 +196,12 @@ import { canseemon, canspotmon } from './display.js';
 import { mon_reflects } from './muse.js';
 import { split_mon } from './potion.js';
 import { messageAt } from './startup_a11y.js';
-import { note_unported } from './unported.js';
 import { polyself } from './polyself.js';
 import { you_unwere, you_were } from './were.js';
 import { goodpos, rloc, tele, tele_restrict } from './teleport.js';
 import { t_at } from './trap.js';
 import { mintrap } from './trap_effects.js';
+import { acid_damage } from './trap_erode_obj.js';
 
 // C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
 // that protects a target from the attack type. This is a pure source helper;
@@ -1618,8 +1618,8 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
         }
         if (!random.rn2(30))
             await erode_armor(magr, ERODE_CORRODE, state, env);
-        if (!random.rn2(6) && magr.mw)
-            note_unported('trap.c acid_damage');
+        if (!random.rn2(6))
+            await acid_damage(magr.mw, { ...env, state, random });
         break;
     case AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
         if (mhitb && !mdef.mcan && mwep)

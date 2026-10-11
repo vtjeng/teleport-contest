@@ -303,7 +303,7 @@ import {
     make_stunned,
     incr_itimeout,
 } from './potion.js';
-import { burnarmor } from './trap_erode_obj.js';
+import { acid_damage, burnarmor } from './trap_erode_obj.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { burn_away_slime } from './timeout.js';
@@ -3336,8 +3336,8 @@ export function ranged_attk_available(mtmp, rawEnv = {}) {
 //
 // The source calls whose results are discarded but whose full owners
 // are outside this span remain named at their call sites: erode_armor,
-// acid_damage, drain_item, and shieldeff. Their surrounding source branches
-// still consume the conditional draws before recording the discarded call.
+// drain_item, and shieldeff. Their surrounding source branches still consume
+// the conditional draws before recording the discarded call.
 async function assess_dmg(mtmp, tmp, state, env) {
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
@@ -3414,7 +3414,8 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
             tmp = 0;
         }
         if (!random.rn2(30)) note_unported('uhitm.c erode_armor');
-        if (!random.rn2(6)) note_unported('trap.c acid_damage');
+        if (!random.rn2(6))
+            await acid_damage(mtmp.mw, { ...env, state, random });
         return assess_dmg(mtmp, tmp, state, env);
     case M.AD_STON: /* cockatrice */
     {
