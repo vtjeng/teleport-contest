@@ -276318,6 +276318,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizdeadorgone-v47-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard.c wizdeadorgone and wire Wizard death and live-removal bookkeeping through mon.c m_detach.",
+      "cFile": "wizard.c",
+      "sessions": [
+        "synthetic/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final"
+      ],
+      "selectionReason": "The admitted v47 Wizard-death mismatch reaches m_detach with an explicit missing wizdeadorgone call, and the same source call is active for live Wizard removal.",
+      "detail": "Port whole wizard.c:wizdeadorgone. Wire mon.c:m_detach after mon_leaving_level and mhp reset but before due-to-death effects, covering both mondead and mongone. Preserve one-time demigod countdown initialization and decrement every Wizard removal.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wizdeadorgone",
+          "line": 815,
+          "endLine": 845,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 815,
+        "to": 845
+      },
+      "syntheticProvenance": {
+        "synthetic/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final": {
+          "session": "synthetic/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.session.json",
+          "recordingSha256": "055b0d2e456aa6703b9dacaeec95c64c71341abd4426922d7ec5bedce561cf6a",
+          "evaluationPath": "challenges/evaluations/baseline-a6e3a17cc-v47.json",
+          "evaluationCommit": "a6e3a17ccec81295850d6e03e10d9a4353b25c54"
+        }
+      }
     }
   ]
 }
