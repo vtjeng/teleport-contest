@@ -268455,7 +268455,7 @@
     {
       "id": "port-uhitm-hmon-hitmon-msg-lightobj-v45-sunsword-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port Sunsword light-object hit feedback and wire its existing hmon_hitmon caller.",
       "cFile": "uhitm.c",
       "sessions": [
@@ -268469,8 +268469,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "hmon_hitmon_msg_lightobj",
@@ -268839,6 +268842,12 @@
         ],
         "entryPointReview": "Helper-only source range: hmon_hitmon_msg_lightobj is reached by uhitm.c:hmon_hitmon after a lit light artifact hits a light-hating target. The admitted v45 C-first Sunsword case exercises this production path at segment 0 steps 83-85, including the pager handoff and exact radiance/flesh message. The outer combat command and hmon_hitmon_do_hit flag producer are already wired and are not claimed as newly completed source units.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

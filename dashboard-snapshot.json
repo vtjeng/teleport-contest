@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T11:03:55.876Z",
+  "capturedAt": "2026-10-11T11:31:43.482Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -87870,6 +87870,72 @@
         "worker": "C",
         "state": "blocked",
         "reason": "Quest-finish investigation waits on C iron-ball delivery 064be927; resume after delivery acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-B-hmon-lightobj-3ef09aca-20261011",
+        "type": "activity",
+        "at": "2026-10-11T11:10:31.844Z",
+        "task": "B-investigation-v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst-20261011",
+        "phase": "review",
+        "reason": "Reviewing the source-traced Sunsword light-object helper and its exact saved evidence before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v45-cockatrice-implementation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T11:10:47.425Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing and validating the v45 monster-versus-monster cockatrice petrification path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0480c536b69181defd20cef5309a9747e53beb35",
+        "type": "ready",
+        "at": "2026-10-11T11:11:39.158Z",
+        "task": "B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011",
+        "delivery": "0480c536b69181defd20cef5309a9747e53beb35"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B-cockatrice-0480c536-20261011",
+        "type": "received",
+        "at": "2026-10-11T11:12:17.912Z",
+        "task": "B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011",
+        "delivery": "0480c536b69181defd20cef5309a9747e53beb35"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-B-hmon-lightobj-eecc04ac0",
+        "type": "integrating",
+        "at": "2026-10-11T11:13:17.961Z",
+        "task": "B-investigation-v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst-20261011",
+        "integration": "eecc04ac077b05f740cf2e3f57e11c4301552c26"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v45-after-cockatrice-delivery-20261011",
+        "type": "turn",
+        "at": "2026-10-11T11:14:11.944Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Idle after submitting cockatrice fix; remaining v45 cases overlap queued source owners."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-B-hmon-lightobj-eecc04ac0",
+        "type": "validated",
+        "at": "2026-10-11T11:22:55.759Z",
+        "task": "B-investigation-v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst-20261011-eecc04ac077b05f740cf2e3f57e11c4301552c26-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T11:30:43.548Z",
+        "task": "B-investigation-v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst-20261011"
       }
     ]
   },
@@ -87885,17 +87951,6 @@
         "since": "2026-10-11T09:45:34.317Z",
         "blockedBy": [],
         "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst-20261011",
-        "worker": "B",
-        "goal": "port-uhitm-hmon-hitmon-msg-lightobj-v45-sunsword-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "3ef09acaf86104dd0feb2ff0a76c117a59da45f3",
-        "since": "2026-10-11T10:00:58.261Z",
-        "blockedBy": [],
-        "unblocks": 1
       },
       {
         "task": "C-investigation-v45-punished-iron-ball-throw-long-lane-attempt13-cfirst-20261011",
@@ -87916,8 +87971,19 @@
         "status": "ready",
         "delivery": "3f60049a8f2d15f90a39fb6a0544a26ece01229e",
         "since": "2026-10-11T10:27:35.432Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011",
+        "worker": "B",
+        "goal": "port-uhitm-mhitm-ad-ston-seed4500-20260917",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "0480c536b69181defd20cef5309a9747e53beb35",
+        "since": "2026-10-11T11:11:39.158Z",
         "blockedBy": [
-          "B-investigation-v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst-20261011"
+          "B-investigation-v45-camera-wielded-northwest-result-attempt9-cfirst-20261011"
         ],
         "unblocks": 0
       }
@@ -88303,8 +88369,8 @@
     ]
   },
   "development": {
-    "executionCommit": "f2b63ca31d1c650f2b606665f735b7fc202d067d",
-    "measuredAt": "2026-10-11T10:53:20.872Z",
+    "executionCommit": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+    "measuredAt": "2026-10-11T11:22:50.675Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
