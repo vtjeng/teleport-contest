@@ -155,6 +155,59 @@ test('dotrap forwards planner owners and keeps C-discarded selector return', () 
         /await trapeffect_selector\(state\.youmonst, trap, flags, env\);/u);
 });
 
+test('mkroll_launch redraws the launch square through the default capability', () => {
+    const cFindLaunch = cFunction(
+        C_TRAP,
+        'find_random_launch_coord(struct trap *ttmp, coord *cc)',
+        '\nstaticfn int\nmkroll_launch(',
+    );
+    assert.match(cFindLaunch,
+        /linedup\(ttmp->tx, ttmp->ty, bcc\.x, bcc\.y, 1\)/u);
+    const jsFindLaunchStart = JS_TRAP.indexOf(
+        'function explicitLaunchCoordinate(trap, env)',
+    );
+    const jsFindLaunchEnd = JS_TRAP.indexOf(
+        '\n}\n\n// trap.c:find_random_launch_coord()', jsFindLaunchStart,
+    );
+    assert.ok(jsFindLaunchStart >= 0 && jsFindLaunchEnd > jsFindLaunchStart);
+    const jsFindLaunch = JS_TRAP.slice(jsFindLaunchStart, jsFindLaunchEnd);
+    assert.match(JS_TRAP, /import \{ linedup \} from '\.\/mthrowu\.js';/u);
+    assert.match(jsFindLaunch,
+        /linedup\(trap\.tx, trap\.ty, target\.x, target\.y, 1, \{\s*state: env\.state,/u);
+
+    const cLaunch = cFunction(
+        C_TRAP,
+        'mkroll_launch(\n    struct trap *ttmp,',
+        '\nstaticfn boolean\nisclearpath(',
+    );
+    const cLaunchX = cLaunch.indexOf('ttmp->launch.x = cc.x;');
+    const cLaunchY = cLaunch.indexOf('ttmp->launch.y = cc.y;', cLaunchX);
+    const cRedraw = cLaunch.indexOf(
+        'newsym(ttmp->launch.x, ttmp->launch.y);', cLaunchY,
+    );
+    assert.ok(cLaunchX >= 0 && cLaunchY > cLaunchX && cRedraw > cLaunchY,
+        'C redraws after assigning the launch coordinate');
+
+    const jsLaunchStart = JS_TRAP.indexOf(
+        'function makeRollingBoulderLaunch(trap, x, y, env)',
+    );
+    const jsLaunchEnd = JS_TRAP.indexOf(
+        '\n}\n\nconst DEFAULT_CAPABILITIES', jsLaunchStart,
+    );
+    assert.ok(jsLaunchStart >= 0 && jsLaunchEnd > jsLaunchStart);
+    const jsLaunch = JS_TRAP.slice(jsLaunchStart, jsLaunchEnd);
+    const jsLaunchX = jsLaunch.indexOf('trap.launch.x = launch.x;');
+    const jsLaunchY = jsLaunch.indexOf('trap.launch.y = launch.y;', jsLaunchX);
+    const jsRedraw = jsLaunch.indexOf(
+        "capability(env, 'newsym')(launch.x, launch.y, env);", jsLaunchY,
+    );
+    assert.ok(jsLaunchX >= 0 && jsLaunchY > jsLaunchX && jsRedraw > jsLaunchY,
+        'JavaScript redraws after assigning the launch coordinate');
+    assert.match(JS_TRAP,
+        /const DEFAULT_CAPABILITIES = Object\.freeze\(\{[\s\S]*?\n\s+newsym\(x, y, env\) \{ newsym\(x, y, env\.state\); \},/u,
+        'the default capability routes the C redraw to the active game state');
+});
+
 test('trapeffect_hole reads tail count from the supplied planning state',
     async () => {
         const savedLevel = game.level;
