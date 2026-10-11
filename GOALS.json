@@ -269876,8 +269876,8 @@
           "name": "nohandglow",
           "line": 6315,
           "endLine": 6340,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -270095,7 +270095,40 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "nohandglow",
+            "implementation": "js/uhitm.js",
+            "symbol": "nohandglow",
+            "sourceReview": "Compared the complete static uhitm.c:nohandglow definition at 6314-6337 and its sole call in hmon_hitmon at 1912. Preserved the early return for zero umconf or an already confused target; makeplural(body_part(HAND)) before the Blind-or-Invisible branch; distinct umconf==1 stop-feedback and nonterminal lesser-feedback strings; hcolor(NH_RED) only in visible branches; the final u.umconf decrement; and source order before SPBOOK_CLASS resistance. The canonical body_part, makeplural, hcolor, visibility and message owners already exist. Removed the nohandglow note_unported marker; no nohandglow callee is skipped.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon",
+                "source": "uhitm.c:hmon_hitmon calls nohandglow(mon) at line 1912 before its SPBOOK_CLASS resist call and subsequent mconf assignment. cmd.c:do_fight plus hack.c:domove_core and do_attack reach this helper through hitum -> known_hitum -> hmon -> hmon_hitmon."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+                "segment": 0,
+                "fromStep": 86,
+                "throughStep": 86,
+                "source": "cmd.c:do_fight -> hack.c:domove_core/do_attack -> uhitm.c:hitum/known_hitum/hmon/hmon_hitmon:1912 -> nohandglow"
+              }
+            ],
+            "checkedAt": "15be27d78ec8a0bd8d84720c56166b6b5d55c9c3"
+          }
+        ],
+        "entryPointReview": "nohandglow is a static helper with one active source caller, uhitm.c:hmon_hitmon:1912; it has no independent command dispatcher. The admitted v45 hero melee case enters through the force-fight prefix and movement attack path, then executes the helper before spellbook resistance. The cited step covers the visible nonterminal glow branch; the source implementation also preserves the terminal, blind, invisible and hallucinated-color branches.",
+        "entryPoints": []
+      }
     }
   ]
 }
