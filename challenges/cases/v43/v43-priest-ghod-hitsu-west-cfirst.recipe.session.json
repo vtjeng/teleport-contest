@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050301,
+      "datetime": "20530501121314",
+      "nethackrc": "OPTIONS=name:V43GhodHit,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nblessed scroll of teleportation\n#wizloaddes\nKni-loca.lua\n rn   _.  Fh"
+    }
+  ],
+  "comment": "C-first route to the generated Kni-loca temple priest. Wish and read teleportation, select the shrine via getpos, then force-fight west from the C-observed post-teleport position. Retain only if the attacked monster is the peaceful shrine priest and C enters uhitm.c:hmon -> priest.c:ghod_hitsu."
+}

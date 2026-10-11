@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43051012,
+      "datetime": "20540211131415",
+      "nethackrc": "OPTIONS=name:V43Vorpal2,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nVorpal Blade\n#wizgenesis\nhostile jabberwock\nwnFl"
+    }
+  ],
+  "comment": "Corrected from the prior C state: slot n wields the wished Vorpal Blade, and the recorded adjacent Jabberwock is east, so force-fight east. The prior wrong-slot and south-direction probes are retained as setup evidence."
+}

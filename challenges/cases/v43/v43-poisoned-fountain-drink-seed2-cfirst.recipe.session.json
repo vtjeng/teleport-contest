@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050041,
+      "datetime": "20530201121314",
+      "nethackrc": "OPTIONS=name:V43PoisonedFountain,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017fountain\nqy"
+    }
+  ],
+  "comment": "Independent source-based seed variation for the same fountain-poison candidate; one sip establishes the source-selected drinkfountain fate. This is a fate probe, not a separately counted behavior unless the contaminated-water branch is reached."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050052,
+      "datetime": "20530214121314",
+      "nethackrc": "OPTIONS=name:V43BridgeWallWest,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ncastle.lua\n#wizmap\n\u0017+7 wand of striking\n\u0014  hhkkkk.zph",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-only correction after the prior strike hit a boulder. Lua level coordinates are one-based: Castle des.drawbridge x=5,y=8 places the bridge at C (4,7), with its east DBWALL at C (5,7). From C-verified floor (6,7), zap the charged striking wand west into that wall. Retain only if C shows the bridge destruction branch and its debris/RNG effects."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Final independent D:4 keeper-detection probe. New seed and date, direct levelport to one ordinary dungeon floor, then wizard detection. Retain as setup evidence only unless C reaches an initialized keeper.",
+  "segments": [
+    {
+      "seed": 43100017,
+      "datetime": "20521114101500",
+      "nethackrc": "OPTIONS=name:V43KeeperProbe4,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n4\n#wizdetect\n#wizmap\n"
+    }
+  ]
+}

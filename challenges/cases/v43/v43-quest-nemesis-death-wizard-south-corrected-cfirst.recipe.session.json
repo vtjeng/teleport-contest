@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only correction based on the preserved source map, which placed the forced Dark One immediately south of the Wizard and the wished wand in inventory slot o. Reuses the same seed/setup, then zaps south with the wand of death. The target is normal monster due-to-death handling through mon.c's MS_NEMESIS branch into quest.c:nemdead; no JavaScript result informed the correction.",
+  "segments": [
+    {
+      "seed": 43050019,
+      "datetime": "20530119121314",
+      "nethackrc": "OPTIONS=name:V43Nemesis,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017wand of death\n\u0007hostile Dark One\nyzoj"
+    }
+  ]
+}

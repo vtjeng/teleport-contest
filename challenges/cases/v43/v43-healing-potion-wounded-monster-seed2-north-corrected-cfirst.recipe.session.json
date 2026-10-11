@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050050,
+      "datetime": "20530211121314",
+      "nethackrc": "OPTIONS=name:V43WoundedMonster,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017potion of healing\n #wizgenesis\nhostile ogre\nFk tfk"
+    }
+  ],
+  "comment": "Independent seed retry using the C-observed map: the ogre is directly north of the hero, so both the conditioning melee attack and potion throw use k. Preserve the previous wrong-direction probes as setup evidence."
+}

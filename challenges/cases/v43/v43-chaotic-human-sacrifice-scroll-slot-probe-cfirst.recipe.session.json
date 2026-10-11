@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050130,
+      "datetime": "20530330121314",
+      "nethackrc": "OPTIONS=name:V43Sacrifice,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017blessed scroll of teleportation\n#wizloaddes\nKni-loca.lua\n r"
+    }
+  ],
+  "comment": "C-only setup probe correcting the previous low-strength corpse wish: carry only the light controlled teleport scroll through the Kni-loca source-level load, then inspect C's read selector before choosing its actual slot. Keep this outside the retained manifest unless the later corrected action reaches pray.c:sacrifice_your_race -> priest.c:angry_priest."
+}

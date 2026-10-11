@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050070,
+      "datetime": "20530310121314",
+      "nethackrc": "OPTIONS=name:V43WoundedMonster,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017potion of blindness\n\u0017blessed potion of healing\n#wizgenesis\nhostile ogre\ntoy"
+    }
+  ],
+  "comment": "C-first direction correction: the prior space cancelled the throw at its direction prompt, and the following y performed a melee attack; preserve it. Now send the contiguous `toy` inputs: throw observed blindness potion o northwest at the adjacent ogre."
+}

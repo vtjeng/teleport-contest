@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050137,
+      "datetime": "20530406121314",
+      "nethackrc": "OPTIONS=name:V43Sacrifice,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nblessed scroll of teleportation\n#wizloaddes\nKni-loca.lua\n rn   _.  #wizwish\nhuman corpse\n #offer\ny "
+    }
+  ],
+  "comment": "C-first continuation from the reached altar-staining offer, preserving the exact same setup and one additional More acknowledgement to expose post-sacrifice priest state/action. Use its C outcome to locate whether angry_priest changes the next visible turn."
+}

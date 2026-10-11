@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43051013,
+      "datetime": "20540212131415",
+      "nethackrc": "OPTIONS=name:V43Vorpal20,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                                   #wizwish\nVorpal Blade\n#wizgenesis\nhostile jabberwock\nwnFl"
+    }
+  ],
+  "comment": "C-source-guided hit-reliability variant after the preserved level-1 miss: set hero experience level to 20, wish Vorpal Blade, summon hostile Jabberwock, wield from the C-confirmed slot n, and attack east from the generated map. The target branch is still verified from C before comparison."
+}

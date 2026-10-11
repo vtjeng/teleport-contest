@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050129,
+      "datetime": "20530329121314",
+      "nethackrc": "OPTIONS=name:V43Sacrifice,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nhuman corpse\n#wizwish\nblessed scroll of teleportation\n#wizloaddes\nKni-loca.lua\n #wizmap\n"
+    }
+  ],
+  "comment": "C-first source candidate for pray.c:sacrifice_your_race on a non-sanctum lawful/neutral altar: a chaotic human offers a human corpse at Kni-loca.lua's neutral shrine, so the source calls priest.c:angry_priest then takes the chaotic-alignment branch without the angry-gods follow-up that appeared in v29. This probe wishes the corpse and controlled teleport scroll before loading the source-defined temple; do not count until C confirms reachability and the altar/priest state."
+}

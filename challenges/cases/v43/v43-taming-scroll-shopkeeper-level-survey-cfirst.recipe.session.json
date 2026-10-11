@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup survey: wish an uncursed taming scroll, then inspect naturally generated ordinary dungeon levels 2 through 8 with wizard detection and maps. This records whether a normal shop initialization creates an isshk target for read.c:maybe_tame -> dog.c:tamedog -> shk.c:make_happy_shk; it is setup evidence until C identifies a reachable keeper.",
+  "segments": [
+    {
+      "seed": 43050313,
+      "datetime": "20521010163000",
+      "nethackrc": "OPTIONS=name:V43TameSurvey,role:Wizard,race:human,gender=female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed scroll of taming\n#wizlevelport\n2\n#wizdetect\n#wizmap\n#wizlevelport\n3\n#wizdetect\n#wizmap\n#wizlevelport\n4\n#wizdetect\n#wizmap\n#wizlevelport\n5\n#wizdetect\n#wizmap\n#wizlevelport\n6\n#wizdetect\n#wizmap\n#wizlevelport\n7\n#wizdetect\n#wizmap\n#wizlevelport\n8\n#wizdetect\n#wizmap\n"
+    }
+  ]
+}

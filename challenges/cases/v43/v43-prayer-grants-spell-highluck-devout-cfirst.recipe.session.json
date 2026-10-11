@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050420,
+      "datetime": "20531020121314",
+      "nethackrc": "OPTIONS=name:V43SpellFavor,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .l\u0017blessed luckstone\n,\u0017neutral altar\n\u0017white unicorn corpse\n#offer\no\u0017red dragon corpse\n#offer\np\u0017red dragon corpse\n#offer\nq#pray\ny..."
+    }
+  ],
+  "comment": "C-first source probe for pray.c:pleased -> give_spell. Move off the stair, wish and carry a blessed luckstone, place a neutral altar, offer a white unicorn for the source-defined +5 neutral-alignment adjustment, then offer two red dragon corpses to raise Luck. Complete the three prayer occupation turns so C records the resolved favor branch; the intended source observation is prayer_success case 6 / give_spell."
+}

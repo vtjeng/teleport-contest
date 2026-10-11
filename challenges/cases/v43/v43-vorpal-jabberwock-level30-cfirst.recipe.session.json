@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43051013,
+      "datetime": "20540212131415",
+      "nethackrc": "OPTIONS=name:V43Vorpal30,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n30\n                                             #wizwish\nVorpal Blade\n#wizgenesis\nhostile jabberwock\nwoFl"
+    }
+  ],
+  "comment": "C source hit formula shows level-20 Wizard can still miss a high-AC Jabberwock; use maximum level 30 to improve the intended attack reach. Recheck inventory slot and the monster location from the fresh C map before correcting the action."
+}

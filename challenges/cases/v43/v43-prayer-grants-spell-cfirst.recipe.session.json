@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050008,
+      "datetime": "20530209121314",
+      "nethackrc": "OPTIONS=name:V43SpellPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .\u0017neutral altar\n\u0017blessed luckstone\n,\u0017newt corpse\n#offer\np\ny"
+    }
+  ],
+  "comment": "C-first setup for pray.c:pleased case 6 -> give_spell. Create a coaligned altar, acquire a blessed luckstone, offer a wished newt corpse to raise altar alignment record, and inspect C output/state before attempting prayer. This is a source-defined setup probe; case 6 is counted only if C reaches the gift branch."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only map survey for a large default room to place a rolling-boulder trap with a source-valid launch path.",
+  "segments": [
+    {
+      "seed": 43050413,
+      "datetime": "20521011161500",
+      "nethackrc": "OPTIONS=name:V43RollingSurvey,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#wizlevelport\n4\n#wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050134,
+      "datetime": "20530403121314",
+      "nethackrc": "OPTIONS=name:V43Sacrifice,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017blessed scroll of teleportation\n#wizloaddes\nKni-loca.lua\n ro   _.\u0017human corpse\n#offery"
+    }
+  ],
+  "comment": "Corrected C-only probe preserving earlier pager/input misses: dismiss the scroll result, the controlled-destination message, and the first-use farlook tip before using getpos altar-symbol selection. Count only if the C observation reaches the intended Kni-loca shrine corpse sacrifice."
+}

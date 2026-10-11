@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050001,
+      "datetime": "20530101121314",
+      "nethackrc": "OPTIONS=name:v43juiblexspecia,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\njuiblex.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "C-first v43 source candidate for juiblex.lua. Directly load the named source program in a fresh Wizard debug game and expose its generated level. No JavaScript comparison until the planned C-first slate is complete."
+}

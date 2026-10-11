@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050021,
+      "datetime": "20530121121314",
+      "nethackrc": "OPTIONS=name:V43Gold,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\n1000 gold pieces\n#wizgenesis\nhostile leprechaun\n.i\n"
+    }
+  ],
+  "comment": "C-first source behavior candidate for steal.c:stealgold. Uses the preserved gold-wish setup probe and gives the adjacent hostile leprechaun one turn, then inspects the gold transfer; no JavaScript comparison."
+}

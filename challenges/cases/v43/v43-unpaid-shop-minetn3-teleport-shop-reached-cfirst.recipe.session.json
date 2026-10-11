@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected source-based shop entry: after the two getpos pages, use the C-observed hero coordinate (33,7) and the nested ordinary shop center (35,14), derived from minetn-3.lua room origins (outer room x=24,y=3 plus shop x=10,y=10).",
+  "segments": [
+    {
+      "seed": 43050411,
+      "datetime": "20521011161300",
+      "nethackrc": "OPTIONS=name:V43ShopFee,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nminetn-3.lua\n#wizmap\n\u0014  llGjk."
+    }
+  ]
+}

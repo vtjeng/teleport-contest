@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050429,
+      "datetime": "20531029121314",
+      "nethackrc": "OPTIONS=name:V43SpellFavor,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .l \u0017blessed luckstone\n\u0017neutral altar\n\u0017white unicorn corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n \u0017red dragon corpse\n #offer\ny  #offer\ny  #offer\ny  #offer\ny  #offer\ny  #offer\ny  #offer\ny  #offer\ny  #offer\ny  #offer\ny  #pray\ny y "
+    }
+  ],
+  "comment": "Startup-pager-corrected C-first source probe for pray.c:pleased -> give_spell. The extra space after the initial east move dismisses the seed’s “There is some graffiti on the floor” pager before any wish input; the prior recipe is preserved with this exact input-alignment failure. Wish a luckstone, neutral altar, one lawful white unicorn corpse and seven red dragon corpses before offering. The first stacked red-dragon attempt reached direct “sacrifice one?” confirmation, so answer y without an item selector; repeated offers reduce accumulated wish cooldown and then build Luck. Finish with wizard-forced successful prayer and inspect the actual C favor."
+}

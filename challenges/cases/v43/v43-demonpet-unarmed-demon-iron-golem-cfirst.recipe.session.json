@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050042,
+      "datetime": "20530204121314",
+      "nethackrc": "OPTIONS=name:V43Demonpet,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #polyself\npit fiend\n\u0007hostile iron golem\nw-"
+    }
+  ],
+  "comment": "C-first corrected route for uhitm.c:damageum -> demonpet: select Pit Fiend form, create a durable adjacent hostile iron golem, and un-wield before the first unarmed combat turn. Use only the C-observed target square for the attack continuation; preserve prior demon-corpse and newt probes as setup evidence."
+}

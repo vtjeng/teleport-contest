@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050010,
+      "datetime": "20530202121314",
+      "nethackrc": "OPTIONS=name:V43WoundedMonster,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017potion of healing\n #wizgenesis\nhostile ogre\n"
+    }
+  ],
+  "comment": "Corrected C-first route following observed startup and wish-result pagers: dismiss the “learn more about your items” page before creating the hostile ogre. Stop at the C map so the adjacent target direction is taken from the recording before attempting the potion hit."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050025,
+      "datetime": "20530125121314",
+      "nethackrc": "OPTIONS=name:V43ArtHit,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nExcalibur\n#wizgenesis\nhostile zombie\nweFk"
+    }
+  ],
+  "comment": "C-first artifact.c:artifact_hit route. A lawful dwarven Valkyrie wishes Excalibur, spawns a hostile zombie north of the hero, wields Excalibur, and uses fight-north."
+}

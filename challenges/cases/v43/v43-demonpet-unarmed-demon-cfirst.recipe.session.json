@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050015,
+      "datetime": "20530203121314",
+      "nethackrc": "OPTIONS=name:V43Demonpet,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #polyself\npit fiend\n\u0007hostile newt\n"
+    }
+  ],
+  "comment": "Corrected C-first route from direct source reading: demonpet is reached in uhitm.c:damageum when the hero is an unarmed demon and rn2(13) selects its special miss. #polyself selects a demon form; wizard genesis creates an adjacent target. Preserve the earlier impossible demon-corpse wish as setup evidence."
+}

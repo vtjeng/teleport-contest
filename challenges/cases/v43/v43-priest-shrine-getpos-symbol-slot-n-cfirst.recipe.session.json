@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050137,
+      "datetime": "20530406121314",
+      "nethackrc": "OPTIONS=name:V43Sacrifice,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nblessed scroll of teleportation\n#wizloaddes\nKni-loca.lua\n rn   _."
+    }
+  ],
+  "comment": "Corrected C-only destination probe using the source-observed wished scroll slot n (the prior probe's slot o was a miss). Preserve the old input miss; this version inspects whether getpos symbol selection reaches the shrine."
+}
