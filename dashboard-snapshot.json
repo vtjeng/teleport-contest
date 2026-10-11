@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T14:21:19.722Z",
+  "capturedAt": "2026-10-11T15:34:31.609Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -88730,6 +88730,169 @@
         "type": "accepted",
         "at": "2026-10-11T14:20:03.759Z",
         "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-wait-v46-20261011-960efc2",
+        "type": "turn",
+        "at": "2026-10-11T14:21:35.609Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B has synced accepted Main. The saved queue still lists only the now-fixed v45 case; Prep10 is preparing v46, which is not yet admitted or baselined. Waiting for the refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep10-active-20261011-v46-eight-confirmed",
+        "type": "turn",
+        "at": "2026-10-11T14:23:38.462Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v46 has eight approved distinct C-first mismatches; continuing the remaining independent search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep10-active-20261011-v46-nine-confirmed-finalizing",
+        "type": "turn",
+        "at": "2026-10-11T14:54:43.209Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v46 has nine approved distinct mismatches; packaging the smaller batch with matching controls and search evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5684c55d10b2e055bb6a82fd1fe31084ab900b4c",
+        "type": "ready",
+        "at": "2026-10-11T15:13:14.105Z",
+        "task": "Prep10",
+        "delivery": "5684c55d10b2e055bb6a82fd1fe31084ab900b4c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep10-v46-idle-awaiting-integration-20261011",
+        "type": "turn",
+        "at": "2026-10-11T15:13:40.014Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep10/v46 is submitted; waiting for coordinator integration and admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep10-5684c55d",
+        "type": "received",
+        "at": "2026-10-11T15:16:30.173Z",
+        "task": "Prep10",
+        "delivery": "5684c55d10b2e055bb6a82fd1fe31084ab900b4c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep10-71de9c66",
+        "type": "integrating",
+        "at": "2026-10-11T15:16:49.190Z",
+        "task": "Prep10",
+        "integration": "71de9c6695c5b720888da195ebb4eec5d8c0304f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-Prep10-38150673841",
+        "type": "validated",
+        "at": "2026-10-11T15:22:46.344Z",
+        "task": "Prep10",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep10-71de9c6695c5b720888da195ebb4eec5d8c0304f-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T15:22:59.240Z",
+        "task": "Prep10"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep10-v46-idle-admitted-awaiting-baseline-20261011",
+        "type": "turn",
+        "at": "2026-10-11T15:24:04.366Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Accepted Main is synced; v46 is admitted and awaiting its first baseline. Waiting for the trigger recheck before any v47 work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v46-shopkeeper-active-20261011T1350Z",
+        "type": "turn",
+        "at": "2026-10-11T15:27:12.495Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Claiming the v46 shopkeeper Genesis case for source diagnosis."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v46-swamp-investigation-20261011-retry1",
+        "type": "assign",
+        "at": "2026-10-11T15:27:31.530Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v46-swamp-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T15:27:40.624Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v46-shopkeeper-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T15:27:42.640Z",
+        "task": "A2-investigation-v46-shopkeeper-make-happy-scroll-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v46-prayer-region-active-20261011T1535Z",
+        "type": "turn",
+        "at": "2026-10-11T15:28:13.496Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Starting the assigned v46 prayer-region safety investigation from the admitted queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v46-prayer-region-safety-attempt11-20261011",
+        "type": "assign",
+        "at": "2026-10-11T15:28:15.331Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep11-v47-assign-20261011",
+        "type": "assign",
+        "at": "2026-10-11T15:28:17.293Z",
+        "task": "Prep11",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep11-v47-active-candidate-planning-20261011",
+        "type": "turn",
+        "at": "2026-10-11T15:28:22.672Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 is claimed at accepted Main 31a5d76; planning 12+ independent C-first candidates from the nine-session post-v46 queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v46-shopkeeper-makemon-20261011",
+        "type": "implement",
+        "at": "2026-10-11T15:32:30.458Z",
+        "task": "A2-investigation-v46-shopkeeper-make-happy-scroll-20261011",
+        "goal": "fix-makemon-shopkeeper-genesis-admission-v46-20261011"
       }
     ]
   },
@@ -89116,8 +89279,8 @@
     ]
   },
   "development": {
-    "executionCommit": "960efc2aac7081f5501bedb82d87b99dafd6431c",
-    "measuredAt": "2026-10-11T14:18:43.654Z",
+    "executionCommit": "71de9c6695c5b720888da195ebb4eec5d8c0304f",
+    "measuredAt": "2026-10-11T15:22:13.004Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
