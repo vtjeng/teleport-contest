@@ -12,9 +12,11 @@
 // evidence for the whole path.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    BLINDED,
     LFILE_EXISTS,
     LAST_PROP,
     LS_MONSTER,
@@ -531,19 +533,6 @@ test('check_special_room handles Court and Morgue and stops later families',
     // An ordinary room takes the switch's default arm and says nothing.
     await check_special_room(false, state);
 
-    // Every room type whose arm remains unported here. C's `default` arm
-    // answers for the rest, so THEMEROOM and VAULT stay silent beside them.
-    for (const rt of [ZOO, SWAMP, LEPREHALL, BEEHIVE,
-        COCKNEST, ANTHOLE]) {
-        state.u.urooms = [0, 0, 0, 0, 0];
-        state.u.urooms0 = [0, 0, 0, 0, 0];
-        state.level.rooms[0].rtype = rt;
-        await assert.rejects(
-            () => check_special_room(false, state),
-            new RegExp(`entering room type ${rt}`, 'u'),
-            `room type ${rt}`,
-        );
-    }
     // hack.c:3685-3692 uses the calendar's local hour for the MORGUE entry
     // message. The fixed daytime value selects the non-midnight arm without
     // needing a hero form for u_locomotion("Run").
@@ -562,6 +551,7 @@ test('check_special_room handles Court and Morgue and stops later families',
         message: async (line) => morgueMessages.push(line),
         random: morgueRandom,
     });
+
     assert.deepEqual(morgueMessages, ['You have an uncanny feeling...']);
     assert.equal(state.level.rooms[0].rtype, OROOM);
     assert.equal(state.level.flags.has_morgue, false);
@@ -776,6 +766,132 @@ test('check_special_room handles Court and Morgue and stops later families',
         assert.equal(state.u.ushops[0], 0, `shop type ${rt}`);
     }
     });
+
+test('check_special_room completes the remaining C room-entry arms', async () => {
+    const state = dungeonState();
+    roomLevel(state, { lx: 10, ly: 5, hx: 14, hy: 9, doorx: 9, doory: 7 });
+    state.u.ux = 12;
+    state.u.uy = 7;
+    state.level.at(12, 7).roomno = ROOMOFFSET;
+    const mapseen = init_mapseen(state.u.uz, state);
+    state.level.flags = {};
+    state.u.uprops = [];
+
+    const entries = [
+        [ZOO, "Welcome to David's treasure zoo!", 'has_zoo'],
+        [SWAMP, 'It looks rather muddy down here.', 'has_swamp'],
+        [LEPREHALL, 'You enter a leprechaun hall!', null],
+        [BEEHIVE, 'You enter a giant beehive!', 'has_beehive'],
+        [COCKNEST, 'You enter a disgusting nest!', null],
+        [ANTHOLE, 'You enter an anthole!', null],
+    ];
+    for (const [type, expected, flag] of entries) {
+        state.level.rooms[0].rtype = type;
+        if (flag) state.level.flags[flag] = true;
+        state.u.urooms = [0, 0, 0, 0, 0];
+        state.u.urooms0 = [0, 0, 0, 0, 0];
+        mapseen.msrooms[0].seen = 0;
+        const messages = [];
+        await check_special_room(false, state, {
+            message: async line => {
+                assert.equal(state.level.rooms[0].rtype, type);
+                assert.equal(mapseen.msrooms[0].seen, 0);
+                messages.push(line);
+            },
+            random: () => assert.fail('no resident monsters in this fixture'),
+        });
+        assert.deepEqual(messages, [expected]);
+        assert.equal(state.level.rooms[0].rtype, OROOM);
+        assert.equal(mapseen.msrooms[0].seen, 1);
+        if (flag) assert.equal(state.level.flags[flag], false);
+    }
+
+    // youprop.h's Blind() selects both the verb and surface adjective.
+    state.level.rooms[0].rtype = SWAMP;
+    state.level.flags.has_swamp = true;
+    state.u.urooms = [0, 0, 0, 0, 0];
+    state.u.urooms0 = [0, 0, 0, 0, 0];
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    mapseen.msrooms[0].seen = 0;
+    const blindMessages = [];
+    await check_special_room(false, state, {
+        message: async line => blindMessages.push(line),
+        random: () => assert.fail('no resident monsters in this fixture'),
+    });
+    assert.deepEqual(blindMessages, ['It feels rather humid down here.']);
+    assert.equal(state.level.rooms[0].rtype, OROOM);
+    assert.equal(state.level.flags.has_swamp, false);
+
+    // hack.c's post-entry wake loop also runs for SWAMP. It checks isok
+    // before reading levl[], then makes its rn2(3) draw after reset.
+    state.level.rooms[0].rtype = SWAMP;
+    state.level.flags.has_swamp = true;
+    state.u.urooms = [0, 0, 0, 0, 0];
+    state.u.urooms0 = [0, 0, 0, 0, 0];
+    state.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.level.at(11, 7).roomno = 0;
+    monst_globals_init(state);
+    const swampSleeper = newMonster({
+        data: state.mons[PM_KOBOLD_ZOMBIE],
+        mnum: PM_KOBOLD_ZOMBIE,
+        mhp: 4,
+        mhpmax: 4,
+        mcanmove: true,
+        mcansee: true,
+        msleeping: true,
+        mx: 11,
+        my: 7,
+    });
+    state.level.monlist = swampSleeper;
+    mapseen.msrooms[0].seen = 0;
+    const swampEvents = [];
+    await check_special_room(false, state, {
+        message: async line => {
+            swampEvents.push(`msg:${line}`);
+        },
+        random: limit => {
+            assert.equal(limit, 3);
+            assert.equal(state.level.rooms[0].rtype, OROOM);
+            assert.equal(state.level.flags.has_swamp, false);
+            assert.equal(mapseen.msrooms[0].seen, 1);
+            swampEvents.push(`rng:${limit}`);
+            return 0;
+        },
+        canSeeMonster: () => true,
+    });
+    assert.deepEqual(swampEvents, [
+        'msg:It looks rather muddy down here.',
+        'rng:3',
+        'msg:The kobold zombie wakes up.',
+    ]);
+    assert.equal(swampSleeper.msleeping, false);
+
+    // Default marks shops discovered but leaves their type intact; ordinary
+    // and themed rooms do not enter the discovery branch.
+    state.level.rooms[0].rtype = SHOPBASE;
+    state.u.urooms = [0, 0, 0, 0, 0];
+    state.u.urooms0 = [0, 0, 0, 0, 0];
+    mapseen.msrooms[0].seen = 0;
+    await check_special_room(false, state, {
+        message: async () => assert.fail('shop discovery prints no room line'),
+    });
+    assert.equal(state.level.rooms[0].rtype, SHOPBASE);
+    assert.equal(mapseen.msrooms[0].seen, 1);
+
+    const cSource = readFileSync(
+        new URL('../nethack-c/upstream/src/hack.c', import.meta.url), 'utf8',
+    );
+    const start = cSource.indexOf('check_special_room(boolean newlev)');
+    const end = cSource.indexOf('\n/* returns', start);
+    const cFunction = cSource.slice(start, end);
+    for (const type of ['ZOO', 'SWAMP', 'LEPREHALL', 'BEEHIVE',
+        'COCKNEST', 'ANTHOLE']) {
+        assert.match(cFunction, new RegExp(`case ${type}:`, 'u'));
+    }
+    assert.match(cFunction, /if \(msg_given\)\s*room_discovered\(roomno\);/u);
+    assert.match(cFunction, /if \(rt != 0\) \{\s*svr\.rooms\[roomno\]\.rtype = OROOM;/u);
+    assert.match(cFunction, /!isok\(mtmp->mx,mtmp->my\)/u);
+});
 
 test('restore_cham gives a shapeshifter back its shape', async () => {
     const state = dungeonState();
