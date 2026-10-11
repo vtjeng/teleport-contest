@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T12:42:26.549Z",
+  "capturedAt": "2026-10-11T12:53:59.912Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -88249,19 +88249,85 @@
         "type": "accepted",
         "at": "2026-10-11T12:41:59.350Z",
         "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-active-post-nohandglow-merge-20261011T1240Z",
+        "type": "turn",
+        "at": "2026-10-11T12:42:25.905Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resumed after nohandglow acceptance and checking the current queue for unreserved work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-nohandglow-stale-queue-20261011T1245Z",
+        "type": "turn",
+        "at": "2026-10-11T12:43:03.154Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "No independent case is currently free. The saved queue still includes accepted nohandglow; the remaining Sanctum, vault and quest-finish cases are reserved by B, A2 and C. Resume after the coordinator refreshes the queue or a reservation is released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-nohandglow-stale-queue-correct-head-20261011T1246Z",
+        "type": "turn",
+        "at": "2026-10-11T12:43:13.019Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "No independent case is currently free. The saved queue still includes accepted nohandglow; the remaining Sanctum, vault and quest-finish cases are reserved by B, A2 and C. Resume after the coordinator refreshes the queue or a reservation is released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3161f5463e46e8ae3878af1b3432cbf1f3c2d90a",
+        "type": "ready",
+        "at": "2026-10-11T12:44:39.013Z",
+        "task": "A2-investigation-v45-vault-cursed-whistle-20261011",
+        "delivery": "3161f5463e46e8ae3878af1b3432cbf1f3c2d90a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-sanctum-0de38ac5-20261011",
+        "type": "received",
+        "at": "2026-10-11T12:44:55.236Z",
+        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011",
+        "delivery": "0de38ac5d27d117737b9324a53fcb8c80913d1e6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-sanctum-88b220662",
+        "type": "integrating",
+        "at": "2026-10-11T12:46:44.675Z",
+        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011",
+        "integration": "88b2206624a4f646c63e69dcafec6a73a250d3e2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-sanctum-38140633505",
+        "type": "validated",
+        "at": "2026-10-11T12:52:52.477Z",
+        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011-88b2206624a4f646c63e69dcafec6a73a250d3e2-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T12:53:48.925Z",
+        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011",
-        "worker": "B",
-        "goal": "fix-v45-intemple-monname-20261011",
+        "task": "A2-investigation-v45-vault-cursed-whistle-20261011",
+        "worker": "A2",
+        "goal": "port-vault-guard-discovery-v45-20261011",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "0de38ac5d27d117737b9324a53fcb8c80913d1e6",
-        "since": "2026-10-11T12:24:41.808Z",
+        "delivery": "3161f5463e46e8ae3878af1b3432cbf1f3c2d90a",
+        "since": "2026-10-11T12:44:39.013Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -88647,8 +88713,8 @@
     ]
   },
   "development": {
-    "executionCommit": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf",
-    "measuredAt": "2026-10-11T12:40:11.280Z",
+    "executionCommit": "88b2206624a4f646c63e69dcafec6a73a250d3e2",
+    "measuredAt": "2026-10-11T12:52:17.769Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
