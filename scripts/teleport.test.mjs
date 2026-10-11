@@ -98,8 +98,14 @@ import { newegd } from '../js/vault.js';
 const C_TELEPORT_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/teleport.c', import.meta.url), 'utf8',
 );
+const C_TRAP_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/trap.c', import.meta.url), 'utf8',
+);
 const JS_TELEPORT_SOURCE = readFileSync(
     new URL('../js/teleport.js', import.meta.url), 'utf8',
+);
+const JS_TRAP_EFFECTS_SOURCE = readFileSync(
+    new URL('../js/trap_effects.js', import.meta.url), 'utf8',
 );
 const C_CMD_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8',
@@ -159,7 +165,8 @@ test('dotelecmd and dotele preserve the whole C dispatch and result order', () =
     assert.match(jsDotelecmd, /tport_spell\(spellRestore, state\)/u);
     assert.match(jsDotele,
         /if \(!trap && !breakTheRules\)[\s\S]*await next_to_u\(state, env\)[\s\S]*await tele\(state, env\)[\s\S]*await next_to_u\(state, env\)/u);
-    assert.match(jsDotele, /note_unported\('teleport\.c level_tele_trap'\)/u);
+    assert.match(jsDotele,
+        /await level_tele_trap\(trap, FORCETRAP, state, env\);\s*return 1;/u);
 
     const cCommand = sourceScrolltele(
         C_CMD_SOURCE,
@@ -171,6 +178,38 @@ test('dotelecmd and dotele preserve the whole C dispatch and result order', () =
         /case 'dotelecmd':[\s\S]*return await dotelecmd\(state\)/u);
     assert.match(JS_CMD_SOURCE,
         /if \(command === 'teleport'\)[\s\S]*await dotelecmd\(state\)/u);
+});
+
+test('level_tele_trap preserves the whole C effect order in both callers', () => {
+    const cTrapEffect = sourceScrolltele(
+        C_TRAP_SOURCE,
+        'trapeffect_level_telep(\n',
+        '\nstaticfn int\ntrapeffect_web(',
+    );
+    const cLevelTeleTrap = sourceScrolltele(
+        C_TELEPORT_SOURCE,
+        'level_tele_trap(struct trap *trap, unsigned int trflags)',
+        '\n/* check whether monster can arrive',
+    );
+    const jsTrapEffect = sourceScrolltele(
+        JS_TRAP_EFFECTS_SOURCE,
+        'async function trapeffect_level_telep(',
+        '// C ref: trap.c trapeffect_magic_portal()',
+    );
+    const jsLevelTeleTrap = sourceScrolltele(
+        JS_TELEPORT_SOURCE,
+        'export async function level_tele_trap(',
+        '// youprop.h:83-84 defines Confusion',
+    );
+
+    assert.match(cTrapEffect,
+        /if \(mtmp == &gy\.youmonst\)[\s\S]*seetrap\(trap\);\s*level_tele_trap\(trap, trflags\);/u);
+    assert.match(cLevelTeleTrap,
+        /VIASITTING \| FORCETRAP[\s\S]*Antimagic && !intentional[\s\S]*In_endgame\(&u\.uz\)[\s\S]*deltrap\(trap\)[\s\S]*level_tele\(\)[\s\S]*Hallucination \|\| Teleport_control[\s\S]*make_confused\(\(HConfusion & TIMEOUT\) \+ 3L, FALSE\)/u);
+    assert.match(jsTrapEffect,
+        /if \(mtmp === state\.youmonst\)[\s\S]*seetrap\(trap, env\);\s*await level_tele_trap\(trap, trflags, state, env\);/u);
+    assert.match(jsLevelTeleTrap,
+        /VIASITTING \| FORCETRAP[\s\S]*Antimagic_prop\(state\)[\s\S]*inEndgame\(state\)[\s\S]*deltrap\(trap, state\)[\s\S]*await level_tele\(state\)[\s\S]*Teleport_control_prop\(state\)[\s\S]*make_confused\(\(confusion & TIMEOUT\) \+ 3, false, state, env\)/u);
 });
 
 function positionState() {

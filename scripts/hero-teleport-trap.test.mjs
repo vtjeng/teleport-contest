@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     ANTIMAGIC,
     BEAR_TRAP,
+    LEVEL_TELEP,
     TELEP_TRAP,
     VAULT,
 } from '../js/const.js';
@@ -14,7 +15,7 @@ import { search_special } from '../js/mkroom.js';
 import { PM_KOBOLD } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { deltrap, t_at } from '../js/trap.js';
-import { tele_trap } from '../js/teleport.js';
+import { level_tele_trap, tele_trap } from '../js/teleport.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { preflight_dotrap } from '../js/trap_effects.js';
 import { loadHeroTeleportTrapRecipe } from './run-hero-teleport-trap.mjs';
@@ -239,4 +240,48 @@ test('preflight_dotrap() admits an unseen teleport trap for an antimagic hero',
             (error) => error instanceof UnsupportedHeroMoveBoundaryError
                 && /teleport trap destination/u.test(error.message),
         );
+    });
+
+test('preflight_dotrap() admits a seen level teleporter to its C escape roll',
+    async () => {
+        await runSegment(VAULT_NICHE_SEGMENT);
+        const trap = {
+            ttyp: LEVEL_TELEP,
+            tseen: true,
+            tx: game.u.ux,
+            ty: game.u.uy,
+            teledest: { x: -1, y: -1 },
+        };
+
+        // trap.c:3035-3043 makes the rn2(5) escape decision in dotrap();
+        // admission must let that source path run instead of refusing before
+        // the hero's move commits.
+        assert.equal(preflight_dotrap(trap, game), undefined);
+    });
+
+test('level_tele_trap applies natural Antimagic before removing the trap',
+    async () => {
+        await runSegment(VAULT_NICHE_SEGMENT);
+        const trap = {
+            ttyp: LEVEL_TELEP,
+            tseen: true,
+            tx: game.u.ux,
+            ty: game.u.uy,
+            teledest: { x: -1, y: -1 },
+        };
+        const messages = [];
+        const start = { ...game.u.uz };
+        game.u.uprops[ANTIMAGIC].intrinsic = 1;
+
+        await level_tele_trap(trap, 0, game, {
+            message: (line) => messages.push(line),
+        });
+
+        assert.deepEqual(messages, [
+            'You step onto a level teleport trap!',
+            'You feel a wrenching sensation.',
+        ]);
+        assert.deepEqual(game.u.uz, start,
+            'Antimagic returns before level_tele()');
+        game.u.uprops[ANTIMAGIC].intrinsic = 0;
     });

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first natural hero level-teleport trap route. A debug Valkyrie moves onto ordinary floor before wishing a level teleporter underfoot, then steps off and back. This exercises dotrap -> trapeffect_level_telep -> level_tele_trap without Antimagic; the controlled level choice and final pager dismissal exercise level_tele and its disorientation tail.",
+  "segments": [
+    {
+      "seed": 48009123,
+      "datetime": "20550823104711",
+      "nethackrc": "OPTIONS=name:LevelPortValk,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #wizmap\nl#wizwish\nlevel teleporter\n#wizmap\nhly 2\n "
+    }
+  ]
+}
