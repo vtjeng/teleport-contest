@@ -1,0 +1,130 @@
+{
+  "session": "synthetic/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11",
+  "corpus": "synthetic",
+  "batch": "v46",
+  "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+  "manifestPath": "challenges/manifests/v46.json",
+  "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+  "recordingPath": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json",
+  "recordingSha256": "df4b4bad1ea9cd83a53f92044b186a5aa123e949fb48686d848fddf28a0f2d6b",
+  "evaluationPath": "challenges/evaluations/accepted-52a03df2ec5cadc89b33e26c7cccc848fd358cf2-v46.json",
+  "evaluationCommit": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2",
+  "remainingScreens": 1,
+  "recordedSteps": 135,
+  "status": "complete",
+  "commit": "8f52f8e61323d1076ca22d8834ef76122b85c75b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v46",
+    "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+    "session": "synthetic/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11",
+    "manifestPath": "challenges/manifests/v46.json",
+    "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+    "recording": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json",
+    "recordingPath": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json",
+    "recordingSha256": "df4b4bad1ea9cd83a53f92044b186a5aa123e949fb48686d848fddf28a0f2d6b",
+    "recipe": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.recipe.session.json",
+    "recipeSha256": "eff679886f2437530df5a1c7bf6bc7b0372e8975d7cd13704b20249bba59b436",
+    "replayInputSha256": "abdedc8ddf398c66fd4c2f9dd6cd76a9ccefd8cf9819915e754acf352d039708",
+    "evaluationPath": "challenges/evaluations/accepted-52a03df2ec5cadc89b33e26c7cccc848fd358cf2-v46.json",
+    "evaluationCommit": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2",
+    "evaluationArtifact": "challenges/evaluations/accepted-52a03df2ec5cadc89b33e26c7cccc848fd358cf2-v46.json",
+    "evaluationUtc": "2026-10-11T16:26:00.275Z",
+    "remainingScreens": 1,
+    "recordedSteps": 135,
+    "previousScreensMatched": 134,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 134,
+        "total": 135
+      },
+      "rng": {
+        "matched": 2921,
+        "total": 2987
+      },
+      "cursors": {
+        "matched": 135,
+        "total": 135
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 133,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 133,
+          "key": "n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2921,
+        "cEntry": "rnd(2)=1",
+        "cCaller": "next_ident(mkobj.c:521)",
+        "jsEntry": "rn2(12)=4",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 133,
+          "key": "n"
+        },
+        "stepIndex": 133
+      },
+      "cursor": null
+    },
+    "step": 133,
+    "kind": "rng",
+    "sourceFile": "mkobj.c",
+    "function": "next_ident",
+    "message": null,
+    "cFile": "mkobj.c",
+    "luaFile": null,
+    "line": 521
+  },
+  "summary": "At zero-based step 133, a visible mimic disguised as a stone object or stone furniture enters zap.c:bhitm's SPE_STONE_TO_FLESH branch. C calls set_msg_xy and then uhitm.c:that_is_a_mimic with MIM_REVEAL | MIM_OMIT_WAIT; the helper creates the disguise-specific message and reveals the mimic. JS zap.js:bhitm skips both operations through note_unported, so the first screen difference is the missing mimic message at boundary 134. The later next_ident RNG divergence is downstream of the skipped helper path. The saved v46 evaluation records 134/135 screens, 2921/2987 RNG calls, and 135/135 cursors matched.",
+  "source": {
+    "file": "zap.c",
+    "branch": "bhitm SPE_STONE_TO_FLESH arm when the target is a mimic disguised as stone furniture or as a boulder, statue, or figurine, and cansee() is true",
+    "functions": [
+      "bhitm"
+    ],
+    "callers": [
+      "zap.c:weffects -> bhit callback -> bhitm for an aimed Stone to Flesh cast",
+      "zap.c:weffects -> bhitm directly when the hero is swallowed or when zap_steed delegates a mounted target",
+      "zap.c:bhitm WAN_LOCKING and WAN_OPENING branches also call that_is_a_mimic(MIM_REVEAL) for box or door disguises; all three bhitm call sites must use the canonical helper."
+    ],
+    "dependencies": [
+      "uhitm.c:that_is_a_mimic",
+      "pline.c:set_msg_xy",
+      "pager.c:object_from_map",
+      "mkobj.c:dealloc_obj"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved queue SHA-256 dac3b5757457451aec387a05fdb9fd07c51b0001b0f7ed54951d9ccf512a759e retains this case as the first unreserved candidate after the accepted troll case was removed. Its queue entry reports earliestStep 133, remainingScreens 1, and source annotation mkobj.c; the admitted v46 manifest clarifies that the first visible mismatch is the bhitm mimic message at boundary 134 and that the next_ident RNG divergence is downstream.",
+    "nethack-c/upstream/src/zap.c:506-516 enters the SPE_STONE_TO_FLESH mimic arm only for M_AP_FURNITURE accepted by stone_furniture_type() or M_AP_OBJECT accepted by stone_object_type(), then requires cansee(mtmp->mx, mtmp->my). It sets the message coordinate and calls that_is_a_mimic(mtmp, MIM_REVEAL | MIM_OMIT_WAIT).",
+    "nethack-c/upstream/src/uhitm.c:6199-6276 implements that_is_a_mimic(): it formats the message from the visible glyph and mimic disguise, strips “Wait!” text under MIM_OMIT_WAIT, reveals under MIM_REVEAL, reconstructs object glyphs through pager.c:object_from_map, and releases synthetic objects with mkobj.c:dealloc_obj. The existing JavaScript helper is in js/uhitm.js and is now exported for bhitm wiring.",
+    "nethack-c/upstream/src/pline.c:91-97 defines set_msg_xy() as the display coordinate for the next message. JS zap.js:3531-3541 currently records note_unported('pline.c set_msg_xy') and note_unported('uhitm.c that_is_a_mimic') instead of printing the message. The existing js/startup_a11y.js:290-295 messageAt() can carry the source coordinate into accessible-message formatting without changing default text.",
+    "The selected production path is the existing zap.js command path through weffects() and bhit() to bhitm(); the JS bhitm() body is at js/zap.js:3333-3798. The helper's other C entry is uhitm.c:stumble_onto_mimic() at 6282-6284, already represented by js/uhitm.js:1100-1101. The previous closest case v19:cancellation-reveals-hostile-large-mimic-c62 exercises cancellation reveal, not this stone-to-flesh message branch.",
+    "Selection classifies this as a file-port candidate because bhitm() is an existing partial source unit with explicit unported branches. The source scope must cover the whole zap.c:bhitm function, its currently supported callers, and required helper wiring; implementation work was not included in this investigation-only assignment.",
+    "nethack-c/upstream/src/zap.c:373-385 calls that_is_a_mimic(MIM_REVEAL) for WAN_LOCKING/WAN_OPENING box-or-door disguises in addition to the stone-to-flesh call at 514-515. The implementation wires all three calls to the canonical JS helper.",
+    "nethack-c/upstream/src/pline.c:93-97 sets a11y.msg_loc for the next output line. JavaScript js/pline.js stores that coordinate and consumes it at the immediate helper message, applying messageAt only for accessiblemsg and resetting the location after the line."
+  ]
+}

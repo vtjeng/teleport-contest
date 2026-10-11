@@ -4,6 +4,7 @@
 // below also pin the source's tethered-weapon and immediate-wand boundaries.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -72,6 +73,13 @@ import {
     SPE_SLOW_MONSTER,
 } from '../js/objects.js';
 
+const C_ZAP_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8',
+);
+const ZAP_JS_SOURCE = readFileSync(
+    new URL('../js/zap.js', import.meta.url), 'utf8',
+);
+
 // A straight run of floor at row 4 from column 1 to `last`, with the hero at
 // column 1 and everything in sight. Column `last + 1` stays STONE, which is
 // what stops a missile that outlives its targets.
@@ -108,6 +116,27 @@ function missile(state, otyp = ARROW, overrides = {}) {
 function fireEast(state, range, obj) {
     return bhit(1, 0, range, THROWN_WEAPON, null, null, { obj }, state);
 }
+
+test('bhitm routes the stone-to-flesh mimic output through source helpers', () => {
+    const cStart = C_ZAP_SOURCE.indexOf(
+        'bhitm(struct monst *mtmp, struct obj *otmp)',
+    );
+    const cEnd = C_ZAP_SOURCE.indexOf('\n/* hero is held by', cStart);
+    const cBody = C_ZAP_SOURCE.slice(cStart, cEnd);
+    const jsStart = ZAP_JS_SOURCE.indexOf('export async function bhitm(');
+    const jsEnd = ZAP_JS_SOURCE.indexOf('\nexport async function ', jsStart + 1);
+    const jsBody = ZAP_JS_SOURCE.slice(jsStart, jsEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cBody,
+        /set_msg_xy\(mtmp->mx, mtmp->my\);\s*that_is_a_mimic\(mtmp,\s*MIM_REVEAL \| MIM_OMIT_WAIT\)/u);
+    assert.match(jsBody,
+        /set_msg_xy\(monster\.mx, monster\.my, state\);\s*\/\/ C's next pline consumes a11y\.msg_loc,[\s\S]*?await that_is_a_mimic\([\s\S]*?MIM_REVEAL \| MIM_OMIT_WAIT/u);
+    assert.equal((cBody.match(/that_is_a_mimic\(mtmp,/gu) ?? []).length, 3);
+    assert.equal((jsBody.match(/await that_is_a_mimic\(\s*monster,/gu) ?? []).length, 3);
+    assert.doesNotMatch(jsBody,
+        /note_unported\('(pline\.c set_msg_xy|uhitm\.c that_is_a_mimic)'\)/u);
+});
 
 test('bhit() stops on the last passable square and reports no monster', async () => {
     // zap.c:4076-4080. `!ZAP_POS(typ)` backs gb.bhitpos up one square, so the
