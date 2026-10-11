@@ -1,0 +1,136 @@
+{
+  "session": "synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst",
+  "remainingScreens": 2,
+  "recordedSteps": 40,
+  "status": "complete",
+  "commit": "331c2a91bf336e8b212cd933e58a4b7640ae9151",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v43",
+    "caseId": "v43-quest-nemesis-death-wizard-corrected-cfirst",
+    "session": "synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst",
+    "manifestPath": "challenges/manifests/v43.json",
+    "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+    "recording": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.session.json",
+    "recordingPath": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.session.json",
+    "recordingSha256": "ab1bd854844156185abb66f58ce22e0eabc7c035cf7ad7018e8555b3b160949d",
+    "recipe": "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.recipe.session.json",
+    "recipeSha256": "1acd456e93f145b5c35d0194254fafa4f17150c2d92716c29850755b98aa4489",
+    "replayInputSha256": "d652fa57c326bf68debc5c2fcd23217a0c0127a05049046723d9062066dc7630",
+    "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
+    "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+    "evaluationArtifact": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
+    "evaluationUtc": "2026-10-11T02:29:19.784Z",
+    "remainingScreens": 2,
+    "recordedSteps": 40,
+    "previousScreensMatched": 38,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 38,
+        "total": 40
+      },
+      "rng": {
+        "matched": 3233,
+        "total": 3235
+      },
+      "cursors": {
+        "matched": 38,
+        "total": 40
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 38,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 38,
+          "key": "j"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 22,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3233,
+        "cEntry": "rn2(3)=2",
+        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+        "jsEntry": "rn2(6)=5",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 38,
+          "key": "j"
+        },
+        "stepIndex": 38
+      },
+      "cursor": {
+        "index": 38,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 38,
+          "key": "j"
+        },
+        "cCursor": [
+          30,
+          0,
+          1
+        ],
+        "jsCursor": [
+          62,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 38,
+    "kind": "rng",
+    "sourceFile": "nhlib.lua",
+    "function": "shuffle",
+    "message": null,
+    "cFile": null,
+    "luaFile": "nhlib.lua",
+    "line": 19,
+    "helper": {
+      "function": "random",
+      "luaFile": "nhlib.lua",
+      "line": 8
+    }
+  },
+  "summary": "The quest-nemesis death branch is skipped in JavaScript. C calls quest.c:nemdead before dropping the dead monster’s inventory; that function invokes the quest pager, whose nhl_init executes nhlib.lua’s three-item alignment shuffle. JavaScript records the nemdead call as unported and reaches an unrelated rn2(6) drop-path draw instead.",
+  "source": {
+    "file": "quest.c",
+    "branch": "When a monster with MS_NEMESIS dies and killed_nemesis is still false, set killed_nemesis before calling qt_pager(\"killed_nemesis\"); later calls return without pager output or random draws.",
+    "functions": [
+      "nemdead"
+    ],
+    "callers": [
+      "mon.c:m_detach (called from mondead on due_to_death before stinky_nemesis and relobj)"
+    ],
+    "dependencies": [
+      "questpgr.c:qt_pager (existing JS port initializes nhlib.lua through comPagerCore)"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "nethack-c/upstream/src/quest.c:107-114 — nemdead() guards on killed_nemesis, sets the flag, then calls qt_pager(\"killed_nemesis\").",
+    "nethack-c/upstream/src/mon.c:2768-2776 — m_detach() calls nemdead() for a dying MS_NEMESIS before stinky_nemesis() and relobj().",
+    "nethack-c/upstream/src/questpgr.c:630-633 and nhlua.c:2295-2357 — qt_pager() reaches com_pager_core(), which creates a Lua state and loads nhlib.lua.",
+    "nethack-c/upstream/dat/nhlib.lua:17-25 — the top-level shuffle consumes rn2(3) then rn2(2) while permuting align.",
+    "js/mon.js:m_detach — the nemesis branch maps to note_unported(\"quest.c nemdead\") and then continues to relobj(); js/quest.js has no nemdead implementation, while js/questpgr.js already implements pager initialization.",
+    "Refreshed queue SHA-256 daf596ad43e6d480fef4ebcc59e8f886f44e362b1ceabda10e010899d9d3362b: this session remains at step 38, with C rn2(3)=2 and JS rn2(6)=5; C then records nhlib.lua shuffle’s rn2(2)=0."
+  ]
+}
