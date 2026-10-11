@@ -275842,6 +275842,66 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-succubus-steal-v46-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port uhitm.c theft_petrifies and steal_it and restore the hero-attacker arm of mhitm_ad_sedu so polymorphed theft transfers monster inventory in C order.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v46/v46-succubus-steals-monster-item-attempt2"
+      ],
+      "selectionReason": "The only remaining post-Sokoban v46 mismatch reaches the explicit hero-attacker steal_it gap in mhitm_ad_sedu.",
+      "detail": "Port whole theft_petrifies and steal_it; wire the already verified mhitm_ad_sedu hero arm through damageum/mhitm_adtyping. Preserve the discarded mselftouch call as an explicit gap because its void minstapetrify dependency remains unfinished.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "theft_petrifies",
+          "line": 2148,
+          "endLine": 2173,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "steal_it",
+          "line": 2174,
+          "endLine": 2280,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2148,
+        "to": 2280
+      },
+      "requiredFunctions": [
+        {
+          "name": "mhitm_ad_sedu",
+          "line": 4623,
+          "endLine": 4750,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v46/v46-succubus-steals-monster-item-attempt2": {
+          "session": "synthetic/v46/v46-succubus-steals-monster-item-attempt2",
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-succubus-steals-monster-item-attempt2",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recordingPath": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.session.json",
+          "recordingSha256": "da58190028a80439818aec2a99c67535cb786949db91c7ca833d7dc5e4ef5ddf",
+          "evaluationPath": "challenges/evaluations/accepted-dd8f450f2864f2521a5a0948c027fc47a1bd310e-v46.json",
+          "evaluationCommit": "dd8f450f2864f2521a5a0948c027fc47a1bd310e"
+        }
+      }
     }
   ]
 }
