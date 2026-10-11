@@ -1,0 +1,126 @@
+{
+  "session": "synthetic/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+  "corpus": "synthetic",
+  "batch": "v45",
+  "caseId": "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+  "manifestPath": "challenges/manifests/v45.json",
+  "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+  "recordingPath": "challenges/cases/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst.session.json",
+  "recordingSha256": "59057f8ed9fd49c9cc63660514cb38103dbdfcea13b246f30f11c018e4ac616e",
+  "evaluationPath": "challenges/evaluations/accepted-70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d-v45.json",
+  "evaluationCommit": "70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d",
+  "remainingScreens": 1,
+  "recordedSteps": 69,
+  "status": "complete",
+  "commit": "7cbd4a8b2d72c7554d93256612a3f9cc25ea958d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v45",
+    "caseId": "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+    "session": "synthetic/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+    "manifestPath": "challenges/manifests/v45.json",
+    "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+    "recording": "challenges/cases/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst.session.json",
+    "recordingPath": "challenges/cases/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst.session.json",
+    "recordingSha256": "59057f8ed9fd49c9cc63660514cb38103dbdfcea13b246f30f11c018e4ac616e",
+    "recipe": "challenges/cases/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst.recipe.session.json",
+    "recipeSha256": "f8fe9152463086335c9631ac047efedf8ac55303419b188aa670157340c50c99",
+    "replayInputSha256": "4b7f8245ed7a46ecc4b707d6c4c7f90bf248460f2a27ded188fec3e007e42e0c",
+    "evaluationPath": "challenges/evaluations/accepted-70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d-v45.json",
+    "evaluationCommit": "70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d",
+    "evaluationArtifact": "challenges/evaluations/accepted-70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d-v45.json",
+    "evaluationUtc": "2026-10-11T10:23:05.986Z",
+    "remainingScreens": 1,
+    "recordedSteps": 69,
+    "previousScreensMatched": 68,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 68,
+        "total": 69
+      },
+      "rng": {
+        "matched": 3179,
+        "total": 3187
+      },
+      "cursors": {
+        "matched": 69,
+        "total": 69
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 68,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 68,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 9,
+        "cCell": {
+          "ch": "t",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "m",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3164,
+        "cEntry": "rnd(2)=1",
+        "cCaller": "next_ident(mkobj.c:521)",
+        "jsEntry": "rn2(6)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 68,
+          "key": " "
+        },
+        "stepIndex": 68
+      },
+      "cursor": null
+    },
+    "step": 68,
+    "kind": "rng",
+    "sourceFile": "mkobj.c",
+    "function": "next_ident",
+    "message": null,
+    "cFile": "mkobj.c",
+    "luaFile": null,
+    "line": 521
+  },
+  "summary": "The v45 cockatrice/newt mismatch is a missing call in the monster-versus-monster AD_STON arm of uhitm.c:mhitm_ad_ston. At step 68 C displays “The newt turns to stone!” and runs do_stone_mon; JavaScript skips that already implemented helper behind note_unported and leaves the newt alive. The reported next_ident RNG mismatch is downstream of C monstone creating a statue or rock, not a defect in mkobj.c:next_ident. Wire the complete existing do_stone_mon implementation in the uncancelled monster-versus-monster branch, preserve mhm.done handling, and leave the helper’s return unused.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "In mhitm_ad_ston, when neither participant is the hero, return early if magr->mcan; otherwise call do_stone_mon(magr, mattk, mdef, mhm), then return if the helper sets mhm->done. The selected attack is an uncancelled cockatrice AT_TUCH/AD_STON against a nonresistant newt.",
+    "functions": [
+      "mhitm_ad_ston"
+    ],
+    "callers": [
+      "Direct source caller: uhitm.c:mhitm_adtyping dispatches AD_STON to mhitm_ad_ston at line 4796; js/uhitm.js:mhitm_adtyping already awaits the same handler.",
+      "Selected runtime path: monmove.c:dochug -> mhitm.c:mattackm -> mhitm.c:mdamagem -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_ston -> uhitm.c:do_stone_mon. JavaScript mirrors this through js/mhitm.js:mdamagem and the existing js/uhitm.js dispatcher.",
+      "The unchanged other dispatcher entries are uhitm.c:damageum for hero-to-monster and mhitu.c:hitmu for monster-to-hero; their JavaScript callers already reach the shared dispatcher."
+    ],
+    "dependencies": [
+      "uhitm.c:do_stone_mon is already implemented in js/uhitm.js and has source-pinned tests; commit 6f2da0bd9 added it for the physical petrifying-corpse branch in mhitm_ad_phys. This task wires its second source caller and verifies the helper through the selected recorded monster-versus-monster path.",
+      "do_stone_mon calls muse.c:munstone, uhitm.c:poly_when_stoned/mon_to_stone, mon.c:resists_ston/monstone and grow_up; these canonical owners already exist and the selected nonresistant newt reaches monstone.",
+      "The existing hero-to-monster branch still names the discarded void trap.c:minstapetrify call with note_unported. The monster-to-hero branch retains the existing potion.c:make_stoned gap reached only when do_stone_u starts hero stoning. Neither gap is the selected branch or should be replaced with invented behavior."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved combined queue SHA-256 is eb25e1cc697ac0dc8853df6a64006ef8fb113f894ddf34034490c48824d67c0d. Its v45 entry binds this session to manifest c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649, recording 59057f8ed9fd49c9cc63660514cb38103dbdfcea13b246f30f11c018e4ac616e, evaluation challenges/evaluations/accepted-70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d-v45.json at 70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d; the saved count is 1 remaining screen across 69 steps, with 68/69 screens, 3179/3187 RNG calls and 69/69 cursors matched.",
+    "The C-first recording challenges/cases/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst.session.json creates a tame cockatrice and hostile newt with wizard genesis, then waits until their fight. Step 67 (period) records “The cockatrice bites the newt. The cockatrice touches the newt.--More--”; step 68 (space) records “The newt turns to stone!” and the changed map symbol.",
+    "At step 68, C records rn2(3)=2 at monstone(mon.c:3310), rnd(2)=1 at next_ident(mkobj.c:521), and rn2(6)=3 at mksobj_init(mkobj.c:981). The next_ident call is downstream evidence that monstone created the death object after the missing helper call; the source cause precedes it in uhitm.c.",
+    "Upstream uhitm.c:4203-4262 implements all three combat directions. Its monster-versus-monster arm checks magr->mcan, calls do_stone_mon, then reads mhm->done and returns. JS js/uhitm.js:mhitm_ad_ston:5095-5103 preserves the cancellation check but replaces the active source call with note_unported and an immediate return.",
+    "The canonical helper is present at js/uhitm.js:4532 and called from the physical corpse-weapon arm of js/uhitm.js:mhitm_ad_phys:4807. scripts/uhitm.test.mjs already exercises do_stone_mon cure, lifesaving and post-stone bookkeeping. The missing change is the second production call from mhitm_ad_ston; do not port or duplicate monstone behavior."
+  ]
+}
