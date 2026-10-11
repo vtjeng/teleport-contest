@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T04:46:09.267Z",
+  "capturedAt": "2026-10-11T05:58:41.147Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -86507,11 +86507,210 @@
         "type": "accepted",
         "at": "2026-10-11T04:45:40.317Z",
         "task": "A2-correction-v43-monster-blindness-detached-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-resume-after-blindness-accept-20261011-1",
+        "type": "turn",
+        "at": "2026-10-11T04:46:16.190Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-detached-accept-20261011-1",
+        "type": "turn",
+        "at": "2026-10-11T04:46:31.821Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 is idle: the refreshed queue’s only candidate is the parked mounted-steed source-family task, whose leash, migration, placement, elapsed-time, and caller dependencies remain unresolved. Prep8 is still preparing v44; wait for replan or admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-correction-v43-monster-blindness-detached-20261011-56ada9102d7eb62ad6df153f57ae92efbc16f27f",
+        "type": "published",
+        "at": "2026-10-11T04:46:52.371Z",
+        "task": "A2-correction-v43-monster-blindness-detached-20261011",
+        "commit": "56ada9102d7eb62ad6df153f57ae92efbc16f27f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-mounted-source-split-20261011-v2",
+        "type": "assign",
+        "at": "2026-10-11T05:01:06.338Z",
+        "task": "A2-investigation-v43-mounted-source-split-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-mounted-source-split-active-20261011-01",
+        "type": "turn",
+        "at": "2026-10-11T05:01:58.306Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is defining the complete leash and next-to-u source stage, with downstream dog transfer stages recorded as blockers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-prep8-v44-refresh-56ada-20261011",
+        "type": "turn",
+        "at": "2026-10-11T05:04:56.340Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v44 Magicbane remains a source-distinct caller-wiring mismatch; refreshing remaining quest and source-program candidates against accepted Main."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-mounted-apply-stage-20261011",
+        "type": "implement",
+        "at": "2026-10-11T05:07:25.298Z",
+        "task": "A2-investigation-v43-mounted-source-split-20261011",
+        "goal": "port-apply-mleashed-next2u-v43-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0a19aec756d083f9f624cb1eb563b796d3f320a5",
+        "type": "ready",
+        "at": "2026-10-11T05:40:22.761Z",
+        "task": "Prep8",
+        "delivery": "0a19aec756d083f9f624cb1eb563b796d3f320a5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-prep8-v44-submitted-idle-20261011",
+        "type": "turn",
+        "at": "2026-10-11T05:41:02.005Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep8/v44 is submitted and awaiting Main review and admission by the orchestrator."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep8-0a19aec756d083f9f624cb1eb563b796d3f320a5",
+        "type": "received",
+        "at": "2026-10-11T05:41:37.955Z",
+        "task": "Prep8",
+        "delivery": "0a19aec756d083f9f624cb1eb563b796d3f320a5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep8-103eecf55-20261011",
+        "type": "integrating",
+        "at": "2026-10-11T05:42:59.930Z",
+        "task": "Prep8",
+        "integration": "103eecf553dcbe7b14ecab159c44e04a29dd913f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-Prep8-38115733362-20261011",
+        "type": "validated",
+        "at": "2026-10-11T05:48:50.738Z",
+        "task": "Prep8",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep8-103eecf553dcbe7b14ecab159c44e04a29dd913f-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T05:49:03.767Z",
+        "task": "Prep8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep8-accepted-wait-v44-admission-20261011",
+        "type": "turn",
+        "at": "2026-10-11T05:50:37.091Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep8 is accepted; waiting for Main to admit v44 and publish its first baseline. I’ll recheck the preparation trigger after that evaluation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v44-magicbane-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T05:53:41.660Z",
+        "task": "B-investigation-v44-magicbane-monster-probe-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-53f9ec689bafb7d8b0bbc80e1beb62759a1a8c39",
+        "type": "ready",
+        "at": "2026-10-11T05:54:11.801Z",
+        "task": "A2-investigation-v43-mounted-source-split-20261011",
+        "delivery": "53f9ec689bafb7d8b0bbc80e1beb62759a1a8c39"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-next2u-submit-20261011",
+        "type": "turn",
+        "at": "2026-10-11T05:55:04.080Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 is idle: the saved queue has only B-reserved v44 Magicbane and A2-submitted mounted-steed cases. Waiting for a released scope or the next admitted queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-apply-53f9ec689-20261011",
+        "type": "received",
+        "at": "2026-10-11T05:55:08.561Z",
+        "task": "A2-investigation-v43-mounted-source-split-20261011",
+        "delivery": "53f9ec689bafb7d8b0bbc80e1beb62759a1a8c39"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-active-v44-magicbane-investigation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T05:55:10.100Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the admitted v44 Magicbane monster-probe mismatch; no implementation scope is claimed yet."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep-v45-trigger-20261011",
+        "type": "turn",
+        "at": "2026-10-11T05:56:08.997Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v44 is admitted with two unmatched sessions remaining; both are owned by other workers, and the preparation trigger starts v45."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep9-v45-assign-20261011",
+        "type": "assign",
+        "at": "2026-10-11T05:56:16.305Z",
+        "task": "Prep9",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-blocked-v44-magicbane-report-submit-20261011",
+        "type": "turn",
+        "at": "2026-10-11T05:57:34.427Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "The v44 Magicbane investigation is committed; worker-state delivery waits on coordinator integration or goal queueing."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "A2-investigation-v43-mounted-source-split-20261011",
+        "worker": "A2",
+        "goal": "port-apply-mleashed-next2u-v43-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "53f9ec689bafb7d8b0bbc80e1beb62759a1a8c39",
+        "since": "2026-10-11T05:54:11.801Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -86893,8 +87092,8 @@
     ]
   },
   "development": {
-    "executionCommit": "34643f3e2165ce7769358970812543c951d2b27d",
-    "measuredAt": "2026-10-11T04:44:19.703Z",
+    "executionCommit": "708ccb10dd6f761996a7e58b583826818161d2f8",
+    "measuredAt": "2026-10-11T05:57:21.829Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
