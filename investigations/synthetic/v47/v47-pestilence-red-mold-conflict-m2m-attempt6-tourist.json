@@ -7,12 +7,12 @@
   "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
   "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
   "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
-  "evaluationPath": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
-  "evaluationCommit": "56fe7fb916a1ffdf783a557694a1c1c18af784de",
+  "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+  "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
   "remainingScreens": 12,
   "recordedSteps": 150,
   "status": "complete",
-  "commit": "307c71fed0bfee2b73f9c409863e9f087a67b82e",
+  "commit": "4d4cf4f6962c13e1593841d07199632101339cd4",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v47",
@@ -25,11 +25,11 @@
     "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
     "recipe": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.recipe.session.json",
     "recipeSha256": "71d1a4f2d140f88a7a658b3a44ef6b7913e10ecb21ed7dc61f84beb43d3533df",
-    "replayInputSha256": "7257e6f9cb3d5083103e10aa607d9d8d162ac7375ca640184e2b8b6c805e10cd",
-    "evaluationPath": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
-    "evaluationCommit": "56fe7fb916a1ffdf783a557694a1c1c18af784de",
-    "evaluationArtifact": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
-    "evaluationUtc": "2026-10-11T21:29:11.560Z",
+    "replayInputSha256": "13d87b260326cb87a3ad759ed31ce3e2d081c9a02c6302da26841e1cdd214c4e",
+    "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+    "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+    "evaluationArtifact": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+    "evaluationUtc": "2026-10-11T22:24:39.664Z",
     "remainingScreens": 12,
     "recordedSteps": 150,
     "previousScreensMatched": 138,
@@ -119,8 +119,8 @@
     "file": "uhitm.c",
     "branch": "For a monster-pair hit, mhitm_ad_dise uses the monster defender’s data: S_FUNGUS, PM_GHOUL, or defended(mdef, AD_DISE) sets mhm.damage to zero; all other defenders take normal damage. A hero attacker goes to this same branch, although the source comment says it is unreachable because every AD_DISE species (Juiblex, Demogorgon, and Scorpius) has M2_NOPOLY. The separate monster-attacks-hero arm emits hitmsg and retains normal damage only when diseasemu succeeds. The dispatcher’s active monster-pair and monster-to-hero callers are mdamagem and hitmu; damageum reaches its hero-attacker arm only for a valid polymorph, which the source monster table excludes.",
     "functions": [
-    "mhitm_ad_pest",
-    "mhitm_ad_dise"
+      "mhitm_ad_pest",
+      "mhitm_ad_dise"
     ],
     "callers": [
       "uhitm.c:mhitm_ad_pest: the monster-pair branch copies mattk, sets alt_attk.adtyp=AD_DISE, and calls mhitm_ad_dise; the monster-to-hero branch emits the fever-and-chills message and calls diseasemu.",
@@ -146,5 +146,6 @@
     "The admitted v20 pestilence-touches-wizard-v20-more-corrected case is a distinct matching monster-to-hero entry to mhitm_ad_pest; a fresh differential matches its full 48-step segment.",
     "New independent C-first recordings cover direct AD_DISE dispatcher entries: Scorpius versus a stone golem exercises mdamagem -> mhitm_adtyping -> mhitm_ad_dise through 156 steps, and Scorpius versus the hero exercises hitmu -> mhitm_adtyping -> mhitm_ad_dise through the disease action at step 79 in an 80-step replay. Both fresh differentials match completely.",
     "The AD_DISE hero-attacker branch is source-tested but has no valid runtime producer: monsters.h defines Juiblex, Demogorgon, and Scorpius as M2_NOPOLY, and uhitm.c explicitly comments that a hero cannot polymorph into a monster with this attack."
-  ]
+  ],
+  "queueSha256": "46b5891629d3d59e5e62550cd812381e88752c80574406c65acffb4f4fed55cb"
 }
