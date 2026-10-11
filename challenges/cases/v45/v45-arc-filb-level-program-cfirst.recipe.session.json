@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052005,
+    "datetime": "20561205111415",
+    "nethackrc": "OPTIONS=name:V45ArcFilb,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": " #wizloaddes\nArc-filb.lua\n#wizmap\n",
+    "recorderIsDst": true
+  }],
+  "comment": "C-first whole-program replacement after the planned Amulet theft source branch was found identical to admitted v21 AD_SAMU -> stealamulet. Load the distinct Arc-filb.lua source program and expose its generated room sequence."
+}

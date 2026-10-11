@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only attempt 4 locates the Wizard of Yendor after the prior seed's first `y` target proved to be stone. The same #wizmap identifies the adjacent special-level actor; use #wizkill farlook cursor directions around the hero with no time advance, then escape and inspect inventory. This is setup evidence only.",
+  "segments": [
+    {
+      "seed": 45101205,
+      "datetime": "20581010131400",
+      "nethackrc": "OPTIONS=name:V45EarthCaveScout,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #wizmap\n#wizkill\n  ynubhlkje\u001bi"
+    }
+  ]
+}

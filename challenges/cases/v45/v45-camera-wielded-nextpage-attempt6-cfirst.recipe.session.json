@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected wield selector: the wished camera is carried under inventory letter o but the full `wield *` list spans two pages. Advance from page 1 to page 2 with space, select o, then attack the adjacent newt south. This targets uhitm.c:hmon_hitmon_misc_obj(EXPENSIVE_CAMERA) -> dothrow.c:release_camera_demon.",
+  "segments": [
+    {
+      "seed": 45023503,
+      "datetime": "20581013132700",
+      "nethackrc": "OPTIONS=name:V45CameraPickup,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nexpensive camera\n#wizgenesis\nhostile newt\nw* oj"
+    }
+  ]
+}

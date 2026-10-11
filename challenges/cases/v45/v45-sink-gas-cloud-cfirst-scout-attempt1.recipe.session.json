@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026014,
+      "datetime": "20581011131900",
+      "nethackrc": "OPTIONS=name:V45SinkScout,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizmap\n."
+    }
+  ],
+  "comment": "C-first scout for a source-based fountain.c:drinksink case-13 gas-cloud transition. Inspect the actual level map for a reachable sink before designing a separate drink action."
+}

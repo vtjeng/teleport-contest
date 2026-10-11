@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026018,
+      "datetime": "20581011132000",
+      "nethackrc": "OPTIONS=name:V45SinkGas,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017sink\nqy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    "
+    }
+  ],
+  "comment": "C-first follow-up to v45 sink scout. Wish an actual sink at the hero and exercise drinksink with an independently selected seed/role; keep only if the C trace reaches its case-13 gas-cloud caller."
+}

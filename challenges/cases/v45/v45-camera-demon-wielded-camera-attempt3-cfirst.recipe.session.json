@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first wielded-camera attack candidate. `uhitm.c:hmon_hitmon_misc_obj` destroys a wielded EXPENSIVE_CAMERA and calls `dothrow.c:release_camera_demon`; wish camera slot n, create a hostile adjacent newt, wield the camera, and attempt the C-confirmed south attack. Keep this distinct from thrown/broken-camera recording probes until first mismatch ownership is adjudicated.",
+  "segments": [
+    {
+      "seed": 45023502,
+      "datetime": "20581012121900",
+      "nethackrc": "OPTIONS=name:V45CameraDemon2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nexpensive camera\n#wizgenesis\nhostile newt\nwnj"
+    }
+  ]
+}

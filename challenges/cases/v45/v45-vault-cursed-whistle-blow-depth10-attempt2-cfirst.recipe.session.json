@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first actual cursed-whistle dispatch attempt at D:10. Levelport to depth 10, reveal the generated level, wish a cursed tin whistle (C confirmed it under inventory letter n), then apply it. Keep only as a reached vault_summon route if the hero's actual room satisfies vault_occupied.",
+  "segments": [
+    {
+      "seed": 45024534,
+      "datetime": "20581013133000",
+      "nethackrc": "OPTIONS=name:V45VaultWhistle,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n10\n  #wizmap\n  #wizwish\ncursed tin whistle\nan"
+    }
+  ]
+}

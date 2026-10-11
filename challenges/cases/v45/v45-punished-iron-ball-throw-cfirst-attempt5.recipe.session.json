@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first attempt 5 reaches the throw command after the exact pager boundaries observed on attempts 1–4. Read slot o, pick up the attached ball (C identified it as p), dismiss the weight message, then throw p west into a clear floor square to test dothrow.c:throwit -> ball.c:drop_ball.",
+  "segments": [
+    {
+      "seed": 45101202,
+      "datetime": "20581010102600",
+      "nethackrc": "OPTIONS=name:V45BallThrow,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\nro , t p h"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Sanctum target probe: after loading/revealing the map, use #wizkill to select the known barbed devil at the altar coordinate (18,8), then cancel the follow-up target prompt. This tests whether the high altar becomes reachable before attempting offer_real_amulet.",
+  "segments": [
+    {
+      "seed": 45024503,
+      "datetime": "20581013132700",
+      "nethackrc": "OPTIONS=name:V45OfferAmulet,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nsanctum.lua\n#wizmap\n#wizkill\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkk.\u001b"
+    }
+  ]
+}

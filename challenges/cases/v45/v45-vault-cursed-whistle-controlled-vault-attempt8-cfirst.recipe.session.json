@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026000,
+      "datetime": "20581011131700",
+      "nethackrc": "OPTIONS=name:V45VaultTarget,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizintrinsic\n150o>>150j\n  \n#wizwish\ncursed tin whistle\n\u0014  lllllllllllllllllllllllllllllllllllllllllllllllllll.i"
+    }
+  ],
+  "comment": "C-map correction after attempt 7: its 52 east and one south selection returned to a random safe location. The C map shows the detached VAULT floor at x=60..61,y=16..17 while JS port-only scan reports the generation coordinates off by one. This selects the C-visible top-left floor (60,16) from hero (9,16), then inspects the landing."
+}

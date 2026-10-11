@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024715,
+      "datetime": "20591017141616",
+      "nethackrc": "OPTIONS=name:V45LightGremlin5,role:Valkyrie,race:dwarf,gender=female,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n10\n         #wizwish\nSunsword\nwe #wizgenesis\nhostile gremlin\n#wizmap\nFl "
+    }
+  ],
+  "comment": "C-first reach attempt for uhitm.c:hmon_hitmon_msg_lightobj. After the confirmed west-to-east forced hit in attempt6, append one space to dismiss the hit pager and reveal any subsequent Sunsword radiance message."
+}

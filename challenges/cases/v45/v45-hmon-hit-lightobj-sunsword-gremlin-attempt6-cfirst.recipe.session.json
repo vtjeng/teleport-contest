@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024715,
+      "datetime": "20591017141616",
+      "nethackrc": "OPTIONS=name:V45LightGremlin5,role:Valkyrie,race:dwarf,gender=female,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n10\n         #wizwish\nSunsword\nwe #wizgenesis\nhostile gremlin\n#wizmap\nFl"
+    }
+  ],
+  "comment": "Corrected C-first reach attempt for uhitm.c:hmon_hitmon_msg_lightobj. Attempt5 confirmed level 10, the lit wielded Sunsword, and a gremlin immediately east; forcefight east after the map inspection."
+}

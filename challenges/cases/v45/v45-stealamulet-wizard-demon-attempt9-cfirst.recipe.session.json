@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024609,
+      "datetime": "20591017131419",
+      "nethackrc": "OPTIONS=name:V45SamuTheft9,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n10\n        #wizwish\nAmulet of Yendor\n  blessed potion of full healing\n#wizgenesis\nhostile Wizard of Yendor\ny#wizmap\n m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m."
+    }
+  ],
+  "comment": "C-first source route for steal.c:stealamulet through the hostile Wizard of Yendor. Raise to level 10 for survivability and consume each possible --More-- prompt with space before each m. rest turn, then inspect for the Wizard's hit and AD_SAMU theft branch."
+}

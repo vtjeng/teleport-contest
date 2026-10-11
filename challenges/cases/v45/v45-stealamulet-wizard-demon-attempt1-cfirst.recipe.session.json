@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024601,
+      "datetime": "20590411131415",
+      "nethackrc": "OPTIONS=name:V45SamuTheft,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nAmulet of Yendor\n#wizgenesis\nhostile Wizard of Yendor\n#wizmap\n. . . . . . . . . ."
+    }
+  ],
+  "comment": "C-first probe of steal.c:stealamulet via the Wizard of Yendor AD_SAMU attack. The intended reach is an actual theft from a carried real Amulet; preserve this attempt as setup evidence if the monster does not use that attack."
+}

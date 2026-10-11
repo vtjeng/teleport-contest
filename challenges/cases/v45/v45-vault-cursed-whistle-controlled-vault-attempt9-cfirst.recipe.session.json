@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026000,
+      "datetime": "20581011131700",
+      "nethackrc": "OPTIONS=name:V45VaultTarget,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizintrinsic\n150o>>150j\n  \n#wizwish\ncursed tin whistle\n#wizmap\n\u0014  lllllllllllllllllllllllllllllllllllllllllllllllllll.i"
+    }
+  ],
+  "comment": "Attempt 8 selection descriptors showed the cursor had not been given C map knowledge. This corrected C-only route reveals the generated level with #wizmap before targeting the C-visible VAULT floor at (60,16) from hero (9,16)."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024583,
+      "datetime": "20601215151617",
+      "nethackrc": "OPTIONS=name:V45SanctumLevelportCheck,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>v  #wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Correct the previous sanctum recipe: #wizloaddes only loads a special-level description onto the current level. Use the source-defined wizard level teleport menu, page to sanctum, and select its v entry before inspecting the actual generated Sanctum."
+}

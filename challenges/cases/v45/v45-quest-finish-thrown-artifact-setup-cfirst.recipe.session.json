@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052008,
+    "datetime": "20561208141718",
+    "nethackrc": "OPTIONS=name:V45QuestThrow,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": " \u0007peaceful Neferet the Green\ny\u0017The Eye of the Aethiopica\ni",
+    "recorderIsDst": true
+  }],
+  "comment": "C-first setup for the source-distinct thrown quest-artifact route into quest.c:finish_quest via dothrow.c:thitmonst, compared with v44’s chat_with_leader caller. Create the role-correct peaceful leader and inspect the C-observed artifact slot/geometry before throwing."
+}

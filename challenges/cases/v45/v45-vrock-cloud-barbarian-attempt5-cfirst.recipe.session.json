@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Vrock retreat attempt. Barbarian creates a sleeping hostile Vrock. The immediate C screen places it directly north; attack north repeatedly to reach the damage-triggered retreat path without an intervening wizard-map command.",
+  "segments": [
+    {
+      "seed": 45024578,
+      "datetime": "20581013132800",
+      "nethackrc": "OPTIONS=name:V45VrockCloudB,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nsleeping hostile vrock\nkkkkkk"
+    }
+  ]
+}

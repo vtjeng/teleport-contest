@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024505,
+      "datetime": "20551005101112",
+      "nethackrc": "OPTIONS=name:V45GlyphTargetOfferAmulet,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nsanctum.lua\n#wizmap\n#teleport\n  _.\n#wizwish\nAmulet of Yendor\n#offer\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Earth-plane dig with corrected command flow: farlook confirms Wizard south at (71,5), the east neighbor of the hero is STONE, and apply slot o reaches the dig prompt. Dismiss the level-up pager, cancel Next monster, wield the cursed pick-axe, dig east from the current square, and continue the occupation without an intervening wizard command. Preserve whether the cursed Earth 1-in-4 cave roll fires.",
+  "segments": [
+    {
+      "seed": 45101205,
+      "datetime": "20581010131400",
+      "nethackrc": "OPTIONS=name:V45EarthCave,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #wizmap\n#wizkill\n  j.\u001b\u001bw o aol.............."
+    }
+  ]
+}

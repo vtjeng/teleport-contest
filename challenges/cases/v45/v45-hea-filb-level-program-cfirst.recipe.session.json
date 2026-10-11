@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052012,
+    "datetime": "20561212111212",
+    "nethackrc": "OPTIONS=name:V45HeaFilb,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": " #wizloaddes\nHea-filb.lua\n#wizmap\n",
+    "recorderIsDst": true
+  }],
+  "comment": "C-first whole-program alternative distinct from v44’s Hea-fila.lua case: load Hea-filb.lua with the source role and retain its full generated level."
+}

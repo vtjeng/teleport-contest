@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup correction after attempt1: the C wish result assigned the scroll to slot j; attempt1 selected empty slot f. Read the observed slot, dismiss the effect pager, name the scroll, leave hands empty, create a hostile newt, then inspect its position.",
+  "segments": [
+    {
+      "seed": 45024812,
+      "datetime": "20611012131415",
+      "nethackrc": "OPTIONS=name:V45NoHandGlow,role:Monk,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of confuse monster\nrj confuse\nw-#wizgenesis\nhostile newt\n#wizmap\n"
+    }
+  ]
+}

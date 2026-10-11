@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024714,
+      "datetime": "20591017141614",
+      "nethackrc": "OPTIONS=name:V45LightGremlin4,role:Valkyrie,race:dwarf,gender=female,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n10\n        #wizwish\nSunsword\nwe #wizgenesis\nhostile gremlin\n#wizmap\nF"
+    }
+  ],
+  "comment": "C-first higher-survival/setup variation for uhitm.c:hmon_hitmon_msg_lightobj. Level 10 increases the melee hit chance; wield Sunsword before spawning the gremlin and choose the direction from the C map."
+}

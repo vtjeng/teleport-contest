@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only position check after the corrected kill and two attempted eastward moves. Re-enter #wizkill and inspect the terrain immediately east of the hero with its farlook cursor; this distinguishes a blocked move from a cursor/action setup error before trying the pickaxe again.",
+  "segments": [
+    {
+      "seed": 45101205,
+      "datetime": "20581010131400",
+      "nethackrc": "OPTIONS=name:V45EarthCave,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #wizmap\n#wizkill\n  j.\u001b\u001bwoll #wizkill\n  l\u001b"
+    }
+  ]
+}

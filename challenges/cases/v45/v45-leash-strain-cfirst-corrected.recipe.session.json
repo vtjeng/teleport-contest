@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052004,
+    "datetime": "20561204101314",
+    "nethackrc": "OPTIONS=name:V45Leash,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": "\u0007tame dog\n\u0017leash\naohllllll",
+    "recorderIsDst": true
+  }],
+  "comment": "C-only continuation from the observed dog west of hero and leash in slot o. Apply the leash to h/west, then move east six turns to test source-defined check_leash strain. Preserve the setup-only recording."
+}

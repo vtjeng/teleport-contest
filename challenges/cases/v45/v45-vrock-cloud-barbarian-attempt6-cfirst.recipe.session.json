@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Vrock retreat attempt, corrected pager sequence. Barbarian creates a sleeping hostile Vrock north of the hero. Attack north twice, clear the confirmed post-hit pager, then continue the attack to reach the retreat path if the monster survives.",
+  "segments": [
+    {
+      "seed": 45024578,
+      "datetime": "20581013132800",
+      "nethackrc": "OPTIONS=name:V45VrockCloudB,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nsleeping hostile vrock\nkk kkk"
+    }
+  ]
+}

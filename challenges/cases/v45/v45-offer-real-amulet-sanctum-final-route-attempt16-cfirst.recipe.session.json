@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024583,
+      "datetime": "20601215151617",
+      "nethackrc": "OPTIONS=name:V45SanctumOfferFinalRoute,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>v #wizwish\nAmulet of Yendor\n  potion of healing\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkk. #wizkill\n  ll. lj.\u001bll#offer\np",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Use the C-verified Sanctum menu entry and Amulet wishes, then enter the source-defined temple by the same valid controlled-teleport route. The reached map spawns the barbed devil on the high altar and the high priestess adjacent. `#wizkill` can continue selecting monsters: after the first kill, target the adjacent priest with `lj.`; Escape ends the selection. Walk east twice from the observed west-of-altar landing square, then offer the Amulet."
+}
