@@ -272540,6 +272540,299 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-mklev-graveyard-promotion-v45-20261011",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Promote morgue levels to graveyards during topology finalization",
+      "cFile": "mklev.c",
+      "sessions": [],
+      "selectionReason": "Integrate B work for the sole accepted v45 mismatch after Ettin admission.",
+      "detail": "C mklev.c:level_finalize_topology conditionally sets graveyard when has_morgue is true; both production callers are already wired and the JavaScript port omits only this state promotion.",
+      "openedAt": "151c39d4779cbff620d0f1cc5cef6b125f0fbff5",
+      "openStanding": {
+        "sha": "4155c38654a493477fa04e1f3089882aa2110af0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "level_finalize_topology",
+      "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+      "step": 91,
+      "syntheticProvenance": {
+        "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst": {
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "evaluationPath": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+          "evaluationCommit": "4155c38654a493477fa04e1f3089882aa2110af0"
+        }
+      },
+      "activeStanding": {
+        "sha": "4155c38654a493477fa04e1f3089882aa2110af0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+          "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+          "replayInputSha256": "dac61d81e93232da0f457c8a633e69ea5323b4793ea6d359497ed6d9144eb276",
+          "evaluationPath": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+          "evaluationCommit": "4155c38654a493477fa04e1f3089882aa2110af0",
+          "evaluationArtifact": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+          "evaluationUtc": "2026-10-11T14:00:02.298Z",
+          "remainingScreens": 2,
+          "recordedSteps": 157,
+          "previousScreensMatched": 74,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 155,
+              "total": 157
+            },
+            "rng": {
+              "matched": 7511,
+              "total": 7512
+            },
+            "cursors": {
+              "matched": 156,
+              "total": 157
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 91,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 91,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 27,
+              "cCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 7233,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "xkilled(mon.c:3574)",
+              "jsEntry": "rn2(6)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 91,
+                "key": "."
+              },
+              "stepIndex": 91
+            },
+            "cursor": {
+              "index": 91,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 91,
+                "key": "."
+              },
+              "cCursor": [
+                65,
+                0,
+                1
+              ],
+              "jsCursor": [
+                74,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 91,
+          "kind": "rng",
+          "sourceFile": "mon.c",
+          "function": "xkilled",
+          "message": null,
+          "cFile": "mon.c",
+          "luaFile": null,
+          "line": 3574,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.json",
+            "result": {
+              "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+              "evaluationPath": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+              "evaluationCommit": "4155c38654a493477fa04e1f3089882aa2110af0",
+              "remainingScreens": 2,
+              "recordedSteps": 157,
+              "status": "complete",
+              "commit": "4155c38654a493477fa04e1f3089882aa2110af0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+                "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+                "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+                "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+                "replayInputSha256": "dac61d81e93232da0f457c8a633e69ea5323b4793ea6d359497ed6d9144eb276",
+                "evaluationPath": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+                "evaluationCommit": "4155c38654a493477fa04e1f3089882aa2110af0",
+                "evaluationArtifact": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+                "evaluationUtc": "2026-10-11T14:00:02.298Z",
+                "remainingScreens": 2,
+                "recordedSteps": 157,
+                "previousScreensMatched": 74,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 155,
+                    "total": 157
+                  },
+                  "rng": {
+                    "matched": 7511,
+                    "total": 7512
+                  },
+                  "cursors": {
+                    "matched": 156,
+                    "total": 157
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 91,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 91,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 27,
+                    "cCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 7233,
+                    "cEntry": "rn2(3)=2",
+                    "cCaller": "xkilled(mon.c:3574)",
+                    "jsEntry": "rn2(6)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 91,
+                      "key": "."
+                    },
+                    "stepIndex": 91
+                  },
+                  "cursor": {
+                    "index": 91,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 91,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      65,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      74,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 91,
+                "kind": "rng",
+                "sourceFile": "mon.c",
+                "function": "xkilled",
+                "message": null,
+                "cFile": "mon.c",
+                "luaFile": null,
+                "line": 3574
+              },
+              "summary": "After Ettin admission, the Sanctum case reaches a demilich death at zero-based step 91. C calls rn2(3) because level_finalize_topology promotes graveyard when has_morgue is set; JavaScript leaves graveyard false, so xkilled skips that undead-graveyard draw and calls rn2(6). The fix belongs in the existing mklev.c:level_finalize_topology port.",
+              "source": {
+                "file": "mklev.c",
+                "functions": [
+                  "level_finalize_topology"
+                ],
+                "branch": "After special-level fixup and room generation set level.flags.has_morgue, level_finalize_topology must set level.flags.graveyard true and preserve any earlier true value when has_morgue is false. The current v45 Sanctum replay enters mklev() after the Lua level loader has set has_morgue.",
+                "callers": [
+                  "C: mklev.c:mklev() calls level_finalize_topology() after makelevel(); the Sanctum Lua load/fill has set has_morgue by then. JavaScript: js/mklev.js:mklev() calls level_finalize_topology() after makelevel().",
+                  "C: sp_lev.c:lspo_finalize_level() also calls level_finalize_topology() after fixup_special() and before fill_special_room(). JavaScript: js/mklev.js:lspo_finalize_level() mirrors this source call order."
+                ],
+                "dependencies": []
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved combined queue SHA-256 b0094a909ce515982d005e205b4d70f84590cdba10fb14584792217c51e11e26, current against evaluation challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json at 4155c38654a493477fa04e1f3089882aa2110af0. The only candidate is synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst; it has 155/157 screens and 156/157 cursors matching, and its first mismatch is zero-based segment 0 step 91 on key \".\": C rn2(3)=2 at xkilled(mon.c:3574), JS rn2(6)=2.",
+                "The C recording identifies the target at step 90 as a demilich and records “You destroy the demilich!” on step 91. nethack-c/upstream/src/mon.c:44-47 defines LEVEL_SPECIFIC_NOCORPSE as rogue-level || !deathdrops || (graveyard && is_undead(mdat) && rn2(3)); xkilled() tests it at line 3574. js/mon.js:5315 implements the same predicate and xkilled() invokes it at line 6026.",
+                "A replay of the accepted segment through recorded step 90 yields current level D:20 with JS flags has_morgue=true, graveyard=false, and deathdrops=true. The source-level RNG difference therefore comes from the missing flag transition, not a missing xkilled random call.",
+                "nethack-c/upstream/src/mklev.c:1544-1574 implements level_finalize_topology(). Immediately after clearing the Lua coordinate frame, lines 1556-1560 preserve graveyard when has_morgue is true; JavaScript js/mklev.js:8038-8058 currently omits this source branch before topologize() and set_wall_state().",
+                "C sets has_morgue from MORGUE rooms in mkroom.c:fill_special_room() and sp_lev.c:fill_special_room(). The active C special-level route runs makelevel() through mklev.c:mklev(), which invokes level_finalize_topology() once room setup has completed; sp_lev.c:lspo_finalize_level() is the other direct caller and retains its source order. The corresponding JS callers already exist in js/mklev.js.",
+                "This is a bounded divergence fix in the existing mklev.c:level_finalize_topology implementation. The source change is to mirror its conditional state promotion; xkilled(), the graveyard predicate, and the existing has_morgue producers are not the defect."
+              ],
+              "step": 91,
+              "kind": "rng",
+              "sourceFile": "mklev.c",
+              "function": "level_finalize_topology",
+              "message": "Missing has_morgue-to-graveyard promotion changes the demilich death RNG branch.",
+              "cFile": "mklev.c",
+              "luaFile": null,
+              "line": 1559
+            }
+          }
+        }
+      ]
     }
   ]
 }
