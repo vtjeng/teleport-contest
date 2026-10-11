@@ -40,6 +40,7 @@ import {
     COLNO,
     CORR,
     CQ_CANNED,
+    CQ_REPEAT,
     D_CLOSED,
     CROSSWALL,
     DBWALL,
@@ -3852,6 +3853,78 @@ test('itemactions dispatches queued adjust by its C function identity',
             /func = \(\(struct ext_func_tab \*\) tlist\)->ef_funct;[\s\S]*?res = \(\*func\)\(\);/u);
         assert.match(CMD_JS,
             /queuedExtcmdEntry\?\.ef_funct === 'doorganize'[\s\S]*?doorganize\(state\)/u);
+    });
+
+test('itemactions split dispatches the queued adjust_split function pointer',
+    async () => {
+        // Seed 4210046 provides a stable Valkyrie inventory with a food
+        // ration. Its Valkyrie setup and disabled tutorial/splash options keep
+        // startup deterministic; the single space is only the startup input.
+        // Raising the ration to two items exposes the source's `quan > 1`
+        // menu branch, and C's IA_ADJUST_STACK path splits off one item.
+        await runSegment({
+            seed: 4210046,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:QueuedStackSplit,role:Valkyrie,race:human,'
+                + 'gender:female,align:lawful,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none',
+            moves: ' ',
+        });
+        let stack = game.invent;
+        while (stack && stack.oclass !== FOOD_CLASS) stack = stack.nobj;
+        assert.ok(stack, 'the fixture starts with an adjustable food ration');
+        stack.quan = 2;
+        // C keeps the source inventory letter stable when choosing the new
+        // destination slot for this split.
+        game.flags.invlet_constant = true;
+
+        const sourceStart = IACTIONS_C.indexOf('case IA_ADJUST_STACK:');
+        const sourceEnd = IACTIONS_C.indexOf('\n    case IA_SACRIFICE:',
+            sourceStart);
+        const sourceBranch = IACTIONS_C.slice(sourceStart, sourceEnd);
+        assert.ok(sourceStart >= 0 && sourceEnd > sourceStart);
+        assert.match(sourceBranch,
+            /cmdq_add_ec\(CQ_CANNED,\s*adjust_split\)/u);
+        assert.match(sourceBranch,
+            /cmdq_add_key\(CQ_CANNED,\s*otmp->invlet\)/u);
+        const cRhackStart = CMD_C.indexOf('rhack(int key)');
+        const cRhackEnd = CMD_C.indexOf(
+            '\n/* convert an x,y pair into a direction code */', cRhackStart,
+        );
+        assert.ok(cRhackStart >= 0 && cRhackEnd > cRhackStart);
+        const cRhack = CMD_C.slice(cRhackStart, cRhackEnd);
+        assert.match(cRhack,
+            /func = \(\(struct ext_func_tab \*\) tlist\)->ef_funct;[\s\S]*?res = \(\*func\)\(\);/u);
+
+        await itemactions(stack, game, {
+            selectMenu: async (_state, spec) => (
+                spec.items.find((item) => item.selector === 'I')?.value
+            ),
+        });
+        const queued = cmdq_peek(CQ_CANNED, game);
+        assert.equal(queued.ec_entry.ef_funct, 'adjust_split');
+        assert.equal(queued.ec_entry.ef_txt, 'altadjust');
+        assert.equal(game.command_queue[CQ_CANNED][1].key, stack.invlet);
+
+        // The queued source letter bypasses getobj's picker; `z` directly
+        // chooses the destination slot for the source's one-item split.
+        game.nhDisplay.pushKey('z'.charCodeAt(0));
+        game.context.move = 0;
+        await rhack(0, game);
+
+        assert.equal(cmdq_peek(CQ_CANNED, game), null);
+        assert.equal(stack.quan, 1);
+        assert.equal(stack.nobj?.quan, 1);
+        assert.equal(stack.nobj?.invlet, 'z');
+        assert.equal(game.context.move, 0, 'adjust_split returns ECMD_OK');
+        assert.match(topLine(game), /^Splitting: z - /u);
+        assert.equal(
+            game.command_queue[CQ_REPEAT][0].ec_entry.ef_funct,
+            'adjust_split',
+            'rhack retains the queued #altadjust function row',
+        );
+        assert.match(CMD_JS,
+            /queuedExtcmdEntry\?\.ef_funct === 'adjust_split'[\s\S]*?adjust_split\(state\)/u);
     });
 
 test('queued getobj awaits an asynchronous object filter', async () => {

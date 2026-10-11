@@ -4,7 +4,7 @@
   "batch": "v47",
   "caseId": "v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
   "manifestPath": "challenges/manifests/v47.json",
-  "manifestSha256": "1477974e87becdf484ee24d23333bbecbc039fac1fce53c89ec18ab612d627ef",
+  "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
   "recordingPath": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.session.json",
   "recordingSha256": "055b0d2e456aa6703b9dacaeec95c64c71341abd4426922d7ec5bedce561cf6a",
   "recipePath": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.recipe.session.json",
@@ -97,5 +97,5 @@
     "Fresh C/JavaScript differential of the selected #wizkill recipe matches all 2,765 RNG calls, 61 screens, and 61 cursor positions.",
     "The independent #wizmakemap route matches all 5,133 RNG calls, 51 screens, and 51 cursor positions in a fresh C/JavaScript differential; the C recording reaches the target function at step 50."
   ],
-  "commit": "13f47fbd46de30d0daed953a5b2e175218e35ddd"
+  "commit": "7f6e87577c6e389c86653c728553bab68ff16c07"
 }
