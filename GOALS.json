@@ -267362,6 +267362,295 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-fountain-drinksink-v45-sink-gas-cloud-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port complete sink drinking outcomes and damaging gas-cloud creation.",
+      "cFile": "fountain.c",
+      "sessions": [
+        "synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture"
+      ],
+      "selectionReason": "The current v45 baseline and complete investigation trace step 32 to fountain.c:drinksink case 13, where JavaScript records a gap instead of calling region.c:create_gas_cloud; the whole drinksink function and its existing potion.c:dodrink caller form the selected source task.",
+      "detail": "",
+      "openedAt": "ebcc0ba2d557819e4dae5c97aa9c700fe8f0fe5c",
+      "openStanding": {
+        "sha": "528fa2cac0c345d688aef964249dad5b49ba58a1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "drinksink",
+          "line": 595,
+          "endLine": 715,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 595,
+        "to": 715
+      },
+      "syntheticProvenance": {
+        "synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture": {
+          "session": "synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.session.json",
+          "recordingSha256": "c74d0b24289928a6682a504634f97d7c6c11043aac89792ff63f76934f848782",
+          "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+          "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55"
+        }
+      },
+      "activeStanding": {
+        "sha": "528fa2cac0c345d688aef964249dad5b49ba58a1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "session": "synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.session.json",
+          "recordingPath": "challenges/cases/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.session.json",
+          "recordingSha256": "c74d0b24289928a6682a504634f97d7c6c11043aac89792ff63f76934f848782",
+          "recipe": "challenges/cases/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.recipe.session.json",
+          "recipeSha256": "55069c7a255ee25ff26e8ea461eb1fb330d8834aaaa6bc2ed45a8438b40dccb9",
+          "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+          "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+          "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+          "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+          "evaluationUtc": "2026-10-11T09:20:20.964Z",
+          "remainingScreens": 113,
+          "recordedSteps": 145,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 145
+            },
+            "rng": {
+              "matched": 2887,
+              "total": 3257
+            },
+            "cursors": {
+              "matched": 103,
+              "total": 145
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 20,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2881,
+              "cEntry": "rn2(3)=1",
+              "cCaller": "create_gas_cloud(region.c:1303)",
+              "jsEntry": "rn2(12)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "y"
+              },
+              "stepIndex": 32
+            },
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "y"
+              },
+              "cCursor": [
+                72,
+                0,
+                1
+              ],
+              "jsCursor": [
+                63,
+                8,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "rng",
+          "sourceFile": "region.c",
+          "function": "create_gas_cloud",
+          "message": null,
+          "cFile": "region.c",
+          "luaFile": null,
+          "line": 1303,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.json",
+            "result": {
+              "session": "synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+              "remainingScreens": 113,
+              "recordedSteps": 145,
+              "status": "complete",
+              "commit": "8ea8ac149e8b07bb027b2b2fcfec5e6641c3210e",
+              "queueSha256": "9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+                "session": "synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recordingPath": "challenges/cases/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.session.json",
+                "recordingSha256": "c74d0b24289928a6682a504634f97d7c6c11043aac89792ff63f76934f848782",
+                "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+                "remainingScreens": 113,
+                "recordedSteps": 145,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 145
+                  },
+                  "rng": {
+                    "matched": 2887,
+                    "total": 3257
+                  },
+                  "cursors": {
+                    "matched": 103,
+                    "total": 145
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 20,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2881,
+                    "cEntry": "rn2(3)=1",
+                    "cCaller": "create_gas_cloud(region.c:1303)",
+                    "jsEntry": "rn2(12)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "y"
+                    },
+                    "stepIndex": 32
+                  },
+                  "cursor": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "y"
+                    },
+                    "cCursor": [
+                      72,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      63,
+                      8,
+                      1
+                    ]
+                  }
+                },
+                "step": 32,
+                "kind": "rng",
+                "sourceFile": "region.c",
+                "function": "create_gas_cloud",
+                "cFile": "region.c",
+                "line": 1303
+              },
+              "summary": "At zero-based step 32, fountain.c:drinksink selects case 13, prints the stench message, and C creates a size-one damaging gas cloud on the hero. JavaScript prints the message but skips that source call through note_unported, so C's cloud TTL draw and region side effects are absent; the next JS draw belongs to monster movement. The missing behavior is the sink caller branch, not a defect in the existing region cloud algorithm.",
+              "source": {
+                "file": "fountain.c",
+                "branch": "drinksink case 13 is selected by rn2(20)==13 after dodrink accepts a sink prompt; the hero is standing on the sink and drinksink calls create_gas_cloud(u.ux, u.uy, 1, 4). The source function's entire case switch is already represented in JS except that this positive-damage gas-cloud call is skipped.",
+                "functions": [
+                  "drinksink"
+                ],
+                "callers": [
+                  "potion.c:dodrink calls drinksink after IS_SINK and can_reach_floor pass and the user answers yes; js/potion.js:dodrink already wires that production path to js/fountain.js:drinksink."
+                ],
+                "dependencies": [
+                  "region.c:create_gas_cloud is already implemented by js/region.js:create_gas_cloud, including positive damage, the 1..3 TTL draw, visible region activation, hero-inside state, and the enveloped message. Its runtime caller environment requires blockPoint, canSee, newsym, and message operations."
+                ]
+              },
+              "goalKind": "file-port",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingSha256": "c74d0b24289928a6682a504634f97d7c6c11043aac89792ff63f76934f848782",
+              "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+              "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+              "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+              "evidence": [
+                "Saved combined queue 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b and v45 evaluation b317571a6e76a6dfab39e023745bcec4ea758e55 identify the first mismatch at zero-based step 32, key y: cloud glyph cell (row 0, column 20), RNG call 2881, and cursor. The recorded C step has 32/145 screens and 103/145 cursors matched before this boundary.",
+                "nethack-c/upstream/src/fountain.c:595-712 — the whole drinksink function selects one of twenty outcomes; case 13 at lines 696-699 prints the stench and calls create_gas_cloud(u.ux, u.uy, 1, 4). The production caller is potion.c:dodrink at line 556 after the sink prompt succeeds.",
+                "nethack-c/upstream/src/region.c:1213-1308 — create_gas_cloud on cloudsize 1 skips the expansion loop, draws rn1(3,4) at line 1303, builds a region, and calls make_gas_cloud. With a damage-4 cloud centered on the hero, make_gas_cloud adds the visible region and prints the enveloped-in-noxious-gas message because the Samurai is not poison-gas immune.",
+                "The admitted recording's step 32 C RNG begins rn2(20)=13 at fountain.c:604, then rn2(3)=1 at create_gas_cloud(region.c:1303); its C screen says ‘Ew, what a stench! You are enveloped in a cloud of noxious gas!’ and displays the cloud glyph. Step 33 then reaches inside_gas_cloud with the eyes/lungs effects.",
+                "js/fountain.js:1269-1402 — drinksink case 13 prints the same stench line, then calls note_unported('region.c create_gas_cloud') instead of its already imported create_gas_cloud helper. Consequently the next recorded JS RNG is rn2(12)=0 from mon.c:mcalcmove; it has no cloud glyph or hero-inside region state.",
+                "js/region.js:962-1037 and scripts/region.test.mjs:309-353 — the canonical JS create_gas_cloud path already accepts positive damage and matches C's size-one TTL and visible activation contract; current direct tests cover the damaging helper. The remaining scope is the drinksink production call and its focused caller test, not a second region implementation.",
+                "The manifest compares the behavior with v13 scroll-created poison gas and v29 sink-quaff attempts; those do not reach this source-specific fountain.c:drinksink case-13 call. This case is the admitted C-first sink caller evidence."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
