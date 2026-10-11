@@ -24,13 +24,23 @@ import {
     str2role,
 } from '../js/roles.js';
 import { timeout_globals_init } from '../js/timeout.js';
+import { initialize_themeroom_postprocess_branch } from '../js/themeroom_fill.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/sp_lev.c', 'utf8');
+const MKLEV_SOURCE = readFileSync('nethack-c/upstream/src/mklev.c', 'utf8');
 
 function cFunctionBody(name) {
     const start = C_SOURCE.indexOf(`\n${name}(lua_State *L)`);
     assert.ok(start > 0, `${name} is defined in sp_lev.c`);
     return C_SOURCE.slice(start, C_SOURCE.indexOf('\n}\n', start));
+}
+
+function mklevFunctionBody(name) {
+    const start = MKLEV_SOURCE.indexOf(`\n${name}(void)\n{`);
+    assert.ok(start > 0, `${name} is defined in mklev.c`);
+    const end = MKLEV_SOURCE.indexOf('\n}\n', start);
+    assert.ok(end > start, `${name} body ends in mklev.c`);
+    return MKLEV_SOURCE.slice(start, end);
 }
 
 // The des.* functions are reached only through createSpecialLevelApi(), so
@@ -126,6 +136,17 @@ test('lspo_finalize_level is the C function that ends a Lua-driven level', () =>
     assert.match(body, /if \(L && gc\.coder->premapped\)\n\s+premap_detect\(\);/);
     assert.match(body, /level_finalize_topology\(\);\n\n\s+for \(i = 0; i < svn\.nroom; \+\+i\) \{\n\s+fill_special_room\(&svr\.rooms\[i\]\);/);
     assert.match(body, /makemap_prepost\(FALSE, wtower\);\n\s+iflags\.lua_testing = FALSE;/);
+    assert.doesNotMatch(body, /themerooms_post_level_generate/);
+});
+
+test('makelevel runs themed postprocessing after room fills, outside topology finalization', () => {
+    const makelevel = mklevFunctionBody('makelevel');
+    const topology = mklevFunctionBody('level_finalize_topology');
+    const specialRoomFill = makelevel.indexOf('fill_special_room(&svr.rooms[i]);');
+    const themedPostprocess = makelevel.indexOf('themerooms_post_level_generate();');
+    assert.ok(specialRoomFill >= 0);
+    assert.ok(themedPostprocess > specialRoomFill);
+    assert.doesNotMatch(topology, /themerooms_post_level_generate/);
 });
 
 test('finalize_level finishes the topology and clears Lua testing', async () => {
@@ -183,6 +204,14 @@ test('NULL finalize skips every coder-gated operation and still finishes', async
         // Interior ordinary room exercises topology without special-room gaps.
         des.room({ type: 'ordinary', x: 10, y: 5, w: 4, h: 3, lit: 1 });
         game.iflags.lua_testing = true;
+        let postprocessCalls = 0;
+        const pendingPostprocess = initialize_themeroom_postprocess_branch(game);
+        pendingPostprocess.push({
+            handler() { ++postprocessCalls; },
+            data: null,
+        });
+        game._luathemes_loaded ??= {};
+        game._luathemes_loaded[0] = true;
         const inaccessibleCoder = new Proxy({}, {
             get() { assert.fail('NULL finalize cannot read the freed coder'); },
         });
@@ -192,6 +221,8 @@ test('NULL finalize skips every coder-gated operation and still finishes', async
         assert.equal(game.iflags.lua_testing, false);
         assert.equal(game.in_mklev, false);
         assert.equal(game.level.nroom, 1);
+        assert.equal(postprocessCalls, 0);
+        assert.equal(pendingPostprocess.length, 1);
         const room = game.level.rooms[0];
         assert.equal(game.level.at(room.lx, room.ly).typ, ROOM);
     });

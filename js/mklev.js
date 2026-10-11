@@ -663,6 +663,17 @@ export function initialize_themeroom_branch(state = game, random = rn2) {
     return state.themeroom_align[dnum];
 }
 
+// C ref: mklev.c themerooms_post_level_generate(). Run the retained themed
+// Lua callback only from makelevel's common room-fill tail, before the later
+// topology pass. A special-level wizard load calls topology directly and must
+// not wallify its freshly loaded map a second time.
+function themerooms_post_level_generate(state = game) {
+    const dnum = state.u?.uz?.dnum ?? 0;
+    if (!state._luathemes_loaded?.[dnum]) return;
+    run_themeroom_postprocess({ state });
+    wallification(1, 0, COLNO - 1, ROWNO - 1, state);
+}
+
 // C ref: mklev.c makelevel()
 async function makelevel(specialLevelLoader = null) {
     const g = game;
@@ -672,6 +683,11 @@ async function makelevel(specialLevelLoader = null) {
         const env = levelObjectEnv();
         for (let i = 0; i < g.level.nroom; ++i)
             await fill_special_room(g.level.rooms[i], env);
+    };
+    const finishLevelGeneration = async () => {
+        await fillSpecialRooms();
+        // mklev.c:1414-1420 fills every special room before the themed hook.
+        themerooms_post_level_generate(g);
     };
     oinit();
     clear_level_structures();
@@ -698,7 +714,7 @@ async function makelevel(specialLevelLoader = null) {
                 : Boolean(SPECIAL_LEVEL_LOADERS[slev.proto]);
             if (hasLoader) {
                 await makemaz(slev.proto, slev, g);
-                await fillSpecialRooms();
+                await finishLevelGeneration();
                 return;
             }
             throw new UnsupportedLevelChangeError(
@@ -718,7 +734,7 @@ async function makelevel(specialLevelLoader = null) {
         const specialLevelApi = createSpecialLevelApi(g);
         await specialLevelLoader(specialLevelApi, g);
         await specialLevelApi.finish();
-        await fillSpecialRooms();
+        await finishLevelGeneration();
         return;
     }
 
@@ -726,12 +742,12 @@ async function makelevel(specialLevelLoader = null) {
     const dungeonRecord = g.dungeons[g.u.uz.dnum];
     if (dungeonRecord.proto) {
         await makemaz('', null, g);
-        await fillSpecialRooms();
+        await finishLevelGeneration();
         return;
     }
     if (dungeonRecord.fill_lvl) {
         await makemaz(dungeonRecord.fill_lvl, null, g);
-        await fillSpecialRooms();
+        await finishLevelGeneration();
         return;
     }
 
@@ -748,7 +764,7 @@ async function makelevel(specialLevelLoader = null) {
         await ensureSpecialLevelLoaders();
         if (SPECIAL_LEVEL_LOADERS[fillName]) {
             await makemaz(fillName, null, g);
-            await fillSpecialRooms();
+            await finishLevelGeneration();
             return;
         }
     }
@@ -895,10 +911,7 @@ async function makelevel(specialLevelLoader = null) {
         if (fillable) --bonusItemRoomCountdown;
     }
 
-    await fillSpecialRooms();
-
-    // themerooms_post_level_generate() is completed by
-    // level_finalize_topology(), after every ordinary and special room fill.
+    await finishLevelGeneration();
 }
 
 
@@ -8024,13 +8037,6 @@ function bound_digging() {
 }
 
 function level_finalize_topology() {
-    const dnum = game.u?.uz?.dnum ?? 0;
-    if (game._luathemes_loaded?.[dnum]) {
-        // C ref: mklev.c themerooms_post_level_generate(). Deferred themed
-        // work runs after every room fill and before final wallification.
-        run_themeroom_postprocess();
-        wallification(1, 0, COLNO - 1, ROWNO - 1);
-    }
     bound_digging();
     mineralize(-1, -1, -1, -1, false, { state: game });
     game.in_mklev = false;
