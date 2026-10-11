@@ -272544,7 +272544,7 @@
     {
       "id": "fix-mklev-graveyard-promotion-v45-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Promote morgue levels to graveyards during topology finalization",
       "cFile": "mklev.c",
       "sessions": [],
@@ -272556,8 +272556,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "960efc2aac7081f5501bedb82d87b99dafd6431c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "level_finalize_topology",
       "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
       "step": 91,
@@ -272832,7 +272835,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "960efc2aac7081f5501bedb82d87b99dafd6431c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

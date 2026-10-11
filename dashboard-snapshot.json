@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T14:03:21.147Z",
+  "capturedAt": "2026-10-11T14:21:19.722Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -88639,6 +88639,97 @@
         "type": "accepted",
         "at": "2026-10-11T14:02:34.931Z",
         "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v45-sanctum-morgue-finalize-attempt28-20261011",
+        "type": "assign",
+        "at": "2026-10-11T14:03:57.719Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-v45-sanctum-morgue-finalize-20261011",
+        "type": "turn",
+        "at": "2026-10-11T14:04:19.628Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is investigating the newly exposed v45 graveyard flag mismatch; implementation scope has not been claimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep10-active-20261011-v46-seven-confirmed",
+        "type": "turn",
+        "at": "2026-10-11T14:05:15.824Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v46 has seven approved distinct C-first mismatches; continuing source-diverse search toward a complete batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-mklev-graveyard-promotion-v45-20261011",
+        "type": "implement",
+        "at": "2026-10-11T14:08:38.544Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "goal": "fix-mklev-graveyard-promotion-v45-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-mklev-graveyard-delivery-20261011",
+        "type": "turn",
+        "at": "2026-10-11T14:12:14.234Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7b3c6f19ed1aff6baf56db00877fd62fe1415b05",
+        "type": "ready",
+        "at": "2026-10-11T14:12:40.849Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "delivery": "7b3c6f19ed1aff6baf56db00877fd62fe1415b05"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-mklev-7b3c6f19e-20261011",
+        "type": "received",
+        "at": "2026-10-11T14:12:59.942Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "delivery": "7b3c6f19ed1aff6baf56db00877fd62fe1415b05"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-mklev-post-submit-idle-20261011",
+        "type": "turn",
+        "at": "2026-10-11T14:13:10.704Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B has a tested v45 fix ready for integration. The only current synthetic candidate is the same session reserved by this delivery, so B is idle until integration or a queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-mklev-960efc2aa",
+        "type": "integrating",
+        "at": "2026-10-11T14:13:32.961Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "integration": "960efc2aac7081f5501bedb82d87b99dafd6431c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-mklev-960efc2aa-hosted-38146363047",
+        "type": "validated",
+        "at": "2026-10-11T14:19:13.513Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011-960efc2aac7081f5501bedb82d87b99dafd6431c-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T14:20:03.759Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011"
       }
     ]
   },
@@ -89025,8 +89116,8 @@
     ]
   },
   "development": {
-    "executionCommit": "4155c38654a493477fa04e1f3089882aa2110af0",
-    "measuredAt": "2026-10-11T14:01:04.270Z",
+    "executionCommit": "960efc2aac7081f5501bedb82d87b99dafd6431c",
+    "measuredAt": "2026-10-11T14:18:43.654Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
