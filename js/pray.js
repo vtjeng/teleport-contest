@@ -52,6 +52,8 @@ import {
     CONFUSION,
     DEAF,
     DIED,
+    ESCAPED,
+    ASCENDED,
     DISINT_RES,
     ECMD_OK,
     ECMD_TIME,
@@ -155,6 +157,7 @@ import { newsym, shieldeff, xlev_to_rank } from './display.js';
 import { dropy, heal_legs } from './do.js';
 import {
     disintegrate_arm,
+    Amulet_off,
     stuck_ring,
     unchanger,
     setwornEnv,
@@ -271,7 +274,10 @@ import {
     reset_utrap,
 } from './trap.js';
 import { safe_teleds } from './teleport.js';
-import { ttyPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow,
+    ttyPline,
+} from './tty_message.js';
 import { set_voice } from './sounds.js';
 import {
     angry_priest,
@@ -421,6 +427,86 @@ export function a_gname(state = game) {
     return a_gname_at(u.ux, u.uy, state);
 }
 
+// C ref: pray.c offer_real_amulet() (1529-1589). A real Amulet on a Sanctum
+// high altar ends the game unless the hero survives Moloch's first death.
+async function offer_real_amulet(otmp, altaralign, state) {
+    const { u } = state;
+    const cloudOfSmoke = 'A cloud of %s smoke surrounds you...';
+
+    if (state.uamul === otmp) await Amulet_off(state);
+    if (carried(otmp)) useup(otmp, { state });
+    else await useupf(otmp, 1, { state });
+
+    await ttyPline(
+        'You offer the Amulet of Yendor to ' + a_gname(state) + '...',
+        state,
+    );
+
+    if (altaralign === A_NONE) {
+        // Moloch's high altar at the bottom of Gehennom.
+        if (u.ualign.record > -99) u.ualign.record = -99;
+        await ttyPline(
+            'An invisible choir chants, and you are bathed in darkness...',
+            state,
+        );
+        await ttyPline(
+            Moloch + ' shrugs and retains dominion over ' + u_gname(state) + ',',
+            state,
+        );
+        await ttyPline('then mercilessly snuffs out your life.', state);
+        state.killer ??= { name: '', format: KILLED_BY_AN };
+        state.killer.name = s_suffix(Moloch) + ' indifference';
+        state.killer.format = KILLED_BY;
+        await done(DIED, state);
+
+        // C continues if wizard or explore mode declines death.
+        await ttyPline(Moloch + ' snarls and tries again...', state);
+        await fry_by_god(A_NONE, true, state);
+        await ttyPline(
+            cloudOfSmoke.replace('%s', hcolor('black', state)),
+            state,
+        );
+        await done(ESCAPED, state);
+    } else if (u.ualign.type !== altaralign) {
+        adjalign(-99, state);
+        await ttyPline(
+            a_gname(state) + ' accepts your gift, and gains dominion over '
+                + u_gname(state) + '...',
+            state,
+        );
+        await ttyPline(u_gname(state) + ' is enraged...', state);
+        await ttyPline(
+            'Fortunately, ' + a_gname(state) + ' permits you to live...',
+            state,
+        );
+        await ttyPline(
+            cloudOfSmoke.replace('%s', hcolor('orange', state)),
+            state,
+        );
+        await done(ESCAPED, state);
+    } else {
+        u.uevent.ascended = 1;
+        adjalign(10, state);
+        await ttyPline(
+            'An invisible choir sings, and you are bathed in radiance...',
+            state,
+        );
+        await godvoice(altaralign, 'Mortal, thou hast done well!', state);
+        await displayPendingTtyMessageWindow(state);
+        // SetVoice() is an empty macro in the recorder's TTY build.
+        await verbalize(
+            'In return for thy service, I grant thee the gift of Immortality!',
+            state,
+        );
+        await ttyPline(
+            'You ascend to the status of Demigod'
+                + (state.flags.female ? 'dess' : '') + '...',
+            state,
+        );
+        await done(ASCENDED, state);
+    }
+}
+
 // C ref: pray.c dosacrifice() (1854-1896). The floorfood() selector is shared
 // with eat.c and returns the selected object before the offering helper arms.
 // Unsupported offer_corpse branches remain explicit gaps at their own source
@@ -450,10 +536,7 @@ export async function dosacrifice(state = game) {
             await offer_too_soon(altaralign, state);
             return ECMD_TIME;
         }
-        note_unported('pray.c offer_real_amulet');
-        // C marks offer_real_amulet() NOTREACHED. Its return is void, so the
-        // source control flow continues to the final nothing_happens arm if
-        // this still-unported helper unexpectedly returns.
+        await offer_real_amulet(otmp, altaralign, state);
     }
     if (otmp.otyp === FAKE_AMULET_OF_YENDOR) {
         await offer_fake_amulet(otmp, highaltar, altaralign, state);
