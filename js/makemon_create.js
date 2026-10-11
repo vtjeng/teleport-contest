@@ -1537,9 +1537,13 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'shopkeeper extension outside shkinit',
         );
     }
+    // read.c:create_particular_creation() may force PM_SHOPKEEPER after its
+    // cant_revive() prompt.  That source call has no MM_ESHK bit, so it creates
+    // the ordinary monster record rather than a shop's extended data.
     if (ptr?.pmidx === PM_SHOPKEEPER && !shopkeeperCall
         && !explicitInventorylessHeroCall && !hatchEggCall
         && !explicitCoordinateRuntimeCall
+        && !createParticularCall
         && !explicitCoordinateNoFlagsRuntimeCall
         && !explicitCoordinateNoMinventRuntimeCall) {
         throw new UnsupportedMonsterCreationError(

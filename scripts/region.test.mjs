@@ -7,9 +7,11 @@ import {
     DB_LAVA,
     DB_MOAT,
     DRAWBRIDGE_UP,
+    BLINDED,
     MAGICAL_BREATHING,
     POISON_RES,
     ROOM,
+    TIMEOUT,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
@@ -33,6 +35,7 @@ import {
     inside_gas_cloud,
     m_in_out_region,
     region_danger,
+    region_safety,
     run_regions,
     valid_cloud_pos,
 } from '../js/region.js';
@@ -890,6 +893,94 @@ test('region_danger counts only a gas cloud the hero cannot shrug off', () => {
     assert.equal(region_danger(state), true);
 });
 
+
+function prayerRegionState(regions = []) {
+    const state = regionState();
+    state.level.regions = regions;
+    state.youmonst = { data: { mflags1: 0, mflags2: 0, mlet: 0, pmidx: -1 } };
+    state.u.uprops[MAGICAL_BREATHING] = { intrinsic: 0, extrinsic: 0 };
+    return state;
+}
+
+test('region_safety follows the C scan, cleanup, messages, teleport, and timeout branches', async () => {
+    const cStart = REGION_SOURCE.indexOf('region_safety(void)');
+    const cEnd = REGION_SOURCE.indexOf('\n}\n', cStart) + 3;
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cSafety = REGION_SOURCE.slice(cStart, cEnd);
+    assert.match(cSafety, /if \(!hero_inside\(gr\.regions\[i\]\)\)/u);
+    assert.match(cSafety, /if \(f_indx == INSIDE_GAS_CLOUD\)/u);
+    assert.match(cSafety, /if \(!n\+\+ && gr\.regions\[i\]->ttl >= 0\)/u);
+    assert.ok(cSafety.indexOf('safe_teleds(TELEDS_NO_FLAGS)')
+        < cSafety.indexOf('region_danger()'));
+    assert.ok(cSafety.indexOf('remove_region(r)')
+        < cSafety.indexOf('pline_The("gas cloud enveloping you dissipates.")'));
+    assert.match(cSafety, /if \(BlindedTimeout == 1L\)\s+make_blinded\(0L, TRUE\)/u);
+
+    const cloud = pointRegion(2, 2, {
+        inside_f: 0, hero_inside: true, ttl: 0, visible: false,
+    });
+    const state = prayerRegionState([cloud]);
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0 };
+    const events = [];
+    await region_safety(state, {
+        async message(text) { events.push(['message', text]); },
+        safeTeleds() { assert.fail('expiring single cloud does not teleport'); },
+        async makeBlinded(xtime, talk) {
+            events.push(['blindness', xtime, talk]);
+            state.u.uprops[BLINDED].intrinsic &= ~TIMEOUT;
+        },
+    });
+    assert.deepEqual(state.level.regions, []);
+    assert.equal(cloud.ttl, -2);
+    assert.deepEqual(events, [
+        ['message', 'The gas cloud enveloping you dissipates.'],
+        ['blindness', 0, true],
+    ]);
+
+    const noCloudEvents = [];
+    await region_safety(prayerRegionState(), {
+        async message(text) { noCloudEvents.push(text); },
+        safeTeleds() { assert.fail('no region does not teleport'); },
+    });
+    assert.deepEqual(noCloudEvents, ['The gas cloud has dissipated.']);
+
+    const persistent = pointRegion(2, 2, {
+        inside_f: 0, hero_inside: true, ttl: -1, visible: false,
+    });
+    const persistentState = prayerRegionState([persistent]);
+    const persistentEvents = [];
+    await region_safety(persistentState, {
+        async safeTeleds(flags) { persistentEvents.push(['teleport', flags]); },
+        random: {
+            d(count, sides) {
+                persistentEvents.push(['dice', count, sides]);
+                return 9;
+            },
+        },
+        async message(text) { persistentEvents.push(['message', text]); },
+    });
+    assert.equal(persistentState.u.uprops[MAGICAL_BREATHING].intrinsic & TIMEOUT, 13);
+    assert.deepEqual(persistentEvents, [
+        ['teleport', 0],
+        ['dice', 4, 4],
+        ['message', 'You feel able to breathe.'],
+    ]);
+
+    const overlaps = [0, 1].map((index) => pointRegion(2 + index, 2, {
+        inside_f: 0, hero_inside: true, ttl: 2, visible: false,
+    }));
+    const overlapEvents = [];
+    await region_safety(prayerRegionState(overlaps), {
+        async safeTeleds(flags, movedState) {
+            overlapEvents.push(['teleport', flags]);
+            for (const region of movedState.level.regions)
+                region.hero_inside = false;
+        },
+        async message(text) { overlapEvents.push(['message', text]); },
+    });
+    assert.deepEqual(overlapEvents, [['teleport', 0]],
+        'after safe teleport removes the danger, C does not add magical breathing or a cloud message');
+});
 
 test('any_visible_region and visible_region_summary follow the timeout source traversal', () => {
     const source = REGION_SOURCE.slice(

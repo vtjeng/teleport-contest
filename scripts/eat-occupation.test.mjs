@@ -41,6 +41,7 @@ import {
     CRAM_RATION, FOOD_RATION, PANCAKE, SLIME_MOLD,
 } from '../js/objects.js';
 import {
+    cant_finish_meal,
     doeat,
     eatfood,
     lesshungry,
@@ -720,6 +721,32 @@ test('stop_occupation clears the occupation before the meal it hands off',
         meal.piece = null;
         await stop_occupation(game, recordingEnv());
         assert.equal(game.go.occupation, null);
+    });
+
+test('cant_finish_meal clears the matching corpse meal before stopping it',
+    async () => {
+        await startMeal(segmentFor(5820011, 'ed '), 'd');
+        const unrelatedCorpse = { oeaten: 4 };
+        const mealCorpse = { oeaten: 0 };
+        const originalMeal = game.context.victual;
+        originalMeal.piece = mealCorpse;
+        game.go.occtxt = 'eating the troll corpse';
+
+        const said = [];
+        const env = recordingEnv(said);
+        await cant_finish_meal(unrelatedCorpse, game, env);
+        assert.equal(game.context.victual, originalMeal,
+            'reviving another corpse leaves this meal installed');
+        assert.equal(game.go.occupation, eatfood);
+        assert.equal(unrelatedCorpse.oeaten, 4);
+        assert.deepEqual(said, []);
+
+        await cant_finish_meal(mealCorpse, game, env);
+        assert.deepEqual(game.context.victual, zero_victual());
+        assert.equal(mealCorpse.oeaten, 1,
+            'revive must leave the corpse available until its own deletion');
+        assert.equal(game.go.occupation, null);
+        assert.deepEqual(said, ['You stop eating the troll corpse.']);
     });
 
 test('set_occupation stores an untimed callback as the occupation itself', () => {

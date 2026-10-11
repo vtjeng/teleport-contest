@@ -272842,6 +272842,965 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-makemon-shopkeeper-genesis-admission-v46-20261011",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Allow forced wizard Genesis of a shopkeeper through ordinary makemon placement.",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "selectionReason": "The current v46 baseline records a step-33 refusal for the forced PM_SHOPKEEPER Genesis call. The committed investigation traces the over-restrictive guard to the already-ported makemon.c:makemon preflight path; teleport placement is already implemented and is not the first owner.",
+      "detail": "C read.c:create_particular_creation restores PM_SHOPKEEPER after the wizard confirms cant_revive substitution, then calls makemon at the hero square with MM_NOEXCLAM and without MM_ESHK. C makemon admits this call and relocates with enexto_core. JavaScript recognizes the create-particular shape but rejects PM_SHOPKEEPER before placement. Exempt only that recognized call while retaining the independent MM_ESHK guard.",
+      "openedAt": "14e53be147203ddb4c9b5b56e727858769305fbe",
+      "openStanding": {
+        "sha": "71de9c6695c5b720888da195ebb4eec5d8c0304f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "696981041adb7876b92090fe5486dc9ca68af575",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "makemon",
+      "session": "synthetic/v46/v46-shopkeeper-make-happy-scroll-attempt25",
+      "step": 33,
+      "syntheticProvenance": {
+        "synthetic/v46/v46-shopkeeper-make-happy-scroll-attempt25": {
+          "session": "synthetic/v46/v46-shopkeeper-make-happy-scroll-attempt25",
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-shopkeeper-make-happy-scroll-attempt25",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recordingPath": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json",
+          "recordingSha256": "d9032a54424414c23b743845956070e6293d81a9345dc89b4adece6ffb7a7a5b",
+          "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+          "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d"
+        }
+      },
+      "activeStanding": {
+        "sha": "71de9c6695c5b720888da195ebb4eec5d8c0304f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-shopkeeper-make-happy-scroll-attempt25",
+          "session": "synthetic/v46/v46-shopkeeper-make-happy-scroll-attempt25",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recording": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json",
+          "recordingPath": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json",
+          "recordingSha256": "d9032a54424414c23b743845956070e6293d81a9345dc89b4adece6ffb7a7a5b",
+          "recipe": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.recipe.session.json",
+          "recipeSha256": "e79bf7e4ab1f7de9e81c3e673e1845e4783200114ff37ad042c2c693b0b64df8",
+          "replayInputSha256": "939a3647d9cd362f2f28248cb75d1d57e0b1034405e548296ad75973ec29fe2d",
+          "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+          "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+          "evaluationArtifact": "challenges/evaluations/v46-baseline-29c284d97.json",
+          "evaluationUtc": "2026-10-11T15:24:07.625Z",
+          "remainingScreens": 38,
+          "recordedSteps": 71,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 71
+            },
+            "rng": {
+              "matched": 2732,
+              "total": 2814
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 71
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper creation outside shkinit",
+            "step": 33
+          },
+          "step": 33,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper creation outside shkinit",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v46/v46-shopkeeper-make-happy-scroll-attempt25.json",
+            "result": {
+              "session": "synthetic/v46/v46-shopkeeper-make-happy-scroll-attempt25",
+              "corpus": "synthetic",
+              "batch": "v46",
+              "caseId": "v46-shopkeeper-make-happy-scroll-attempt25",
+              "manifestPath": "challenges/manifests/v46.json",
+              "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+              "recordingPath": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json",
+              "recordingSha256": "d9032a54424414c23b743845956070e6293d81a9345dc89b4adece6ffb7a7a5b",
+              "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+              "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+              "remainingScreens": 38,
+              "recordedSteps": 71,
+              "status": "complete",
+              "commit": "31a5d76c38043a8aeefc014471f58e9db310aa4b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v46",
+                "caseId": "v46-shopkeeper-make-happy-scroll-attempt25",
+                "session": "synthetic/v46/v46-shopkeeper-make-happy-scroll-attempt25",
+                "manifestPath": "challenges/manifests/v46.json",
+                "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+                "recording": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json",
+                "recordingPath": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json",
+                "recordingSha256": "d9032a54424414c23b743845956070e6293d81a9345dc89b4adece6ffb7a7a5b",
+                "recipe": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.recipe.session.json",
+                "recipeSha256": "e79bf7e4ab1f7de9e81c3e673e1845e4783200114ff37ad042c2c693b0b64df8",
+                "replayInputSha256": "939a3647d9cd362f2f28248cb75d1d57e0b1034405e548296ad75973ec29fe2d",
+                "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+                "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+                "evaluationArtifact": "challenges/evaluations/v46-baseline-29c284d97.json",
+                "evaluationUtc": "2026-10-11T15:24:07.625Z",
+                "remainingScreens": 38,
+                "recordedSteps": 71,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 71
+                  },
+                  "rng": {
+                    "matched": 2732,
+                    "total": 2814
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 71
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper creation outside shkinit",
+                  "step": 33
+                },
+                "step": 33,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper creation outside shkinit",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is a JavaScript refusal of a source-valid wizard Genesis PM_SHOPKEEPER request. C read.c:create_particular_creation() asks whether to force PM_SHOPKEEPER after cant_revive() substitutes a human zombie, then calls makemon() with MM_NOEXCLAM and without MM_ESHK. C makemon.c:makemon() relocates the hero-square request through enexto_core(); it has no PM_SHOPKEEPER creation prohibition. JavaScript already recognizes the _createParticular call shape, but preflightCreation() refuses that shape at its separate shopkeeper gate before placement. The correct owner is makemon.c:makemon, not teleport.c:collect_coords; coordinate collection is the next already-ported callee that C reaches.",
+              "source": {
+                "file": "makemon.c",
+                "branch": "With wizard Genesis requesting PM_SHOPKEEPER, the user answers y to read.c:create_particular_creation() after cant_revive() temporarily substitutes PM_HUMAN_ZOMBIE. The C caller then invokes makemon(PM_SHOPKEEPER, u.ux, u.uy, MM_NOEXCLAM) outside mklev and without MM_ESHK. makemon() must run its ordinary hero-square enexto_core() placement branch; the only shopkeeper extension allocation is conditional on MM_ESHK. JS preflightCreation() has an explicit createParticularCall marker for this source shape but the PM_SHOPKEEPER guard does not exempt it.",
+                "functions": [
+                  "makemon"
+                ],
+                "callers": [
+                  "C: wizcmds.c:wiz_genesis() -> read.c:create_particular() -> read.c:create_particular_creation() -> makemon.c:makemon().",
+                  "C: read.c:create_particular_creation():3260-3273 restores PM_SHOPKEEPER when the wizard answers y to cant_revive() substitution; :3275-3315 builds MM_NOEXCLAM without MM_ESHK and calls makemon() at the hero square.",
+                  "JavaScript: js/wizcmds.js:wiz_genesis() -> js/read.js:create_particular() -> create_particular_creation() -> makemon_runtime() -> js/makemon_create.js:makemon() / preflightCreation(). The existing _createParticular marker is passed at js/read.js:3560-3563."
+                ],
+                "dependencies": []
+              },
+              "goalKind": "divergence-fix",
+              "selectionReason": "Selected from the saved combined queue SHA-256 e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2 at admitted v46 baseline 29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d; case v46-shopkeeper-make-happy-scroll-attempt25, manifest challenges/manifests/v46.json digest 6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c, recording challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json digest d9032a54424414c23b743845956070e6293d81a9345dc89b4adece6ffb7a7a5b. The queue has no C source annotation for the runtime refusal, so the owner was verified from C as makemon.c:makemon. Existing whole-source evidence records makemon.c:makemon as ported; the mismatch is an over-restrictive JavaScript preflight guard, so this is a divergence fix.",
+              "evidence": [
+                "Saved queue entry at challenges/evaluations/v46-baseline-29c284d97.json (evaluation commit 29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d) reports 38 unmatched screens over 71 recorded steps. The first mismatch is a stop at zero-based segment 0 step 33 on key y: “unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper creation outside shkinit”. The saved combined queue snapshot is SHA-256 e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2.",
+                "Upstream read.c:cant_revive():3117-3122 maps a non-revival PM_SHOPKEEPER request to PM_HUMAN_ZOMBIE and returns true. read.c:create_particular_creation():3260-3273 prompts the wizard and restores firstchoice PM_SHOPKEEPER when the answer is y; :3275-3315 builds MM_NOEXCLAM and calls makemon(whichpm, u.ux, u.uy, mmflags). The session recipe uses “#wizgenesis”, “hostile shopkeeper”, then “y”, so it reaches this source path.",
+                "Upstream makemon.c:makemon():1179-1185 handles a byyou request outside mklev by calling enexto_core() and relocating to the returned coordinate; no PM_SHOPKEEPER restriction exists in this function. The separate ESHK allocation at :1241 is conditional on MM_ESHK, which this caller does not pass.",
+                "Upstream teleport.c:enexto_core():242-257 gathers and checks nearby coordinates through collect_coords(); collect_coords():697-708 shuffles each ring with rn2(). The v46 manifest C trace identifies call 2733 as rn2(8)=4 in teleport.c:collect_coords. This RNG is the observable next step after makemon admits the call; it is not the first responsible source owner.",
+                "In js/makemon_create.js:1377-1381 preflightCreation() already recognizes the hero-square _createParticular call with MM_NOEXCLAM. However, :1520-1527 throws “shopkeeper creation outside shkinit” for PM_SHOPKEEPER without excluding createParticularCall. This occurs before js/makemon_create.js:makemon() can call the existing js/teleport.js:enexto_core().",
+                "GOALS.json records the complete makemon.c:makemon() function (lines 1147-1513) as a closed file port into js/makemon_create.js. Existing wiring in js/wizcmds.js and js/read.js reaches the same source call. The narrow correction is to exempt the already-recognized createParticularCall shape from the PM_SHOPKEEPER-only refusal while retaining the independent MM_ESHK validation; no read.js, wizcmds.js, or teleport.js change is implied.",
+                "The recorded recipe continues after Genesis to wish and read a blessed taming scroll. This task addresses only the current first mismatch in makemon.c:makemon; any later shopkeeper-scroll mismatch must be source-traced separately after this first mismatch moves past makemon()."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "696981041adb7876b92090fe5486dc9ca68af575",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-eat-cant-finish-meal-v46-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port cant_finish_meal and wire timed corpse revival meal interruption.",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v46/v46-troll-meal-corrected-attempt1"
+      ],
+      "selectionReason": "The current v46 queue has three unmatched screens in the troll meal case. The committed investigation traces the first source owner to eat.c:cant_finish_meal, called by zap.c:revive before corpse location and monster creation.",
+      "detail": "Port eat.c:cant_finish_meal lines 3893-3912 completely and wire the existing zap.c:revive caller. Preserve victual reset, oeaten marking, donull occupation replacement, stop_occupation, and newuhs order.",
+      "openedAt": "1a54f44020318744ce6cddba8f7b8298481ee88a",
+      "openStanding": {
+        "sha": "696981041adb7876b92090fe5486dc9ca68af575",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "cant_finish_meal",
+          "line": 3893,
+          "endLine": 3919,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3893,
+        "to": 3919
+      },
+      "syntheticProvenance": {
+        "synthetic/v46/v46-troll-meal-corrected-attempt1": {
+          "session": "synthetic/v46/v46-troll-meal-corrected-attempt1",
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-troll-meal-corrected-attempt1",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recordingPath": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.session.json",
+          "recordingSha256": "7b21556fcbe35269105073a25f22182ca9b06c808a75e84910aa6c570581dc11",
+          "evaluationPath": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+          "evaluationCommit": "696981041adb7876b92090fe5486dc9ca68af575"
+        }
+      },
+      "activeStanding": {
+        "sha": "696981041adb7876b92090fe5486dc9ca68af575",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-troll-meal-corrected-attempt1",
+          "session": "synthetic/v46/v46-troll-meal-corrected-attempt1",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recording": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.session.json",
+          "recordingPath": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.session.json",
+          "recordingSha256": "7b21556fcbe35269105073a25f22182ca9b06c808a75e84910aa6c570581dc11",
+          "recipe": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.recipe.session.json",
+          "recipeSha256": "57caf6728f7d37df89943ea9653544a3f488a4ff415187d88ef958252c4ba48b",
+          "replayInputSha256": "abc2aa4838bc14431291da1b19050d36a86aee2cf5a46c0f40f8bdf02c44adcf",
+          "evaluationPath": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+          "evaluationCommit": "696981041adb7876b92090fe5486dc9ca68af575",
+          "evaluationArtifact": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+          "evaluationUtc": "2026-10-11T15:59:10.197Z",
+          "remainingScreens": 3,
+          "recordedSteps": 52,
+          "previousScreensMatched": 49,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 49,
+              "total": 52
+            },
+            "rng": {
+              "matched": 3505,
+              "total": 3505
+            },
+            "cursors": {
+              "matched": 51,
+              "total": 52
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 31,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 31,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 15,
+              "column": 37,
+              "cCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3505,
+              "cCaller": null,
+              "jsEntry": "rn2(5)=1",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": " "
+              },
+              "cCursor": [
+                41,
+                0,
+                1
+              ],
+              "jsCursor": [
+                38,
+                14,
+                1
+              ]
+            }
+          },
+          "step": 31,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v46/v46-troll-meal-corrected-attempt1.json",
+            "result": {
+              "session": "synthetic/v46/v46-troll-meal-corrected-attempt1",
+              "corpus": "synthetic",
+              "batch": "v46",
+              "caseId": "v46-troll-meal-corrected-attempt1",
+              "manifestPath": "challenges/manifests/v46.json",
+              "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+              "recordingPath": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.session.json",
+              "recordingSha256": "7b21556fcbe35269105073a25f22182ca9b06c808a75e84910aa6c570581dc11",
+              "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+              "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+              "remainingScreens": 3,
+              "recordedSteps": 52,
+              "status": "complete",
+              "commit": "660dcb56d1c8d1a6b7dfefd994f82213a6e89e6d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v46",
+                "caseId": "v46-troll-meal-corrected-attempt1",
+                "session": "synthetic/v46/v46-troll-meal-corrected-attempt1",
+                "manifestPath": "challenges/manifests/v46.json",
+                "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+                "recording": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.session.json",
+                "recordingPath": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.session.json",
+                "recordingSha256": "7b21556fcbe35269105073a25f22182ca9b06c808a75e84910aa6c570581dc11",
+                "recipe": "challenges/cases/v46/v46-troll-meal-corrected-attempt1.recipe.session.json",
+                "recipeSha256": "57caf6728f7d37df89943ea9653544a3f488a4ff415187d88ef958252c4ba48b",
+                "replayInputSha256": "939a3647d9cd362f2f28248cb75d1d57e0b1034405e548296ad75973ec29fe2d",
+                "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+                "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+                "evaluationArtifact": "challenges/evaluations/v46-baseline-29c284d97.json",
+                "evaluationUtc": "2026-10-11T15:24:07.625Z",
+                "remainingScreens": 3,
+                "recordedSteps": 52,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 49,
+                    "total": 52
+                  },
+                  "rng": {
+                    "matched": 3505,
+                    "total": 3505
+                  },
+                  "cursors": {
+                    "matched": 51,
+                    "total": 52
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 31,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 31,
+                      "key": "o"
+                    },
+                    "kind": "ch",
+                    "row": 15,
+                    "column": 37,
+                    "cCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 3,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3505,
+                    "cCaller": null,
+                    "jsEntry": "rn2(5)=1",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      41,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      38,
+                      14,
+                      1
+                    ]
+                  }
+                },
+                "step": 31,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v46 troll-meal divergence is resolved. js/eat.js now ports the whole eat.c:cant_finish_meal() state transition and js/zap.js calls it in C source order before corpse location or creation. The selected C/JavaScript replay matches all 3505 RNG calls, 52 screens, and 52 cursors through the end of the recording.",
+              "source": {
+                "file": "eat.c",
+                "branch": "When the corpse being revived is the current eatfood occupation piece, C clears the whole victual state, marks a previously unbitten corpse with oeaten=1, replaces the occupation with donull, then runs stop_occupation() and newuhs(FALSE) in source order. The v46 wished troll corpse reaches this branch from its object revival timeout while a meal is active.",
+                "functions": [
+                  "cant_finish_meal"
+                ],
+                "callers": [
+                  "C direct caller zap.c:revive():909; the admitted timeout route is timeout.c REVIVE_MON -> do.c:revive_mon():2251-2294 -> do.c:revive_corpse() -> zap.c:revive().",
+                  "JavaScript direct caller js/zap.js:revive():573 currently calls note_unported; the admitted timeout route is js/timeout.js REVIVE_MON -> js/do.js:revive_mon() -> revive_corpse() -> js/zap.js:revive()."
+                ],
+                "dependencies": [
+                  "Reuse js/eat.js:zero_victual() for the C zero_victual struct.",
+                  "Reuse allmain.c:stop_occupation() through js/allmain.js; it is asynchronous and must be awaited after setting the non-eat occupation.",
+                  "Reuse do.c:donull() through js/cmd.js:donull as the non-null C occupation callback, and reuse eat.c:newuhs(FALSE) through js/eat.js:newuhs(false)."
+                ]
+              },
+              "goalKind": "file-port",
+              "selectionReason": "Selected as the next unreserved source-distinct v46 candidate after the shopkeeper case; the saved combined queue SHA-256 is e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2. B owns the preceding swamp case and C owns the prayer-region case. The selected input is a Wizard wishing for and starting to eat a troll corpse; its short revival timer fires during the meal.",
+              "evidence": [
+                "The saved combined queue reports 3 unmatched screens over 52 recorded steps. At segment 0 step 31 on key o, the first differing cell is row 15 column 37: C shows floor and JavaScript shows a troll. RNG matches through all 3505 C calls, but JavaScript later makes an extra rn2(5)=1 at call 3506; the cursor differs at the next boundary.",
+                "Fresh differential run run-tJcyqO reproduced the baseline mismatch on the selected recipe: C has 3505 RNG calls versus JS 3515; screen boundary 32 first differs at row 16 column 38 (C floor, JS troll), with the cursor diverging at boundary 33. The independent full v46 C recording is immutable and has matching recipe inputs.",
+                "Upstream nethack-c/upstream/src/zap.c:revive():906-910 explicitly calls cant_finish_meal(corpse) before object-location and revival creation, so its side effects happen before makemon() can interrupt eating. Upstream src/eat.c:cant_finish_meal():3893-3912 guards on go.occupation==eatfood and victual.piece==corpse, then zeroes victual, sets oeaten to 1 only when absent, sets occupation to donull, calls stop_occupation(), and calls newuhs(FALSE).",
+                "JavaScript js/zap.js:573-575 has the same active call position but substitutes note_unported(\"eat.c cant_finish_meal\"). Existing helpers are already present: js/eat.js:zero_victual(), js/allmain.js:stop_occupation(), js/cmd.js:donull(), and js/eat.js:newuhs(). The whole missing source owner is the single eat.c:cant_finish_meal function; no extra source family is required.",
+                "The implementation ports the complete eat.c:cant_finish_meal() body to js/eat.js, preserving the matching eatfood-and-piece guard, zero_victual assignment, oeaten floor of 1, non-null donull assignment, stop_occupation(), and newuhs(FALSE) order. js/zap.js:revive now awaits the helper after its source-ordered corpse-type and reviver classification and before location lookup, replacing the note_unported gap.",
+                "Focused bounded tests pass: scripts/eat-occupation.test.mjs and scripts/do-revive.test.mjs, 46/46 total. They verify the exact matching-corpse guard, preserved oeaten object, occupation stop output and zeroed victual, and the zap.c:revive caller path with a locked corpse that cannot proceed to creation.",
+                "Fresh post-change differential run run-KaEqjE passes for synthetic/v46/v46-troll-meal-corrected-attempt1, segment 0 steps 0-51: C and JavaScript match 3505 RNG values, all 52 screens and attributes, and all 52 cursor positions."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cant_finish_meal",
+            "implementation": "js/eat.js",
+            "symbol": "cant_finish_meal",
+            "sourceReview": "Read and ported all of eat.c:cant_finish_meal():3893-3912. Preserved the eatfood-and-identical-victual.piece guard; C copies zero_victual into the context; marks oeaten=1 only if it was zero; assigns the non-null donull occupation before stopping; calls stop_occupation() then newuhs(FALSE), in that order. Reused the existing zero_victual, stop_occupation and newuhs implementations; no unported callee or branch remains. zap.c:revive() calls this before object-location lookup and makemon/creation, and js/zap.js now awaits the same operation at that point.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "revive",
+                "source": "nethack-c/upstream/src/zap.c:revive():909 calls cant_finish_meal(corpse) before locating the corpse or creating the revived monster."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat-occupation.test.mjs",
+              "scripts/do-revive.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-troll-meal-corrected-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 51,
+                "source": "timeout.c:REVIVE_MON -> do.c:revive_mon() -> do.c:revive_corpse() -> zap.c:revive() -> eat.c:cant_finish_meal()"
+              }
+            ],
+            "checkedAt": "dfe97e57d941c9248d79f51e393a889a743a7b92"
+          }
+        ],
+        "entryPointReview": "nethack-c/upstream/src/eat.c:cant_finish_meal():3893-3912 has one active production caller, zap.c:revive():909. That call is reached by timed corpse revival through timeout.c:REVIVE_MON -> do.c:revive_mon() -> do.c:revive_corpse() -> zap.c:revive(). Other corpse-revival routes enter the same zap.c:revive() owner before this call; the admitted range covers the selected timer entry while a meal is active. JavaScript wires the helper at js/zap.js:revive and reaches it from js/do.js:revive_corpse via js/timeout.js:REVIVE_MON. The selected range is helper-only: it does not introduce a new command or direct entry point, and no source callers are excluded.",
+        "entryPoints": [
+          {
+            "name": "timed corpse revival while the hero is eating that corpse",
+            "functions": [
+              "cant_finish_meal"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-troll-meal-corrected-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 51,
+                "source": "timeout.c:REVIVE_MON -> do.c:revive_mon() -> do.c:revive_corpse() -> zap.c:revive() -> eat.c:cant_finish_meal()"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-region-prayer-safety-v46-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port harmful region detection and prayer safety resolution",
+      "cFile": "region.c",
+      "sessions": [
+        "synthetic/v46/v46-prayer-region-safety-attempt11"
+      ],
+      "selectionReason": "The accepted v46 queue has 10 unmatched screens after prayer completion reaches the complete region.c region_danger and region_safety family; investigations/synthetic/v46/v46-prayer-region-safety-attempt11.json traces the first mismatch to the unported prayer safety call.",
+      "detail": "Port region.c region_danger lines 1341-1362 and region_safety lines 1368-1405, with the existing pray.c fix_worst_trouble TROUBLE_REGION caller. Preserve region traversal, gas-cloud filtering, teleport and timeout branches, RNG, messages, redraw, and blindness clearing.",
+      "openedAt": "e98af1a4a4d6bf37d22511f68f769cd1a9bd127c",
+      "openStanding": {
+        "sha": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "region_danger",
+          "line": 1341,
+          "endLine": 1367,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "region_safety",
+          "line": 1368,
+          "endLine": 1409,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1341,
+        "to": 1409
+      },
+      "requiredFunctions": [
+        {
+          "name": "fix_worst_trouble",
+          "line": 373,
+          "endLine": 609,
+          "declared": true,
+          "sourceFile": "pray.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v46/v46-prayer-region-safety-attempt11": {
+          "session": "synthetic/v46/v46-prayer-region-safety-attempt11",
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-prayer-region-safety-attempt11",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recordingPath": "challenges/cases/v46/v46-prayer-region-safety-attempt11.session.json",
+          "recordingSha256": "7c5b0cc8de3c2b6553f98ac23dfe35875aac473ba02083946e754d03e6a65e1b",
+          "evaluationPath": "challenges/evaluations/accepted-52a03df2ec5cadc89b33e26c7cccc848fd358cf2-v46.json",
+          "evaluationCommit": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2"
+        }
+      },
+      "activeStanding": {
+        "sha": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-prayer-region-safety-attempt11",
+          "session": "synthetic/v46/v46-prayer-region-safety-attempt11",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recording": "challenges/cases/v46/v46-prayer-region-safety-attempt11.session.json",
+          "recordingPath": "challenges/cases/v46/v46-prayer-region-safety-attempt11.session.json",
+          "recordingSha256": "7c5b0cc8de3c2b6553f98ac23dfe35875aac473ba02083946e754d03e6a65e1b",
+          "recipe": "challenges/cases/v46/v46-prayer-region-safety-attempt11.recipe.session.json",
+          "recipeSha256": "1366e07953c1e3b9633e79a19fbb2e41f39d329e869d2f1729275f6973bb0f41",
+          "replayInputSha256": "abdedc8ddf398c66fd4c2f9dd6cd76a9ccefd8cf9819915e754acf352d039708",
+          "evaluationPath": "challenges/evaluations/accepted-52a03df2ec5cadc89b33e26c7cccc848fd358cf2-v46.json",
+          "evaluationCommit": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2",
+          "evaluationArtifact": "challenges/evaluations/accepted-52a03df2ec5cadc89b33e26c7cccc848fd358cf2-v46.json",
+          "evaluationUtc": "2026-10-11T16:26:00.275Z",
+          "remainingScreens": 10,
+          "recordedSteps": 70,
+          "previousScreensMatched": 60,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 60,
+              "total": 70
+            },
+            "rng": {
+              "matched": 3317,
+              "total": 3317
+            },
+            "cursors": {
+              "matched": 69,
+              "total": 70
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 60,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 60,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 58,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 60,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 60,
+                "key": "y"
+              },
+              "cCursor": [
+                66,
+                0,
+                1
+              ],
+              "jsCursor": [
+                37,
+                11,
+                1
+              ]
+            }
+          },
+          "step": 60,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v46/v46-prayer-region-safety-attempt11.json",
+            "result": {
+              "session": "synthetic/v46/v46-prayer-region-safety-attempt11",
+              "corpus": "synthetic",
+              "batch": "v46",
+              "caseId": "v46-prayer-region-safety-attempt11",
+              "manifestPath": "challenges/manifests/v46.json",
+              "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+              "recordingPath": "challenges/cases/v46/v46-prayer-region-safety-attempt11.session.json",
+              "recordingSha256": "7c5b0cc8de3c2b6553f98ac23dfe35875aac473ba02083946e754d03e6a65e1b",
+              "recipePath": "challenges/cases/v46/v46-prayer-region-safety-attempt11.recipe.session.json",
+              "recipeSha256": "1366e07953c1e3b9633e79a19fbb2e41f39d329e869d2f1729275f6973bb0f41",
+              "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+              "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+              "queueSha256": "e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2",
+              "remainingScreens": 10,
+              "recordedSteps": 70,
+              "status": "complete",
+              "commit": "683c48c67b8491d5f1108567148f874f219f8d88",
+              "mismatch": {
+                "session": "synthetic/v46/v46-prayer-region-safety-attempt11",
+                "remainingScreens": 10,
+                "step": 60,
+                "boundary": 61,
+                "key": "y",
+                "screen": {
+                  "row": 0,
+                  "column": 58,
+                  "c": {
+                    "ch": "-",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  },
+                  "js": {
+                    "ch": " ",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  }
+                },
+                "cursor": {
+                  "c": [
+                    66,
+                    0,
+                    1
+                  ],
+                  "js": [
+                    37,
+                    11,
+                    1
+                  ]
+                },
+                "rng": {
+                  "matched": 3317,
+                  "total": 3317
+                },
+                "cursors": {
+                  "matched": 69,
+                  "total": 70
+                }
+              },
+              "summary": "At the selected prayer completion, C enters pray.c:fix_worst_trouble(TROUBLE_REGION) and calls region_safety(); JavaScript stops at note_unported('region.c region_safety'). The source scans hero-occupied gas-cloud regions, teleports if multiple clouds or one non-expiring cloud remains, otherwise removes a single expiring cloud, emits the corresponding message, and clears one-turn blindness. The first mismatch is the map boundary after that source action; RNG already matches completely.",
+              "source": {
+                "file": "region.c",
+                "branch": "region_danger() (1341-1362) scans regions containing the hero and returns true only for an INSIDE_GAS_CLOUD region when the hero is neither nonliving/breathless nor poison resistant. region_safety() (1368-1405) scans the same regions and retains the first expiring gas cloud. Multiple clouds or one non-expiring cloud trigger safe_teleds(); if danger remains, C sets magical-breathing timeout to d(4,4)+4 and reports ability to breathe. A single expiring cloud is removed and gets a dissipates message; with no eligible cloud, C reports that it has dissipated. Finally, one-turn blindness is cleared.",
+                "functions": [
+                  "region_danger",
+                  "region_safety"
+                ],
+                "callers": [
+                  "pray.c:pleased (1139, 1145, 1151, 1156) calls fix_worst_trouble for prayer trouble; pray.c:fix_worst_trouble (417-420) dispatches TROUBLE_REGION to region_safety(). JavaScript follows cmd.js #pray -> pray.js:prayer_done -> pleased -> fix_worst_trouble; fix_worst_trouble currently records note_unported('region.c region_safety') at js/pray.js:1468.",
+                  "region_danger() callers also include pray.c:in_trouble (218), do_wear.c:Amulet_on/Amulet_off (984, 1128), and timeout.c:region_dialogue/nh_timeout (562, 885). Their existing JS callers are pray.js:in_trouble, do_wear.js:Amulet_on/Amulet_off, and timeout.js:region_dialogue/nh_timeout; scripts/region.test.mjs source-pins the pure helper."
+                ],
+                "dependencies": [
+                  "safe_teleds() is called with its C result discarded and already exists in js/teleport.js; region_safety receives it from pray.js to avoid a region.js/teleport.js cycle.",
+                  "remove_region() result is discarded and its JS implementation is in js/region.js. Visible removal needs the existing does_block, unblock_point, cansee, and newsym operations supplied by the prayer caller.",
+                  "region_danger() return value controls the post-teleport magical-breathing branch and is included in this task as the same-file dependency.",
+                  "set_itimeout(), d(), and make_blinded() already have JavaScript owners; no other C return-value dependency is introduced."
+                ]
+              },
+              "goalKind": "file-port",
+              "selectionReason": "Assigned as the next independent v46 source mismatch. The saved queue identifies a screen/cursor divergence at prayer completion, and source trace establishes the missing owner as region.c:region_safety with region.c:region_danger as its result dependency and pray.c:fix_worst_trouble as the production caller.",
+              "evidence": [
+                "The saved v46 queue at SHA-256 e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2 identifies the selected session with 60/70 screens, 3317/3317 RNG calls, and 69/70 cursors matched at the baseline. The first mismatch is boundary 61 after step 60, during prayer completion.",
+                "Upstream region.c:1341-1362 and 1368-1405 define the complete helper and safety functions. region_safety has one direct caller: pray.c:fix_worst_trouble:417-420; pleased:1139-1156 calls fix_worst_trouble, and prayer_done:2333/2340 reaches pleased after #pray.",
+                "At the examined base, js/pray.js:1468 substitutes note_unported('region.c region_safety') for that direct C call. js/region.js:874 already implements region_danger and scripts/region.test.mjs:840-890 pins its source behavior. The existing helper's other C caller families are already wired in pray.js, do_wear.js, and timeout.js."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "region_danger",
+            "implementation": "js/region.js",
+            "symbol": "region_danger",
+            "sourceReview": "Read region.c:1341-1362 completely. The function scans all hero-occupied regions, recognizes only INSIDE_GAS_CLOUD, excludes nonliving/Breathless and Poison_resistance, and returns whether any harmful cloud remains. JavaScript's early true return is equivalent to the C count because the pure scan has no side effects. Verified hero_inside/callback mapping and both intrinsic/extrinsic property checks. It is pure: no output, state mutation, or RNG.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "in_trouble",
+                "source": "pray.c:218 calls region_danger() to classify TROUBLE_REGION."
+              },
+              {
+                "path": "js/region.js",
+                "symbol": "region_safety",
+                "source": "region.c:1390 rechecks region_danger() after safe_teleds()."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Amulet_on",
+                "source": "do_wear.c:984 checks the gas status with the magical-breathing amulet temporarily removed."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Amulet_off",
+                "source": "do_wear.c:1128 checks whether removing magical breathing exposes the hero to gas."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "region_dialogue",
+                "source": "timeout.c:562 checks gas exposure after temporarily clearing the magical-breathing timeout."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:885 checks gas exposure when magical breathing times out."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/region.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-prayer-region-safety-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "cmd.c #pray -> pray.c:prayer_done -> pleased -> in_trouble invokes region_danger; region.c:region_safety also rechecks region_danger after safe_teleds when required"
+              }
+            ],
+            "checkedAt": "665350e91222d523d635ca7eb0681f9cfe6a92e8"
+          },
+          {
+            "name": "region_safety",
+            "implementation": "js/region.js",
+            "symbol": "region_safety",
+            "sourceReview": "Read region.c:1368-1405 completely. It scans in source order and remembers only the first hero-occupied expiring gas cloud; more than one gas cloud or one non-expiring cloud triggers safe_teleds with its return discarded, then region_danger controls the d(4,4)+4 magical-breathing fallback and message. A sole expiring cloud is removed before its dissipates message; no eligible cloud takes the already-dissipated message. The final BlindedTimeout==1 check calls make_blinded(0,TRUE). JavaScript preserves branch, random, state-update, redraw, and message order, and receives the existing teleport/message/visual operations from the prayer caller to avoid an import cycle. remove_region's result is discarded; its active callbacks are supplied. No unported return-value callee remains.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c:417-420 dispatches TROUBLE_REGION directly to region_safety(); pleased():1139,1145,1151,1156 reaches fix_worst_trouble during prayer completion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/region.test.mjs",
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-prayer-region-safety-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "cmd.c #pray -> pray.c:dopray/prayer_done -> pleased -> fix_worst_trouble(TROUBLE_REGION) -> region_safety"
+              }
+            ],
+            "checkedAt": "665350e91222d523d635ca7eb0681f9cfe6a92e8"
+          },
+          {
+            "name": "fix_worst_trouble",
+            "implementation": "js/pray.js",
+            "symbol": "fix_worst_trouble",
+            "sourceReview": "Re-read the complete pray.c:373-600 switch and preserved its other source-ordered branches and explicitly recorded unported gaps. The TROUBLE_REGION arm at 417-420 now calls region_safety with existing safe_teleds, message, redraw, vision, and RNG adapters at that source point; the stale note_unported('region.c region_safety') is removed. The full function retains its previous implementation and caller sequence.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "pleased",
+                "source": "pray.c:1139-1156 calls fix_worst_trouble() for the action 4/5, action 3, and action 1 prayer-repair branches."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c:2333 and 2340 calls pleased() after successful prayer resolution."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "failClosedCommand",
+                "source": "cmd.c #pray dispatch reaches dopray(), which installs prayer_done as the after-movement callback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "pray.c",
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-prayer-region-safety-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "cmd.c #pray -> pray.c:dopray/prayer_done -> pleased -> fix_worst_trouble(TROUBLE_REGION)"
+              }
+            ],
+            "checkedAt": "665350e91222d523d635ca7eb0681f9cfe6a92e8"
+          }
+        ],
+        "entryPointReview": "The selected impure entry point is prayer completion repairing TROUBLE_REGION: cmd.c #pray reaches pray.c:dopray and its prayer_done callback; prayer_done calls pleased, whose trouble-repair branches call fix_worst_trouble; its TROUBLE_REGION arm calls region_safety. This complete path is reached by the selected v46 replay. region_danger is a pure same-file helper already used by pray.c:in_trouble, do_wear.c:Amulet_on/Amulet_off, and timeout.c:region_dialogue/nh_timeout; each corresponding JavaScript caller was traced and is wired. The pure helper is source-pinned in scripts/region.test.mjs. No recorder build exclusion or blocked caller was found.",
+        "entryPoints": [
+          {
+            "name": "Prayer completion repairs a gas-cloud TROUBLE_REGION",
+            "functions": [
+              {
+                "sourceFile": "pray.c",
+                "name": "fix_worst_trouble"
+              },
+              "region_safety",
+              "region_danger"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-prayer-region-safety-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "cmd.c #pray -> pray.c:dopray/prayer_done -> pleased -> fix_worst_trouble(TROUBLE_REGION) -> region_safety"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

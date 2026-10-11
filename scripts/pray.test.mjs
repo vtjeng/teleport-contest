@@ -153,9 +153,27 @@ const SEED = 4410003;
 const PRAY_C = readFileSync(
     new URL('../nethack-c/upstream/src/pray.c', import.meta.url), 'utf8',
 );
+const REGION_C = readFileSync(
+    new URL('../nethack-c/upstream/src/region.c', import.meta.url), 'utf8',
+);
 const PRAY_JS = readFileSync(
     new URL('../js/pray.js', import.meta.url), 'utf8',
 );
+
+test('TROUBLE_REGION reaches region_safety through the prayer completion caller', () => {
+    const cStart = PRAY_C.indexOf('fix_worst_trouble(int trouble)');
+    const cEnd = PRAY_C.indexOf('\n}\n', cStart) + 3;
+    const cFix = PRAY_C.slice(cStart, cEnd);
+    assert.match(cFix, /case TROUBLE_REGION:[\s\S]*?region_safety\(\);/u);
+    assert.match(REGION_C, /region_safety\(void\)/u);
+    assert.match(PRAY_C, /pleased\(aligntyp g_align\)[\s\S]*?fix_worst_trouble\(trouble\);/u);
+
+    const jsStart = PRAY_JS.indexOf('export async function fix_worst_trouble(');
+    const jsEnd = PRAY_JS.indexOf('\n}', jsStart) + 2;
+    const jsFix = PRAY_JS.slice(jsStart, jsEnd);
+    assert.match(jsFix, /case TROUBLE_REGION:\s*await region_safety\(state,/u);
+    assert.doesNotMatch(jsFix, /note_unported\('region\.c region_safety'\)/u);
+});
 
 test('altar_wrath follows pray.c alignment, speech, and luck branches',
     async () => {

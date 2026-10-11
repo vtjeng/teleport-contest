@@ -2,10 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { compareSessionOutputs, formatReport } from './diff-fresh.mjs';
-import { zero_victual } from '../js/eat.js';
+import { eatfood, zero_victual } from '../js/eat.js';
 import { OBJ_CONTAINED, OBJ_INVENT, OBJ_MINVENT, OBJ_BURIED, PIT, ROOM, ROT_CORPSE, REVIVE_MON,
     TIMER_OBJECT } from '../js/const.js';
 import { revive_corpse, revive_mon } from '../js/do.js';
+import { revive } from '../js/zap.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_DEATH, PM_TROLL, PM_WATER_NYMPH, PM_KOBOLD, PM_PESTILENCE, PM_FAMINE } from '../js/monsters.js';
@@ -37,6 +38,25 @@ async function lockedCorpse(species = PM_TROLL) {
     container.cobj = body;
     return body;
 }
+
+test('revive stops an active meal before checking its locked corpse container',
+    async () => {
+        const body = await lockedCorpse();
+        game.go.occupation = eatfood;
+        game.go.occtxt = 'eating the troll corpse';
+        game.context.victual = { ...zero_victual(), piece: body };
+        const lines = [];
+
+        assert.equal(await revive(body, false, {
+            state: game,
+            message: line => lines.push(line),
+            statusRefresh: async () => {},
+        }), null, 'the locked container still prevents revival');
+        assert.deepEqual(game.context.victual, zero_victual());
+        assert.equal(body.oeaten, 1);
+        assert.equal(game.go.occupation, null);
+        assert.deepEqual(lines, ['You stop eating the troll corpse.']);
+    });
 
 function scriptedRandom(expected) {
     const draws = [...expected];

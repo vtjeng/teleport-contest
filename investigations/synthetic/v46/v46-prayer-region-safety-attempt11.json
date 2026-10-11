@@ -1,0 +1,64 @@
+{
+  "session": "synthetic/v46/v46-prayer-region-safety-attempt11",
+  "corpus": "synthetic",
+  "batch": "v46",
+  "caseId": "v46-prayer-region-safety-attempt11",
+  "manifestPath": "challenges/manifests/v46.json",
+  "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+  "recordingPath": "challenges/cases/v46/v46-prayer-region-safety-attempt11.session.json",
+  "recordingSha256": "7c5b0cc8de3c2b6553f98ac23dfe35875aac473ba02083946e754d03e6a65e1b",
+  "recipePath": "challenges/cases/v46/v46-prayer-region-safety-attempt11.recipe.session.json",
+  "recipeSha256": "1366e07953c1e3b9633e79a19fbb2e41f39d329e869d2f1729275f6973bb0f41",
+  "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+  "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+  "queueSha256": "e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2",
+  "remainingScreens": 10,
+  "recordedSteps": 70,
+  "status": "complete",
+  "commit": "683c48c67b8491d5f1108567148f874f219f8d88",
+  "mismatch": {
+    "session": "synthetic/v46/v46-prayer-region-safety-attempt11",
+    "remainingScreens": 10,
+    "step": 60,
+    "boundary": 61,
+    "key": "y",
+    "screen": {
+      "row": 0,
+      "column": 58,
+      "c": { "ch": "-", "color": 8, "attr": 0, "decgfx": 0 },
+      "js": { "ch": " ", "color": 8, "attr": 0, "decgfx": 0 }
+    },
+    "cursor": {
+      "c": [66, 0, 1],
+      "js": [37, 11, 1]
+    },
+    "rng": { "matched": 3317, "total": 3317 },
+    "cursors": { "matched": 69, "total": 70 }
+  },
+  "summary": "At the selected prayer completion, C enters pray.c:fix_worst_trouble(TROUBLE_REGION) and calls region_safety(); JavaScript stops at note_unported('region.c region_safety'). The source scans hero-occupied gas-cloud regions, teleports if multiple clouds or one non-expiring cloud remains, otherwise removes a single expiring cloud, emits the corresponding message, and clears one-turn blindness. The first mismatch is the map boundary after that source action; RNG already matches completely.",
+  "source": {
+    "file": "region.c",
+    "branch": "region_danger() (1341-1362) scans regions containing the hero and returns true only for an INSIDE_GAS_CLOUD region when the hero is neither nonliving/breathless nor poison resistant. region_safety() (1368-1405) scans the same regions and retains the first expiring gas cloud. Multiple clouds or one non-expiring cloud trigger safe_teleds(); if danger remains, C sets magical-breathing timeout to d(4,4)+4 and reports ability to breathe. A single expiring cloud is removed and gets a dissipates message; with no eligible cloud, C reports that it has dissipated. Finally, one-turn blindness is cleared.",
+    "functions": [
+      "region_danger",
+      "region_safety"
+    ],
+    "callers": [
+      "pray.c:pleased (1139, 1145, 1151, 1156) calls fix_worst_trouble for prayer trouble; pray.c:fix_worst_trouble (417-420) dispatches TROUBLE_REGION to region_safety(). JavaScript follows cmd.js #pray -> pray.js:prayer_done -> pleased -> fix_worst_trouble; fix_worst_trouble currently records note_unported('region.c region_safety') at js/pray.js:1468.",
+      "region_danger() callers also include pray.c:in_trouble (218), do_wear.c:Amulet_on/Amulet_off (984, 1128), and timeout.c:region_dialogue/nh_timeout (562, 885). Their existing JS callers are pray.js:in_trouble, do_wear.js:Amulet_on/Amulet_off, and timeout.js:region_dialogue/nh_timeout; scripts/region.test.mjs source-pins the pure helper."
+    ],
+    "dependencies": [
+      "safe_teleds() is called with its C result discarded and already exists in js/teleport.js; region_safety receives it from pray.js to avoid a region.js/teleport.js cycle.",
+      "remove_region() result is discarded and its JS implementation is in js/region.js. Visible removal needs the existing does_block, unblock_point, cansee, and newsym operations supplied by the prayer caller.",
+      "region_danger() return value controls the post-teleport magical-breathing branch and is included in this task as the same-file dependency.",
+      "set_itimeout(), d(), and make_blinded() already have JavaScript owners; no other C return-value dependency is introduced."
+    ]
+  },
+  "goalKind": "file-port",
+  "selectionReason": "Assigned as the next independent v46 source mismatch. The saved queue identifies a screen/cursor divergence at prayer completion, and source trace establishes the missing owner as region.c:region_safety with region.c:region_danger as its result dependency and pray.c:fix_worst_trouble as the production caller.",
+  "evidence": [
+    "The saved v46 queue at SHA-256 e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2 identifies the selected session with 60/70 screens, 3317/3317 RNG calls, and 69/70 cursors matched at the baseline. The first mismatch is boundary 61 after step 60, during prayer completion.",
+    "Upstream region.c:1341-1362 and 1368-1405 define the complete helper and safety functions. region_safety has one direct caller: pray.c:fix_worst_trouble:417-420; pleased:1139-1156 calls fix_worst_trouble, and prayer_done:2333/2340 reaches pleased after #pray.",
+    "At the examined base, js/pray.js:1468 substitutes note_unported('region.c region_safety') for that direct C call. js/region.js:874 already implements region_danger and scripts/region.test.mjs:840-890 pins its source behavior. The existing helper's other C caller families are already wired in pray.js, do_wear.js, and timeout.js."
+  ]
+}

@@ -2944,6 +2944,15 @@ test('particular creation requires its runtime owner for source flag variants',
                 name: 'invisible without gender',
                 flags: MM_NOEXCLAM | MM_MINVIS, admitted: true,
             },
+            {
+                // read.c:create_particular_creation() can restore PM_SHK
+                // after the wizard confirms cant_revive()'s substitution.
+                // C passes only MM_NOEXCLAM, without MM_ESHK.
+                name: 'forced shopkeeper Genesis',
+                mndx: PM_SHOPKEEPER,
+                flags: MM_NOEXCLAM,
+                admitted: true,
+            },
             { name: 'unsupported angry flag', flags: MM_ANGRY,
                 admitted: false },
             { name: 'missing caller marker', flags: MM_NOEXCLAM,
@@ -2967,7 +2976,8 @@ test('particular creation requires its runtime owner for source flag variants',
             state.u.ux = heroSquare.x;
             state.u.uy = heroSquare.y;
             const random = scriptedRandom([]);
-            const ptr = scenario.ptr === null ? null : state.mons[PM_NEWT];
+            const ptr = scenario.ptr === null ? null
+                : state.mons[scenario.mndx ?? PM_NEWT];
 
             assert.throws(
                 () => makemon(
