@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first successful-launch candidate. On the source-generated D:4 map, controlled-teleport from the observed arrival tile (10,13) into the broad room center (60,15), then wish the trap and trigger it. C should find 4+ clear horizontal squares on both sides and create its launch boulder; retain only after the C trace confirms the launch object and successful launch arm.",
+  "segments": [
+    {
+      "seed": 43050413,
+      "datetime": "20521011161500",
+      "nethackrc": "OPTIONS=name:V43RollingSurvey,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#wizlevelport\n4\n#wizmap\n\u0014  GlGlGlGlGlGllljj.\u0017rolling boulder trap\nhl "
+    }
+  ]
+}

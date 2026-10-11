@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050425,
+      "datetime": "20531025121314",
+      "nethackrc": "OPTIONS=name:V43SpellFavor,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".l\u0017blessed luckstone\n,\u0017neutral altar\n\u0017white unicorn corpse\n #offer\ny  \u0017red dragon corpse\n #offer\ny  \u0017red dragon corpse\n #offer\ny  \u0017red dragon corpse\n #offer\ny  \u0017red dragon corpse\n #offer\ny  \u0017red dragon corpse\n #offer\ny  \u0017red dragon corpse\n #offer\ny  \u0017red dragon corpse\n #offer\ny  #pray\ny y..."
+    }
+  ],
+  "comment": "C-first source candidate for pray.c:pleased -> give_spell. Offer the source-aligned white unicorn, then seven separate red dragon corpses on the neutral altar. The independent earlier recording established that the unicorn gives the +5 alignment transition and that the first red dragon offers reduce the pre-existing prayer timeout; this longer route continues past reconciliation to increase Luck, then uses the wizard-only C confirmation to guarantee a successful prayer without changing the pleased() favorable-action selector. Repeated spaces dismiss the observed sacrifice and prayer pagers."
+}

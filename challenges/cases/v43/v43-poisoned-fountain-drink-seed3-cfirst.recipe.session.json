@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050044,
+      "datetime": "20530206121314",
+      "nethackrc": "OPTIONS=name:V43PoisonedFountain,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017fountain\nqy"
+    }
+  ],
+  "comment": "Third independent C seed for the source-randomized fountain drink candidate. Record the actual drinkfountain fate; do not promote unless C reaches the poisoned-water case 21."
+}

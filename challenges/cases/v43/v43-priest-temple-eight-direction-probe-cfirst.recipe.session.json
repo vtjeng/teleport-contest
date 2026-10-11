@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050107,
+      "datetime": "20530307121314",
+      "nethackrc": "OPTIONS=name:V43KniGoal,role=Knight,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nKni-loca.lua\n\nFhFlFkFjFyFuFbFn"
+    }
+  ],
+  "comment": "C-first temple-priest route: load the Knight’s Kni-loca Lua program, dismiss its confirmed temple-entry pager, then try each of the eight adjacent attack directions once to determine whether the created shrine priest is adjacent and whether C reaches uhitm.c:hmon -> priest.c:ghod_hitsu. Preserve the map-only recording and do not compare JavaScript yet."
+}

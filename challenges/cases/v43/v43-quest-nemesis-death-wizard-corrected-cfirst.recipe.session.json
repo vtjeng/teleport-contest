@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Final C-first nemesis-death route. The map probe placed the forced Dark One south of the hero and the C-observed wand in slot o; the kill-page probe showed the quest-specific body-croak pager immediately after the death ray. This recipe repeats that C-only route, zaps south, and acknowledges only the first C-confirmed kill page to retain the nemdead output before the ray bounce continues. No JavaScript result informed the recipe.",
+  "segments": [
+    {
+      "seed": 43050019,
+      "datetime": "20530119121314",
+      "nethackrc": "OPTIONS=name:V43Nemesis,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017wand of death\n\u0007hostile Dark One\nyzoj "
+    }
+  ]
+}

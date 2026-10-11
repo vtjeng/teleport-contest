@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050045,
+      "datetime": "20530207121314",
+      "nethackrc": "OPTIONS=name:V43Demonpet,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #levelchange\n30\n#polyself\nbarbed devil\n\u0007hostile iron golem\nFn n  n  n  n  n  n  n  n  n  n  n  n "
+    }
+  ],
+  "comment": "C-first setup raises the Wizard to level 30 through the source debug command before polymorphing into an unarmed barbed devil. It creates a hostile iron golem, follows the C-observed southeast placement, and repeats the same attack while dismissing pager boundaries so the 1-in-13 damageum demonpet gate can be reached. The previous level-1 probe died before enough attacks."
+}

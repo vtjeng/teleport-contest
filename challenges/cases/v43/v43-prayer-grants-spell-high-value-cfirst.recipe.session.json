@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050055,
+      "datetime": "20530212121314",
+      "nethackrc": "OPTIONS=name:V43SpellPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .l\u0017blessed luckstone\n,\u0017neutral altar\n\u0017Archon corpse\n#offer\no\n#pray\ny\nn..."
+    }
+  ],
+  "comment": "Source-driven prayer setup retry: a fresh Archon corpse has sacrifice value 25 from difficulty+1, enough to clear the debug hero’s prayer cooldown in one offering. Keep the wished blessed luckstone for Luck; create a neutral altar off the starting stair, offer the observed first corpse slot, confirm #pray, decline debug forced success, then wait the three-turn occupation. Record C messages and RNG to verify prayer_success and give_spell reachability."
+}

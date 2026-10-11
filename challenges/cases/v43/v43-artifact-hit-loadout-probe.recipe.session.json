@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050020,
+      "datetime": "20530120121314",
+      "nethackrc": "OPTIONS=name:V43ArtHit,role=Valkyrie,race=human,gender=female,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nExcalibur\ni\n#wizgenesis\nhostile zombie\n#wizmap\n"
+    }
+  ],
+  "comment": "C-only setup probe toward artifact.c:artifact_hit. Inspect the generated artifact inventory letter and summoned monster location; no JavaScript comparison."
+}

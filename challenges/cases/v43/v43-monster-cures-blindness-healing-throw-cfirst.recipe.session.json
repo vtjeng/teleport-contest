@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050070,
+      "datetime": "20530310121314",
+      "nethackrc": "OPTIONS=name:V43WoundedMonster,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017potion of blindness\n\u0017blessed potion of healing\n#wizgenesis\nhostile ogre\ntoy\n\ntpy"
+    }
+  ],
+  "comment": "C-first continuation from the complete blindness potion trace: after the thrown potion hit, C logged potion.c:potionhit blindness-duration draws; two newline inputs dismiss both observed More pages, then throw blessed healing potion p northwest to test the source mcureblindness branch."
+}

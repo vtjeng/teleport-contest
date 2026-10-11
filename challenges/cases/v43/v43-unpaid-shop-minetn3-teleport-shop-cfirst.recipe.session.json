@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v43 source probe: load Minetown 3 and use wizard controlled teleport from the arrival coordinate into the source-defined ordinary shop room at (13,13). Preserve as setup evidence unless C confirms active shop state and charged unpaid stock.",
+  "segments": [
+    {
+      "seed": 43050411,
+      "datetime": "20521011161300",
+      "nethackrc": "OPTIONS=name:V43ShopFee,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nminetn-3.lua\n#wizmap\n\u0014GhGhGhGhGhGhhhhhhGjj."
+    }
+  ]
+}

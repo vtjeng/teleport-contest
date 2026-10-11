@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050052,
+      "datetime": "20530214121314",
+      "nethackrc": "OPTIONS=name:V43BridgeDBWall,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ncastle.lua\n#wizmap\n\u0017+7 wand of striking\n\u0014  hhkkkk.zpb"
+    }
+  ],
+  "comment": "Correct the wish to +7 charges after the previous C attempt showed the wished striking wand was empty. The source map and approach remain: controlled teleport to (6,7), then zap southwest (b) into the Castle drawbridge DBWALL at (5,8)."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050014,
+      "datetime": "20530108121314",
+      "nethackrc": "OPTIONS=name:V43PoisonedFountain,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017fountain\nqy"
+    }
+  ],
+  "comment": "Independent C-first probe of the fountain drink fate selected by source RNG. Count only if C reaches the contaminated-water poison_strdmg branch; otherwise retain the observed fate as a target miss/control."
+}

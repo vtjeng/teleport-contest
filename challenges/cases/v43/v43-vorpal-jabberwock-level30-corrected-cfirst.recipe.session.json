@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43051013,
+      "datetime": "20540212131415",
+      "nethackrc": "OPTIONS=name:V43Vorpal30,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n30\n                                             #wizwish\nVorpal Blade\n#wizgenesis\nhostile jabberwock\nwoFb"
+    }
+  ],
+  "comment": "Corrected from the level-30 C map: Vorpal Blade is in slot o and the Jabberwock is southwest of @, so use b. Earlier C-only probes preserve slot/direction misses and the level-20 hit miss."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050052,
+      "datetime": "20530214121314",
+      "nethackrc": "OPTIONS=name:V43BridgeTeleport,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ncastle.lua\n#wizmap\n\u0017wand of striking\n\u0014  hkkkk.zpb"
+    }
+  ],
+  "comment": "C-first corrected diagonal attack. The closed east-facing Castle bridge is at (5,8) with its associated DBWALL at (6,8). From C-observed hero (8,11), teleport to the verified room floor (7,7) using h,k,k,k,k and ., then zap west/southwest with the striking wand to hit the DBWALL."
+}

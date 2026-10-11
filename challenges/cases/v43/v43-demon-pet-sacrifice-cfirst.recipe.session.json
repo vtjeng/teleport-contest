@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050015,
+      "datetime": "20530110121314",
+      "nethackrc": "OPTIONS=name:V43DemonPetSacrifice,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017chaotic altar\n\u0017demon corpse\nd?o #offer\ny"
+    }
+  ],
+  "comment": "Independent C-first probe for the uhitm.c demonpet sacrifice branch. C must confirm the wished corpse/altar setup and reach the demon-specific response before this can be treated as a candidate."
+}

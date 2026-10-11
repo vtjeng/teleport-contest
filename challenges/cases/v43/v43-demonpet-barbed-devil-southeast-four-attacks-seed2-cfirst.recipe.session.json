@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050045,
+      "datetime": "20530207121314",
+      "nethackrc": "OPTIONS=name:V43Demonpet,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #polyself\nbarbed devil\n\u0007hostile iron golem\nFn Fn Fn Fn"
+    }
+  ],
+  "comment": "Independent C-first seed variation for the already source-grounded barbed-devil damageum candidate. The main prior recording established the exact target map and source RNG owner; this route tests whether the same unarmed claw first hit enters the demonpet true branch. C map shows the golem one row below and one column right of the Barbed Devil, so this correction attacks southeast rather than north. C-first continuation dismisses the recorded combat More and attempts one additional southeast attack after the golem remains in the source map. Continue C-observed three-hit turns with the recorded pager-discard rhythm until the iron golem stops or demonpet executes; keep this entire source-based sequence without JavaScript-guided input changes."
+}

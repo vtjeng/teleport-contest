@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050056,
+      "datetime": "20530213121314",
+      "nethackrc": "OPTIONS=name:V43SpellPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .l\u0017blessed luckstone\n,\u0017neutral altar\n\u0017corpse of master lich\n#offer\np\n\u0017corpse of master lich\n#offer\nq\n#pray\ny\nn..."
+    }
+  ],
+  "comment": "Source-correct high-value prayer route: use the recorder-supported wish form “corpse of master lich” (the prior “master lich corpse” was rejected and substituted a newt). A fresh master lich corpse is an undead offering with source value difficulty+2 for Neutral; two should reduce the debug-start prayer cooldown and raise alignment record/Luck. Offer the observed C inventory letters p and q, confirm #pray, decline debug forced success, then wait the three-turn occupation. Preserve prior syntax/selector failures."
+}

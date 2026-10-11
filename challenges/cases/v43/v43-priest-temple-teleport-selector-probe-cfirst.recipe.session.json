@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050107,
+      "datetime": "20530307121314",
+      "nethackrc": "OPTIONS=name:V43KniGoal,role=Knight,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nKni-loca.lua\n\n#teleport\n"
+    }
+  ],
+  "comment": "C-first setup probe for reaching the shrine priest: after loading Kni-loca and dismissing the temple-entry pager, invoke #teleport and inspect C’s destination prompt/selection contract before choosing a route. Preserve the adjacent-direction thin-air miss."
+}

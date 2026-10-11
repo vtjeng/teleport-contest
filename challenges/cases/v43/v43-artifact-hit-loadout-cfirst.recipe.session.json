@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050023,
+      "datetime": "20530123121314",
+      "nethackrc": "OPTIONS=name:V43ArtHit,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nExcalibur\ni\n#wizgenesis\nhostile zombie\n#wizmap\n"
+    }
+  ],
+  "comment": "C-only setup toward artifact.c:artifact_hit. The name and role/align syntax are source-valid; inspect item selector and adjacent generated-monster placement before preparing the attack recipe."
+}

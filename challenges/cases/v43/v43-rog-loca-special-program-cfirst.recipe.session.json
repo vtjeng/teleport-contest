@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050103,
+      "datetime": "20530303121314",
+      "nethackrc": "OPTIONS=name:V43rogue,role=Rogue,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nrog-loca.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "Exploratory C-first candidate for the unrepresented Rogue quest Lua source rog-loca.lua. Use the matching role, load the source directly through the debug special-level loader, and expose its generated map. No JavaScript comparison until all C-first routes and independent replays are complete."
+}

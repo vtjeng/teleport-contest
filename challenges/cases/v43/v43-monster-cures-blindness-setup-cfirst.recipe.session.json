@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050070,
+      "datetime": "20530310121314",
+      "nethackrc": "OPTIONS=name:V43WoundedMonster,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017potion of blindness\n\u0017blessed potion of healing\n#wizgenesis\nhostile ogre\n#wizmap\n"
+    }
+  ],
+  "comment": "Source-based C-first monster-blindness setup: generate a hostile ogre, throw a potion of blindness to reach potion.c:potionhit and set mcansee false, then hit it with a blessed healing potion so potion.c calls mcureblindness. This setup recording exposes C-assigned item slots and the generated map before selecting the attack direction."
+}

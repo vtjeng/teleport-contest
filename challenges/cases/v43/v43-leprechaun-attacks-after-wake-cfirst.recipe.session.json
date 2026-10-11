@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050021,
+      "datetime": "20530121121314",
+      "nethackrc": "OPTIONS=name:V43Gold,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\n1000 gold pieces\n#wizgenesis\nhostile leprechaun\nFl l l l l l l l l"
+    }
+  ],
+  "comment": "C-first continuation from the source-observed adjacent-east leprechaun: dismiss the attack pager, then keep attacking east to test whether its awakened AD_SGLD behavior steals carried gold."
+}
