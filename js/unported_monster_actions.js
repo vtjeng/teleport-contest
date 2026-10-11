@@ -79,7 +79,7 @@ import {
     m_dowear,
     set_mimic_sym,
 } from './makemon_create.js';
-import { fightm, mdisplacem } from './mhitm.js';
+import { fightm, mattackm, mdisplacem } from './mhitm.js';
 import {
     mattacku,
     mdamageu,
@@ -1355,13 +1355,18 @@ function monsterMissileEnv(monster, env) {
             }
             : ttyPline,
         monsterAt: (x, y, state) => m_at(x, y, state),
-        monsterName: (subject) => capitalizedMonsterName(subject, env.state),
+        monsterName: (subject) => capitalizedMonsterName(
+            subject,
+            env.state,
+            { displayRandom: env.displayRandom },
+        ),
         newsym: env.planning ? () => {} : newsym,
         unblockPoint: (x, y, state) => {
             if (env.planning) admitPlannedVisionChange(x, y, state);
             unblock_point(x, y, state);
         },
-        objectToGlyph: (obj, state) => obj_to_glyph(obj, state),
+        objectToGlyph: (obj, state) =>
+            obj_to_glyph(obj, state, env.displayRandom),
         observeObject: (obj, state) => observe_object(obj, state),
         passiveObject: (target, obj, attack, actionEnv) => passive_obj(
             target,
@@ -1486,11 +1491,25 @@ function attackHeroWithMattacku(monster, env) {
 // cmd.c domonability branch. Both use the same canonical attack operations.
 export async function runPetRangedAttack(monster, forced, rawEnv = {}) {
     const state = rawEnv.state ?? game;
+    const env = { ...rawEnv, state };
     return pet_ranged_attk(monster, forced, {
-        ...rawEnv,
+        ...env,
         state,
-        random: actionRandom(rawEnv),
+        random: actionRandom(env),
         attackHero: attackHeroWithMattacku,
+        // C path: dogmove.c pet_ranged_attk() -> mhitm.c mattackm()
+        // -> mthrowu.c thrwmm() -> monshoot(). Keep the same missile
+        // operations and cloned display RNG on this monster-target caller.
+        mattackm: (attacker, target, attackEnv) => mattackm(
+            attacker,
+            target,
+            {
+                ...attackEnv,
+                ...monsterMissileEnv(attacker, attackEnv),
+                wieldMonsterItemAgainstMonster,
+                unsupported,
+            },
+        ),
         unsupported,
         message: rawEnv.planning ? async () => {} : (rawEnv.message ?? ttyPline),
         markInvisible: rawEnv.planning ? () => {} : map_invisible,
