@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000903,
+      "datetime": "20580124173612",
+      "nethackrc": "OPTIONS=name:V44SanctumOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsanctum.lua\n#wizmap\n#wizkill\n  lllllllljj."
+    }
+  ],
+  "comment": "C-only source-coordinate probe: load sanctum.lua, enter #wizkill map selection from observed cursor [10,6], and select the source-defined barbed devil on the high altar at (18,8). Preserve prior no-kill teleport misses."
+}

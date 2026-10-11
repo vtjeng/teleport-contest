@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000801,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44StrongholdTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\nj  #wizmap\n  #wizkill\nuk.",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-only setup probe for reaching the Stronghold drawbridge side without teleportation: use the map-derived farlook cursor to select the nearby tengu at screen coordinate (73,10), which interrupted the first physical approach. Retain this probe whether or not the coordinate identifies the tengu."
+}

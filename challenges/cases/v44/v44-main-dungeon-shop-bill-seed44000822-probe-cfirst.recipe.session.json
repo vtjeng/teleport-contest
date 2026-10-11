@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000822,
+      "datetime": "20561213141516",
+      "nethackrc": "OPTIONS=name:V44ShopProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n5\n  #wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first generated main-dungeon shop bill candidate. Levelport directly to ordinary Dungeon level 5 and reveal the generated map to determine whether it provides a live shop with shop stock, then construct an unpaid used-up bill route only if the C state confirms it."
+}

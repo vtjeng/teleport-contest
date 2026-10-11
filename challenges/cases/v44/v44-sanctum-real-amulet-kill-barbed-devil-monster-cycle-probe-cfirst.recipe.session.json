@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000906,
+      "datetime": "20580124173612",
+      "nethackrc": "OPTIONS=name:V44SanctumOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsanctum.lua\n#wizkill\n  mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm."
+    }
+  ],
+  "comment": "C-only alternate target-selection route: let getpos cycle its source-defined nearest-monster targets with m from the hero square; inspect each auto-description and select the barbed devil if reached."
+}

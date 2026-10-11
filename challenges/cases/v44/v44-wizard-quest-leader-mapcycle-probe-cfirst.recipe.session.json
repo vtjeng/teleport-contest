@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000304,
+      "datetime": "20540714151617",
+      "nethackrc": "OPTIONS=name:V44QuestLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-strt.lua\n#wizmap\n#wizkill\n  m.\u001b",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first quest leader map-cycle probe. Reveal the source-defined quest map before #wizkill, dismiss both the kill prompt and getpos tip, then cycle the next monster and record its actual identity; the final Escape cancels without altering the target."
+}

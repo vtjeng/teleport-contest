@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000801,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44CastleScout,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\nj  #teleport\n  h.",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-only controlled-teleport cursor calibration in the Castle. Select the adjacent west square to establish coordinate movement from levelport arrival."
+}

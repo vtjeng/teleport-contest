@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000833,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44OvercrowdingProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "8#wizgenesis\ntame gnome\n #wizgenesis\nhostile Wizard of Yendor\ny ."
+    }
+  ],
+  "comment": "C-only corrected overcrowding probe: dismiss the counted gnome-generation pager before issuing the next command, create a hostile covetous Wizard of Yendor, then advance one turn to see whether the full legal adjacent ring routes monmove.c:tactics -> mnexto -> deal_with_overcrowding. Keep the earlier pager-interrupted attempt."
+}

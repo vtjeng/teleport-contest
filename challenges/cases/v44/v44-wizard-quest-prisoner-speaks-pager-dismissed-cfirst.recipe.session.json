@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000870,
+      "datetime": "20571021172243",
+      "nethackrc": "OPTIONS=name:V44PrisonerPage,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-goal.lua\n#teleport\n hhhhhhhhhhhhhjjj. #wizmap\n."
+    }
+  ],
+  "comment": "Pager-corrected C-first reachability attempt for quest.c:prisoner_speaks: dismiss the controlled-teleport instruction page, target (36,11) adjacent to the source-placed awake prisoner at (35,11), dismiss the post-teleport message, inspect the map, then give the waiting prisoner a turn."
+}

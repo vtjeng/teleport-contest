@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000876,
+      "datetime": "20580124173612",
+      "nethackrc": "OPTIONS=name:V44SanctumOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsanctum.lua\n#wizwish\nAmulet of Yendor\n \nnothing\n#teleport\nhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkk.\n#offer\no"
+    }
+  ],
+  "comment": "C-first source correction: #wizwish creates the real Amulet; one space dismisses its listing and opens the Amulet pickup wish, whose page is dismissed with Enter. Answer nothing (the source-supported decline path) to finish makewish, then teleport to Sanctum and offer the Amulet on the high altar."
+}

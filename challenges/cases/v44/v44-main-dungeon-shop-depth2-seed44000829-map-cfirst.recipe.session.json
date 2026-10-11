@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000829,
+      "datetime": "20561213141523",
+      "nethackrc": "OPTIONS=name:V44ShopDepth2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n2\n  #wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first live-shop generation candidate on ordinary main-dungeon depth 2. mklev.c attempts SHOPBASE for regular dungeons with depth below Medusa when the generated room count meets the shop threshold; map the generated level to identify a reached store before the planned bill action."
+}

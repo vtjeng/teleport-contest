@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000302,
+      "datetime": "20540712131415",
+      "nethackrc": "OPTIONS=name:V44QuestLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-strt.lua\n#wizkill\nhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk.yq",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first coordinate selection probe for the role-specific Neferet quest leader from Wiz-strt.lua; the C recording determines whether the selected square and death branch are reached."
+}

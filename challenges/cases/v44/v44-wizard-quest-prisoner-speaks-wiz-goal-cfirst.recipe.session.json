@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000868,
+      "datetime": "20570819224517",
+      "nethackrc": "OPTIONS=name:V44Prisoner,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-goal.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "C-first reachability probe for quest.c:prisoner_speaks: load the role's Wiz-goal.lua program, then inspect the Wizard quest prisoner's and hero's actual positions before attempting the waiting-monster quest_talk branch."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000801,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44CastleScout,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\nj  #wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first setup: use wizard special-level selector to enter the Castle, dismiss level-arrival pages, and reveal the drawbridge geometry before choosing an adjacent action square."
+}

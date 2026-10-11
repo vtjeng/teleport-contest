@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000824,
+      "datetime": "20561213141518",
+      "nethackrc": "OPTIONS=name:V44ShopSearch,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n11\n  #wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first ordinary main-dungeon level-generation search for a live shop after the level-5 room proved to be an ordinary chest. The predetermined depth and seed range test the shop-generation branch in mklev.c: do_mkroom(SHOPBASE); preserve every non-shop layout as setup evidence."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000894,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44QuestRealLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                   #wizlevelport\n?\n>y  #teleport\nhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkk.#chat\nl#chat\nl",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first source route to the real Wizard quest start: raise the hero to level 20, load dat/Wiz-strt.lua through the quest-start levelport, use the C source placement to teleport adjacent to Neferet at des.monster coord (23,5), then request two audiences for quest.c chat_with_leader Rule 4."
+}

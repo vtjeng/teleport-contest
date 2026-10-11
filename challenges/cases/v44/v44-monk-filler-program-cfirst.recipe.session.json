@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A fresh matching-role wizard-debug game directly loads the Monk quest filler program, then exposes the map. C observation: the named Mon-fila.lua program executes and its final map is visible.",
+  "segments": [
+    {
+      "seed": 44000003,
+      "datetime": "20540303131415",
+      "nethackrc": "OPTIONS=name:monk-filler,role:Monk,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nMon-fila.lua\n#wizmap\n"
+    }
+  ]
+}

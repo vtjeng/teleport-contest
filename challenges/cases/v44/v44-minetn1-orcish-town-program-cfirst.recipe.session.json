@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000832,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44MinetnOne,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-1.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "C-first whole-program candidate: load dat/minetn-1.lua (Orcish Town), a separate special level source unit from Minetn-3 Alley Town and prior Minetn-5/6 programs, then reveal its barricades, shops, corpses, and level geometry. Preserve source identity for overlap review after C replay."
+}

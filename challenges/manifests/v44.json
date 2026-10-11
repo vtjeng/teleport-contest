@@ -1,0 +1,1198 @@
+{
+  "version": 1,
+  "batch": "v44",
+  "status": "prepared-unadmitted",
+  "preparationAssignmentBase": "8dc75945c479420351a85258336d92f1a8119090",
+  "comparisonBase": "56ada9102d7eb62ad6df153f57ae92efbc16f27f",
+  "priorBatch": "v43",
+  "priorBatchManifestEvidence": {
+    "path": "challenges/manifests/v43.json",
+    "sha256": "1c3d261b1ce819f81c1b8bf4c82ad40c70f140f80ac85fade579dbb27b8efb25"
+  },
+  "priorBatchCaseIds": [
+    "v43-minetn-6-special-program",
+    "v43-artifact-hit-zombie-east-corrected",
+    "v43-healing-potion-strong-weapon-complete-messages-cfirst",
+    "v43-healing-potion-wounded-monster-corrected-cfirst",
+    "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+    "v43-monster-teleport-trap-relocation-cfirst",
+    "v43-demonpet-barbed-devil-one-attack-seed2-cfirst",
+    "v43-lit-lamp-light-radius-transition-cfirst",
+    "v43-quest-nemesis-death-wizard-corrected-cfirst",
+    "v43-poisoned-fountain-drink-seed3-cfirst",
+    "v43-priest-temple-eight-direction-probe-cfirst",
+    "v43-wiz-loca-special-program-cfirst",
+    "v43-leprechaun-attacks-after-wake-cfirst",
+    "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+    "v43-priest-ghod-hitsu-north-corrected-cfirst",
+    "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+    "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+    "v43-keystone-kop-return-startup2-cfirst",
+    "v43-mounted-steed-stair-descent-pager-2-cfirst",
+    "v43-castle-special-program",
+    "v43-wizard1-special-program",
+    "v43-wizard3-special-program",
+    "v43-vorpal-jabberwock-level30-corrected-cfirst"
+  ],
+  "currentUnresolvedQueueEvidence": {
+    "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+    "sha256": "5825651abd074d798ee348bd3c1b150f34fea71352b02caa94d748e0f07a7fa7",
+    "unmatchedCandidateIds": [
+      null
+    ],
+    "status": "actionable",
+    "availability": "available"
+  },
+  "unresolvedOlderCaseIds": [
+    null
+  ],
+  "caseCount": 10,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 8,
+  "validTargetMissCount": 1,
+  "cases": [
+    {
+      "id": "v44-magicbane-monster-probe-cfirst",
+      "title": "magicbane monster probe cfirst",
+      "mission": "Wizard at dungeon level 30 with a charged Magicbane, a visible hostile stone giant, and the C-observed hit route that selects MB_INDEX_PROBE. Actions: Set the level, wish Magicbane and the hostile stone giant, wield, and continue the independently recorded hit sequence until the MB_INDEX_PROBE branch.",
+      "sourcePointers": [
+        "artifact.c:Mb_hit -> zap.c:probe_monster(mdef), selected MB_INDEX_PROBE"
+      ],
+      "sourceTrace": "C source path: artifact.c:Mb_hit -> zap.c:probe_monster(mdef), selected MB_INDEX_PROBE. C observation: C reaches the Magicbane insightful message and calls probe_monster(mdef) before damage. The JS Mb_hit caller records note_unported(\"zap.c probe_monster\") even though zap.js has a direct wand caller for that helper.",
+      "cOutcome": "C reaches the Magicbane insightful message and calls probe_monster(mdef) before damage. The JS Mb_hit caller records note_unported(\"zap.c probe_monster\") even though zap.js has a direct wand caller for that helper.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned before JS comparison as an independent C-first candidate. Its first local mismatch is source-traced and distinct as listed below.",
+      "outcome": "mismatch",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 44000854,
+            "datetime": "20561014192309",
+            "moves": ".#levelchange\n30\n                             \u0017Magicbane\n.\u0007hostile stone giant\nwokkl l l l l l l l l l l l ",
+            "nethackrc": "OPTIONS=name:V44MagicbaneProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v44/v44-magicbane-monster-probe-cfirst.recipe.session.json",
+      "recipeSha256": "4912bec9bb62133850d83fadcc6b69fe13e5689692a15f497dbaf717f2b79333",
+      "recording": "challenges/cases/v44/v44-magicbane-monster-probe-cfirst.session.json",
+      "recordingSha256": "168c9c11c7f79122b1ec2127268b84726de65285d4542715bfbffbe001fc95ed",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v44-magicbane-monster-probe-cfirst",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v44/v44-magicbane-monster-probe-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep8-v44/final-validation/replays/v44-magicbane-monster-probe-cfirst.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-magicbane-monster-probe-cfirst.log",
+        "logSha256": "9657cbac1f27906606ba98ecee86e8a35b9b690e5c2da600cc59a1f7d575450a",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v44/v44-magicbane-monster-probe-cfirst.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-magicbane-monster-probe-cfirst.session.json",
+        "outputSha256": "168c9c11c7f79122b1ec2127268b84726de65285d4542715bfbffbe001fc95ed",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v44-magicbane-monster-probe-cfirst",
+        "result": "FAIL",
+        "exitCode": 1,
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v44/v44-magicbane-monster-probe-cfirst.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/differentials/v44-magicbane-monster-probe-cfirst.diff.log",
+        "logSha256": "63b0d6e461e749bbdb0fdd253c10dc0ae5adcb71140025c86c2abed8444d4499",
+        "summary": "PRNG length mismatch: C=5192, JS=5256\nFirst PRNG mismatch at call 5193:\nScreen length: C=108, JS=108\nFirst screen mismatch at boundary 104 (segment 1, step 104, key \" \"):\nCursor length: C=108, JS=108\nFirst cursor mismatch at boundary 104 (segment 1, step 104, key \" \"):\nAnimation frame length: C=0, JS=0\nRESULT: FAIL"
+      },
+      "firstMismatch": {
+        "step": 104,
+        "boundary": 104,
+        "key": " ",
+        "rngCall": 5193,
+        "owner": "artifact.c:Mb_hit -> zap.c:probe_monster(mdef)",
+        "description": "The reached MB_INDEX_PROBE arm calls probe_monster(mdef) in C, while JavaScript Mb_hit stops at note_unported(\"zap.c probe_monster\")."
+      },
+      "distinctMismatch": true,
+      "mismatchOrdinal": 1,
+      "closestEarlierCases": [
+        "v40-magicbane-monster-probe-on-hit",
+        "v12:probing-wand-reveals-hostile-grid-bug",
+        "v44-probe-hostile-soldier-west-inventory-complete-cfirst"
+      ],
+      "priorBatchComparison": {
+        "batch": "v43",
+        "manifest": {
+          "path": "challenges/manifests/v43.json",
+          "sha256": "1c3d261b1ce819f81c1b8bf4c82ad40c70f140f80ac85fade579dbb27b8efb25"
+        },
+        "caseIds": [
+          "v43-minetn-6-special-program",
+          "v43-artifact-hit-zombie-east-corrected",
+          "v43-healing-potion-strong-weapon-complete-messages-cfirst",
+          "v43-healing-potion-wounded-monster-corrected-cfirst",
+          "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+          "v43-monster-teleport-trap-relocation-cfirst",
+          "v43-demonpet-barbed-devil-one-attack-seed2-cfirst",
+          "v43-lit-lamp-light-radius-transition-cfirst",
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v43-poisoned-fountain-drink-seed3-cfirst",
+          "v43-priest-temple-eight-direction-probe-cfirst",
+          "v43-wiz-loca-special-program-cfirst",
+          "v43-leprechaun-attacks-after-wake-cfirst",
+          "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "v43-keystone-kop-return-startup2-cfirst",
+          "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "v43-castle-special-program",
+          "v43-wizard1-special-program",
+          "v43-wizard3-special-program",
+          "v43-vorpal-jabberwock-level30-corrected-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v40-magicbane-monster-probe-on-hit",
+          "v12:probing-wand-reveals-hostile-grid-bug",
+          "v44-probe-hostile-soldier-west-inventory-complete-cfirst"
+        ],
+        "result": "The v40 Magicbane case selected MB_INDEX_CANCEL and did not reach MB_INDEX_PROBE. The v12 and v44 direct wand cases invoke probe_monster through zap.c; this case reaches the missing artifact.c:Mb_hit caller wiring. At the first differential gap, C has 5192 RNG calls versus JS 5256; the first screen/cursor divergence is boundary 104 on the space input. The source caller gap is the counted behavior; later RNG displacement is secondary."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5825651abd074d798ee348bd3c1b150f34fea71352b02caa94d748e0f07a7fa7",
+        "caseIds": [
+          null
+        ],
+        "result": "Crosswalked against the current saved combined-queue candidates; the only queued v43 behavior is mounted ordinary stair descent, separate from this case except where explicitly named as a comparison."
+      }
+    },
+    {
+      "id": "v44-probe-hostile-soldier-west-inventory-complete-cfirst",
+      "title": "probe hostile soldier west inventory complete cfirst",
+      "mission": "Wizard with a charged wand of probing and a visible hostile soldier with an inventory. Actions: Wish the wand and soldier, inspect the map, then zap the soldier from the observed west-facing route.",
+      "sourcePointers": [
+        "zap.c:probe_monster for a hostile soldier carrying objects, through the direct wand-of-probing path"
+      ],
+      "sourceTrace": "C source path: zap.c:probe_monster for a hostile soldier carrying objects, through the direct wand-of-probing path. C observation: C displays the soldier status and carried inventory through the direct wand caller; independent replay and current-Main differential match completely.",
+      "cOutcome": "C displays the soldier status and carried inventory through the direct wand caller; independent replay and current-Main differential match completely.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned before JS comparison as an independent C-first candidate. The reached behavior is a complete JavaScript match and is retained as a distinct control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 44000101,
+            "datetime": "20550418192021",
+            "moves": "#wizwish\nuncursed wand of probing\n#wizgenesis\nhostile soldier\n#wizmap\nzoh ",
+            "nethackrc": "OPTIONS=name:V44SoldierProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v44/v44-probe-hostile-soldier-west-inventory-complete-cfirst.recipe.session.json",
+      "recipeSha256": "6f398ae6ea512f12364f907beaa6f32b677f5f76b04fe1df5d11c18d666a9499",
+      "recording": "challenges/cases/v44/v44-probe-hostile-soldier-west-inventory-complete-cfirst.session.json",
+      "recordingSha256": "3a43aee52f54db3f026476b00229ec505ae058d7b1cc8cff3943a8b13e1cff87",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v44-probe-hostile-soldier-west-inventory-complete-cfirst",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v44/v44-probe-hostile-soldier-west-inventory-complete-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep8-v44/final-validation/replays/v44-probe-hostile-soldier-west-inventory-complete-cfirst.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-probe-hostile-soldier-west-inventory-complete-cfirst.log",
+        "logSha256": "f37abd702b18a9bd11b37fe9dbe4b73984ae3eeccd389b13c78cf11d0154c5c3",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v44/v44-probe-hostile-soldier-west-inventory-complete-cfirst.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-probe-hostile-soldier-west-inventory-complete-cfirst.session.json",
+        "outputSha256": "3a43aee52f54db3f026476b00229ec505ae058d7b1cc8cff3943a8b13e1cff87",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v44-probe-hostile-soldier-west-inventory-complete-cfirst",
+        "result": "PASS",
+        "exitCode": 0,
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v44/v44-probe-hostile-soldier-west-inventory-complete-cfirst.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/differentials/v44-probe-hostile-soldier-west-inventory-complete-cfirst.diff.log",
+        "logSha256": "4e0f9481d614bc61e8ed1fc05bd80201c96696a0b3604bb377219f6d09f2facb",
+        "summary": "PRNG length: C=2564, JS=2564\nScreen length: C=75, JS=75\nCursor length: C=75, JS=75\nAnimation frame length: C=0, JS=0\nRESULT: PASS"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v12:probing-wand-reveals-hostile-grid-bug",
+        "v18:wizard-probes-hostile-orc-c59-more-continued",
+        "v40-magicbane-monster-probe-on-hit"
+      ],
+      "priorBatchComparison": {
+        "batch": "v43",
+        "manifest": {
+          "path": "challenges/manifests/v43.json",
+          "sha256": "1c3d261b1ce819f81c1b8bf4c82ad40c70f140f80ac85fade579dbb27b8efb25"
+        },
+        "caseIds": [
+          "v43-minetn-6-special-program",
+          "v43-artifact-hit-zombie-east-corrected",
+          "v43-healing-potion-strong-weapon-complete-messages-cfirst",
+          "v43-healing-potion-wounded-monster-corrected-cfirst",
+          "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+          "v43-monster-teleport-trap-relocation-cfirst",
+          "v43-demonpet-barbed-devil-one-attack-seed2-cfirst",
+          "v43-lit-lamp-light-radius-transition-cfirst",
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v43-poisoned-fountain-drink-seed3-cfirst",
+          "v43-priest-temple-eight-direction-probe-cfirst",
+          "v43-wiz-loca-special-program-cfirst",
+          "v43-leprechaun-attacks-after-wake-cfirst",
+          "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "v43-keystone-kop-return-startup2-cfirst",
+          "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "v43-castle-special-program",
+          "v43-wizard1-special-program",
+          "v43-wizard3-special-program",
+          "v43-vorpal-jabberwock-level30-corrected-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v12:probing-wand-reveals-hostile-grid-bug",
+          "v18:wizard-probes-hostile-orc-c59-more-continued",
+          "v40-magicbane-monster-probe-on-hit"
+        ],
+        "result": "This is a direct zap.c wand caller with a hostile soldier inventory and matching output. It supplies a same-helper control for the v44 Magicbane path, whose first gap is the artifact.c caller wiring."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5825651abd074d798ee348bd3c1b150f34fea71352b02caa94d748e0f07a7fa7",
+        "caseIds": [
+          null
+        ],
+        "result": "Crosswalked against the current saved combined-queue candidates; the only queued v43 behavior is mounted ordinary stair descent, separate from this case except where explicitly named as a comparison."
+      }
+    },
+    {
+      "id": "v44-knight-mounted-polymorph-steed-northwest-corrected-cfirst",
+      "title": "knight mounted polymorph steed northwest corrected cfirst",
+      "mission": "Knight riding the starting horse with an uncursed potion of polymorph in inventory. Actions: Inspect the starting map, confirm the mount, wish the potion, quaff it, then answer the source-confirmed direction selector.",
+      "sourcePointers": [
+        "polyself.c:polymon -> steed.c:poly_steed for a mounted Knight quaffing a polymorph potion"
+      ],
+      "sourceTrace": "C source path: polyself.c:polymon -> steed.c:poly_steed for a mounted Knight quaffing a polymorph potion. C observation: C reaches the mounted polymorph/steed handling branch and resolves it; current JavaScript output matches at 2974 RNG calls and 57 screens/cursors.",
+      "cOutcome": "C reaches the mounted polymorph/steed handling branch and resolves it; current JavaScript output matches at 2974 RNG calls and 57 screens/cursors.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned before JS comparison as an independent C-first candidate. The reached behavior is a complete JavaScript match and is retained as a distinct control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 44000503,
+            "datetime": "20550319202122",
+            "moves": "#wizmap\n#ride\nyy#wizwish\nuncursed potion of polymorph\nqi",
+            "nethackrc": "OPTIONS=name:V44KnightSteed,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v44/v44-knight-mounted-polymorph-steed-northwest-corrected-cfirst.recipe.session.json",
+      "recipeSha256": "f7f6a67b56913d2a9672b373225e27b0b044dfc4cf14a9e36cd2532df6baba10",
+      "recording": "challenges/cases/v44/v44-knight-mounted-polymorph-steed-northwest-corrected-cfirst.session.json",
+      "recordingSha256": "5b87daf0df811ef25a97ace8e4e405d5eae593b25f202c4f3a6e8f5e01e2a355",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v44-knight-mounted-polymorph-steed-northwest-corrected-cfirst",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v44/v44-knight-mounted-polymorph-steed-northwest-corrected-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep8-v44/final-validation/replays/v44-knight-mounted-polymorph-steed-northwest-corrected-cfirst.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-knight-mounted-polymorph-steed-northwest-corrected-cfirst.log",
+        "logSha256": "cf0d7365f951c936cd5c1fa1e57cb85d0b0af0871a33bf89e0f088f5acd2873e",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v44/v44-knight-mounted-polymorph-steed-northwest-corrected-cfirst.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-knight-mounted-polymorph-steed-northwest-corrected-cfirst.session.json",
+        "outputSha256": "5b87daf0df811ef25a97ace8e4e405d5eae593b25f202c4f3a6e8f5e01e2a355",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v44-knight-mounted-polymorph-steed-northwest-corrected-cfirst",
+        "result": "PASS",
+        "exitCode": 0,
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v44/v44-knight-mounted-polymorph-steed-northwest-corrected-cfirst.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/differentials/v44-knight-mounted-polymorph-steed-northwest-corrected-cfirst.diff.log",
+        "logSha256": "b2bf78ba4fd9e40097097f658e82619beac545f1ff1522e451aab9f5abe27a9f",
+        "summary": "PRNG length: C=2974, JS=2974\nScreen length: C=57, JS=57\nCursor length: C=57, JS=57\nAnimation frame length: C=0, JS=0\nRESULT: PASS"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v39-mounted-steed-polymorph-trap",
+        "v43-mounted-steed-stair-descent-pager-2-cfirst",
+        "v41-forced-steed-dismount-at-pool"
+      ],
+      "priorBatchComparison": {
+        "batch": "v43",
+        "manifest": {
+          "path": "challenges/manifests/v43.json",
+          "sha256": "1c3d261b1ce819f81c1b8bf4c82ad40c70f140f80ac85fade579dbb27b8efb25"
+        },
+        "caseIds": [
+          "v43-minetn-6-special-program",
+          "v43-artifact-hit-zombie-east-corrected",
+          "v43-healing-potion-strong-weapon-complete-messages-cfirst",
+          "v43-healing-potion-wounded-monster-corrected-cfirst",
+          "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+          "v43-monster-teleport-trap-relocation-cfirst",
+          "v43-demonpet-barbed-devil-one-attack-seed2-cfirst",
+          "v43-lit-lamp-light-radius-transition-cfirst",
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v43-poisoned-fountain-drink-seed3-cfirst",
+          "v43-priest-temple-eight-direction-probe-cfirst",
+          "v43-wiz-loca-special-program-cfirst",
+          "v43-leprechaun-attacks-after-wake-cfirst",
+          "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "v43-keystone-kop-return-startup2-cfirst",
+          "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "v43-castle-special-program",
+          "v43-wizard1-special-program",
+          "v43-wizard3-special-program",
+          "v43-vorpal-jabberwock-level30-corrected-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v39-mounted-steed-polymorph-trap",
+          "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "v41-forced-steed-dismount-at-pool"
+        ],
+        "result": "The v39 case reaches the tame mounted old-name failure before poly_steed; v43 and v41 cover stair descent and pool dismount. This is a potion-driven mounted polymorph path and a complete match."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5825651abd074d798ee348bd3c1b150f34fea71352b02caa94d748e0f07a7fa7",
+        "caseIds": [
+          null
+        ],
+        "result": "Crosswalked against the current saved combined-queue candidates; the only queued v43 behavior is mounted ordinary stair descent, separate from this case except where explicitly named as a comparison."
+      }
+    },
+    {
+      "id": "v44-quest-leader-encouragement-second-audience-date-corrected-cfirst",
+      "title": "quest leader encouragement second audience date corrected cfirst",
+      "mission": "Wizard with a peaceful generated Neferet; the first audience assigns the quest and the hero has no quest artifact. Actions: Use a non-full-moon date, create Neferet, dismiss the initial map page, chat once to receive the assignment, dismiss that pager, then chat a second time.",
+      "sourcePointers": [
+        "quest.c:chat_with_leader Rule 4 -> qt_pager(\"encourage\") after Qstat(got_quest) is true and the quest artifact is absent"
+      ],
+      "sourceTrace": "C source path: quest.c:chat_with_leader Rule 4 -> qt_pager(\"encourage\") after Qstat(got_quest) is true and the quest artifact is absent. C observation: C reaches the second-audience encouragement pager with the required quest status; fresh JS differential matches at 2797 RNG calls, 63 screens/cursors, and no animation frames.",
+      "cOutcome": "C reaches the second-audience encouragement pager with the required quest status; fresh JS differential matches at 2797 RNG calls, 63 screens/cursors, and no animation frames.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned before JS comparison as an independent C-first candidate. The reached behavior is a complete JavaScript match and is retained as a distinct control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 44000842,
+            "datetime": "20561213141521",
+            "moves": "#wizgenesis\npeaceful Neferet the Green\ny#wizmap\n#chat\nj#chat\nj",
+            "nethackrc": "OPTIONS=name:V44Encourage2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v44/v44-quest-leader-encouragement-second-audience-date-corrected-cfirst.recipe.session.json",
+      "recipeSha256": "bfdda283537126d4307b8a4994d9921ff2676e882f85566e6947588f10ffc629",
+      "recording": "challenges/cases/v44/v44-quest-leader-encouragement-second-audience-date-corrected-cfirst.session.json",
+      "recordingSha256": "f3ce7a2832cf39ea9f932ea6ce391ce9f4994766a1fb3230fe33284ba0f36909",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v44-quest-leader-encouragement-second-audience-date-corrected-cfirst",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v44/v44-quest-leader-encouragement-second-audience-date-corrected-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep8-v44/final-validation/replays/v44-quest-leader-encouragement-second-audience-date-corrected-cfirst.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-quest-leader-encouragement-second-audience-date-corrected-cfirst.log",
+        "logSha256": "e046759a22f90b0ad57837f61d4c9e58e2230ef382bc8131b980243a6f08a763",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v44/v44-quest-leader-encouragement-second-audience-date-corrected-cfirst.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-quest-leader-encouragement-second-audience-date-corrected-cfirst.session.json",
+        "outputSha256": "f3ce7a2832cf39ea9f932ea6ce391ce9f4994766a1fb3230fe33284ba0f36909",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v44-quest-leader-encouragement-second-audience-date-corrected-cfirst",
+        "result": "PASS",
+        "exitCode": 0,
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v44/v44-quest-leader-encouragement-second-audience-date-corrected-cfirst.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/differentials/v44-quest-leader-encouragement-second-audience-date-corrected-cfirst.diff.log",
+        "logSha256": "2461741e23de0587497350af602001fd861243f7a904db4971e0137a7487f8b9",
+        "summary": "PRNG length: C=2797, JS=2797\nScreen length: C=63, JS=63\nCursor length: C=63, JS=63\nAnimation frame length: C=0, JS=0\nRESULT: PASS"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v43-quest-nemesis-death-wizard-corrected-cfirst",
+        "v44-quest-leader-first-audience-qstart",
+        "v44-quest-artifact-presented-peaceful-neferet-south-cfirst"
+      ],
+      "priorBatchComparison": {
+        "batch": "v43",
+        "manifest": {
+          "path": "challenges/manifests/v43.json",
+          "sha256": "1c3d261b1ce819f81c1b8bf4c82ad40c70f140f80ac85fade579dbb27b8efb25"
+        },
+        "caseIds": [
+          "v43-minetn-6-special-program",
+          "v43-artifact-hit-zombie-east-corrected",
+          "v43-healing-potion-strong-weapon-complete-messages-cfirst",
+          "v43-healing-potion-wounded-monster-corrected-cfirst",
+          "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+          "v43-monster-teleport-trap-relocation-cfirst",
+          "v43-demonpet-barbed-devil-one-attack-seed2-cfirst",
+          "v43-lit-lamp-light-radius-transition-cfirst",
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v43-poisoned-fountain-drink-seed3-cfirst",
+          "v43-priest-temple-eight-direction-probe-cfirst",
+          "v43-wiz-loca-special-program-cfirst",
+          "v43-leprechaun-attacks-after-wake-cfirst",
+          "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "v43-keystone-kop-return-startup2-cfirst",
+          "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "v43-castle-special-program",
+          "v43-wizard1-special-program",
+          "v43-wizard3-special-program",
+          "v43-vorpal-jabberwock-level30-corrected-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v44-quest-leader-first-audience-qstart",
+          "v44-quest-artifact-presented-peaceful-neferet-south-cfirst"
+        ],
+        "result": "This reaches the leader Rule 4 state on a second chat after assignment. The v43 case is a nemesis-death callback, the first-audience probe has no got_quest state yet, and the offering route has a quest artifact and a separate pager-selection gap."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5825651abd074d798ee348bd3c1b150f34fea71352b02caa94d748e0f07a7fa7",
+        "caseIds": [
+          null
+        ],
+        "result": "Crosswalked against the current saved combined-queue candidates; the only queued v43 behavior is mounted ordinary stair descent, separate from this case except where explicitly named as a comparison."
+      }
+    },
+    {
+      "id": "v44-read-create-monster-scroll-wizard-corrected-cfirst",
+      "title": "read create monster scroll wizard corrected cfirst",
+      "mission": "Wizard with a known uncursed scroll of create monster on a floor with available monster locations. Actions: Wish the scroll, read it, dismiss the resulting page, and direct the generated hostile goblin through the C-confirmed selector.",
+      "sourcePointers": [
+        "read.c:seffects -> seffect_create_monster from reading an uncursed scroll of create monster"
+      ],
+      "sourceTrace": "C source path: read.c:seffects -> seffect_create_monster from reading an uncursed scroll of create monster. C observation: C completes the scroll-driven create-monster effect; independent replay and current-Main differential match at 2988 RNG calls and 55 screens/cursors.",
+      "cOutcome": "C completes the scroll-driven create-monster effect; independent replay and current-Main differential match at 2988 RNG calls and 55 screens/cursors.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned before JS comparison as an independent C-first candidate. The reached behavior is a complete JavaScript match and is retained as a distinct control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 44000201,
+            "datetime": "20540611121314",
+            "moves": "#wizwish\nuncursed scroll of create monster\n rj goblin\n",
+            "nethackrc": "OPTIONS=name:V44CreateMon,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v44/v44-read-create-monster-scroll-wizard-corrected-cfirst.recipe.session.json",
+      "recipeSha256": "43535c521c73babddd008195656da16ce05bc2d74b69ccd96bfd0557229b5f06",
+      "recording": "challenges/cases/v44/v44-read-create-monster-scroll-wizard-corrected-cfirst.session.json",
+      "recordingSha256": "ebc2718ab3289329f20d4207f01219b71a9aa860be8a6253e7e2e6c82a14f8b4",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v44-read-create-monster-scroll-wizard-corrected-cfirst",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v44/v44-read-create-monster-scroll-wizard-corrected-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep8-v44/final-validation/replays/v44-read-create-monster-scroll-wizard-corrected-cfirst.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-read-create-monster-scroll-wizard-corrected-cfirst.log",
+        "logSha256": "42620ed340c644245373c49300137c9b632f3b9b617bf8c728cde0295314845b",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v44/v44-read-create-monster-scroll-wizard-corrected-cfirst.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-read-create-monster-scroll-wizard-corrected-cfirst.session.json",
+        "outputSha256": "ebc2718ab3289329f20d4207f01219b71a9aa860be8a6253e7e2e6c82a14f8b4",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v44-read-create-monster-scroll-wizard-corrected-cfirst",
+        "result": "PASS",
+        "exitCode": 0,
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v44/v44-read-create-monster-scroll-wizard-corrected-cfirst.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/differentials/v44-read-create-monster-scroll-wizard-corrected-cfirst.diff.log",
+        "logSha256": "c6b1ecd60379c1d8dac800f5d538dcb0ba51ac79120f6f83db375bb26ecfd77c",
+        "summary": "PRNG length: C=2988, JS=2988\nScreen length: C=55, JS=55\nCursor length: C=55, JS=55\nAnimation frame length: C=0, JS=0\nRESULT: PASS"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v28:v28-engrave-create-monster",
+        "v34:v34-cursed-create-monsters",
+        "v12:probing-wand-reveals-hostile-grid-bug"
+      ],
+      "priorBatchComparison": {
+        "batch": "v43",
+        "manifest": {
+          "path": "challenges/manifests/v43.json",
+          "sha256": "1c3d261b1ce819f81c1b8bf4c82ad40c70f140f80ac85fade579dbb27b8efb25"
+        },
+        "caseIds": [
+          "v43-minetn-6-special-program",
+          "v43-artifact-hit-zombie-east-corrected",
+          "v43-healing-potion-strong-weapon-complete-messages-cfirst",
+          "v43-healing-potion-wounded-monster-corrected-cfirst",
+          "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+          "v43-monster-teleport-trap-relocation-cfirst",
+          "v43-demonpet-barbed-devil-one-attack-seed2-cfirst",
+          "v43-lit-lamp-light-radius-transition-cfirst",
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v43-poisoned-fountain-drink-seed3-cfirst",
+          "v43-priest-temple-eight-direction-probe-cfirst",
+          "v43-wiz-loca-special-program-cfirst",
+          "v43-leprechaun-attacks-after-wake-cfirst",
+          "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "v43-keystone-kop-return-startup2-cfirst",
+          "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "v43-castle-special-program",
+          "v43-wizard1-special-program",
+          "v43-wizard3-special-program",
+          "v43-vorpal-jabberwock-level30-corrected-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v28:v28-engrave-create-monster",
+          "v34:v34-cursed-create-monsters",
+          "v12:probing-wand-reveals-hostile-grid-bug"
+        ],
+        "result": "The read.c scroll caller and uncursed read action are separate from the earlier engraving and cursed-scroll paths."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5825651abd074d798ee348bd3c1b150f34fea71352b02caa94d748e0f07a7fa7",
+        "caseIds": [
+          null
+        ],
+        "result": "Crosswalked against the current saved combined-queue candidates; the only queued v43 behavior is mounted ordinary stair descent, separate from this case except where explicitly named as a comparison."
+      }
+    },
+    {
+      "id": "v44-archeologist-filler-program-cfirst",
+      "title": "archeologist filler program cfirst",
+      "mission": "Fresh Archeologist debug game. Actions: Run #wizloaddes, select Arc-fila.lua, then display the map with #wizmap.",
+      "sourcePointers": [
+        "whole dat/Arc-fila.lua program through wizcmds.c:wiz_load_splua and nhlua.c:load_special"
+      ],
+      "sourceTrace": "C source path: whole dat/Arc-fila.lua program through wizcmds.c:wiz_load_splua and nhlua.c:load_special. C observation: C executes the source program with its room/corridor generation; independent replay and current-Main differential match at 6930 RNG calls and 35 screens/cursors.",
+      "cOutcome": "C executes the source program with its room/corridor generation; independent replay and current-Main differential match at 6930 RNG calls and 35 screens/cursors.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned before JS comparison as an independent C-first candidate. The reached behavior is a complete JavaScript match and is retained as a distinct control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 44000001,
+            "datetime": "20540101101001",
+            "moves": " #wizloaddes\nArc-fila.lua\n#wizmap\n",
+            "nethackrc": "OPTIONS=name:archeologis,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v44/v44-archeologist-filler-program-cfirst.recipe.session.json",
+      "recipeSha256": "a2a7513cd9bf91f3fb723c6d549f4281ad56feb2d660f163010da0fd02d5d82f",
+      "recording": "challenges/cases/v44/v44-archeologist-filler-program-cfirst.session.json",
+      "recordingSha256": "937a0d5ac6670707630e5c7a6c914a0af7215115f696fc305383a697b03234fb",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v44-archeologist-filler-program-cfirst",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v44/v44-archeologist-filler-program-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep8-v44/final-validation/replays/v44-archeologist-filler-program-cfirst.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-archeologist-filler-program-cfirst.log",
+        "logSha256": "774c4cab2eddd2a3afda93d2c77781e56a43add68830dd006d22ad66a9b7cbf5",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v44/v44-archeologist-filler-program-cfirst.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-archeologist-filler-program-cfirst.session.json",
+        "outputSha256": "937a0d5ac6670707630e5c7a6c914a0af7215115f696fc305383a697b03234fb",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v44-archeologist-filler-program-cfirst",
+        "result": "PASS",
+        "exitCode": 0,
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v44/v44-archeologist-filler-program-cfirst.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/differentials/v44-archeologist-filler-program-cfirst.diff.log",
+        "logSha256": "06baec438ed7f5ddbbfebc35a4f16a06d7d760d19ec32e0da344458f85622a0c",
+        "summary": "PRNG length: C=6930, JS=6930\nScreen length: C=35, JS=35\nCursor length: C=35, JS=35\nAnimation frame length: C=0, JS=0\nRESULT: PASS"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v36-quest-arc-strt",
+        "v42-baalz-special-program",
+        "v43-castle-special-program"
+      ],
+      "priorBatchComparison": {
+        "batch": "v43",
+        "manifest": {
+          "path": "challenges/manifests/v43.json",
+          "sha256": "1c3d261b1ce819f81c1b8bf4c82ad40c70f140f80ac85fade579dbb27b8efb25"
+        },
+        "caseIds": [
+          "v43-minetn-6-special-program",
+          "v43-artifact-hit-zombie-east-corrected",
+          "v43-healing-potion-strong-weapon-complete-messages-cfirst",
+          "v43-healing-potion-wounded-monster-corrected-cfirst",
+          "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+          "v43-monster-teleport-trap-relocation-cfirst",
+          "v43-demonpet-barbed-devil-one-attack-seed2-cfirst",
+          "v43-lit-lamp-light-radius-transition-cfirst",
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v43-poisoned-fountain-drink-seed3-cfirst",
+          "v43-priest-temple-eight-direction-probe-cfirst",
+          "v43-wiz-loca-special-program-cfirst",
+          "v43-leprechaun-attacks-after-wake-cfirst",
+          "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "v43-keystone-kop-return-startup2-cfirst",
+          "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "v43-castle-special-program",
+          "v43-wizard1-special-program",
+          "v43-wizard3-special-program",
+          "v43-vorpal-jabberwock-level30-corrected-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v36-quest-arc-strt",
+          "v42-baalz-special-program",
+          "v43-castle-special-program"
+        ],
+        "result": "The direct filler program is a separate Lua source unit from Arc-strt quest generation and the prior Baalz/Castle program controls."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5825651abd074d798ee348bd3c1b150f34fea71352b02caa94d748e0f07a7fa7",
+        "caseIds": [
+          null
+        ],
+        "result": "Crosswalked against the current saved combined-queue candidates; the only queued v43 behavior is mounted ordinary stair descent, separate from this case except where explicitly named as a comparison."
+      }
+    },
+    {
+      "id": "v44-wizgenesis-forced-neferet-leaddead-cfirst",
+      "title": "wizgenesis forced neferet leaddead cfirst",
+      "mission": "Wizard debug game with hostile Neferet generated on the current map. Actions: Generate Neferet, inspect the map, then select her with #wizkill and confirm the kill.",
+      "sourcePointers": [
+        "mon.c:mondead -> questpgr.c:leaddead for a killed MS_LEADER quest leader"
+      ],
+      "sourceTrace": "C source path: mon.c:mondead -> questpgr.c:leaddead for a killed MS_LEADER quest leader. C observation: C reaches the quest-leader death/leaddead path; independent replay and current-Main differential match at 2188 RNG calls and 64 screens/cursors.",
+      "cOutcome": "C reaches the quest-leader death/leaddead path; independent replay and current-Main differential match at 2188 RNG calls and 64 screens/cursors.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned before JS comparison as an independent C-first candidate. The reached behavior is a complete JavaScript match and is retained as a distinct control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 44000306,
+            "datetime": "20540716171819",
+            "moves": "#wizgenesis\nhostile Neferet the Green\ny#wizmap\n#wizkill\n  m.y \u001b",
+            "nethackrc": "OPTIONS=name:V44QuestLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v44/v44-wizgenesis-forced-neferet-leaddead-cfirst.recipe.session.json",
+      "recipeSha256": "0c99c18a4712cb368d19c92e95911a3fc05c5720172751831fbec7ccbb5d8548",
+      "recording": "challenges/cases/v44/v44-wizgenesis-forced-neferet-leaddead-cfirst.session.json",
+      "recordingSha256": "5d8ffee59cc00fbd583f17e05d232c9481bf10f848227b4dd5fa9d4941846133",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v44-wizgenesis-forced-neferet-leaddead-cfirst",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v44/v44-wizgenesis-forced-neferet-leaddead-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep8-v44/final-validation/replays/v44-wizgenesis-forced-neferet-leaddead-cfirst.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-wizgenesis-forced-neferet-leaddead-cfirst.log",
+        "logSha256": "65aacab805d2ec81bf7c91ec5dc05de058bb61a52bfb1b37991c79f11f720915",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v44/v44-wizgenesis-forced-neferet-leaddead-cfirst.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-wizgenesis-forced-neferet-leaddead-cfirst.session.json",
+        "outputSha256": "5d8ffee59cc00fbd583f17e05d232c9481bf10f848227b4dd5fa9d4941846133",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v44-wizgenesis-forced-neferet-leaddead-cfirst",
+        "result": "PASS",
+        "exitCode": 0,
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v44/v44-wizgenesis-forced-neferet-leaddead-cfirst.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/differentials/v44-wizgenesis-forced-neferet-leaddead-cfirst.diff.log",
+        "logSha256": "2bc6f17f5f09955b75ef25e5d7492495b35f657b160a70c03351c5bbf87bfc56",
+        "summary": "PRNG length: C=2188, JS=2188\nScreen length: C=64, JS=64\nCursor length: C=64, JS=64\nAnimation frame length: C=0, JS=0\nRESULT: PASS"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v43-quest-nemesis-death-wizard-corrected-cfirst",
+        "v36-quest-wiz-strt"
+      ],
+      "priorBatchComparison": {
+        "batch": "v43",
+        "manifest": {
+          "path": "challenges/manifests/v43.json",
+          "sha256": "1c3d261b1ce819f81c1b8bf4c82ad40c70f140f80ac85fade579dbb27b8efb25"
+        },
+        "caseIds": [
+          "v43-minetn-6-special-program",
+          "v43-artifact-hit-zombie-east-corrected",
+          "v43-healing-potion-strong-weapon-complete-messages-cfirst",
+          "v43-healing-potion-wounded-monster-corrected-cfirst",
+          "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+          "v43-monster-teleport-trap-relocation-cfirst",
+          "v43-demonpet-barbed-devil-one-attack-seed2-cfirst",
+          "v43-lit-lamp-light-radius-transition-cfirst",
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v43-poisoned-fountain-drink-seed3-cfirst",
+          "v43-priest-temple-eight-direction-probe-cfirst",
+          "v43-wiz-loca-special-program-cfirst",
+          "v43-leprechaun-attacks-after-wake-cfirst",
+          "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "v43-keystone-kop-return-startup2-cfirst",
+          "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "v43-castle-special-program",
+          "v43-wizard1-special-program",
+          "v43-wizard3-special-program",
+          "v43-vorpal-jabberwock-level30-corrected-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v36-quest-wiz-strt"
+        ],
+        "result": "The target is an MS_LEADER death transition; v43 owns the different MS_NEMESIS death callback."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5825651abd074d798ee348bd3c1b150f34fea71352b02caa94d748e0f07a7fa7",
+        "caseIds": [
+          null
+        ],
+        "result": "Crosswalked against the current saved combined-queue candidates; the only queued v43 behavior is mounted ordinary stair descent, separate from this case except where explicitly named as a comparison."
+      }
+    },
+    {
+      "id": "v44-quest-nemesis-speaks-first-approach-cfirst",
+      "title": "quest nemesis speaks first approach cfirst",
+      "mission": "Wizard debug game with a peaceful Dark One adjacent and Qstat(met_nemesis)=false. Actions: Generate the peaceful Dark One at the adjacent square, dismiss the genesis page, then let one monster turn run without #chat.",
+      "sourcePointers": [
+        "monmove.c:quest_talk -> quest.c:nemesis_speaks when a nearby peaceful nemesis acts before direct chat"
+      ],
+      "sourceTrace": "C source path: monmove.c:quest_talk -> quest.c:nemesis_speaks when a nearby peaceful nemesis acts before direct chat. C observation: C reaches the automatic first-speech pager and quest-state update; independent replay and current-Main differential match at 2728 RNG calls and 33 screens/cursors.",
+      "cOutcome": "C reaches the automatic first-speech pager and quest-state update; independent replay and current-Main differential match at 2728 RNG calls and 33 screens/cursors.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned before JS comparison as an independent C-first candidate. The reached behavior is a complete JavaScript match and is retained as a distinct control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 44000849,
+            "datetime": "20561213141521",
+            "moves": "#wizgenesis\npeaceful Dark One\ny.",
+            "nethackrc": "OPTIONS=name:V44NemesisSpeaks,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v44/v44-quest-nemesis-speaks-first-approach-cfirst.recipe.session.json",
+      "recipeSha256": "fb5383fc2e3992d62af83b0bab45438241a25fb5fc06e058cd02c30f9c7567e3",
+      "recording": "challenges/cases/v44/v44-quest-nemesis-speaks-first-approach-cfirst.session.json",
+      "recordingSha256": "75425cb140bf78a051873e400df04f5f94d97380423241e4511ecd9b0ccccee3",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v44-quest-nemesis-speaks-first-approach-cfirst",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v44/v44-quest-nemesis-speaks-first-approach-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep8-v44/final-validation/replays/v44-quest-nemesis-speaks-first-approach-cfirst.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-quest-nemesis-speaks-first-approach-cfirst.log",
+        "logSha256": "86c6e391033b3a617541bc8f2b8261cabd80ae2ce196db7088bf3782d23dc9b9",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v44/v44-quest-nemesis-speaks-first-approach-cfirst.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-quest-nemesis-speaks-first-approach-cfirst.session.json",
+        "outputSha256": "75425cb140bf78a051873e400df04f5f94d97380423241e4511ecd9b0ccccee3",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v44-quest-nemesis-speaks-first-approach-cfirst",
+        "result": "PASS",
+        "exitCode": 0,
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v44/v44-quest-nemesis-speaks-first-approach-cfirst.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/differentials/v44-quest-nemesis-speaks-first-approach-cfirst.diff.log",
+        "logSha256": "f3f57ab1891a7cff8f0d90843adb41b0d3e58a968b36aa5b51d1fe758b764cfb",
+        "summary": "PRNG length: C=2728, JS=2728\nScreen length: C=33, JS=33\nCursor length: C=33, JS=33\nAnimation frame length: C=0, JS=0\nRESULT: PASS"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v43-quest-nemesis-death-wizard-corrected-cfirst",
+        "v44-quest-chat-nemesis-south-corrected-cfirst",
+        "v44-quest-chat-guardian-southwest-corrected-cfirst"
+      ],
+      "priorBatchComparison": {
+        "batch": "v43",
+        "manifest": {
+          "path": "challenges/manifests/v43.json",
+          "sha256": "1c3d261b1ce819f81c1b8bf4c82ad40c70f140f80ac85fade579dbb27b8efb25"
+        },
+        "caseIds": [
+          "v43-minetn-6-special-program",
+          "v43-artifact-hit-zombie-east-corrected",
+          "v43-healing-potion-strong-weapon-complete-messages-cfirst",
+          "v43-healing-potion-wounded-monster-corrected-cfirst",
+          "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+          "v43-monster-teleport-trap-relocation-cfirst",
+          "v43-demonpet-barbed-devil-one-attack-seed2-cfirst",
+          "v43-lit-lamp-light-radius-transition-cfirst",
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v43-poisoned-fountain-drink-seed3-cfirst",
+          "v43-priest-temple-eight-direction-probe-cfirst",
+          "v43-wiz-loca-special-program-cfirst",
+          "v43-leprechaun-attacks-after-wake-cfirst",
+          "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "v43-keystone-kop-return-startup2-cfirst",
+          "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "v43-castle-special-program",
+          "v43-wizard1-special-program",
+          "v43-wizard3-special-program",
+          "v43-vorpal-jabberwock-level30-corrected-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v44-quest-chat-nemesis-south-corrected-cfirst",
+          "v44-quest-chat-guardian-southwest-corrected-cfirst"
+        ],
+        "result": "This is the automatic monmove.c quest_talk caller with no prior chat. The adjacent direct-chat attempts have an earlier generic nhlib.lua pager-selection overlap and are excluded."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5825651abd074d798ee348bd3c1b150f34fea71352b02caa94d748e0f07a7fa7",
+        "caseIds": [
+          null
+        ],
+        "result": "Crosswalked against the current saved combined-queue candidates; the only queued v43 behavior is mounted ordinary stair descent, separate from this case except where explicitly named as a comparison."
+      }
+    },
+    {
+      "id": "v44-castle-wished-hole-goto-hell-cfirst",
+      "title": "castle wished hole goto hell cfirst",
+      "mission": "Wizard directly level-ported to the Castle, holding a wished hole, standing by the selected floor/trap location. Actions: Choose the Castle through #wizlevelport, dismiss its pager, wish a hole, then descend through it.",
+      "sourcePointers": [
+        "trap.c:dotrap -> dungeon.c:goto_hell(FALSE, TRUE) for a fall through the wished hole at the Castle"
+      ],
+      "sourceTrace": "C source path: trap.c:dotrap -> dungeon.c:goto_hell(FALSE, TRUE) for a fall through the wished hole at the Castle. C observation: C completes the hole/fall-to-Valley route; independent replay and current-Main differential match at 23502 RNG calls and 35 screens/cursors.",
+      "cOutcome": "C completes the hole/fall-to-Valley route; independent replay and current-Main differential match at 23502 RNG calls and 35 screens/cursors.",
+      "actualTargetMiss": false,
+      "selectionRationale": "Planned before JS comparison as an independent C-first candidate. The reached behavior is a complete JavaScript match and is retained as a distinct control.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 44000847,
+            "datetime": "20561011142307",
+            "moves": "#wizlevelport\n?\nj  #wizwish\nhole\n>",
+            "nethackrc": "OPTIONS=name:V44WishedHole,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v44/v44-castle-wished-hole-goto-hell-cfirst.recipe.session.json",
+      "recipeSha256": "914cb83f4a37a7bae84d76c8db024d3fc9d18cdac0487ff7c66f42f5378d522a",
+      "recording": "challenges/cases/v44/v44-castle-wished-hole-goto-hell-cfirst.session.json",
+      "recordingSha256": "9e871daf8dcb1bad3c610a4575c2ea12488f0d31e5be02ffdded0aecd94407de",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v44-castle-wished-hole-goto-hell-cfirst",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v44/v44-castle-wished-hole-goto-hell-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep8-v44/final-validation/replays/v44-castle-wished-hole-goto-hell-cfirst.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-castle-wished-hole-goto-hell-cfirst.log",
+        "logSha256": "97157f2d7145bbe212d09166dcf6dc0820a64bb6ec43df806a3cda7c9fe333ed",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v44/v44-castle-wished-hole-goto-hell-cfirst.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-castle-wished-hole-goto-hell-cfirst.session.json",
+        "outputSha256": "9e871daf8dcb1bad3c610a4575c2ea12488f0d31e5be02ffdded0aecd94407de",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v44-castle-wished-hole-goto-hell-cfirst",
+        "result": "PASS",
+        "exitCode": 0,
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v44/v44-castle-wished-hole-goto-hell-cfirst.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/differentials/v44-castle-wished-hole-goto-hell-cfirst.diff.log",
+        "logSha256": "8421cc5869db4b6bd52e2b5182c15098ab3c77783f597ad75b329f9b6ed7fa4f",
+        "summary": "PRNG length: C=23502, JS=23502\nScreen length: C=35, JS=35\nCursor length: C=35, JS=35\nAnimation frame length: C=0, JS=0\nRESULT: PASS"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v33-valley-special-level",
+        "v42-valley-special-program",
+        "v43-castle-special-program"
+      ],
+      "priorBatchComparison": {
+        "batch": "v43",
+        "manifest": {
+          "path": "challenges/manifests/v43.json",
+          "sha256": "1c3d261b1ce819f81c1b8bf4c82ad40c70f140f80ac85fade579dbb27b8efb25"
+        },
+        "caseIds": [
+          "v43-minetn-6-special-program",
+          "v43-artifact-hit-zombie-east-corrected",
+          "v43-healing-potion-strong-weapon-complete-messages-cfirst",
+          "v43-healing-potion-wounded-monster-corrected-cfirst",
+          "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+          "v43-monster-teleport-trap-relocation-cfirst",
+          "v43-demonpet-barbed-devil-one-attack-seed2-cfirst",
+          "v43-lit-lamp-light-radius-transition-cfirst",
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v43-poisoned-fountain-drink-seed3-cfirst",
+          "v43-priest-temple-eight-direction-probe-cfirst",
+          "v43-wiz-loca-special-program-cfirst",
+          "v43-leprechaun-attacks-after-wake-cfirst",
+          "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "v43-keystone-kop-return-startup2-cfirst",
+          "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "v43-castle-special-program",
+          "v43-wizard1-special-program",
+          "v43-wizard3-special-program",
+          "v43-vorpal-jabberwock-level30-corrected-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v33-valley-special-level",
+          "v42-valley-special-program",
+          "v43-castle-special-program"
+        ],
+        "result": "This is the gameplay trap-fall transition into Gehennom/Valley, not direct Valley or Castle Lua generation."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5825651abd074d798ee348bd3c1b150f34fea71352b02caa94d748e0f07a7fa7",
+        "caseIds": [
+          null
+        ],
+        "result": "Crosswalked against the current saved combined-queue candidates; the only queued v43 behavior is mounted ordinary stair descent, separate from this case except where explicitly named as a comparison."
+      }
+    },
+    {
+      "id": "v44-overcrowding-covetous-lichen-ring-probe-cfirst",
+      "title": "overcrowding covetous lichen ring probe cfirst",
+      "mission": "Wizard debug game with a tame lichen, hostile Wizard of Yendor, and repeated monster turns. Actions: Create both monsters, inspect their positions, then allow the recorded wait/movement sequence.",
+      "sourcePointers": [
+        "Candidate for mon.c:deal_with_overcrowding; the planned no-legal-relocation/limbo state was not established"
+      ],
+      "sourceTrace": "C source path: Candidate for mon.c:deal_with_overcrowding; the planned no-legal-relocation/limbo state was not established. C observation: This valid route does not establish the no-legal-square limbo transfer; its recorded C behavior matches JS at 3382 RNG calls, 85 screens/cursors, and one frame.",
+      "cOutcome": "This valid route does not establish the no-legal-square limbo transfer; its recorded C behavior matches JS at 3382 RNG calls, 85 screens/cursors, and one frame.",
+      "actualTargetMiss": true,
+      "selectionRationale": "Planned before JS comparison as an independent C-first candidate. The intended target was missed, but this valid route is retained with its full match evidence.",
+      "outcome": "match",
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 44000835,
+            "datetime": "20550418192021",
+            "moves": "8#wizgenesis\ntame lichen\n  #wizgenesis\nhostile Wizard of Yendor\ny. . . . . . . . . .",
+            "nethackrc": "OPTIONS=name:V44OvercrowdingLichens,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n"
+          }
+        ]
+      },
+      "recipe": "challenges/cases/v44/v44-overcrowding-covetous-lichen-ring-probe-cfirst.recipe.session.json",
+      "recipeSha256": "df84f0422b388db152e092478a07dde80be02f252788caf1f984ceafea6d4b40",
+      "recording": "challenges/cases/v44/v44-overcrowding-covetous-lichen-ring-probe-cfirst.session.json",
+      "recordingSha256": "b6ecac50bcceeca907b2cc0451425791f42382649d0719c79178d55856cd3ec7",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v44-overcrowding-covetous-lichen-ring-probe-cfirst",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v44/v44-overcrowding-covetous-lichen-ring-probe-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep8-v44/final-validation/replays/v44-overcrowding-covetous-lichen-ring-probe-cfirst.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-overcrowding-covetous-lichen-ring-probe-cfirst.log",
+        "logSha256": "51924de1f557b4c389d253db85c5d4a05f9f16ca6ef1d5ab466ba017f20bf9e8",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v44/v44-overcrowding-covetous-lichen-ring-probe-cfirst.session.json",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/replays/v44-overcrowding-covetous-lichen-ring-probe-cfirst.session.json",
+        "outputSha256": "b6ecac50bcceeca907b2cc0451425791f42382649d0719c79178d55856cd3ec7",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v44-overcrowding-covetous-lichen-ring-probe-cfirst",
+        "result": "PASS",
+        "exitCode": 0,
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v44/v44-overcrowding-covetous-lichen-ring-probe-cfirst.recipe.session.json"
+        ],
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep8-v44/final-validation/differentials/v44-overcrowding-covetous-lichen-ring-probe-cfirst.diff.log",
+        "logSha256": "a742420ec81c24305b7b59ad00072566c65bd5d926fac7bfbc9dc63213ae070f",
+        "summary": "PRNG length: C=3382, JS=3382\nScreen length: C=85, JS=85\nCursor length: C=85, JS=85\nAnimation frame length: C=1, JS=1\nRESULT: PASS"
+      },
+      "firstMismatch": null,
+      "distinctMismatch": false,
+      "mismatchOrdinal": null,
+      "closestEarlierCases": [
+        "v43-monster-teleport-trap-relocation-cfirst",
+        "v41-polymorphed-hider-under-remaining-floor-object"
+      ],
+      "priorBatchComparison": {
+        "batch": "v43",
+        "manifest": {
+          "path": "challenges/manifests/v43.json",
+          "sha256": "1c3d261b1ce819f81c1b8bf4c82ad40c70f140f80ac85fade579dbb27b8efb25"
+        },
+        "caseIds": [
+          "v43-minetn-6-special-program",
+          "v43-artifact-hit-zombie-east-corrected",
+          "v43-healing-potion-strong-weapon-complete-messages-cfirst",
+          "v43-healing-potion-wounded-monster-corrected-cfirst",
+          "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+          "v43-monster-teleport-trap-relocation-cfirst",
+          "v43-demonpet-barbed-devil-one-attack-seed2-cfirst",
+          "v43-lit-lamp-light-radius-transition-cfirst",
+          "v43-quest-nemesis-death-wizard-corrected-cfirst",
+          "v43-poisoned-fountain-drink-seed3-cfirst",
+          "v43-priest-temple-eight-direction-probe-cfirst",
+          "v43-wiz-loca-special-program-cfirst",
+          "v43-leprechaun-attacks-after-wake-cfirst",
+          "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "v43-keystone-kop-return-startup2-cfirst",
+          "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "v43-castle-special-program",
+          "v43-wizard1-special-program",
+          "v43-wizard3-special-program",
+          "v43-vorpal-jabberwock-level30-corrected-cfirst"
+        ],
+        "closestEarlierCases": [
+          "v43-monster-teleport-trap-relocation-cfirst",
+          "v41-polymorphed-hider-under-remaining-floor-object"
+        ],
+        "result": "Retained only as a target miss and matching control; it does not count toward the mismatch total or establish deal_with_overcrowding."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5825651abd074d798ee348bd3c1b150f34fea71352b02caa94d748e0f07a7fa7",
+        "caseIds": [
+          null
+        ],
+        "result": "Crosswalked against the current saved combined-queue candidates; the only queued v43 behavior is mounted ordinary stair descent, separate from this case except where explicitly named as a comparison."
+      }
+    }
+  ],
+  "excludedOverlaps": [],
+  "unresolvedProbes": [],
+  "excludedSetupMisses": [],
+  "searchSummary": "The 16 initial candidates and six-case addendum were tested C-first. One distinct first mismatch survived the source and overlap crosswalk: Magicbane MB_INDEX_PROBE caller wiring. Reached matching controls and a valid target miss are retained. Quest-pager shuffle, generic place_lregion, safe_teleds, and distfleeck first gaps are excluded as overlapping behaviors; shop, vault and sanctum targets did not establish their source preconditions.",
+  "decision": "The orchestrator authorized a smaller one-mismatch v44 preparation batch after the repeated diverse search exhausted this slate and the queue was starved. Prepared only; not admitted or scored.",
+  "preservedAttemptInventory": {
+    "path": ".cache/prep-delivery/Prep8-v44/final-validation/attempt-file-inventory.json",
+    "sha256": "bc2ad5b2ce79f4ce01dd2c2e640bccc674a32a6460e812f2231e74caebc0dee1",
+    "fileCount": 340
+  }
+}

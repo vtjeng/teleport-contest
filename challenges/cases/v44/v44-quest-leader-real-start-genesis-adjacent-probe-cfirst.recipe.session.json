@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000902,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44QuestRealLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                   #wizlevelport\n?\n>y  #wizgenesis\npeaceful Neferet the Green\ny#wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-only setup probe: reach the real Wizard quest start via #wizlevelport, then create a peaceful Neferet near the levelport-selected hero tile so C can confirm the MS_LEADER first-audience route without estimating screen coordinates. Preserve earlier real-map teleport probes."
+}

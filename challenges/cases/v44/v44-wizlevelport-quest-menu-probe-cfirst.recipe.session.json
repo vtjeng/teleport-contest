@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000701,
+      "datetime": "20550417181920",
+      "nethackrc": "OPTIONS=name:V44LevelMenu,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\u001b",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first setup probe for a proper Wizard quest-start level: open the documented wizard-level-teleport destination menu and record whether the source special level is directly selectable without faking quest state."
+}

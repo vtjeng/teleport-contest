@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000828,
+      "datetime": "20561213141522",
+      "nethackrc": "OPTIONS=name:V44AlleyTown,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-3.lua\n#wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first whole Lua program candidate: load dat/minetn-3.lua (Alley Town) directly from a fresh Wizard debug game and reveal its generated alleys, houses, shops, temple, and guardians. This is a distinct program from the immediately preceding v43 Minetn-6 and older Minetn-5 cases; preserve the C program identity even if later comparison finds a shared helper overlap."
+}

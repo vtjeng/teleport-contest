@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first create-monster route after the reached wizard prompt: the scroll asks “Create what kind of monster?” in debug play because read.c:seffect_create_monster calls create_particular. Enter a normal goblin species to complete that source path.",
+  "segments": [
+    {
+      "seed": 44000201,
+      "datetime": "20540611121314",
+      "nethackrc": "OPTIONS=name:V44CreateMon,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nuncursed scroll of create monster\n rj goblin\n"
+    }
+  ]
+}

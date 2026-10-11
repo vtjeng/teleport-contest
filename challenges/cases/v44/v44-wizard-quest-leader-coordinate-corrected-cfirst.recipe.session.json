@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000304,
+      "datetime": "20540714151617",
+      "nethackrc": "OPTIONS=name:V44QuestLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-strt.lua\n#wizmap\n#wizkill\n  lllllllllllllllj.y \u001b",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected C-first quest-leader death route: after revealing the source map and clearing the kill prompt plus getpos tip, move the getpos cursor from the observed hero coordinate to Wiz-strt.lua source coordinate (23,05), select it, and inspect the kill confirmation/outcome."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000845,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44Encourage5,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                   #wizlevelport\n?\n>y  #wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first setup for quest-leader encouragement: reach Wizard level 20 via #levelchange, then use the source-confirmed #wizlevelport menu route to the real Wizard Quest start level (Wiz-strt) and inspect the live Neferet position before chatting."
+}

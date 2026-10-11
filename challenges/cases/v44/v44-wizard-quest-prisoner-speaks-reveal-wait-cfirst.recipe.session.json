@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000872,
+      "datetime": "20571223114408",
+      "nethackrc": "OPTIONS=name:V44PrisonerTarget,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-goal.lua\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhj.#wizmap\n."
+    }
+  ],
+  "comment": "C-first followup after the accepted Wizard teleport coordinate (36,11): expose the map around the destination and give the nearby captive a second turn to establish whether quest.c:prisoner_speaks is reached. Earlier teleport setup misses remain preserved."
+}

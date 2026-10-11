@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000803,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44MineTownScout,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>w  #wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first setup probe: select the source-generated Minetown special level through level_tele and inspect its shop layout."
+}

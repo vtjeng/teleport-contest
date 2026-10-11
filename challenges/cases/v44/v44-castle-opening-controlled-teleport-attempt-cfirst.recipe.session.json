@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000801,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44CastleScout,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\nj  #wizwish\nwand of opening\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkk.zn h",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first attempt to reach the Castle drawbridge side using wizard-controlled teleport, then zap the wished wand of opening west. Target coordinate is source Castle x=6,y=8; map alignment and arrival are being verified from C."
+}

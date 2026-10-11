@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000701,
+      "datetime": "20550417181920",
+      "nethackrc": "OPTIONS=name:V44LevelMenu,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first selector continuation: use the tty menu’s documented next-page key to inspect page 2 of wizard-level destinations for the Wizard quest-start special level."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000101,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44SoldierProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nuncursed wand of probing\n#wizgenesis\nhostile soldier\n#wizmap\nzoh "
+    }
+  ],
+  "comment": "C-only completion of the hostile-soldier probe: after west-targeting the soldier, dismiss the status page so the recording establishes the inventory disclosure or empty-inventory result, not only the initial status line."
+}

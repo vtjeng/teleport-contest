@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000829,
+      "datetime": "20561213141523",
+      "nethackrc": "OPTIONS=name:V44ShopDepth2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n2\n  #wizmap\nky,",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first active-shop detection follow-up to the depth-2 generated map: from the observed Wizard location (16,5), step north then northwest onto the visible floor food at (15,3), and pick it up. The C message and inventory identify whether this is a billed shop item; preserve the map-only probe separately."
+}

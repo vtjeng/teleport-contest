@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000900,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44QuestRealLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                   #wizlevelport\n?\n>y  #teleport\n  hhhhhhhhhhhhhhhhhhhhhhhhkkkkkk.#chat\nl #chat\nl",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first route to the real Wizard quest leader: levelport to Wiz-strt, dismiss the teleport pages, move the getpos cursor from observed start [46,11] to the west-adjacent floor [22,5] of Neferet at source coordinate [23,5], then chat east twice with a first-audience pager dismissal."
+}

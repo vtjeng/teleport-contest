@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C setup probe for the create-monster scroll mission. The previous read input selected the observed but unintended inventory letter; this probe records the inventory after wishing so the corrected candidate can use C-confirmed selection.",
+  "segments": [
+    {
+      "seed": 44000201,
+      "datetime": "20540611121314",
+      "nethackrc": "OPTIONS=name:V44CreateMon,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nuncursed scroll of create monster\ni"
+    }
+  ]
+}

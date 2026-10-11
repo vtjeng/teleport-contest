@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000847,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44GuardianChat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\npeaceful apprentice\ny#wizmap\n#chat\nb",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected C-first Wizard quest guardian chat: the map confirms the peaceful MS_GUARDIAN apprentice at (41,18), southwest of the hero at (42,17); select b to reach quest.c:quest_chat -> chat_with_guardian -> qt_pager(\"guardtalk_before\")."
+}

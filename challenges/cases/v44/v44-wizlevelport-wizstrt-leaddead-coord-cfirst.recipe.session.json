@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000702,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44QuestEntry,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>y  #wizkill\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk.\u001b",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first role-generated quest leader death route. Wiz-strt.lua places Neferet at (23,5); #wizmap showed the levelport arrival hero at (71,15), so getpos moves west 48 and north 10 before selecting her."
+}
