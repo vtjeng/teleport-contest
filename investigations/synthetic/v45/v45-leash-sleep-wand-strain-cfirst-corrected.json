@@ -1,0 +1,129 @@
+{
+  "session": "synthetic/v45/v45-leash-sleep-wand-strain-cfirst-corrected",
+  "corpus": "synthetic",
+  "batch": "v45",
+  "caseId": "v45-leash-sleep-wand-strain-cfirst-corrected",
+  "manifestPath": "challenges/manifests/v45.json",
+  "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+  "recordingPath": "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.session.json",
+  "recordingSha256": "fddc4d223742ddabd445d937340883771f9175aa4bf9243d4ca8ef496900971d",
+  "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+  "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+  "remainingScreens": 1,
+  "recordedSteps": 44,
+  "status": "complete",
+  "commit": "0bc6e0e64358a89c2aff59ac973ae787297ad06d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v45",
+    "caseId": "v45-leash-sleep-wand-strain-cfirst-corrected",
+    "session": "synthetic/v45/v45-leash-sleep-wand-strain-cfirst-corrected",
+    "manifestPath": "challenges/manifests/v45.json",
+    "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+    "recording": "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.session.json",
+    "recordingPath": "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.session.json",
+    "recordingSha256": "fddc4d223742ddabd445d937340883771f9175aa4bf9243d4ca8ef496900971d",
+    "recipe": "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.recipe.session.json",
+    "recipeSha256": "5f6b697fc85860de9e74b42b3c8495abe2c982da6d812f0ec47230cba426e7fb",
+    "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+    "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+    "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+    "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+    "evaluationUtc": "2026-10-11T09:20:20.964Z",
+    "remainingScreens": 1,
+    "recordedSteps": 44,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 43,
+        "total": 44
+      },
+      "rng": {
+        "matched": 3923,
+        "total": 3932
+      },
+      "cursors": {
+        "matched": 44,
+        "total": 44
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 43,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 43,
+          "key": "l"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3920,
+        "cEntry": "rn2(3)=0",
+        "cCaller": "check_leash(apply.c:977)",
+        "jsEntry": "rn2(5)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 43,
+          "key": "l"
+        },
+        "stepIndex": 43
+      },
+      "cursor": null
+    },
+    "step": 43,
+    "kind": "rng",
+    "sourceFile": "apply.c",
+    "function": "check_leash",
+    "message": null,
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": 977
+  },
+  "summary": "apply.c:check_leash is absent from the JavaScript movement path. The C function processes attached inventory leashes only when the hero step increases the pet distance: within three squares it does nothing; otherwise a non-breathless cursed leash chokes/damages the pet, an uncursed or breathless leash snaps loose beyond five squares, and closer movement prints “You pull on the leash.” and spends rn2(3) before the pet sound. C calls it from ordinary domove, failed-untrap movement, and after random teleport when next_to_u fails. JavaScript lacks the normal movement implementation, leaves a note_unported in move_into_trap, and has a mislabeled gap after teleport.c:tele, which remains unported.",
+  "source": {
+    "file": "apply.c",
+    "branch": "For each carried LEASH with nonzero leashmon, resolve the monster and compare squared hero-to-monster distance before and after the proposed position; only an increase is processed. At Chebyshev distance at most 3 return without effects. Beyond that, cursed non-breathless leashes damage or kill the pet; otherwise distance greater than 5 releases it, while closer movement pulls and may draw rn2(3) for a non-silent pet.",
+    "functions": [
+      "check_leash"
+    ],
+    "callers": [
+      "hack.c:domove_core:2962 calls check_leash(u.ux0,u.uy0) after u_on_newpos and hide/mimic handling, before movement success, redraw, vision and spoteffects; js/hack.js:domove_core has no call at the matching point.",
+      "trap.c:move_into_trap:5413 calls check_leash(u.ux0,u.uy0) after u_on_newpos and vision_recalc, before move_bc and trap/spoteffects; js/trap.js:move_into_trap currently has note_unported(\"apply.c check_leash\") there.",
+      "allmain.c:moveloop_core:314 calls check_leash(old_ux,old_uy) only after tele() changes coordinates and next_to_u() returns false; js/allmain.js still notes teleport.c:tele as unported and then has a mislabeled note_unported(\"dog.c check_leash\")."
+    ],
+    "dependencies": [
+      "light.c:find_mid (find the carried leash target by id)",
+      "hacklib.c:dist2 and apply.c:um_dist (movement-distance and radius tests; existing JavaScript helpers)",
+      "mondata.c:breathless (existing JavaScript helper)",
+      "apply.c:m_unleash (already ported JavaScript release helper)",
+      "mon.c:xkilled (already implemented JavaScript kill path; C discards its return)",
+      "do_name.c:mon_nam and Monnam, pline.c:pline_mon, sounds.c:growl/yelp/whimper (existing JavaScript output paths)",
+      "rng.c:rnd and rn2 (use the active operation random source when supplied; otherwise core RNG)"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Upstream nethack-c/upstream/src/apply.c:931-994 defines the complete function: inventory iteration and missing-id cleanup; dist2 increase gate; um_dist radius-3 no-op; cursed/breathless choke, rnd(2), death and pacifism preservation; radius-5 release; pull feedback and rn2(3) sound dispatch.",
+    "Upstream nethack-c/upstream/src/hack.c:2962, trap.c:5413, and allmain.c:314 are the three direct C callers. Corresponding JavaScript trace at the assigned base finds no normal-move call, a note_unported in js/trap.js:2525, and a dog.c-labeled note in js/allmain.js:1028 after the separate unported teleport.c:tele call.",
+    "Saved v45 queue 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b identifies synthetic/v45/v45-leash-sleep-wand-strain-cfirst-corrected: step 43 (zero based), `rn2(3)=0 @ check_leash(apply.c:977)` versus JavaScript `rn2(5)=1`, with 43/44 screens, 3923/3932 RNG values and 44/44 cursors matched at the examined base. Recipe and recording hashes are preserved in the mismatch object.",
+    "The selected v45 input starts as a debug Wizard with pettype:none, tames a dog, attaches a leash, sleeps it with a wished wand, then walks west. It supplies natural ordinary-movement caller evidence; trap-fall and random-teleport caller entry points remain to be independently recorded or explicitly blocked by their unported prerequisites."
+  ]
+}
