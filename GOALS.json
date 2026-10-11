@@ -268091,7 +268091,7 @@
     {
       "id": "port-apply-check-leash-v45-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete leash-distance handling and wire its movement, trap, and periodic teleport callers.",
       "cFile": "apply.c",
       "sessions": [
@@ -268440,7 +268440,17 @@
             "synthetic": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f2b63ca31d1c650f2b606665f735b7fc202d067d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Periodic teleport caller coverage remains blocked until teleport.c:tele changes hero coordinates in allmain.c:moveloop_core; hero movement and failed-trap movement are verified at f2b63ca31d1c650f2b606665f735b7fc202d067d."
     }
   ]
 }
