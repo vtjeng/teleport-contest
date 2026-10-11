@@ -1,0 +1,143 @@
+{
+  "session": "synthetic/v46/v46-succubus-steals-monster-item-attempt2",
+  "corpus": "synthetic",
+  "batch": "v46",
+  "caseId": "v46-succubus-steals-monster-item-attempt2",
+  "manifestPath": "challenges/manifests/v46.json",
+  "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+  "recordingPath": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.session.json",
+  "recordingSha256": "da58190028a80439818aec2a99c67535cb786949db91c7ca833d7dc5e4ef5ddf",
+  "recipeSha256": "17c55e75d01c54ce141f214ff3910e91b0def061eb78079a1ccbfc23610cfc6a",
+  "evaluationPath": "challenges/evaluations/accepted-643e2279efd29389ff74a9fd5fe276f3aeaba62f-v46.json",
+  "evaluationCommit": "643e2279efd29389ff74a9fd5fe276f3aeaba62f",
+  "queueSha256": "e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2",
+  "remainingScreens": 1,
+  "recordedSteps": 55,
+  "status": "complete",
+  "commit": "c1b9c6ee9313dfb9a380172e4134ad050fc3cbd0",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v46",
+    "caseId": "v46-succubus-steals-monster-item-attempt2",
+    "session": "synthetic/v46/v46-succubus-steals-monster-item-attempt2",
+    "manifestPath": "challenges/manifests/v46.json",
+    "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+    "recording": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.session.json",
+    "recordingPath": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.session.json",
+    "recordingSha256": "da58190028a80439818aec2a99c67535cb786949db91c7ca833d7dc5e4ef5ddf",
+    "recipe": "challenges/cases/v46/v46-succubus-steals-monster-item-attempt2.recipe.session.json",
+    "recipeSha256": "17c55e75d01c54ce141f214ff3910e91b0def061eb78079a1ccbfc23610cfc6a",
+    "replayInputSha256": "8494a6f29dde40ec9e577d3fb6aafbfd751666428321e3a242dccb32039a9d62",
+    "evaluationPath": "challenges/evaluations/accepted-643e2279efd29389ff74a9fd5fe276f3aeaba62f-v46.json",
+    "evaluationCommit": "643e2279efd29389ff74a9fd5fe276f3aeaba62f",
+    "evaluationArtifact": "challenges/evaluations/accepted-643e2279efd29389ff74a9fd5fe276f3aeaba62f-v46.json",
+    "evaluationUtc": "2026-10-11T16:51:27.277Z",
+    "remainingScreens": 1,
+    "recordedSteps": 55,
+    "previousScreensMatched": 54,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 54,
+        "total": 55
+      },
+      "rng": {
+        "matched": 2481,
+        "total": 2481
+      },
+      "cursors": {
+        "matched": 54,
+        "total": 55
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 54,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 54,
+          "key": "l"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 31,
+        "cCell": {
+          "ch": "s",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "h",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2481,
+        "cCaller": null,
+        "jsEntry": "rn2(25)=16",
+        "stepIndex": null
+      },
+      "cursor": {
+        "index": 54,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 54,
+          "key": "l"
+        },
+        "cCursor": [
+          73,
+          0,
+          1
+        ],
+        "jsCursor": [
+          59,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 54,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first C-only output at step 54 is the result of a polymorphed hero succubus landing an AD_SEDU attack on the adjacent orc-captain. uhitm.c:mhitm_ad_sedu calls steal_it() in its hero-attacker arm; the JavaScript arm still records note_unported('uhitm.c steal_it') and sets damage to zero, so it omits the C inventory transfer and “You steal:” prompt. The complete bounded source task is uhitm.c:theft_petrifies, steal_it, and mhitm_ad_sedu, with the existing damageum -> mhitm_adtyping caller retained.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "When a polymorphed hero lands an AD_SEDU item-theft attack against a monster, mhitm_ad_sedu delegates to steal_it. steal_it selects one item unless the target is seducible and wearing body armor, temporarily keeps monster gold out of the selection, transfers stolen items through hold_another_object, handles petrifying corpses and worn gear, and restores gold in source order.",
+    "functions": [
+      "theft_petrifies() (2148-2172)",
+      "steal_it() (2174-2281)",
+      "mhitm_ad_sedu() (4623-4748)"
+    ],
+    "callers": [
+      "uhitm.c:damageum() (4835-4883) calls mhitm_adtyping(); its AD_SITM and AD_SEDU cases (4782-4832) call mhitm_ad_sedu(). JavaScript follows uhitm.js:damageum -> mhitm_adtyping -> mhitm_ad_sedu; this is the selected hero-polymorph entry path.",
+      "uhitm.c:mhitm_ad_ssex() (4751-4779) delegates to mhitm_ad_sedu() for its hero-attacker path and its non-specialized monster paths. The existing JavaScript mhitm_ad_ssex() has the corresponding calls.",
+      "mhitu.c:mattacku() calls uhitm.c:mhitm_adtyping() for monster-versus-hero attacks; JavaScript mhitu.js dispatches through uhitm.js:mhitm_adtyping().",
+      "mhitm.c:mdamagem() calls uhitm.c:mhitm_adtyping() for monster-versus-monster attacks; JavaScript mhitm.js:mdamagem() dispatches through uhitm.js:mhitm_adtyping()."
+    ],
+    "dependencies": [
+      "steal_it() consumes theft_petrifies() as a boolean; both are in this uhitm.c task.",
+      "theft_petrifies() consumes mondata.c:touch_petrifies() (pure and already ported in js/mondata.js) and calls trap.c:instapetrify() with a discarded void result (the existing js/trap.js implementation handles the hero death path).",
+      "steal_it() consumes mhitu.c:could_seduce(), steal.c:findgold(), and invent.c:hold_another_object(); the corresponding existing JS functions are in mhitu.js, steal.js, and invent.js.",
+      "steal_it() calls steal.c:mpickobj(), worn.c:extract_from_minvent(), weapon.c:possibly_unwield(), and trap.c:mselftouch() with discarded results; their existing JS counterparts are in steal.js, worn.js, weapon.js, and trap_effects.js."
+    ]
+  },
+  "goalKind": "file-port",
+  "selectionReason": "This was the highest-priority unreserved v46 session after the crystal-ball task. Its first mismatch is distinct from the other live workers’ cases. The exact selected uhitm.c functions and the session reservation were checked against the shared ledger; no other task reserved theft_petrifies, steal_it, or mhitm_ad_sedu.",
+  "evidence": [
+    "Queue entry from e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2 identifies segment 0 step 54, key l, with 54/55 screens, 2481/2481 RNG calls, and 54/55 cursors matched. At row 0 column 31 C shows s and JavaScript shows h; C cursor is [73,0,1] and JavaScript cursor is [59,0,1].",
+    "The C recording at step 54 shows “You bite the orc-captain.  You steal:  o - a white-handed shield.--More--”. The source call is uhitm.c:mhitm_ad_sedu() at 4631, whose hero-attacker arm calls steal_it().",
+    "At examined commit c1b9c6ee9313dfb9a380172e4134ad050fc3cbd0, js/uhitm.js:mhitm_ad_sedu() (3923 onward) records note_unported('uhitm.c steal_it') in its hero-attacker arm, which is the missing inventory-transfer behavior.",
+    "Source dependency audit found the return-valued theft_petrifies() call is local to uhitm.c and included in the proposed scope. Other return-valued callees are already ported in their canonical JS modules; discarded void helper results do not require new ownership."
+  ]
+}
