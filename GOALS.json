@@ -277290,7 +277290,7 @@
     {
       "id": "port-do-dodrop-shop-bracketing-v47-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port do.c dodrop shop state bracketing and wire every active command path.",
       "cFile": "do.c",
       "sessions": [
@@ -277304,8 +277304,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dodrop",
@@ -277558,6 +277561,69 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+          "recipe": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "d2da34f57daaaafb38866d452b63d8dbd42ee7fa80471edb5d112ef3dd69aec0",
+          "replayInputSha256": "6bc731e836ab03eb03f780f9eeec2d63994ab35dded835c7ecef5fd3a290d09a",
+          "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+          "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+          "evaluationArtifact": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+          "evaluationUtc": "2026-10-11T22:49:06.037Z",
+          "remainingScreens": 3,
+          "recordedSteps": 51,
+          "previousScreensMatched": 47,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 51
+            },
+            "rng": {
+              "matched": 5396,
+              "total": 5406
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: a costly shop spot",
+            "step": 48
+          },
+          "step": 48,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: a costly shop spot",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.json",
+            "previousRemainingScreens": 4
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
