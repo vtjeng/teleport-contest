@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -15,22 +16,25 @@ import {
     LAVAPOOL,
     LAVAWALL,
     MOAT,
+    OROOM,
     POOL,
     ROOM,
     ROOMOFFSET,
     SOLID,
     NO_LOC_WARN,
     SP_COORD_IS_RANDOM,
+    THEMEROOM,
     WATER,
     WET,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
+import { has_dnstairs, has_upstairs } from '../js/mkroom.js';
 import {
     get_free_room_loc,
     get_location_coord,
     get_room_loc,
-    inside_room,
+    generate_stairs_room_good,
     is_ok_location,
     occupied,
     somex,
@@ -38,6 +42,10 @@ import {
     somexy,
     somexyspace,
 } from '../js/mklev.js';
+import { inside_room } from '../js/room_coordinates.js';
+
+const C_MKLEV = readFileSync(new URL('../nethack-c/upstream/src/mklev.c', import.meta.url), 'utf8');
+const C_MKROOM = readFileSync(new URL('../nethack-c/upstream/src/mkroom.c', import.meta.url), 'utf8');
 
 function coordinateState() {
     const state = resetGame();
@@ -116,6 +124,86 @@ test('somex and somey draw from the inclusive room bounds', () => {
     assert.equal(somex(room, { random: script.random }), 14);
     assert.equal(somey(room, { random: script.random }), 5);
     script.done();
+});
+
+test('stair room eligibility uses C irregular membership and regular wall bounds', () => {
+    const goodBody = C_MKLEV.slice(
+        C_MKLEV.indexOf('generate_stairs_room_good(struct mkroom *croom, int phase)'),
+        C_MKLEV.indexOf('/* find a good room to generate an up or down stairs in */'),
+    );
+    const downBody = C_MKROOM.slice(
+        C_MKROOM.indexOf('has_dnstairs(struct mkroom *sroom)'),
+        C_MKROOM.indexOf('\nboolean\nhas_upstairs'),
+    );
+    const upBody = C_MKROOM.slice(
+        C_MKROOM.indexOf('has_upstairs(struct mkroom *sroom)'),
+        C_MKROOM.indexOf('\nint\nsomex'),
+    );
+    const insideBody = C_MKROOM.slice(
+        C_MKROOM.indexOf('inside_room(struct mkroom *croom, coordxy x, coordxy y)'),
+        C_MKROOM.indexOf('\n/* return a coord c inside mkroom'),
+    );
+    assert.match(goodBody, /has_dnstairs\(croom\)[\s\S]*has_upstairs\(croom\)/u);
+    assert.match(downBody, /stairway \*stway = gs\.stairs;[\s\S]*while \(stway\)[\s\S]*!stway->up && inside_room\(sroom, stway->sx, stway->sy\)[\s\S]*stway = stway->next;[\s\S]*return FALSE;/u);
+    assert.match(upBody, /stairway \*stway = gs\.stairs;[\s\S]*while \(stway\)[\s\S]*stway->up && inside_room\(sroom, stway->sx, stway->sy\)[\s\S]*stway = stway->next;[\s\S]*return FALSE;/u);
+    assert.match(insideBody, /if \(croom->irregular\)\s*\{\s*int i = \(int\) \(\(croom - svr\.rooms\) \+ ROOMOFFSET\);\s*return \(!levl\[x\]\[y\]\.edge && \(int\) levl\[x\]\[y\]\.roomno == i\);/u);
+    assert.match(insideBody, /return \(boolean\) \(x >= croom->lx - 1 && x <= croom->hx \+ 1\s*&& y >= croom->ly - 1 && y <= croom->hy \+ 1\);/u);
+
+    const state = coordinateState();
+    const outer = {
+        ...regularRoom({ lx: 10, hx: 20, ly: 5, hy: 15 }),
+        irregular: true,
+        roomnoidx: 0,
+        needjoining: true,
+        rtype: OROOM,
+    };
+    const inner = {
+        ...regularRoom({ lx: 13, hx: 17, ly: 8, hy: 12 }),
+        irregular: true,
+        roomnoidx: 1,
+        needjoining: true,
+        rtype: OROOM,
+    };
+    // The stair falls inside both rectangles, but its roomno belongs only to
+    // the inner room. C inside_room() therefore excludes only that room.
+    const stairLoc = state.level.at(15, 10);
+    stairLoc.roomno = ROOMOFFSET + 1;
+    state.stairs = { sx: 15, sy: 10, up: true, next: null };
+    assert.equal(inside_room(outer, 15, 10, state), false);
+    assert.equal(inside_room(inner, 15, 10, state), true);
+    assert.equal(has_upstairs(outer, state), false);
+    assert.equal(has_upstairs(inner, state), true);
+    assert.equal(has_dnstairs(inner, state), false);
+    assert.equal(generate_stairs_room_good(outer, 2, state), true);
+    assert.equal(generate_stairs_room_good(inner, 2, state), false);
+
+    // C rejects edge tiles even if roomno matches; phase 0 relaxes the
+    // existing-stair exclusion, while phase -1 relaxes needjoining.
+    stairLoc.edge = true;
+    assert.equal(has_upstairs(inner, state), false);
+    assert.equal(generate_stairs_room_good(inner, 2, state), true);
+    stairLoc.edge = false;
+    assert.equal(generate_stairs_room_good(inner, 0, state), true);
+    inner.needjoining = false;
+    assert.equal(generate_stairs_room_good(inner, 0, state), false);
+    assert.equal(generate_stairs_room_good(inner, -1, state), true);
+
+    state.stairs = { sx: 15, sy: 10, up: false, next: null };
+    assert.equal(has_dnstairs(inner, state), true);
+    assert.equal(has_upstairs(inner, state), false);
+
+    const regular = {
+        ...regularRoom({ lx: 20, hx: 24, ly: 5, hy: 7 }),
+        needjoining: true,
+        rtype: THEMEROOM,
+    };
+    // Regular C rooms count the one-tile boundary as inside; a themed room
+    // is admitted after phase 2 relaxes its room-type criterion.
+    state.stairs = { sx: 19, sy: 6, up: true, next: null };
+    assert.equal(generate_stairs_room_good(regular, 2, state), false);
+    state.stairs = null;
+    assert.equal(generate_stairs_room_good(regular, 2, state), false);
+    assert.equal(generate_stairs_room_good(regular, 1, state), true);
 });
 
 test('somexy accepts a wall when a regular room has no subrooms', () => {
