@@ -274316,6 +274316,299 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-detect-furniture-detect-v46-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port crystal ball furniture detection",
+      "cFile": "detect.c",
+      "sessions": [
+        "synthetic/v46/v46-crystal-ball-furniture-attempt10"
+      ],
+      "selectionReason": "The saved v46 mismatch reaches detect.c furniture_detect, whose revealed-glyph branch calls the already ported browse_map path that JavaScript skipped.",
+      "detail": "Source trace: apply.c doapply and artifact.c arti_invoke call use_crystal_ball; furniture_detect reveals furniture, browses locations through getpos, then restores the map.",
+      "openedAt": "14701d17df4b6d8dd02e9cec56428937980d7db1",
+      "openStanding": {
+        "sha": "93c0b06e6d2f55791a72b45156715cd63c948996",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "furniture_detect",
+          "line": 1091,
+          "endLine": 1141,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1091,
+        "to": 1141
+      },
+      "syntheticProvenance": {
+        "synthetic/v46/v46-crystal-ball-furniture-attempt10": {
+          "session": "synthetic/v46/v46-crystal-ball-furniture-attempt10",
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-crystal-ball-furniture-attempt10",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recordingPath": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+          "recordingSha256": "dd5c6b89f329a04517f0d03aad17b4c6b959e358c63a9e682749da00d038d612",
+          "evaluationPath": "challenges/evaluations/accepted-93c0b06e6d2f55791a72b45156715cd63c948996-v46.json",
+          "evaluationCommit": "93c0b06e6d2f55791a72b45156715cd63c948996"
+        }
+      },
+      "activeStanding": {
+        "sha": "93c0b06e6d2f55791a72b45156715cd63c948996",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-crystal-ball-furniture-attempt10",
+          "session": "synthetic/v46/v46-crystal-ball-furniture-attempt10",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recording": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+          "recordingPath": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+          "recordingSha256": "dd5c6b89f329a04517f0d03aad17b4c6b959e358c63a9e682749da00d038d612",
+          "recipe": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.recipe.session.json",
+          "recipeSha256": "de818c387f56428a626a50c0e00f47fc273cebb4e038c3951761a361422ee1fd",
+          "replayInputSha256": "d3357452343a6368d8c78d14ea76f447a04a86de4e2ef1c706eff7598de80e43",
+          "evaluationPath": "challenges/evaluations/accepted-93c0b06e6d2f55791a72b45156715cd63c948996-v46.json",
+          "evaluationCommit": "93c0b06e6d2f55791a72b45156715cd63c948996",
+          "evaluationArtifact": "challenges/evaluations/accepted-93c0b06e6d2f55791a72b45156715cd63c948996-v46.json",
+          "evaluationUtc": "2026-10-11T18:12:10.210Z",
+          "remainingScreens": 2,
+          "recordedSteps": 42,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 42
+            },
+            "rng": {
+              "matched": 2544,
+              "total": 2544
+            },
+            "cursors": {
+              "matched": 41,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 39,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 10,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2544,
+              "cCaller": null,
+              "jsEntry": "rn2(70)=32",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 39,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": " "
+              },
+              "cCursor": [
+                16,
+                8,
+                1
+              ],
+              "jsCursor": [
+                39,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 39,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v46/v46-crystal-ball-furniture-attempt10.json",
+            "result": {
+              "session": "synthetic/v46/v46-crystal-ball-furniture-attempt10",
+              "corpus": "synthetic",
+              "batch": "v46",
+              "caseId": "v46-crystal-ball-furniture-attempt10",
+              "manifestPath": "challenges/manifests/v46.json",
+              "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+              "recordingPath": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+              "recordingSha256": "dd5c6b89f329a04517f0d03aad17b4c6b959e358c63a9e682749da00d038d612",
+              "recipePath": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.recipe.session.json",
+              "recipeSha256": "de818c387f56428a626a50c0e00f47fc273cebb4e038c3951761a361422ee1fd",
+              "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+              "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+              "queueSha256": "e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2",
+              "remainingScreens": 2,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "19003b60069b417d2dea5693b652ea35bc6da6ac",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v46",
+                "caseId": "v46-crystal-ball-furniture-attempt10",
+                "session": "synthetic/v46/v46-crystal-ball-furniture-attempt10",
+                "manifestPath": "challenges/manifests/v46.json",
+                "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+                "recording": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+                "recordingPath": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+                "recordingSha256": "dd5c6b89f329a04517f0d03aad17b4c6b959e358c63a9e682749da00d038d612",
+                "recipe": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.recipe.session.json",
+                "recipeSha256": "de818c387f56428a626a50c0e00f47fc273cebb4e038c3951761a361422ee1fd",
+                "replayInputSha256": "939a3647d9cd362f2f28248cb75d1d57e0b1034405e548296ad75973ec29fe2d",
+                "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+                "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+                "evaluationArtifact": "challenges/evaluations/v46-baseline-29c284d97.json",
+                "evaluationUtc": "2026-10-11T15:24:07.625Z",
+                "remainingScreens": 2,
+                "recordedSteps": 42,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 2544,
+                    "total": 2544
+                  },
+                  "cursors": {
+                    "matched": 41,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 39,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 10,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2544,
+                    "cCaller": null,
+                    "jsEntry": "rn2(70)=32",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 39,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      16,
+                      8,
+                      1
+                    ],
+                    "jsCursor": [
+                      39,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 39,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "When a charged crystal ball is used to find furniture such as the up stairs, C reveals the location and enters browse_map(); that calls getpos(), whose first invocation displays the farlook tip. JavaScript reaches detect.js:furniture_detect() but substitutes note_unported('detect.c browse_map') for this call, leaving the base map on screen. The v46 replay first differs at step 39 when C shows the tip header and JavaScript shows no header.",
+              "source": {
+                "file": "detect.c",
+                "branch": "furniture_detect() (1091-1134) scans visible map cells, applies magic_map_background() to furniture and reveals furniture mimics. If any glyph changes, it calls browse_map(TER_DETECT | TER_MAP | TER_TRP | TER_OBJ | TER_MON, \"location\"); browse_map() enters getpos(), which calls handle_tip(TIP_GETPOS) on its first use. The no-new-glyph arm instead calls display_nhwindow(WIN_MAP, TRUE).",
+                "functions": [
+                  "furniture_detect"
+                ],
+                "callers": [
+                  "apply.c:doapply (4358-4360) calls detect.c:use_crystal_ball() for CRYSTAL_BALL; use_crystal_ball() (1334-1343) calls furniture_detect() when the requested character is a furniture symbol. JavaScript follows apply.js:doapply -> detect.js:use_crystal_ball -> furniture_detect.",
+                  "artifact.c:arti_invoke (2140-2145) is a second production caller of use_crystal_ball() for crystal-ball artifacts; JavaScript artifacts.js:arti_invoke routes to detect.js:use_crystal_ball.",
+                  "detect.c:browse_map() (104-117) calls getpos() with autodescribe and the detection terrain mask. getpos.c:getpos() (838-839) calls handle_tip(TIP_GETPOS); JavaScript counterparts already exist in detect.js:browse_map, getpos.js:getpos, and hack.js:handle_tip."
+                ],
+                "dependencies": [
+                  "detect.c:browse_map() and detect.c:map_redisplay() already have JavaScript implementations in detect.js. The missing production wiring is in furniture_detect().",
+                  "furniture_detect() also calls unconstrain_map(), glyph_at(), glyph_to_cmap(), magic_map_background(), m_at(), seemimic(), canspotmon(), map_invisible(), and map_redisplay(); their JavaScript implementations are already present.",
+                  "The alternate no-new-glyph arm calls display_nhwindow(WIN_MAP, TRUE), currently represented by note_unported('detect.c display_nhwindow') in JavaScript. Keep that named gap unless its TTY callee is separately owned and source-traced; the selected route uses the revealed-glyph browse_map arm."
+                ]
+              },
+              "goalKind": "file-port",
+              "selectionReason": "The saved v46 mismatch at the crystal-ball furniture screen reaches detect.c:furniture_detect. The first C-only output is caused by its revealed-glyph branch calling browse_map, which then invokes getpos and the first-use TIP_GETPOS callback. The same-file browse_map and map_redisplay helpers already exist in JavaScript; the missing call is the actionable owner.",
+              "evidence": [
+                "Queue SHA-256 e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2 identifies v46-crystal-ball-furniture-attempt10: 40/42 screens, 2544/2544 RNG calls, and 41/42 cursors matched. Its first mismatch is segment 0, step 39, screen row 0 column 10 (C: T, JavaScript: space), cursor C [16,8,1] versus JavaScript [39,5,1].",
+                "Upstream detect.c:1091-1134 shows furniture_detect() calling browse_map() when the scan reveals glyphs and calling map_redisplay() after either branch. detect.c:1334-1343 shows use_crystal_ball() dispatching furniture symbols to furniture_detect(). drawing.c:def_char_is_furniture() (120-140) puts the up-stair symbol in this category.",
+                "The production entry trace is apply.c:4358-4360 -> detect.c:use_crystal_ball:1334-1343 -> furniture_detect:1127-1132 -> browse_map:104-117 -> getpos.c:getpos:838-839 -> hack.c:handle_tip:1852-1880 -> nhcore.lua:108-123 show_getpos_tip(). artifact.c:2142-2143 is the alternate use_crystal_ball caller.",
+                "At the examined commit, detect.js:1327-1330 records note_unported('detect.c browse_map') rather than invoking its existing browse_map() at 429-448. Thus JavaScript skips the getpos/first-use tip window; the selected recording shows C’s farlook tip header at step 39 while JavaScript remains on the base map."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
