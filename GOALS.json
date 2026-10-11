@@ -273421,14 +273421,14 @@
           "line": 1341,
           "endLine": 1367,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "region_safety",
           "line": 1368,
           "endLine": 1409,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -273647,7 +273647,160 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "region_danger",
+            "implementation": "js/region.js",
+            "symbol": "region_danger",
+            "sourceReview": "Read region.c:1341-1362 completely. The function scans all hero-occupied regions, recognizes only INSIDE_GAS_CLOUD, excludes nonliving/Breathless and Poison_resistance, and returns whether any harmful cloud remains. JavaScript's early true return is equivalent to the C count because the pure scan has no side effects. Verified hero_inside/callback mapping and both intrinsic/extrinsic property checks. It is pure: no output, state mutation, or RNG.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "in_trouble",
+                "source": "pray.c:218 calls region_danger() to classify TROUBLE_REGION."
+              },
+              {
+                "path": "js/region.js",
+                "symbol": "region_safety",
+                "source": "region.c:1390 rechecks region_danger() after safe_teleds()."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Amulet_on",
+                "source": "do_wear.c:984 checks the gas status with the magical-breathing amulet temporarily removed."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Amulet_off",
+                "source": "do_wear.c:1128 checks whether removing magical breathing exposes the hero to gas."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "region_dialogue",
+                "source": "timeout.c:562 checks gas exposure after temporarily clearing the magical-breathing timeout."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:885 checks gas exposure when magical breathing times out."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/region.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-prayer-region-safety-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "cmd.c #pray -> pray.c:prayer_done -> pleased -> in_trouble invokes region_danger; region.c:region_safety also rechecks region_danger after safe_teleds when required"
+              }
+            ],
+            "checkedAt": "665350e91222d523d635ca7eb0681f9cfe6a92e8"
+          },
+          {
+            "name": "region_safety",
+            "implementation": "js/region.js",
+            "symbol": "region_safety",
+            "sourceReview": "Read region.c:1368-1405 completely. It scans in source order and remembers only the first hero-occupied expiring gas cloud; more than one gas cloud or one non-expiring cloud triggers safe_teleds with its return discarded, then region_danger controls the d(4,4)+4 magical-breathing fallback and message. A sole expiring cloud is removed before its dissipates message; no eligible cloud takes the already-dissipated message. The final BlindedTimeout==1 check calls make_blinded(0,TRUE). JavaScript preserves branch, random, state-update, redraw, and message order, and receives the existing teleport/message/visual operations from the prayer caller to avoid an import cycle. remove_region's result is discarded; its active callbacks are supplied. No unported return-value callee remains.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c:417-420 dispatches TROUBLE_REGION directly to region_safety(); pleased():1139,1145,1151,1156 reaches fix_worst_trouble during prayer completion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/region.test.mjs",
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-prayer-region-safety-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "cmd.c #pray -> pray.c:dopray/prayer_done -> pleased -> fix_worst_trouble(TROUBLE_REGION) -> region_safety"
+              }
+            ],
+            "checkedAt": "665350e91222d523d635ca7eb0681f9cfe6a92e8"
+          },
+          {
+            "name": "fix_worst_trouble",
+            "implementation": "js/pray.js",
+            "symbol": "fix_worst_trouble",
+            "sourceReview": "Re-read the complete pray.c:373-600 switch and preserved its other source-ordered branches and explicitly recorded unported gaps. The TROUBLE_REGION arm at 417-420 now calls region_safety with existing safe_teleds, message, redraw, vision, and RNG adapters at that source point; the stale note_unported('region.c region_safety') is removed. The full function retains its previous implementation and caller sequence.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "pleased",
+                "source": "pray.c:1139-1156 calls fix_worst_trouble() for the action 4/5, action 3, and action 1 prayer-repair branches."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c:2333 and 2340 calls pleased() after successful prayer resolution."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "failClosedCommand",
+                "source": "cmd.c #pray dispatch reaches dopray(), which installs prayer_done as the after-movement callback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "pray.c",
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-prayer-region-safety-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "cmd.c #pray -> pray.c:dopray/prayer_done -> pleased -> fix_worst_trouble(TROUBLE_REGION)"
+              }
+            ],
+            "checkedAt": "665350e91222d523d635ca7eb0681f9cfe6a92e8"
+          }
+        ],
+        "entryPointReview": "The selected impure entry point is prayer completion repairing TROUBLE_REGION: cmd.c #pray reaches pray.c:dopray and its prayer_done callback; prayer_done calls pleased, whose trouble-repair branches call fix_worst_trouble; its TROUBLE_REGION arm calls region_safety. This complete path is reached by the selected v46 replay. region_danger is a pure same-file helper already used by pray.c:in_trouble, do_wear.c:Amulet_on/Amulet_off, and timeout.c:region_dialogue/nh_timeout; each corresponding JavaScript caller was traced and is wired. The pure helper is source-pinned in scripts/region.test.mjs. No recorder build exclusion or blocked caller was found.",
+        "entryPoints": [
+          {
+            "name": "Prayer completion repairs a gas-cloud TROUBLE_REGION",
+            "functions": [
+              {
+                "sourceFile": "pray.c",
+                "name": "fix_worst_trouble"
+              },
+              "region_safety",
+              "region_danger"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-prayer-region-safety-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "cmd.c #pray -> pray.c:dopray/prayer_done -> pleased -> fix_worst_trouble(TROUBLE_REGION) -> region_safety"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
