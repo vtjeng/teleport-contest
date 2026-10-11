@@ -276858,7 +276858,7 @@
     {
       "id": "port-pray-desecrate-altar-v47-20261011",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port altar desecration and wire every active caller",
       "cFile": "pray.c",
       "sessions": [
@@ -276866,8 +276866,12 @@
       ],
       "selectionReason": "The largest remaining accepted v47 mismatch has a complete current investigation selecting whole pray.c:desecrate_altar. The admitted earthquake route stops at step 195 before the missing helper; active digactualhole and three high-altar offering callers require the same source-ordered alignment, message, godvoice, and retaliation effects.",
       "detail": "Port pray.c:desecrate_altar lines 1501-1523 and wire music.c:do_earthquake, dig.c:digactualhole, pray.c:offer_negative_valued, pray.c:sacrifice_your_race, and pray.c:offer_corpse. Verify the admitted v47 earthquake range and independent recordings for every other active caller.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "735859a6a4981793dcbb85357b5cc5d6b08b59ef",
+      "openStanding": {
+        "sha": "47ce6cdb703dac648a39587abe9512daf2ee2e50",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -276896,7 +276900,263 @@
           "evaluationPath": "challenges/evaluations/accepted-47ce6cdb703dac648a39587abe9512daf2ee2e50-v47.json",
           "evaluationCommit": "47ce6cdb703dac648a39587abe9512daf2ee2e50"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "47ce6cdb703dac648a39587abe9512daf2ee2e50",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-earthquake-desecrates-generated-altar",
+          "session": "synthetic/v47/v47-earthquake-desecrates-generated-altar",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-earthquake-desecrates-generated-altar-attempt6-trap-avoided.session.json",
+          "recordingPath": "challenges/cases/v47/v47-earthquake-desecrates-generated-altar-attempt6-trap-avoided.session.json",
+          "recordingSha256": "49625b455cd146909fa6fe22482b9c1e8c2234bda49b786eef003bcbe04c67a0",
+          "recipe": "challenges/cases/v47/v47-earthquake-desecrates-generated-altar-attempt6-trap-avoided.recipe.session.json",
+          "recipeSha256": "d554b3d57c71072f562353796f1054e20d65b70c742c8e0b02131cd61cb90c77",
+          "replayInputSha256": "dd167ef0e545116c8a08718e3dc9a599bbdcde111b32dbc5275ec1330a43135d",
+          "evaluationPath": "challenges/evaluations/accepted-47ce6cdb703dac648a39587abe9512daf2ee2e50-v47.json",
+          "evaluationCommit": "47ce6cdb703dac648a39587abe9512daf2ee2e50",
+          "evaluationArtifact": "challenges/evaluations/accepted-47ce6cdb703dac648a39587abe9512daf2ee2e50-v47.json",
+          "evaluationUtc": "2026-10-11T21:59:47.436Z",
+          "remainingScreens": 131,
+          "recordedSteps": 326,
+          "previousScreensMatched": 195,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 195,
+              "total": 326
+            },
+            "rng": {
+              "matched": 5380,
+              "total": 5897
+            },
+            "cursors": {
+              "matched": 308,
+              "total": 326
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 195,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 195,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 37,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 5151,
+              "cEntry": "rn2(4)=2",
+              "cCaller": "godvoice(pray.c:1425)",
+              "jsEntry": "rn2(13)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 197,
+                "key": " "
+              },
+              "stepIndex": 197
+            },
+            "cursor": {
+              "index": 195,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 195,
+                "key": " "
+              },
+              "cCursor": [
+                45,
+                0,
+                1
+              ],
+              "jsCursor": [
+                24,
+                13,
+                1
+              ]
+            }
+          },
+          "step": 195,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-earthquake-desecrates-generated-altar.json",
+            "result": {
+              "session": "synthetic/v47/v47-earthquake-desecrates-generated-altar",
+              "remainingScreens": 131,
+              "recordedSteps": 326,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-earthquake-desecrates-generated-altar",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingSha256": "49625b455cd146909fa6fe22482b9c1e8c2234bda49b786eef003bcbe04c67a0",
+              "evaluationPath": "challenges/evaluations/baseline-a6e3a17cc-v47.json",
+              "evaluationCommit": "a6e3a17ccec81295850d6e03e10d9a4353b25c54",
+              "status": "complete",
+              "commit": "7e5aa83bcf4d00ac5ce048b8b3f653849d55ed04",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-earthquake-desecrates-generated-altar",
+                "session": "synthetic/v47/v47-earthquake-desecrates-generated-altar",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-earthquake-desecrates-generated-altar-attempt6-trap-avoided.session.json",
+                "recordingPath": "challenges/cases/v47/v47-earthquake-desecrates-generated-altar-attempt6-trap-avoided.session.json",
+                "recordingSha256": "49625b455cd146909fa6fe22482b9c1e8c2234bda49b786eef003bcbe04c67a0",
+                "recipe": "challenges/cases/v47/v47-earthquake-desecrates-generated-altar-attempt6-trap-avoided.recipe.session.json",
+                "recipeSha256": "d554b3d57c71072f562353796f1054e20d65b70c742c8e0b02131cd61cb90c77",
+                "replayInputSha256": "7c7c10f06e50785384e44bb2af327a5607f2de8ad0ddec73a73619667d9c88bb",
+                "evaluationPath": "challenges/evaluations/baseline-a6e3a17cc-v47.json",
+                "evaluationCommit": "a6e3a17ccec81295850d6e03e10d9a4353b25c54",
+                "evaluationArtifact": "challenges/evaluations/baseline-a6e3a17cc-v47.json",
+                "evaluationUtc": "2026-10-11T20:47:25.561Z",
+                "remainingScreens": 131,
+                "recordedSteps": 326,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 195,
+                    "total": 326
+                  },
+                  "rng": {
+                    "matched": 5380,
+                    "total": 5897
+                  },
+                  "cursors": {
+                    "matched": 308,
+                    "total": 326
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 195,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 195,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 37,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 5151,
+                    "cEntry": "rn2(4)=2",
+                    "cCaller": "godvoice(pray.c:1425)",
+                    "jsEntry": "rn2(13)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 197,
+                      "key": " "
+                    },
+                    "stepIndex": 197
+                  },
+                  "cursor": {
+                    "index": 195,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 195,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      45,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      24,
+                      13,
+                      1
+                    ]
+                  }
+                },
+                "step": 195,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch follows the missing pray.c:desecrate_altar call from music.c:do_earthquake. C applies alignment anger, emits altar-desecration messages and a god voice, then calls god_zaps_you; JS music.js currently records the missing helper and continues to do_pit. The same helper also has active altar-destruction and high-altar sacrifice callers in dig.c and pray.c.",
+              "source": {
+                "file": "pray.c",
+                "branch": "When an earthquake changes a non-sanctum ALTAR, music.c:do_earthquake derives its alignment and calls desecrate_altar(FALSE, alignment) before do_pit. The helper lowers alignment and adds anger when the altar matches the hero, then emits charged-air and deity-noticed messages, calls godvoice with text selected by highaltar, and calls god_zaps_you. Other direct callers pass TRUE for qualifying high-altar sacrifice paths; dig.c:digactualhole passes FALSE after hero-caused altar damage.",
+                "functions": [
+                  "desecrate_altar"
+                ],
+                "callers": [
+                  "music.c:do_earthquake",
+                  "dig.c:digactualhole",
+                  "pray.c:offer_negative_valued",
+                  "pray.c:sacrifice_your_race",
+                  "pray.c:offer_corpse"
+                ],
+                "dependencies": [
+                  "attrib.c:adjalign (existing js/attrib.js owner)",
+                  "pray.c:align_gname (existing js/pray.js owner)",
+                  "pray.c:godvoice (existing js/pray.js owner)",
+                  "pray.c:god_zaps_you (existing js/pray.js owner)"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved v47 baseline evaluation at challenges/evaluations/baseline-a6e3a17cc-v47.json records the first screen mismatch at segment 0, step 195 (row 0, column 37: C \"-\", JS space) for case v47-earthquake-desecrates-generated-altar; its first RNG mismatch is at step 197, where C reports rn2(4)=2 from pray.c:godvoice while JS reports rn2(13)=3.",
+                "nethack-c/upstream/src/music.c:do_earthquake (ALTAR arm, around lines 419-430) calls desecrate_altar(FALSE, algn) before creating the pit. nethack-c/upstream/src/pray.c:desecrate_altar (lines 1501-1522) conditionally calls adjalign(-20), increments u.ugangr, emits the charged-air and noticed messages, calls godvoice, and calls god_zaps_you.",
+                "The active direct callers are music.c:do_earthquake, dig.c:digactualhole (around line 721), pray.c:offer_negative_valued (around line 1595), pray.c:sacrifice_your_race (around line 1715), and pray.c:offer_corpse (around line 2021). Their JS source sites now call desecrate_altar from music.js, dig.js, and pray.js.",
+                "The return value of no dependency is consumed by desecrate_altar. Existing JS owners provide adjalign, align_gname, godvoice, and god_zaps_you. The v47 recording covers the earthquake caller with highaltar=false; an independent dig.c recording covers hero-caused altar destruction; and three high-temple offerings cover offer_negative_valued, sacrifice_your_race, and offer_corpse with highaltar=true. Each recording ends at an exact C/JS matching boundary after the helper's retaliation message."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
