@@ -272846,7 +272846,7 @@
     {
       "id": "fix-makemon-shopkeeper-genesis-admission-v46-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Allow forced wizard Genesis of a shopkeeper through ordinary makemon placement.",
       "cFile": "makemon.c",
       "sessions": [],
@@ -272858,8 +272858,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "696981041adb7876b92090fe5486dc9ca68af575",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "makemon",
       "session": "synthetic/v46/v46-shopkeeper-make-happy-scroll-attempt25",
       "step": 33,
@@ -273030,7 +273033,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "696981041adb7876b92090fe5486dc9ca68af575",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
