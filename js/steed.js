@@ -144,6 +144,7 @@ import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { enexto, teleds } from './teleport.js';
 import {
     float_down,
+    sokoban_guilt,
     t_at,
     trapname,
 } from './trap.js';
@@ -852,7 +853,8 @@ async function landing_spot(reason, forceit, state = game, random = { rn2 }) {
 
 // C ref: steed.c dismount_steed() (575-826). This port covers the
 // DISMOUNT_BYCHOICE, DISMOUNT_KNOCKED, DISMOUNT_FELL, and dead-steed
-// DISMOUNT_GENERIC paths; other reasons still identify their unported callers.
+// DISMOUNT_GENERIC paths and the DISMOUNT_POLY transformation path; other
+// reasons still identify their unported callers.
 export async function dismount_steed(reason, state = game, rawEnv = {}) {
     const u = state.u;
     const random = rawEnv.random ?? { rn2 };
@@ -905,11 +907,14 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
         }
         break;
     case DISMOUNT_POLY:
-        // "You can no longer ride %s." from polyself.c, uhitm.c, dogmove.c
-        // and trap.c, when either party changes shape.
-        throw new UnsupportedSteedError(
-            'dismount_steed(DISMOUNT_POLY)',
+        // C steed.c:618-621, reached after a polymorph changes the hero's
+        // form and can_ride() rejects the current mount.
+        await ttyPline(
+            `You can no longer ride ${mon_nam(u.usteed, state)}.`, state,
         );
+        if (!have_spot)
+            have_spot = await landing_spot(reason, 1, state, random);
+        break;
     case DISMOUNT_ENGULFED:
         // mhitu.c prints its own message; the tail below then skips
         // float_down() and leaves the hero inside the engulfer.
@@ -1028,14 +1033,8 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
                 have_spot.x, have_spot.y, TELEDS_ALLOW_DRAG, state,
                 { redraw: newsym },
             );
-            if (sobj_at(BOULDER, have_spot.x, have_spot.y, state)) {
-                // sokoban.c sokoban_guilt() is only reachable on a Sokoban
-                // level, and requireSimpleHeroDestination() refuses a
-                // boulder square before teleds() moves the hero anyway.
-                throw new UnsupportedSteedError(
-                    'dismount_steed() onto a boulder',
-                );
-            }
+            if (sobj_at(BOULDER, have_spot.x, have_spot.y, state))
+                sokoban_guilt(state);
             state.in_steed_dismounting = 0;
 
             /* Put your steed in your trap */

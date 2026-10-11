@@ -495,6 +495,7 @@ import {
     trapname,
     into_vs_onto,
     immune_to_trap,
+    sokoban_guilt,
 } from './trap.js';
 import {
     blow_up_landmine,
@@ -1932,7 +1933,7 @@ async function cannot_push(otmp, sx, sy, state, env) {
                         ? ' and could pick it up' : ''}.`,
                 state,
             );
-            note_unported('trap.c sokoban_guilt');
+            sokoban_guilt(state);
         }
         return 0;
     }
@@ -1945,7 +1946,7 @@ async function cannot_push(otmp, sx, sy, state, env) {
         await message(
             'However, you can squeeze yourself into a small opening.', state,
         );
-        note_unported('trap.c sokoban_guilt');
+        sokoban_guilt(state);
         return 0;
     }
     return -1;
@@ -2385,7 +2386,7 @@ async function moverock_core(sx, sy, state, env) {
                     `You ${u_locomotion('step', state)} over a boulder here.`,
                     state,
                 );
-                note_unported('trap.c sokoban_guilt');
+                sokoban_guilt(state);
                 return 0;
             }
             if (could_move_onto_boulder(sx, sy, u.dx, u.dy, state)) {
@@ -2394,7 +2395,7 @@ async function moverock_core(sx, sy, state, env) {
                         ? 'over' : 'against'} the boulder.`,
                     state,
                 );
-                note_unported('trap.c sokoban_guilt');
+                sokoban_guilt(state);
                 return 0;
             }
             await message('There is a boulder in your way.', state);

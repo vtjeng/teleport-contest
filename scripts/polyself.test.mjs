@@ -113,6 +113,13 @@ test('polymon cures sickness after the new form grants resistance', () => {
         /const sicknessResistance = u\.uprops\[SICK_RES\];\s*const sickResistant = Boolean\(\s*sicknessResistance\.intrinsic \|\| sicknessResistance\.extrinsic\s*\|\| defended\(state\.youmonst, M\.AD_DISE, state\),\s*\);\s*if \(sickResistant && u\.uprops\[SICK\]\.intrinsic\) \{\s*await make_sick\(0, null, false, SICK_ALL, state, env\);\s*await message\('You no longer feel sick\.', state, env\);/u);
 });
 
+test('polymon dismounts when the transformed hero cannot ride', () => {
+    assert.match(C_POLYMON_FUNCTION,
+        /if \(!can_ride\(u\.usteed\)\)\s*dismount_steed\(DISMOUNT_POLY\);/u);
+    assert.match(JS_POLYMON_FUNCTION,
+        /const \{ can_ride, dismount_steed \} = await import\('\.\/steed\.js'\);\s*if \(!can_ride\(u\.usteed, state\)\)\s*await dismount_steed\(DISMOUNT_POLY, state, env\);/u);
+});
+
 test('armor_to_dragon maps source scale armor and non-dragon defaults', () => {
     assert.equal(armor_to_dragon(GRAY_DRAGON_SCALE_MAIL), PM_GRAY_DRAGON);
     assert.equal(armor_to_dragon(GREEN_DRAGON_SCALES), PM_GREEN_DRAGON);
