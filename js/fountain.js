@@ -116,6 +116,7 @@ import {
     POT_OBJECT_DETECTION, POT_OIL, POT_POLYMORPH, POT_WATER, RING_CLASS,
 } from './objects.js';
 import { canspotmon } from './display.js';
+import { somegold } from './steal.js';
 
 // ── Fail-closed error ──
 // Thrown when a fountain function reaches a branch this port has not ported.
@@ -913,30 +914,6 @@ function SET_FOUNTAIN_LOOTED(x, y, state) {
 }
 function CLEAR_FOUNTAIN_LOOTED(x, y, state) {
     state.level.at(x, y).flags &= ~F_LOOTED;
-}
-
-// ── somegold ──
-// C ref: steal.c somegold() (14-34). Determine how much gold to lose
-// based on the total amount available. Uses rn1 for each bracket.
-function somegold(lmoney, random) {
-    const LARGEST_INT = 0x7FFFFFFF;
-    let igold = lmoney >= LARGEST_INT ? LARGEST_INT : Math.trunc(lmoney);
-    if (igold < 50) {
-        // all gold
-    } else if (igold < 100) {
-        igold = random.rn1(igold - 25 + 1, 25);
-    } else if (igold < 500) {
-        igold = random.rn1(igold - 50 + 1, 50);
-    } else if (igold < 1000) {
-        igold = random.rn1(igold - 100 + 1, 100);
-    } else if (igold < 5000) {
-        igold = random.rn1(igold - 500 + 1, 500);
-    } else if (igold < 10000) {
-        igold = random.rn1(igold - 1000 + 1, 1000);
-    } else {
-        igold = random.rn1(igold - 5000 + 1, 5000);
-    }
-    return igold;
 }
 
 // ── dipfountain ──
