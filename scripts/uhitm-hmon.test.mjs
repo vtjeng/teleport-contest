@@ -391,15 +391,15 @@ test('mounted lance hit consumes joust result and runs the full hurtle helper',
         assert.equal(mon.mstun, 1);
     });
 
-// uhitm.c:826-833. A temple priest's god strikes back through ghod_hitsu(),
-// behind an rn2(2) that only a priest target draws. That consequence remains
-// unported, while the peaceful shopkeeper/watchman path now calls
-// angry_guards() after hmon_hitmon().
+// uhitm.c:826-833. A priest's god-response gate is an rn2(2) draw after
+// hmon_hitmon(); an occupied temple with a shrine then runs ghod_hitsu().
+// The peaceful shopkeeper/watchman path separately calls angry_guards().
 test('hmon applies the priest consequence after the hit', async () => {
     await hero();
-    // uhitm.c:827 draws rn2(2) only after hmon_hitmon() has returned.  The
-    // god response is still an explicit void source gap, but it must not
-    // suppress the damage or reorder the priest draw.
+    game.unported = new Set();
+    // uhitm.c:829 draws rn2(2) only after hmon_hitmon() has returned. The
+    // test's priest is outside a temple, so ghod_hitsu() returns after its
+    // source precondition without changing the hit result or draw order.
     for (const overrides of [
         { ispriest: 1 },
         { ispriest: 1, mpeaceful: 1 },
@@ -411,6 +411,7 @@ test('hmon applies the priest consequence after the hit', async () => {
         assert.ok(env.bounds.includes('rn2(2)'));
         assert.ok(priest.mhp < 99);
     }
+    assert.equal(game.unported.has('priest.c ghod_hitsu'), false);
     // A hostile shopkeeper is not protected: anger_guards at uhitm.c:826
     // requires mpeaceful, so this one runs the whole function.
     const env = hitEnv({ rolls: [2, 1, 1] });

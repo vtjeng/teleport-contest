@@ -5,6 +5,7 @@
 
 import { inv_cnt, near_capacity } from './hack.js';
 import { o_unleash } from './apply.js';
+import { a_gname } from './pray.js';
 import {
     ACH_AMUL,
     ACH_BELL,
@@ -394,13 +395,6 @@ export class UnsupportedFeatureDescriptionError extends Error {
     }
 }
 
-function altarDeityName(alignment, state) {
-    const name = alignment === A_LAWFUL ? state.urole?.lgod
-        : alignment === A_NEUTRAL ? state.urole?.ngod
-            : alignment === A_CHAOTIC ? state.urole?.cgod : 'Moloch';
-    return String(name ?? 'someone').replace(/^_/u, '');
-}
-
 function alignmentName(alignment) {
     switch (alignment) {
     case A_CHAOTIC: return 'chaotic';
@@ -459,7 +453,8 @@ export function dfeature_at(x, y, state = game) {
             (lev.flags ?? 0) & ~AM_SHRINE,
         );
         dfeature = `${(lev.flags & AM_SANCTUM) ? 'high ' : ''}altar to `
-            + `${altarDeityName(altarAlignment, state)} (${alignmentName(
+            // invent.c calls a_gname(), which reads the hero's current tile.
+            + `${a_gname(state)} (${alignmentName(
                 altarAlignment,
             )})`;
     } else if (stairway_at(x, y, state)) {

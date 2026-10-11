@@ -17,6 +17,9 @@ import {
     A_NEUTRAL,
     A_STR,
     AM_SANCTUM,
+    AM_CHAOTIC,
+    AM_NEUTRAL,
+    AM_LAWFUL,
     Align2amask,
     BLINDED,
     CONFUSION,
@@ -114,6 +117,8 @@ import {
     TROUBLE_UNUSEABLE_HANDS,
     TROUBLE_WOUNDED_LEGS,
     altar_wrath,
+    a_gname,
+    a_gname_at,
     altarmask_at,
     angrygods,
     can_pray,
@@ -1805,6 +1810,59 @@ test('pray.c a_align reads real altar flags even under a furniture mimic', async
     assert.equal(altarmask_at(u.ux, u.uy, game), 0);
     assert.equal(await can_pray(true, game), true);
     assert.equal(game.gp.p_aligntyp, A_LAWFUL);
+});
+
+test('pray.c altar deity helpers read the real altar at the requested square', () => {
+    assert.match(PRAY_C, /a_gname_at\(coordxy x, coordxy y\)/u);
+    assert.match(PRAY_C, /if \(!IS_ALTAR\(levl\[x\]\[y\]\.typ\)\)\s*return \(char \*\) 0;/u);
+    assert.match(PRAY_C, /return align_gname\(a_align\(x, y\)\);/u);
+    assert.match(PRAY_JS, /export function a_gname_at\(x, y, state = game\)/u);
+    const cHeroName = PRAY_C.slice(
+        PRAY_C.indexOf('a_gname(void)'),
+        PRAY_C.indexOf('\n}', PRAY_C.indexOf('a_gname(void)')) + 2,
+    );
+    assert.match(cHeroName, /return a_gname_at\(u\.ux, u\.uy\);/u);
+    assert.match(PRAY_JS, /export function a_gname\(state = game\)[\s\S]*?a_gname_at\(u\.ux, u\.uy, state\)/u);
+
+    const location = { typ: ALTAR, flags: AM_LAWFUL };
+    const state = {
+        u: { ux: 4, uy: 7 },
+        level: {
+            at(x, y) {
+                assert.deepEqual([x, y], [4, 7]);
+                return location;
+            },
+        },
+        urole: {
+            lgod: '_A lawful deity',
+            ngod: 'A neutral deity',
+            cgod: 'A chaotic deity',
+        },
+    };
+
+    assert.equal(a_gname_at(4, 7, state), 'A lawful deity');
+    assert.equal(a_gname(state), 'A lawful deity');
+    location.flags = AM_NEUTRAL;
+    assert.equal(a_gname_at(4, 7, state), 'A neutral deity');
+    assert.equal(a_gname(state), 'A neutral deity');
+    location.flags = AM_CHAOTIC;
+    assert.equal(a_gname_at(4, 7, state), 'A chaotic deity');
+    assert.equal(a_gname(state), 'A chaotic deity');
+    location.typ = ROOM;
+    assert.equal(a_gname_at(4, 7, state), null);
+    assert.equal(a_gname(state), null);
+});
+
+test('active pray.c a_gname callers use the current-square wrapper', () => {
+    const cCallSites = PRAY_C.match(/a_gname\(\)/gu) ?? [];
+    const jsCallSites = PRAY_JS.match(/a_gname\(state\)/gu) ?? [];
+    assert.equal(cCallSites.length, 7);
+    assert.equal(jsCallSites.length, 4);
+    // The four active source uses are offer_different_alignment_altar's three
+    // deity messages and offer_corpse's conduct message. The other three are
+    // inside the explicitly refused offer_real_amulet path.
+    assert.match(PRAY_C, /offer_real_amulet\([\s\S]*?a_gname\(\)/u);
+    assert.match(PRAY_JS, /note_unported\('pray\.c offer_real_amulet'\)/u);
 });
 
 test('can_pray() refuses a demon whose god is not neutral', async () => {

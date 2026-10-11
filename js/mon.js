@@ -220,7 +220,7 @@ import {
     surface,
 } from './dungeon.js';
 import { del_engr_at, sengr_at } from './engrave.js';
-import { p_coaligned } from './priest.js';
+import { ghod_hitsu, p_coaligned } from './priest.js';
 import { record_achievement } from './insight.js';
 import { quest_info } from './questpgr.js';
 import { in_rooms } from './rooms.js';
@@ -3954,7 +3954,7 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
         if (was_peaceful) {
             if (monster.ispriest
                 && in_rooms(monster.mx, monster.my, TEMPLE, state).length)
-                note_unported('priest.c ghod_hitsu');
+                await ghod_hitsu(monster, { ...rawEnv, state });
             if (monster.isshk && !state.u.ushops?.[0])
                 note_unported('shk.c hot_pursuit');
         }

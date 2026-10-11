@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { mon_aligntyp } from '../js/priest.js';
+import { ghod_hitsu, mon_aligntyp } from '../js/priest.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_ALIGNED_CLERIC, PM_HIGH_CLERIC } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
@@ -114,6 +114,28 @@ test('priest.c mon_aligntyp selects the source extension and preserves A_NONE', 
         ispriest: true,
         mextra: { epri: { shralign: A_NONE } },
     }), A_NONE);
+});
+
+test('priest.c ghod_hitsu preserves boundary selection and response order', () => {
+    const cStart = PRIEST_C_SOURCE.indexOf('\nghod_hitsu(');
+    const cEnd = PRIEST_C_SOURCE.indexOf('\nvoid\nangry_priest', cStart);
+    const cFunction = PRIEST_C_SOURCE.slice(cStart, cEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cFunction, /temple_occupied\(u\.urooms\)/u);
+    assert.match(cFunction, /!has_shrine\(priest\)/u);
+    assert.match(cFunction, /switch \(rn2\(4\)\)/u);
+    assert.match(cFunction, /if \(!linedup\(u\.ux, u\.uy, x, y, 1\)\)\s*return;/u);
+    assert.match(cFunction, /switch \(rn2\(3\)\)/u);
+    assert.match(cFunction, /buzz\(BZ_M_SPELL\(BZ_OFS_AD\(AD_ELEC\)\), 6,/u);
+    assert.ok(cFunction.indexOf('gb.buzzer = oldbuzzer;')
+        < cFunction.indexOf('gc.current_wand = oldcurrwand;'));
+    assert.match(cFunction, /exercise\(A_WIS, FALSE\);/u);
+
+    assert.equal(typeof ghod_hitsu, 'function');
+    assert.match(PRIEST_JS_SOURCE, /export async function ghod_hitsu\(priest, rawEnv = \{\}\)/u);
+    assert.match(PRIEST_JS_SOURCE, /await buzz\([\s\S]*?rawEnv\.random,[\s\S]*?rawEnv,/u);
+    assert.match(PRIEST_JS_SOURCE, /await exercise\(A_WIS, false, state, rawEnv\.random\)/u);
 });
 
 test('priestini marks only its source sanctum High Cleric creation for makemon', () => {
