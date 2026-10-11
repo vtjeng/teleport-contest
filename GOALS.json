@@ -277286,6 +277286,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-do-dodrop-shop-bracketing-v47-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port do.c dodrop shop state bracketing and wire every active command path.",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst"
+      ],
+      "selectionReason": "The accepted v47 case still stops at step 47 in the in-shop drop command. The queue annotates shk.c:sellobj_state, but investigations/synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.json traces the active refusal to the complete do.c:dodrop caller. Port dodrop and its direct command, MCMD_DROP, and IA_DROP_OBJ production paths; keep downstream void shk.c:sellobj as an explicit gap.",
+      "detail": "The complete do.c:dodrop function brackets getobj/drop with SELL_DELIBERATE and SELL_NORMAL, then conditionally resets occupations. Three independent C recordings cover the direct d command, MCMD_DROP, and IA_DROP_OBJ entry points.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dodrop",
+          "line": 29,
+          "endLine": 49,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 29,
+        "to": 49
+      },
+      "syntheticProvenance": {
+        "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst": {
+          "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+          "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+          "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4"
+        }
+      }
     }
   ]
 }
