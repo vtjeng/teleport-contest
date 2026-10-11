@@ -44,7 +44,7 @@ import { PM_ARCHEOLOGIST, PM_GUARD, S_NYMPH, S_SNAKE } from './monsters.js';
 import { incr_itimeout } from './potion.js';
 import { create_gas_cloud } from './region.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
-import { altarmask_at } from './pray.js';
+import { altarmask_at, desecrate_altar } from './pray.js';
 import { in_rooms } from './rooms.js';
 import { set_levltyp } from './terrain.js';
 import {
@@ -424,7 +424,7 @@ export async function do_earthquake(force, state = game, rawEnv = {}) {
                 if (cansee(x, y, state)) {
                     await message(`The ${align_str(alignment)} altar falls into a chasm.`, state);
                 }
-                note_unported('pray.c desecrate_altar');
+                await desecrate_altar(false, alignment, state);
                 await do_pit(x, y, tuPit, state, { ...env, random, message });
                 break;
             }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent patched-C recipe for the active digactualhole caller: step south off the entrance stair, wish a lawful altar and a digging wand, then break the wand and continue through every pager prompt so its center-square BY_OBJECT branch destroys the altar and calls desecrate_altar.",
+  "segments": [
+    {
+      "seed": 47110318,
+      "datetime": "20571114151618",
+      "nethackrc": "OPTIONS=name:A2DigAltar,role:Valkyrie,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "j\u0017lawful altar\n\u0017uncursed wand of digging\naey                "
+    }
+  ]
+}
