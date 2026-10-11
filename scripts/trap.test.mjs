@@ -55,6 +55,43 @@ test('drown calls teleport.c:dotele before its pool-relocation check', () => {
     assert.doesNotMatch(jsDrown, /await tele\(state\)/u);
 });
 
+test('drown uses the canonical potion.c gremlin split helper', () => {
+    const cDrown = cFunction(C_TRAP, 'drown(void)', '\ndrain_en(');
+    const jsDrownStart = JS_TRAP.indexOf('export async function drown(');
+    const jsDrownEnd = JS_TRAP.indexOf(
+        '// C ref: trap.c lava_effects()', jsDrownStart,
+    );
+    assert.ok(jsDrownStart >= 0 && jsDrownEnd > jsDrownStart);
+    const jsDrown = JS_TRAP.slice(jsDrownStart, jsDrownEnd);
+
+    const cGremlin = cDrown.indexOf(
+        'if (u.umonnum == PM_GREMLIN && rn2(3))',
+    );
+    const cSplit = cDrown.indexOf(
+        '(void) split_mon(&gy.youmonst, (struct monst *) 0);', cGremlin,
+    );
+    const cGolem = cDrown.indexOf(
+        '} else if (u.umonnum == PM_IRON_GOLEM)', cGremlin,
+    );
+    assert.ok(cGremlin >= 0 && cGremlin < cSplit && cSplit < cGolem);
+
+    const jsGremlin = jsDrown.indexOf(
+        'if (u.umonnum === PM_GREMLIN && rn2(3))',
+    );
+    const jsImport = jsDrown.indexOf(
+        "const { split_mon } = await import('./potion.js');", jsGremlin,
+    );
+    const jsSplit = jsDrown.indexOf(
+        'await split_mon(state.youmonst, null, { state });', jsImport,
+    );
+    const jsGolem = jsDrown.indexOf(
+        '} else if (u.umonnum === PM_IRON_GOLEM)', jsGremlin,
+    );
+    assert.ok(jsGremlin >= 0 && jsGremlin < jsImport
+        && jsImport < jsSplit && jsSplit < jsGolem);
+    assert.doesNotMatch(jsDrown, /note_unported\(['"](?:mon|potion)\.c split_mon/u);
+});
+
 test('chest_trap flushes its trigger message before the Luck roll', () => {
     const cChestTrap = cFunction(
         C_TRAP,
