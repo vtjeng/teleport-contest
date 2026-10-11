@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent steal.c:somegold fountain-caller recording. Fresh wizard, seed 43051087, date/time 2054-02-03 04:05:08, and inputs; wish carried coins and a food ration, create a fountain at the hero square, then dip the ration. C reaches fountain.c:dipfountain case 28 with money above 10 and executes steal.c:somegold.",
+  "segments": [
+    {
+      "seed": 43051087,
+      "datetime": "20540203040508",
+      "nethackrc": "OPTIONS=name:GoldBath,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\n1000 gold pieces\n#wizwish\nuncursed food ration\n\u0017fountain\n#dip\noy"
+    }
+  ]
+}

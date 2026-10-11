@@ -62,6 +62,7 @@ import { near_capacity } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     PM_ACID_BLOB,
+    PM_GRAY_UNICORN,
     PM_GHOUL,
     PM_HORNED_DEVIL,
     PM_HUMAN,
@@ -439,6 +440,47 @@ test('aligned unicorn insult suppresses the intermediate wisdom message', () => 
         jsEval,
         /await adjattrib\(A_WIS, -1, 1, state, \{ message: ttyPline \}\);\s*return -1;/u,
     );
+    assert.match(PRAY_JS, /import \{ align_str \} from '\.\/insight\.js';/u);
+});
+
+test('unicorn offering renders the alignment through insight.js', async () => {
+    await startedGame();
+    const altar = game.level.at(game.u.ux, game.u.uy);
+    const previousType = altar.typ;
+    const previousMask = altar.flags;
+    const previousInventory = game.invent;
+    const previousAlignmentRecord = game.u.ualign.record;
+    const previousConduct = game.u.uconduct.gnostic;
+    const previousUnported = new Set(game.unported ?? []);
+    altar.typ = ALTAR;
+    altar.flags = Align2amask(A_LAWFUL);
+    game.invent = {
+        invlet: 'a',
+        otyp: CORPSE,
+        oclass: FOOD_CLASS,
+        corpsenm: PM_GRAY_UNICORN,
+        quan: 1,
+        where: OBJ_INVENT,
+        nobj: null,
+        nexthere: null,
+    };
+    game.nhDisplay.terminal._inputQueue.push(32, 32, 32, 32);
+    cmdq_add_key(CQ_CANNED, 'a', game);
+
+    try {
+        assert.equal(await dosacrifice(game), ECMD_TIME);
+        assert.ok(!game.unported.has('pray.c eval_offering'));
+        // A gray unicorn is cross-aligned with the lawful altar but not with
+        // this lawful hero; this is exactly eval_offering()'s align_str arm.
+        assert.ok(game.u.ualign.record > previousAlignmentRecord);
+    } finally {
+        altar.typ = previousType;
+        altar.flags = previousMask;
+        game.invent = previousInventory;
+        game.u.ualign.record = previousAlignmentRecord;
+        game.u.uconduct.gnostic = previousConduct;
+        game.unported = previousUnported;
+    }
 });
 
 test('own-race sacrifice summons the source-selected altar demon', async () => {

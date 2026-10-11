@@ -17,6 +17,7 @@ import {
     LOST_THROWN,
     LS_OBJECT,
     NON_PM,
+    OBJ_DELETED,
     OBJ_FLOOR,
     OBJ_FREE,
     OBJ_MINVENT,
@@ -36,6 +37,7 @@ import { AT_ENGL, PM_WOOD_NYMPH, monst_globals_init } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import {
     findgold,
+    somegold,
     mpickobj,
     preflight_mpickobj,
     relobj,
@@ -50,6 +52,7 @@ import {
     APPLE,
     ARMOR_CLASS,
     BOULDER,
+    COIN_CLASS,
     FIGURINE,
     FOOD_CLASS,
     GOLD_DRAGON_SCALE_MAIL,
@@ -833,14 +836,32 @@ test('a drop merges past a pile member it cannot join', async () => {
     assert.notEqual(mergeable.where, OBJ_FLOOR);
 });
 
-test('relobj stops on the vault guard arm that is not ported', async () => {
+test('relobj drops a vault guard inventory with no gold', async () => {
     const guard = dropFixture({ isgd: true });
-    await assert.rejects(
-        relobj(guard.carrier, 0, true, guard.env),
-        (error) => error instanceof RefusedRelease
-            && error.reason === "a vault guard's gold vanishing",
-    );
-    assert.equal(guard.held.where, OBJ_MINVENT);
+    await relobj(guard.carrier, 0, false, guard.env);
+
+    assert.equal(guard.carrier.minvent, null);
+    assert.equal(guard.held.where, OBJ_FLOOR);
+    assert.deepEqual(guard.messages, []);
+});
+
+test('relobj removes a vault guard gold stack before dropping inventory', async () => {
+    const guard = dropFixture({
+        isgd: true,
+        // Seventeen coins is an arbitrary positive gold stack for this C arm.
+        carried: { otyp: GOLD_PIECE, oclass: COIN_CLASS, quan: 17 },
+    });
+    const apple = object({ where: OBJ_MINVENT, oclass: FOOD_CLASS });
+    guard.held.nobj = apple;
+    apple.ocarry = guard.carrier;
+
+    await relobj(guard.carrier, 0, false, guard.env);
+
+    assert.equal(guard.carrier.minvent, null);
+    assert.equal(guard.held.where, OBJ_DELETED);
+    assert.equal(apple.where, OBJ_FLOOR);
+    // steal.c:884-887 uses this message when canspotmon() and canseemon() hold.
+    assert.deepEqual(guard.messages, ["The little dog's gold vanishes."]);
 });
 
 // ── mdrop_obj() with an object the monster had equipped ──
@@ -1322,4 +1343,32 @@ test('findgold returns null when the chain has no GOLD_PIECE', () => {
 test('findgold returns null for a null chain', () => {
     // Covers the entry guard: an empty inventory (null) returns null.
     assert.equal(findgold(null), null);
+});
+
+test('somegold follows steal.c thresholds and rn1 bounds', () => {
+    const calls = [];
+    const random = {
+        rn1: (range, base) => { calls.push([range, base]); return base; },
+    };
+    const cases = [
+        [49, null],
+        [50, [26, 25]],
+        [99, [75, 25]],
+        [100, [51, 50]],
+        [499, [450, 50]],
+        [500, [401, 100]],
+        [999, [900, 100]],
+        [1000, [501, 500]],
+        [4999, [4500, 500]],
+        [5000, [4001, 1000]],
+        [9999, [9000, 1000]],
+        [10000, [5001, 5000]],
+        [0x7fffffff + 1, [0x7fffffff - 5000 + 1, 5000]],
+    ];
+
+    for (const [money, expected] of cases) {
+        const before = calls.length;
+        assert.equal(somegold(money, random), expected ? expected[1] : money);
+        assert.deepEqual(calls.slice(before), expected ? [expected] : []);
+    }
 });

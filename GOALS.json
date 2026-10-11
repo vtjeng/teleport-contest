@@ -261559,6 +261559,1353 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-steal-gold-theft-v43-20261011",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port hostile leprechaun gold theft and its active callers",
+      "cFile": "steal.c",
+      "sessions": [
+        "synthetic/v43/v43-leprechaun-attacks-after-wake-cfirst"
+      ],
+      "selectionReason": "The admitted v43 replay first diverges in steal.c:somegold after an incoming AD_SGLD attack reaches the unported stealgold branch.",
+      "detail": "Source tracing follows mhitu.c:mattacku through uhitm.c:mhitm_ad_sgld into steal.c:stealgold; fountain.c:dipfountain already duplicated somegold, and steal.c:relobj is an active findgold caller.",
+      "openedAt": "c33dafadc3530298a32ce5545c9f13c54d35b2dd",
+      "openStanding": {
+        "sha": "b73fdc85db11090859404e7c98f66b6e384dfbfc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "somegold",
+          "line": 14,
+          "endLine": 44,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "findgold",
+          "line": 45,
+          "endLine": 57,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "stealgold",
+          "line": 58,
+          "endLine": 119,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 14,
+        "to": 119
+      },
+      "requiredFunctions": [
+        {
+          "name": "relobj",
+          "line": 875,
+          "endLine": 901,
+          "declared": true,
+          "sourceFile": "steal.c",
+          "complete": false
+        },
+        {
+          "name": "mhitm_ad_sgld",
+          "line": 2790,
+          "endLine": 2858,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": true
+        },
+        {
+          "name": "dipfountain",
+          "line": 394,
+          "endLine": 557,
+          "declared": true,
+          "sourceFile": "fountain.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v43/v43-leprechaun-attacks-after-wake-cfirst": {
+          "session": "synthetic/v43/v43-leprechaun-attacks-after-wake-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-leprechaun-attacks-after-wake-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-leprechaun-attacks-after-wake-cfirst.session.json",
+          "recordingSha256": "7c49b4d17f6d9860f9450517594a95c4b12c068206314812ea46c629f0e4933d",
+          "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+          "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a"
+        }
+      },
+      "activeStanding": {
+        "sha": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-leprechaun-attacks-after-wake-cfirst",
+          "session": "synthetic/v43/v43-leprechaun-attacks-after-wake-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-leprechaun-attacks-after-wake-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-leprechaun-attacks-after-wake-cfirst.session.json",
+          "recordingSha256": "7c49b4d17f6d9860f9450517594a95c4b12c068206314812ea46c629f0e4933d",
+          "recipe": "challenges/cases/v43/v43-leprechaun-attacks-after-wake-cfirst.recipe.session.json",
+          "recipeSha256": "44b344df909e5690019c8f8b0331a78b961bdf168f2272dcacc1fa72b7eee98a",
+          "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f",
+          "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+          "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
+          "evaluationArtifact": "challenges/evaluations/v43-baseline-d89e1af6.json",
+          "evaluationUtc": "2026-10-11T01:16:14.974Z",
+          "remainingScreens": 15,
+          "recordedSteps": 77,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 62,
+              "total": 77
+            },
+            "rng": {
+              "matched": 2131,
+              "total": 2267
+            },
+            "cursors": {
+              "matched": 63,
+              "total": 77
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 62,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 46,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2110,
+              "cEntry": "rn2(501)=353",
+              "cCaller": "somegold(steal.c:27)",
+              "jsEntry": "rn2(3)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": "l"
+              },
+              "stepIndex": 62
+            },
+            "cursor": {
+              "index": 62,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": "l"
+              },
+              "cCursor": [
+                54,
+                0,
+                1
+              ],
+              "jsCursor": [
+                45,
+                16,
+                1
+              ]
+            }
+          },
+          "step": 62,
+          "kind": "rng",
+          "sourceFile": "steal.c",
+          "function": "somegold",
+          "message": null,
+          "cFile": "steal.c",
+          "luaFile": null,
+          "line": 27,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-leprechaun-attacks-after-wake-cfirst.json",
+            "result": {
+              "session": "synthetic/v43/v43-leprechaun-attacks-after-wake-cfirst",
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-leprechaun-attacks-after-wake-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "7c49b4d17f6d9860f9450517594a95c4b12c068206314812ea46c629f0e4933d",
+              "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+              "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
+              "remainingScreens": 15,
+              "recordedSteps": 77,
+              "status": "complete",
+              "commit": "5aa9231ad558c46b6b23638b9899cc8209a77aa1",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-leprechaun-attacks-after-wake-cfirst",
+                "session": "synthetic/v43/v43-leprechaun-attacks-after-wake-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-leprechaun-attacks-after-wake-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-leprechaun-attacks-after-wake-cfirst.session.json",
+                "recordingSha256": "7c49b4d17f6d9860f9450517594a95c4b12c068206314812ea46c629f0e4933d",
+                "recipe": "challenges/cases/v43/v43-leprechaun-attacks-after-wake-cfirst.recipe.session.json",
+                "recipeSha256": "44b344df909e5690019c8f8b0331a78b961bdf168f2272dcacc1fa72b7eee98a",
+                "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f",
+                "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+                "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
+                "evaluationArtifact": "challenges/evaluations/v43-baseline-d89e1af6.json",
+                "evaluationUtc": "2026-10-11T01:16:14.974Z",
+                "remainingScreens": 15,
+                "recordedSteps": 77,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 62,
+                    "total": 77
+                  },
+                  "rng": {
+                    "matched": 2131,
+                    "total": 2267
+                  },
+                  "cursors": {
+                    "matched": 63,
+                    "total": 77
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 62,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 62,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 46,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2110,
+                    "cEntry": "rn2(501)=353",
+                    "cCaller": "somegold(steal.c:27)",
+                    "jsEntry": "rn2(3)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 62,
+                      "key": "l"
+                    },
+                    "stepIndex": 62
+                  },
+                  "cursor": {
+                    "index": 62,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 62,
+                      "key": "l"
+                    },
+                    "cCursor": [
+                      54,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      45,
+                      16,
+                      1
+                    ]
+                  }
+                },
+                "step": 62,
+                "kind": "rng",
+                "sourceFile": "steal.c",
+                "function": "somegold",
+                "message": null,
+                "cFile": "steal.c",
+                "luaFile": null,
+                "line": 27
+              },
+              "summary": "At segment 0 step 62, a woken hostile leprechaun reaches the incoming AD_SGLD attack and should transfer gold from the hero. C calls steal.c:stealgold after hitmsg(), the same-species guard, and the attacker-canceled guard; JS leaves note_unported(\"steal.c stealgold\") in that exact mhitm_ad_sgld branch. The first divergence is the carried-gold subset draw: C calls somegold(money_cnt(invent)) and records rn2(501)=353, while JS records an unrelated rn2(3)=2 and does not transfer the purse. Implement the contiguous steal.c helper family somegold/findgold/stealgold and wire its existing AD_SGLD and fountain-dip callers.",
+              "source": {
+                "file": "steal.c",
+                "branch": "For an uncanceled AD_SGLD attacker hitting the hero, uhitm.c:mhitm_ad_sgld emits hitmsg(), returns for same-species combat, then calls stealgold(). stealgold prefers floor gold when it is available and wins its quantity/random comparison; otherwise, if the hero carries a GOLD_PIECE stack, it calls somegold(money_cnt(invent)), converts the returned value to coins, transfers that quantity, prints the purse-lighter message, teleports/flees when allowed, and sets disp.botl. somegold() uses the source bracket thresholds and rn1 calls, so its selected range also includes the existing findgold() helper in definition order.",
+                "functions": [
+                  "somegold",
+                  "findgold",
+                  "stealgold"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_adtyping dispatches AD_SGLD to mhitm_ad_sgld; mhitu.c:mattacku reaches hitmu, whose AD_SGLD path uses that shared dispatcher before calling steal.c:stealgold.",
+                  "fountain.c:dipfountain case 28 calls steal.c:somegold to determine the coin loss; js/fountain.js previously kept a private copy rather than using the steal.c owner.",
+                  "steal.c:relobj releases a vault guard gold stack through findgold(), obj_extract_self(), and obfree(); js/steal.js previously stopped on isgd without checking for gold."
+                ],
+                "dependencies": [
+                  "Existing JS helpers cover findgold, money_cnt, object extraction/splitting, inventory transfer, monster inventory transfer, message/display, teleport restriction, relocation, and monster fleeing; preserve their source order and thread the existing state/random/message environment through the new owner. The steal.c:relobj caller also needs its existing findgold refusal removed.",
+                  "The v43 recording proves the carried-gold somegold/stealgold branch. The separate floor-gold snatch branch has source-pinned tests but no matching C recording that reaches it. The committed blocked recipe records the source-based setup barrier in monmove.c:leppie_avoidance."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The v43 baseline queue SHA-256 1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093 records 15 remaining screens for this case; challenges/evaluations/v43-baseline-d89e1af6.json pins the first mismatch at zero-based segment 0 step 62 (key \"l\"), call 2110: C rn2(501)=353 from somegold(steal.c:27), JS rn2(3)=2, with C cursor [54,0,1] and JS cursor [45,16,1].",
+                "The admitted v43 source trace states that the hero's prior hit wakes the hostile leprechaun; its next attack enters mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping(AD_SGLD) -> mhitm_ad_sgld -> steal.c:stealgold. At uhitm.c:2815-2821 C performs hitmsg, same-species return, then the !magr->mcan stealgold call; at the inspected baseline, js/uhitm.js:mhitm_ad_sgld replaced that call with note_unported(\"steal.c stealgold\").",
+                "Upstream steal.c:14-34 defines somegold’s bounded int conversion and six rn1 brackets; steal.c:45-52 defines findgold; steal.c:58-116 implements floor-stack preference, carried-gold subset and split, ownership transfer, feedback, optional relocation/fleeing, and botl update. The active steal.c:relobj findgold caller had a stale isgd-only refusal; this task wires its source guard, message, extraction, and freeing without claiming unrelated relobj behavior.",
+                "The source call sites are distinct and both must remain wired: uhitm.c:mhitm_ad_sgld calls stealgold at 2821, and fountain.c:dipfountain case 28 calls somegold at 510. at the inspected baseline, js/fountain.js:919-942 duplicated somegold privately for dipfountain; centralize it in js/steal.js and import the single owner from fountain.js.",
+                "Prior mismatch reports do not cover this behavior: investigations/synthetic/v19/leprechaun-steals-carried-gold-c62.json confirms the sleeping leprechaun never wakes or reaches AD_SGLD/stealgold; investigations/synthetic/v33/v33-leprechaun-hero-gold-steal.json covers the reverse direction (hero leprechaun attacks a no-gold dwarf) and documents the missing stealgold call as a discarded void-call gap; neither exercises successful incoming carried-gold theft.",
+                "The current report selects steal.c:somegold/findgold/stealgold and the active callers uhitm.c:mhitm_ad_sgld, fountain.c:dipfountain, and steal.c:relobj. It does not claim unrelated steal.c functions as complete. The v43 replay exercises the carried-gold branch. A separate floor-gold recording is still missing; the blocked recipe names monmove.c:leppie_avoidance as the source barrier when the hero carries no gold.",
+                "recipes/steal.c/stealgold-floor-gold-blocked-leppie-avoidance.session.json and its recording match fresh C/JavaScript replay but do not exercise stealgold. C monmove.c:leppie_avoidance makes a leprechaun carrying more gold than the hero avoid the hero; the probe drops all hero gold before creating the leprechaun."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "somegold",
+            "implementation": "js/steal.js",
+            "symbol": "somegold",
+            "sourceReview": "Read all of steal.c:14-34. The port preserves the LARGEST_INT clamp, every threshold and rn1 argument, and the single random draw selected by the source branch. js/fountain.js now imports this owner instead of keeping a duplicate. The function is impure because its upper branches draw RNG.",
+            "callers": [
+              {
+                "path": "js/steal.js",
+                "symbol": "stealgold",
+                "source": "steal.c:stealgold calls somegold(money_cnt(invent)) in the carried-gold branch."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipfountain",
+                "source": "fountain.c:dipfountain case 28 calls somegold to choose the gold loss."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/steal.test.mjs"
+            ],
+            "recordings": [
+              "recordings/steal.c/somegold-fountain-dip.session.json"
+            ],
+            "sourceFile": "steal.c",
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-leprechaun-attacks-after-wake-cfirst",
+                "segment": 0,
+                "fromStep": 62,
+                "throughStep": 62,
+                "source": "uhitm.c:mhitm_ad_sgld -> steal.c:stealgold -> somegold; C records rn2(501)=353."
+              }
+            ],
+            "checkedAt": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6"
+          },
+          {
+            "name": "findgold",
+            "implementation": "js/steal.js",
+            "symbol": "findgold",
+            "sourceReview": "Read all of steal.c:45-52. The pure traversal advances only through nobj until it finds an object whose otyp is GOLD_PIECE, returning null at the end. Existing direct callsites in detect.c, monmove.c, shk.c, and uhitm.c use js/steal.js:findgold; this task wires the existing steal.c:relobj caller after removing its stale isgd-only refusal. The C uhitm.c:steal_it caller remains skipped by note_unported because C discards that void call result. makemon.c:m_initinv uses the existing source-equivalent js/makemon_create.js:findMonsterGold check.",
+            "callers": [
+              {
+                "path": "js/steal.js",
+                "symbol": "stealgold",
+                "source": "steal.c:stealgold calls findgold for the hero inventory."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "relobj",
+                "source": "steal.c:relobj calls findgold only for a vault guard before removing its gold."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "gold_detect",
+                "source": "detect.c:gold_detect calls findgold while checking monster inventories."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "object_detect",
+                "source": "detect.c:object_detect calls findgold in its monster inventory scans."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "leppie_avoidance",
+                "source": "monmove.c:leppie_avoidance calls findgold for leprechaun and hero inventories."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "leppie_stash",
+                "source": "monmove.c:leppie_stash calls findgold before stashing leprechaun gold."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:dochug calls findgold in the leprechaun movement gate."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "money2mon",
+                "source": "shk.c:money2mon calls findgold for hero inventory."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "money2u",
+                "source": "shk.c:money2u calls findgold for shopkeeper inventory."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_sgld",
+                "source": "uhitm.c:mhitm_ad_sgld calls findgold for monster inventory in its source branches."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/steal.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "steal.c",
+            "synthetic": [],
+            "checkedAt": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6"
+          }
+        ],
+        "entryPointReview": "The selected source units are steal.c:somegold, findgold, and stealgold. Incoming AD_SGLD attacks reach stealgold through mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_ad_sgld; the v43 replay proves its carried-gold branch. Fountain dips reach somegold through fountain.c:dipfountain case 28 and the new matching recording. findgold is a helper with callers in steal.c, detect.c, monmove.c, shk.c, and uhitm.c; the existing JS direct callers are wired. uhitm.c:steal_it remains an explicit note_unported gap because its C caller is a discarded-void path; makemon.c:m_initinv uses the equivalent local findMonsterGold check. The existing steal.c:relobj caller now uses findgold and performs its C guard/message/extract/free branch, but this task does not claim relobj as a selected source unit. vault.c:grddead also calls relobj and remains owned by the separate C task. The floor-stack branch is implemented and source-pinned, but the only independent setup probe is blocked by monmove.c:leppie_avoidance, so stealgold remains incomplete pending a recording that reaches that branch.",
+        "entryPoints": [
+          {
+            "name": "Incoming hostile leprechaun AD_SGLD attack with hero-carried gold",
+            "functions": [
+              "stealgold",
+              "somegold",
+              "findgold"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-leprechaun-attacks-after-wake-cfirst",
+                "segment": 0,
+                "fromStep": 62,
+                "throughStep": 62,
+                "source": "mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_ad_sgld -> steal.c:stealgold -> findgold/somegold; the C trace reaches rn2(501) in the carried-gold subset branch."
+              }
+            ]
+          },
+          {
+            "name": "Fountain dip gold loss",
+            "functions": [
+              "somegold"
+            ],
+            "recordings": [
+              "recordings/steal.c/somegold-fountain-dip.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Verified somegold and findgold; stealgold still needs matching floor-gold runtime evidence, relobj needs the pending vault-guard death replay, and fountain.c:dipfountain needs complete source evidence."
+    },
+    {
+      "id": "fix-v43-makewish-isreviver-hook-20261011",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix wish corpse stacking and the reached drop and offering paths",
+      "cFile": "zap.c",
+      "sessions": [],
+      "selectionReason": "The admitted v43 makewish case first diverges because zap.c:makewish omits the canonical isReviver hook used by inventory merging; continued source tracing in the same case reaches bounded defects in do.c:dropx preflight and pray.c:eval_offering alignment text.",
+      "detail": "The correction supplies makewish with the canonical reviver predicate, admits the source-defined timed corpse floor merge in dropx, and restores eval_offering alignment text. The replay matches through step 290; pray.c:give_spell at step 291 remains separate.",
+      "openedAt": "5ff4f82351110ab6293145b4cd5a6e4ca15ab1f8",
+      "openStanding": {
+        "sha": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "makewish",
+      "session": "synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+      "step": 100,
+      "syntheticProvenance": {
+        "synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst": {
+          "session": "synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.session.json",
+          "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
+          "evaluationPath": "challenges/evaluations/accepted-043ba3ff2e1b7558f7e25ef1a9daa70130c173f6-v43.json",
+          "evaluationCommit": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6"
+        }
+      },
+      "activeStanding": {
+        "sha": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "session": "synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.session.json",
+          "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
+          "recipe": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json",
+          "recipeSha256": "b8e4ca41d452d1a4edfa0c9edf79687a46e0528b22985093b4d5f39b1a69003c",
+          "replayInputSha256": "45819795d304ab7ea348a7a0debf9986ac406039ccaef776f861090cc77915b4",
+          "evaluationPath": "challenges/evaluations/accepted-043ba3ff2e1b7558f7e25ef1a9daa70130c173f6-v43.json",
+          "evaluationCommit": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6",
+          "evaluationArtifact": "challenges/evaluations/accepted-043ba3ff2e1b7558f7e25ef1a9daa70130c173f6-v43.json",
+          "evaluationUtc": "2026-10-11T01:59:56.268Z",
+          "remainingScreens": 201,
+          "recordedSteps": 301,
+          "previousScreensMatched": 100,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 100,
+              "total": 301
+            },
+            "rng": {
+              "matched": 2399,
+              "total": 2617
+            },
+            "cursors": {
+              "matched": 100,
+              "total": 301
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: isReviver is not available for otyp 265",
+            "step": 100
+          },
+          "step": 100,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: isReviver is not available for otyp 265",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst.json",
+            "result": {
+              "session": "synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
+              "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+              "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
+              "remainingScreens": 201,
+              "recordedSteps": 301,
+              "status": "complete",
+              "goalKind": "divergence-fix",
+              "commit": "42b8e23687eab4b71988b73708c121750093abe7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+                "session": "synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.session.json",
+                "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
+                "recipe": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json",
+                "recipeSha256": "b8e4ca41d452d1a4edfa0c9edf79687a46e0528b22985093b4d5f39b1a69003c",
+                "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f",
+                "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+                "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
+                "evaluationArtifact": "challenges/evaluations/v43-baseline-d89e1af6.json",
+                "evaluationUtc": "2026-10-11T01:16:14.974Z",
+                "remainingScreens": 201,
+                "recordedSteps": 301,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 100,
+                    "total": 301
+                  },
+                  "rng": {
+                    "matched": 2399,
+                    "total": 2617
+                  },
+                  "cursors": {
+                    "matched": 100,
+                    "total": 301
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: isReviver is not available for otyp 265",
+                  "step": 100
+                },
+                "step": 100,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: isReviver is not available for otyp 265",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The original wizard-wish corpse-stack stop is fixed by wiring makewish’s canonical isReviver hook. Continued replay exposed two bounded source-path defects, also fixed here: do.js preflight now admits the timed corpse pile merge allowed by invent.c:mergable, and pray.js imports canonical align_str for eval_offering’s unicorn branch. After these fixes the admitted v43 replay matches through step 290 (291 screens, cursors, and RNG prefix); its first remaining divergence at step 291 is the separate pray.c:give_spell spellbook-generation path, which is intentionally outside this delivery.",
+              "source": {
+                "file": "zap.c",
+                "branch": "In zap.c:makewish, when a wizard wish creates a CORPSE and hold_another_object adds it to inventory, invent.c:mergable reaches its corpse branch after candidate objects have matching corpsenm values; for corpsenm >= LOW_PM it calls is_reviver(&mons[otmp->corpsenm]) and refuses to merge if true. JavaScript reaches the same branch in js/invent.js:mergable, which requires hooks.isReviver. The makewish-specific holdEnv omits the adapter already supplied by objectGenerationEnv, producing the step-100 UnsupportedObjectOperationError instead of C’s predicate result.",
+                "functions": [
+                  "makewish",
+                  "dropx",
+                  "eval_offering"
+                ],
+                "callers": [
+                  "cmd.c:rhack dispatches C(w) through wizcmds.c:wiz_wish to zap.c:makewish; JavaScript follows js/cmd.js:runWishCommand -> js/wizcmds.js:wiz_wish -> js/zap.js:makewish.",
+                  "zap.c:makewish passes its inventory/drop callbacks to hold_another_object, which reaches do.c:dropx when the wished object is dropped; js/zap.js:makewish supplies dropObject: js/do.js:dropx, whose preflight_dropx previously rejected a timed corpse merge admitted by invent.c:mergable.",
+                  "pray.c:dosacrifice -> offer_corpse -> eval_offering; JavaScript js/pray.js:dosacrifice -> offer_corpse -> eval_offering."
+                ],
+                "dependencies": [
+                  "invent.c:hold_another_object -> addinv_core0 -> mergable at 4442-4445",
+                  "mondata.h:is_reviver, already ported as js/mondata.js:is_reviver",
+                  "js/object_generation.js:objectGenerationEnv already provides the canonical hooks.isReviver adapter"
+                ],
+                "additionalUnits": [
+                  {
+                    "file": "do.c",
+                    "function": "dropx",
+                    "lines": "786-796",
+                    "implementation": "js/do.js:dropx / preflight_dropx",
+                    "correction": "Preflight admits a timed corpse pile member only when both objects are corpses with matching species and the member is neither lamplit nor globby, preserving the downstream merged() timer stop."
+                  },
+                  {
+                    "file": "pray.c",
+                    "function": "eval_offering",
+                    "lines": "1899-1956",
+                    "implementation": "js/pray.js:eval_offering",
+                    "correction": "Added the canonical align_str import used by the source branch when a unicorn is offered on an altar aligned with the hero; the source function logic was already ported."
+                  }
+                ]
+              },
+              "evidence": [
+                "Saved combined queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json (SHA-256 1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093) identifies synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst, with first stop at step 100: unsupported hero command: an unported branch of this command: isReviver is not available for otyp 265; it records 201 remaining screens over 301 steps.",
+                "Fresh differential of the admitted input-only recipe challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json at examined commit 42b8e23687eab4b71988b73708c121750093abe7 reproduces the early JS stop: the reference has 2,617 RNG calls and continues past step 100, while JavaScript stops at 2,399 calls; the next reference draw is zap.c:makewish at line 6421.",
+                "Upstream nethack-c/upstream/src/zap.c:6314-6422 builds the wished object and calls hold_another_object at 6419. Upstream nethack-c/upstream/src/invent.c:1208-1311 adds the object through inventory handling; mergable at 4442-4445 checks eggs and revivable corpses with is_reviver. The C branch already defines the expected behavior.",
+                "JavaScript js/zap.js:1942-1971 creates a custom holdEnv whose hooks cover inventory effects but omit isReviver. js/invent.js:3553-3554 requires that hook at the corpse branch. js/object_generation.js:42-50 already exports the canonical adapter, and js/mondata.js:1382 already ports is_reviver. The actionable scope is limited to wiring that adapter in js/zap.js and adding a source-pinned production-path regression in scripts/wizard-wish.test.mjs.",
+                "A trimmed input-only recipe ending at zero-based step 290 was freshly recorded and replayed with exact parity: 2,605 RNG calls, 291 screens, and 291 cursors match. This prefix reaches makewish’s reviver hook, the compatible timed corpse drop/stack path, and the later hero-aligned unicorn offering branch.",
+                "Implementation replay after the three bounded corrections: full C and JavaScript output contains 301 screens and cursors each. The first differing boundary is 292 (zero-based input step 291), when C begins pray.c:give_spell and reaches objnam.c:rnd_class. First RNG difference is call index 2608: C rnd(999)=358 @ rnd_class(objnam.c:5413), JavaScript rn2(1000)=579."
+              ],
+              "queueSha256": "1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093",
+              "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f",
+              "postImplementationDifferential": {
+                "command": "node scripts/diff-fresh.mjs challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json",
+                "result": "The full admitted replay now has an exact matching C/JavaScript prefix through zero-based step 290: 2,605 RNG calls, 291 of 301 screens, and 291 of 301 cursors match. The admitted white-unicorn offering reaches eval_offering’s align_str message branch before the cited prefix ends.",
+                "firstRemainingMismatch": {
+                  "zeroBasedStep": 291,
+                  "oneBasedBoundary": 292,
+                  "rngIndex": 2608,
+                  "source": "pray.c:pleased -> give_spell -> mkobj -> rnd_class (objnam.c:5413)",
+                  "cRng": "rnd(999)=358 @ rnd_class(objnam.c:5413)",
+                  "jsRng": "rn2(1000)=579",
+                  "screen": "At boundary 292, C displays “You feel that Thoth is pleased.--More--”; JavaScript does not pause for that page because js/pray.js:pleased still calls note_unported('pray.c give_spell').",
+                  "scope": "Separate source unit; pray.c:give_spell is not reserved, edited, or claimed in this delivery."
+                },
+                "fullReplayMetrics": {
+                  "c": {
+                    "screens": 301,
+                    "rng": 2617,
+                    "cursors": 301
+                  },
+                  "js": {
+                    "screens": 301,
+                    "rng": 2612,
+                    "cursors": 301
+                  }
+                },
+                "fullReplayLog": "/tmp/B-v43-makewish-after-pray-diff.log",
+                "exactPrefixRecipe": "/tmp/B-v43-makewish-prefix-291.recipe.session.json",
+                "exactPrefixLog": "/tmp/B-v43-makewish-prefix-291-diff.log"
+              }
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "session": "synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.session.json",
+          "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
+          "recipe": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json",
+          "recipeSha256": "b8e4ca41d452d1a4edfa0c9edf79687a46e0528b22985093b4d5f39b1a69003c",
+          "replayInputSha256": "cb067c44d9035e95bdc931ce11e561804ae446d54200a404c243e2272101527c",
+          "evaluationPath": "challenges/evaluations/accepted-d2438d33b21ca5ecdd867cacd2b73876e21d274f-v43.json",
+          "evaluationCommit": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
+          "evaluationArtifact": "challenges/evaluations/accepted-d2438d33b21ca5ecdd867cacd2b73876e21d274f-v43.json",
+          "evaluationUtc": "2026-10-11T02:13:05.004Z",
+          "remainingScreens": 2,
+          "recordedSteps": 301,
+          "previousScreensMatched": 100,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 299,
+              "total": 301
+            },
+            "rng": {
+              "matched": 2607,
+              "total": 2617
+            },
+            "cursors": {
+              "matched": 300,
+              "total": 301
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 291,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 291,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 31,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2607,
+              "cEntry": "rnd(999)=358",
+              "cCaller": "rnd_class(objnam.c:5413)",
+              "jsEntry": "rn2(1000)=579",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 291,
+                "key": " "
+              },
+              "stepIndex": 291
+            },
+            "cursor": {
+              "index": 291,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 291,
+                "key": " "
+              },
+              "cCursor": [
+                39,
+                0,
+                1
+              ],
+              "jsCursor": [
+                61,
+                13,
+                1
+              ]
+            }
+          },
+          "step": 291,
+          "kind": "rng",
+          "sourceFile": "objnam.c",
+          "function": "rnd_class",
+          "message": null,
+          "cFile": "objnam.c",
+          "luaFile": null,
+          "line": 5413,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst.json",
+            "previousRemainingScreens": 201
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-v43-keystone-kop-mondead-vault-guard-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete Keystone Kop death and vault guard removal paths",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v43/v43-keystone-kop-return-startup2-cfirst"
+      ],
+      "selectionReason": "The committed v43 investigation traces the first mismatch to the Keystone Kop return arm in mon.c:mondead and the complete return-valued vault guard family required by mondead and mongone.",
+      "detail": "Port whole mon.c mondead and mongone plus vault.c clear_fcorr, parkguard, grddead, and in_fcorridor in source order; wire active callers and validate the Kop, guard death, and escort cleanup routes.",
+      "openedAt": "ddb6726446d5029afe38d10966adb07b6074baba",
+      "openStanding": {
+        "sha": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mondead",
+          "line": 3081,
+          "endLine": 3180,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3081,
+        "to": 3180
+      },
+      "requiredFunctions": [
+        {
+          "name": "mongone",
+          "line": 3267,
+          "endLine": 3286,
+          "declared": true,
+          "sourceFile": "mon.c",
+          "complete": true
+        },
+        {
+          "name": "clear_fcorr",
+          "line": 48,
+          "endLine": 122,
+          "declared": true,
+          "sourceFile": "vault.c",
+          "complete": true
+        },
+        {
+          "name": "parkguard",
+          "line": 155,
+          "endLine": 174,
+          "declared": true,
+          "sourceFile": "vault.c",
+          "complete": true
+        },
+        {
+          "name": "grddead",
+          "line": 175,
+          "endLine": 191,
+          "declared": true,
+          "sourceFile": "vault.c",
+          "complete": true
+        },
+        {
+          "name": "in_fcorridor",
+          "line": 192,
+          "endLine": 203,
+          "declared": true,
+          "sourceFile": "vault.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v43/v43-keystone-kop-return-startup2-cfirst": {
+          "session": "synthetic/v43/v43-keystone-kop-return-startup2-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-keystone-kop-return-startup2-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-keystone-kop-return-startup2-cfirst.session.json",
+          "recordingSha256": "4dc4b309d5caabe7b740d7273767504c387c8d121b544b5dbc95c6083c053c93",
+          "evaluationPath": "challenges/evaluations/accepted-d2438d33b21ca5ecdd867cacd2b73876e21d274f-v43.json",
+          "evaluationCommit": "d2438d33b21ca5ecdd867cacd2b73876e21d274f"
+        }
+      },
+      "activeStanding": {
+        "sha": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-keystone-kop-return-startup2-cfirst",
+          "session": "synthetic/v43/v43-keystone-kop-return-startup2-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-keystone-kop-return-startup2-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-keystone-kop-return-startup2-cfirst.session.json",
+          "recordingSha256": "4dc4b309d5caabe7b740d7273767504c387c8d121b544b5dbc95c6083c053c93",
+          "recipe": "challenges/cases/v43/v43-keystone-kop-return-startup2-cfirst.recipe.session.json",
+          "recipeSha256": "7ed3200a67eafb379933d7420f58f7cc67589599fe00b88eeba3c8a124e4f2c9",
+          "replayInputSha256": "cb067c44d9035e95bdc931ce11e561804ae446d54200a404c243e2272101527c",
+          "evaluationPath": "challenges/evaluations/accepted-d2438d33b21ca5ecdd867cacd2b73876e21d274f-v43.json",
+          "evaluationCommit": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
+          "evaluationArtifact": "challenges/evaluations/accepted-d2438d33b21ca5ecdd867cacd2b73876e21d274f-v43.json",
+          "evaluationUtc": "2026-10-11T02:13:05.004Z",
+          "remainingScreens": 2,
+          "recordedSteps": 38,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 38
+            },
+            "rng": {
+              "matched": 2083,
+              "total": 2086
+            },
+            "cursors": {
+              "matched": 38,
+              "total": 38
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 36,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 15,
+              "column": 44,
+              "cCell": {
+                "ch": ")",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "%",
+                "color": 4,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2083,
+              "cEntry": "rnd(5)=4",
+              "cCaller": "mondead(mon.c:3151)",
+              "jsEntry": "rn2(6)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "."
+              },
+              "stepIndex": 36
+            },
+            "cursor": null
+          },
+          "step": 36,
+          "kind": "rng",
+          "sourceFile": "mon.c",
+          "function": "mondead",
+          "message": null,
+          "cFile": "mon.c",
+          "luaFile": null,
+          "line": 3151,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-keystone-kop-return-startup2-cfirst.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-keystone-kop-return-startup2-cfirst",
+              "remainingScreens": 2,
+              "status": "complete",
+              "commit": "946ba2dc58d22466d20586a745cffdfb5ab59b36",
+              "mismatch": {
+                "kind": "synthetic",
+                "corpus": "synthetic",
+                "sourceFile": "mon.c",
+                "cFile": "mon.c",
+                "luaFile": null,
+                "session": "synthetic/v43/v43-keystone-kop-return-startup2-cfirst",
+                "sessions": [
+                  "synthetic/v43/v43-keystone-kop-return-startup2-cfirst"
+                ],
+                "remainingScreens": 2,
+                "earliestStep": 36,
+                "caseId": "v43-keystone-kop-return-startup2-cfirst",
+                "batch": "v43",
+                "recordingPath": "challenges/cases/v43/v43-keystone-kop-return-startup2-cfirst.session.json"
+              },
+              "summary": "The wizard kills a Keystone Kop through the natural #wizkill command path. C reaches mon.c:mondead and draws rnd(5)=4 after the death count, then removes the corpse and leaves a corpse glyph. JavaScript stops at the unported Kop return arm, uses no source-matched draw, and leaves the Kop glyph. The whole mondead function also contains source-required pet-sadness, steam-vortex cloud, and vault-guard branches currently refused in JavaScript. The guard branch consumes vault.c:grddead's boolean result; grddead requires clear_fcorr and parkguard, and mongone is its second mondead-family caller.",
+              "source": {
+                "file": "mon.c",
+                "branch": "mon.c:mondead() (3081-3177) clears iflags.sad_feeling, applies lifesaving and vampire reversion, prints the pending sad-pet message, creates a harmless cloud for steam-vortex death, and calls vault.c:grddead() for an isgd monster before restoring form, counting deaths, logging, unmapping, and detaching. A Keystone Kop then finds the down staircase and draws rnd(5): case 1 attempts makemon at the staircase and falls through to random placement only without a stair; case 2 calls makemon at (0,0); other values do not respawn. The makemon return is discarded.",
+                "functions": [
+                  "mondead",
+                  "mongone",
+                  "vault.c:grddead",
+                  "vault.c:clear_fcorr",
+                  "vault.c:parkguard",
+                  "vault.c:in_fcorridor"
+                ],
+                "callers": [
+                  "The selected natural route is cmd.c:#wizkill -> wizcmds.c:wiz_kill -> mon.c:xkilled -> mon.c:mondead. JavaScript wires cmd.js:runKillCommand -> wizcmds.js:wiz_kill -> mon.js:xkilled -> mon.js:mondead; the admitted case reaches the copied function from this path.",
+                  "Other direct C mondead callers are mon.c:minliquid_core, mondied, monstone, monkilled, xkilled, kill_genocided_monsters; muse.c:mon_consume; explode.c:mon_explodes; mhitm.c:mon_explodes; and mhitu.c:gazeu. Their existing JavaScript adapters already call mon.js:mondead; this task changes the common source body rather than replacing those adapters.",
+                  "C mondead and mongone both consume grddead's boolean result and return without detaching when it is false. The JavaScript mondead and mongone guard branches await the canonical vault.js implementation and preserve that early return.",
+                  "vault.c:grddead calls clear_fcorr(grd, TRUE), and when its result is false it sets hp to zero, parks the guard at (0,0), and calls clear_fcorr again before returning whether the guard can be detached. vault.c:clear_fcorr also serves restfakecorr(); its JavaScript restfakecorr path already awaits the same helper. C gd_move has separate direct clear_fcorr calls in its currently unsupported hostile-guard routes; js/vault.js:gd_move refuses those routes before the matching adapter, and this task does not claim those independent gd_move branches.",
+                  "grddead's C relobj(grd, 0, FALSE) result is discarded. After accepted A2 Main 043ba3ff2e1b7558f7e25ef1a9daa70130c173f6, vault.js awaits the implemented steal.js:relobj for its gold removal and remaining inventory drops; no return value is consumed."
+                ],
+                "dependencies": [
+                  "vault.c:clear_fcorr returns a boolean consumed by grddead and restfakecorr; js/vault.js ports its source yelp, stopprint, corridor, and terrain restoration behavior.",
+                  "vault.c:parkguard is the void helper used by grddead after failed corridor clearing; js/vault.js ports the polearm reference, map removal, parking, and saved coordinates.",
+                  "vault.c:in_fcorridor is the pure predicate used by clear_fcorr; scripts/vault-guard-escort.test.mjs pins the C half-open fake-corridor loop bounds.",
+                  "mondead's steam-vortex arm needs region.c:create_gas_cloud, already implemented in js/region.js.",
+                  "mondead's Kop return arm needs stairs.c:stairway_find_type_dir and makemon.c:makemon; the JavaScript stair finder and makemon_runtime accept these existing call shapes, so no new source ownership is claimed for them.",
+                  "steal.c:relobj is an accepted A2 dependency, not source ownership in this task. Its implemented findgold, object extraction, obfree, mdrop_obj, and floor effects cover the discarded-void C call from grddead."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The authoritative saved combined queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json has SHA-256 1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093. Its v43 entry identifies case v43-keystone-kop-return-startup2-cfirst with 36/38 screens, 2083/2086 RNG values, and 38/38 cursors matched; the earliest mismatch is step 36 in segment 0 at key '.'. The membership digest for challenges/manifests/v43.json is a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400. The recording digest is 4dc4b309d5caabe7b740d7273767504c387c8d121b544b5dbc95c6083c053c93, the recipe digest is 7ed3200a67eafb379933d7420f58f7cc67589599fe00b88eeba3c8a124e4f2c9, and the replay-input digest is 32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f. The saved evaluation is challenges/evaluations/v43-baseline-d89e1af6.json at commit d89e1af62c39bbe9014da094714ed70adad1141a.",
+                "At step 36, C records rnd(5)=4 at mondead(mon.c:3151); JavaScript records rn2(6)=4 instead. The screen at row 15, column 44 has C glyph ')' in color 3 and JavaScript glyph '%' in color 4. This identifies the missing source call before corpse detachment, not a separate glyph-rendering discrepancy.",
+                "The full source comparison of mon.c:mondead() at lines 3081-3177 finds four JavaScript refusals before detach: the sad-feeling message, steam-vortex cloud, vault-guard grddead call, and Keystone Kop resurrection. Existing scripts/mon-kill.test.mjs still asserts refusals for vault-guard and Kop deaths and must be changed to source-pinned behavior. The C source call order puts sad message and gas cloud before guard handling, increments mvitals[].died before the Kop rnd(5), and logs/unmaps/detaches only after the source-specific arms.",
+                "The vault dependency trace spans vault.c:clear_fcorr() lines 48-116, parkguard() lines 155-171, grddead() lines 175-188, in_fcorridor() lines 192-201, and mon.c:mongone() lines 3267-3283. grddead consumes clear_fcorr's return twice and calls parkguard between failed attempts; clear_fcorr consumes in_fcorridor's boolean and advances over fakecorr[fcbeg..fcend). Its relobj return is discarded. The JavaScript paths now use the complete vault helpers and accepted steal.js:relobj dependency.",
+                "Fresh C/JavaScript comparisons now pass for the selected v43 Kop case (2,086 RNG values and 38 screens/cursors), the independent Kop kill recording (1,913 RNG values and 39 screens/cursors), the natural vault guard-death recording (6,230 RNG values and 162 screens/cursors), and the existing guard-cleanup recording (13,878 RNG values and 304 screens/cursors). These routes exercise mondead, mongone, grddead, clear_fcorr, and parkguard through production callers; in_fcorridor is pinned by a source-based pure-function test."
+              ],
+              "session": "synthetic/v43/v43-keystone-kop-return-startup2-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "4dc4b309d5caabe7b740d7273767504c387c8d121b544b5dbc95c6083c053c93",
+              "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+              "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
+              "recordedSteps": 38
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mondead",
+            "implementation": "js/mon.js",
+            "symbol": "mondead",
+            "sourceReview": "Read the complete mon.c:mondead() definition at lines 3081-3177. The port clears iflags.sad_feeling, handles lifesaving and vampire reversion, emits the pending sad-pet message, creates the harmless steam-vortex cloud, awaits grddead for vault guards and stops when it refuses disposal, restores form, increments the death count, logs/unmaps/detaches, then handles the Kop rnd(5) and makemon branches in C order. The discarded makemon results remain discarded. No refusal remains in the changed arms. The vault branch uses the complete same-task grddead family and the accepted A2 steal.c:relobj dependency at Main 043ba3ff2e1b7558f7e25ef1a9daa70130c173f6.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "xkilled",
+                "source": "cmd.c:#wizkill -> wizcmds.c:wiz_kill -> mon.c:xkilled -> mon.c:mondead; JavaScript runs cmd.js:runKillCommand -> wizcmds.js:wiz_kill -> mon.js:xkilled -> mon.js:mondead."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mondied",
+                "source": "mon.c:mondied calls mon.c:mondead before corpse handling; js/mon.js:mondied awaits mondead in the same order."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mondead",
+                "source": "The other active source callers include mon.c:minliquid_core, monstone, monkilled, kill_genocided_monsters, muse.c:mon_consume, explode.c:mon_explodes, mhitm.c:mon_explodes, and mhitu.c:gazeu; their existing JavaScript paths call the shared mon.js:mondead implementation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/keystone-kop-wizard-kill-runtime.session.json",
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-keystone-kop-return-startup2-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd.c:#wizkill -> wizcmds.c:wiz_kill -> mon.c:xkilled -> mon.c:mondead"
+              }
+            ],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "mongone",
+            "implementation": "js/mon.js",
+            "symbol": "mongone",
+            "sourceReview": "Read the complete mon.c:mongone() definition at lines 3267-3283. The port awaits grddead when isgd is set and returns without detach when grddead reports that the guard still occupies a fake-corridor square; the ordinary removal path continues to m_detach and dmonsfree. The return-bearing guard dependency is implemented in js/vault.js.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "restfakecorr",
+                "source": "vault.c:restfakecorr calls mongone(grd) after clear_fcorr succeeds; js/vault.js:restfakecorr calls mon.js:mongone."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_kill",
+                "source": "wizcmds.c:wiz_kill clears isgd and then calls mongone for the wizard removal route; js/wizcmds.js:wiz_kill awaits mon.js:mongone."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-kill.test.mjs",
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "clear_fcorr",
+            "implementation": "js/vault.js",
+            "symbol": "clear_fcorr",
+            "sourceReview": "Read vault.c:clear_fcorr() lines 48-116. The port checks the current level, source fake-corridor half-open range, hero/guard/ball occupancy, visibility and stopprint state; it waits for the pet yelp before restoring the map, applies blackout/unseen updates in loop order, advances fcbeg, emits the disappearance and encased messages, and returns the source boolean. grddead and restfakecorr consume that boolean. The direct C gd_move calls at lines 922 and 927 are in hostile paths still refused by the existing gd_move adapter and are outside this task scope; matching natural guard-death and escort-cleanup routes cover the implemented callers.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "grddead",
+                "source": "vault.c:grddead calls clear_fcorr(grd, TRUE) before and after parking the guard; js/vault.js:grddead awaits clear_fcorr and consumes both booleans."
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "restfakecorr",
+                "source": "vault.c:restfakecorr calls clear_fcorr(grd, FALSE) before mongone; js/vault.js:restfakecorr awaits clear_fcorr before removing the guard."
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "gd_move",
+                "source": "vault.c:gd_move has direct clear_fcorr calls at lines 922 and 927; the corresponding JavaScript hostile-guard route is an existing UnsupportedVaultGuardError and is explicitly outside this task."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json",
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "sourceFile": "vault.c",
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "parkguard",
+            "implementation": "js/vault.js",
+            "symbol": "parkguard",
+            "sourceReview": "Read the complete vault.c:parkguard() body at lines 155-171. It clears the polearm hitmon reference, removes and redraws the guard when mapped, moves it to (0,0) if needed, then stores the resulting coordinates in EGD. The same operations and order are implemented in js/vault.js.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "grddead",
+                "source": "vault.c:grddead calls parkguard after the first clear_fcorr returns false; js/vault.js:grddead awaits parkguard before retrying clear_fcorr."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "sourceFile": "vault.c",
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "grddead",
+            "implementation": "js/vault.js",
+            "symbol": "grddead",
+            "sourceReview": "Read the complete vault.c:grddead() body at lines 175-188. It calls clear_fcorr(TRUE), and on failure awaits the void side effects of relobj(grd, 0, FALSE), sets hp to zero, parks the guard, and retries clear_fcorr(TRUE), clearing isgd only when disposal succeeds. js/vault.js now awaits the accepted steal.js:relobj implementation for guard-gold removal and remaining inventory drops; no C return value is consumed.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mondead",
+                "source": "mon.c:mondead calls vault.c:grddead for isgd monsters and returns before detach when it is false; js/mon.js:mondead awaits vault.js:grddead and preserves that result."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mongone",
+                "source": "mon.c:mongone calls vault.c:grddead for isgd monsters and returns before detach when it is false; js/mon.js:mongone awaits vault.js:grddead and preserves that result."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs",
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "sourceFile": "vault.c",
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "in_fcorridor",
+            "implementation": "js/vault.js",
+            "symbol": "in_fcorridor",
+            "sourceReview": "Read the complete vault.c:in_fcorridor() definition at lines 192-201. It returns true only when (x,y) equals an active fakecorr entry in [fcbeg, fcend); the JavaScript loop uses the same bounds and comparisons.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "clear_fcorr",
+                "source": "vault.c:clear_fcorr calls in_fcorridor for hero occupancy; js/vault.js:clear_fcorr calls the same predicate."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "vault.c",
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          }
+        ],
+        "entryPointReview": "Active entry points for the assigned source units are a monster death through xkilled/mondead (including the admitted #wizkill Kop route), a vault guard death while occupying the temporary fake corridor (mondead -> grddead -> clear_fcorr -> relobj -> parkguard -> clear_fcorr), and a peaceful vault guard leaving after the escort (restfakecorr -> mongone). Independent recordings exercise each changed impure path; the admitted v43 Kop case now strictly matches through its final recorded step. in_fcorridor is pure and has a source-pinned boundary test. mon.c:mondead has additional existing callers that funnel into the same shared implementation and are enumerated in the source review. clear_fcorr also has direct C calls from vault.c:gd_move at lines 922/927, but those hostile-guard routes remain refused by the existing gd_move adapter and are outside this task; they are not claimed as covered entry points.",
+        "entryPoints": [
+          {
+            "name": "Wizard kills a Keystone Kop through #wizkill",
+            "functions": [
+              "mondead"
+            ],
+            "recordings": [
+              "recordings/mon.c/keystone-kop-wizard-kill-runtime.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-keystone-kop-return-startup2-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd.c:#wizkill -> wizcmds.c:wiz_kill -> mon.c:xkilled -> mon.c:mondead"
+              }
+            ]
+          },
+          {
+            "name": "Vault guard dies inside the temporary fake corridor",
+            "functions": [
+              "mondead",
+              {
+                "sourceFile": "vault.c",
+                "name": "grddead"
+              },
+              {
+                "sourceFile": "vault.c",
+                "name": "clear_fcorr"
+              },
+              {
+                "sourceFile": "vault.c",
+                "name": "parkguard"
+              }
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Peaceful vault guard leaves after its escort",
+            "functions": [
+              "mongone",
+              {
+                "sourceFile": "vault.c",
+                "name": "clear_fcorr"
+              }
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

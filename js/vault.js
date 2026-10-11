@@ -69,6 +69,7 @@ import { carried, g_at, hasContents } from './obj.js';
 import { BOULDER, ROCK } from './objects.js';
 import { in_rooms } from './rooms.js';
 import { contained_gold } from './shk.js';
+import { relobj } from './steal.js';
 import { um_dist } from './apply.js';
 import { rloc } from './teleport.js';
 import { spot_stop_timers } from './timeout.js';
@@ -153,7 +154,7 @@ export function newegd(monster) {
 
 // C ref: vault.c in_fcorridor() (192-201). Checks whether (x,y) falls within
 // the guard's temporary fake corridor.
-function in_fcorridor(grd, x, y) {
+export function in_fcorridor(grd, x, y) {
     const egrd = EGD(grd);
     for (let fci = egrd.fcbeg; fci < egrd.fcend; fci++) {
         if (x === egrd.fakecorr[fci].fx && y === egrd.fakecorr[fci].fy)
@@ -189,6 +190,8 @@ async function clear_fcorr(grd, forceshow, state, env) {
     if (!on_level(egrd.gdlevel, state.u.uz)) return true;
 
     let sawcorridor = false;
+    const silently = Boolean(state.program_state?.stopprint);
+    const message = env.message ?? ttyPline;
 
     while (egrd.fcbeg < egrd.fcend) {
         const fcbeg = egrd.fcbeg;
@@ -212,8 +215,11 @@ async function clear_fcorr(grd, forceshow, state, env) {
             if (mtmp.isgd) {
                 return false;
             } else {
-                // Tame monster: yelp is not exercised in the witness path.
-                if (!rloc(mtmp, RLOC_MSG, { state })) {
+                if (mtmp.mtame) {
+                    const { yelp } = await import('./sounds.js');
+                    await yelp(mtmp, state, env.random);
+                }
+                if (!await rloc(mtmp, RLOC_MSG, { ...env, state })) {
                     await m_into_limbo(mtmp, state, env);
                 }
             }
@@ -236,11 +242,12 @@ async function clear_fcorr(grd, forceshow, state, env) {
         egrd.fcbeg++;
     }
 
-    if (sawcorridor)
-        env.message('The corridor disappears.', state, env);
+    if (sawcorridor && !silently)
+        await message('The corridor disappears.', state, env);
+    const heroHp = state.u.upolyd ? state.u.mh : state.u.uhp;
     if (IS_OBSTRUCTED(state.level.at(state.u.ux, state.u.uy).typ)
-        && state.u.uhp > 0)
-        env.message('You are encased in rock.', state, env);
+        && heroHp > 0 && !silently)
+        await message('You are encased in rock.', state, env);
     return true;
 }
 
@@ -268,6 +275,31 @@ function parkguard(grd, state) {
         place_monster(grd, 0, 0, state);
     EGD(grd).ogx = grd.mx;
     EGD(grd).ogy = grd.my;
+}
+
+// C ref: vault.c grddead() (175-188). Remove the temporary corridor before
+// allowing mondead()/mongone() to detach a dead vault guard. A failed first
+// pass means the guard still occupies a fake-corridor square; park it at
+// (0,0), then retry the same source operation.
+export async function grddead(grd, state = game, rawEnv = {}) {
+    const env = {
+        ...rawEnv,
+        state,
+        message: rawEnv.message ?? ttyPline,
+    };
+    let dispose = await clear_fcorr(grd, true, state, env);
+
+    if (!dispose) {
+        // C relobj(grd, 0, FALSE) drops non-gold inventory and removes any
+        // carried guard gold before the guard is parked off-map.
+        await relobj(grd, 0, false, env);
+        grd.mhp = 0;
+        parkguard(grd, state);
+        dispose = await clear_fcorr(grd, true, state, env);
+    }
+
+    if (dispose) grd.isgd = 0; // dmonsfree() should delete it
+    return dispose;
 }
 
 // C ref: vault.c wallify_vault() (645-731). Restore the vault walls after the

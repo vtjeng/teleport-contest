@@ -1908,8 +1908,9 @@ export function preflight_dropx(obj, env = {}) {
     // member into it. The survivor keeps its light and timers across an
     // ordinary drop; light.c finds their new location through that same object.
     // Compatible lit candles use merged()'s canonical light/timer owners.
-    // Globs coalesce in flooreffects before ordinary stacking; other timed
-    // members retain their generic merge lifecycle boundary below.
+    // Globs coalesce in flooreffects before ordinary stacking. A timed corpse
+    // can merge when invent.c:mergable() admits its species; invent.c:merged()
+    // then stops the absorbed floor object's timer through timeout.c.
     // obfree()'s remaining operations are reached by an object the drop chain
     // already stops: canletgo() refuses a leash tied to a pet, the unpaid test
     // below refuses a billed object and the shop-level test refuses an unpaid
@@ -2021,6 +2022,15 @@ export function preflight_dropx(obj, env = {}) {
             // while the drop is still atomic; generic timed/glob paths below
             // retain their separate lifecycle boundary.
             preflight_end_burn(member, true, normalized);
+            continue;
+        }
+        if (member.timed && obj.otyp === CORPSE
+            && member.otyp === CORPSE && !member.lamplit
+            && !member.globby) {
+            // invent.c:mergable() rejects timer mismatches for eggs and
+            // revivable corpses, but admits matching non-reviver corpses.
+            // stackobj() keeps the new drop and merged() stops the absorbed
+            // pile corpse's timer after extracting it.
             continue;
         }
         throw new UnsupportedDropError(

@@ -639,7 +639,7 @@ import {
     set_twoweap,
     which_armor,
 } from './worn.js';
-import { findgold, steal } from './steal.js';
+import { findgold, steal, stealgold } from './steal.js';
 import { rloc, tele, tele_restrict, u_teleport_mon } from './teleport.js';
 import {
     Flying,
@@ -6852,7 +6852,15 @@ export async function mhitm_ad_sgld(
     } else if (mdef === state.youmonst) {
         await hitmsg(magr, mattk, state, env);
         if (pd.mlet === pa.mlet) return;
-        if (!magr.mcan) note_unported('steal.c stealgold');
+        if (!magr.mcan) {
+            await stealgold(magr, {
+                ...env,
+                state,
+                random,
+                message,
+                newsym: redraw,
+            });
+        }
     } else {
         mhm.damage = 0;
         if (magr.mcan) return;
