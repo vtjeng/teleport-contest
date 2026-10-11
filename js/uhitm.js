@@ -636,6 +636,7 @@ import {
     find_mac,
     is_pole,
     mon_adjust_speed,
+    setnotworn,
     set_twoweap,
     which_armor,
 } from './worn.js';
@@ -2900,13 +2901,21 @@ async function hmon_hitmon_weapon(hmd, mon, obj, state, env, random) {
     }
 }
 
-// C ref: uhitm.c hmon_hitmon_misc_obj() (1204-1300). The cream pie arm is
-// reached by dothrow.c for a thrown nonweapon. It blinds and angers a visible
-// defender, consumes the object, and leaves zero damage while marking the hit
-// text so the generic damage and message tails do not add a second result.
+// C ref: uhitm.c hmon_hitmon_misc_obj() (1119-1386). This switch handles
+// held and thrown nonweapon hits, including their object-lifetime effects.
 async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
     const message = requireAttackOperation(env, 'message');
-    const lifeEnv = { ...env, state, random };
+    const wornEnv = setwornEnv(state, env);
+    const lifeEnv = {
+        ...env,
+        state,
+        random,
+        hooks: {
+            ...wornEnv.hooks,
+            // invent.c:useupall reaches worn.c:setnotworn before extraction.
+            setNotWorn: target => setnotworn(target, wornEnv),
+        },
+    };
 
     /* Keep the complete non-weapon switch in the uhitm.c owner.  These arms
        are reached by do_hit() for ordinary objects and by dothrow for thrown
@@ -2942,9 +2951,10 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             `You succeed in destroying ${ysimpleName(obj, state)}.  Congratulations!`,
             state,
         );
-        // release_camera_demon() is a discarded side effect in C.  Preserve
-        // that explicit source boundary without inventing a monster or draw.
-        note_unported('dothrow.c release_camera_demon');
+        // dothrow.c's void helper runs before invent.c consumes the equipped
+        // camera. Dynamic import follows the adjacent breaktest() path above.
+        const { release_camera_demon } = await import('./dothrow.js');
+        await release_camera_demon(obj, state.u.ux, state.u.uy, lifeEnv);
         await useup(obj, lifeEnv);
         hmd.doreturn = true;
         hmd.retval = true;
