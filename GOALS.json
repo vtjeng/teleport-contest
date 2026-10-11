@@ -261563,7 +261563,7 @@
     {
       "id": "port-steal-gold-theft-v43-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port hostile leprechaun gold theft and its active callers",
       "cFile": "steal.c",
       "sessions": [
@@ -261585,20 +261585,20 @@
           "line": 14,
           "endLine": 44,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "findgold",
           "line": 45,
           "endLine": 57,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "stealgold",
           "line": 58,
           "endLine": 119,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -261647,7 +261647,7 @@
         }
       },
       "activeStanding": {
-        "sha": "b73fdc85db11090859404e7c98f66b6e384dfbfc",
+        "sha": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6",
         "screens": 11405,
         "rng": 792838
       },
@@ -261902,7 +261902,156 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "somegold",
+            "implementation": "js/steal.js",
+            "symbol": "somegold",
+            "sourceReview": "Read all of steal.c:14-34. The port preserves the LARGEST_INT clamp, every threshold and rn1 argument, and the single random draw selected by the source branch. js/fountain.js now imports this owner instead of keeping a duplicate. The function is impure because its upper branches draw RNG.",
+            "callers": [
+              {
+                "path": "js/steal.js",
+                "symbol": "stealgold",
+                "source": "steal.c:stealgold calls somegold(money_cnt(invent)) in the carried-gold branch."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipfountain",
+                "source": "fountain.c:dipfountain case 28 calls somegold to choose the gold loss."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/steal.test.mjs"
+            ],
+            "recordings": [
+              "recordings/steal.c/somegold-fountain-dip.session.json"
+            ],
+            "sourceFile": "steal.c",
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-leprechaun-attacks-after-wake-cfirst",
+                "segment": 0,
+                "fromStep": 62,
+                "throughStep": 62,
+                "source": "uhitm.c:mhitm_ad_sgld -> steal.c:stealgold -> somegold; C records rn2(501)=353."
+              }
+            ],
+            "checkedAt": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6"
+          },
+          {
+            "name": "findgold",
+            "implementation": "js/steal.js",
+            "symbol": "findgold",
+            "sourceReview": "Read all of steal.c:45-52. The pure traversal advances only through nobj until it finds an object whose otyp is GOLD_PIECE, returning null at the end. Existing direct callsites in detect.c, monmove.c, shk.c, and uhitm.c use js/steal.js:findgold; this task wires the existing steal.c:relobj caller after removing its stale isgd-only refusal. The C uhitm.c:steal_it caller remains skipped by note_unported because C discards that void call result. makemon.c:m_initinv uses the existing source-equivalent js/makemon_create.js:findMonsterGold check.",
+            "callers": [
+              {
+                "path": "js/steal.js",
+                "symbol": "stealgold",
+                "source": "steal.c:stealgold calls findgold for the hero inventory."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "relobj",
+                "source": "steal.c:relobj calls findgold only for a vault guard before removing its gold."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "gold_detect",
+                "source": "detect.c:gold_detect calls findgold while checking monster inventories."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "object_detect",
+                "source": "detect.c:object_detect calls findgold in its monster inventory scans."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "leppie_avoidance",
+                "source": "monmove.c:leppie_avoidance calls findgold for leprechaun and hero inventories."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "leppie_stash",
+                "source": "monmove.c:leppie_stash calls findgold before stashing leprechaun gold."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:dochug calls findgold in the leprechaun movement gate."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "money2mon",
+                "source": "shk.c:money2mon calls findgold for hero inventory."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "money2u",
+                "source": "shk.c:money2u calls findgold for shopkeeper inventory."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_sgld",
+                "source": "uhitm.c:mhitm_ad_sgld calls findgold for monster inventory in its source branches."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/steal.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "steal.c",
+            "synthetic": [],
+            "checkedAt": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6"
+          }
+        ],
+        "entryPointReview": "The selected source units are steal.c:somegold, findgold, and stealgold. Incoming AD_SGLD attacks reach stealgold through mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_ad_sgld; the v43 replay proves its carried-gold branch. Fountain dips reach somegold through fountain.c:dipfountain case 28 and the new matching recording. findgold is a helper with callers in steal.c, detect.c, monmove.c, shk.c, and uhitm.c; the existing JS direct callers are wired. uhitm.c:steal_it remains an explicit note_unported gap because its C caller is a discarded-void path; makemon.c:m_initinv uses the equivalent local findMonsterGold check. The existing steal.c:relobj caller now uses findgold and performs its C guard/message/extract/free branch, but this task does not claim relobj as a selected source unit. vault.c:grddead also calls relobj and remains owned by the separate C task. The floor-stack branch is implemented and source-pinned, but the only independent setup probe is blocked by monmove.c:leppie_avoidance, so stealgold remains incomplete pending a recording that reaches that branch.",
+        "entryPoints": [
+          {
+            "name": "Incoming hostile leprechaun AD_SGLD attack with hero-carried gold",
+            "functions": [
+              "stealgold",
+              "somegold",
+              "findgold"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-leprechaun-attacks-after-wake-cfirst",
+                "segment": 0,
+                "fromStep": 62,
+                "throughStep": 62,
+                "source": "mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_ad_sgld -> steal.c:stealgold -> findgold/somegold; the C trace reaches rn2(501) in the carried-gold subset branch."
+              }
+            ]
+          },
+          {
+            "name": "Fountain dip gold loss",
+            "functions": [
+              "somegold"
+            ],
+            "recordings": [
+              "recordings/steal.c/somegold-fountain-dip.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Verified somegold and findgold; stealgold still needs matching floor-gold runtime evidence, relobj needs the pending vault-guard death replay, and fountain.c:dipfountain needs complete source evidence."
     }
   ]
 }
