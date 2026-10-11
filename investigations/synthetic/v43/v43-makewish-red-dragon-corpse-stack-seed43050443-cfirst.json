@@ -8,8 +8,8 @@
   "manifestPath": "challenges/manifests/v43.json",
   "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
   "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
-  "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
-  "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+  "evaluationPath": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+  "evaluationCommit": "c64928df44aa809954e15310a8f77544ce9b51ab",
   "status": "complete",
   "commit": "26b8b007292b62a956a8b971da3d0678a78782a3",
   "mismatch": {
@@ -24,11 +24,11 @@
     "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
     "recipe": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json",
     "recipeSha256": "b8e4ca41d452d1a4edfa0c9edf79687a46e0528b22985093b4d5f39b1a69003c",
-    "replayInputSha256": "d652fa57c326bf68debc5c2fcd23217a0c0127a05049046723d9062066dc7630",
-    "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
-    "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
-    "evaluationArtifact": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
-    "evaluationUtc": "2026-10-11T02:29:19.784Z",
+    "replayInputSha256": "723df18fd4cb1c869ebc3c0d7ea6a48a9d42f69dda703a7a63cf77202c196bb0",
+    "evaluationPath": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+    "evaluationCommit": "c64928df44aa809954e15310a8f77544ce9b51ab",
+    "evaluationArtifact": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+    "evaluationUtc": "2026-10-11T02:59:34.296Z",
     "remainingScreens": 2,
     "recordedSteps": 301,
     "previousScreensMatched": 299,
@@ -113,7 +113,7 @@
     "luaFile": null,
     "line": 5413
   },
-  "summary": "After the accepted bounded makewish, corpse-drop, and offering fixes, the v43 same-seed replay first differs at step 291: successful prayer reaches pray.c:pleased case 6, which calls the wholly unported pray.c:give_spell. C creates a spellbook through mkobj and objnam.c:rnd_class before the JS skipped branch proceeds to a later prayer draw. The 25% direct-learning branch also consumes the return from the unported spell.c:force_learn_spell, so both complete C functions and the exact pleased caller wiring form the coherent source scope. A2 reserves other pray.c functions; this function-scoped task is disjoint.",
+  "summary": "The prior accepted B makewish/corpse/offering path matched through step 290 and first diverged at step 291 when successful prayer reached pray.c:pleased case 6 and the missing spell gift. B has now ported whole pray.c:give_spell, its required spell.c:force_learn_spell callee, and the case-6 JS caller. The admitted v43 recording now matches completely, and an independent Healer recipe exercises the direct-learning branch.",
   "source": {
     "file": "pray.c",
     "functions": [
@@ -121,22 +121,56 @@
     ],
     "branch": "On the successful-prayer reward case 6, create a spellbook and retry selection while the candidate is a usable known/restricted spell; sometimes teach the spell directly, otherwise discover/bless/place the book at the hero’s feet and update the map. Preserve the exact object-generation, spell-learning, message, and RNG order for every branch.",
     "callers": [
-      "pray.c:pleased case 6 calls give_spell at line 1349 after the successful prayer reward switch; JavaScript’s matching caller is js/pray.js:pleased case 6, currently a note_unported placeholder around line 2267."
+      "pray.c:pleased case 6 calls give_spell at line 1349 after the successful prayer reward switch; JavaScript’s matching caller is js/pray.js:pleased case 6, now wired to give_spell."
     ],
     "dependencies": [
       "The initial spellbook creation and retry selection use already-ported js/obj.js:mkobj and rnd_class; no second owner is needed for those helpers.",
-      "The 25% direct-learning branch consumes spell.c:force_learn_spell’s returned casting letter. That C helper has no JavaScript owner, so the same coherent task must implement it in js/spell.js; its spellid, known_spell, spellet, and KEEN-slot state helpers already exist.",
-      "A2’s ready priest delivery reserves pray.c:offer_corpse and pray.c:offer_different_alignment_altar, not pray.c:give_spell or the case-6 branch in pleased. Parent approved this function-scoped js/pray.js edit; B will keep the textual edit confined to pleased’s case 6."
+      "A2’s ready priest delivery reserves pray.c:offer_corpse and pray.c:offer_different_alignment_altar, not pray.c:give_spell or the case-6 branch in pleased. This task kept the js/pray.js edit confined to pleased’s case 6.",
+      "spell.c:force_learn_spell is implemented in js/spell.js as part of this task because give_spell consumes its returned casting letter; the void impossible() diagnostic remains the explicit pline.c note_unported gap."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved combined queue SHA-256 daf596ad43e6d480fef4ebcc59e8f886f44e362b1ceabda10e010899d9d3362b records the current admitted v43 session with 2 remaining screens, 299/301 screens and 300/301 cursors matched, and the first mismatch at segment 0, zero-based step 291, key space. C shows a horizontal More line at row 0 column 31; JavaScript has a blank cell.",
+    "Saved combined queue SHA-256 6a10f4282f6c57cf04294a5a97ba4835ab8ea0663c5863e8148850cd3a389288 records the current admitted v43 session with 2 remaining screens, 299/301 screens and 300/301 cursors matched, and the first mismatch at segment 0, zero-based step 291, key space. C shows a horizontal More line at row 0 column 31; JavaScript has a blank cell.",
     "C path: pray.c:pleased (1071-1386), successful prayer reward switch at 1344-1350, enters case 6 and calls give_spell(). Whole give_spell is pray.c:999-1067. Its initial mkobj(SPBOOK_no_NOVEL, TRUE) reaches mkobj.c:mkobj then objnam.c:rnd_class; its retry loop calls rnd_class directly and preserves known-spell, restricted-skill, discovery, direct-learning, blessing, object-free, placement, and newsym behavior.",
-    "JavaScript path: js/pray.js:pleased has a matching case-6 branch at about line 2267 but only calls note_unported(\"pray.c give_spell\"). This explains why C begins object generation at the recorded boundary while JS falls through to the later prayer timer path.",
+    "JavaScript path: js/pray.js:pleased case 6 is now wired to give_spell, replacing the earlier note_unported placeholder.",
     "Current queue annotation cites objnam.c:rnd_class at line 5413: C records rnd(999)=358 and JS next records rn2(1000)=579 at RNG index 2607. The source trace places this at the start of the omitted give_spell object-generation path; the existing js/obj.js mkobj/rnd_class functions remain the canonical helpers.",
-    "The prior accepted B v43 makewish report identifies the 291-step exact prefix and explicitly leaves pray.c:give_spell outside that delivery. Implementation scope is not yet claimed; A2’s reservations are limited to pray.c:offer_corpse and pray.c:offer_different_alignment_altar, so the exact caller branch does not overlap its source reservation.",
-    "Required-callee audit: pray.c:give_spell calls spell.c:force_learn_spell at lines 1028-1045 and tests its returned spell letter to choose whether to discard the book or report learned/restored knowledge. The helper is missing from js/spell.js; whole-source completion must include this return-valued callee. Its incrnknow operation is a C macro assigning the shared spell knowledge slot, not another function owner."
+    "The prior accepted B v43 makewish report identifies the 291-step exact prefix and explicitly leaves pray.c:give_spell outside that delivery. A2’s reservations were limited to pray.c:offer_corpse and pray.c:offer_different_alignment_altar; B atomically claimed give_spell, force_learn_spell, and the case-6 caller before code edits.",
+    "Required-callee audit: pray.c:give_spell calls spell.c:force_learn_spell at lines 1028-1045 and tests its returned spell letter to choose whether to discard the book or report learned/restored knowledge. The helper is missing from js/spell.js; whole-source completion must include this return-valued callee. Its incrnknow operation is a C macro assigning the shared spell knowledge slot, not another function owner.",
+    "After the source port, the admitted v43 replay matches all 301 screens, RNG calls, cursors, and animation frames. Segment 0, steps 291-292 enter pray.c:pleased case 6 and exercise the blessed book-gift path.",
+    "Independent fresh C-first Healer recipe recipes/pray.c/give-spell-direct-healer-seed43050662.session.json matches its recording completely. Segment 0, step 291 records rn2(4)=0 at pray.c:give_spell and step 292 shows “Divine knowledge of light fills your mind!  Spell 'd'.”, exercising spell.c:force_learn_spell and its returned letter.",
+    "Focused scripts/pray-give-spell.test.mjs covers new slot assignment, forgotten spell refresh, fresh spell rejection, excluded book types, and a full spell list; npm run lint passes."
   ],
-  "queueSha256": "daf596ad43e6d480fef4ebcc59e8f886f44e362b1ceabda10e010899d9d3362b"
+  "queueSha256": "6a10f4282f6c57cf04294a5a97ba4835ab8ea0663c5863e8148850cd3a389288",
+  "implementation": {
+    "status": "complete",
+    "functions": [
+      "pray.c:give_spell",
+      "spell.c:force_learn_spell"
+    ],
+    "caller": "js/pray.js:pleased case 6",
+    "focusedTests": [
+      "scripts/pray-give-spell.test.mjs",
+      "scripts/pray.test.mjs"
+    ],
+    "lint": "npm run lint passed",
+    "admittedReplay": {
+      "batch": "v43",
+      "caseId": "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+      "segment": 0,
+      "fromStep": 291,
+      "throughStep": 292,
+      "result": "301/301 screens, RNG calls, cursors, and animation frames match"
+    },
+    "directLearningRecording": {
+      "recipe": "recipes/pray.c/give-spell-direct-healer-seed43050662.session.json",
+      "recording": "recordings/pray.c/give-spell-direct-healer-seed43050662.session.json",
+      "segment": 0,
+      "fromStep": 291,
+      "throughStep": 292,
+      "result": "Full fresh C/JavaScript parity; step 291 rn2(4)=0 and step 292 reports learning light as spell d."
+    }
+  },
+  "evaluationArtifact": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+  "evaluationUtc": "2026-10-11T02:59:34.296Z"
 }

@@ -1,5 +1,6 @@
 // Runtime spell-memory upkeep, the known-spell display, and spell casting.
 // C ref: spell.c cursed_book(), age_spells(), dovspell(), dospellmenu(),
+// force_learn_spell(),
 // percent_success(),
 // spell_cmp(), sortspells(), spellsortmenu(), show_spells(),
 // spellretention(), spelltypemnemonic(), study_book(), docast(), getspell(),
@@ -263,6 +264,34 @@ export function spellid(spell, state = game) {
 // C ref: spell.h spellknow(). Turns of retention left for slot `spell`.
 export function spellknow(spell, state = game) {
     return state.svs?.spl_book?.[spell]?.sp_know ?? 0;
+}
+
+// C ref: spell.c force_learn_spell() (2391-2416). A god's direct gift either
+// fills the first empty spell slot or refreshes the matching forgotten spell.
+export function force_learn_spell(otyp, state = game) {
+    if (otyp === SPE_BLANK_PAPER
+        || otyp === SPE_BOOK_OF_THE_DEAD
+        || known_spell(otyp, state) === spe_Fresh) {
+        return '\0';
+    }
+
+    let index = 0;
+    for (; index < MAXSPELL; ++index) {
+        const current = spellid(index, state);
+        if (current === NO_SPELL || current === otyp) break;
+    }
+    if (index === MAXSPELL) {
+        if (state === game) note_unported('pline.c impossible');
+        return '\0';
+    }
+
+    state.svs ??= {};
+    const spells = state.svs.spl_book ??= [];
+    spells[index] ??= { sp_id: NO_SPELL, sp_lev: 0, sp_know: 0 };
+    spells[index].sp_id = otyp;
+    spells[index].sp_lev = objectType(otyp, state).oc_level;
+    spells[index].sp_know = SPELL_KNOWLEDGE_KEEN;
+    return spellet(index);
 }
 
 // C ref: spell.c tport_spell() (1704-1756). The function-local static
