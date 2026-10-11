@@ -10,8 +10,8 @@
   "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
   "evaluationPath": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
   "evaluationCommit": "56fe7fb916a1ffdf783a557694a1c1c18af784de",
-  "status": "investigated",
-  "commit": null,
+  "status": "complete",
+  "commit": "7aa1bbc2856d5c2e2aee47c10d3dd73807bb3cf0",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v47",
@@ -33,33 +33,72 @@
     "passed": false,
     "error": null,
     "metrics": {
-      "screens": { "matched": 52, "total": 54 },
-      "rng": { "matched": 2272, "total": 2667 },
-      "cursors": { "matched": 53, "total": 54 }
+      "screens": {
+        "matched": 52,
+        "total": 54
+      },
+      "rng": {
+        "matched": 2272,
+        "total": 2667
+      },
+      "cursors": {
+        "matched": 53,
+        "total": 54
+      }
     },
     "firstMismatch": {
       "screen": {
         "index": 52,
-        "location": { "segmentIndex": 0, "stepIndex": 53, "key": " " },
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 53,
+          "key": " "
+        },
         "kind": "ch",
         "row": 7,
         "column": 32,
-        "cCell": { "ch": "(", "color": 3, "attr": 0, "decgfx": 0 },
-        "jsCell": { "ch": "$", "color": 11, "attr": 0, "decgfx": 0 }
+        "cCell": {
+          "ch": "(",
+          "color": 3,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "$",
+          "color": 11,
+          "attr": 0,
+          "decgfx": 0
+        }
       },
       "rng": {
         "index": 2259,
         "cEntry": "rn2(1)=0",
         "cCaller": "m_move(monmove.c:1978)",
         "jsEntry": "rn2(12)=8",
-        "location": { "segmentIndex": 0, "stepIndex": 54, "key": " " },
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 54,
+          "key": " "
+        },
         "stepIndex": 54
       },
       "cursor": {
         "index": 53,
-        "location": { "segmentIndex": 0, "stepIndex": 54, "key": " " },
-        "cCursor": [28, 5, 1],
-        "jsCursor": [39, 0, 1]
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 54,
+          "key": " "
+        },
+        "cCursor": [
+          28,
+          5,
+          1
+        ],
+        "jsCursor": [
+          39,
+          0,
+          1
+        ]
       }
     },
     "step": 53,
@@ -71,34 +110,40 @@
     "luaFile": null,
     "line": 181
   },
-  "summary": "At zero-based segment 0, step 53, the hallucination timer clears while the hero is still mimicking a small mimic corpse. C potion.c:make_hallucinated() calls eat.c:eatmupdate(); that function replaces the orange-object mimic appearance and pending completion message with the nonhallucinatory gold-piece appearance/message, then redraws the hero. JS potion.js:make_hallucinated() instead reaches note_unported('eat.c eatmupdate') and leaves the orange mimic visible. A current-base fresh replay reproduces the first screen difference at step 53; the later first RNG difference is m_move at call 2259, after the caller skipped the helper.",
+  "summary": "At zero-based segment 0, step 53, the admitted v47 candidate enters the timeout-clear branch while the hero is mimicking a small mimic corpse. The eat.c:eatmupdate() source unit is now implemented and wired from potion.c:make_hallucinated(); an independent recording verifies the active orange-to-gold appearance update. The selected case still differs at this boundary because C eat.c:cpostfx() blocks in display_nhwindow(WIN_MAP, TRUE) after starting mimicry, while JS cpostfx() records note_unported('windows.c display_nhwindow') and returns. That cpostfx/window scheduling gap delays C's next captured screen; it is a separate source task and remains out of this goal.",
   "source": {
     "file": "eat.c",
-    "functions": [ "eatmupdate" ],
+    "functions": [
+      "eatmupdate"
+    ],
     "functionRange": "181-213",
     "branch": "The selected path enters the active ge.eatmbuf/gn.nomovemsg guard, recognizes M_AP_OBJECT with mappearance ORANGE after Hallucination clears, replaces the finish-mimicking text and appearance with GOLD_PIECE, and redraws the hero. The full function also includes the source's GOLD_PIECE-to-ORANGE branch when hallucination starts.",
     "callers": [
-      "The only direct C caller is potion.c:make_hallucinated() at line 418, on its changed && !Hallucination branch. That source function is already represented by js/potion.js:make_hallucinated(); its current JavaScript path calls note_unported('eat.c eatmupdate') at lines 983-987 instead of wiring this helper. The return is void and discarded in C."
+      "The only direct C caller is potion.c:make_hallucinated() at line 418, on its changed && !Hallucination branch. js/potion.js:make_hallucinated() now calls js/eat.js:eatmupdate() on the same branch. C discards the helper's void result."
     ],
     "dependencies": [
       "monst.h:is_obj_mappear() and M_AP_TYPE are macros, not separate C functions to port; they test m_ap_type and mappearance.",
       "display.c:newsym() is an existing screen-update helper. eatmupdate() consumes no return-valued unported dependency and makes no random draw.",
       "ge.eatmbuf and gn.nomovemsg are already represented as state.eatmbuf and state.nomovemsg by js/eat.js corpse-mimic handling; state.youmonst.mappearance is the hero's C mappearance. The two message references must be replaced together as in C's buffer copy."
     ],
-    "javascriptGap": "js/potion.js:make_hallucinated() currently records note_unported('eat.c eatmupdate') when a live hallucination transition ends. There is no canonical js/eat.js:eatmupdate() implementation yet.",
+    "javascriptGap": "Resolved for the assigned source unit: js/eat.js:eatmupdate() implements the whole C function, and js/potion.js:make_hallucinated() wires it at the direct caller. The selected synthetic case retains a distinct cpostfx/display_nhwindow scheduling mismatch.",
     "proposedImplementationScope": {
-      "sourceReservations": [ "source:eat.c:eatmupdate" ],
-      "callerWiring": [ "potion.c:make_hallucinated() -> js/potion.js:make_hallucinated()" ],
+      "sourceReservations": [
+        "source:eat.c:eatmupdate"
+      ],
+      "callerWiring": [
+        "potion.c:make_hallucinated() -> js/potion.js:make_hallucinated()"
+      ],
       "paths": [
         "js/eat.js",
         "js/potion.js",
         "scripts/eat.test.mjs",
         "scripts/potion.test.mjs",
-        ".cache/task-context.json",
-        ".cache/task-evidence.json",
-        ".cache/A2-checks.json"
+        "recipes/eat.c/",
+        "recordings/eat.c/",
+        ".cache/"
       ],
-      "entryPointEvidence": "The already admitted v47 case reaches the timeout-clear caller branch and eatmupdate() at segment 0 step 53. It can serve as the runtime evidence if the corrected replay matches through the completed transition; a new recipe is not needed for this exact entry point."
+      "entryPointEvidence": "The independent recording recipes/eat.c/eatmupdate-hallucination-mimic-47000135.session.json reaches the active orange-to-gold transition and strictly matches C at all 55 screens, RNG values, and cursor positions. The admitted v47 case remains evidence of the caller route through cpostfx, but its timeout boundary is delayed by C's blocking display_nhwindow(WIN_MAP, TRUE), so it does not verify the transition at the same screen step."
     }
   },
   "goalKind": "file-port",
@@ -107,8 +152,10 @@
     "The v47 manifest SHA-256 is 1477974e87becdf484ee24d23333bbecbc039fac1fce53c89ec18ab612d627ef. The admitted candidate is v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst, with 54 steps, 52/54 screens, 2272/2667 RNG calls, and 53/54 cursors in the accepted v47 evaluation. Its recipe and recording hashes are recorded above.",
     "The recipe independently uses seed 47000134, date/time 20571111111214, debug Wizard, no pet, and moves `#wizwish` for a small mimic corpse, `#wizintrinsic` with `10h` to set a 10-turn hallucination timeout, then eats the corpse from slot p and dismisses the resulting pages. C reaches cpostfx(PM_SMALL_MIMIC) while hallucinating, starts orange-object mimicry, then clears hallucination during the active mimic state.",
     "The source function is eat.c:eatmupdate() at lines 181-213. It returns before work unless ge.eatmbuf is nonnull and gn.nomovemsg points to that same active mimic completion buffer. For an orange object appearance after hallucination ends, it selects `You now prefer mimicking yourself.` and GOLD_PIECE, copies the new text into the active buffer, sets mappearance, and calls newsym().",
-    "The sole direct C caller is potion.c:make_hallucinated() line 418 under `changed && !Hallucination`. The existing JavaScript caller reaches note_unported('eat.c eatmupdate') at potion.js lines 983-987. No other `eatmupdate()` call exists in upstream C, and the relevant appearance predicate is a header macro.",
-    "Fresh differential against this worker's current base 7aa1bbc2856d5c2e2aee47c10d3dd73807bb3cf0 reproduces the first mismatch at zero-based segment 0 step 53 on space: C shows the small-mimic glyph `(` at row 7 column 32 while JS shows the stale gold-piece glyph `$`. The diff command's one-based segment label is 1. The later first RNG mismatch at call 2259/step 54 is C rn2(1)=0 in monmove.c:m_move versus JS rn2(12)=8, after the skipped caller effect. Fresh diff bounded run tV4iiK, exit 1 as expected for the selected mismatch."
+    "The sole direct C caller is potion.c:make_hallucinated() line 418 under changed && !Hallucination. The JavaScript implementation now wires this caller to eatmupdate(). No other eatmupdate() call exists in upstream C, and the relevant appearance predicate is a header macro.",
+    "The assigned source changes are verified by the independent recipe and recording hashes 18858150dbc3344478489c22e20932705811ded3bc8c9233832f731b54dbe0a4 and 9a1914394cbfc9727a52dd7f2588fa5da33119d39fbfcb98a2f1d4251b7bf0b5. Fresh differential run gYZuGU matched all 55 screens, 2751 RNG calls, 55 cursors, and all animation frames.",
+    "Fresh differential of the admitted v47 case after implementation had 53/54 screens, 2667/2667 RNG values, 54/54 cursors, and 3/3 animation frames. Its accepted pre-change evaluation had 52/54 screens, 2272/2667 RNG calls, and 53/54 cursors, so the source change improves the case and introduces no metric regression. The remaining first screen difference at boundary 53 is C's hallucinated hero glyph % versus JS's gold piece $.",
+    "C eat.c:cpostfx() lines 1129-1319 handles PM_SMALL_MIMIC, calls nomul(-tmp), sets the active mimic message and appearance, then calls display_nhwindow(WIN_MAP, TRUE) at line 1224. That call blocks through the TTY message window while a pending --More-- remains. JS js/eat.js:cpostfx() has the same mimic setup but calls note_unported('windows.c display_nhwindow') at line 2764, then returns without the blocking read. The timeout owners otherwise align: timeout.c:nh_timeout() case HALLUC sets HHallucination to 1, calls make_hallucinated(0L, TRUE, 0L), and stops occupation when Hallucination clears; js/timeout.js:decrement_property_timeouts() does the same. Completing cpostfx is a separate whole-function task because it is large and contains other partial branches."
   ],
-  "blocker": null
+  "blocker": "The selected v47 boundary still needs a separate complete eat.c:cpostfx()/blocking-window source task. Its active JS branch skips windows.c:display_nhwindow(WIN_MAP, TRUE), changing when the hallucination timeout transition is captured; that scope is outside this eatmupdate goal."
 }
