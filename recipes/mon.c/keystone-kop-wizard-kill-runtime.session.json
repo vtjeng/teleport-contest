@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent production-route witness for mon.c:mondead() through #wizkill. This Wizard seed, name, and date were chosen separately from the v43 challenge. The debug genesis creates a hostile Keystone Kop, then the ordinary wizard target-selection command kills it so the source rnd(5) and corpse removal run through xkilled().",
+  "segments": [
+    {
+      "seed": 49007216,
+      "datetime": "20420315091500",
+      "nethackrc": "OPTIONS=name:KopCfirst,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!verbose,!debug_mongen,pettype:none\nBINDINGS=V:wizkill\n",
+      "moves": " \u0007hostile Keystone Kop\n m#wizkill\nm.\u001b "
+    }
+  ]
+}
