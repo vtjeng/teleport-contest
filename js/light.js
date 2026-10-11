@@ -1,6 +1,7 @@
 // Mobile light-source ownership for burning objects and luminous monsters.
 // C refs: src/light.c new_light_source(), del_light_source(),
-// obj_merge_light_sources(), candle_light_range(); src/zap.c get_obj_location(), get_mon_location().
+// obj_split_light_source(), obj_merge_light_sources(), candle_light_range();
+// src/zap.c get_obj_location(), get_mon_location().
 
 import { memoryLayout } from './wizcmds_data.js';
 import {
@@ -74,6 +75,25 @@ export function obj_is_burning(obj) {
 // C ref: light.c obj_sheds_light().
 export function obj_sheds_light(obj) {
     return obj_is_burning(obj);
+}
+
+// C ref: light.c obj_split_light_source() (779-803). mkobj.c:splitobj()
+// calls this after splitting the timer, so a lit stack's child gets its own
+// linked light source and candle-specific radius.
+export function obj_split_light_source(src, dest, state = game) {
+    const globals = lightGlobals(state);
+    for (let source = globals.light_base; source; source = source.next) {
+        if (source.type !== LS_OBJECT || source.id !== src) continue;
+
+        const split = { ...source, id: dest, next: globals.light_base };
+        if (src.otyp === TALLOW_CANDLE || src.otyp === WAX_CANDLE) {
+            source.range = candle_light_range(src);
+            split.range = candle_light_range(dest);
+            state.vision_full_recalc = 1;
+        }
+        globals.light_base = split;
+        dest.lamplit = 1;
+    }
 }
 
 function lightGlobals(state) {

@@ -45,6 +45,7 @@ import {
     new_light_source,
     obj_is_burning,
     obj_sheds_light,
+    obj_split_light_source,
 } from '../js/light.js';
 import {
     BRASS_LANTERN,
@@ -245,6 +246,64 @@ test('obj_sheds_light accepts either burning fuel or an artifact light', () => {
     }), true);
     // Neither arm: a lit long sword with no artifact index sheds nothing.
     assert.equal(obj_sheds_light({ otyp: LONG_SWORD, lamplit: true }), false);
+});
+
+test('obj_split_light_source clones each matching C light node', async () => {
+    const cLight = await readFile(
+        new URL('../nethack-c/upstream/src/light.c', import.meta.url), 'utf8',
+    );
+    const jsLight = await readFile(
+        new URL('../js/light.js', import.meta.url), 'utf8',
+    );
+    const cStart = cLight.indexOf('\nobj_split_light_source(');
+    const cEnd = cLight.indexOf("\n/* light source `src' has been folded", cStart);
+    const cBody = cLight.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'light.c defines the complete split-light-source body');
+    assert.match(cBody, /for\s*\(ls\s*=\s*gl\.light_base;\s*ls;\s*ls\s*=\s*ls->next\)/u);
+    assert.match(cBody, /ls->type\s*==\s*LS_OBJECT\s*&&\s*ls->id\.a_obj\s*==\s*src/u);
+    assert.match(cBody,
+        /if\s*\(Is_candle\(src\)\)\s*\{[\s\S]*?ls->range\s*=\s*candle_light_range\(src\);[\s\S]*?new_ls->range\s*=\s*candle_light_range\(dest\);[\s\S]*?gv\.vision_full_recalc\s*=\s*1;/u);
+    assert.match(cBody, /new_ls->id\.a_obj\s*=\s*dest;\s*new_ls->next\s*=\s*gl\.light_base;\s*gl\.light_base\s*=\s*new_ls;\s*dest->lamplit\s*=\s*1;/u);
+    assert.match(jsLight,
+        /export function obj_split_light_source\(src, dest, state = game\)[\s\S]*?globals\.light_base = split;\s*dest\.lamplit = 1;/u);
+    assert.match(jsLight,
+        /if\s*\(src\.otyp\s*===\s*TALLOW_CANDLE\s*\|\|\s*src\.otyp\s*===\s*WAX_CANDLE\)[\s\S]*?source\.range\s*=\s*candle_light_range\(src\);[\s\S]*?split\.range\s*=\s*candle_light_range\(dest\);[\s\S]*?state\.vision_full_recalc\s*=\s*1;/u);
+
+    const state = resetGame();
+    light_globals_init(state);
+    state.vision_full_recalc = 0;
+    const src = { otyp: LONG_SWORD, lamplit: true };
+    const dest = { otyp: LONG_SWORD, lamplit: false };
+    const secondSource = {
+        next: null, x: 8, y: 9, range: 4, type: LS_OBJECT,
+        id: src, flags: 5, marker: 'second',
+    };
+    const unrelatedSource = {
+        next: secondSource, x: 3, y: 2, range: 1, type: LS_MONSTER,
+        id: {}, flags: 1,
+    };
+    const firstSource = {
+        next: unrelatedSource, x: 4, y: 5, range: 3, type: LS_OBJECT,
+        id: src, flags: 7, marker: 'first',
+    };
+    state.gl.light_base = firstSource;
+
+    obj_split_light_source(src, dest, state);
+
+    const splitFirst = state.gl.light_base;
+    const splitSecond = splitFirst.next;
+    assert.equal(splitFirst.id, dest);
+    assert.equal(splitFirst.marker, 'second');
+    assert.equal(splitFirst.range, 4);
+    assert.equal(splitSecond.id, dest);
+    assert.equal(splitSecond.marker, 'first');
+    assert.equal(splitSecond.range, 3);
+    assert.equal(splitSecond.next, firstSource);
+    assert.equal(firstSource.next, unrelatedSource);
+    assert.equal(dest.lamplit, 1);
+    assert.equal(state.vision_full_recalc, 0,
+        'non-candle copies keep their original ranges and skip candle recalc');
 });
 
 test('obj_is_burning follows light.c and obj.h source predicates', async () => {

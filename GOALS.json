@@ -273814,7 +273814,7 @@
     {
       "id": "port-mkroom-mkswamp-v46-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port swamp-room generation and canonical door adjacency",
       "cFile": "mkroom.c",
       "sessions": [
@@ -273828,8 +273828,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "93c0b06e6d2f55791a72b45156715cd63c948996",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mkswamp",
@@ -274302,6 +274305,1108 @@
                 "fromStep": 18,
                 "throughStep": 27,
                 "source": "cmd.c:makemap_prepost -> do.c:goto_level -> hack.c:check_special_room (SWAMP message, discovery/reset, and wake loop)"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "93c0b06e6d2f55791a72b45156715cd63c948996",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-detect-furniture-detect-v46-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port crystal ball furniture detection",
+      "cFile": "detect.c",
+      "sessions": [
+        "synthetic/v46/v46-crystal-ball-furniture-attempt10"
+      ],
+      "selectionReason": "The saved v46 mismatch reaches detect.c furniture_detect, whose revealed-glyph branch calls the already ported browse_map path that JavaScript skipped.",
+      "detail": "Source trace: apply.c doapply and artifact.c arti_invoke call use_crystal_ball; furniture_detect reveals furniture, browses locations through getpos, then restores the map.",
+      "openedAt": "14701d17df4b6d8dd02e9cec56428937980d7db1",
+      "openStanding": {
+        "sha": "93c0b06e6d2f55791a72b45156715cd63c948996",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "f808df42bbec3831d26ee2a1acd1f939e92106e4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "furniture_detect",
+          "line": 1091,
+          "endLine": 1141,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1091,
+        "to": 1141
+      },
+      "syntheticProvenance": {
+        "synthetic/v46/v46-crystal-ball-furniture-attempt10": {
+          "session": "synthetic/v46/v46-crystal-ball-furniture-attempt10",
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-crystal-ball-furniture-attempt10",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recordingPath": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+          "recordingSha256": "dd5c6b89f329a04517f0d03aad17b4c6b959e358c63a9e682749da00d038d612",
+          "evaluationPath": "challenges/evaluations/accepted-93c0b06e6d2f55791a72b45156715cd63c948996-v46.json",
+          "evaluationCommit": "93c0b06e6d2f55791a72b45156715cd63c948996"
+        }
+      },
+      "activeStanding": {
+        "sha": "93c0b06e6d2f55791a72b45156715cd63c948996",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-crystal-ball-furniture-attempt10",
+          "session": "synthetic/v46/v46-crystal-ball-furniture-attempt10",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recording": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+          "recordingPath": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+          "recordingSha256": "dd5c6b89f329a04517f0d03aad17b4c6b959e358c63a9e682749da00d038d612",
+          "recipe": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.recipe.session.json",
+          "recipeSha256": "de818c387f56428a626a50c0e00f47fc273cebb4e038c3951761a361422ee1fd",
+          "replayInputSha256": "d3357452343a6368d8c78d14ea76f447a04a86de4e2ef1c706eff7598de80e43",
+          "evaluationPath": "challenges/evaluations/accepted-93c0b06e6d2f55791a72b45156715cd63c948996-v46.json",
+          "evaluationCommit": "93c0b06e6d2f55791a72b45156715cd63c948996",
+          "evaluationArtifact": "challenges/evaluations/accepted-93c0b06e6d2f55791a72b45156715cd63c948996-v46.json",
+          "evaluationUtc": "2026-10-11T18:12:10.210Z",
+          "remainingScreens": 2,
+          "recordedSteps": 42,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 42
+            },
+            "rng": {
+              "matched": 2544,
+              "total": 2544
+            },
+            "cursors": {
+              "matched": 41,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 39,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 10,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2544,
+              "cCaller": null,
+              "jsEntry": "rn2(70)=32",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 39,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": " "
+              },
+              "cCursor": [
+                16,
+                8,
+                1
+              ],
+              "jsCursor": [
+                39,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 39,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v46/v46-crystal-ball-furniture-attempt10.json",
+            "result": {
+              "session": "synthetic/v46/v46-crystal-ball-furniture-attempt10",
+              "corpus": "synthetic",
+              "batch": "v46",
+              "caseId": "v46-crystal-ball-furniture-attempt10",
+              "manifestPath": "challenges/manifests/v46.json",
+              "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+              "recordingPath": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+              "recordingSha256": "dd5c6b89f329a04517f0d03aad17b4c6b959e358c63a9e682749da00d038d612",
+              "recipePath": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.recipe.session.json",
+              "recipeSha256": "de818c387f56428a626a50c0e00f47fc273cebb4e038c3951761a361422ee1fd",
+              "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+              "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+              "queueSha256": "e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2",
+              "remainingScreens": 2,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "19003b60069b417d2dea5693b652ea35bc6da6ac",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v46",
+                "caseId": "v46-crystal-ball-furniture-attempt10",
+                "session": "synthetic/v46/v46-crystal-ball-furniture-attempt10",
+                "manifestPath": "challenges/manifests/v46.json",
+                "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+                "recording": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+                "recordingPath": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.session.json",
+                "recordingSha256": "dd5c6b89f329a04517f0d03aad17b4c6b959e358c63a9e682749da00d038d612",
+                "recipe": "challenges/cases/v46/v46-crystal-ball-furniture-attempt10.recipe.session.json",
+                "recipeSha256": "de818c387f56428a626a50c0e00f47fc273cebb4e038c3951761a361422ee1fd",
+                "replayInputSha256": "939a3647d9cd362f2f28248cb75d1d57e0b1034405e548296ad75973ec29fe2d",
+                "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+                "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+                "evaluationArtifact": "challenges/evaluations/v46-baseline-29c284d97.json",
+                "evaluationUtc": "2026-10-11T15:24:07.625Z",
+                "remainingScreens": 2,
+                "recordedSteps": 42,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 2544,
+                    "total": 2544
+                  },
+                  "cursors": {
+                    "matched": 41,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 39,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 10,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2544,
+                    "cCaller": null,
+                    "jsEntry": "rn2(70)=32",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 39,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      16,
+                      8,
+                      1
+                    ],
+                    "jsCursor": [
+                      39,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 39,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "When a charged crystal ball is used to find furniture such as the up stairs, C reveals the location and enters browse_map(); that calls getpos(), whose first invocation displays the farlook tip. JavaScript reaches detect.js:furniture_detect() but substitutes note_unported('detect.c browse_map') for this call, leaving the base map on screen. The v46 replay first differs at step 39 when C shows the tip header and JavaScript shows no header.",
+              "source": {
+                "file": "detect.c",
+                "branch": "furniture_detect() (1091-1134) scans visible map cells, applies magic_map_background() to furniture and reveals furniture mimics. If any glyph changes, it calls browse_map(TER_DETECT | TER_MAP | TER_TRP | TER_OBJ | TER_MON, \"location\"); browse_map() enters getpos(), which calls handle_tip(TIP_GETPOS) on its first use. The no-new-glyph arm instead calls display_nhwindow(WIN_MAP, TRUE).",
+                "functions": [
+                  "furniture_detect"
+                ],
+                "callers": [
+                  "apply.c:doapply (4358-4360) calls detect.c:use_crystal_ball() for CRYSTAL_BALL; use_crystal_ball() (1334-1343) calls furniture_detect() when the requested character is a furniture symbol. JavaScript follows apply.js:doapply -> detect.js:use_crystal_ball -> furniture_detect.",
+                  "artifact.c:arti_invoke (2140-2145) is a second production caller of use_crystal_ball() for crystal-ball artifacts; JavaScript artifacts.js:arti_invoke routes to detect.js:use_crystal_ball.",
+                  "detect.c:browse_map() (104-117) calls getpos() with autodescribe and the detection terrain mask. getpos.c:getpos() (838-839) calls handle_tip(TIP_GETPOS); JavaScript counterparts already exist in detect.js:browse_map, getpos.js:getpos, and hack.js:handle_tip."
+                ],
+                "dependencies": [
+                  "detect.c:browse_map() and detect.c:map_redisplay() already have JavaScript implementations in detect.js. The missing production wiring is in furniture_detect().",
+                  "furniture_detect() also calls unconstrain_map(), glyph_at(), glyph_to_cmap(), magic_map_background(), m_at(), seemimic(), canspotmon(), map_invisible(), and map_redisplay(); their JavaScript implementations are already present.",
+                  "The alternate no-new-glyph arm calls display_nhwindow(WIN_MAP, TRUE), currently represented by note_unported('detect.c display_nhwindow') in JavaScript. Keep that named gap unless its TTY callee is separately owned and source-traced; the selected route uses the revealed-glyph browse_map arm."
+                ]
+              },
+              "goalKind": "file-port",
+              "selectionReason": "The saved v46 mismatch at the crystal-ball furniture screen reaches detect.c:furniture_detect. The first C-only output is caused by its revealed-glyph branch calling browse_map, which then invokes getpos and the first-use TIP_GETPOS callback. The same-file browse_map and map_redisplay helpers already exist in JavaScript; the missing call is the actionable owner.",
+              "evidence": [
+                "Queue SHA-256 e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2 identifies v46-crystal-ball-furniture-attempt10: 40/42 screens, 2544/2544 RNG calls, and 41/42 cursors matched. Its first mismatch is segment 0, step 39, screen row 0 column 10 (C: T, JavaScript: space), cursor C [16,8,1] versus JavaScript [39,5,1].",
+                "Upstream detect.c:1091-1134 shows furniture_detect() calling browse_map() when the scan reveals glyphs and calling map_redisplay() after either branch. detect.c:1334-1343 shows use_crystal_ball() dispatching furniture symbols to furniture_detect(). drawing.c:def_char_is_furniture() (120-140) puts the up-stair symbol in this category.",
+                "The production entry trace is apply.c:4358-4360 -> detect.c:use_crystal_ball:1334-1343 -> furniture_detect:1127-1132 -> browse_map:104-117 -> getpos.c:getpos:838-839 -> hack.c:handle_tip:1852-1880 -> nhcore.lua:108-123 show_getpos_tip(). artifact.c:2142-2143 is the alternate use_crystal_ball caller.",
+                "At the examined commit, detect.js:1327-1330 records note_unported('detect.c browse_map') rather than invoking its existing browse_map() at 429-448. Thus JavaScript skips the getpos/first-use tip window; the selected recording shows C’s farlook tip header at step 39 while JavaScript remains on the base map."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "furniture_detect",
+            "implementation": "js/detect.js",
+            "symbol": "furniture_detect",
+            "sourceReview": "Read detect.c:furniture_detect() (1091-1134) completely. Preserved the unconstrain-first map scan over y then x, source-specific found/revealed counts, mimic visibility handling, no-found/already-visible messages, and final map_redisplay order. The revealed-glyph branch now calls the existing browse_map() with TER_DETECT | TER_MAP | TER_TRP | TER_OBJ | TER_MON and the source goal 'location'; browse_map() enters getpos(), where the first-use TIP_GETPOS path is already ported. furniture_detect returns 0 as C does, and use_crystal_ball consumes that value. The separate no-new-glyph display_nhwindow(WIN_MAP, TRUE) arm remains the named void gap note_unported('detect.c display_nhwindow'); it is not the selected revealed-glyph route. No unported return value is used as data.",
+            "callers": [
+              {
+                "path": "js/detect.js",
+                "symbol": "use_crystal_ball",
+                "source": "detect.c:use_crystal_ball() at 1340-1343 selects furniture_detect() when def_char_is_furniture(ch) >= 0. apply.c:doapply() 4358-4360 and artifact.c:arti_invoke() 2140-2145 both call use_crystal_ball() for a regular crystal ball; their JavaScript dispatchers are apply.js:doapply and artifacts.js:arti_invoke."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-furniture-invoke-v46-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-crystal-ball-furniture-attempt10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 41,
+                "source": "apply.c:doapply(CRYSTAL_BALL) -> detect.c:use_crystal_ball(furniture symbol) -> furniture_detect -> browse_map -> getpos -> handle_tip(TIP_GETPOS), followed by map_redisplay"
+              }
+            ],
+            "checkedAt": "c7cf618cc49ee013225e685ae894370565a69bd6"
+          }
+        ],
+        "entryPointReview": "The selected behavior has two active command entry paths into detect.c:use_crystal_ball(): the 'a' apply command reaches apply.c:doapply()'s CRYSTAL_BALL arm at 4358-4360, and #invoke reaches artifact.c:arti_invoke()'s regular-crystal-ball arm at 2140-2145. Both dispatchers are wired in apply.js and artifacts.js. use_crystal_ball() dispatches furniture symbols to furniture_detect() at detect.c:1340-1343. The admitted v46 apply route matches through segment 0 step 41 and covers the newly revealed furniture scan, browse_map/getpos first-use tip, selected location, and map_redisplay. The independent artifact-invocation recording covers the same source path through #invoke. detect.c:browse_map() and getpos.c:getpos() were already ported and wired; the only retained gap in furniture_detect() is its alternate no-new-glyph display_nhwindow(WIN_MAP, TRUE) call, represented by note_unported('detect.c display_nhwindow') and not reached by the selected routes.",
+        "entryPoints": [
+          {
+            "name": "Apply a crystal ball to browse newly revealed furniture locations",
+            "functions": [
+              "furniture_detect"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-crystal-ball-furniture-attempt10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 41,
+                "source": "apply.c:doapply(CRYSTAL_BALL) -> detect.c:use_crystal_ball -> furniture_detect -> browse_map -> getpos/TIP_GETPOS"
+              }
+            ]
+          },
+          {
+            "name": "Invoke a regular crystal ball to browse newly revealed furniture locations",
+            "functions": [
+              "furniture_detect"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-furniture-invoke-v46-cfirst.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f808df42bbec3831d26ee2a1acd1f939e92106e4",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-light-obj-split-light-source-v46-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port light source splitting for lit objects",
+      "cFile": "light.c",
+      "sessions": [
+        "synthetic/v46/v46-lit-candle-split-attempt8"
+      ],
+      "selectionReason": "The saved v46 lit-candle mismatch reaches mkobj.c splitobj, where JavaScript skipped the direct light.c obj_split_light_source call after timer splitting.",
+      "detail": "Port the complete helper, including every matching light node, candle radius changes, vision recalculation, and the sole splitobj caller.",
+      "openedAt": "f595a7a79d132535bb59b0b9b3e88860ba29c00d",
+      "openStanding": {
+        "sha": "f808df42bbec3831d26ee2a1acd1f939e92106e4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "faaac209f210ecca8b50ad1fe834b07d5132c80e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "obj_split_light_source",
+          "line": 779,
+          "endLine": 807,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 779,
+        "to": 807
+      },
+      "syntheticProvenance": {
+        "synthetic/v46/v46-lit-candle-split-attempt8": {
+          "session": "synthetic/v46/v46-lit-candle-split-attempt8",
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-lit-candle-split-attempt8",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recordingPath": "challenges/cases/v46/v46-lit-candle-split-attempt8.session.json",
+          "recordingSha256": "03b8e83b6e60bf827d31e7e98e3c73eed129889d02a258a6d3f6d42d502a7341",
+          "evaluationPath": "challenges/evaluations/accepted-f808df42bbec3831d26ee2a1acd1f939e92106e4-v46.json",
+          "evaluationCommit": "f808df42bbec3831d26ee2a1acd1f939e92106e4"
+        }
+      },
+      "activeStanding": {
+        "sha": "f808df42bbec3831d26ee2a1acd1f939e92106e4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-lit-candle-split-attempt8",
+          "session": "synthetic/v46/v46-lit-candle-split-attempt8",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recording": "challenges/cases/v46/v46-lit-candle-split-attempt8.session.json",
+          "recordingPath": "challenges/cases/v46/v46-lit-candle-split-attempt8.session.json",
+          "recordingSha256": "03b8e83b6e60bf827d31e7e98e3c73eed129889d02a258a6d3f6d42d502a7341",
+          "recipe": "challenges/cases/v46/v46-lit-candle-split-attempt8.recipe.session.json",
+          "recipeSha256": "b712826483f5e46a3ee11bd892c344f25234321c5485521369d6a91be9763cae",
+          "replayInputSha256": "cdef98f89d0cd3a7007f59e11eeeb47a152421ad754fddf2127de30e1384dd3a",
+          "evaluationPath": "challenges/evaluations/accepted-f808df42bbec3831d26ee2a1acd1f939e92106e4-v46.json",
+          "evaluationCommit": "f808df42bbec3831d26ee2a1acd1f939e92106e4",
+          "evaluationArtifact": "challenges/evaluations/accepted-f808df42bbec3831d26ee2a1acd1f939e92106e4-v46.json",
+          "evaluationUtc": "2026-10-11T18:36:08.099Z",
+          "remainingScreens": 1,
+          "recordedSteps": 25,
+          "previousScreensMatched": 24,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 24,
+              "total": 25
+            },
+            "rng": {
+              "matched": 2891,
+              "total": 2891
+            },
+            "cursors": {
+              "matched": 25,
+              "total": 25
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 24,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 24,
+                "key": "n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 29,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 24,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v46/v46-lit-candle-split-attempt8.json",
+            "result": {
+              "session": "synthetic/v46/v46-lit-candle-split-attempt8",
+              "corpus": "synthetic",
+              "batch": "v46",
+              "caseId": "v46-lit-candle-split-attempt8",
+              "manifestPath": "challenges/manifests/v46.json",
+              "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+              "recordingPath": "challenges/cases/v46/v46-lit-candle-split-attempt8.session.json",
+              "recordingSha256": "03b8e83b6e60bf827d31e7e98e3c73eed129889d02a258a6d3f6d42d502a7341",
+              "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+              "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+              "remainingScreens": 1,
+              "recordedSteps": 25,
+              "status": "complete",
+              "commit": "28b7c9e526a93e9d660cca41aece6f1feadec28d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v46",
+                "caseId": "v46-lit-candle-split-attempt8",
+                "session": "synthetic/v46/v46-lit-candle-split-attempt8",
+                "manifestPath": "challenges/manifests/v46.json",
+                "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+                "recording": "challenges/cases/v46/v46-lit-candle-split-attempt8.session.json",
+                "recordingPath": "challenges/cases/v46/v46-lit-candle-split-attempt8.session.json",
+                "recordingSha256": "03b8e83b6e60bf827d31e7e98e3c73eed129889d02a258a6d3f6d42d502a7341",
+                "recipe": "challenges/cases/v46/v46-lit-candle-split-attempt8.recipe.session.json",
+                "recipeSha256": "b712826483f5e46a3ee11bd892c344f25234321c5485521369d6a91be9763cae",
+                "replayInputSha256": "939a3647d9cd362f2f28248cb75d1d57e0b1034405e548296ad75973ec29fe2d",
+                "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+                "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+                "evaluationArtifact": "challenges/evaluations/v46-baseline-29c284d97.json",
+                "evaluationUtc": "2026-10-11T15:24:07.625Z",
+                "remainingScreens": 1,
+                "recordedSteps": 25,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 24,
+                    "total": 25
+                  },
+                  "rng": {
+                    "matched": 2891,
+                    "total": 2891
+                  },
+                  "cursors": {
+                    "matched": 25,
+                    "total": 25
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 24,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 24,
+                      "key": "n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 29,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 24,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The remaining v46 lit-candle split screen difference is caused by the missing light.c:obj_split_light_source() call during mkobj.c:splitobj(). When a lit candle stack is split for a drop, C attaches a second light-source node to the child and sets child.lamplit; the JavaScript caller currently records note_unported and leaves the child unlit, omitting the \"(lit)\" part of its drop name. Port the whole light.c function in js/light.js and call it from js/obj.js:splitobj() after timer splitting.",
+              "source": {
+                "file": "light.c",
+                "branch": "When src has an LS_OBJECT node in gl.light_base, C copies each matching light-source node to dest and prepends it to gl.light_base. For candles it recalculates the source and destination ranges with candle_light_range() and sets vision_full_recalc; for every matching source it changes the copied id to dest and marks dest.lamplit=1. The admitted recipe lights a five-candle stack, then drops one candle so mkobj.c:splitobj() reaches this call with a live candle light source.",
+                "functions": [
+                  "obj_split_light_source"
+                ],
+                "callers": [
+                  "C direct caller: mkobj.c:splitobj():501 checks obj_sheds_light(obj) and calls obj_split_light_source(obj, otmp) after obj_split_timers; C discards the helper result.",
+                  "JavaScript owner: js/obj.js:splitobj() performs the same predicate and ordered call, but the active game path currently replaces the helper with note_unported(\"light.c obj_split_light_source\"). The command path is apply.c:use_candle -> use_lamp -> begin_burn, then do.c:doddrop -> drop -> mkobj.c:splitobj; JavaScript paths are js/apply.js:use_candle/use_lamp -> begin_burn and command dispatch -> js/do.js:doddrop/drop -> js/obj.js:splitobj."
+                ],
+                "dependencies": [
+                  "light.c:candle_light_range() is already implemented in js/light.js and is used for both candle radii.",
+                  "light.c:obj_sheds_light() is already implemented in js/light.js and remains the exact caller predicate.",
+                  "No other direct C call site exists for obj_split_light_source(); mkobj.c:splitobj() is its sole active caller."
+                ]
+              },
+              "goalKind": "file-port",
+              "selectionReason": "Selected the next unreserved mismatch from saved combined queue SHA-256 e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2 after the troll-meal delivery. Current v46 reservations assign the swamp session to B, prayer/furniture to C, and prior shopkeeper/troll sessions to A2. This lit-candle case is independent; its queue owner is unset, and source tracing identifies light.c:obj_split_light_source().",
+              "evidence": [
+                "The saved v46 entry identifies one unmatched screen at segment 0 step 24, key n, with no RNG or cursor mismatch. The C recording step says \"You drop a partly used candle (lit).\"; direct current-head replay run-nUUpYO reproduces the mismatch at boundary 25: C has a blank at row 0 column 29 while JavaScript has a period. Their PRNG values, screen counts, and cursor positions match.",
+                "nethack-c/upstream/src/light.c:779-803 copies a matching LS_OBJECT node, updates candle radii through candle_light_range(), requests vision recalculation, prepends the cloned node, and marks dest.lamplit=1. Its sole C caller is nethack-c/upstream/src/mkobj.c:501-502, reached after timer splitting in splitobj().",
+                "js/obj.js:954-958 has the same obj_sheds_light() position and order, but only invokes an optional splitObjectLight hook; the game path falls through to note_unported(\"light.c obj_split_light_source\"). Consequently the child made by splitobj() remains lamplit=false, and objnam.js formats the drop message without the C \"(lit)\" suffix.",
+                "Source scope is the whole light.c:obj_split_light_source() plus its existing JavaScript caller wiring in js/obj.js. The complete helper can reuse the existing candle_light_range(), obj_sheds_light(), and gl.light_base representation in js/light.js; no extra C family is required."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "obj_split_light_source",
+            "implementation": "js/light.js",
+            "symbol": "obj_split_light_source",
+            "sourceReview": "Read the complete light.c:obj_split_light_source() definition at lines 779-803. It walks gl.light_base in list order, and for every LS_OBJECT node whose object identity is src it copies the whole node, recalculates source and destination radii for candles and sets gv.vision_full_recalc, then changes the copy's identity to dest, prepends it to the list, and sets dest->lamplit=1. The helper makes no RNG call and emits no output, but it mutates linked light-source state and the destination object, so it is impure by the project definition. JavaScript preserves the source's iteration order while prepending each clone and uses the existing candle_light_range() and vision_full_recalc state owner.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "splitobj",
+                "source": "The running apply-candle then partial-drop path reaches js/obj.js:splitobj(), which evaluates obj_sheds_light() after timer splitting and calls obj_split_light_source(obj, child, state), matching the sole direct C call at mkobj.c:splitobj():501-502. The helper's void result is discarded in C."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/light-vision.test.mjs",
+              "scripts/object-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-lit-candle-split-attempt8",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "apply.c:use_candle -> use_lamp -> begin_burn lights a five-candle stack; do.c:doddrop -> drop -> mkobj.c:splitobj -> light.c:obj_split_light_source splits one lit candle and copies its LS_OBJECT source"
+              }
+            ],
+            "checkedAt": "64814ca79e0777c49a074b0f11a95bd5aa7758c0"
+          }
+        ],
+        "entryPointReview": "The selected helper has one active direct C caller: mkobj.c:splitobj() after timer splitting, mirrored by js/obj.js:splitobj(). Its runtime entry is splitting a lit stack; the admitted v46 case exercises the apply.c:use_candle -> use_lamp -> begin_burn route and then do.c:doddrop -> drop -> splitobj through the complete final step. The source-pinned tests also cover copying multiple matching nodes, preserving unrelated nodes, candle radius recalculation, and the vision recalculation flag.",
+        "entryPoints": [
+          {
+            "name": "Split a burning candle stack while dropping one candle",
+            "functions": [
+              "obj_split_light_source"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-lit-candle-split-attempt8",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "apply.c:use_candle -> use_lamp -> begin_burn -> do.c:doddrop -> drop -> mkobj.c:splitobj -> light.c:obj_split_light_source"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "faaac209f210ecca8b50ad1fe834b07d5132c80e",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-zap-bhitm-mimic-reveal-v46-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port bhitm mimic reveal path",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11"
+      ],
+      "selectionReason": "The first remaining v46 mismatch is a visible stone-disguised mimic where zap.c bhitm skips its message-coordinate and canonical mimic-reveal calls.",
+      "detail": "Complete the existing bhitm source unit and wire its three that_is_a_mimic call sites through pline.c set_msg_xy, pager.c object_from_map, and mkobj.c dealloc_obj.",
+      "openedAt": "4bfd0d2cdc822be166234581d97e47f715fa6c14",
+      "openStanding": {
+        "sha": "faaac209f210ecca8b50ad1fe834b07d5132c80e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "bhitm",
+          "line": 160,
+          "endLine": 577,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 160,
+        "to": 577
+      },
+      "requiredFunctions": [
+        {
+          "name": "that_is_a_mimic",
+          "line": 6201,
+          "endLine": 6281,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": true
+        },
+        {
+          "name": "set_msg_xy",
+          "line": 93,
+          "endLine": 103,
+          "declared": true,
+          "sourceFile": "pline.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11": {
+          "session": "synthetic/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11",
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recordingPath": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json",
+          "recordingSha256": "df4b4bad1ea9cd83a53f92044b186a5aa123e949fb48686d848fddf28a0f2d6b",
+          "evaluationPath": "challenges/evaluations/accepted-faaac209f210ecca8b50ad1fe834b07d5132c80e-v46.json",
+          "evaluationCommit": "faaac209f210ecca8b50ad1fe834b07d5132c80e"
+        }
+      },
+      "activeStanding": {
+        "sha": "faaac209f210ecca8b50ad1fe834b07d5132c80e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+          "session": "synthetic/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recording": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json",
+          "recordingPath": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json",
+          "recordingSha256": "df4b4bad1ea9cd83a53f92044b186a5aa123e949fb48686d848fddf28a0f2d6b",
+          "recipe": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.recipe.session.json",
+          "recipeSha256": "eff679886f2437530df5a1c7bf6bc7b0372e8975d7cd13704b20249bba59b436",
+          "replayInputSha256": "83523f5ef700a6b1321fc12751d0d4e7c89d54fa398090c3a57b5b5c00a7f178",
+          "evaluationPath": "challenges/evaluations/accepted-faaac209f210ecca8b50ad1fe834b07d5132c80e-v46.json",
+          "evaluationCommit": "faaac209f210ecca8b50ad1fe834b07d5132c80e",
+          "evaluationArtifact": "challenges/evaluations/accepted-faaac209f210ecca8b50ad1fe834b07d5132c80e-v46.json",
+          "evaluationUtc": "2026-10-11T19:00:07.686Z",
+          "remainingScreens": 1,
+          "recordedSteps": 135,
+          "previousScreensMatched": 134,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 134,
+              "total": 135
+            },
+            "rng": {
+              "matched": 2921,
+              "total": 2987
+            },
+            "cursors": {
+              "matched": 135,
+              "total": 135
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 133,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 133,
+                "key": "n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2921,
+              "cEntry": "rnd(2)=1",
+              "cCaller": "next_ident(mkobj.c:521)",
+              "jsEntry": "rn2(12)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 133,
+                "key": "n"
+              },
+              "stepIndex": 133
+            },
+            "cursor": null
+          },
+          "step": 133,
+          "kind": "rng",
+          "sourceFile": "mkobj.c",
+          "function": "next_ident",
+          "message": null,
+          "cFile": "mkobj.c",
+          "luaFile": null,
+          "line": 521,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.json",
+            "result": {
+              "session": "synthetic/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11",
+              "corpus": "synthetic",
+              "batch": "v46",
+              "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+              "manifestPath": "challenges/manifests/v46.json",
+              "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+              "recordingPath": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json",
+              "recordingSha256": "df4b4bad1ea9cd83a53f92044b186a5aa123e949fb48686d848fddf28a0f2d6b",
+              "evaluationPath": "challenges/evaluations/accepted-52a03df2ec5cadc89b33e26c7cccc848fd358cf2-v46.json",
+              "evaluationCommit": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2",
+              "remainingScreens": 1,
+              "recordedSteps": 135,
+              "status": "complete",
+              "commit": "8f52f8e61323d1076ca22d8834ef76122b85c75b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v46",
+                "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+                "session": "synthetic/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11",
+                "manifestPath": "challenges/manifests/v46.json",
+                "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+                "recording": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json",
+                "recordingPath": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.session.json",
+                "recordingSha256": "df4b4bad1ea9cd83a53f92044b186a5aa123e949fb48686d848fddf28a0f2d6b",
+                "recipe": "challenges/cases/v46/v46-stone-to-flesh-statue-mimic-cast-attempt11.recipe.session.json",
+                "recipeSha256": "eff679886f2437530df5a1c7bf6bc7b0372e8975d7cd13704b20249bba59b436",
+                "replayInputSha256": "abdedc8ddf398c66fd4c2f9dd6cd76a9ccefd8cf9819915e754acf352d039708",
+                "evaluationPath": "challenges/evaluations/accepted-52a03df2ec5cadc89b33e26c7cccc848fd358cf2-v46.json",
+                "evaluationCommit": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2",
+                "evaluationArtifact": "challenges/evaluations/accepted-52a03df2ec5cadc89b33e26c7cccc848fd358cf2-v46.json",
+                "evaluationUtc": "2026-10-11T16:26:00.275Z",
+                "remainingScreens": 1,
+                "recordedSteps": 135,
+                "previousScreensMatched": 134,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 134,
+                    "total": 135
+                  },
+                  "rng": {
+                    "matched": 2921,
+                    "total": 2987
+                  },
+                  "cursors": {
+                    "matched": 135,
+                    "total": 135
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 133,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 133,
+                      "key": "n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2921,
+                    "cEntry": "rnd(2)=1",
+                    "cCaller": "next_ident(mkobj.c:521)",
+                    "jsEntry": "rn2(12)=4",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 133,
+                      "key": "n"
+                    },
+                    "stepIndex": 133
+                  },
+                  "cursor": null
+                },
+                "step": 133,
+                "kind": "rng",
+                "sourceFile": "mkobj.c",
+                "function": "next_ident",
+                "message": null,
+                "cFile": "mkobj.c",
+                "luaFile": null,
+                "line": 521
+              },
+              "summary": "At zero-based step 133, a visible mimic disguised as a stone object or stone furniture enters zap.c:bhitm's SPE_STONE_TO_FLESH branch. C calls set_msg_xy and then uhitm.c:that_is_a_mimic with MIM_REVEAL | MIM_OMIT_WAIT; the helper creates the disguise-specific message and reveals the mimic. JS zap.js:bhitm skips both operations through note_unported, so the first screen difference is the missing mimic message at boundary 134. The later next_ident RNG divergence is downstream of the skipped helper path. The saved v46 evaluation records 134/135 screens, 2921/2987 RNG calls, and 135/135 cursors matched.",
+              "source": {
+                "file": "zap.c",
+                "branch": "bhitm SPE_STONE_TO_FLESH arm when the target is a mimic disguised as stone furniture or as a boulder, statue, or figurine, and cansee() is true",
+                "functions": [
+                  "bhitm"
+                ],
+                "callers": [
+                  "zap.c:weffects -> bhit callback -> bhitm for an aimed Stone to Flesh cast",
+                  "zap.c:weffects -> bhitm directly when the hero is swallowed or when zap_steed delegates a mounted target"
+                ],
+                "dependencies": [
+                  "uhitm.c:that_is_a_mimic",
+                  "pline.c:set_msg_xy"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved queue SHA-256 dac3b5757457451aec387a05fdb9fd07c51b0001b0f7ed54951d9ccf512a759e retains this case as the first unreserved candidate after the accepted troll case was removed. Its queue entry reports earliestStep 133, remainingScreens 1, and source annotation mkobj.c; the admitted v46 manifest clarifies that the first visible mismatch is the bhitm mimic message at boundary 134 and that the next_ident RNG divergence is downstream.",
+                "nethack-c/upstream/src/zap.c:506-516 enters the SPE_STONE_TO_FLESH mimic arm only for M_AP_FURNITURE accepted by stone_furniture_type() or M_AP_OBJECT accepted by stone_object_type(), then requires cansee(mtmp->mx, mtmp->my). It sets the message coordinate and calls that_is_a_mimic(mtmp, MIM_REVEAL | MIM_OMIT_WAIT).",
+                "nethack-c/upstream/src/uhitm.c:6199-6275 implements that_is_a_mimic(): it formats the message from the visible glyph and mimic disguise, strips the leading Wait! text under MIM_OMIT_WAIT, and calls seemimic() under MIM_REVEAL. Its object-glyph path calls object_from_map(), matching the downstream next_ident(mkobj.c:521) RNG annotation. The existing JS implementation is js/uhitm.js:1019-1094 but is private and emits only through an optional env.pline callback.",
+                "nethack-c/upstream/src/pline.c:91-97 defines set_msg_xy() as the display coordinate for the next message. JS zap.js:3531-3541 currently records note_unported('pline.c set_msg_xy') and note_unported('uhitm.c that_is_a_mimic') instead of printing the message. The existing js/startup_a11y.js:290-295 messageAt() can carry the source coordinate into accessible-message formatting without changing default text.",
+                "The selected production path is the existing zap.js command path through weffects() and bhit() to bhitm(); the JS bhitm() body is at js/zap.js:3333-3798. The helper's other C entry is uhitm.c:stumble_onto_mimic() at 6282-6284, already represented by js/uhitm.js:1100-1101. The previous closest case v19:cancellation-reveals-hostile-large-mimic-c62 exercises cancellation reveal, not this stone-to-flesh message branch.",
+                "Selection classifies this as a file-port candidate because bhitm() is an existing partial source unit with explicit unported branches. The source scope must cover the whole zap.c:bhitm function, its currently supported callers, and required helper wiring; implementation work was not included in this investigation-only assignment."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "bhitm",
+            "implementation": "js/zap.js",
+            "symbol": "bhitm",
+            "sourceReview": "Read the full zap.c:bhitm definition at 160-577 and compared switch arms, guard ordering, state/RNG/output order, and common wake/reveal/learn tail. This change replaces the stone-to-flesh branch’s two note_unported calls with set_msg_xy then canonical that_is_a_mimic(MIM_REVEAL | MIM_OMIT_WAIT). WAN_LOCKING and WAN_OPENING box/door mimic calls also now use that helper, as the C source does. Existing unrelated branches and their explicit unported callees remain unchanged; bhitm still skips the discarded mcureblindness and expels(TRUE) results through source-named note_unported gaps. The matching v46 range covers the newly reached stone-to-flesh branch and its output dependencies.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "weffects",
+                "source": "zap.c:weffects passes bhitm as the bhit callback and calls bhitm directly for a swallowed target"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhit",
+                "source": "zap.c:bhit invokes its callback for each monster hit by the ray"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_steed",
+                "source": "zap.c:zap_steed delegates its default mounted target arm to bhitm(u.usteed, obj)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/bhit.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 134,
+                "source": "cmd.c:read/cast -> zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm SPE_STONE_TO_FLESH -> pline.c:set_msg_xy -> uhitm.c:that_is_a_mimic -> pager.c:object_from_map -> mkobj.c:dealloc_obj -> seemimic"
+              }
+            ],
+            "checkedAt": "433694e5a221d44a3d68497619b87e8a274b2c23"
+          },
+          {
+            "name": "that_is_a_mimic",
+            "implementation": "js/uhitm.js",
+            "symbol": "that_is_a_mimic",
+            "sourceReview": "Read uhitm.c:that_is_a_mimic at 6201-6276 in source order. The implementation preserves blinded/telepathic selection, visible glyph-based format selection, MIM_OMIT_WAIT handling, object_from_map reconstruction and fake-object deallocation, message output, then MIM_REVEAL. The bhitm callers use the three C call modes: MIM_REVEAL for locking/opening and MIM_REVEAL | MIM_OMIT_WAIT for stone-to-flesh. The new v46 range runs the object-glyph path through its production caller.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm calls that_is_a_mimic from WAN_LOCKING, WAN_OPENING, and SPE_STONE_TO_FLESH mimic branches"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "stumble_onto_mimic",
+                "source": "uhitm.c:stumble_onto_mimic calls that_is_a_mimic when the hero stumbles onto a mimic"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-to-hit.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 134,
+                "source": "cmd.c:read/cast -> zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm SPE_STONE_TO_FLESH -> pline.c:set_msg_xy -> uhitm.c:that_is_a_mimic -> pager.c:object_from_map -> mkobj.c:dealloc_obj -> seemimic"
+              }
+            ],
+            "checkedAt": "433694e5a221d44a3d68497619b87e8a274b2c23"
+          },
+          {
+            "name": "set_msg_xy",
+            "implementation": "js/pline.js",
+            "symbol": "set_msg_xy",
+            "sourceReview": "Read pline.c:set_msg_xy at 93-97 and the vpline consumer at 162-176. The setter stores the next-message coordinate; the JS consumer resets it on message emission and uses it only for a valid accessible-message location. zap.c:bhitm sets the coordinate immediately before the mimic message.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm SPE_STONE_TO_FLESH visible mimic branch calls set_msg_xy(mtmp->mx, mtmp->my) before that_is_a_mimic"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pline.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "pline.c",
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 134,
+                "source": "cmd.c:read/cast -> zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm SPE_STONE_TO_FLESH -> pline.c:set_msg_xy -> uhitm.c:that_is_a_mimic -> pager.c:object_from_map -> mkobj.c:dealloc_obj -> seemimic"
+              }
+            ],
+            "checkedAt": "433694e5a221d44a3d68497619b87e8a274b2c23"
+          }
+        ],
+        "entryPointReview": "The selected active entry point is a direct aimed Stone to Flesh spell cast that reaches the ordinary weffects -> bhit callback -> bhitm route. Its complete admitted segment reaches the visible stone-disguised mimic path, the message-coordinate setter, the canonical mimic formatter, the object glyph reconstruction and temporary-object cleanup, and the reveal. Source review also confirms the two other active bhitm calls to that_is_a_mimic (WAN_LOCKING and WAN_OPENING) are wired in source order; those calls do not change the selected runtime claim. bhitm’s other production callers remain weffects direct swallowed dispatch and zap_steed default delegation.",
+        "entryPoints": [
+          {
+            "name": "Aimed Stone to Flesh cast hits a visible mimic disguised as stone furniture or a stone object",
+            "functions": [
+              "bhitm",
+              {
+                "sourceFile": "uhitm.c",
+                "name": "that_is_a_mimic"
+              },
+              {
+                "sourceFile": "pline.c",
+                "name": "set_msg_xy"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 134,
+                "source": "cmd.c:read/cast -> zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm SPE_STONE_TO_FLESH -> pline.c:set_msg_xy -> uhitm.c:that_is_a_mimic -> pager.c:object_from_map -> mkobj.c:dealloc_obj -> seemimic"
               }
             ]
           }
