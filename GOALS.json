@@ -264605,14 +264605,14 @@
           "line": 2201,
           "endLine": 2218,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "generate_stairs_find_room",
           "line": 2219,
           "endLine": 2249,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -264626,7 +264626,7 @@
           "endLine": 652,
           "declared": true,
           "sourceFile": "mkroom.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "has_upstairs",
@@ -264634,7 +264634,7 @@
           "endLine": 665,
           "declared": true,
           "sourceFile": "mkroom.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "inside_room",
@@ -264642,7 +264642,7 @@
           "endLine": 693,
           "declared": true,
           "sourceFile": "mkroom.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -264844,7 +264844,255 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "generate_stairs_room_good",
+            "implementation": "js/mklev.js",
+            "symbol": "generate_stairs_room_good",
+            "sourceReview": "Read the complete mklev.c:generate_stairs_room_good() at lines 2201-2215. Its source-ordered short-circuit expression requires a non-null room, accepts needjoining or phase < 0, evaluates both stair predicates before the phase < 1 relaxation, and accepts OROOM or a THEMEROOM only before phase 2. The JavaScript expression retains this order and now delegates stair membership to the whole-source mkroom.c:has_dnstairs()/has_upstairs() helpers. The predicate is pure: its helper chain performs no RNG, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "generate_stairs_find_room",
+                "source": "C mklev.c:generate_stairs_find_room() iterates svr.rooms in index order and calls generate_stairs_room_good() at lines 2228-2229 for each phase; JavaScript's matching candidate loop calls the corrected predicate in the same order."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mklev-room-coordinates.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "The direct Wizard load of dat/Wiz-loca.lua reaches mklev.c:generate_stairs_find_room:2236; its candidate predicate calls has_dnstairs, has_upstairs, and inside_room."
+              }
+            ],
+            "checkedAt": "4ce0a77cedb3e1bf5be345924a57f27f9a8aa8a0"
+          },
+          {
+            "name": "generate_stairs_find_room",
+            "implementation": "js/mklev.js",
+            "symbol": "generate_stairs_find_room",
+            "sourceReview": "Read the complete mklev.c:generate_stairs_find_room() at lines 2219-2244. It returns null for zero rooms, scans phases 2 through 0, appends eligible room indices in source order, consumes rn2(ai) once for the first nonempty phase, and otherwise consumes rn2(svn.nroom). Its impure behavior is the selected random draw; the implementation preserves that draw and the caller's room ordering while using the corrected full predicate.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "generate_stairs",
+                "source": "C mklev.c:makelevel() calls generate_stairs() at line 1303; generate_stairs() calls generate_stairs_find_room() for down stairs and conditionally for up stairs at lines 2260 and 2273."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "find_branch_room",
+                "source": "C mklev.c:makelevel() calls place_branch() at line 1380; place_branch() calls find_branch_room(), which calls generate_stairs_find_room() at line 1667."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "The direct Wizard load of dat/Wiz-loca.lua reaches the stair candidate draw at mklev.c:generate_stairs_find_room:2236."
+              }
+            ],
+            "checkedAt": "4ce0a77cedb3e1bf5be345924a57f27f9a8aa8a0"
+          },
+          {
+            "name": "has_dnstairs",
+            "implementation": "js/mkroom.js",
+            "symbol": "has_dnstairs",
+            "sourceReview": "Read all of mkroom.c:has_dnstairs() at lines 639-650. It walks gs.stairs in linked-list order, tests only !stway->up stairways through inside_room(), returns on the first match, and otherwise returns FALSE. The JS helper has the same traversal and early return; it has no RNG, output, or state mutation. C callers are mkshop(), pick_room(), mkswamp(), and mklev.c:generate_stairs_room_good(). Existing JS wiring covers mkshop(), pick_room(), and stair selection. The SWAMP path remains explicitly skipped by do_mkroom() through note_unported('mkroom.c mkswamp'); it is outside this correction.",
+            "callers": [
+              {
+                "path": "js/mkroom.js",
+                "symbol": "mkshop",
+                "source": "C mkroom.c:mkshop() calls has_dnstairs(sroom) at line 171 while excluding stair rooms; JS mkroom.js:mkshop() uses has_dnstairs(candidate)."
+              },
+              {
+                "path": "js/mkroom.js",
+                "symbol": "pick_room",
+                "source": "C mkroom.c:pick_room() calls has_dnstairs() at lines 233 and 235; its caller mkzoo() is dispatched from do_mkroom(). JS mkroom.js:pick_room() makes the corresponding strict and probabilistic checks."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "generate_stairs_room_good",
+                "source": "C mklev.c:generate_stairs_room_good() calls has_dnstairs(croom) at line 2211; JS mklev.js imports and calls the shared mkroom.js implementation."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mklev-room-coordinates.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mkroom.c",
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "The selected stair candidate predicate invokes mkroom.c:has_dnstairs(), which filters each linked stair through mkroom.c:inside_room()."
+              }
+            ],
+            "checkedAt": "4ce0a77cedb3e1bf5be345924a57f27f9a8aa8a0"
+          },
+          {
+            "name": "has_upstairs",
+            "implementation": "js/mkroom.js",
+            "symbol": "has_upstairs",
+            "sourceReview": "Read all of mkroom.c:has_upstairs() at lines 652-663. It walks gs.stairs in linked-list order, tests only stway->up stairways through inside_room(), returns on the first match, and otherwise returns FALSE. The JS helper has the same traversal and early return; it has no RNG, output, or state mutation. C callers are mkshop(), pick_room(), mkswamp(), and mklev.c:generate_stairs_room_good(). Existing JS wiring covers mkshop(), pick_room(), and stair selection. The SWAMP path remains explicitly skipped by do_mkroom() through note_unported('mkroom.c mkswamp'); it is outside this correction.",
+            "callers": [
+              {
+                "path": "js/mkroom.js",
+                "symbol": "mkshop",
+                "source": "C mkroom.c:mkshop() calls has_upstairs(sroom) at line 171 while excluding stair rooms; JS mkroom.js:mkshop() uses has_upstairs(candidate)."
+              },
+              {
+                "path": "js/mkroom.js",
+                "symbol": "pick_room",
+                "source": "C mkroom.c:pick_room() calls has_upstairs() at lines 233 and 235; its caller mkzoo() is dispatched from do_mkroom(). JS mkroom.js:pick_room() makes the corresponding strict and non-strict checks."
+              },
+              {
+                "path": "js/mkroom.js",
+                "symbol": "do_mkroom",
+                "source": "C mkroom.c:mkswamp() calls has_upstairs() at line 539, but JS do_mkroom() currently records note_unported('mkroom.c mkswamp') and does not enter that function; the unsupported SWAMP caller is preserved as a gap outside the selected stair-selection entry point."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "generate_stairs_room_good",
+                "source": "C mklev.c:generate_stairs_room_good() calls has_upstairs(croom) at line 2211; JS mklev.js imports and calls the shared mkroom.js implementation."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mklev-room-coordinates.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mkroom.c",
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "The selected stair candidate predicate invokes mkroom.c:has_upstairs(), which filters each linked stair through mkroom.c:inside_room()."
+              }
+            ],
+            "checkedAt": "4ce0a77cedb3e1bf5be345924a57f27f9a8aa8a0"
+          },
+          {
+            "name": "inside_room",
+            "implementation": "js/room_coordinates.js",
+            "symbol": "inside_room",
+            "sourceReview": "Read all of mkroom.c:inside_room() at lines 677-687. For irregular rooms it derives the room index plus ROOMOFFSET and requires both !levl[x][y].edge and an exact roomno match; for regular rooms it accepts the inclusive rectangle expanded by one tile. The existing JS function in room_coordinates.js implements those two branches from croom.roomnoidx and GameMap.at(). It is pure. Its complete direct C caller inventory is mkroom.c:has_dnstairs(), has_upstairs(), and somexy(); mklev.c:pos_to_room(); sp_lev.c:maybe_add_door() and create_monster(); and hack.c:furniture_present() and in_town(). These map to js/mkroom.js, js/room_coordinates.js, js/mklev.js, js/themeroom_fill.js, and js/hack.js respectively. C place_branch() discards pos_to_room()'s result, so that direct-coordinate path has no translated state effect. The selected synthetic range exercises the helper through both stair predicates; the test directly pins irregular identity, edge rejection, and regular wall bounds.",
+            "callers": [
+              {
+                "path": "js/mkroom.js",
+                "symbol": "has_dnstairs",
+                "source": "C mkroom.c:has_dnstairs() calls inside_room(sroom, stway->sx, stway->sy) at line 645."
+              },
+              {
+                "path": "js/mkroom.js",
+                "symbol": "has_upstairs",
+                "source": "C mkroom.c:has_upstairs() calls inside_room(sroom, stway->sx, stway->sy) at line 658."
+              },
+              {
+                "path": "js/room_coordinates.js",
+                "symbol": "somexy",
+                "source": "C mkroom.c:somexy() excludes coordinates inside subrooms by calling inside_room(croom->sbrooms[i], c->x, c->y) at line 731."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "place_branch",
+                "source": "C mklev.c:place_branch() calls pos_to_room(x, y) at line 1714 and discards its result; pos_to_room() uses inside_room() at line 1683. The JS explicit-coordinate branch also makes no use of this result."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "maybe_add_door",
+                "source": "C sp_lev.c:maybe_add_door() uses inside_room() at line 1113 for regular-room containment; JS mklev.js:maybe_add_door() uses the canonical helper in the same condition."
+              },
+              {
+                "path": "js/themeroom_fill.js",
+                "symbol": "create_monster",
+                "source": "C sp_lev.c:create_monster() refuses the chosen location when !inside_room(croom, x, y) at line 1980; JS themeroom_fill.js:create_monster() makes the same check."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "furniture_present",
+                "source": "C hack.c:furniture_present() calls inside_room() at line 3492 while scanning irregular room bounds; JS hack.js:furniture_present() calls the canonical helper."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "in_town",
+                "source": "C hack.c:in_town() calls inside_room() at line 3579 to recognize town rooms with subrooms; JS hack.js:in_town() calls the canonical helper."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mklev-room-coordinates.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mkroom.c",
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "The selected stair candidate predicate reaches inside_room() through mkroom.c:has_dnstairs() and has_upstairs()."
+              }
+            ],
+            "checkedAt": "4ce0a77cedb3e1bf5be345924a57f27f9a8aa8a0"
+          }
+        ],
+        "entryPointReview": "The selected active entry is the admitted Wizard direct-load of dat/Wiz-loca.lua. Its synthetic v43 range reaches the stair candidate draw at mklev.c:generate_stairs_find_room:2236 and exercises the full predicate chain through has_dnstairs(), has_upstairs(), and inside_room(). Source audit found additional active callers: mkshop()/pick_room()/mkswamp() use the stair predicates; somexy(), pos_to_room(), sp_lev.c:maybe_add_door()/create_monster(), and hack.c:furniture_present()/in_town() use inside_room(). Existing JavaScript production adapters route the implemented callers to the shared functions. The mkswamp caller remains an existing explicit note_unported gap; place_branch discards pos_to_room()'s pure result. The helpers are pure and directly source-pinned in scripts/mklev-room-coordinates.test.mjs. The changed candidate selector's impure RNG path is covered by the cited exact matching synthetic range.",
+        "entryPoints": [
+          {
+            "name": "Wizard loads nested irregular Wiz-loca rooms and reaches stair candidate selection",
+            "functions": [
+              "generate_stairs_room_good",
+              "generate_stairs_find_room",
+              {
+                "sourceFile": "mkroom.c",
+                "name": "has_dnstairs"
+              },
+              {
+                "sourceFile": "mkroom.c",
+                "name": "has_upstairs"
+              },
+              {
+                "sourceFile": "mkroom.c",
+                "name": "inside_room"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "The direct Wizard special-level load of dat/Wiz-loca.lua reaches mklev.c:generate_stairs_find_room:2236 and exercises the complete stair predicate and room-membership chain."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
