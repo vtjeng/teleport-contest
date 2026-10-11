@@ -873,7 +873,7 @@ test('moverock_core and cannot_push keep the complete C return paths', async () 
     assert.match(cannotC, /autopick_testobj\(otmp, TRUE\)/u);
     assert.match(cannotC, /could_move_onto_boulder\(sx, sy\)/u);
     assert.match(cannotJs, /autopick_testobj\(otmp, true, state\)/u);
-    assert.match(cannotJs, /note_unported\('trap\.c sokoban_guilt'\)/u);
+    assert.match(cannotJs, /sokoban_guilt\(state\)/u);
     assert.doesNotMatch(cannotJs, /UnsupportedHeroMoveBoundaryError/u);
     assert.equal((coreC.match(/return cannot_push\(otmp, sx, sy\);/gu) ?? []).length, 5);
     assert.equal((coreJs.match(/return await cannot_push\(otmp, sx, sy, state, effectEnv\);/gu) ?? []).length, 5);

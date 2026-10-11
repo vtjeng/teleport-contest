@@ -1,0 +1,158 @@
+{
+  "session": "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24",
+  "corpus": "synthetic",
+  "batch": "v46",
+  "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+  "manifestPath": "challenges/manifests/v46.json",
+  "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+  "recordingPath": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+  "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+  "evaluationPath": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+  "evaluationCommit": "696981041adb7876b92090fe5486dc9ca68af575",
+  "remainingScreens": 1,
+  "recordedSteps": 121,
+  "status": "complete",
+  "commit": "d404c42c66e68b5c46965a3a526962b43a03698d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v46",
+    "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+    "session": "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24",
+    "manifestPath": "challenges/manifests/v46.json",
+    "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+    "recording": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+    "recordingPath": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+    "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+    "recipe": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.recipe.session.json",
+    "recipeSha256": "2c5b5e7c57a4a299bdea02c19b2cabd48da74512530d20e21fa206afb9c7d51e",
+    "replayInputSha256": "abc2aa4838bc14431291da1b19050d36a86aee2cf5a46c0f40f8bdf02c44adcf",
+    "evaluationPath": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+    "evaluationCommit": "696981041adb7876b92090fe5486dc9ca68af575",
+    "evaluationArtifact": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+    "evaluationUtc": "2026-10-11T15:59:10.197Z",
+    "remainingScreens": 1,
+    "recordedSteps": 121,
+    "previousScreensMatched": 120,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 120,
+        "total": 121
+      },
+      "rng": {
+        "matched": 6674,
+        "total": 6674
+      },
+      "cursors": {
+        "matched": 120,
+        "total": 121
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 119,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 119,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 24,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "V",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 119,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 119,
+          "key": "\n"
+        },
+        "cCursor": [
+          37,
+          17,
+          1
+        ],
+        "jsCursor": [
+          32,
+          17,
+          1
+        ]
+      }
+    },
+    "step": 119,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The admitted Sokoban case reaches trap.c:sokoban_guilt() from read.c:seffect_earth(); the missing helper caused the final conduct-line mismatch. Independent recipes now reach its other active callers in zap.c, hack.c, and steed.c and match the patched C recordings. The steed recipe initially exposed a missing supporting caller: polyself.c:polymon() must invoke dismount_steed(DISMOUNT_POLY) after the transformed hero can no longer ride. Once wired, the existing landing_spot() path matched C without a landing_spot implementation change; this task claims only the whole trap.c:sokoban_guilt source unit.",
+  "source": {
+    "file": "trap.c",
+    "branch": "The whole trap.c:sokoban_guilt() checks the current-level Sokoban flag. If set, it increments u.uconduct.sokocheat and calls change_luck(-1). It emits no message and consumes no RNG. Its result is void. JavaScript implements this helper in js/trap.js and wires each active caller.",
+    "functions": [
+      "sokoban_guilt"
+    ],
+    "callers": [
+      {
+        "path": "js/read.js",
+        "symbol": "seffect_earth",
+        "source": "read.c:seffect_earth():1951 calls sokoban_guilt() after earth scroll boulder effects; admitted v46 case v46-sokoban-earth-guilt-branch-entry-attempt24 reaches the helper and the later insight.c:show_conduct() display."
+      },
+      {
+        "path": "js/zap.js",
+        "symbol": "poly_obj",
+        "source": "zap.c:poly_obj():1711 calls sokoban_guilt() when polymorph changes a boulder in Sokoban."
+      },
+      {
+        "path": "js/zap.js",
+        "symbol": "fracture_rock",
+        "source": "zap.c:fracture_rock():5556 calls sokoban_guilt() for its boulder/rock fracture result."
+      },
+      {
+        "path": "js/hack.js",
+        "symbol": "cannot_push",
+        "source": "hack.c:cannot_push():299,307 calls sokoban_guilt() on both relevant refusal branches."
+      },
+      {
+        "path": "js/hack.js",
+        "symbol": "moverock_core",
+        "source": "hack.c:moverock_core():398,403 calls sokoban_guilt() on its two boulder movement branches."
+      },
+      {
+        "path": "js/steed.js",
+        "symbol": "dismount_steed",
+        "source": "steed.c:dismount_steed():767 calls sokoban_guilt() after teleds() lands the hero on a boulder. Supporting caller wiring is polyself.c:polymon():964 -> js/polyself.js:polymon(), which invokes dismount_steed(DISMOUNT_POLY) when can_ride() rejects the transformed hero. That route uses the existing landing_spot() implementation; landing_spot() is not claimed as completed by this task."
+      }
+    ],
+    "dependencies": [
+      "attrib.c:change_luck(-1) is an existing JavaScript owner in js/moveloop_preamble.js; C discards its void result."
+    ]
+  },
+  "goalKind": "file-port",
+  "selectionReason": "Selected candidate 6, the first unreserved item in saved combined queue SHA-256 9d2425b60017f469943e7c22789e06736445e2c603c966cfcde87f3250e5d528 at accepted Main 696981041adb7876b92090fe5486dc9ca68af575. B owns the random-swamp case; C owns prayer, crystal-ball, and succubus; earlier A2 deliveries own troll-meal and lit-candle. This Sokoban guilt case is independent from those reservations.",
+  "evidence": [
+    "The immutable v46 manifest identifies read.c:seffect_earth() and trap.c:sokoban_guilt(). At segment 0 step 119/key newline, the accepted baseline matches 6,674 RNG calls and 120/121 screens; JavaScript lacks the changed Sokoban conduct count, so the final conduct line differs.",
+    "nethack-c/upstream/src/trap.c:7039-7054 defines the whole helper. Its only effects are guarded by the current-level Sokoban flag: increment u.uconduct.sokocheat and call change_luck(-1). The function has no RNG, message, or screen output.",
+    "Active direct callers are read.c:seffect_earth():1951, zap.c:poly_obj():1711, zap.c:fracture_rock():5556, hack.c:cannot_push():299/307, hack.c:moverock_core():398/403, and steed.c:dismount_steed():767. Their JavaScript caller wiring invokes js/trap.js:sokoban_guilt().",
+    "The steed recording initially diverged before reaching Sokoban guilt because JS polyself.js:polymon() recorded note_unported instead of following polyself.c:polymon():964 into dismount_steed(DISMOUNT_POLY). The supporting caller was wired and the branch added to the existing dismount implementation. The resulting recipe strictly matches C through 5,744 RNG calls, 106 screens, and 106 cursors. It reaches the existing steed.c:landing_spot() and then Sokoban guilt; landing_spot() itself was not changed or claimed complete.",
+    "Independent trap.c recipes and recordings exercise poly_obj, fracture_rock, moverock_core, cannot_push, and the steed dismount route. The admitted v46 case provides the seffect_earth route. Together they cover all active direct helper callers listed above."
+  ]
+}

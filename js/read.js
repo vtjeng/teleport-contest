@@ -363,6 +363,7 @@ import { dropCommandEnv, dropy, flooreffects, trycall } from './do.js';
 import { placebc, set_bc } from './ball.js';
 import { heroIsBlind as Blind } from './startup_a11y.js';
 import { y_n } from './cmd.js';
+import { sokoban_guilt } from './trap.js';
 import {
     study_book,
     losespells,
@@ -2459,7 +2460,7 @@ export async function seffect_earth(scroll, state = game) {
         );
     }
     state.gk.known = true;
-    note_unported('trap.c sokoban_guilt');
+    sokoban_guilt(state);
 
     if (!cursed) {
         for (let x = state.u.ux - 1; x <= state.u.ux + 1; x++) {

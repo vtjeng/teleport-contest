@@ -3,7 +3,7 @@
 // C ref: trap.c -- t_at(), hole_destination(), maketrap(), deltrap(),
 // conjoined_pits(), clear_conjoined_pits(), adj_nonconjoined_pit(),
 // choose_trapnote(), set_utrap(), reset_utrap(), fill_pit(), float_down(),
-// climb_pit(), lava_effects(),
+// climb_pit(), lava_effects(), sokoban_guilt(),
 // trapname(), dountrap(), could_untrap(), untrap_prob(), cnv_trap_obj(),
 // into_vs_onto(), move_into_trap(), try_disarm(), reward_untrap(),
 // disarm_holdingtrap(), disarm_landmine(), unsqueak_ok(),
@@ -352,6 +352,16 @@ import { costly_spot, shop_keeper, shk_your, shopdig } from './shk.js';
 import { quest_info } from './questpgr.js';
 import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
+import { change_luck } from './moveloop_preamble.js';
+
+// C ref: trap.c sokoban_guilt() (7036-7055). Sokoban is the current-level
+// flag. Conduct and luck remain the separate player values initialized by
+// character creation.
+export function sokoban_guilt(state = game) {
+    if (!state.level?.flags?.sokoban_rules) return;
+    state.u.uconduct.sokocheat++;
+    change_luck(-1, state);
+}
 
 // C ref: trap.c instapetrify() (3844-3855). Supporting wielding_corpse's
 // protection-loss callers; other source callers retain their named gaps, so
