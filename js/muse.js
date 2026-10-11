@@ -714,7 +714,7 @@ async function mon_escape(mtmp, vismon, state, env) {
 
 // C ref: muse.c mcureblindness() (2872-2881). Cure a monster's blindness
 // and announce that it can see again if the hero can see it.
-async function mcureblindness(mon, verbos, state) {
+export async function mcureblindness(mon, verbos, state) {
     if (!mon.mcansee) {
         mon.mcansee = 1;
         mon.mblinded = 0;
