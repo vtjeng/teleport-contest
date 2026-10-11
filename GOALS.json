@@ -271400,7 +271400,7 @@
     {
       "id": "port-quest-finish-thrown-artifact-synthetic-v45-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port quest finish and wire leader interactions",
       "cFile": "quest.c",
       "sessions": [
@@ -271414,8 +271414,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3b603348e895b1e73580096f4b456acc946e8469",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "finish_quest",
@@ -271782,6 +271785,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3b603348e895b1e73580096f4b456acc946e8469",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
