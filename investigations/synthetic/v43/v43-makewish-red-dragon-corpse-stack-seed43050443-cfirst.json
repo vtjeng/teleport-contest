@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+  "corpus": "synthetic",
+  "batch": "v43",
+  "caseId": "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+  "manifestPath": "challenges/manifests/v43.json",
+  "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+  "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
+  "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+  "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
+  "remainingScreens": 201,
+  "recordedSteps": 301,
+  "status": "complete",
+  "goalKind": "divergence-fix",
+  "commit": "42b8e23687eab4b71988b73708c121750093abe7",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v43",
+    "caseId": "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+    "session": "synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+    "manifestPath": "challenges/manifests/v43.json",
+    "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+    "recording": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.session.json",
+    "recordingPath": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.session.json",
+    "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
+    "recipe": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json",
+    "recipeSha256": "b8e4ca41d452d1a4edfa0c9edf79687a46e0528b22985093b4d5f39b1a69003c",
+    "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f",
+    "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+    "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
+    "evaluationArtifact": "challenges/evaluations/v43-baseline-d89e1af6.json",
+    "evaluationUtc": "2026-10-11T01:16:14.974Z",
+    "remainingScreens": 201,
+    "recordedSteps": 301,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 100,
+        "total": 301
+      },
+      "rng": {
+        "matched": 2399,
+        "total": 2617
+      },
+      "cursors": {
+        "matched": 100,
+        "total": 301
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: isReviver is not available for otyp 265",
+      "step": 100
+    },
+    "step": 100,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: isReviver is not available for otyp 265",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The admitted wizard wish reaches zap.c:makewish and then invent.c:mergable while placing a wished-for corpse stack. C evaluates is_reviver(&mons[otmp->corpsenm]) to keep revivable corpses from merging. JavaScript already ports mergable and has the canonical objectGenerationEnv isReviver adapter, but makewish passes a separate holdEnv without that predicate, so requiredHook throws at the first corpse-stack comparison. Wire the existing adapter into makewish’s holdEnv; no invent.c:mergable behavior is missing.",
+  "source": {
+    "file": "zap.c",
+    "branch": "In zap.c:makewish, when a wizard wish creates a CORPSE and hold_another_object adds it to inventory, invent.c:mergable reaches its corpse branch after candidate objects have matching corpsenm values; for corpsenm >= LOW_PM it calls is_reviver(&mons[otmp->corpsenm]) and refuses to merge if true. JavaScript reaches the same branch in js/invent.js:mergable, which requires hooks.isReviver. The makewish-specific holdEnv omits the adapter already supplied by objectGenerationEnv, producing the step-100 UnsupportedObjectOperationError instead of C’s predicate result.",
+    "functions": [
+      "makewish"
+    ],
+    "callers": [
+      "cmd.c:rhack dispatches C(w) through the wizwish row at 2000 to wizcmds.c:wiz_wish, which calls zap.c:makewish at 38",
+      "js/cmd.js:runWishCommand dispatches C(w) to js/wizcmds.js:wiz_wish, which calls js/zap.js:makewish"
+    ],
+    "dependencies": [
+      "invent.c:hold_another_object -> addinv_core0 -> mergable at 4442-4445",
+      "mondata.h:is_reviver, already ported as js/mondata.js:is_reviver",
+      "js/object_generation.js:objectGenerationEnv already provides the canonical hooks.isReviver adapter"
+    ]
+  },
+  "evidence": [
+    "Saved combined queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json (SHA-256 1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093) identifies synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst, with first stop at step 100: unsupported hero command: an unported branch of this command: isReviver is not available for otyp 265; it records 201 remaining screens over 301 steps.",
+    "Fresh differential of the admitted input-only recipe challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json at examined commit 42b8e23687eab4b71988b73708c121750093abe7 reproduces the early JS stop: the reference has 2,617 RNG calls and continues past step 100, while JavaScript stops at 2,399 calls; the next reference draw is zap.c:makewish at line 6421.",
+    "Upstream nethack-c/upstream/src/zap.c:6314-6422 builds the wished object and calls hold_another_object at 6419. Upstream nethack-c/upstream/src/invent.c:1208-1311 adds the object through inventory handling; mergable at 4442-4445 checks eggs and revivable corpses with is_reviver. The C branch already defines the expected behavior.",
+    "JavaScript js/zap.js:1942-1971 creates a custom holdEnv whose hooks cover inventory effects but omit isReviver. js/invent.js:3553-3554 requires that hook at the corpse branch. js/object_generation.js:42-50 already exports the canonical adapter, and js/mondata.js:1382 already ports is_reviver. The actionable scope is limited to wiring that adapter in js/zap.js and adding a source-pinned production-path regression in scripts/wizard-wish.test.mjs."
+  ],
+  "queueSha256": "1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093",
+  "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f"
+}
