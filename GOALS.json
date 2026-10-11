@@ -262056,7 +262056,7 @@
     {
       "id": "fix-v43-makewish-isreviver-hook-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix wish corpse stacking and the reached drop and offering paths",
       "cFile": "zap.c",
       "sessions": [],
@@ -262068,8 +262068,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "makewish",
       "session": "synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
       "step": 100,
@@ -262290,7 +262293,120 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "session": "synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.session.json",
+          "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
+          "recipe": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json",
+          "recipeSha256": "b8e4ca41d452d1a4edfa0c9edf79687a46e0528b22985093b4d5f39b1a69003c",
+          "replayInputSha256": "cb067c44d9035e95bdc931ce11e561804ae446d54200a404c243e2272101527c",
+          "evaluationPath": "challenges/evaluations/accepted-d2438d33b21ca5ecdd867cacd2b73876e21d274f-v43.json",
+          "evaluationCommit": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
+          "evaluationArtifact": "challenges/evaluations/accepted-d2438d33b21ca5ecdd867cacd2b73876e21d274f-v43.json",
+          "evaluationUtc": "2026-10-11T02:13:05.004Z",
+          "remainingScreens": 2,
+          "recordedSteps": 301,
+          "previousScreensMatched": 100,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 299,
+              "total": 301
+            },
+            "rng": {
+              "matched": 2607,
+              "total": 2617
+            },
+            "cursors": {
+              "matched": 300,
+              "total": 301
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 291,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 291,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 31,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2607,
+              "cEntry": "rnd(999)=358",
+              "cCaller": "rnd_class(objnam.c:5413)",
+              "jsEntry": "rn2(1000)=579",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 291,
+                "key": " "
+              },
+              "stepIndex": 291
+            },
+            "cursor": {
+              "index": 291,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 291,
+                "key": " "
+              },
+              "cCursor": [
+                39,
+                0,
+                1
+              ],
+              "jsCursor": [
+                61,
+                13,
+                1
+              ]
+            }
+          },
+          "step": 291,
+          "kind": "rng",
+          "sourceFile": "objnam.c",
+          "function": "rnd_class",
+          "message": null,
+          "cFile": "objnam.c",
+          "luaFile": null,
+          "line": 5413,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst.json",
+            "previousRemainingScreens": 201
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
