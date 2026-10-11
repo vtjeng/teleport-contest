@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -99,6 +100,23 @@ import {
     races,
     roles,
 } from '../js/roles.js';
+
+const C_ARTIFACT_SOURCE = readFileSync(
+    'nethack-c/upstream/src/artifact.c', 'utf8',
+);
+const JS_ARTIFACT_SOURCE = readFileSync('js/artifacts.js', 'utf8');
+const C_MB_HIT_START = C_ARTIFACT_SOURCE.indexOf('Mb_hit(struct monst *magr');
+const C_MB_HIT_END = C_ARTIFACT_SOURCE.indexOf(
+    '\n}\n\nDISABLE_WARNING_FORMAT_NONLITERAL', C_MB_HIT_START,
+) + 2;
+const JS_MB_HIT_START = JS_ARTIFACT_SOURCE.indexOf(
+    'export async function Mb_hit(',
+);
+const JS_MB_HIT_END = JS_ARTIFACT_SOURCE.indexOf(
+    '\n}\n\n// C ref: artifact.c FATAL_DAMAGE_MODIFIER', JS_MB_HIT_START,
+) + 2;
+const C_MB_HIT = C_ARTIFACT_SOURCE.slice(C_MB_HIT_START, C_MB_HIT_END);
+const JS_MB_HIT = JS_ARTIFACT_SOURCE.slice(JS_MB_HIT_START, JS_MB_HIT_END);
 
 const ARTI_INFO_FIELDS = [
     'exists', 'found', 'gift', 'wish', 'named',
@@ -1036,6 +1054,36 @@ test('count_surround_traps counts hidden traps and trapped doors', () => {
 });
 
 // --- Tests for span save_artifacts..Mb_hit ---
+
+test('Mb_hit follows C probe ordering and calls the canonical zap helper', () => {
+    assert.ok(C_MB_HIT_START >= 0 && C_MB_HIT_END > C_MB_HIT_START,
+        'the complete C Mb_hit source unit is available');
+    assert.ok(JS_MB_HIT_START >= 0 && JS_MB_HIT_END > JS_MB_HIT_START,
+        'the complete JavaScript Mb_hit source unit is available');
+    assert.match(
+        JS_ARTIFACT_SOURCE,
+        /import \{\s*cancel_monst, resist, Fire_resistance, Cold_resistance, flashburn,\s*lightdamage, probe_monster,\s*\} from '\.\/zap\.js';/u,
+        'Mb_hit imports the existing zap.c implementation',
+    );
+    assert.match(
+        C_MB_HIT,
+        /pline_The\("%s is insightful\.", verb\);\s*\/\* pre-damage status \*\/\s*probe_monster\(mdef\);/u,
+    );
+    assert.match(
+        JS_MB_HIT,
+        /await message\(`The \$\{verb\} is insightful\.`, state, env\);\s*\/\* pre-damage status \*\/\s*await probe_monster\(mdef, state, env\);/u,
+    );
+    assert.doesNotMatch(JS_MB_HIT, /note_unported\(['"]zap\.c probe_monster/u);
+    assert.match(
+        C_MB_HIT,
+        /if \(attack_indx == MB_INDEX_PROBE && !canspotmon\(mdef\)\)\s*map_invisible\(mdef->mx, mdef->my\);/u,
+    );
+    assert.match(
+        JS_MB_HIT,
+        /if \(attack_indx === MB_INDEX_PROBE && !canspotmon\(mdef, state\)\)\s*map_invisible\(mdef\.mx, mdef\.my, state\);/u,
+    );
+    assert.doesNotMatch(JS_MB_HIT, /note_unported\(['"]mondata\.c canspotmon/u);
+});
 
 // Helper: minimal state with artilist, artiexist, and artidisco initialized.
 function artiState() {

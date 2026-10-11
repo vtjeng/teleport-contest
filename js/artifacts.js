@@ -236,7 +236,10 @@ import { In_hell, depth, dunlevs_in_dungeon, find_hell, ledger_no, surface } fro
 import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { do_blinding_ray } from './apply.js';
-import { glyph_at, glyph_is_trap, newsym, shieldeff, see_monsters } from './display.js';
+import {
+    canspotmon, glyph_at, glyph_is_trap, map_invisible, newsym, shieldeff,
+    see_monsters,
+} from './display.js';
 import { invocation_pos, losehp, nomul, spoteffects } from './hack.js';
 import {
     float_down,
@@ -262,7 +265,10 @@ import {
     hcolor as nameColor,
     monsterCommonName,
 } from './do_name.js';
-import { cancel_monst, resist, Fire_resistance, Cold_resistance, flashburn, lightdamage } from './zap.js';
+import {
+    cancel_monst, resist, Fire_resistance, Cold_resistance, flashburn,
+    lightdamage, probe_monster,
+} from './zap.js';
 import { healmon, migrate_mon, set_ustuck, wake_nearto } from './mon.js';
 import { monflee } from './monmove.js';
 import { hitfloor, throwit } from './dothrow.js';
@@ -1819,10 +1825,8 @@ export async function Mb_hit(
             state, env);
         /* assume probing has some sort of noticeable feedback
            even if it is being done by one monster to another */
-        if (attack_indx === MB_INDEX_PROBE) {
-            note_unported('mondata.c canspotmon');
-            // canspotmon check for map_invisible skipped
-        }
+        if (attack_indx === MB_INDEX_PROBE && !canspotmon(mdef, state))
+            map_invisible(mdef.mx, mdef.my, state);
     }
 
     /* now perform special effects */
@@ -1909,7 +1913,7 @@ export async function Mb_hit(
             || !random.rn2(3 * Math.abs(mb.spe)))) {
             await message(`The ${verb} is insightful.`, state, env);
             /* pre-damage status */
-            note_unported('zap.c probe_monster');
+            await probe_monster(mdef, state, env);
         }
         break;
     }
