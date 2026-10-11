@@ -226,6 +226,10 @@ const MTHROWU_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/mthrowu.c', import.meta.url),
     'utf8',
 );
+const MUSE_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/muse.c', import.meta.url),
+    'utf8',
+);
 
 function rngSnapshot() {
     return {
@@ -3876,7 +3880,7 @@ test('starting-pet adapter wires dog_move reflection to mon_reflects',
         });
     });
 
-test('monshoot caller adapters preserve hallucinated display RNG', () => {
+test('monster missile caller adapters preserve hallucinated display RNG', () => {
     const mThrowStart = MTHROWU_SOURCE.indexOf('void\nm_throw(\n');
     const mThrowEnd = MTHROWU_SOURCE.indexOf('\n#undef MT_FLIGHTCHECK', mThrowStart);
     assert.ok(mThrowStart >= 0 && mThrowEnd > mThrowStart);
@@ -3907,6 +3911,26 @@ test('monshoot caller adapters preserve hallucinated display RNG', () => {
     assert.match(MTHROWU_SOURCE.slice(thrwmmStart, thrwmmEnd), /monshoot\(mtmp, otmp, mwep\)/u);
     assert.match(MTHROWU_SOURCE.slice(thrwmuStart, thrwmuEnd), /monshoot\(mtmp, otmp, mwep\)/u);
 
+    const spitmmStart = MTHROWU_SOURCE.indexOf(
+        '\nspitmm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)',
+    );
+    const spitmmEnd = MTHROWU_SOURCE.indexOf(
+        '\nstaticfn const char *\nbreathwep_name',
+        spitmmStart,
+    );
+    assert.ok(spitmmStart >= 0 && spitmmEnd > spitmmStart);
+    assert.match(MTHROWU_SOURCE.slice(spitmmStart, spitmmEnd), /m_throw\(/u);
+
+    const useOffensiveStart = MUSE_SOURCE.indexOf(
+        '\nuse_offensive(struct monst *mtmp)',
+    );
+    const useOffensiveEnd = MUSE_SOURCE.indexOf(
+        '\nint\nrnd_offensive_item',
+        useOffensiveStart,
+    );
+    assert.ok(useOffensiveStart >= 0 && useOffensiveEnd > useOffensiveStart);
+    assert.match(MUSE_SOURCE.slice(useOffensiveStart, useOffensiveEnd), /m_throw\(/u);
+
     const missileAdapterStart = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
         'function monsterMissileEnv(',
     );
@@ -3927,6 +3951,17 @@ test('monshoot caller adapters preserve hallucinated display RNG', () => {
     assert.ok(missileAdapter.includes(
         'subject,\n            env.state,\n            { displayRandom: env.displayRandom },',
     ));
+
+    const potionAdapterStart = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
+        'async function useOffensiveItem(',
+    );
+    const potionAdapterEnd = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
+        '\n// C ref: mhitu.c mattacku()',
+        potionAdapterStart,
+    );
+    assert.ok(potionAdapterStart >= 0 && potionAdapterEnd > potionAdapterStart);
+    assert.match(SIMPLE_ACTIONS_JS_SOURCE.slice(potionAdapterStart, potionAdapterEnd),
+        /\.\.\.monsterMissileEnv\(monster, env\)/u);
 
     const petAdapterStart = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
         'export async function runPetRangedAttack(',
