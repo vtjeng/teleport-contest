@@ -5,6 +5,7 @@ import {
     ALTAR,
     A_NONE,
     COST_DEGRD,
+    LS_OBJECT,
     MAX_OIL_IN_FLASK,
     NON_PM,
     OBJ_CONTAINED,
@@ -17,6 +18,11 @@ import {
 import { GameMap } from '../js/game.js';
 import { inv_weight, near_capacity } from '../js/hack.js';
 import { game, resetGame } from '../js/gstate.js';
+import {
+    candle_light_range,
+    light_globals_init,
+    new_light_source,
+} from '../js/light.js';
 import {
     UnsupportedObjectOperationError,
     ammo_and_launcher,
@@ -633,8 +639,9 @@ test('splitobj retries ids until the shop-price class matches', () => {
     random.done();
 });
 
-test('splitobj runs bill, extra, timer, and light work in source order', () => {
+test('splitobj adds a light child after bill, extra, and timer work', () => {
     const state = initializedState();
+    light_globals_init(state);
     // Parent and candidate ids both use the normal shop-price class.
     const parentId = 9;
     const childId = 10;
@@ -665,6 +672,10 @@ test('splitobj runs bill, extra, timer, and light work in source order', () => {
         timed: 1,
         unpaid: true,
     });
+    const originalLight = new_light_source(
+        10, 10, candle_light_range(stack), LS_OBJECT, stack, state,
+    );
+    state.vision_full_recalc = 0;
     const events = [];
     const random = scriptedRandom([
         // next_ident() advances the shared id from 10 to 11.
@@ -687,22 +698,25 @@ test('splitobj runs bill, extra, timer, and light work in source order', () => {
             splitObjectTimers(parent, split) {
                 events.push('timers');
                 assert.equal(parent, stack);
+                assert.equal(state.gl.light_base, originalLight,
+                    'light cloning follows timer splitting');
+                assert.equal(split.lamplit, false);
                 assert.equal(split.oextra.oname, 'practice candles');
                 // C: free_omid() sets OMID to 0; has_omid() checks nonzero.
                 assert.equal(split.oextra.omid, 0);
                 split.timed = 1;
             },
-            splitObjectLight(parent, split) {
-                events.push('light');
-                assert.equal(parent, stack);
-                split.lamplit = true;
-            },
         },
     });
 
-    assert.deepEqual(events, ['bill', 'timers', 'light']);
+    assert.deepEqual(events, ['bill', 'timers']);
     assert.equal(child.timed, 1);
-    assert.equal(child.lamplit, true);
+    assert.equal(child.lamplit, 1);
+    assert.equal(state.gl.light_base.id, child);
+    assert.equal(state.gl.light_base.next, originalLight);
+    assert.equal(originalLight.range, candle_light_range(stack));
+    assert.equal(state.gl.light_base.range, candle_light_range(child));
+    assert.equal(state.vision_full_recalc, 1);
     assert.equal(child.oextra.omonst.data, species);
     assert.equal(child.oextra.omonst.minvent, inventory);
     assert.equal(child.oextra.omonst.nmon, null);
@@ -760,7 +774,7 @@ test('splitobj rejects an uninitialized shared id before mutating the stack', ()
     stillNoDraws.done();
 });
 
-test('splitobj records missing timer and light helpers after making the child', () => {
+test('splitobj records missing timers but owns lit candle sources', () => {
     const initializeLiveGame = () => {
         resetGame();
         game.context = { ident: 10 };
@@ -768,6 +782,7 @@ test('splitobj records missing timer and light helpers after making the child', 
         game.moves = 0;
         game.u = { ulevel: 1 };
         objects_globals_init(game);
+        light_globals_init(game);
         init_objects(game, () => 0);
         game.unported = new Set();
         return game;
@@ -801,6 +816,11 @@ test('splitobj records missing timer and light helpers after making the child', 
         quan: 2,
         lamplit: true,
     });
+    const originalLight = new_light_source(
+        10, 10, candle_light_range(lightStack), LS_OBJECT, lightStack,
+        lightState,
+    );
+    lightState.vision_full_recalc = 0;
     const lightRandom = scriptedRandom([
         { name: 'rnd', args: [2], result: 1 },
     ]);
@@ -809,15 +829,15 @@ test('splitobj records missing timer and light helpers after making the child', 
         ...lightRandom,
     });
 
-    // obj_sheds_light() is checked at its C site, after the preceding timer
-    // call. The absent light.c helper is a named discarded-void gap.
+    // obj_sheds_light() is checked after the timer call and splitobj() clones
+    // the live source through light.c:obj_split_light_source().
     assert.equal(lightStack.quan, 1);
     assert.equal(lightStack.nobj, lightChild);
-    assert.equal(lightChild.lamplit, false);
-    assert.equal(
-        lightState.unported.has('light.c obj_split_light_source'),
-        true,
-    );
+    assert.equal(lightChild.lamplit, 1);
+    assert.equal(lightState.gl.light_base.id, lightChild);
+    assert.equal(lightState.gl.light_base.next, originalLight);
+    assert.equal(lightState.vision_full_recalc, 1);
+    assert.equal(lightState.unported.has('light.c obj_split_light_source'), false);
     lightRandom.done();
 });
 
