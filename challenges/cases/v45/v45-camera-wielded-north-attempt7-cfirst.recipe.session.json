@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected wielded-camera attack. The camera is inventory item o; wield selector * spans two pages, so a space reaches page 2 before choosing o. C's final map places the hostile newt immediately north of the hero, so attack with k. This aims for uhitm.c:hmon_hitmon_misc_obj(EXPENSIVE_CAMERA) -> dothrow.c:release_camera_demon.",
+  "segments": [
+    {
+      "seed": 45023503,
+      "datetime": "20581013132700",
+      "nethackrc": "OPTIONS=name:V45CameraPickup,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nexpensive camera\n#wizgenesis\nhostile newt\nw* ok"
+    }
+  ]
+}

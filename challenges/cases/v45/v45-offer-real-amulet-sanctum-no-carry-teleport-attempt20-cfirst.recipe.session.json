@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024721,
+      "datetime": "20610516151617",
+      "nethackrc": "OPTIONS=name:V45SanctumOfferBare,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>v #wizmap\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhk. #wizkill\n  ll. lj. \u001bll#wizwish\nAmulet of Yendor\n  potion of healing\n#offer\np"
+    }
+  ],
+  "comment": "Corrected C-first isolation of pray.c:offer_real_amulet. The prior target miss showed the actual Sanctum high altar at (20,13) and starting cursor at (65,14); select that observed altar before killing its adjacent guard/priestess, then wish the Amulet only after teleport to avoid scrolltele's carried-Amulet rn2(3) branch."
+}

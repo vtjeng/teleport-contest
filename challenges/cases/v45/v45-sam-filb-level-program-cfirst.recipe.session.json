@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45051031,
+      "datetime": "20561031090111",
+      "nethackrc": "OPTIONS=name:V45SamFilb,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nSam-filb.lua\n#wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first candidate for nethack-c/upstream/dat/Sam-filb.lua: Samurai fixed unlit mines map with two closed door pairs, stairs, objects, wolves, and stalkers. Planned before any JS comparison; later source crosswalk will determine whether its first mismatch is independent."
+}

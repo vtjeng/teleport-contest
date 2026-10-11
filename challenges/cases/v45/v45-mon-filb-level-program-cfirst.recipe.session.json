@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052013,
+    "datetime": "20561213121313",
+    "nethackrc": "OPTIONS=name:V45MonFilb,role:Monk,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": " #wizloaddes\nMon-filb.lua\n#wizmap\n",
+    "recorderIsDst": true
+  }],
+  "comment": "C-first whole-program alternative distinct from v44’s Mon-fila.lua case: load Mon-filb.lua with the source role and retain its full generated level."
+}

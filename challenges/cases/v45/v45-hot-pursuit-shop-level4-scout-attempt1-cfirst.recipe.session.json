@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first shop-generation scout for shk.c:hot_pursuit. Use a fresh seed and level 4, inspect the actual level before acting, and preserve the case as a setup miss if no live shop is generated. No JavaScript comparison is made before the full C-first slate is complete.",
+  "segments": [
+    {
+      "seed": 73144721,
+      "datetime": "20581010131400",
+      "nethackrc": "OPTIONS=name:V45HotPursuitScout,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\n"
+    }
+  ]
+}

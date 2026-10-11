@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024616,
+      "datetime": "20591017131516",
+      "nethackrc": "OPTIONS=name:V45SamuTheft16,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n10\n        #wizwish\nAmulet of Yendor\n  blessed potion of full healing\n#wizgenesis\nhostile Wizard of Yendor\ny#wizmap\n m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m."
+    }
+  ],
+  "comment": "C-first source route for steal.c:stealamulet through a hostile Wizard of Yendor. The seed varies to exercise the source rn2(20) theft gate; spaces dismiss any --More-- page before each m. rest turn."
+}

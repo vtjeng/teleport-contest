@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only terrain grid scout for the Earth-plane cave branch. After the source-confirmed level route and safe wish pager, choose #terrain option e from the C View which? menu; preserve the internal levl type grid to locate adjacent stone without guessing a direction. This probe does not compare JavaScript.",
+  "segments": [
+    {
+      "seed": 45101205,
+      "datetime": "20581010131400",
+      "nethackrc": "OPTIONS=name:V45EarthCaveScout,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #terrain\ne"
+    }
+  ]
+}

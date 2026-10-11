@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first direction correction of attempt7. The full map shows the newt diagonally southeast of the hero; the south-only j direction attacked thin air, so forcefight southeast with Fn.",
+  "segments": [
+    {
+      "seed": 45024814,
+      "datetime": "20611012131417",
+      "nethackrc": "OPTIONS=name:V45NoHandGlow6,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n10\n        \u0017uncursed scroll of confuse monster\nro confuse\nw-#wizgenesis\nhostile newt\n#wizmap\nFn"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first monster-versus-monster petrification probe. Create a tame cockatrice and an adjacent hostile newt, reveal the map, then wait up to ten turns. The intended owner is uhitm.c:mhitm_ad_ston -> do_stone_mon when the cockatrice attacks the newt, distinct from hero cockatrice touch/wield/pickup branches.",
+  "segments": [
+    {
+      "seed": 45024533,
+      "datetime": "20581013132900",
+      "nethackrc": "OPTIONS=name:V45StoneMon,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\ntame cockatrice\n#wizgenesis\nhostile newt\n#wizmap\n.........."
+    }
+  ]
+}

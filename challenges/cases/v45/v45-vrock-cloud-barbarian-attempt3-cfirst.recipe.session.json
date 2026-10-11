@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Vrock retreat attempt. Use a Barbarian start for stronger melee, create a sleeping hostile Vrock, reveal its location, and repeatedly attack its observed adjacent tile. The target is uhitm.c -> monmove.c:monflee -> region.c:create_gas_cloud when the hit makes the Vrock retreat.",
+  "segments": [
+    {
+      "seed": 45024577,
+      "datetime": "20581013132800",
+      "nethackrc": "OPTIONS=name:V45VrockCloudB,role:Barbarian,race:human,gender=male,align:neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nsleeping hostile vrock\n#wizmap\nuuuuuuuu"
+    }
+  ]
+}

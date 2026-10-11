@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first high-altar offering route. Load sanctum.lua, reveal the map, use wizard-controlled #teleport to the C-map altar at source coordinates (18,8) from the observed arrival tile, wish a real Amulet of Yendor, and invoke #offer. Retain only if C reaches pray.c:offer_real_amulet.",
+  "segments": [
+    {
+      "seed": 45024503,
+      "datetime": "20581013132700",
+      "nethackrc": "OPTIONS=name:V45OfferAmulet,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nsanctum.lua\n#wizmap\n#teleport\nhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkk\n#wizwish\nAmulet of Yendor\n#offer\n"
+    }
+  ]
+}

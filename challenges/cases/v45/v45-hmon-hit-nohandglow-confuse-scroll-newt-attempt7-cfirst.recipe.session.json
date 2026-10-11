@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction of attempt6. The C trace showed the level-10 pager sequence needs eight spaces after the level-2 message; the ninth was an extra unknown command. The C map placed the hostile newt south of the hero, so forcefight south with Fj rather than west.",
+  "segments": [
+    {
+      "seed": 45024814,
+      "datetime": "20611012131417",
+      "nethackrc": "OPTIONS=name:V45NoHandGlow6,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n10\n        \u0017uncursed scroll of confuse monster\nro confuse\nw-#wizgenesis\nhostile newt\n#wizmap\nFj"
+    }
+  ]
+}

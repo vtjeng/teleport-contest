@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Second materially different C vault setup: enter D:20 rather than D:10, reveal the random map, wish a cursed tin whistle, then blow it. A summoned vault guard would confirm that the wizard start lies in a real generated vault; otherwise preserve the map and defer after the depth-10 miss.",
+  "segments": [
+    {
+      "seed": 45024537,
+      "datetime": "20581013133300",
+      "nethackrc": "OPTIONS=name:V45VaultWhistle2,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n20\n  #wizmap\n  #wizwish\ncursed tin whistle\nan"
+    }
+  ]
+}

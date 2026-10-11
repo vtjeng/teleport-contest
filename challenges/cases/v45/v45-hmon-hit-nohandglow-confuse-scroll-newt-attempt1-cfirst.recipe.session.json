@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup candidate for uhitm.c:nohandglow. A human player reads an uncursed confuse-monster scroll, answers the revealed call prompt, unwields if needed, then creates a hostile newt and inspects its actual adjacent square before forcefighting.",
+  "segments": [
+    {
+      "seed": 45024812,
+      "datetime": "20611012131415",
+      "nethackrc": "OPTIONS=name:V45NoHandGlow,role:Monk,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of confuse monster\nrf confuse\nw-#wizgenesis\nhostile newt\n#wizmap\n"
+    }
+  ]
+}

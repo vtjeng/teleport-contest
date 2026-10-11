@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected pet action and pager. Create the same tame cockatrice/hostile newt pair, reveal positions, take exactly three m-prefixed rests until the C message confirms the cockatrice touches the newt, then dismiss that More to expose the petrification result.",
+  "segments": [
+    {
+      "seed": 45024533,
+      "datetime": "20581013132900",
+      "nethackrc": "OPTIONS=name:V45StoneMon,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\ntame cockatrice\n#wizgenesis\nhostile newt\n#wizmap\nm.m.m. "
+    }
+  ]
+}

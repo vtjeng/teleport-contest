@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026032,
+      "datetime": "20581011132700",
+      "nethackrc": "OPTIONS=name:V45MimicDetach,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nsmall mimic\n#wizkill\n  nlll."
+    }
+  ],
+  "comment": "Corrected C target selection for the attempt-4 generated layout: the disguise glyph appears four columns east and one row south of the hero, so getpos moves southeast then east three times before selecting it."
+}

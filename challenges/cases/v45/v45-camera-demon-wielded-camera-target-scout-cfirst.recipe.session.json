@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only source setup for the corrected camera caller: uhitm.c:hmon_hitmon_misc_obj receives a wielded EXPENSIVE_CAMERA hit and calls dothrow.c:release_camera_demon. Wish the camera and create one hostile adjacent newt; inspect C's map and inventory before choosing the attack direction. This is not the earlier v40/v16 throw-or-break caller route, and no JavaScript comparison is run yet.",
+  "segments": [
+    {
+      "seed": 45023501,
+      "datetime": "20581012121700",
+      "nethackrc": "OPTIONS=name:V45CameraDemon,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nexpensive camera\n #wizgenesis\nhostile newt\n #wizmap\n"
+    }
+  ]
+}

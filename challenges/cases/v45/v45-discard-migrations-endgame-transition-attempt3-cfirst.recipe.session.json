@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate route to dog.c:discard_migrations: use #migratemons (after its one observed More boundary) to move one ordinary random monster from D:1 to D:2, then use the source-confirmed Ctrl-V level-teleport selector and select N - earth. C's goto_level from D:1 to the endgame should discard the D:2 migrant. Preserve the exact first C transition output and any later level-entry/setup prompt.",
+  "segments": [
+    {
+      "seed": 45024503,
+      "datetime": "20581013132100",
+      "nethackrc": "OPTIONS=name:V45DiscardEndgame,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#migratemons\n 1\n\u0016?\n  N"
+    }
+  ]
+}

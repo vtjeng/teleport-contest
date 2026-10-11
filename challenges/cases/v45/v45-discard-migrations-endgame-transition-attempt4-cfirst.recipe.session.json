@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction of attempt 3's Endgame prerequisite. Wish the Amulet of Yendor, send one random ordinary monster to D:2 via #migratemons (dismissing its observed initial report page), then Ctrl-V, request the selector help and choose N - earth. This should reach goto_level's endgame cleanup with a D:2 migrating monster and show dog.c:discard_migrations before the destination entry completes.",
+  "segments": [
+    {
+      "seed": 45024504,
+      "datetime": "20581013132200",
+      "nethackrc": "OPTIONS=name:V45DiscardEndgame2,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nAmulet of Yendor\n#migratemons\n 1\n\u0016?\n  N"
+    }
+  ]
+}

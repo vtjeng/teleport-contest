@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first confirmed-migrant route. Wish the Amulet and answer its bonus wish with a healing potion; use #migratemons to send one random ordinary monster to D:2, then call #migratemons again and dismiss its source report to confirm the migrating-list count before canceling its optional new count. Finally select N - earth through Ctrl-V. The endgame transition must discard the confirmed D:2 migrant before any subsequent JS comparison.",
+  "segments": [
+    {
+      "seed": 45024507,
+      "datetime": "20581013132500",
+      "nethackrc": "OPTIONS=name:V45DiscardEndgame5,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nAmulet of Yendor\n  uncursed potion of healing\n#migratemons\n 1\n#migratemons\n \u001b\u0016?\n  N"
+    }
+  ]
+}

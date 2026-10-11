@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first attempt4 changes the role to ordinary human Wizard to reduce bare-hand damage after attempt3 Monk killed the newt in one hit. The known Wizard wish slot is o (v18 read-scroll recipe), and the observed candidate target square remains west from the same command sequence; verify C reaches the hit before counting.",
+  "segments": [
+    {
+      "seed": 45024813,
+      "datetime": "20611012131416",
+      "nethackrc": "OPTIONS=name:V45NoHandGlow4,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of confuse monster\nro confuse\nw-#wizgenesis\nhostile newt\n#wizmap\nFh"
+    }
+  ]
+}

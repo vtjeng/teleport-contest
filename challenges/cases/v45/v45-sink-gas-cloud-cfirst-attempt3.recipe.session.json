@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026021,
+      "datetime": "20581011132100",
+      "nethackrc": "OPTIONS=name:V45SinkGasTry3,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017sink\nqy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    "
+    }
+  ],
+  "comment": "Independent C-first seed/role variation for fountain.c:drinksink case-13 gas-cloud target; previous probe reached only the pipe-break case."
+}

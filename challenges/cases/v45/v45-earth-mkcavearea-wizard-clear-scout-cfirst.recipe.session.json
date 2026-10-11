@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only corrected setup scout for dig.c:mkcavearea on Earth. Use independent seed/character inputs, the source-confirmed page-three N - earth route, and a safe healing wish. After #wizkill selects the adjacent Wizard of Yendor, dismiss the experience pager, explicitly escape the Next monster chooser, and inspect inventory before choosing the cursed pick-axe letter. No JavaScript comparison has run.",
+  "segments": [
+    {
+      "seed": 45101205,
+      "datetime": "20581010131400",
+      "nethackrc": "OPTIONS=name:V45EarthCaveScout,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #wizkill\n  y. \ni"
+    }
+  ]
+}

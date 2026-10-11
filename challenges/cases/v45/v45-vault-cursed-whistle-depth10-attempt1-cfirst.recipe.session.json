@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first vault cursed-whistle probe. Select Dungeon depth 10 with #wizlevelport, reveal the map, wish a cursed tin whistle, and retain the C map/position evidence. The intended path is apply.c:use_whistle -> vault.c:vault_summon_gd and requires the hero to enter a real generated vault.",
+  "segments": [
+    {
+      "seed": 45024534,
+      "datetime": "20581013133000",
+      "nethackrc": "OPTIONS=name:V45VaultWhistle,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n10\n  #wizmap\n  #wizwish\ncursed tin whistle\n"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024581,
+      "datetime": "20591113141516",
+      "nethackrc": "OPTIONS=name:V45AltarCoord2OfferAmulet,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nsanctum.lua\n#wizmap\n #wizkill\n  hhhhkk. \n#teleport\n  hhhhkk. \n#wizwish\nAmulet of Yendor\n  potion of healing\n#offer\n"
+    }
+  ]
+}

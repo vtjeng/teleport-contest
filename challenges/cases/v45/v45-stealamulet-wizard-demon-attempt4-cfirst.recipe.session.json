@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024604,
+      "datetime": "20590817131415",
+      "nethackrc": "OPTIONS=name:V45SamuTheft,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nAmulet of Yendor\n  uncursed potion of healing\n#wizgenesis\nhostile Wizard of Yendor\ny#wizmap\n. . . . . . . ."
+    }
+  ],
+  "comment": "Source-corrected C-first stealam(ulet) probe. After the force-unique prompt for Wizard of Yendor, answer yes so the intended AD_SAMU source branch exists; preserve if it still fails to reach theft."
+}

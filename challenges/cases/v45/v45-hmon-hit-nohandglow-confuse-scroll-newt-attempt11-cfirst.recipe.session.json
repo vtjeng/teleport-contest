@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first hit attempt based on attempt10: the C spawn/map placed the hostile newt immediately south of the empty-handed Wizard, so forcefight south with Fj and verify a surviving hit reaches nohandglow.",
+  "segments": [
+    {
+      "seed": 45024817,
+      "datetime": "20611012131420",
+      "nethackrc": "OPTIONS=name:V45NoHandGlow9,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of confuse monster\nrn confuse\nw-#wizgenesis\nhostile newt\n#wizmap\nFj"
+    }
+  ]
+}

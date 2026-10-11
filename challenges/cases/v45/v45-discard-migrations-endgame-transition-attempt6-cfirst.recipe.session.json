@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction of attempt 5's bonus-wish input: the second post-Amulet space dismisses the wish pager and opens the actual object prompt, so the potion name must follow those spaces without an intervening newline. Once the Amulet and safe potion are in inventory, create the D:2 migrant and choose N - earth through Ctrl-V.",
+  "segments": [
+    {
+      "seed": 45024506,
+      "datetime": "20581013132400",
+      "nethackrc": "OPTIONS=name:V45DiscardEndgame4,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nAmulet of Yendor\n  uncursed potion of healing\n#migratemons\n 1\n\u0016?\n  N"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024603,
+      "datetime": "20590617131415",
+      "nethackrc": "OPTIONS=name:V45SamuTheft,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nAmulet of Yendor\n  uncursed potion of healing\n#wizgenesis\nhostile Wizard of Yendor\n#wizmap\n. . . . . . . ."
+    }
+  ],
+  "comment": "Corrected C-first probe of steal.c:stealamulet. The two blank pager dismissals plus an ordinary wish ensure the real Amulet is actually carried before creating the hostile Wizard of Yendor. Preserve the C trace and count only if the AD_SAMU attack reaches Amulet theft."
+}

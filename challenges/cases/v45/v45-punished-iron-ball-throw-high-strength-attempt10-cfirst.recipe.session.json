@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Uses the exact C-observed Barbarian seed/state from attempt8, where the wished punishment scroll was slot f. Corrected selector reaches reading instead of a failed slot probe, then tests attached iron-ball pickup and throw through dothrow.c:throwit -> ball.c:drop_ball.",
+  "segments": [
+    {
+      "seed": 45101207,
+      "datetime": "20581010102600",
+      "nethackrc": "OPTIONS=name:V45BallThrowBarbarian,role=Barbarian,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\nrf , tph"
+    }
+  ]
+}

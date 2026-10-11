@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052007,
+    "datetime": "20561207131617",
+    "nethackrc": "OPTIONS=name:V45HealOgre,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": " \u0007tame ogre\n\u0017wand of striking\n\u0017potion of full healing\n zojthj",
+    "recorderIsDst": true
+  }],
+  "comment": "C-only correction: acknowledge the identified-object comparison pager with one space, zap the observed C slot o wand of striking south at the tame ogre, then throw the known slot h full-healing potion south. Earlier raw-space setup remains preserved."
+}

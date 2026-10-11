@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first attempt 3 corrects both setup boundaries from the saved scouts: inspect #terrain after the map, move #wizkill's farlook cursor southwest with the C-visible b direction onto the Wizard of Yendor, dismiss the experience pager, escape the Next monster selector, then inspect the actual cursed pick-axe inventory letter before the dig action.",
+  "segments": [
+    {
+      "seed": 45101205,
+      "datetime": "20581010131400",
+      "nethackrc": "OPTIONS=name:V45EarthCaveScout,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #wizmap\n#terrain\n#wizkill\n  b. \u001bi"
+    }
+  ]
+}
