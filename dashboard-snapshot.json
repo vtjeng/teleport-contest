@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T03:44:55.109Z",
+  "capturedAt": "2026-10-11T04:11:07.087Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -86211,22 +86211,91 @@
         "worker": "B",
         "state": "idle",
         "reason": "B synced accepted Main and is waiting for the refreshed queue; spell-gift and prayer deliveries remain submitted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011-191f61c93f32abaa238eef415b240d36c17f20fd",
+        "type": "published",
+        "at": "2026-10-11T03:45:04.007Z",
+        "task": "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
+        "commit": "191f61c93f32abaa238eef415b240d36c17f20fd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-spell-gift-512920320",
+        "type": "integrating",
+        "at": "2026-10-11T03:51:29.019Z",
+        "task": "B-investigation-v43-makewish-rnd-class-followup-20261011",
+        "integration": "5129203208b9223c3504a2b5e2abbf7f04890762"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-spell-gift-38109769704",
+        "type": "validated",
+        "at": "2026-10-11T03:57:13.470Z",
+        "task": "B-investigation-v43-makewish-rnd-class-followup-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v43-makewish-rnd-class-followup-20261011-5129203208b9223c3504a2b5e2abbf7f04890762-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T03:58:06.345Z",
+        "task": "B-investigation-v43-makewish-rnd-class-followup-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-active-sync-spell-gift-accepted-20261011",
+        "type": "turn",
+        "at": "2026-10-11T03:58:21.537Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is syncing accepted Main while preserving the submitted prayer delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-sync-spell-gift-20261011",
+        "type": "turn",
+        "at": "2026-10-11T03:58:32.505Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B synced accepted spell-gift Main; prayer delivery remains unchanged and B is idle awaiting the refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v43-makewish-rnd-class-followup-20261011-c404806ae486b267bc5979e75c4f6ba7169abf93",
+        "type": "published",
+        "at": "2026-10-11T03:58:58.162Z",
+        "task": "B-investigation-v43-makewish-rnd-class-followup-20261011",
+        "commit": "c404806ae486b267bc5979e75c4f6ba7169abf93"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-wiz-loca-96f144375",
+        "type": "integrating",
+        "at": "2026-10-11T04:03:55.157Z",
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
+        "integration": "96f144375d45d50241fabbbe29b8a77d171ec3f0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-wiz-loca-38110431623",
+        "type": "validated",
+        "at": "2026-10-11T04:09:35.057Z",
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v43-wiz-loca-special-program-20261011-96f144375d45d50241fabbbe29b8a77d171ec3f0-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T04:10:32.358Z",
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
-        "worker": "C",
-        "goal": "fix-irregular-stair-room-selection-v43-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "3b1dd1c57aa9bb67e5a41ca8ff0d88b3361365b8",
-        "since": "2026-10-11T02:57:56.593Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "A2-investigation-v43-monster-cures-blindness-two-heals-20261011",
         "worker": "A2",
@@ -86241,17 +86310,6 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v43-makewish-rnd-class-followup-20261011",
-        "worker": "B",
-        "goal": "port-v43-prayer-divine-spell-gift-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b5b2e7abdb26a64537319e28e44f038e41e4f11f",
-        "since": "2026-10-11T03:16:14.762Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
         "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011",
         "worker": "B",
         "goal": "port-priest-angry-priest-sacrifice-v43-20261011",
@@ -86259,9 +86317,7 @@
         "status": "ready",
         "delivery": "5f2f280bf6c2c72c3fa744e9aed8a478699a723a",
         "since": "2026-10-11T03:36:16.312Z",
-        "blockedBy": [
-          "B-investigation-v43-makewish-rnd-class-followup-20261011"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -86633,8 +86689,8 @@
     ]
   },
   "development": {
-    "executionCommit": "6ac57170fdd3979fde91cc95abed9027bbf95166",
-    "measuredAt": "2026-10-11T03:41:25.592Z",
+    "executionCommit": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+    "measuredAt": "2026-10-11T04:09:08.946Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

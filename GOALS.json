@@ -264133,7 +264133,7 @@
     {
       "id": "port-v43-prayer-divine-spell-gift-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port prayer divine spell gift and direct spell learning",
       "cFile": "pray.c",
       "sessions": [
@@ -264147,8 +264147,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5129203208b9223c3504a2b5e2abbf7f04890762",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "give_spell",
@@ -264565,6 +264568,951 @@
             ],
             "recordings": [
               "recordings/pray.c/give-spell-direct-healer-seed43050662.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5129203208b9223c3504a2b5e2abbf7f04890762",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-irregular-stair-room-selection-v43-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Match generated stair-room selection to C room membership",
+      "cFile": "mklev.c",
+      "sessions": [
+        "synthetic/v43/v43-wiz-loca-special-program-cfirst"
+      ],
+      "selectionReason": "The current v43 Wizard locate replay matches every screen but diverges at RNG step 26 because mklev.c:generate_stairs_room_good uses has_dnstairs and has_upstairs with inside_room membership while JavaScript checked overlapping rectangular bounds. Complete both mklev stair-selection functions and verify the three required mkroom room-membership helpers and their production callers.",
+      "detail": "",
+      "openedAt": "0d4b7b93c54289745ebd66bb00d260654f88e088",
+      "openStanding": {
+        "sha": "5129203208b9223c3504a2b5e2abbf7f04890762",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "generate_stairs_room_good",
+          "line": 2201,
+          "endLine": 2218,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "generate_stairs_find_room",
+          "line": 2219,
+          "endLine": 2249,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2201,
+        "to": 2249
+      },
+      "requiredFunctions": [
+        {
+          "name": "has_dnstairs",
+          "line": 640,
+          "endLine": 652,
+          "declared": true,
+          "sourceFile": "mkroom.c",
+          "complete": true
+        },
+        {
+          "name": "has_upstairs",
+          "line": 653,
+          "endLine": 665,
+          "declared": true,
+          "sourceFile": "mkroom.c",
+          "complete": true
+        },
+        {
+          "name": "inside_room",
+          "line": 678,
+          "endLine": 693,
+          "declared": true,
+          "sourceFile": "mkroom.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v43/v43-wiz-loca-special-program-cfirst": {
+          "session": "synthetic/v43/v43-wiz-loca-special-program-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-wiz-loca-special-program-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json",
+          "recordingSha256": "f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224",
+          "evaluationPath": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+          "evaluationCommit": "5129203208b9223c3504a2b5e2abbf7f04890762"
+        }
+      },
+      "activeStanding": {
+        "sha": "5129203208b9223c3504a2b5e2abbf7f04890762",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-wiz-loca-special-program-cfirst",
+          "session": "synthetic/v43/v43-wiz-loca-special-program-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json",
+          "recordingSha256": "f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224",
+          "recipe": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.recipe.session.json",
+          "recipeSha256": "63daea169ed14512eead2eaf578fe378458f8a7765a5bb0dcc5c46f23f039316",
+          "replayInputSha256": "4a05dad5edbe8234c5326c79ee085838ae02bec3acbacb8b1e69996dfccc8ffd",
+          "evaluationPath": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+          "evaluationCommit": "5129203208b9223c3504a2b5e2abbf7f04890762",
+          "evaluationArtifact": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+          "evaluationUtc": "2026-10-11T03:55:45.598Z",
+          "remainingScreens": 0,
+          "recordedSteps": 35,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 35
+            },
+            "rng": {
+              "matched": 4321,
+              "total": 4322
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 4182,
+              "cEntry": "rn2(4)=2",
+              "cCaller": "generate_stairs_find_room(mklev.c:2236)",
+              "jsEntry": "rn2(2)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 26,
+                "key": "\n"
+              },
+              "stepIndex": 26
+            },
+            "cursor": null
+          },
+          "step": 26,
+          "kind": "rng",
+          "sourceFile": "mklev.c",
+          "function": "generate_stairs_find_room",
+          "message": null,
+          "cFile": "mklev.c",
+          "luaFile": null,
+          "line": 2236,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-wiz-loca-special-program-cfirst.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-wiz-loca-special-program-cfirst",
+              "remainingScreens": 0,
+              "status": "complete",
+              "commit": "5129203208b9223c3504a2b5e2abbf7f04890762",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "session": "synthetic/v43/v43-wiz-loca-special-program-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json",
+                "recordingSha256": "f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224",
+                "recipe": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.recipe.session.json",
+                "recipeSha256": "63daea169ed14512eead2eaf578fe378458f8a7765a5bb0dcc5c46f23f039316",
+                "replayInputSha256": "4a05dad5edbe8234c5326c79ee085838ae02bec3acbacb8b1e69996dfccc8ffd",
+                "evaluationPath": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+                "evaluationCommit": "5129203208b9223c3504a2b5e2abbf7f04890762",
+                "evaluationArtifact": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+                "evaluationUtc": "2026-10-11T03:55:45.598Z",
+                "remainingScreens": 0,
+                "recordedSteps": 35,
+                "previousScreensMatched": 35,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 4321,
+                    "total": 4322
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 4182,
+                    "cEntry": "rn2(4)=2",
+                    "cCaller": "generate_stairs_find_room(mklev.c:2236)",
+                    "jsEntry": "rn2(2)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 26,
+                      "key": "\n"
+                    },
+                    "stepIndex": 26
+                  },
+                  "cursor": null
+                },
+                "step": 26,
+                "kind": "rng",
+                "sourceFile": "mklev.c",
+                "function": "generate_stairs_find_room",
+                "message": null,
+                "cFile": "mklev.c",
+                "luaFile": null,
+                "line": 2236
+              },
+              "summary": "Room eligibility for generated stairs diverges on nested irregular rooms. C tests stair membership through has_dnstairs/has_upstairs and inside_room; JavaScript instead treats a stair in any room whose rectangular bounds overlap as belonging to that room. On the Wizard locate map this incorrectly excludes outer rooms and changes the candidate count from four to two before rn2.",
+              "source": {
+                "file": "mklev.c",
+                "branch": "mklev.c:generate_stairs_room_good() (2201-2215) checks needjoining, existing stair membership, and ordinary/theme room type. Its stair tests call mkroom.c:has_dnstairs()/has_upstairs(), whose inside_room() uses the map roomno and edge flag for irregular rooms, and a one-tile expanded rectangle for regular rooms. mklev.c:generate_stairs_find_room() (2219-2244) applies phases 2 through 0, chooses from the first nonempty candidate array with rn2(ai), then falls back to rn2(svn.nroom).",
+                "functions": [
+                  "generate_stairs_room_good",
+                  "generate_stairs_find_room",
+                  "mkroom.c:has_dnstairs",
+                  "mkroom.c:has_upstairs",
+                  "mkroom.c:inside_room"
+                ],
+                "callers": [
+                  "mklev.c:generate_stairs_find_room() is called by generate_stairs() for down stairs at line 2260 and up stairs at line 2273. makelevel() calls generate_stairs() at line 1303 after room creation and sorting.",
+                  "mklev.c:find_branch_room() calls generate_stairs_find_room() at line 1667 while makelevel() places a branch at line 1380. Its JavaScript counterpart remains wired through mklev.js:find_branch_room() -> generate_stairs_find_room().",
+                  "JavaScript's existing generation callers are mklev.js:generate_stairs() and mklev.js:find_branch_room(); this correction changes the shared room predicate used by both paths. The selected recipe is the Wizard-mode direct load of dat/Wiz-loca.lua followed by #wizmap; the saved C trace locates the divergent draw at generate_stairs_find_room(mklev.c:2236).",
+                  "The complete direct C caller inventory for inside_room() is mkroom.c:has_dnstairs(), has_upstairs(), and somexy(); mklev.c:pos_to_room(); sp_lev.c:maybe_add_door() and create_monster(); and hack.c:furniture_present() and in_town(). Their existing JavaScript implementations use the shared room_coordinates.js helper through mkroom.js, room_coordinates.js, mklev.js, themeroom_fill.js, and hack.js. place_branch() discards pos_to_room()'s pure result."
+                ],
+                "dependencies": [
+                  "The task's atomic implementation scope includes complete mkroom.c:has_dnstairs(), has_upstairs(), and inside_room() functions. Their existing JavaScript counterparts in js/mkroom.js and js/room_coordinates.js match the complete C loops and branches; direct source-pinned tests and the selected runtime range cover them.",
+                  "room_coordinates.js:inside_room() implements the C rule: irregular rooms use their room number and reject edge tiles; regular rooms include the rectangle expanded by one tile. The defect was that mklev.js:generate_stairs_room_good() bypassed these helpers and checked unexpanded bounds for every room.",
+                  "The C mkswamp() caller remains outside this bounded task because do_mkroom() explicitly records note_unported('mkroom.c mkswamp') and does not enter it. This task does not remove or broaden that existing gap.",
+                  "The two selected mklev.c functions have existing JavaScript implementations in js/mklev.js and all active generated-stair and branch-stair call sites retain existing JavaScript wiring in that module. This task corrects the complete predicate and required room-membership functions while retaining phase order, candidate ordering, and RNG calls."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Authoritative saved queue .cache/latest-saved-combined-queue.json has SHA-256 27176b93175a5441fe9293143fbe6f682240924f5502c9505282ccb1b21dcfd5. Its v43 entry identifies v43-wiz-loca-special-program-cfirst, 35/35 screens, 35/35 cursors, 4321/4322 RNG calls matched, and the first mismatch at segment 0 step 26 on newline: C rn2(4)=2 at generate_stairs_find_room(mklev.c:2236), JavaScript rn2(2)=0.",
+                "Queue provenance: manifest challenges/manifests/v43.json SHA-256 a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400; recording challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json SHA-256 f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224; recipe challenges/cases/v43/v43-wiz-loca-special-program-cfirst.recipe.session.json SHA-256 63daea169ed14512eead2eaf578fe378458f8a7765a5bb0dcc5c46f23f039316; replay input SHA-256 4a05dad5edbe8234c5326c79ee085838ae02bec3acbacb8b1e69996dfccc8ffd. The saved evaluation is challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json at commit 5129203208b9223c3504a2b5e2abbf7f04890762.",
+                "Upstream source mklev.c:generate_stairs_room_good() at lines 2201-2215 delegates stair tests to mkroom.c:has_dnstairs()/has_upstairs() at lines 639-663. Those helpers use mkroom.c:inside_room() at lines 677-687: irregular rooms require a matching roomno on a non-edge tile, while regular rooms use bounds expanded by one. The existing JavaScript implementations in js/mkroom.js and js/room_coordinates.js match those complete C functions; direct source-pinned runtime tests now exercise each behavior.",
+                "The selected dat/Wiz-loca.lua source creates concentric irregular rooms whose rectangular bounds overlap. A read-only JS replay probe of the resulting five-room layout showed both stair coordinates fall inside the raw bounds of outer rooms 0 and 1, but neither coordinate belongs to those rooms under canonical irregular roomno/edge membership. The existing manual predicate therefore marks those parent rooms as stair-bearing and drops two otherwise eligible candidates, producing the saved rn2(2) call instead of C's rn2(4).",
+                "The complete active source caller map was audited. The stair helpers are called by mkroom.c:mkshop(), pick_room(), and mkswamp(), and by mklev.c:generate_stairs_room_good(). The current JS maps mkshop/pick_room and stair selection to the helpers; SWAMP remains an explicit do_mkroom() note_unported gap. inside_room() is called by both stair helpers, mkroom.c:somexy(), mklev.c:pos_to_room() (whose result is discarded by place_branch()), sp_lev.c:maybe_add_door()/create_monster(), and hack.c:furniture_present()/in_town(); existing JS counterparts route through room_coordinates.js. The candidate-selection loop and RNG behavior in mklev.js:generate_stairs_find_room() otherwise match C: phases 2, 1, 0 are visited in order, room indices are appended in source order, the first nonempty group consumes one rn2(group size), and the fallback consumes rn2(nroom). Direct source-pinned tests cover all five claimed functions, and the synthetic v43 range covers the impure selector through the Wizard level-load entry."
+              ],
+              "session": "synthetic/v43/v43-wiz-loca-special-program-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224",
+              "evaluationPath": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+              "evaluationCommit": "5129203208b9223c3504a2b5e2abbf7f04890762",
+              "recordedSteps": 35,
+              "evaluationArtifact": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+              "evaluationUtc": "2026-10-11T03:55:45.598Z",
+              "replayInputSha256": "4a05dad5edbe8234c5326c79ee085838ae02bec3acbacb8b1e69996dfccc8ffd",
+              "queueSha256": "27176b93175a5441fe9293143fbe6f682240924f5502c9505282ccb1b21dcfd5"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "generate_stairs_room_good",
+            "implementation": "js/mklev.js",
+            "symbol": "generate_stairs_room_good",
+            "sourceReview": "Read the complete mklev.c:generate_stairs_room_good() at lines 2201-2215. Its source-ordered short-circuit expression requires a non-null room, accepts needjoining or phase < 0, evaluates both stair predicates before the phase < 1 relaxation, and accepts OROOM or a THEMEROOM only before phase 2. The JavaScript expression retains this order and now delegates stair membership to the whole-source mkroom.c:has_dnstairs()/has_upstairs() helpers. The predicate is pure: its helper chain performs no RNG, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "generate_stairs_find_room",
+                "source": "C mklev.c:generate_stairs_find_room() iterates svr.rooms in index order and calls generate_stairs_room_good() at lines 2228-2229 for each phase; JavaScript's matching candidate loop calls the corrected predicate in the same order."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mklev-room-coordinates.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "The direct Wizard load of dat/Wiz-loca.lua reaches mklev.c:generate_stairs_find_room:2236; its candidate predicate calls has_dnstairs, has_upstairs, and inside_room."
+              }
+            ],
+            "checkedAt": "4ce0a77cedb3e1bf5be345924a57f27f9a8aa8a0"
+          },
+          {
+            "name": "generate_stairs_find_room",
+            "implementation": "js/mklev.js",
+            "symbol": "generate_stairs_find_room",
+            "sourceReview": "Read the complete mklev.c:generate_stairs_find_room() at lines 2219-2244. It returns null for zero rooms, scans phases 2 through 0, appends eligible room indices in source order, consumes rn2(ai) once for the first nonempty phase, and otherwise consumes rn2(svn.nroom). Its impure behavior is the selected random draw; the implementation preserves that draw and the caller's room ordering while using the corrected full predicate.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "generate_stairs",
+                "source": "C mklev.c:makelevel() calls generate_stairs() at line 1303; generate_stairs() calls generate_stairs_find_room() for down stairs and conditionally for up stairs at lines 2260 and 2273."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "find_branch_room",
+                "source": "C mklev.c:makelevel() calls place_branch() at line 1380; place_branch() calls find_branch_room(), which calls generate_stairs_find_room() at line 1667."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "The direct Wizard load of dat/Wiz-loca.lua reaches the stair candidate draw at mklev.c:generate_stairs_find_room:2236."
+              }
+            ],
+            "checkedAt": "4ce0a77cedb3e1bf5be345924a57f27f9a8aa8a0"
+          },
+          {
+            "name": "has_dnstairs",
+            "implementation": "js/mkroom.js",
+            "symbol": "has_dnstairs",
+            "sourceReview": "Read all of mkroom.c:has_dnstairs() at lines 639-650. It walks gs.stairs in linked-list order, tests only !stway->up stairways through inside_room(), returns on the first match, and otherwise returns FALSE. The JS helper has the same traversal and early return; it has no RNG, output, or state mutation. C callers are mkshop(), pick_room(), mkswamp(), and mklev.c:generate_stairs_room_good(). Existing JS wiring covers mkshop(), pick_room(), and stair selection. The SWAMP path remains explicitly skipped by do_mkroom() through note_unported('mkroom.c mkswamp'); it is outside this correction.",
+            "callers": [
+              {
+                "path": "js/mkroom.js",
+                "symbol": "mkshop",
+                "source": "C mkroom.c:mkshop() calls has_dnstairs(sroom) at line 171 while excluding stair rooms; JS mkroom.js:mkshop() uses has_dnstairs(candidate)."
+              },
+              {
+                "path": "js/mkroom.js",
+                "symbol": "pick_room",
+                "source": "C mkroom.c:pick_room() calls has_dnstairs() at lines 233 and 235; its caller mkzoo() is dispatched from do_mkroom(). JS mkroom.js:pick_room() makes the corresponding strict and probabilistic checks."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "generate_stairs_room_good",
+                "source": "C mklev.c:generate_stairs_room_good() calls has_dnstairs(croom) at line 2211; JS mklev.js imports and calls the shared mkroom.js implementation."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mklev-room-coordinates.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mkroom.c",
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "The selected stair candidate predicate invokes mkroom.c:has_dnstairs(), which filters each linked stair through mkroom.c:inside_room()."
+              }
+            ],
+            "checkedAt": "4ce0a77cedb3e1bf5be345924a57f27f9a8aa8a0"
+          },
+          {
+            "name": "has_upstairs",
+            "implementation": "js/mkroom.js",
+            "symbol": "has_upstairs",
+            "sourceReview": "Read all of mkroom.c:has_upstairs() at lines 652-663. It walks gs.stairs in linked-list order, tests only stway->up stairways through inside_room(), returns on the first match, and otherwise returns FALSE. The JS helper has the same traversal and early return; it has no RNG, output, or state mutation. C callers are mkshop(), pick_room(), mkswamp(), and mklev.c:generate_stairs_room_good(). Existing JS wiring covers mkshop(), pick_room(), and stair selection. The SWAMP path remains explicitly skipped by do_mkroom() through note_unported('mkroom.c mkswamp'); it is outside this correction.",
+            "callers": [
+              {
+                "path": "js/mkroom.js",
+                "symbol": "mkshop",
+                "source": "C mkroom.c:mkshop() calls has_upstairs(sroom) at line 171 while excluding stair rooms; JS mkroom.js:mkshop() uses has_upstairs(candidate)."
+              },
+              {
+                "path": "js/mkroom.js",
+                "symbol": "pick_room",
+                "source": "C mkroom.c:pick_room() calls has_upstairs() at lines 233 and 235; its caller mkzoo() is dispatched from do_mkroom(). JS mkroom.js:pick_room() makes the corresponding strict and non-strict checks."
+              },
+              {
+                "path": "js/mkroom.js",
+                "symbol": "do_mkroom",
+                "source": "C mkroom.c:mkswamp() calls has_upstairs() at line 539, but JS do_mkroom() currently records note_unported('mkroom.c mkswamp') and does not enter that function; the unsupported SWAMP caller is preserved as a gap outside the selected stair-selection entry point."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "generate_stairs_room_good",
+                "source": "C mklev.c:generate_stairs_room_good() calls has_upstairs(croom) at line 2211; JS mklev.js imports and calls the shared mkroom.js implementation."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mklev-room-coordinates.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mkroom.c",
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "The selected stair candidate predicate invokes mkroom.c:has_upstairs(), which filters each linked stair through mkroom.c:inside_room()."
+              }
+            ],
+            "checkedAt": "4ce0a77cedb3e1bf5be345924a57f27f9a8aa8a0"
+          },
+          {
+            "name": "inside_room",
+            "implementation": "js/room_coordinates.js",
+            "symbol": "inside_room",
+            "sourceReview": "Read all of mkroom.c:inside_room() at lines 677-687. For irregular rooms it derives the room index plus ROOMOFFSET and requires both !levl[x][y].edge and an exact roomno match; for regular rooms it accepts the inclusive rectangle expanded by one tile. The existing JS function in room_coordinates.js implements those two branches from croom.roomnoidx and GameMap.at(). It is pure. Its complete direct C caller inventory is mkroom.c:has_dnstairs(), has_upstairs(), and somexy(); mklev.c:pos_to_room(); sp_lev.c:maybe_add_door() and create_monster(); and hack.c:furniture_present() and in_town(). These map to js/mkroom.js, js/room_coordinates.js, js/mklev.js, js/themeroom_fill.js, and js/hack.js respectively. C place_branch() discards pos_to_room()'s result, so that direct-coordinate path has no translated state effect. The selected synthetic range exercises the helper through both stair predicates; the test directly pins irregular identity, edge rejection, and regular wall bounds.",
+            "callers": [
+              {
+                "path": "js/mkroom.js",
+                "symbol": "has_dnstairs",
+                "source": "C mkroom.c:has_dnstairs() calls inside_room(sroom, stway->sx, stway->sy) at line 645."
+              },
+              {
+                "path": "js/mkroom.js",
+                "symbol": "has_upstairs",
+                "source": "C mkroom.c:has_upstairs() calls inside_room(sroom, stway->sx, stway->sy) at line 658."
+              },
+              {
+                "path": "js/room_coordinates.js",
+                "symbol": "somexy",
+                "source": "C mkroom.c:somexy() excludes coordinates inside subrooms by calling inside_room(croom->sbrooms[i], c->x, c->y) at line 731."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "place_branch",
+                "source": "C mklev.c:place_branch() calls pos_to_room(x, y) at line 1714 and discards its result; pos_to_room() uses inside_room() at line 1683. The JS explicit-coordinate branch also makes no use of this result."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "maybe_add_door",
+                "source": "C sp_lev.c:maybe_add_door() uses inside_room() at line 1113 for regular-room containment; JS mklev.js:maybe_add_door() uses the canonical helper in the same condition."
+              },
+              {
+                "path": "js/themeroom_fill.js",
+                "symbol": "create_monster",
+                "source": "C sp_lev.c:create_monster() refuses the chosen location when !inside_room(croom, x, y) at line 1980; JS themeroom_fill.js:create_monster() makes the same check."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "furniture_present",
+                "source": "C hack.c:furniture_present() calls inside_room() at line 3492 while scanning irregular room bounds; JS hack.js:furniture_present() calls the canonical helper."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "in_town",
+                "source": "C hack.c:in_town() calls inside_room() at line 3579 to recognize town rooms with subrooms; JS hack.js:in_town() calls the canonical helper."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mklev-room-coordinates.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mkroom.c",
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "The selected stair candidate predicate reaches inside_room() through mkroom.c:has_dnstairs() and has_upstairs()."
+              }
+            ],
+            "checkedAt": "4ce0a77cedb3e1bf5be345924a57f27f9a8aa8a0"
+          }
+        ],
+        "entryPointReview": "The selected active entry is the admitted Wizard direct-load of dat/Wiz-loca.lua. Its synthetic v43 range reaches the stair candidate draw at mklev.c:generate_stairs_find_room:2236 and exercises the full predicate chain through has_dnstairs(), has_upstairs(), and inside_room(). Source audit found additional active callers: mkshop()/pick_room()/mkswamp() use the stair predicates; somexy(), pos_to_room(), sp_lev.c:maybe_add_door()/create_monster(), and hack.c:furniture_present()/in_town() use inside_room(). Existing JavaScript production adapters route the implemented callers to the shared functions. The mkswamp caller remains an existing explicit note_unported gap; place_branch discards pos_to_room()'s pure result. The helpers are pure and directly source-pinned in scripts/mklev-room-coordinates.test.mjs. The changed candidate selector's impure RNG path is covered by the cited exact matching synthetic range.",
+        "entryPoints": [
+          {
+            "name": "Wizard loads nested irregular Wiz-loca rooms and reaches stair candidate selection",
+            "functions": [
+              "generate_stairs_room_good",
+              "generate_stairs_find_room",
+              {
+                "sourceFile": "mkroom.c",
+                "name": "has_dnstairs"
+              },
+              {
+                "sourceFile": "mkroom.c",
+                "name": "has_upstairs"
+              },
+              {
+                "sourceFile": "mkroom.c",
+                "name": "inside_room"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "The direct Wizard special-level load of dat/Wiz-loca.lua reaches mklev.c:generate_stairs_find_room:2236 and exercises the complete stair predicate and room-membership chain."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-priest-angry-priest-sacrifice-v43-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port priest anger after altar conversion and human sacrifice",
+      "cFile": "priest.c",
+      "sessions": [
+        "synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst"
+      ],
+      "selectionReason": "The current admitted v43 replay first differs at step 108 after pray.c:sacrifice_your_race changes the shrine altar and calls missing priest.c:angry_priest. Port the whole angry_priest function and its return-independent priest.c:free_epri callee, then wire the complete active sacrifice and altar-conversion caller branches; the later dig.c call remains source-unreachable because dig_check rejects altar terrain first.",
+      "detail": "The refreshed investigation records 108/110 matching screens, full 8697/8697 RNG agreement, and independent fresh C-first evidence for pray.c:offer_different_alignment_altar. angry_priest consumes no RNG and transfers shrine alignment into EMIN before clearing EPRI.",
+      "openedAt": "99f453b504a64e7dcb40b5d2d2115ec98045ca9b",
+      "openStanding": {
+        "sha": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "angry_priest",
+          "line": 877,
+          "endLine": 918,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 877,
+        "to": 918
+      },
+      "requiredFunctions": [
+        {
+          "name": "free_epri",
+          "line": 28,
+          "endLine": 41,
+          "declared": true,
+          "sourceFile": "priest.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst": {
+          "session": "synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.session.json",
+          "recordingSha256": "fe726abaade0a3907af6c0b88a27374e2a5c9191b5507a0d59298cfa81a79090",
+          "evaluationPath": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+          "evaluationCommit": "96f144375d45d50241fabbbe29b8a77d171ec3f0"
+        }
+      },
+      "activeStanding": {
+        "sha": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "session": "synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.session.json",
+          "recordingSha256": "fe726abaade0a3907af6c0b88a27374e2a5c9191b5507a0d59298cfa81a79090",
+          "recipe": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.recipe.session.json",
+          "recipeSha256": "c00fc0a1f386865ab08f728a4b6de0b9cff4519f9e327d8738efc2cf682b76e6",
+          "replayInputSha256": "2ccc96f912e661c4cb80f47b85e2af32eac5ef8a072aae9f7fcb1ce98f0fae75",
+          "evaluationPath": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+          "evaluationCommit": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+          "evaluationArtifact": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+          "evaluationUtc": "2026-10-11T04:07:54.192Z",
+          "remainingScreens": 2,
+          "recordedSteps": 110,
+          "previousScreensMatched": 108,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 108,
+              "total": 110
+            },
+            "rng": {
+              "matched": 8697,
+              "total": 8697
+            },
+            "cursors": {
+              "matched": 109,
+              "total": 110
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 108,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 108,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 7,
+              "column": 39,
+              "cCell": {
+                "ch": "i",
+                "color": 4,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 8697,
+              "cCaller": null,
+              "jsEntry": "rn2(11)=3",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 109,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 109,
+                "key": " "
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                78,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 108,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.json",
+            "result": {
+              "session": "synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+              "remainingScreens": 2,
+              "recordedSteps": 110,
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "fe726abaade0a3907af6c0b88a27374e2a5c9191b5507a0d59298cfa81a79090",
+              "evaluationPath": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+              "evaluationCommit": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+              "status": "complete",
+              "commit": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+                "session": "synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.session.json",
+                "recordingSha256": "fe726abaade0a3907af6c0b88a27374e2a5c9191b5507a0d59298cfa81a79090",
+                "recipe": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.recipe.session.json",
+                "recipeSha256": "c00fc0a1f386865ab08f728a4b6de0b9cff4519f9e327d8738efc2cf682b76e6",
+                "replayInputSha256": "2ccc96f912e661c4cb80f47b85e2af32eac5ef8a072aae9f7fcb1ce98f0fae75",
+                "evaluationPath": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+                "evaluationCommit": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+                "evaluationArtifact": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+                "evaluationUtc": "2026-10-11T04:07:54.192Z",
+                "remainingScreens": 2,
+                "recordedSteps": 110,
+                "previousScreensMatched": 108,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 108,
+                    "total": 110
+                  },
+                  "rng": {
+                    "matched": 8697,
+                    "total": 8697
+                  },
+                  "cursors": {
+                    "matched": 109,
+                    "total": 110
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 108,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 108,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 7,
+                    "column": 39,
+                    "cCell": {
+                      "ch": "i",
+                      "color": 4,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 8697,
+                    "cCaller": null,
+                    "jsEntry": "rn2(11)=3",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 109,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 109,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      42,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      78,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 108,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The step-108 sacrifice mismatch is the missing priest.c:angry_priest state transition after pray.c:sacrifice_your_race stains the shrine altar. The helper now transfers the priest's remembered shrine alignment to EMIN and frees EPRI, matching the following priest glyph and turn. Its second active prayer caller is covered by an independent accepted-corpse case. dig.c:dig retains a source call site but its player-down branch is unreachable because dig_check rejects altar terrain first.",
+              "source": {
+                "file": "priest.c",
+                "functions": [
+                  "free_epri",
+                  "angry_priest"
+                ],
+                "branch": "angry_priest finds the priest in the occupied temple, wakes and angers it, then checks its remembered shrine square. If the altar is gone or its alignment changed, ensure EMIN exists, clear priest status, set minion status and the remembered alignment, clear renegade, then free EPRI. free_epri clears EPRI when present and always clears ispriest.",
+                "callers": [
+                  "pray.c:offer_different_alignment_altar calls angry_priest after a successful non-coaligned altar conversion.",
+                  "pray.c:sacrifice_your_race calls angry_priest after staining a lawful/neutral altar chaotic and after removing a non-chaotic altar for a chaotic hero.",
+                  "dig.c:dig contains an altar_wrath/angry_priest call in its player-down branch, but dig_check(BY_YOU, u.ux, u.uy) rejects every altar before this branch can reach that call."
+                ],
+                "dependencies": [
+                  "priest.c:findpriest and temple_occupied are already ported and identify the current temple priest.",
+                  "mon.c:wakeup and setmangry are already ported; the C helper discards both void results and the JS path awaits them in source order.",
+                  "minion.c:newemin is already ported and supplies the required EMIN extension before priest data is discarded.",
+                  "priest.c:free_epri is included in this task because angry_priest calls it to clear the former shrine record.",
+                  "dig.c:dig is wired to the helper, but its altar caller branch is source-inaccessible to a player because dig_check rejects the altar first."
+                ],
+                "sourceReview": "Read upstream priest.c:free_epri (28-36) and angry_priest (877-911), plus pray.c:offer_different_alignment_altar (1631-1695), pray.c:sacrifice_your_race (1698-1780), and dig.c:dig/dig_check (207-300 and the player-down block around 429). The selected sacrifice branch calls angry_priest immediately after changing/removing the altar mask. The rival-offering branch calls it only after the successful altar conversion and non-coaligned priest check. angry_priest consumes no RNG; preserve wakeup then setmangry order, transfer the shrine alignment before free_epri, and keep the EMIN record distinct from EPRI. The dig call is after the earlier altar rejection, so no valid player recipe reaches it."
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved combined queue SHA-256 3fc504e31e6f6d95d2e39d1fd57d43ee8e09917b6c9a43408d51f45c427eeb31 identifies v43 session v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst at 108/110 screens, 8697/8697 RNG, and 109/110 cursors; its first mismatch is step 108 after the human-corpse sacrifice, with C showing the priest glyph at row 7 column 39 and JS showing floor.",
+                "C source trace at the selected case: pray.c:offer_corpse -> pray.c:sacrifice_your_race changes the altar state and calls priest.c:angry_priest. The source helper wakes/angers the priest and converts it to a minion when the remembered shrine altar is no longer present or no longer matches shralign.",
+                "Fresh differential after the implementation matched the admitted recipe through all 110 screens, 110 cursors, and 8697 RNG calls.",
+                "Independent C-first recipe/recording recipes/pray.c/angry-priest-different-alignment-cfirst.session.json and recordings/pray.c/angry-priest-different-alignment-cfirst.session.json reach pray.c:offer_different_alignment_altar -> priest.c:angry_priest. At segment 0 step 130 C records rn2(18)=8 in offer_different_alignment_altar; the priest of Thoth was established at the loaded temple and the altar converts before the angry_priest call. The fresh differential matched all 133 screens/cursors and 10488 RNG calls.",
+                "The existing independent anger-rival-altar recording also freshly matched its 753 screens/cursors and 7640 RNG calls through pray.c:offer_different_alignment_altar.",
+                "dig.c:dig caller evidence is explicitly blocked by the source guard: recipes/dig.c/altar-wrath-dig-down-blocked-b24.session.json records that dig_check(BY_YOU, u.ux, u.uy) returns DIGCHECK_FAIL_ALTAR before dig.c:dig can reach its later altar_wrath/angry_priest call. This path is not claimed as a reachable entry point."
+              ],
+              "queueSha256": "3fc504e31e6f6d95d2e39d1fd57d43ee8e09917b6c9a43408d51f45c427eeb31",
+              "evaluationArtifact": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+              "evaluationUtc": "2026-10-11T04:07:54.192Z",
+              "replayInputSha256": "2ccc96f912e661c4cb80f47b85e2af32eac5ef8a072aae9f7fcb1ce98f0fae75"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "free_epri",
+            "implementation": "js/priest.js",
+            "symbol": "free_epri",
+            "sourceReview": "Compared the full priest.c:free_epri definition (28-35). If mextra and EPRI exist, C frees only the priest extension and writes the pointer to null; it clears ispriest regardless. The JavaScript helper stores the pointer-null state as mextra.epri=null, preserves other mextra extensions, and always clears ispriest.",
+            "callers": [
+              {
+                "path": "js/priest.js",
+                "symbol": "angry_priest",
+                "source": "priest.c:angry_priest calls free_epri after transferring shrine alignment to EMIN and clearing ispriest."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/priest.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/angry-priest-different-alignment-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+                "segment": 0,
+                "fromStep": 108,
+                "throughStep": 109,
+                "source": "The angry_priest conversion branch invokes priest.c:free_epri after preserving shralign in EMIN."
+              }
+            ],
+            "checkedAt": "a18a2b5ebe182407beb2b29605debfd46cb7703c"
+          },
+          {
+            "name": "angry_priest",
+            "implementation": "js/priest.js",
+            "symbol": "angry_priest",
+            "sourceReview": "Compared the full priest.c:angry_priest definition (877-911). Preserve findpriest(temple_occupied()), wakeup(FALSE), setmangry(FALSE), the remembered shrine altar/alignment predicate, newemin() only when EMIN is missing, priest-to-minion flags, shralign transfer, renegade=false, then free_epri. This function consumes no RNG. Existing helpers findpriest, temple_occupied, wakeup, setmangry, and newemin are called directly. The selected sacrifice and accepted rival-offering callers reach its conversion branch; the dig.c caller is separately source-blocked by dig_check.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "sacrifice_your_race",
+                "source": "pray.c:sacrifice_your_race calls angry_priest after staining a lawful/neutral altar or destroying a non-chaotic altar."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_different_alignment_altar",
+                "source": "pray.c:offer_different_alignment_altar calls angry_priest after successful conversion when findpriest returns a non-coaligned priest."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "dig",
+                "source": "dig.c:dig calls angry_priest after altar_wrath in its down branch; dig_check(BY_YOU,...) rejects altar terrain first, so this caller branch is unreachable from player input."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/priest.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/angry-priest-different-alignment-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+                "segment": 0,
+                "fromStep": 108,
+                "throughStep": 109,
+                "source": "pray.c:offer_corpse -> pray.c:sacrifice_your_race changes the altar, then priest.c:angry_priest wakes/angers the priest and transfers it to EMIN."
+              }
+            ],
+            "checkedAt": "a18a2b5ebe182407beb2b29605debfd46cb7703c"
+          }
+        ],
+        "entryPointReview": "Compared all four source call sites across pray.c and dig.c. The admitted human-sacrifice case reaches sacrifice_your_race after converting the altar; the independent newt-corpse recipe reaches offer_different_alignment_altar on the successful conversion branch with the Kni-loca temple priest. dig.c:dig contains an altar_wrath/angry_priest call only in its player-down block, but the preceding dig_check(BY_YOU, u.ux, u.uy) rejects IS_ALTAR and returns before it; recipes/dig.c/altar-wrath-dig-down-blocked-b24.session.json and scripts/dig.test.mjs preserve this exact source blocker. No dig entry point is claimed.",
+        "entryPoints": [
+          {
+            "name": "Human corpse sacrifice stains a non-chaotic temple altar and releases its priest",
+            "functions": [
+              "angry_priest",
+              "free_epri"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+                "segment": 0,
+                "fromStep": 108,
+                "throughStep": 109,
+                "source": "pray.c:offer_corpse -> pray.c:sacrifice_your_race changes/removes the altar -> priest.c:angry_priest converts the temple priest and calls free_epri."
+              }
+            ]
+          },
+          {
+            "name": "Accepted non-racial corpse on a rival shrine converts the altar and releases its priest",
+            "functions": [
+              "angry_priest",
+              "free_epri"
+            ],
+            "recordings": [
+              "recordings/pray.c/angry-priest-different-alignment-cfirst.session.json"
             ],
             "synthetic": []
           }
