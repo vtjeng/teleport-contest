@@ -363,7 +363,8 @@ test('make_hallucinated reports clearing an active timeout under resistance',
         assert.match(jsBody,
             /!changed && !hallucination\.intrinsic && old && talk/u);
         assert.match(jsBody, /await strange_feeling\(null, null, state\)/u);
-        assert.match(jsBody, /note_unported\('eat\.c eatmupdate'\)/u);
+        assert.match(jsBody,
+            /if \(!Hallucination\(state\)\) eatmupdate\(state, \{ redraw \}\)/u);
 
         await startedGame(8460004, 'HallucinationClearWithResistance');
         clearTopline();

@@ -10,6 +10,8 @@ import {
     GETOBJ_SUGGEST,
     A_INT,
     A_STR,
+    HALLUC_RES,
+    M_AP_OBJECT,
     M_ATTK_HIT,
     M_ATTK_MISS,
     CONFLICT,
@@ -42,7 +44,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import {
-    eatfood, eating_dangerous_corpse, Finish_digestion, gethungry, is_fainted, offer_ok,
+    eatfood, eating_dangerous_corpse, eatmupdate, Finish_digestion, gethungry, is_fainted, offer_ok,
     eat_brains, eating_conducts, set_tin_variety, temp_resist, tin_ok,
 } from '../js/eat.js';
 import {
@@ -53,7 +55,9 @@ import {
     FAKE_AMULET_OF_YENDOR,
     FOOD_CLASS,
     FOOD_RATION,
+    GOLD_PIECE,
     MEAT_RING,
+    ORANGE,
     RIN_ADORNMENT,
     RIN_PROTECTION,
     RIN_SEARCHING,
@@ -1139,7 +1143,69 @@ test('a completed royal-jelly meal runs C fpostfx through done_eating',
         assert.equal(replay.getScreens().length, 42);
     });
 
-// eat.c163-176 clears the shared restoration message before clearing the
+test('eatmupdate follows C appearance changes and active-message guard', async () => {
+    const cStart = EAT_C.indexOf('eatmupdate(void)');
+    const cEnd = EAT_C.indexOf('\n}\n', cStart) + 2;
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cBody = EAT_C.slice(cStart, cEnd);
+    assert.match(cBody, /if \(!ge\.eatmbuf \|\| gn\.nomovemsg != ge\.eatmbuf\)/u);
+    assert.match(cBody, /is_obj_mappear\(&gy\.youmonst,ORANGE\)[\s\S]*?altapp = GOLD_PIECE/u);
+    assert.match(cBody, /is_obj_mappear\(&gy\.youmonst,GOLD_PIECE\)[\s\S]*?altapp = ORANGE/u);
+    assert.match(cBody, /gn\.nomovemsg = strcpy\(ge\.eatmbuf, altmsg\);[\s\S]*?mappearance = altapp;[\s\S]*?newsym\(u\.ux, u\.uy\);/u);
+
+    const jsStart = EAT_JS.indexOf('export function eatmupdate(');
+    const jsEnd = EAT_JS.indexOf('\n}', jsStart) + 2;
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsBody = EAT_JS.slice(jsStart, jsEnd);
+    assert.match(jsBody, /state\.nomovemsg !== state\.eatmbuf/u);
+    assert.match(jsBody, /state\.youmonst\.mappearance = altapp/u);
+    assert.match(jsBody, /redraw\?\.\(state\.u\.ux, state\.u\.uy, state\)/u);
+
+    // This fixed seed and date only initialize the test game; the assertions
+    // below set the relevant C fields directly so no random branch is sampled.
+    await runSegment({
+        seed: 7711190, datetime: '20300102030405',
+        nethackrc: 'OPTIONS=name:Eatmupdate,role:Healer,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: '',
+    });
+    game.u.uprops[HALLUC].intrinsic = 0;
+    game.u.uprops[HALLUC_RES].intrinsic = 0;
+    game.u.uprops[HALLUC_RES].extrinsic = 0;
+    game.youmonst.m_ap_type = M_AP_OBJECT;
+    game.youmonst.mappearance = ORANGE;
+    game.eatmbuf = 'old mimic completion';
+    game.nomovemsg = game.eatmbuf;
+    const redraws = [];
+    assert.equal(eatmupdate(game, {
+        redraw: (x, y) => redraws.push([x, y]),
+    }), undefined);
+    // These literals are eat.c:eatmupdate()'s replacement text for the two
+    // source branches, while GOLD_PIECE is the C altapp for ORANGE mimicry.
+    assert.equal(game.eatmbuf, 'You now prefer mimicking yourself.');
+    assert.equal(game.nomovemsg, game.eatmbuf);
+    assert.equal(game.youmonst.mappearance, GOLD_PIECE);
+    assert.deepEqual(redraws, [[game.u.ux, game.u.uy]]);
+
+    // A positive timeout makes C Hallucination true for the reverse branch.
+    game.u.uprops[HALLUC].intrinsic = 10;
+    game.youmonst.mappearance = GOLD_PIECE;
+    game.eatmbuf = 'old mimic completion';
+    game.nomovemsg = game.eatmbuf;
+    assert.equal(eatmupdate(game, { redraw: () => {} }), undefined);
+    assert.equal(game.eatmbuf, 'Your rind escaped intact.');
+    assert.equal(game.nomovemsg, game.eatmbuf);
+    assert.equal(game.youmonst.mappearance, ORANGE);
+
+    game.youmonst.mappearance = ORANGE;
+    game.eatmbuf = 'active mimic completion';
+    game.nomovemsg = 'another action';
+    assert.equal(eatmupdate(game, { redraw: () => {} }), undefined);
+    assert.equal(game.eatmbuf, 'active mimic completion');
+    assert.equal(game.nomovemsg, 'another action');
+    assert.equal(game.youmonst.mappearance, ORANGE);
+});
+
+// eat.c:163-176 clears the shared restoration message before clearing the
 // appearance, preserves an unrelated nomovemsg, and returns literal zero.
 test('eatmdone releases only its message and resets any active disguise', async () => {
     const { eatmdone } = await import('../js/eat.js');
