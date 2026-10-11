@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T05:58:41.147Z",
+  "capturedAt": "2026-10-11T06:16:29.812Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -86694,23 +86694,68 @@
         "worker": "B",
         "state": "blocked",
         "reason": "The v44 Magicbane investigation is committed; worker-state delivery waits on coordinator integration or goal queueing."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep8-e41c497248240754d214d076fd938745a7804db3",
+        "type": "published",
+        "at": "2026-10-11T05:59:20.934Z",
+        "task": "Prep8",
+        "commit": "e41c497248240754d214d076fd938745a7804db3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v44-magicbane-20261011",
+        "type": "implement",
+        "at": "2026-10-11T06:03:38.061Z",
+        "task": "B-investigation-v44-magicbane-monster-probe-20261011",
+        "goal": "port-artifact-mb-hit-probe-v44-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-apply-9768280e5-20261011",
+        "type": "integrating",
+        "at": "2026-10-11T06:04:20.388Z",
+        "task": "A2-investigation-v43-mounted-source-split-20261011",
+        "integration": "9768280e52603cd8a6a3848dfd0557ea699ab3ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-active-v44-Mb-hit-await-A2-accept-20261011",
+        "type": "turn",
+        "at": "2026-10-11T06:05:03.326Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is preparing the Magicbane probe port while waiting for A2’s overlapping artifacts.js change to be accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-a2-next2u-9768280e-20261011",
+        "type": "validated",
+        "at": "2026-10-11T06:11:42.579Z",
+        "task": "A2-investigation-v43-mounted-source-split-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v43-mounted-source-split-20261011-9768280e52603cd8a6a3848dfd0557ea699ab3ed-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T06:15:39.997Z",
+        "task": "A2-investigation-v43-mounted-source-split-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-active-v44-Mb-hit-after-A2-sync-20261011",
+        "type": "turn",
+        "at": "2026-10-11T06:16:07.402Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing Magicbane’s source-ordered probe/status path and optional unseen-monster mapping, then validating the admitted v44 case."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "A2-investigation-v43-mounted-source-split-20261011",
-        "worker": "A2",
-        "goal": "port-apply-mleashed-next2u-v43-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "53f9ec689bafb7d8b0bbc80e1beb62759a1a8c39",
-        "since": "2026-10-11T05:54:11.801Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -87092,8 +87137,8 @@
     ]
   },
   "development": {
-    "executionCommit": "708ccb10dd6f761996a7e58b583826818161d2f8",
-    "measuredAt": "2026-10-11T05:57:21.829Z",
+    "executionCommit": "9768280e52603cd8a6a3848dfd0557ea699ab3ed",
+    "measuredAt": "2026-10-11T06:11:16.222Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
