@@ -62129,13 +62129,14 @@
     {
       "id": "port-uhitm-mhitm-ad-ston-seed4500-20260917",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Complete stoning attack dispatch and source-ordered petrification gates",
       "cFile": "uhitm.c",
       "sessions": [
+        "synthetic/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
         "holdout/seed4500-knight-coverage"
       ],
-      "selectionReason": "Continue the Knight seed at step 1560 with 254 remaining screens; investigations/holdout/seed4500-knight-coverage.json identifies mhitm_ad_ston as the highest-ranked eligible source owner.",
+      "selectionReason": "Resume the parked complete uhitm.c:mhitm_ad_ston source unit for the admitted v45 monster-to-monster cockatrice case: its uncancelled branch still skips the already ported do_stone_mon helper, while worker B verified step 68 as the active production entry and reserved no conflicting source scope.",
       "detail": "Primary whole mhitm_ad_ston4203–4263 with supporting do_stone_u, petrifying-corpse continuation, fixed golem HP and planning-safe polymorph operations. Three cockatrice recordings reach monster-to-hero attacks; the separate golem command recording establishes a dependency, not attack-triggered conversion. Hero/monster directions, successful petrification and attack-triggered golem entry coverage remain open, so park after the verified primary span.",
       "spans": [
         {
@@ -62169,9 +62170,9 @@
         "to": 4264
       },
       "activeStanding": {
-        "sha": "58e2213278b377a9ba04d78685e58c5c1e4e5692",
-        "screens": 11142,
-        "rng": 785819
+        "sha": "cfead60783b397097e20e05274512010fec57464",
+        "screens": 11405,
+        "rng": 792838
       },
       "openMismatches": [
         {
@@ -62340,7 +62341,21 @@
         "screens": 11157,
         "rng": 785954
       },
-      "parkedReason": "The verified stoning span adds 15 development screen matches and four matching recordings. Hero/monster directions, successful petrification, physical corpse entry and attack-triggered stone-golem conversion remain unrecorded or blocked by make_stoned/minstapetrify/do_stone_mon gaps. Resume when the required source owners and production recordings are available and queue priority permits."
+      "parkedReason": "The verified stoning span adds 15 development screen matches and four matching recordings. Hero/monster directions, successful petrification, physical corpse entry and attack-triggered stone-golem conversion remain unrecorded or blocked by make_stoned/minstapetrify/do_stone_mon gaps. Resume when the required source owners and production recordings are available and queue priority permits.",
+      "syntheticProvenance": {
+        "synthetic/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst": {
+          "session": "synthetic/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst.session.json",
+          "recordingSha256": "59057f8ed9fd49c9cc63660514cb38103dbdfcea13b246f30f11c018e4ac616e",
+          "evaluationPath": "challenges/evaluations/accepted-cfead60783b397097e20e05274512010fec57464-v45.json",
+          "evaluationCommit": "cfead60783b397097e20e05274512010fec57464"
+        }
+      }
     },
     {
       "id": "port-insight-show-achievements-seed4500-20260917",
