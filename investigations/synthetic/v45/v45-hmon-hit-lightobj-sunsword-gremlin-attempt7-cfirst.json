@@ -1,0 +1,206 @@
+{
+  "corpus": "synthetic",
+  "batch": "v45",
+  "caseId": "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+  "session": "synthetic/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+  "manifestPath": "challenges/manifests/v45.json",
+  "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+  "recording": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json",
+  "recordingPath": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json",
+  "recordingSha256": "a2d7078ffd4e6e11384d0a9cdfe3e98ef236c962e34676290a625e02081a9f8a",
+  "recipe": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.recipe.session.json",
+  "recipeSha256": "7fd2beea6269a4769187e7d8ec93ab223a19da3de48be8431a58349d15295284",
+  "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+  "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+  "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+  "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+  "evaluationUtc": "2026-10-11T09:20:20.964Z",
+  "remainingScreens": 2,
+  "recordedSteps": 86,
+  "previousScreensMatched": null,
+  "regression": false,
+  "passed": false,
+  "error": null,
+  "metrics": {
+    "screens": {
+      "matched": 84,
+      "total": 86
+    },
+    "rng": {
+      "matched": 3965,
+      "total": 3965
+    },
+    "cursors": {
+      "matched": 85,
+      "total": 86
+    }
+  },
+  "firstMismatch": {
+    "screen": {
+      "index": 84,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 84,
+        "key": "l"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 20,
+      "cCell": {
+        "ch": "-",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": " ",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "rng": null,
+    "cursor": {
+      "index": 84,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 84,
+        "key": "l"
+      },
+      "cCursor": [
+        28,
+        0,
+        1
+      ],
+      "jsCursor": [
+        22,
+        6,
+        1
+      ]
+    }
+  },
+  "step": 84,
+  "kind": "screen",
+  "sourceFile": null,
+  "function": null,
+  "message": null,
+  "cFile": null,
+  "luaFile": null,
+  "line": null,
+  "status": "complete",
+  "commit": "f848e37cfd483c3a1bc0bbcf5755b8c2efd24ad3",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v45",
+    "caseId": "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+    "session": "synthetic/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+    "manifestPath": "challenges/manifests/v45.json",
+    "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+    "recording": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json",
+    "recordingPath": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json",
+    "recordingSha256": "a2d7078ffd4e6e11384d0a9cdfe3e98ef236c962e34676290a625e02081a9f8a",
+    "recipe": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.recipe.session.json",
+    "recipeSha256": "7fd2beea6269a4769187e7d8ec93ab223a19da3de48be8431a58349d15295284",
+    "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+    "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+    "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+    "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+    "evaluationUtc": "2026-10-11T09:20:20.964Z",
+    "remainingScreens": 2,
+    "recordedSteps": 86,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 84,
+        "total": 86
+      },
+      "rng": {
+        "matched": 3965,
+        "total": 3965
+      },
+      "cursors": {
+        "matched": 85,
+        "total": 86
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 84,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 84,
+          "key": "l"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 20,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 84,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 84,
+          "key": "l"
+        },
+        "cCursor": [
+          28,
+          0,
+          1
+        ],
+        "jsCursor": [
+          22,
+          6,
+          1
+        ]
+      }
+    },
+    "step": 84,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "goalKind": "file-port",
+  "summary": "At v45 step 84, the confirmed Sunsword hit reaches uhitm.c:hmon_hitmon_msg_lightobj, but JavaScript only records note_unported and omits the radiance message. C uses the saved lit-artifact name, target visibility, and corporeal/form guards to print source-ordered feedback before poison and kill messages. The helper itself has no random call, though its first mon_nam call can use display RNG for a visible target under hallucination. The prior v33 reach attempt fled before this helper; this admitted v45 case reaches it after the hit pager.",
+  "source": {
+    "file": "uhitm.c",
+    "functions": [
+      "hmon_hitmon_msg_lightobj"
+    ],
+    "branch": "uhitm.c:hmon_hitmon_do_hit sets hmd.lightobj when a lit light artifact hits a monster that hates light. After the hit and silver messages, hmon_hitmon calls this helper when that flag is set. A visible target with saved_oname gets “<saved name>’s radiance penetrates deep into”; a visible target without it gets “The light sears”; an unseen target is capitalized and gets “is seared”. Append “ flesh” when the target is neither noncorporeal nor amorphous. The obj argument is unused. The helper makes one message and has no direct random call or game-state write; its initial mon_nam dependency can spend display RNG for visible targets while hallucinating.",
+    "callers": [
+      "C producer: uhitm.c:hmon_hitmon_do_hit:1038–1040 sets hmd.lightobj for a lit artifact-light object and a light-hating target; js/uhitm.js:hmon_hitmon_do_hit:2821 already mirrors that flag.",
+      "C caller: uhitm.c:hmon_hitmon:1880–1881 invokes hmon_hitmon_msg_lightobj after hmon_hitmon_msg_silver and before poison/kill feedback; js/uhitm.js:hmon_hitmon:3760–3761 currently records note_unported at the same position.",
+      "Runtime route: cmd.c:rhack force-fight input F, hack.c movement attack dispatch, uhitm.c:do_attack:448 -> hitum:758 -> hmon:819 -> hmon_hitmon:1754 -> hmon_hitmon_msg_lightobj:1702. The JavaScript path is cmd.js force-fight dispatch -> hack.js attack dispatch -> uhitm.js do_attack -> hitum -> hmon -> hmon_hitmon."
+    ],
+    "dependencies": [
+      "The initial mon_nam call reuses do_name.c:x_monnam and its existing JS owner. For a visible monster under hallucination it can call rndmonnam through display RNG, so preserve this first evaluation and pass the established env through mon_nam. The selected v45 case is not hallucinating and makes no such naming draw.",
+      "canspotmon, highc, noncorporeal, amorphous, and s_suffix already have canonical JS owners. Keep the source order: evaluate mon_nam before visibility, select the format, apply the target-form flesh rule, then emit the message."
+    ]
+  },
+  "evidence": [
+    "Read the complete source helper uhitm.c:1702–1730. It initializes mon_nam before branching, chooses the visible/invisible format, conditionally appends the target’s flesh suffix, and emits exactly one pline. obj is explicitly UNUSED. The helper makes no direct random call; mon_nam can indirectly spend display RNG on visible hallucinated targets through do_name.c:x_monnam/rndmonnam.",
+    "Read do_name.c:1042–1046 and x_monnam:861–862, 949–955, plus the canonical JS x_monnam implementation. The helper’s initial mon_nam evaluation may select a hallucinated name using display RNG when the target is visible; the recorded v45 character has no hallucination property, so this selected branch has no naming RNG.",
+    "Saved admitted v45 C-first recording challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json has input F at zero-based step 83, a confirmed Sunsword hit on the gremlin at step 84, and a space at step 85 that reveals “Sunsword’s radiance penetrates deep into the gremlin’s flesh!”. The selected evaluation reports the first screen mismatch at step 84 with matched RNG through that boundary.",
+    "The closest earlier record, investigations/synthetic/v33/v33-sunsword-light-sears.json, reached a fleeing boundary at step 53 in monmove.c:distfleeck before hmon_hitmon_msg_lightobj. It did not provide runtime evidence for this helper; the v45 C-first forced-hit case is a distinct successful-hit path."
+  ]
+}
