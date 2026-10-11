@@ -15,15 +15,20 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { CORR, MON_DETACH, ROOM, VAULT } from '../js/const.js';
+import {
+    COULD_SEE, CORR, GD_EATGOLD, MON_DETACH, ROOM, ROOMOFFSET, VAULT,
+} from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { mondead, mongone } from '../js/mon.js';
 import { PM_GUARD } from '../js/monsters.js';
 import {
-    gd_move, grddead, in_fcorridor, newegd, UnsupportedVaultGuardError,
+    findgd, gd_move, gd_sound, grddead, in_fcorridor, newegd,
+    vault_gd_watching, vault_summon_gd, UnsupportedVaultGuardError,
 } from '../js/vault.js';
-import { place_monster, remove_monster } from '../js/monst.js';
+import {
+    place_monster, remove_monster,
+} from '../js/monst.js';
 
 // Start a game so the full game state is initialized. Seed 990700 is
 // arbitrary; the hero class does not matter for the guard tests.
@@ -96,6 +101,11 @@ function guardInCorridor() {
     return { guard, gx, gy, egrd };
 }
 
+function markHeroInsideVault() {
+    game.level.rooms[0].rtype = VAULT;
+    game.u.urooms = [ROOMOFFSET, 0, 0, 0, 0];
+}
+
 // A deterministic RNG for testing. Returns the values from the array
 // in order; throws if exhausted.
 function fixedRng(values) {
@@ -128,6 +138,58 @@ test('in_fcorridor checks only the active half-open fake-corridor range', () => 
     assert.equal(in_fcorridor(grd, 6, 7), true, 'before fcend');
     assert.equal(in_fcorridor(grd, 8, 9), false, 'at fcend');
     assert.equal(in_fcorridor(grd, 9, 8), false, 'unlisted square');
+});
+
+// vault.c:findgd() (204-234): if no local guard matches, remove the guard
+// from gm.migrating_mons, attach it to fmon and use parkguard() at <0,0>.
+test('findgd pulls a matching migrating guard onto the level list', async () => {
+    await startedGame();
+    const guard = makeGuard(game.u.ux + 2, game.u.uy);
+    remove_monster(guard.mx, guard.my, game);
+    game.level.monlist = guard.nmon;
+    guard.mtrack = [];
+    guard.mx = 0;
+    guard.my = 0;
+    guard.nmon = null;
+    game.gm.migrating_mons = guard;
+
+    assert.equal(findgd(game), guard);
+    assert.equal(game.gm.migrating_mons, null);
+    assert.equal(game.level.monlist, guard);
+    assert.equal(game.level.monsters[0][0], guard);
+    assert.deepEqual([guard.mux, guard.muy], [game.u.ux, game.u.uy]);
+});
+
+test('vault_summon_gd and gd_sound follow vault occupancy and guard state', async () => {
+    await startedGame();
+    markHeroInsideVault();
+    game.level.monlist = null;
+    game.gm.migrating_mons = null;
+    game.u.uinvault = 0;
+
+    vault_summon_gd(game);
+    assert.equal(game.u.uinvault, 29,
+        'a missing guard starts the countdown at VAULT_GUARD_TIME - 1');
+    assert.equal(gd_sound(game), false,
+        'vault occupation suppresses footsteps independently of a guard');
+
+    game.u.urooms = [0, 0, 0, 0, 0];
+    assert.equal(gd_sound(game), true,
+        'an empty level outside a vault permits the guard sound');
+});
+
+test('vault_gd_watching records only visible on-map gold activity', async () => {
+    await startedGame();
+    const guard = makeGuard(game.u.ux + 1, game.u.uy);
+    guard.mcansee = 1;
+    place_monster(guard, guard.mx, guard.my, game);
+    game.viz_array[guard.my][guard.mx] |= COULD_SEE;
+
+    vault_gd_watching(GD_EATGOLD, game);
+    assert.equal(guard.mextra.egd.witness, GD_EATGOLD);
+    vault_gd_watching(0x40, game);
+    assert.equal(guard.mextra.egd.witness, GD_EATGOLD,
+        'unrelated activity does not replace the witness code');
 });
 
 // vault.c:grddead() (175-188) retries corridor removal after the dead guard

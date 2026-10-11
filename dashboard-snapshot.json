@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T12:42:26.549Z",
+  "capturedAt": "2026-10-11T13:15:06.584Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -88249,19 +88249,203 @@
         "type": "accepted",
         "at": "2026-10-11T12:41:59.350Z",
         "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-active-post-nohandglow-merge-20261011T1240Z",
+        "type": "turn",
+        "at": "2026-10-11T12:42:25.905Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resumed after nohandglow acceptance and checking the current queue for unreserved work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-nohandglow-stale-queue-20261011T1245Z",
+        "type": "turn",
+        "at": "2026-10-11T12:43:03.154Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "No independent case is currently free. The saved queue still includes accepted nohandglow; the remaining Sanctum, vault and quest-finish cases are reserved by B, A2 and C. Resume after the coordinator refreshes the queue or a reservation is released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-nohandglow-stale-queue-correct-head-20261011T1246Z",
+        "type": "turn",
+        "at": "2026-10-11T12:43:13.019Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "No independent case is currently free. The saved queue still includes accepted nohandglow; the remaining Sanctum, vault and quest-finish cases are reserved by B, A2 and C. Resume after the coordinator refreshes the queue or a reservation is released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3161f5463e46e8ae3878af1b3432cbf1f3c2d90a",
+        "type": "ready",
+        "at": "2026-10-11T12:44:39.013Z",
+        "task": "A2-investigation-v45-vault-cursed-whistle-20261011",
+        "delivery": "3161f5463e46e8ae3878af1b3432cbf1f3c2d90a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-sanctum-0de38ac5-20261011",
+        "type": "received",
+        "at": "2026-10-11T12:44:55.236Z",
+        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011",
+        "delivery": "0de38ac5d27d117737b9324a53fcb8c80913d1e6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-sanctum-88b220662",
+        "type": "integrating",
+        "at": "2026-10-11T12:46:44.675Z",
+        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011",
+        "integration": "88b2206624a4f646c63e69dcafec6a73a250d3e2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-sanctum-38140633505",
+        "type": "validated",
+        "at": "2026-10-11T12:52:52.477Z",
+        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011-88b2206624a4f646c63e69dcafec6a73a250d3e2-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T12:53:48.925Z",
+        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-active-post-sanctum-merge-20261011T1250Z",
+        "type": "turn",
+        "at": "2026-10-11T12:54:14.896Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resumed after Sanctum acceptance and checking the refreshed queue for the next independent case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-sanctum-accepted-await-queue-20261011T1252Z",
+        "type": "turn",
+        "at": "2026-10-11T12:54:49.355Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Sanctum acceptance released B’s reservations, but the saved queue is still based on the older evaluation and includes already-fixed cases. A2 owns vault and C owns quest-finish; waiting for the coordinator’s refreshed queue before selecting work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-active-refreshed-queue-sanctum-20261011T1305Z",
+        "type": "turn",
+        "at": "2026-10-11T12:56:43.907Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Reviewing the refreshed queue and live reservations after Sanctum acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-vault-3161f546-20261011",
+        "type": "received",
+        "at": "2026-10-11T12:56:51.261Z",
+        "task": "A2-investigation-v45-vault-cursed-whistle-20261011",
+        "delivery": "3161f5463e46e8ae3878af1b3432cbf1f3c2d90a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v45-sanctum-makemon-attempt28-20261011",
+        "type": "assign",
+        "at": "2026-10-11T12:57:27.497Z",
+        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-vault-2be2f000a",
+        "type": "integrating",
+        "at": "2026-10-11T12:59:09.841Z",
+        "task": "A2-investigation-v45-vault-cursed-whistle-20261011",
+        "integration": "2be2f000af2d262c35c723541630cbc9c2c01b92"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep10-active-20261011-v46-six-confirmed",
+        "type": "turn",
+        "at": "2026-10-11T13:05:08.414Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v46 has six confirmed distinct C-first mismatches; continuing source-diverse search for qualifying replacements."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-vault-d6db550a1",
+        "type": "integrating",
+        "at": "2026-10-11T13:07:47.040Z",
+        "task": "A2-investigation-v45-vault-cursed-whistle-20261011",
+        "integration": "d6db550a19ff73dc442cabfd0acb3f89118d5b90"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fcea0e51a064242b91c3e915b79e193f8effb3d5",
+        "type": "ready",
+        "at": "2026-10-11T13:11:44.081Z",
+        "task": "C-investigation-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011",
+        "delivery": "fcea0e51a064242b91c3e915b79e193f8effb3d5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-makemon-ettin-admission-v45-20261011",
+        "type": "implement",
+        "at": "2026-10-11T13:12:14.885Z",
+        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011",
+        "goal": "fix-makemon-ettin-admission-v45-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-vault-d6db550a1",
+        "type": "validated",
+        "at": "2026-10-11T13:13:03.978Z",
+        "task": "A2-investigation-v45-vault-cursed-whistle-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-active-post-quest-finish-submit-20261011T1313Z",
+        "type": "turn",
+        "at": "2026-10-11T13:13:13.662Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Quest-finish delivery is ready for integration; syncing accepted Main before the next source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-active-makemon-ettin-v45-20261011T1317Z",
+        "type": "turn",
+        "at": "2026-10-11T13:14:03.357Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the v45 runtime makemon refusal for source-valid Ettin creation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v45-vault-cursed-whistle-20261011-d6db550a19ff73dc442cabfd0acb3f89118d5b90-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T13:14:21.157Z",
+        "task": "A2-investigation-v45-vault-cursed-whistle-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011",
-        "worker": "B",
-        "goal": "fix-v45-intemple-monname-20261011",
+        "task": "C-investigation-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011",
+        "worker": "C",
+        "goal": "port-quest-finish-thrown-artifact-synthetic-v45-20261011",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "0de38ac5d27d117737b9324a53fcb8c80913d1e6",
-        "since": "2026-10-11T12:24:41.808Z",
+        "delivery": "fcea0e51a064242b91c3e915b79e193f8effb3d5",
+        "since": "2026-10-11T13:11:44.081Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -88647,8 +88831,8 @@
     ]
   },
   "development": {
-    "executionCommit": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf",
-    "measuredAt": "2026-10-11T12:40:11.280Z",
+    "executionCommit": "d6db550a19ff73dc442cabfd0acb3f89118d5b90",
+    "measuredAt": "2026-10-11T13:12:37.821Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
