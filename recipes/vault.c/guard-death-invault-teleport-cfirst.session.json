@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent natural-entry witness for vault.c:grddead() and parkguard(): wizard-port to a generated level with a vault, use a controlled self-teleport into the vault, let allmain.c:moveloop_core() reach invault(), answer the guard, give gd_move() one turn to build the fake corridor, then wizard-kill the guard while it occupies that corridor.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20531012123456",
+      "nethackrc": "OPTIONS=name:VaultCfirst,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. ........................................ VaultCfirst\nm#wizkill\nh.\u001b"
+    }
+  ]
+}
