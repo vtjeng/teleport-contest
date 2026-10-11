@@ -1,0 +1,154 @@
+{
+  "session": "synthetic/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+  "corpus": "synthetic",
+  "batch": "v45",
+  "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+  "manifestPath": "challenges/manifests/v45.json",
+  "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+  "recordingSha256": "684655663fd3e2adef1f4d6a7dbbb652c649504a539510affdcf08d29e78e1bf",
+  "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+  "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+  "remainingScreens": 3,
+  "recordedSteps": 134,
+  "status": "complete",
+  "commit": "b47fe908a56f4be02479606efa57b62a04357f8d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v45",
+    "caseId": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+    "session": "synthetic/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+    "manifestPath": "challenges/manifests/v45.json",
+    "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+    "recording": "challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.session.json",
+    "recordingPath": "challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.session.json",
+    "recordingSha256": "684655663fd3e2adef1f4d6a7dbbb652c649504a539510affdcf08d29e78e1bf",
+    "recipe": "challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.recipe.session.json",
+    "recipeSha256": "cd75c605c424595aab5aeff8e45452654602f86d73c7a6c5dd105d1ab1b47e53",
+    "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+    "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+    "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+    "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+    "evaluationUtc": "2026-10-11T09:20:20.964Z",
+    "remainingScreens": 3,
+    "recordedSteps": 134,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 131,
+        "total": 134
+      },
+      "rng": {
+        "matched": 2813,
+        "total": 2876
+      },
+      "cursors": {
+        "matched": 131,
+        "total": 134
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 131,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 131,
+          "key": "o"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 37,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2813,
+        "cEntry": "rnd(2)=2",
+        "cCaller": "next_ident(mkobj.c:521)",
+        "jsEntry": "rn2(76)=11",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 131,
+          "key": "o"
+        },
+        "stepIndex": 131
+      },
+      "cursor": {
+        "index": 131,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 131,
+          "key": "o"
+        },
+        "cCursor": [
+          45,
+          0,
+          1
+        ],
+        "jsCursor": [
+          60,
+          19,
+          1
+        ]
+      }
+    },
+    "step": 131,
+    "kind": "rng",
+    "sourceFile": "mkobj.c",
+    "function": "next_ident",
+    "message": null,
+    "cFile": "mkobj.c",
+    "luaFile": null,
+    "line": 521
+  },
+  "summary": "A cursed tin whistle blown while the hero is inside a vault should schedule the vault guard by setting u.uinvault to VAULT_GUARD_TIME - 1. C apply.c:use_whistle() calls vault.c:vault_summon_gd(); JS apply.js:use_whistle() instead records vault.c vault_summon_gd as unported, so the following allmain.c:invault() turn does not create the guard. The queue attributes the resulting RNG divergence to mkobj.c:next_ident(), but next_ident() itself is already ported and is only reached because C creates the guard. The coherent vault.c port also completes findgd()'s migrating-guard return path and its active consumers: gd_sound()/sounds, vault_gd_watching()/eating gold, and teleds().",
+  "source": {
+    "file": "vault.c",
+    "branch": "When apply.c:use_whistle() blows a cursed ordinary tin whistle while u.urooms includes a VAULT and no same-level or migrating vault guard is found, vault_summon_gd() sets u.uinvault to VAULT_GUARD_TIME - 1. The next elapsed-turn invault() call reaches the guard creation branch.",
+    "functions": [
+      "vault.c:findgd() (204-234), whole current-level and migrating-monster search; the JS migrating-monster branch currently throws UnsupportedVaultGuardError.",
+      "vault.c:vault_summon_gd() (237-241), whole cursed-whistle scheduling helper; JS currently has no owner and apply.js:use_whistle() records it as unported.",
+      "vault.c:gd_sound() (1272-1275), whole pure guard-presence predicate; its boolean result controls sounds.c:dosounds().",
+      "vault.c:vault_gd_watching() (1278-1285), whole gold-eating witness update; it consumes findgd()'s returned guard and updates EGD(guard)->witness when the guard sees the hero."
+    ],
+    "callers": [
+      "apply.c:use_whistle() (470-492) calls vault_summon_gd() for a cursed ordinary whistle; active JS js/apply.js:use_whistle() at line 4444 must call the canonical vault.js owner.",
+      "vault.c:invault() (317-629) calls findgd() before spawning a new guard; JS js/vault.js:invault() already calls findgd(). allmain.c:moveloop_core() calls invault() after hunger and exercise at line 357; JS js/allmain.js:finishElapsedTurnAfterHunger() already wires that call.",
+      "vault.c:paygd() (1204-1247) calls findgd(); JS js/vault.js:paygd() already wires it. Its later payment branches remain independently incomplete and outside this session's cause.",
+      "vault.c:gd_sound() calls vault_occupied() and findgd(); sounds.c:dosounds() calls gd_sound() at line 244. JS js/sounds.js:vaultGuardPresent()/vaultSoundAllowed() is the corresponding active path but scans only level.monlist; replace that duplicate predicate with the canonical vault.js:gd_sound() result so migrating guards also count.",
+      "vault.c:vault_gd_watching() calls findgd(); eat.c:eatfood() calls it for eaten gold at line 2429. JS js/eat.js:eatspecial() currently skips the helper with note_unported('vault.c vault_gd_watching'); wire this active caller to the canonical vault.js owner.",
+      "teleport.c:teleds() calls findgd() when the hero starts in a vault; active JS js/teleport.js:teleds() currently refuses the occupied-vault path before performing that lookup. Wire the return-dependent lookup and caller branch. C later calls void vault.c:uleftvault(); record and skip that still-unported void helper rather than claiming its behavior. This touches js/teleport.js already changed by the submitted A2 delivery and must be sequenced against that delivery.",
+      "apply.c:use_whistle() (470-492) calls vault_summon_gd() for a cursed ordinary whistle; active JS js/apply.js:use_whistle() at line 4444 must call the canonical vault.js owner."
+    ],
+    "dependencies": [
+      "vault_summon_gd() consumes vault_occupied() and findgd() truth values; js/vault.js:vault_occupied() is already source-mapped and complete, while findgd() must be completed in this same task because C uses its returned pointer.",
+      "The migrating-guard branch of findgd() calls mon_track_clear() and parkguard() with discarded void results. js/monst.js:mon_track_clear() and the local js/vault.js:parkguard() are already source-mapped owners.",
+      "gd_sound() depends on vault_occupied() and findgd(), then returns their negated combined predicate; port it in vault.js and test the pure return value. sounds.js should call that canonical owner rather than maintain a second guard scan.",
+      "vault_gd_watching() depends on findgd() and the vision.h m_canseeu() macro; js/vision.js already owns that predicate. Wire eatspecial() so guard witness state changes under the same caller condition. The helper's C result is void and discarded by eatfood().",
+      "teleds() uses findgd()'s returned pointer. Its later uleftvault() call is void and outside the selected vault function group; preserve it as an explicit note_unported('vault.c uleftvault') gap while allowing the selected findgd lookup to run.",
+      "mkobj.c:next_ident() is not the defect: js/obj.js:next_ident() already implements the C rnd(2), nonzero-wrap handling. Its call is a consequence of invault() making the missing guard."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved combined queue at SHA-256 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b selects the exact session. Its saved baseline challenges/evaluations/v45-baseline-b317571a6.json (evaluation commit b317571a6e76a6dfab39e023745bcec4ea758e55) reports 131/134 screens and cursors, 2813/2876 RNG calls; at step 131/key o, C first calls rnd(2)=2 at mkobj.c:next_ident while JS calls rn2(76)=11 from allmain.c:360.",
+    "C recording challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.session.json shows the independent setup wishing a cursed tin whistle, entering the vault and applying it. At step 131 C reports “You produce a shrill whistling sound”; the next captured message at step 132 is “Suddenly one of the Vault’s guards enters!”, confirming the guard-summoning path.",
+    "Source nethack-c/upstream/src/apply.c:use_whistle() calls vault_summon_gd() only for a cursed ordinary whistle after the wake-nearby call. nethack-c/upstream/src/vault.c:vault_summon_gd() sets u.uinvault to VAULT_GUARD_TIME - 1 exactly when vault_occupied(u.urooms) is nonzero and findgd() returns null. allmain.c:moveloop_core() calls invault() after the whistle turn; invault() then calls makemon(), whose object/monster identity draw reaches mkobj.c:next_ident().",
+    "Worker replay diagnostic .cache/v45-vault-cursed-whistle-diagnosis.json was produced at examined commit b47fe908a56f4be02479606efa57b62a04357f8d. After replay, JS state has urooms [10], uinvault 3, no vault guard, and unported contains vault.c vault_summon_gd. This directly confirms that the hero is in the vault and the missing call prevents the guard timer update.",
+    "C source nethack-c/upstream/src/vault.c:findgd() lines 204-234 searches fmon, heals an off-map not-yet-done guard, then searches gm.migrating_mons, unlinks a matching guard, clears its track, sets mux/muy and mx/my, parks it at (0,0), and returns it. JS js/vault.js:findgd() currently implements only the fmon loop and throws at the migrating loop; the selected file-port must finish that whole return-valued function.",
+    "The complete selected vault.c group is findgd(), vault_summon_gd(), gd_sound(), and vault_gd_watching(). Active callers are apply.c:use_whistle(), vault.c:invault(), vault.c:paygd(), sounds.c:dosounds(), eat.c:eatfood(), and teleport.c:teleds(); preserve already-wired invault/paygd callers while routing the currently missing calls through vault.js. gd_sound()'s returned predicate affects sounds, and vault_gd_watching() consumes findgd()'s returned pointer to mutate guard witness state, so neither caller can remain a duplicate JS approximation or an unported gap.",
+    "The teleds caller later invokes void vault.c:uleftvault(); this function is not part of the selected source range and must remain an explicit skipped gap. A fresh independent recipe/recording under recipes/vault.c/ and recordings/vault.c/ is needed for cursed-whistle guard scheduling; a separate C recipe should exercise the migrating findgd branch unless an exact matching existing recording can be verified. Add runtime evidence for gd_sound/sounds, vault_gd_watching/eating gold, and the teleds vault-guard lookup if no admitted matching range covers those impure entry points."
+  ]
+}
