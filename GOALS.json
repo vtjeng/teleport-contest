@@ -263633,7 +263633,7 @@
     {
       "id": "port-v43-quest-nemesis-death-and-fumes-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port quest nemesis death handling and fumes",
       "cFile": "quest.c",
       "sessions": [
@@ -263647,8 +263647,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6ac57170fdd3979fde91cc95abed9027bbf95166",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "nemdead",
@@ -264119,6 +264122,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6ac57170fdd3979fde91cc95abed9027bbf95166",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
