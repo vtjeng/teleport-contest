@@ -1298,7 +1298,7 @@ export async function trap_detect(sobj = null, state = game) {
     return 0;
 }
 
-// C ref: detect.c furniture_detect() (1091-1138); this consumes and returns 0.
+// C ref: detect.c furniture_detect() (1091-1134); this consumes and returns 0.
 async function furniture_detect(state = game) {
     let found = 0, revealed = 0;
     unconstrain_map(state);
@@ -1325,9 +1325,12 @@ async function furniture_detect(state = game) {
     else if (!revealed)
         await ttyPline('Your map already shows all relevant locations.', state);
     if (!revealed) note_unported('detect.c display_nhwindow');
-    else {
-        note_unported('detect.c browse_map');
-    }
+    else
+        await browse_map(
+            TER_DETECT | TER_MAP | TER_TRP | TER_OBJ | TER_MON,
+            'location',
+            state,
+        );
     await map_redisplay(state);
     return 0;
 }
