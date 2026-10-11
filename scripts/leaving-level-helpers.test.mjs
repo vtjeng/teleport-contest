@@ -42,7 +42,7 @@ import {
 } from '../js/monsters.js';
 import {
     AMULET_OF_YENDOR, BELL_OF_OPENING, CANDELABRUM_OF_INVOCATION,
-    ELVEN_DAGGER, SPE_BOOK_OF_THE_DEAD,
+    ELVEN_DAGGER, LEASH, SPE_BOOK_OF_THE_DEAD,
 } from '../js/objects.js';
 import { check_special_room } from '../js/rooms.js';
 import { is_fshk } from '../js/shk.js';
@@ -272,27 +272,40 @@ test('levl_follower answers each of mondata.c:1211-1225 in turn', () => {
     assert.equal(levl_follower(monsterOf(state, PM_SEWER_RAT), state), false);
 });
 
-test('next_to_u lets an unencumbered hero leave and refuses a leash', () => {
-    // apply.c:918-926. get_iter_mons() answers null when no monster is
-    // leashed, which is every state this port can build.
+test('next_to_u lets an unencumbered hero leave and keeps an adjacent leash',
+    async () => {
+    // apply.c:919-930 scans the current-level list and permits departure when
+    // each leashed monster is within m_next2u() range.
     const state = heroState();
-    state.level.monlist = monsterOf(state, PM_HOUSECAT, { mtame: 5 });
-    assert.equal(next_to_u(state), true);
+    const cat = monsterOf(state, PM_HOUSECAT, {
+        mtame: 5,
+        mx: HERO_X + 1,
+        my: HERO_Y,
+        mleashed: 1,
+    });
+    state.level.monlist = cat;
+    state.invent = {
+        otyp: LEASH,
+        leashmon: cat.m_id,
+        nobj: null,
+    };
+    assert.equal(await next_to_u(state), true);
+    assert.equal(cat.mleashed, 1);
+    assert.equal(state.invent.leashmon, cat.m_id);
 
-    state.level.monlist.mleashed = true;
-    assert.throws(() => next_to_u(state), /leashed companion/u);
+    state.level.monlist = null;
+    assert.equal(await next_to_u(state), true);
 });
 
-test('next_to_u refuses a mounted hero and blocks a steed with the Amulet',
-    () => {
-    // apply.c:922-923. The Amulet arm is the one that answers FALSE; every
-    // other steed reaches keepdogs()'s unported u.usteed branch, so it stops.
+test('next_to_u refuses a steed carrying the Amulet',
+    async () => {
+    // apply.c:927-929 returns FALSE only when the steed carries the Amulet.
     const state = heroState();
     state.u.usteed = monsterOf(state, PM_SEWER_RAT);
-    assert.throws(() => next_to_u(state), /with a steed/u);
+    assert.equal(await next_to_u(state), true);
 
     state.u.usteed.minvent = { otyp: AMULET_OF_YENDOR, nobj: null };
-    assert.equal(next_to_u(state), false);
+    assert.equal(await next_to_u(state), false);
 });
 
 test('reset_pick zeroes every field of gx.xlock', () => {

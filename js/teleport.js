@@ -1703,7 +1703,7 @@ export async function tele_trap(trap, state = game) {
                 await shieldeff(state.u.ux, state.u.uy, state);
             }
             await ttyPline('You feel a wrenching sensation.', state);
-        } else if (!next_to_u(state)) {
+        } else if (!(await next_to_u(state))) {
             await ttyPline('You shudder for a moment.', state);
         } else if (trap.once) {
             deltrap(trap, state);
@@ -2043,7 +2043,7 @@ export async function level_tele(state = game) {
     }
     // teleport.c:1304 evaluates next_to_u() before checking force_dest, so the
     // companion scan still runs for controlled wizard destinations.
-    if (!next_to_u(state) && !force_dest) {
+    if (!(await next_to_u(state)) && !force_dest) {
         await ttyPline('You shudder for a moment.', state);
         return;
     }
