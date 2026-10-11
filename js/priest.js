@@ -12,6 +12,7 @@ import {
     ALLOW_ROCK,
     BZ_M_SPELL,
     BZ_OFS_AD,
+    AM_MASK,
     AM_SHRINE,
     Amask2align,
     MM_ADJACENTOK,
@@ -71,7 +72,8 @@ import { record_achievement } from './insight.js';
 import { makemon, makemon_runtime, mongets } from './makemon_create.js';
 import { set_malign } from './makemon.js';
 import { mattacku, m_next2u } from './mhitu.js';
-import { mon_allowflags, mongone } from './mon.js';
+import { mon_allowflags, mongone, setmangry, wakeup } from './mon.js';
+import { newemin } from './minion.js';
 import {
     amphibious,
     is_flyer,
@@ -335,6 +337,14 @@ export function newepri(monster) {
     };
 }
 
+// C ref: priest.c free_epri(). EPRI is the priest's remembered shrine data;
+// clearing it leaves the monster's other mextra records intact.
+export function free_epri(monster) {
+    if (monster.mextra && monster.mextra.epri)
+        monster.mextra.epri = null;
+    monster.ispriest = false;
+}
+
 // C ref: priest.c clearpriests() (917-929). Called from end.c really_done()
 // before bones are saved: a priest whose shrine is on another level would be
 // impossible to restore, so it is discarded. Its own priest stays.
@@ -350,6 +360,36 @@ export function clearpriests(state = game) {
 // priest's alignment (read from the shrine, not from the species).
 export function p_coaligned(priest, state = game) {
     return state.u?.ualign?.type === mon_aligntyp(priest);
+}
+
+
+// C ref: priest.c angry_priest(). When a priest's former shrine has been
+// removed or converted, preserve its shrine alignment in EMIN before freeing
+// EPRI so it becomes a roaming minion.
+export async function angry_priest(state = game, rawEnv = {}) {
+    const room = temple_occupied(state.u?.urooms, state);
+    const priest = findpriest(room, state);
+    if (!priest) return;
+
+    const epri = priest.mextra?.epri;
+    if (!epri) return;
+    const env = { ...rawEnv, state };
+    await wakeup(priest, false, env);
+    await setmangry(priest, false, env);
+
+    const shrine = state.level?.at(epri.shrpos.x, epri.shrpos.y);
+    if (!IS_ALTAR(shrine?.typ)
+        || Amask2align((shrine.flags ?? 0) & AM_MASK) !== epri.shralign) {
+        if (!priest.mextra?.emin) newemin(priest);
+        priest.ispriest = false;
+        priest.isminion = true;
+        const emin = priest.mextra.emin;
+        if (!emin)
+            throw new Error('angry_priest requires the newemin extension');
+        emin.min_align = epri.shralign;
+        emin.renegade = false;
+        free_epri(priest);
+    }
 }
 
 // C ref: sp_lev.c pm_to_humidity(). Maps a permonst's movement capabilities

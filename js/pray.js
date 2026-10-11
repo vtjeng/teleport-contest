@@ -274,6 +274,7 @@ import { safe_teleds } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { set_voice } from './sounds.js';
 import {
+    angry_priest,
     findpriest,
     p_coaligned,
     temple_occupied,
@@ -686,7 +687,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
         );
         state.level.at(u.ux, u.uy).flags = AM_CHAOTIC;
         newsym(u.ux, u.uy, state);
-        note_unported('priest.c angry_priest');
+        await angry_priest(state);
     } else {
         let demonlessMessage;
         if (altaralign === A_CHAOTIC && u.ualign.type !== A_CHAOTIC) {
@@ -698,7 +699,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
             altar.typ = ROOM;
             altar.flags = 0;
             newsym(u.ux, u.uy, state);
-            note_unported('priest.c angry_priest');
+            await angry_priest(state);
             demonlessMessage = 'cloud dissipates';
         } else {
             await ttyPline('The blood covers the altar!', state);
@@ -873,7 +874,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
         }
         const priest = findpriest(temple_occupied(u.urooms, state), state);
         if (priest && !p_coaligned(priest, state))
-            note_unported('priest.c angry_priest');
+            await angry_priest(state);
     } else {
         await ttyPline(
             `Unluckily, you feel the power of ${u_gname(state)} decrease.`,

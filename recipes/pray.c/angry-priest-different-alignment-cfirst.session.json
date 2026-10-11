@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43061737,
+      "datetime": "20551010101610",
+      "nethackrc": "OPTIONS=name:TurnWitness,role:Wizard,race:human,gender:male,align:chaotic,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizwish\nblessed scroll of teleportation\n#levelchange\n10\n        #wizloaddes\nKni-loca.lua\n ro   _. #wizwish\nnewt corpse\n #offer\np\ny "
+    }
+  ],
+  "comment": "Independent source recipe for pray.c:offer_different_alignment_altar -> priest.c:angry_priest. A male human Wizard offers a newt corpse at the Kni-loca temple after reaching experience level 10 so the accepted-alignment branch is cheap to reach; the object class, seed, date/time, and character sex vary independently from the admitted human-corpse case."
+}
