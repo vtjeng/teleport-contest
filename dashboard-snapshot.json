@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T16:29:13.297Z",
+  "capturedAt": "2026-10-11T16:55:28.771Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -89184,22 +89184,101 @@
         "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
         "worker": "B",
         "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v46-sokoban-implementation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T16:30:03.875Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing the Sokoban earth-guilt source helper and its verified callers for v46 case v46-sokoban-earth-guilt-branch-entry-attempt24."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v46-sokoban-earth-guilt-20261011",
+        "type": "implement",
+        "at": "2026-10-11T16:30:20.375Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "goal": "port-trap-sokoban-guilt-v46-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-prayer-19003b60",
+        "type": "received",
+        "at": "2026-10-11T16:32:24.347Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "delivery": "19003b60069b417d2dea5693b652ea35bc6da6ac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-cfirst-complete-diff-start-20261011",
+        "type": "turn",
+        "at": "2026-10-11T16:33:51.867Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has 14 C-first candidates; 13 valid recipes replay byte-identically in C, and fresh comparisons are starting."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-prayer-665350e9",
+        "type": "integrating",
+        "at": "2026-10-11T16:35:41.753Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "integration": "665350e91222d523d635ca7eb0681f9cfe6a92e8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v46-stone-to-flesh-mimic-20261011",
+        "type": "implement",
+        "at": "2026-10-11T16:38:30.143Z",
+        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
+        "goal": "port-zap-bhitm-mimic-reveal-v46-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-prayer-643e2279",
+        "type": "integrating",
+        "at": "2026-10-11T16:52:30.510Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "integration": "643e2279efd29389ff74a9fd5fe276f3aeaba62f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-prayer-643e2279",
+        "type": "validated",
+        "at": "2026-10-11T16:52:37.090Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011-643e2279efd29389ff74a9fd5fe276f3aeaba62f-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T16:54:31.990Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-cdc48ee5377c2a0647766f8e0c2467beaa9ab38c",
+        "type": "ready",
+        "at": "2026-10-11T16:54:46.198Z",
+        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
+        "delivery": "cdc48ee5377c2a0647766f8e0c2467beaa9ab38c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-active-halluc-fountain-20261011-01",
+        "type": "turn",
+        "at": "2026-10-11T16:55:14.598Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has 14 planned candidates; C replay and differential work continues after a reached matching fountain control."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
-        "worker": "C",
-        "goal": "port-region-prayer-safety-v46-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "19003b60069b417d2dea5693b652ea35bc6da6ac",
-        "since": "2026-10-11T15:45:17.324Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "C-investigation-v46-crystal-ball-furniture-attempt10-cfirst-20261011",
         "worker": "C",
@@ -89208,9 +89287,7 @@
         "status": "ready",
         "delivery": "c1b9c6ee9313dfb9a380172e4134ad050fc3cbd0",
         "since": "2026-10-11T15:56:06.094Z",
-        "blockedBy": [
-          "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -89233,6 +89310,19 @@
         "delivery": "8f52f8e61323d1076ca22d8834ef76122b85c75b",
         "since": "2026-10-11T16:25:11.387Z",
         "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
+        "worker": "B",
+        "goal": "port-zap-bhitm-mimic-reveal-v46-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "cdc48ee5377c2a0647766f8e0c2467beaa9ab38c",
+        "since": "2026-10-11T16:54:46.198Z",
+        "blockedBy": [
+          "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011"
+        ],
         "unblocks": 0
       }
     ],
@@ -89617,8 +89707,8 @@
     ]
   },
   "development": {
-    "executionCommit": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2",
-    "measuredAt": "2026-10-11T16:20:42.195Z",
+    "executionCommit": "643e2279efd29389ff74a9fd5fe276f3aeaba62f",
+    "measuredAt": "2026-10-11T16:46:03.109Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

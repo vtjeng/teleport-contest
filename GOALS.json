@@ -273399,7 +273399,7 @@
     {
       "id": "port-region-prayer-safety-v46-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port harmful region detection and prayer safety resolution",
       "cFile": "region.c",
       "sessions": [
@@ -273413,8 +273413,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "643e2279efd29389ff74a9fd5fe276f3aeaba62f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "region_danger",
@@ -273800,6 +273803,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "643e2279efd29389ff74a9fd5fe276f3aeaba62f",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
