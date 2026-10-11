@@ -276858,7 +276858,7 @@
     {
       "id": "port-pray-desecrate-altar-v47-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port altar desecration and wire every active caller",
       "cFile": "pray.c",
       "sessions": [
@@ -276872,8 +276872,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4d4cf4f6962c13e1593841d07199632101339cd4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "desecrate_altar",
@@ -277272,6 +277275,285 @@
             ],
             "recordings": [
               "recordings/pray.c/desecrate-high-temple-unicorn-insult-47110312.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4d4cf4f6962c13e1593841d07199632101339cd4",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-do-dodrop-shop-bracketing-v47-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port do.c dodrop shop state bracketing and wire every active command path.",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst"
+      ],
+      "selectionReason": "The accepted v47 case still stops at step 47 in the in-shop drop command. The queue annotates shk.c:sellobj_state, but investigations/synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.json traces the active refusal to the complete do.c:dodrop caller. Port dodrop and its direct command, MCMD_DROP, and IA_DROP_OBJ production paths; keep downstream void shk.c:sellobj as an explicit gap.",
+      "detail": "The complete do.c:dodrop function brackets getobj/drop with SELL_DELIBERATE and SELL_NORMAL, then conditionally resets occupations. Three independent C recordings cover the direct d command, MCMD_DROP, and IA_DROP_OBJ entry points.",
+      "openedAt": "5320fa2e0bc97027d6f3dbcd210a5e7e9f55eb65",
+      "openStanding": {
+        "sha": "4d4cf4f6962c13e1593841d07199632101339cd4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dodrop",
+          "line": 29,
+          "endLine": 49,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 29,
+        "to": 49
+      },
+      "syntheticProvenance": {
+        "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst": {
+          "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+          "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+          "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4"
+        }
+      },
+      "activeStanding": {
+        "sha": "4d4cf4f6962c13e1593841d07199632101339cd4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+          "recipe": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "d2da34f57daaaafb38866d452b63d8dbd42ee7fa80471edb5d112ef3dd69aec0",
+          "replayInputSha256": "13d87b260326cb87a3ad759ed31ce3e2d081c9a02c6302da26841e1cdd214c4e",
+          "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+          "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+          "evaluationArtifact": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+          "evaluationUtc": "2026-10-11T22:24:39.664Z",
+          "remainingScreens": 4,
+          "recordedSteps": 51,
+          "previousScreensMatched": 47,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 47,
+              "total": 51
+            },
+            "rng": {
+              "matched": 5396,
+              "total": 5406
+            },
+            "cursors": {
+              "matched": 47,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: sellobj_state() inside a shop",
+            "step": 47
+          },
+          "step": 47,
+          "kind": "stop",
+          "sourceFile": "shk.c",
+          "function": "sellobj_state",
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: sellobj_state() inside a shop",
+          "cFile": "shk.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.json",
+            "result": {
+              "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+              "remainingScreens": 4,
+              "recordedSteps": 51,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+              "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+              "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+              "status": "complete",
+              "commit": "f3c979e3da37b72fa73d40f053354557e42d7df3",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+                "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+                "recordingPath": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+                "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+                "recipe": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json",
+                "recipeSha256": "d2da34f57daaaafb38866d452b63d8dbd42ee7fa80471edb5d112ef3dd69aec0",
+                "replayInputSha256": "13d87b260326cb87a3ad759ed31ce3e2d081c9a02c6302da26841e1cdd214c4e",
+                "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+                "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+                "evaluationArtifact": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+                "evaluationUtc": "2026-10-11T22:24:39.664Z",
+                "remainingScreens": 4,
+                "recordedSteps": 51,
+                "previousScreensMatched": 47,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 47,
+                    "total": 51
+                  },
+                  "rng": {
+                    "matched": 5396,
+                    "total": 5406
+                  },
+                  "cursors": {
+                    "matched": 47,
+                    "total": 51
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported drop: sellobj_state() inside a shop",
+                  "step": 47
+                },
+                "step": 47,
+                "kind": "stop",
+                "sourceFile": "shk.c",
+                "function": "sellobj_state",
+                "message": "unsupported hero command: an unported branch of this command: unsupported drop: sellobj_state() inside a shop",
+                "cFile": "shk.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At admitted v47 step 47, the queue annotates shk.c:sellobj_state because js/do.js:dodrop() refuses the in-shop branch before the source state changes. The existing js/shk.js:sellobj_state() implementation matches C. The actionable source owner is the whole do.c:dodrop() function and its two state-bracketing calls. After an actual item is selected, the path continues into the separate unported shk.c:sellobj() call from do.c:dropz(); this task records that later blocker and does not claim the complete shop sale.",
+              "source": {
+                "file": "do.c",
+                "branch": "When u.ushops is nonempty, do.c:dodrop() calls sellobj_state(SELL_DELIBERATE), calls drop(getobj(...)), then calls sellobj_state(SELL_NORMAL) and resets occupations when drop returns nonzero. The current JS implementation throws before the first helper call. The complete C function has no additional branches.",
+                "functions": [
+                  "dodrop"
+                ],
+                "callers": [
+                  "cmd.c:Commands[] maps the 'd' drop command to dodrop() at line 1709; JavaScript js/cmd.js:runDropCommand() calls js/do.js:dodrop().",
+                  "cmd.c:MCMD_DROP queues dodrop() with cmdq_add_ec(CQ_CANNED, dodrop) at line 4808; JavaScript MCMD_DROP queues the dodrop handler in js/cmd.js."
+                ],
+                "dependencies": [
+                  "shk.c:sellobj_state (existing complete js/shk.js implementation; void result discarded)",
+                  "do.c:drop (existing complete js/do.js implementation; ECMD result is consumed)",
+                  "invent.c:getobj (existing js/invent.js menu owner; returned object is consumed)",
+                  "cmd.c:reset_occupations (existing js/cmd.js owner; void result discarded)",
+                  "shk.c:sellobj (downstream void call through do.c:dropz; existing JS call site records note_unported and is not claimed here)"
+                ]
+              },
+              "goalKind": "file-port",
+              "selectionReason": "Selected from combined queue SHA-256 8f53cfef5b8af162f33212f29b8a10ece7c6c06b776ef2aa632b1ad9954acd9f, evaluated at accepted Main 56fe7fb. B owned itemactions and Pestilence; C owned hallucinated missile naming; A2 retained its submitted altar reservation. The preceding poly-energy candidate was also annotated mhitm.c while B investigated a separate mhitm.c case, so this next distinct shk.c session was chosen. Its corrected source owner is independent do.c:dodrop; the queue's sellobj_state annotation names the C helper called inside this function, while the actual refused production caller is dodrop(). The mismatch remains unchanged in combined queue SHA-256 46b5891629d3d59e5e62550cd812381e88752c80574406c65acffb4f4fed55cb after altar acceptance at 4d4cf4f.",
+              "evidence": [
+                "The accepted v47 evaluation at challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json first stops at segment 0, step 47 with unsupported drop: sellobj_state() inside a shop. The source annotation is shk.c:sellobj_state; the active refusal site is js/do.js:dodrop().",
+                "nethack-c/upstream/src/do.c:dodrop() at lines 29-42 brackets getobj/drop with sellobj_state(SELL_DELIBERATE) and sellobj_state(SELL_NORMAL), then tests the drop result and resets occupations. js/do.js:dodrop() at lines 1589-1612 otherwise follows that function but throws at lines 1596-1601 before the first helper call for a nonempty u.ushops list.",
+                "nethack-c/upstream/src/shk.c:sellobj_state() at lines 3913-3924 assigns sell_response from deliberate != SELL_NORMAL, stores sell_how, and clears auto_credit. js/shk.js:sellobj_state() has the same three assignments and is already called by the other existing C caller paths; it is not the missing owner.",
+                "The active C command paths are cmd.c:Commands[] line 1709 and cmd.c:MCMD_DROP line 4808; both reach the existing JavaScript command dispatches. The missing behavior is bounded to the complete do.c:dodrop() source function and its caller path.",
+                "On a successful item drop, C continues through do.c:drop -> dropx -> dropy -> dropz and calls shk.c:sellobj() at do.c:836. JS do.js:dropzAdmitted records note_unported('shk.c sellobj') at lines 2205-2209. That is a distinct downstream source blocker; an independent shop-cancel recording can complete the chosen dodrop path without reaching sellobj, while the admitted sale case must remain outside this task’s completed evidence."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dodrop",
+            "implementation": "js/do.js",
+            "symbol": "dodrop",
+            "sourceReview": "Read the complete do.c:dodrop() definition at lines 29-49. C calls sellobj_state(SELL_DELIBERATE) when *u.ushops is nonempty, calls drop(getobj(\"drop\", any_obj_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT)), restores SELL_NORMAL under the same shop predicate, calls reset_occupations only for a true drop result, and returns that result. js/do.js preserves this order and reads the fixed JS shop list at u.ushops[0]. Its callees getobj, drop, sellobj_state, and reset_occupations are existing owners. The later item-sale branch inside dropz reaches the separate void shk.c:sellobj gap, which remains note_unported in js/do.js and is outside this source unit.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runDropCommand",
+                "source": "cmd.c:1709 registers 'd' to dodrop; cmd.c's rhack dispatch maps the 'drop' command to runDropCommand, which calls dodrop."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "act_on_act",
+                "source": "cmd.c:4807-4808 queues dodrop for MCMD_DROP; JS there_cmd_menu queues the dodrop handler, then runCommand dispatches it."
+              },
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions_pushkeys",
+                "source": "iactions.c:173-175 queues dodrop followed by the selected inventory letter; JS queues extcmdRow('drop') followed by that letter, and the normal command dispatcher reaches runDropCommand and dodrop."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/drop-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/dodrop-in-generated-shop-cancel-9701133.session.json",
+              "recordings/do.c/dodrop-in-shop-here-menu-cancel-9701133.session.json",
+              "recordings/do.c/dodrop-via-itemaction-knight-47111304.session.json"
+            ],
+            "checkedAt": "42294623087909f28f4bcbb36273cfe4caebe185"
+          }
+        ],
+        "entryPointReview": "Audited the active C entry points in cmd.c and iactions.c: the ordinary d command at cmd.c:1709, the MCMD_DROP queue at cmd.c:4807-4808, and IA_DROP_OBJ at iactions.c:173-175. JS routes each through its existing command dispatcher into dodrop; each route has a matching independent C recording. The two shop recordings cancel the drop chooser inside the generated shop, proving both sellobj_state modes run and normal billing is restored without entering a sale. The item-action recording chooses the Knight’s alternate lance and exercises the queued command plus item letter through a successful drop. Actual shop sale handling remains a downstream gap at void shk.c:sellobj, which js/do.js records with note_unported; this delivery does not claim sale completion.",
+        "entryPoints": [
+          {
+            "name": "Ordinary d command inside a generated shop; cancel the drop chooser",
+            "functions": [
+              "dodrop"
+            ],
+            "recordings": [
+              "recordings/do.c/dodrop-in-generated-shop-cancel-9701133.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "MCMD_DROP from #herecmdmenu inside a generated shop",
+            "functions": [
+              "dodrop"
+            ],
+            "recordings": [
+              "recordings/do.c/dodrop-in-shop-here-menu-cancel-9701133.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "IA_DROP_OBJ queues dodrop and the selected inventory letter",
+            "functions": [
+              "dodrop"
+            ],
+            "recordings": [
+              "recordings/do.c/dodrop-via-itemaction-knight-47111304.session.json"
             ],
             "synthetic": []
           }

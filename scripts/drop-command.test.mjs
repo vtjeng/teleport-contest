@@ -23,6 +23,7 @@ import {
     PIT,
     HOLE,
     LAVAPOOL,
+    SELL_NORMAL,
     WEB,
     POOL,
     ROOM,
@@ -35,7 +36,7 @@ import {
     W_SADDLE,
 } from '../js/const.js';
 import {
-    UnsupportedDropError, _dropInternals, canletgo, dodrop, dropCommandEnv, dropx, preflight_dropx,
+    UnsupportedDropError, _dropInternals, canletgo, dropCommandEnv, dropx, preflight_dropx,
 } from '../js/do.js';
 import { game } from '../js/gstate.js';
 import { glibr } from '../js/do_wear.js';
@@ -398,24 +399,50 @@ test('a welded weapon is refused by canletgo, not by the weldmsg arm',
         assert.equal(pileAt(state, state.u.ux, state.u.uy).length, 0);
     });
 
-// C ref: do.c dodrop() (33-34). sellobj_state() is unported, so a hero
-// standing in a shop stops before getobj() can draw anything.
-test('dodrop stops inside a shop before the prompt draws', async () => {
-    // hack.c move_update() writes u.ushops as a room list; a nonzero first
-    // entry is C's nonempty string.
-    const inShop = { u: { ushops: [3, 0, 0, 0, 0] } };
-    await assert.rejects(
-        () => dodrop(inShop),
-        (error) => error instanceof UnsupportedDropError
-            && /sellobj_state/u.test(error.message),
-    );
-    // An empty list must not take that arm; reaching getobj() with this stub
-    // state fails for a different reason than the shop refusal.
-    const outside = { u: { ushops: [0, 0, 0, 0, 0] } };
-    await assert.rejects(
-        () => dodrop(outside),
-        (error) => !(error instanceof UnsupportedDropError),
-    );
+// The input-only C recipe uses a generated D:5 shop layout, then cancels the
+// drop chooser. This reaches both dodrop() billing-mode calls without reaching
+// the separate, still-unported shk.c:sellobj() sale path.
+test('dodrop restores normal shop billing after a cancelled drop', async () => {
+    const recipe = JSON.parse(readFileSync(new URL(
+        '../recipes/do.c/dodrop-in-generated-shop-cancel-9701133.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    await runSegment(recipe.segments[0]);
+
+    // This seed keeps the hero in the generated D:5 shop through the chooser;
+    // these are the two values assigned by shk.c:sellobj_state(SELL_NORMAL).
+    assert.ok(game.u.ushops[0]);
+    assert.equal(game.gs.sell_how, SELL_NORMAL);
+    assert.equal(game.gs.sell_response, 'a');
+});
+
+// cmd.c:there_cmd_menu() exposes MCMD_DROP through #herecmdmenu, then queues
+// dodrop() as a canned command before the same in-shop chooser cancellation.
+test('MCMD_DROP restores normal shop billing after a cancelled drop', async () => {
+    const recipe = JSON.parse(readFileSync(new URL(
+        '../recipes/do.c/dodrop-in-shop-here-menu-cancel-9701133.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    await runSegment(recipe.segments[0]);
+
+    // The C menu's second row is Drop items; C's menu caller must leave the
+    // hero in shop room 3 and restore SELL_NORMAL after the cancelled chooser.
+    assert.equal(game.u.ushops[0], 3);
+    assert.equal(game.gs.sell_how, SELL_NORMAL);
+    assert.equal(game.gs.sell_response, 'a');
+});
+
+// iactions.c:itemactions_pushkeys() queues dodrop() and the selected item's
+// letter for IA_DROP_OBJ. The canned path must drop that item directly.
+test('IA_DROP_OBJ reaches dodrop through the queued item action', async () => {
+    const recipe = JSON.parse(readFileSync(new URL(
+        '../recipes/do.c/dodrop-via-itemaction-knight-47111304.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    await runSegment(recipe.segments[0]);
+
+    assert.equal(game.uswapwep, null);
+    assert.equal(game._ttyToplines, 'You drop a +1 lance.');
 });
 
 async function playDrop(keys) {

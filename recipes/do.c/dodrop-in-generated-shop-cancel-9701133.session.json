@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9701133,
+      "datetime": "20380103101522",
+      "nethackrc": "OPTIONS=name:RoomCancel,role:Ranger,race:elf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00165\n.\u0014  hhhhhhhhhhhhhhhhhhhhhhhhjjjjjjjjjj. d\u001b",
+      "comment": "The seed reproduces the verified generated D:5 shop layout from recipes/mkroom.c/shop-entry-seed9701133.session.json. The adjacent date and player name are new. After levelport, Ctrl-T selects empty shop tile (8,12) from arrival square (32,2); a space clears the shop greeting, then d and Escape cancel getobj inside the shop."
+    }
+  ]
+}
