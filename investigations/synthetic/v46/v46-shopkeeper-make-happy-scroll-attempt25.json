@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v46/v46-shopkeeper-make-happy-scroll-attempt25",
+  "corpus": "synthetic",
+  "batch": "v46",
+  "caseId": "v46-shopkeeper-make-happy-scroll-attempt25",
+  "manifestPath": "challenges/manifests/v46.json",
+  "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+  "recordingPath": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json",
+  "recordingSha256": "d9032a54424414c23b743845956070e6293d81a9345dc89b4adece6ffb7a7a5b",
+  "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+  "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+  "remainingScreens": 38,
+  "recordedSteps": 71,
+  "status": "complete",
+  "commit": "31a5d76c38043a8aeefc014471f58e9db310aa4b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v46",
+    "caseId": "v46-shopkeeper-make-happy-scroll-attempt25",
+    "session": "synthetic/v46/v46-shopkeeper-make-happy-scroll-attempt25",
+    "manifestPath": "challenges/manifests/v46.json",
+    "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+    "recording": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json",
+    "recordingPath": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json",
+    "recordingSha256": "d9032a54424414c23b743845956070e6293d81a9345dc89b4adece6ffb7a7a5b",
+    "recipe": "challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.recipe.session.json",
+    "recipeSha256": "e79bf7e4ab1f7de9e81c3e673e1845e4783200114ff37ad042c2c693b0b64df8",
+    "replayInputSha256": "939a3647d9cd362f2f28248cb75d1d57e0b1034405e548296ad75973ec29fe2d",
+    "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+    "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+    "evaluationArtifact": "challenges/evaluations/v46-baseline-29c284d97.json",
+    "evaluationUtc": "2026-10-11T15:24:07.625Z",
+    "remainingScreens": 38,
+    "recordedSteps": 71,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 33,
+        "total": 71
+      },
+      "rng": {
+        "matched": 2732,
+        "total": 2814
+      },
+      "cursors": {
+        "matched": 33,
+        "total": 71
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper creation outside shkinit",
+      "step": 33
+    },
+    "step": 33,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper creation outside shkinit",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first mismatch is a JavaScript refusal of a source-valid wizard Genesis PM_SHOPKEEPER request. C read.c:create_particular_creation() asks whether to force PM_SHOPKEEPER after cant_revive() substitutes a human zombie, then calls makemon() with MM_NOEXCLAM and without MM_ESHK. C makemon.c:makemon() relocates the hero-square request through enexto_core(); it has no PM_SHOPKEEPER creation prohibition. JavaScript already recognizes the _createParticular call shape, but preflightCreation() refuses that shape at its separate shopkeeper gate before placement. The correct owner is makemon.c:makemon, not teleport.c:collect_coords; coordinate collection is the next already-ported callee that C reaches.",
+  "source": {
+    "file": "makemon.c",
+    "branch": "With wizard Genesis requesting PM_SHOPKEEPER, the user answers y to read.c:create_particular_creation() after cant_revive() temporarily substitutes PM_HUMAN_ZOMBIE. The C caller then invokes makemon(PM_SHOPKEEPER, u.ux, u.uy, MM_NOEXCLAM) outside mklev and without MM_ESHK. makemon() must run its ordinary hero-square enexto_core() placement branch; the only shopkeeper extension allocation is conditional on MM_ESHK. JS preflightCreation() has an explicit createParticularCall marker for this source shape but the PM_SHOPKEEPER guard does not exempt it.",
+    "functions": [
+      "makemon"
+    ],
+    "callers": [
+      "C: wizcmds.c:wiz_genesis() -> read.c:create_particular() -> read.c:create_particular_creation() -> makemon.c:makemon().",
+      "C: read.c:create_particular_creation():3260-3273 restores PM_SHOPKEEPER when the wizard answers y to cant_revive() substitution; :3275-3315 builds MM_NOEXCLAM without MM_ESHK and calls makemon() at the hero square.",
+      "JavaScript: js/wizcmds.js:wiz_genesis() -> js/read.js:create_particular() -> create_particular_creation() -> makemon_runtime() -> js/makemon_create.js:makemon() / preflightCreation(). The existing _createParticular marker is passed at js/read.js:3560-3563."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "selectionReason": "Selected from the saved combined queue SHA-256 e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2 at admitted v46 baseline 29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d; case v46-shopkeeper-make-happy-scroll-attempt25, manifest challenges/manifests/v46.json digest 6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c, recording challenges/cases/v46/v46-shopkeeper-make-happy-scroll-attempt25.session.json digest d9032a54424414c23b743845956070e6293d81a9345dc89b4adece6ffb7a7a5b. The queue has no C source annotation for the runtime refusal, so the owner was verified from C as makemon.c:makemon. Existing whole-source evidence records makemon.c:makemon as ported; the mismatch is an over-restrictive JavaScript preflight guard, so this is a divergence fix.",
+  "evidence": [
+    "Saved queue entry at challenges/evaluations/v46-baseline-29c284d97.json (evaluation commit 29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d) reports 38 unmatched screens over 71 recorded steps. The first mismatch is a stop at zero-based segment 0 step 33 on key y: “unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper creation outside shkinit”. The saved combined queue snapshot is SHA-256 e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2.",
+    "Upstream read.c:cant_revive():3117-3122 maps a non-revival PM_SHOPKEEPER request to PM_HUMAN_ZOMBIE and returns true. read.c:create_particular_creation():3260-3273 prompts the wizard and restores firstchoice PM_SHOPKEEPER when the answer is y; :3275-3315 builds MM_NOEXCLAM and calls makemon(whichpm, u.ux, u.uy, mmflags). The session recipe uses “#wizgenesis”, “hostile shopkeeper”, then “y”, so it reaches this source path.",
+    "Upstream makemon.c:makemon():1179-1185 handles a byyou request outside mklev by calling enexto_core() and relocating to the returned coordinate; no PM_SHOPKEEPER restriction exists in this function. The separate ESHK allocation at :1241 is conditional on MM_ESHK, which this caller does not pass.",
+    "Upstream teleport.c:enexto_core():242-257 gathers and checks nearby coordinates through collect_coords(); collect_coords():697-708 shuffles each ring with rn2(). The v46 manifest C trace identifies call 2733 as rn2(8)=4 in teleport.c:collect_coords. This RNG is the observable next step after makemon admits the call; it is not the first responsible source owner.",
+    "In js/makemon_create.js:1377-1381 preflightCreation() already recognizes the hero-square _createParticular call with MM_NOEXCLAM. However, :1520-1527 throws “shopkeeper creation outside shkinit” for PM_SHOPKEEPER without excluding createParticularCall. This occurs before js/makemon_create.js:makemon() can call the existing js/teleport.js:enexto_core().",
+    "GOALS.json records the complete makemon.c:makemon() function (lines 1147-1513) as a closed file port into js/makemon_create.js. Existing wiring in js/wizcmds.js and js/read.js reaches the same source call. The narrow correction is to exempt the already-recognized createParticularCall shape from the PM_SHOPKEEPER-only refusal while retaining the independent MM_ESHK validation; no read.js, wizcmds.js, or teleport.js change is implied.",
+    "The recorded recipe continues after Genesis to wish and read a blessed taming scroll. This task addresses only the current first mismatch in makemon.c:makemon; any later shopkeeper-scroll mismatch must be source-traced separately after this first mismatch moves past makemon()."
+  ]
+}
