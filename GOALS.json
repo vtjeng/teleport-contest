@@ -265106,7 +265106,7 @@
     {
       "id": "port-priest-angry-priest-sacrifice-v43-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port priest anger after altar conversion and human sacrifice",
       "cFile": "priest.c",
       "sessions": [
@@ -265120,8 +265120,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c7271e507384b244820f4b96872f6bc085862a85",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "angry_priest",
@@ -265517,6 +265520,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c7271e507384b244820f4b96872f6bc085862a85",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
