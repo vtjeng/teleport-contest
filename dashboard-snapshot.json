@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T11:47:44.130Z",
+  "capturedAt": "2026-10-11T12:01:17.497Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -88009,22 +88009,69 @@
         "type": "accepted",
         "at": "2026-10-11T11:46:50.570Z",
         "task": "B-investigation-v45-camera-wielded-northwest-result-attempt9-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-A2-teleport-b47fe908-20261011",
+        "type": "activity",
+        "at": "2026-10-11T11:50:39.019Z",
+        "task": "A2-investigation-v45-sanctum-no-carry-teleport-20261011",
+        "phase": "review",
+        "reason": "Reviewing the complete teleport command and drowning caller port, its saved source evidence, and three independent C recordings before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-camera-acceptance-20261011T115035Z",
+        "type": "turn",
+        "at": "2026-10-11T11:50:50.042Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "No independent v45 candidate is currently free. A2 owns the teleport source family and the vault case; C owns the iron-ball and quest-finish cases; B has cockatrice and nohandglow deliveries waiting for integration. Resume after a reservation release or refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-A2-teleport-671938b9b",
+        "type": "integrating",
+        "at": "2026-10-11T11:53:12.579Z",
+        "task": "A2-investigation-v45-sanctum-no-carry-teleport-20261011",
+        "integration": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-vault-resume-ee9b8593",
+        "type": "turn",
+        "at": "2026-10-11T11:55:17.876Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is implementing the v45 vault guard lookup and its active callers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-vault-guard-discovery-v45-20261011",
+        "type": "implement",
+        "at": "2026-10-11T11:56:16.400Z",
+        "task": "A2-investigation-v45-vault-cursed-whistle-20261011",
+        "goal": "port-vault-guard-discovery-v45-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-teleport-671938b9b",
+        "type": "validated",
+        "at": "2026-10-11T11:59:06.111Z",
+        "task": "A2-investigation-v45-sanctum-no-carry-teleport-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v45-sanctum-no-carry-teleport-20261011-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T12:00:11.887Z",
+        "task": "A2-investigation-v45-sanctum-no-carry-teleport-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-investigation-v45-sanctum-no-carry-teleport-20261011",
-        "worker": "A2",
-        "goal": "port-teleport-dotelecmd-dotele-v45-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b47fe908a56f4be02479606efa57b62a04357f8d",
-        "since": "2026-10-11T09:45:34.317Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-investigation-v45-punished-iron-ball-throw-long-lane-attempt13-cfirst-20261011",
         "worker": "C",
@@ -88443,8 +88490,8 @@
     ]
   },
   "development": {
-    "executionCommit": "ee9b8593002a3d061cc6ec6cc5e4f773f4b6571b",
-    "measuredAt": "2026-10-11T11:44:03.396Z",
+    "executionCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+    "measuredAt": "2026-10-11T11:58:33.327Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

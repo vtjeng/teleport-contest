@@ -269054,7 +269054,7 @@
     {
       "id": "port-teleport-dotelecmd-dotele-v45-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete teleport command and relocation decision family, with direct and extended command dispatch plus the active drowning caller.",
       "cFile": "teleport.c",
       "sessions": [
@@ -269068,8 +269068,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dotelecmd",
@@ -269385,6 +269388,108 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+          "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+          "replayInputSha256": "84060dd7b48fcae242ce5b79a23a72a39cf1cc9e922c8a93918a65f2a91e7de1",
+          "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+          "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+          "evaluationArtifact": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+          "evaluationUtc": "2026-10-11T11:57:28.052Z",
+          "remainingScreens": 84,
+          "recordedSteps": 157,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 73,
+              "total": 157
+            },
+            "rng": {
+              "matched": 6986,
+              "total": 7512
+            },
+            "cursors": {
+              "matched": 73,
+              "total": 157
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 73,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 42,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "H",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 73,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "."
+              },
+              "cCursor": [
+                74,
+                0,
+                1
+              ],
+              "jsCursor": [
+                70,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 73,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.json",
+            "previousRemainingScreens": 127
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
