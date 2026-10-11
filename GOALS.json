@@ -264579,6 +264579,272 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-irregular-stair-room-selection-v43-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Match generated stair-room selection to C room membership",
+      "cFile": "mklev.c",
+      "sessions": [
+        "synthetic/v43/v43-wiz-loca-special-program-cfirst"
+      ],
+      "selectionReason": "The current v43 Wizard locate replay matches every screen but diverges at RNG step 26 because mklev.c:generate_stairs_room_good uses has_dnstairs and has_upstairs with inside_room membership while JavaScript checked overlapping rectangular bounds. Complete both mklev stair-selection functions and verify the three required mkroom room-membership helpers and their production callers.",
+      "detail": "",
+      "openedAt": "0d4b7b93c54289745ebd66bb00d260654f88e088",
+      "openStanding": {
+        "sha": "5129203208b9223c3504a2b5e2abbf7f04890762",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "generate_stairs_room_good",
+          "line": 2201,
+          "endLine": 2218,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "generate_stairs_find_room",
+          "line": 2219,
+          "endLine": 2249,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2201,
+        "to": 2249
+      },
+      "requiredFunctions": [
+        {
+          "name": "has_dnstairs",
+          "line": 640,
+          "endLine": 652,
+          "declared": true,
+          "sourceFile": "mkroom.c",
+          "complete": false
+        },
+        {
+          "name": "has_upstairs",
+          "line": 653,
+          "endLine": 665,
+          "declared": true,
+          "sourceFile": "mkroom.c",
+          "complete": false
+        },
+        {
+          "name": "inside_room",
+          "line": 678,
+          "endLine": 693,
+          "declared": true,
+          "sourceFile": "mkroom.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v43/v43-wiz-loca-special-program-cfirst": {
+          "session": "synthetic/v43/v43-wiz-loca-special-program-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-wiz-loca-special-program-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json",
+          "recordingSha256": "f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224",
+          "evaluationPath": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+          "evaluationCommit": "5129203208b9223c3504a2b5e2abbf7f04890762"
+        }
+      },
+      "activeStanding": {
+        "sha": "5129203208b9223c3504a2b5e2abbf7f04890762",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-wiz-loca-special-program-cfirst",
+          "session": "synthetic/v43/v43-wiz-loca-special-program-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json",
+          "recordingSha256": "f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224",
+          "recipe": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.recipe.session.json",
+          "recipeSha256": "63daea169ed14512eead2eaf578fe378458f8a7765a5bb0dcc5c46f23f039316",
+          "replayInputSha256": "4a05dad5edbe8234c5326c79ee085838ae02bec3acbacb8b1e69996dfccc8ffd",
+          "evaluationPath": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+          "evaluationCommit": "5129203208b9223c3504a2b5e2abbf7f04890762",
+          "evaluationArtifact": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+          "evaluationUtc": "2026-10-11T03:55:45.598Z",
+          "remainingScreens": 0,
+          "recordedSteps": 35,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 35
+            },
+            "rng": {
+              "matched": 4321,
+              "total": 4322
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 4182,
+              "cEntry": "rn2(4)=2",
+              "cCaller": "generate_stairs_find_room(mklev.c:2236)",
+              "jsEntry": "rn2(2)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 26,
+                "key": "\n"
+              },
+              "stepIndex": 26
+            },
+            "cursor": null
+          },
+          "step": 26,
+          "kind": "rng",
+          "sourceFile": "mklev.c",
+          "function": "generate_stairs_find_room",
+          "message": null,
+          "cFile": "mklev.c",
+          "luaFile": null,
+          "line": 2236,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-wiz-loca-special-program-cfirst.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-wiz-loca-special-program-cfirst",
+              "remainingScreens": 0,
+              "status": "complete",
+              "commit": "5129203208b9223c3504a2b5e2abbf7f04890762",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-wiz-loca-special-program-cfirst",
+                "session": "synthetic/v43/v43-wiz-loca-special-program-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json",
+                "recordingSha256": "f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224",
+                "recipe": "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.recipe.session.json",
+                "recipeSha256": "63daea169ed14512eead2eaf578fe378458f8a7765a5bb0dcc5c46f23f039316",
+                "replayInputSha256": "4a05dad5edbe8234c5326c79ee085838ae02bec3acbacb8b1e69996dfccc8ffd",
+                "evaluationPath": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+                "evaluationCommit": "5129203208b9223c3504a2b5e2abbf7f04890762",
+                "evaluationArtifact": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+                "evaluationUtc": "2026-10-11T03:55:45.598Z",
+                "remainingScreens": 0,
+                "recordedSteps": 35,
+                "previousScreensMatched": 35,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 4321,
+                    "total": 4322
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 4182,
+                    "cEntry": "rn2(4)=2",
+                    "cCaller": "generate_stairs_find_room(mklev.c:2236)",
+                    "jsEntry": "rn2(2)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 26,
+                      "key": "\n"
+                    },
+                    "stepIndex": 26
+                  },
+                  "cursor": null
+                },
+                "step": 26,
+                "kind": "rng",
+                "sourceFile": "mklev.c",
+                "function": "generate_stairs_find_room",
+                "message": null,
+                "cFile": "mklev.c",
+                "luaFile": null,
+                "line": 2236
+              },
+              "summary": "Room eligibility for generated stairs diverges on nested irregular rooms. C tests stair membership through has_dnstairs/has_upstairs and inside_room; JavaScript instead treats a stair in any room whose rectangular bounds overlap as belonging to that room. On the Wizard locate map this incorrectly excludes outer rooms and changes the candidate count from four to two before rn2.",
+              "source": {
+                "file": "mklev.c",
+                "branch": "mklev.c:generate_stairs_room_good() (2201-2215) checks needjoining, existing stair membership, and ordinary/theme room type. Its stair tests call mkroom.c:has_dnstairs()/has_upstairs(), whose inside_room() uses the map roomno and edge flag for irregular rooms, and a one-tile expanded rectangle for regular rooms. mklev.c:generate_stairs_find_room() (2219-2244) applies phases 2 through 0, chooses from the first nonempty candidate array with rn2(ai), then falls back to rn2(svn.nroom).",
+                "functions": [
+                  "generate_stairs_room_good",
+                  "generate_stairs_find_room",
+                  "mkroom.c:has_dnstairs",
+                  "mkroom.c:has_upstairs",
+                  "mkroom.c:inside_room"
+                ],
+                "callers": [
+                  "mklev.c:generate_stairs_find_room() is called by generate_stairs() for down stairs at line 2260 and up stairs at line 2273. makelevel() calls generate_stairs() at line 1303 after room creation and sorting.",
+                  "mklev.c:find_branch_room() calls generate_stairs_find_room() at line 1667 while makelevel() places a branch at line 1380. Its JavaScript counterpart remains wired through mklev.js:find_branch_room() -> generate_stairs_find_room().",
+                  "JavaScript's existing generation callers are mklev.js:generate_stairs() and mklev.js:find_branch_room(); this correction changes the shared room predicate used by both paths. The selected recipe is the Wizard-mode direct load of dat/Wiz-loca.lua followed by #wizmap; the saved C trace locates the divergent draw at generate_stairs_find_room(mklev.c:2236).",
+                  "The complete direct C caller inventory for inside_room() is mkroom.c:has_dnstairs(), has_upstairs(), and somexy(); mklev.c:pos_to_room(); sp_lev.c:maybe_add_door() and create_monster(); and hack.c:furniture_present() and in_town(). Their existing JavaScript implementations use the shared room_coordinates.js helper through mkroom.js, room_coordinates.js, mklev.js, themeroom_fill.js, and hack.js. place_branch() discards pos_to_room()'s pure result."
+                ],
+                "dependencies": [
+                  "The task's atomic implementation scope includes complete mkroom.c:has_dnstairs(), has_upstairs(), and inside_room() functions. Their existing JavaScript counterparts in js/mkroom.js and js/room_coordinates.js match the complete C loops and branches; direct source-pinned tests and the selected runtime range cover them.",
+                  "room_coordinates.js:inside_room() implements the C rule: irregular rooms use their room number and reject edge tiles; regular rooms include the rectangle expanded by one tile. The defect was that mklev.js:generate_stairs_room_good() bypassed these helpers and checked unexpanded bounds for every room.",
+                  "The C mkswamp() caller remains outside this bounded task because do_mkroom() explicitly records note_unported('mkroom.c mkswamp') and does not enter it. This task does not remove or broaden that existing gap.",
+                  "The two selected mklev.c functions have existing JavaScript implementations in js/mklev.js and all active generated-stair and branch-stair call sites retain existing JavaScript wiring in that module. This task corrects the complete predicate and required room-membership functions while retaining phase order, candidate ordering, and RNG calls."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Authoritative saved queue .cache/latest-saved-combined-queue.json has SHA-256 27176b93175a5441fe9293143fbe6f682240924f5502c9505282ccb1b21dcfd5. Its v43 entry identifies v43-wiz-loca-special-program-cfirst, 35/35 screens, 35/35 cursors, 4321/4322 RNG calls matched, and the first mismatch at segment 0 step 26 on newline: C rn2(4)=2 at generate_stairs_find_room(mklev.c:2236), JavaScript rn2(2)=0.",
+                "Queue provenance: manifest challenges/manifests/v43.json SHA-256 a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400; recording challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json SHA-256 f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224; recipe challenges/cases/v43/v43-wiz-loca-special-program-cfirst.recipe.session.json SHA-256 63daea169ed14512eead2eaf578fe378458f8a7765a5bb0dcc5c46f23f039316; replay input SHA-256 4a05dad5edbe8234c5326c79ee085838ae02bec3acbacb8b1e69996dfccc8ffd. The saved evaluation is challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json at commit 5129203208b9223c3504a2b5e2abbf7f04890762.",
+                "Upstream source mklev.c:generate_stairs_room_good() at lines 2201-2215 delegates stair tests to mkroom.c:has_dnstairs()/has_upstairs() at lines 639-663. Those helpers use mkroom.c:inside_room() at lines 677-687: irregular rooms require a matching roomno on a non-edge tile, while regular rooms use bounds expanded by one. The existing JavaScript implementations in js/mkroom.js and js/room_coordinates.js match those complete C functions; direct source-pinned runtime tests now exercise each behavior.",
+                "The selected dat/Wiz-loca.lua source creates concentric irregular rooms whose rectangular bounds overlap. A read-only JS replay probe of the resulting five-room layout showed both stair coordinates fall inside the raw bounds of outer rooms 0 and 1, but neither coordinate belongs to those rooms under canonical irregular roomno/edge membership. The existing manual predicate therefore marks those parent rooms as stair-bearing and drops two otherwise eligible candidates, producing the saved rn2(2) call instead of C's rn2(4).",
+                "The complete active source caller map was audited. The stair helpers are called by mkroom.c:mkshop(), pick_room(), and mkswamp(), and by mklev.c:generate_stairs_room_good(). The current JS maps mkshop/pick_room and stair selection to the helpers; SWAMP remains an explicit do_mkroom() note_unported gap. inside_room() is called by both stair helpers, mkroom.c:somexy(), mklev.c:pos_to_room() (whose result is discarded by place_branch()), sp_lev.c:maybe_add_door()/create_monster(), and hack.c:furniture_present()/in_town(); existing JS counterparts route through room_coordinates.js. The candidate-selection loop and RNG behavior in mklev.js:generate_stairs_find_room() otherwise match C: phases 2, 1, 0 are visited in order, room indices are appended in source order, the first nonempty group consumes one rn2(group size), and the fallback consumes rn2(nroom). Direct source-pinned tests cover all five claimed functions, and the synthetic v43 range covers the impure selector through the Wizard level-load entry."
+              ],
+              "session": "synthetic/v43/v43-wiz-loca-special-program-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224",
+              "evaluationPath": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+              "evaluationCommit": "5129203208b9223c3504a2b5e2abbf7f04890762",
+              "recordedSteps": 35,
+              "evaluationArtifact": "challenges/evaluations/accepted-5129203208b9223c3504a2b5e2abbf7f04890762-v43.json",
+              "evaluationUtc": "2026-10-11T03:55:45.598Z",
+              "replayInputSha256": "4a05dad5edbe8234c5326c79ee085838ae02bec3acbacb8b1e69996dfccc8ffd",
+              "queueSha256": "27176b93175a5441fe9293143fbe6f682240924f5502c9505282ccb1b21dcfd5"
+            }
+          }
+        }
+      ]
     }
   ]
 }
