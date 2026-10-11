@@ -260765,7 +260765,7 @@
     {
       "id": "div-v42-baalz-wizloaddes-topology-finalization-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Correct themed-room postprocessing order for direct Baalz special-level finalization.",
       "cFile": "mklev.c",
       "sessions": [
@@ -260779,8 +260779,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "level_finalize_topology",
       "session": "synthetic/v42/v42-baalz-special-program",
       "step": 23,
@@ -260954,7 +260957,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
