@@ -5093,13 +5093,12 @@ export async function mhitm_ad_ston(
             }
         }
     } else {
-        // C discards do_stone_mon()'s void result. Keep this call boundary
-        // explicit until that source function is ported; do not use a gap's
-        // return as hitflags or damage data.
+        // C: mhitm. The call communicates through mhm; its void return is not
+        // hitflags or damage data.
         if (magr.mcan)
             return;
-        note_unported('uhitm.c do_stone_mon');
-        return;
+        await do_stone_mon(magr, mattk, mdef, mhm, state, env);
+        if (mhm.done) return;
     }
 }
 
