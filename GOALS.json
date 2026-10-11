@@ -273065,8 +273065,8 @@
           "name": "cant_finish_meal",
           "line": 3893,
           "endLine": 3919,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -273331,7 +273331,61 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cant_finish_meal",
+            "implementation": "js/eat.js",
+            "symbol": "cant_finish_meal",
+            "sourceReview": "Read and ported all of eat.c:cant_finish_meal():3893-3912. Preserved the eatfood-and-identical-victual.piece guard; C copies zero_victual into the context; marks oeaten=1 only if it was zero; assigns the non-null donull occupation before stopping; calls stop_occupation() then newuhs(FALSE), in that order. Reused the existing zero_victual, stop_occupation and newuhs implementations; no unported callee or branch remains. zap.c:revive() calls this before object-location lookup and makemon/creation, and js/zap.js now awaits the same operation at that point.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "revive",
+                "source": "nethack-c/upstream/src/zap.c:revive():909 calls cant_finish_meal(corpse) before locating the corpse or creating the revived monster."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat-occupation.test.mjs",
+              "scripts/do-revive.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-troll-meal-corrected-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 51,
+                "source": "timeout.c:REVIVE_MON -> do.c:revive_mon() -> do.c:revive_corpse() -> zap.c:revive() -> eat.c:cant_finish_meal()"
+              }
+            ],
+            "checkedAt": "dfe97e57d941c9248d79f51e393a889a743a7b92"
+          }
+        ],
+        "entryPointReview": "nethack-c/upstream/src/eat.c:cant_finish_meal():3893-3912 has one active production caller, zap.c:revive():909. That call is reached by timed corpse revival through timeout.c:REVIVE_MON -> do.c:revive_mon() -> do.c:revive_corpse() -> zap.c:revive(). Other corpse-revival routes enter the same zap.c:revive() owner before this call; the admitted range covers the selected timer entry while a meal is active. JavaScript wires the helper at js/zap.js:revive and reaches it from js/do.js:revive_corpse via js/timeout.js:REVIVE_MON. The selected range is helper-only: it does not introduce a new command or direct entry point, and no source callers are excluded.",
+        "entryPoints": [
+          {
+            "name": "timed corpse revival while the hero is eating that corpse",
+            "functions": [
+              "cant_finish_meal"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-troll-meal-corrected-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 51,
+                "source": "timeout.c:REVIVE_MON -> do.c:revive_mon() -> do.c:revive_corpse() -> zap.c:revive() -> eat.c:cant_finish_meal()"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
