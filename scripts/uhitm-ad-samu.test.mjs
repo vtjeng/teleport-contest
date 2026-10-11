@@ -2,10 +2,13 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { OBJ_INVENT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { AD_SAMU, AT_CLAW, PM_GRID_BUG } from '../js/monsters.js';
+import { newObject } from '../js/obj.js';
+import { AMULET_CLASS, AMULET_OF_YENDOR } from '../js/objects.js';
 import { mhitm_ad_samu, mhitm_adtyping } from '../js/uhitm.js';
 
 // Fixed fixture time and seed make the direct helper setup reproducible.
@@ -18,6 +21,9 @@ const RC = [
 ].join('\n');
 const UHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url), 'utf8',
+);
+const STEAL_C = readFileSync(
+    new URL('../nethack-c/upstream/src/steal.c', import.meta.url), 'utf8',
 );
 
 async function freshState(seed) {
@@ -73,6 +79,8 @@ test('mhitm_ad_samu matches all C direction arms and dispatches only its arm',
         /void\s+mhitm_ad_samu\([\s\S]*?if\s*\(magr == &gy\.youmonst\)\s*\{\s*\/\* uhitm \*\/\s*mhm->damage = 0;\s*\} else if\s*\(mdef == &gy\.youmonst\)\s*\{\s*\/\* mhitu \*\/\s*hitmsg\(magr, mattk\);[\s\S]*?if\s*\(!rn2\(20\)\)\s*stealamulet\(magr\);\s*\} else\s*\{\s*\/\* mhitm \*\/\s*mhm->damage = 0;\s*\}\s*\}/u);
     assert.match(UHITM_C,
         /case AD_SAMU:\s*mhitm_ad_samu\(magr, mattk, mdef, mhm\); break;/u);
+    assert.match(STEAL_C,
+        /void\s+stealamulet\(struct monst \*mtmp\)[\s\S]*?any_quest_artifact\(obj\)[\s\S]*?mpickobj\(mtmp, otmp\)[\s\S]*?rloc\(mtmp, RLOC_MSG\)/u);
 
     // This seed initializes the shared game fixture; it does not encode C output.
     const state = await freshState(7711051);
@@ -95,11 +103,26 @@ test('mhitm_ad_samu matches all C direction arms and dispatches only its arm',
     assert.equal(heroEvents[1], 'rn2:20');
     assert.equal(state.unported.has('steal.c stealamulet'), false);
 
-    // C's void theft call is reached only after the successful gate; its
-    // behavior remains a named gap, and the preceding hit message still runs.
+    // C's void theft call runs only after the successful gate. Supplying the
+    // real Amulet verifies the caller transfers the same inventory object.
     const stolenGateEvents = [];
+    const thief = fixtureMonster(state, 1052, 1);
+    thief.iswiz = true;
+    const amulet = newObject({
+        o_id: 1052,
+        otyp: AMULET_OF_YENDOR,
+        oclass: AMULET_CLASS,
+        where: OBJ_INVENT,
+        quan: 1,
+        owornmask: 0,
+        known: true,
+        dknown: true,
+    });
+    amulet.nobj = state.invent;
+    state.invent = amulet;
+    state.u.uhave.amulet = 1;
     await mhitm_ad_samu(
-        fixtureMonster(state, 1052, 1),
+        thief,
         attack,
         state.youmonst,
         { damage: 4 }, // Sentinel survives the M-to-H branch unchanged.
@@ -107,8 +130,14 @@ test('mhitm_ad_samu matches all C direction arms and dispatches only its arm',
         attackEnv(stolenGateEvents, 0),
     );
     assert.deepEqual(stolenGateEvents.map((event) => event.split(':')[0]),
-        ['message', 'rn2']);
-    assert.equal(state.unported.has('steal.c stealamulet'), true);
+        ['message', 'rn2', 'message']);
+    assert.ok(stolenGateEvents.includes(
+        'message:The grid bug steals the Amulet of Yendor!',
+    ));
+    assert.equal(state.u.uhave.amulet, 0);
+    assert.equal(state.invent === amulet, false);
+    assert.equal(thief.minvent, amulet);
+    assert.equal(state.unported.has('steal.c stealamulet'), false);
 
     const target = fixtureMonster(state, 1053, 0, 1);
     const heroAttack = { damage: 9 }; // Sentinel for the H-to-M zeroing branch.

@@ -115,7 +115,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The v45 Wizard-of-Yendor Amulet-theft case reaches the monster-to-hero AD_SAMU hit path at segment 0 step 151. C draws rn2(20)=0 in uhitm.c:mhitm_ad_samu and calls steal.c:stealamulet; JavaScript preserves the 1-in-20 gate but records note_unported(\"steal.c stealamulet\"), so it does not remove the Amulet or perform the thief inventory, message, and relocation effects. The C recording shows the theft message at step 154 and then the Wizard vanishing. The missing owner is the whole steal.c:stealamulet function and its existing uhitm.js caller site.",
+  "summary": "The v45 Wizard-of-Yendor case exposed a missing steal.c:stealamulet call after the monster-to-hero AD_SAMU 1-in-20 gate. The complete helper now selects and transfers the carried special item, prints the theft message, and performs the source-ordered conditional relocation and encumbrance update through the existing uhitm.js caller.",
   "source": {
     "file": "steal.c",
     "branch": "A Wizard or quest nemesis hits the hero with AD_SAMU and the uhitm.c:mhitm_ad_samu rn2(20) gate succeeds. stealamulet first seeks any carried quest artifact; if none exists, it selects the Amulet, Bell, Book, or Candelabrum according to u.uhave, avoiding fake Amulets for the Wizard. For a selected object it removes required outer gear, extracts the item from hero inventory, gives it to the monster, prints the theft message, relocates a teleport-capable thief unless tele_restrict applies, and updates encumbrance.",
