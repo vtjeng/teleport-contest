@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of attempt1: C showed the wished long sword in inventory slot o and the hostile rust monster directly north. Wield the sword, create the target, and forcefight north. Candidate source path: uhitm.c:hmon_hitmon -> mhitm.c:rustm; no JavaScript result informed this route.",
+  "segments": [
+    {
+      "seed": 47001057,
+      "datetime": "20570615161719",
+      "nethackrc": "OPTIONS=name:V47RustWeapon,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nlong sword\nwo#wizgenesis\nhostile rust monster\n#wizmap\nFk Fk Fk Fk Fk Fk Fk Fk Fk Fk Fk Fk"
+    }
+  ]
+}

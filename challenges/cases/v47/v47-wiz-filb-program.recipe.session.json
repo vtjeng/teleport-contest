@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate to exercise the distinct top-level dat/Wiz-filb.lua Wizard quest filler program. Load from a fresh Wizard debug game and expose the generated level; no JavaScript differential until the complete slate.",
+  "segments": [
+    {
+      "seed": 47047009,
+      "datetime": "20571111091011",
+      "nethackrc": "OPTIONS=name:V47Wizfilb,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nWiz-filb.lua\n#wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first punishment/levitation setup: wear the wished levitation ring, create a pool on the hero's current square, then read a separately wished cursed scroll of punishment to put the attached ball in that pool before Ring_off. C must confirm the ring, punishment chain, pool, and float-down relocation; no JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047201,
+      "datetime": "20571215111115",
+      "nethackrc": "OPTIONS=name:V47PunishBall1,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nring of levitation\nPpl #wizwish\npool\n#wizwish\ncursed scroll of punishment\nrp R     "
+    }
+  ]
+}

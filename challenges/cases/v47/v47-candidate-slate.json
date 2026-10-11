@@ -1,0 +1,847 @@
+{
+  "batch": "v47",
+  "base": "31a5d76c38043a8aeefc014471f58e9db310aa4b",
+  "queueSha256": "e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2",
+  "javascriptDifferentialStarted": true,
+  "candidates": [
+    {
+      "id": "v47-bar-filb-program",
+      "source": "dat/Bar-filb.lua",
+      "actions": "Directly load Bar-filb.lua from a new Barbarian debug game and reveal the resulting level.",
+      "observation": "Fresh differential against accepted Main 643e2279 passes completely (PRNG values: match; Screen length: C=35, JS=35; Cursor length: C=35, JS=35; Cursor values: match; Animation frame length: C=0, JS=0; Animation frames: match). Independent C replay and recording hashes remain in the slate.",
+      "closestPrior": "v44 Bar-fila and v44 Arc-fila are separate program units; this is the Barbarian second filler file.",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-bar-filb-program.independent.session.json",
+      "sha256": "705eaed3bc449e259ad7cbe9cbb8710ce859c7a1d159680cb2d2c83f2220d400",
+      "disposition": "matching-control",
+      "recipe": "challenges/cases/v47/v47-bar-filb-program.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-bar-filb-program.session.json",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-bar-filb-program.log"
+    },
+    {
+      "id": "v47-kni-filb-program",
+      "source": "dat/Kni-filb.lua",
+      "actions": "Directly load Kni-filb.lua from a new Knight debug game and reveal the resulting level.",
+      "observation": "C accepts and completes this whole role quest filler program; preserve its level map and generation trace.",
+      "closestPrior": "The first JS failure is the generic LR_BRANCH place_lregion type-3 refusal already represented by v40 Fort Ludios/Knox and v42 Baalz placement work; this program-specific recipe is retained as an overlap probe, not counted as independent behavior.",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-kni-filb-program.independent.session.json",
+      "sha256": "dfc16dbda68cd0ed1f9e7de9015e7b3a47775e7bea77b71789b5ecada971813d",
+      "disposition": "overlap-known-place-lregion-LR_BRANCH",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 1,
+        "boundary": 1,
+        "key": null,
+        "owner": "dat/Kni-filb.lua -> rooms.js:place_lregion(LR_BRANCH type 3)"
+      },
+      "recipe": "challenges/cases/v47/v47-kni-filb-program.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-kni-filb-program.session.json"
+    },
+    {
+      "id": "v47-ran-filb-program",
+      "source": "dat/Ran-filb.lua",
+      "actions": "Directly load Ran-filb.lua from a new Ranger debug game and reveal the resulting level.",
+      "observation": "C accepts and completes this whole role quest filler program; preserve its level map and generation trace. A valid-calendar corrected recipe/recording was appended after diff-fresh rejected the original month-13 input.",
+      "closestPrior": "The first JS failure is the generic LR_BRANCH place_lregion type-3 refusal already represented by v40 Fort Ludios/Knox and v42 Baalz placement work; this program-specific recipe is retained as an overlap probe, not counted as independent behavior.",
+      "recipe": "challenges/cases/v47/v47-ran-filb-program-attempt2.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-ran-filb-program-attempt2.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-ran-filb-program-attempt2.independent.session.json",
+      "sha256": "88fc3d49a0a4460f6a18d18e1759166c588532d0be902ea2f56b5dcad6aa2f3c",
+      "disposition": "overlap-known-place-lregion-LR_BRANCH",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 1,
+        "boundary": 1,
+        "key": null,
+        "owner": "dat/Ran-filb.lua -> rooms.js:place_lregion(LR_BRANCH type 3)"
+      }
+    },
+    {
+      "id": "v47-rog-filb-program",
+      "source": "dat/Rog-filb.lua",
+      "actions": "Directly load Rog-filb.lua from a new Rogue debug game and reveal the resulting level.",
+      "observation": "C accepts and completes this whole role quest filler program; preserve its level map and generation trace. A valid-calendar corrected recipe/recording was appended after diff-fresh rejected the original month-14 input.",
+      "closestPrior": "The first JS failure is the generic LR_BRANCH place_lregion type-3 refusal already represented by v40 Fort Ludios/Knox and v42 Baalz placement work; this program-specific recipe is retained as an overlap probe, not counted as independent behavior.",
+      "recipe": "challenges/cases/v47/v47-rog-filb-program-attempt2.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-rog-filb-program-attempt2.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-rog-filb-program-attempt2.independent.session.json",
+      "sha256": "da3c2f190221f9f0b613ccb99b935baadba8b81b61ae78508a5696a23f26c206",
+      "disposition": "overlap-known-place-lregion-LR_BRANCH",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 1,
+        "boundary": 1,
+        "key": null,
+        "owner": "dat/Rog-filb.lua -> rooms.js:place_lregion(LR_BRANCH type 3)"
+      }
+    },
+    {
+      "id": "v47-val-filb-program",
+      "source": "dat/Val-filb.lua",
+      "actions": "Directly load Val-filb.lua from a new Valkyrie debug game and reveal the resulting level.",
+      "observation": "C accepts and completes this whole role quest filler program; preserve its level map and generation trace. A valid-calendar corrected recipe/recording was appended after diff-fresh rejected the original month-16 input.",
+      "closestPrior": "The first JS failure is the generic LR_BRANCH place_lregion type-3 refusal already represented by v40 Fort Ludios/Knox and v42 Baalz placement work; this program-specific recipe is retained as an overlap probe, not counted as independent behavior.",
+      "recipe": "challenges/cases/v47/v47-val-filb-program-attempt2.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-val-filb-program-attempt2.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-val-filb-program-attempt2.independent.session.json",
+      "sha256": "0ce9015626280b3a54b13df713ef1840cb52864402ed4a140f7109b55c49a62d",
+      "disposition": "overlap-known-place-lregion-LR_BRANCH",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 1,
+        "boundary": 1,
+        "key": null,
+        "owner": "dat/Val-filb.lua -> rooms.js:place_lregion(LR_BRANCH type 3)"
+      }
+    },
+    {
+      "id": "v47-wiz-fila-program",
+      "source": "dat/Wiz-fila.lua",
+      "actions": "Directly load Wiz-fila.lua from a fresh Wizard debug game and reveal the generated level.",
+      "observation": "Fresh differential against accepted Main 643e2279 passes completely (PRNG values: match; Screen length: C=35, JS=35; Cursor length: C=35, JS=35; Cursor values: match; Animation frame length: C=0, JS=0; Animation frames: match). Independent C replay and recording hashes remain in the slate.",
+      "closestPrior": "v43 Wiz-loca and v43 Wizard Tower direct loads use different Lua units and roles; this file has no prior manifest or case recording.",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-wiz-fila-program.independent.session.json",
+      "sha256": "51f81c08d5907bf79af11c624b781d3c099f4a368949be0815b2c00bfac104c9",
+      "disposition": "matching-control",
+      "recipe": "challenges/cases/v47/v47-wiz-fila-program.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-wiz-fila-program.session.json",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-wiz-fila-program.log"
+    },
+    {
+      "id": "v47-wiz-filb-program",
+      "source": "dat/Wiz-filb.lua",
+      "actions": "Directly load Wiz-filb.lua from a fresh Wizard debug game and reveal the generated level.",
+      "observation": "Fresh differential against accepted Main 643e2279 passes completely (PRNG values: match; Screen length: C=35, JS=35; Cursor length: C=35, JS=35; Cursor values: match; Animation frame length: C=0, JS=0; Animation frames: match). Independent C replay and recording hashes remain in the slate.",
+      "closestPrior": "v43 Wiz-loca and v43 Wizard Tower direct loads use different Lua units; this file has no prior manifest or case recording.",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-wiz-filb-program.independent.session.json",
+      "sha256": "bdecf2e4e94928b7f9d07f13b20c8cbc7a25f8b306625ac6bcc154c35fb9efd3",
+      "disposition": "matching-control",
+      "recipe": "challenges/cases/v47/v47-wiz-filb-program.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-wiz-filb-program.session.json",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-wiz-filb-program.log"
+    },
+    {
+      "id": "v47-guarded-vault-exit",
+      "source": "teleport.c:teleds -> vault.c:uleftvault",
+      "actions": "Enter a real guarded vault with carried gold, then teleport to a location outside the guard corridor.",
+      "observation": "Deferred after two distinct depth probes (8 and 10): both generated ordinary levels without confirming an active guarded vault. Preserve both C recordings as setup misses; no JavaScript comparison.",
+      "closestPrior": "v45 cursed-whistle-vault reaches vault_summon_gd from inside a vault but does not leave; v40 Knox only generates a special level.",
+      "disposition": "deferred-after-two-setup-misses"
+    },
+    {
+      "id": "v47-wizard-tactics-healmon",
+      "source": "wizard.c:tactics STRAT_HEAL -> mon.c:healmon",
+      "actions": "Create the Wizard of Yendor, injure it, then move beyond BOLT_LIM while leaving its covetous stair target reachable.",
+      "observation": "Deferred after reaching/creating a hostile Wizard but failing to establish a successful injury and STRAT_HEAL state across the C attempts; retain attempts 1–6 as target-miss evidence and replace this target. The selected recipe uses a valid calendar timestamp; attempt 6 with month 14 remains preserved as invalid-input evidence.",
+      "closestPrior": "v43 potionhit and v45 wand healing reach mon.c:healmon through other callers; neither exercises covetous wizard tactics.",
+      "disposition": "deferred-target-not-reached",
+      "recipe": "challenges/cases/v47/v47-wizard-tactics-healmon-attempt6-attempt7-datetime-corrected.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-wizard-tactics-healmon-attempt6-attempt7-datetime-corrected.session.json"
+    },
+    {
+      "id": "v47-punishment-ball-float-down",
+      "source": "do_wear.c:Ring_off -> trap.c:float_down -> obj.c:movobj(uchain)",
+      "actions": "While punished and levitating, place the attached ball over a pool and remove levitation.",
+      "observation": "Fresh differential against accepted Main 643e2279 passes completely (PRNG values: match; Screen length: C=103, JS=103; Cursor length: C=103, JS=103; Cursor values: match; Animation frame length: C=0, JS=0; Animation frames: match). Independent C replay and recording hashes remain in the slate.",
+      "closestPrior": "v45 ball throw uses dothrow.c:throwit -> ball.c:drop_ball; v39 Ring_off -> float_down reaches lava_effects, not the punishment-chain pool relocation.",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-punishment-ball-float-down-attempt4.independent.session.json",
+      "sha256": "e1db151a9a2fcc899ef84afebf8ecfe1105a33203b248fd678f76f59f3aa458b",
+      "disposition": "matching-control",
+      "recipe": "challenges/cases/v47/v47-punishment-ball-float-down-attempt4.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-punishment-ball-float-down-attempt4.session.json",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-punishment-ball-float-down-attempt4.log"
+    },
+    {
+      "id": "v47-hero-level-teleport-trap",
+      "source": "hack.c:avoid_trap_andor_region -> trap.c:dotrap seen LEVEL_TELEP activation",
+      "actions": "Wish and reveal a level-teleport trap, then step onto the known trap and confirm.",
+      "observation": "C's first differing boundary is the known-trap confirmation at the movement input. C then reaches trap.c:dotrap's rn2(5)=0 escape arm. JS has no corresponding boundary; its preflight_dotrap subsequently reports UnsupportedHeroMoveBoundaryError('trap activation') because LEVEL_TELEP is omitted.",
+      "closestPrior": "v11 hero-teleport-trap-displaces-hero reaches same-level relocation through ordinary TELEP_TRAP; v43 monster-teleport-trap-relocation reaches rloc on a hostile newt. Neither reaches the known LEVEL_TELEP hero confirmation/activation path.",
+      "disposition": "qualifying-mismatch-2-primary-known-trap-activation",
+      "recipe": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 47,
+        "boundary": 47,
+        "key": "l",
+        "owner": "hack.c:avoid_trap_andor_region -> trap.c:dotrap LEVEL_TELEP"
+      }
+    },
+    {
+      "id": "v47-triggered-rolling-boulder-trap",
+      "source": "hack.c:avoid_trap_andor_region -> trap.c:dotrap seen-trap escape guard (variation)",
+      "actions": "Wish and reveal a rolling-boulder trap, then step onto the known trap and confirm.",
+      "observation": "This is a cheap trap-type variation of the primary known-trap candidate, not an independent mission. C prompts and enters trap.c:dotrap; JS's preflight_dotrap refuses with UnsupportedHeroMoveBoundaryError('a trap the hero has already seen') before the shared rn2(5) escape guard. No boulder launch is reached.",
+      "closestPrior": "v12 rolling-boulder-trap-no-boulder-released activates an unseen trap and reaches launch_obj; v43 reaches mkroll_launch setup/placement. This variation shares the primary known-trap prompt boundary.",
+      "disposition": "variation-of-v47-hero-level-teleport-trap",
+      "recipe": "challenges/cases/v47/v47-triggered-rolling-boulder-trap-attempt3-attempt4-datetime-corrected.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-triggered-rolling-boulder-trap-attempt3-attempt4-datetime-corrected.session.json"
+    },
+    {
+      "id": "v47-flip-long-worm-level-segments",
+      "source": "wizcmds.c:wiz_flip_level -> sp_lev.c:flip_level -> worm.c:flip_worm_segs_horizontal",
+      "actions": "Create a long worm with #wizgenesis and horizontally flip the active level.",
+      "observation": "Fresh differential against accepted Main 643e2279 passes completely (PRNG values: match; Screen length: C=39, JS=39; Cursor length: C=39, JS=39; Cursor values: match; Animation frame length: C=0, JS=0; Animation frames: match). Independent C replay and recording hashes remain in the slate.",
+      "closestPrior": "v28 and v31 wizard-flip probes cover ordinary level flip actions, without a long worm; v40 covers monmove.c:m_move -> worm.c:worm_move tail movement, a separate segment update caller.",
+      "recipe": "challenges/cases/v47/v47-flip-long-worm-segments-attempt1-attempt2-datetime-corrected.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-flip-long-worm-segments-attempt1-attempt2-datetime-corrected.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-flip-long-worm-segments-attempt1-attempt2-datetime-corrected.independent.session.json",
+      "sha256": "da3c867a40cfab92d69ce88ff4b218a67ea7ede7e9ea8bbd5b0f67957fd9da44",
+      "disposition": "matching-control",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-flip-long-worm-segments-attempt1-attempt2-datetime-corrected.log"
+    },
+    {
+      "id": "v47-fire-trap-hero-dofiretrap",
+      "source": "trap.c:dotrap -> trapeffect_fire_trap -> dofiretrap",
+      "actions": "Step onto a wizard-created fire trap in the starting room.",
+      "observation": "Fresh differential against accepted Main 643e2279 passes completely (PRNG values: match; Screen length: C=32, JS=32; Cursor length: C=32, JS=32; Cursor values: match; Animation frame length: C=2, JS=2; Animation frames: match). Independent C replay and recording hashes remain in the slate.",
+      "closestPrior": "No admitted v38–v46 case records a hero fire-trap activation. The v38 terrain-wish lava-floor-object case calls fire_damage_chain on a floor object; this route enters dofiretrap for the hero and her carried inventory.",
+      "recipe": "challenges/cases/v47/v47-fire-trap-hero-dofiretrap-attempt1-attempt2-datetime-corrected.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-fire-trap-hero-dofiretrap-attempt1-attempt2-datetime-corrected.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-fire-trap-hero-dofiretrap-attempt1-attempt2-datetime-corrected.independent.session.json",
+      "sha256": "a91407db09c8c1cdd7cf8c3a19f60e0c32299b6eb7ccdc9931ca842421c522b2",
+      "disposition": "matching-control",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-fire-trap-hero-dofiretrap-attempt1-attempt2-datetime-corrected.log"
+    },
+    {
+      "id": "v47-minetown-2-fountain-drink",
+      "source": "dat/minetn-2.lua fountain -> fountain.c:drinkfountain",
+      "actions": "Load source-defined Minetown 2, open its C-observed door, reach both source-defined fountains, and confirm each drink prompt.",
+      "observation": "Fresh differential against accepted Main 643e2279 passes completely (PRNG values: match; Screen length: C=84, JS=84; Cursor length: C=84, JS=84; Cursor values: match; Animation frame length: C=4, JS=4; Animation frames: match). Independent C replay and recording hashes remain in the slate.",
+      "closestPrior": "v42 minetn-2 map-only matching control and v45 sink drinksink case; neither drinks from a level fountain.",
+      "recipe": "challenges/cases/v47/v47-minetown-2-second-fountain-drink-attempt1.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-minetown-2-second-fountain-drink-attempt1.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-minetown-2-second-fountain-drink-attempt1-independent.session.json",
+      "sha256": "c6f45355af60286b70012680e2fc86ea7054d608c90b7c69d4d6ccd9e0309a53",
+      "disposition": "matching-control",
+      "priorAttempts": [
+        "Attempts1-4 preserve the initial route, door, and fountain-position corrections. The retained attempt crosses both fountain locations."
+      ],
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-minetown-2-second-fountain-drink-attempt1.log"
+    },
+    {
+      "id": "v47-hallucinated-monster-missile-name",
+      "source": "mthrowu.c:monshoot -> do_name.c:Monnam/x_monnam hallucination naming",
+      "actions": "Enter source-defined Minetown 2, become hallucinating, then use the C route that lets the hostile imp shoot before the fountain actions.",
+      "observation": "Attempt9 first differs at zero-based step 106 / boundary 107, key 'l': C says 'Dudley throws a dart!' and JS says 'The imp throws a dart!'. RNG values and cursor boundaries match through that boundary. This is the active hallucinating monster name in mthrowu.c:monshoot -> Monnam/x_monnam. The later fountain refresh and fate27 gem observation are secondary.",
+      "closestPrior": "v8 monster-thrown potion reaches mthrowu.c without hallucinating naming; v14 hallucinated do.c:dropx changes object display; v20 AD_HALU blast and v9 peffect_hallucination cover distinct callers. None names a hallucinating monster missile attacker.",
+      "recipe": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 106,
+        "boundary": 107,
+        "key": "l",
+        "owner": "mthrowu.c:monshoot -> do_name.c:Monnam/x_monnam"
+      },
+      "disposition": "qualifying-mismatch-1"
+    },
+    {
+      "id": "v47-hallucinated-fountain-refresh-control",
+      "source": "fountain.c:drinkfountain hallucination fate 20",
+      "actions": "Use a wished hallucination potion, then drink from the reached Minetown 2 fountain.",
+      "observation": "Attempt7 reaches the fountain and prints \"The water is foul! You gag and vomit.\" The independent replay and JavaScript comparison match exactly at 4,737 RNG calls, 110 screens/cursors, and zero animation frames. Retain as a matching control; it does not establish fate22.",
+      "closestPrior": "v45 sink drinksink uses a different caller; no earlier case records a hallucinating hero drinking a level fountain.",
+      "recipe": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt7.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt7.session.json",
+      "disposition": "matching-control"
+    },
+    {
+      "id": "v47-hallucinatory-fountain-water-snakes",
+      "source": "fountain.c:drinkfountain fate 22 -> dowatersnakes hallucination branch -> rndmonnam",
+      "actions": "Become hallucinating before drinking from a reached fountain; C must select fate22 and generate water moccasins.",
+      "observation": "Attempts 1-9 did not establish fate22 before an earlier setup miss or first mismatch. Attempt7 is retained as the matched fountain control; attempt9 first mismatches on the monster missile name and later reaches fate27. Defer this target and continue with a different candidate.",
+      "closestPrior": "v45 sink-drink and v33 lawful fountain-sword dip use other callers; no admitted case reaches the hallucinating water-snakes branch.",
+      "disposition": "deferred-first-mismatch-before-target"
+    },
+    {
+      "id": "v47-earthquake-desecrates-generated-altar",
+      "source": "music.c:do_earthquake ALTAR arm -> pray.c:desecrate_altar",
+      "actions": "Load a fresh source-generated level, use the observed floor route around known polymorph traps, reach the neutral altar, then play the wished drum of earthquake until C destroys it.",
+      "observation": "Attempt6 independently replays byte-identically. C reports 'The neutral altar falls into a chasm' at boundary 196 and Thoth's desecration response afterward. The first JS difference is that C's godvoice path consumes rn2(4) at call 5152 while JS continues the earthquake path with rn2(13). The reached first-mismatch owner is do_earthquake's ALTAR arm and desecrate_altar caller; later earthquake effects are downstream.",
+      "closestPrior": "v32 quake-altar left its altar in place; v43/v45 offering and prayer cases use different callers and do not enter do_earthquake's ALTAR arm. The known-trap activation case is a separate source caller and first mismatch.",
+      "disposition": "qualifying-mismatch-3",
+      "recipe": "challenges/cases/v47/v47-earthquake-desecrates-generated-altar-attempt6-trap-avoided.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-earthquake-desecrates-generated-altar-attempt6-trap-avoided.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-earthquake-attempt6-independent.session.json",
+      "sha256": "49625b455cd146909fa6fe22482b9c1e8c2234bda49b786eef003bcbe04c67a0",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 195,
+        "boundary": 196,
+        "key": " ",
+        "owner": "music.c:do_earthquake ALTAR arm -> pray.c:desecrate_altar"
+      },
+      "priorAttempts": [
+        "Attempt1 stopped at a locked door before reaching the altar.",
+        "Attempt2 selected the wrong wand slot; C showed the required slot.",
+        "Attempt3 used the wrong route and direction inputs.",
+        "Attempt4 reached the polymorph-trap route and remained a setup probe.",
+        "Attempt5 reached the earthquake command but first diverged at the polymorph trap, overlapping the primary known-trap activation case."
+      ]
+    },
+    {
+      "id": "v47-gremlin-pool-split",
+      "source": "trap.c:drown -> mon.c:split_mon for PM_GREMLIN",
+      "actions": "Use the wizard polyself command to become a Gremlin, wish a pool onto the current square, step off it, then return to trigger the pool entry.",
+      "observation": "Attempt6 reaches trap.c:drown on a Gremlin pool fall, takes rn2(3)=2 at drown(trap.c:5088), then calls mon.c:split_mon. The first missing JavaScript behavior is the skipped split_mon call; C next consumes collect_coords(teleport.c:700) at RNG call 2667 and shows the clone at boundary 38, while JS keeps that tile as floor.",
+      "closestPrior": "v25 v25-gremlin-splits reaches split_mon through cmd.c:domonability's Gremlin fountain ability; v23 reaches drown -> display.c:under_water; v40 reaches drown -> apply.c:unleash_all for a leashed pet; v41 reaches mounted drown -> dismount_steed(DISMOUNT_GENERIC). None reaches the hero Gremlin split caller on pool entry.",
+      "disposition": "qualifying-mismatch-4",
+      "recipe": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-gremlin-pool-split-attempt6-independent.session.json",
+      "sha256": "cec2aac1f4630221ca4cba8708f20db1a2ebe82d18391e4b42c7c782fbaed8cd",
+      "comparisonLog": ".cache/prep-delivery/Prep11/logs/v47-gremlin-pool-split-attempt6-diff-fresh.log",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 37,
+        "boundary": 38,
+        "key": " ",
+        "owner": "trap.c:drown -> mon.c:split_mon(PM_GREMLIN)"
+      },
+      "priorAttempts": [
+        "Attempts1-2 preserve the opening pager being mistaken for a command boundary.",
+        "Attempts3-4 preserve the setup misses from pager handling and overloaded Gremlin form.",
+        "Attempt5 reaches the pool fall message but stops at its More boundary before the split continuation.",
+        "Attempt6 resumes the C action at that boundary and reaches the split branch."
+      ]
+    },
+    {
+      "id": "v47-itemactions-adjust-stack-egg-split",
+      "source": "iactions.c:itemactions_pushkeys(IA_ADJUST_STACK) -> invent.c:adjust_split -> mkobj.c:splitobj",
+      "actions": "Wish two eggs of giant ant, confirm their observed inventory slot n, start the item-action split command, and select one egg for splitting. The extended wait is a retained target-miss probe only.",
+      "observation": "Attempt6 independently replays byte-identically. The C/JS first mismatch is at segment 0 step/boundary 34 on key I: C enters the item-action split path, consumes rnd(2)=2 at next_ident(mkobj.c:521), and presents “Split 1 to what”; JS has no corresponding action or output. The selected source behavior is the item-action caller chain into adjust_split/splitobj. The later wait does not establish egg-hatch behavior and is not part of this case.",
+      "closestPrior": "v46 lit-candle split first diverges in light.c:obj_split_light_source while dropping a lit object, with a different caller/action/state contract. v16 cream-pie split reaches split behavior through apply.c, not IA_ADJUST_STACK. Neither exercises the item-action split caller. The egg remains the triggering object here; timed hatch behavior is explicitly unclaimed.",
+      "disposition": "qualifying-mismatch-5",
+      "recipe": "challenges/cases/v47/v47-timed-egg-stack-split-attempt6.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-timed-egg-stack-split-attempt6.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-timed-egg-stack-split-attempt6-independent.session.json",
+      "sha256": "a7526166f2dcfafdf4a8c9907d557dc5991aa6b3e292945e360348a29455eba9",
+      "comparisonLog": ".cache/prep-delivery/Prep11/logs/v47-timed-egg-stack-split-attempt6-diff-fresh.log",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 34,
+        "boundary": 34,
+        "key": "I",
+        "owner": "iactions.c:itemactions_pushkeys(IA_ADJUST_STACK) -> invent.c:adjust_split -> mkobj.c:splitobj"
+      },
+      "priorAttempts": [
+        "Attempts1-3 preserve wish and command setup misses before selecting an egg stack for the split action.",
+        "Attempt4 selected the wrong inventory letter; the recorder showed the egg stack in slot n.",
+        "Attempt5 corrected the slot and reached the split prompt, but its recipe ended before the selected action boundary.",
+        "Attempt6 is the retained independently replayed recipe; its extended wait is a target-miss probe and does not establish hatching."
+      ]
+    },
+    {
+      "id": "v47-air-plane-program",
+      "source": "dat/air.lua whole program",
+      "actions": "Load air.lua directly in a fresh Wizard debug game and expose its generated map.",
+      "observation": "C completes the whole program: the resulting map is an Air level with the source-defined portal and monster placements. The 29-step recording independently replays byte-identically. Fresh differential at accepted Main 643e2279 matches exactly (4,144 RNG calls, 30 screens/cursors, zero animation frames); the exact source unit is already a matching control in v40 and v42, so retain the probe as a matching overlap, not a unique manifest entry.",
+      "closestPrior": "v40-air-plane-levelport-generation and v42-air-plane-special-program already record this same dat/air.lua whole program and match.",
+      "disposition": "matching-whole-program-overlap",
+      "recipe": "challenges/cases/v47/v47-air-plane-program-attempt1.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-air-plane-program-attempt1.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-air-plane-program-attempt1-independent.session.json",
+      "sha256": "181a703dfd77a4436fb0ff6aa347b8fe7c5d832c7b282c3cd2d669ce16a54eec"
+    },
+    {
+      "id": "v47-medusa-3-program",
+      "source": "dat/medusa-3.lua whole program",
+      "actions": "Load medusa-3.lua directly in a fresh Wizard debug game and expose its generated map.",
+      "observation": "C completes the whole program, including the distinct Medusa-3 map, selection/rndcoord placements, fountain, statues, and monster placements. The 34-step recording independently replays byte-identically. Fresh differential at accepted Main 643e2279 matches exactly (4,365 RNG calls, 35 screens/cursors, zero animation frames); the exact source unit is already a matching v42 control, so retain the probe as a matching overlap, not a unique manifest entry.",
+      "closestPrior": "v42-medusa-3-special-program already records this same dat/medusa-3.lua whole program and matches.",
+      "disposition": "matching-whole-program-overlap",
+      "recipe": "challenges/cases/v47/v47-medusa-3-program-attempt1.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-medusa-3-program-attempt1.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-medusa-3-program-attempt1-independent.session.json",
+      "sha256": "1b1a7c0f542c402114b94f093c34367e4839c625a752bd8404ed15094b591cd7"
+    },
+    {
+      "id": "v47-worm-nomove-cage",
+      "source": "monmove.c:m_move -> worm.c:worm_nomove",
+      "actions": "Create a long worm near a sealed, source-built wall ring and wait until C runs its no-legal-move tail-shrink branch.",
+      "observation": "Two materially different C setups failed to reach worm_nomove. Attempt1 created a sleeping worm only as a placement scout. Attempts2-3 switched to an awake peaceful worm and built walls; attempt2 swallowed directions at each wall pager, and corrected attempt3 still reached ordinary worm_move or left the worm outside the intended cage. Preserve all recordings as target-miss setup evidence; no JS comparison is justified without reaching the selected branch.",
+      "closestPrior": "v40 long-worm movement reaches worm.c:worm_move; v47 horizontal flip reaches flip_worm_segs_horizontal. This intended worm_nomove caller/state branch is separate, but its C target remains unproven after the two setup routes.",
+      "disposition": "deferred-after-two-material-C-setups",
+      "recipe": "challenges/cases/v47/v47-worm-nomove-blocked-long-worm-attempt3.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-worm-nomove-blocked-long-worm-attempt3.session.json",
+      "priorAttempts": [
+        "Attempt1 sleeping long-worm placement scout; no no-move action.",
+        "Attempt2 peaceful long-worm ring failed because each wall-wish pager consumed the next direction.",
+        "Attempt3 corrected pager handling, but did not establish the full cage and C reached ordinary worm_move instead."
+      ]
+    },
+    {
+      "id": "v47-poly-energy-vortex-engulf-drain-attempt10",
+      "source": "uhitm.c:damageum AD_DREN -> gulpum -> mhitm.c:xdrainenergym",
+      "actions": "Create a hostile kobold shaman adjacent to an energy-vortex polymorph and forcefight it through the engulf continuation.",
+      "observation": "Attempt10 reaches the AT_MAGC/AT_BREA victim guard with a kobold shaman. C reaches xdrainenergym at zero-based step 77 and consumes d(2,2)=3 at RNG call 2792; JS takes rn2(3)=1 instead. The first screen difference is boundary 77 (C I, JS Y); C has 2,873 RNG calls and 14 animation frames versus JS 2,874 RNG calls and 10 frames. C emits “You engulf it! You expel it! You engulf it! It seems lethargic!” immediately before the divergence.",
+      "closestPrior": "v33 hero energy-vortex/elf-lord case reaches uhitm.c:mhitm_ad_dren and transient engulf frames, but the target does not satisfy the AT_MAGC/AT_BREA victim guard and never enters mhitm.c:xdrainenergym. The kobold shaman is required for the distinct energy-drain continuation.",
+      "recipe": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-poly-energy-vortex-engulf-drain-attempt10-independent.session.json",
+      "sha256": "2090d05e3e3a8d98b6aa17a8f06df4cf7ca8ea5cccd480e9411adb66f5d03164",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-poly-energy-vortex-engulf-drain-attempt10.log",
+      "disposition": "qualifying-mismatch-6",
+      "firstMismatch": {
+        "segment": 1,
+        "step": 77,
+        "boundary": 77,
+        "key": "b",
+        "owner": "mhitm.c:xdrainenergym"
+      },
+      "priorAttempts": [
+        "Attempts1-2 preserve early pager/target setup misses.",
+        "Troll target attempts preserve the source-guard miss: the target did not satisfy AT_MAGC/AT_BREA.",
+        "Attempts6-7 preserve startup More handling that consumed the initial genie commands.",
+        "Attempt9 records the wrong southward direction striking the wall; attempt10 uses the C-observed southwest target."
+      ]
+    },
+    {
+      "id": "v47-rustm-rust-monster-wielded-metal-attempt4",
+      "source": "uhitm.c:hmon_hitmon -> mhitm.c:rustm(mdef, mwep)",
+      "actions": "Wish and wield a non-rustproof +5 long sword, create an adjacent hostile rust monster, and forcefight it northwest until the C hit branch erodes the sword.",
+      "observation": "The source-observed C map places the rust monster northwest of the hero; the +5 long sword improves the hit chance after the plain-sword attempt missed repeatedly. At zero-based step 81 C reports “You hit the rust monster! Your long sword rusts!”; later hits further erode it. Independent C replay is byte-identical. Fresh differential at accepted Main 643e2279 matches completely: 2,869 RNG calls, 114 screens/cursors, and zero animation frames. Retain as a source-distinct matching control, not a counted mismatch.",
+      "closestPrior": "v22 wizard-confused-enchant-weapon-rustproof records reading enchant weapon and setting rustproof status, but does not attack a rust monster or reach hmon_hitmon -> rustm. v45 wielded-camera melee and the v47 energy-vortex case have different first-owner branches.",
+      "recipe": "challenges/cases/v47/v47-rustm-rust-monster-wielded-metal-attempt4.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-rustm-rust-monster-wielded-metal-attempt4.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-rustm-rust-monster-wielded-metal-attempt4-independent.session.json",
+      "sha256": "bf16454ed980f94e0293497d24e89a8147cae0d19e6013aaacc4702a086835d2",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-rustm-rust-monster-wielded-metal-attempt4.log",
+      "disposition": "matching-control",
+      "priorAttempts": [
+        "Attempt1 records wished sword, target creation, and map placement; retained as the reachability scout.",
+        "Attempt2 chose north from an ambiguous map read and attacked thin air; this setup miss is preserved.",
+        "Attempt3 corrected to northwest but the unenchanted long sword repeatedly missed; the C hit trace motivated the +5 weapon setup.",
+        "Attempt4 independently replays, reaches successful hmon_hitmon and rusting output, and fully matches JavaScript."
+      ]
+    },
+    {
+      "id": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+      "source": "uhitm.c:mhitm_ad_pest -> mhitm_ad_dise (monster-vs-monster AD_PEST against S_FUNGUS)",
+      "actions": "Raise the debug Wizard to level 30, set Conflict, spawn two hostile red molds and forced hostile Pestilence, move east, and wait for the C-confirmed adjacent monster fight.",
+      "observation": "The C trace at zero-based step 138 reaches “Pestilence touches the red mold. Pestilence is mildly warmed.” The AD_PEST caller reaches uhitm.c:mhitm_ad_pest -> mhitm_ad_dise; C applies the S_FUNGUS damage-zero guard to the ordinary 36-damage attack. JS retains note_unported at this caller. The downstream differential boundary 139 has C taking d(2,4)=2 at passivemm(mhitm.c:1326) with screen P, while JS takes rn2(3)=2 and shows screen T; this later passive/RNG split is evidence of the defender state difference after the omitted Pestilence fungus guard, not the selected owner. Independent C replay is byte-identical.",
+      "closestPrior": "v20 Pestilence-vs-hero reaches diseasemu through mhitu.c, not monster-vs-monster AD_PEST -> mhitm_ad_dise. v21 Conflict recordings cover different attack/passive families; none reaches Pestilence against a fungus-class defender.",
+      "recipe": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-independent.session.json",
+      "sha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.log",
+      "disposition": "qualifying-mismatch-7",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 139,
+        "boundary": 139,
+        "key": ".",
+        "owner": "uhitm.c:mhitm_ad_pest -> mhitm_ad_dise: S_FUNGUS damage-zero guard (later passivemm divergence is downstream evidence)"
+      },
+      "priorAttempts": [
+        "Attempt1 omitted the C-observed unique-force y response and failed to create Pestilence.",
+        "Attempt2 created one red mold and Pestilence but map placed the hero between them; Pestilence hit the hero.",
+        "Attempts3-4 used two red molds but C still chose the adjacent hero under the low-charisma Wizard setup.",
+        "Attempt5 moved east but Pestilence still reached the hero before the target branch.",
+        "Attempt6 changed to Tourist, retained level 30 and Conflict, confirmed the adjacent red-mold/Pestilence fight, then independently replayed byte-identically."
+      ]
+    },
+    {
+      "id": "v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+      "source": "mon.c:mondead -> wizard.c:wizdeadorgone for death of the Wizard of Yendor",
+      "actions": "In debug Wizard mode, force the unique Wizard of Yendor with #wizgenesis, reveal its C placement, invoke #wizkill, dismiss the appearance More and getpos tip, move the getpos cursor south to the C-confirmed adjacent Wizard, select it, and dismiss the death/experience pager.",
+      "observation": "The independent C route reaches the kill of the Wizard of Yendor. C enters mon.c:mondead and calls wizard.c:wizdeadorgone; because u.uevent.udemigod is false, the helper sets it true and initializes u.udg_cnt with rn1(250,50), whose first draw is rn2(250)=156 at wizard.c:820. JS skips that specific false-udemigod branch, then xkilled next consumes rn2(6)=0 and the death screen differs at the same boundary. The C recording and independent replay are byte-identical.",
+      "closestPrior": "v43 v43-quest-nemesis-death-wizard-corrected-cfirst reaches mon.c:mondead -> quest.c:nemdead for the Dark One; v44 v44-wizgenesis-forced-neferet-leaddead-cfirst reaches mon.c:mondead -> questpgr.c:leaddead for an MS_LEADER and matches Main. Neither reaches the Wizard-of-Yendor-specific wizdeadorgone bookkeeping and rn1(250,50) timer setup. V47’s quest, S_KOP, and other monster-death cases have different monster subtype callbacks.",
+      "recipe": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final-independent.session.json",
+      "sha256": "055b0d2e456aa6703b9dacaeec95c64c71341abd4426922d7ec5bedce561cf6a",
+      "recipeSha256": "7c7e1f77eb5b2072191acdd690fcf7d5de9b40279737ebf2c37af3c4e7e9a969",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.log",
+      "disposition": "qualifying-mismatch-8",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 60,
+        "boundary": 60,
+        "key": ".",
+        "owner": "wizard.c:wizdeadorgone: !u.uevent.udemigod branch sets udemigod and udg_cnt = rn1(250,50), via mon.c:mondead"
+      },
+      "priorAttempts": [
+        "Attempt1 reaches C’s force-unique Wizard of Yendor confirmation but ends before answering it.",
+        "Attempt2 answers y and confirms the unique appears next to the hero, then inspects the map.",
+        "Attempt3 enters #wizkill but does not dismiss the preceding appearance More boundary.",
+        "Attempt4 dismisses that pager but does not dismiss the getpos help tip.",
+        "Attempt5 dismisses both boundaries, selects the adjacent Wizard, and reaches the same death callback; it ends at the resulting pager. Attempt6 preserves that route and dismisses the pager for a complete independent replay."
+      ]
+    },
+    {
+      "id": "v47-knight-filler-kni-fila-cfirst-attempt1",
+      "source": "dat/Kni-fila.lua whole role quest filler program",
+      "actions": "From a fresh Knight debug game, invoke #wizloaddes with Kni-fila.lua and reveal the generated level.",
+      "observation": "C directly loads and completes dat/Kni-fila.lua, recording 3009 RNG calls through the program-specific room/corridor generation and 35 screens/cursors overall. Independent replay is byte-identical. The fresh JS differential fails during initial-game setup, before the requested file load, at the known generic LR_BRANCH placement refusal (JS error: “Couldn’t place lregion type 3!”; no JS segment output).",
+      "closestPrior": "v47 Kni-filb first fails in generic place_lregion(LR_BRANCH); Kni-fila.lua is a separate upstream file whose room/corridor and object/monster/trap statements form a different level program. Other role filler programs remain distinct Lua source units.",
+      "disposition": "overlap-known-place_lregion-LR_BRANCH-before-target",
+      "recipe": "challenges/cases/v47/v47-knight-filler-kni-fila-cfirst-attempt1.recipe.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-knight-filler-kni-fila-cfirst-attempt1-independent.session.json",
+      "sha256": "fc2c8278b5576b68ebfeaf59a0cea818ff2023fb52fe914ff2ffe8ffcc2355d5",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-knight-filler-kni-fila-cfirst-attempt1.log",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 0,
+        "boundary": 1,
+        "key": null,
+        "owner": "initial-level generation -> rooms.js:place_lregion(LR_BRANCH type 3); Kni-fila load is not reached by JS"
+      }
+    },
+    {
+      "id": "v47-whip-armed-monster-disarm-cfirst-attempt1-scout",
+      "source": "apply.c:use_whip armed-monster disarm caller -> weapon.c:possibly_unwield",
+      "actions": "Wish and wield a bullwhip, create a hostile weapon-using monster, and disarm it from the source-valid range.",
+      "observation": "Pending C-first confirmation of MON_WEP, disarm result, independent replay, and fresh differential.",
+      "closestPrior": "v10/v11 whip cases reach only the lash branch with no MON_WEP; v32-v47 whip attempt reached a goblin but did not disarm it. The armed target and successful object-extraction/possibly_unwield state transition are distinct if C confirms them.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-whip-armed-monster-disarm-cfirst-attempt1-scout.recipe.session.json"
+    },
+    {
+      "id": "v47-whip-armed-monster-disarm-cfirst-attempt2-wield-route",
+      "source": "apply.c:use_whip armed-monster disarm caller -> weapon.c:possibly_unwield",
+      "actions": "Use a bullwhip on the adjacent hostile watchman at its C-confirmed direction after wielding it.",
+      "observation": "Pending C confirmation of the armed-target branch and successful disarm.",
+      "closestPrior": "v10/v11 whip cases reach only the lash branch with no MON_WEP; v32-v47 whip attempt reached a goblin but did not disarm it. The armed target and successful object-extraction/possibly_unwield state transition are distinct if C confirms them.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-whip-armed-monster-disarm-cfirst-attempt2-wield-route.recipe.session.json"
+    },
+    {
+      "id": "v47-whip-armed-monster-disarm-cfirst-attempt3-level-and-enchanted-whip",
+      "source": "apply.c:use_whip armed-monster disarm caller -> weapon.c:possibly_unwield",
+      "actions": "Raise hero level and bullwhip enchantment from C evidence, then repeat whip attempts against a hostile watchman.",
+      "observation": "C-only correction targets the observed miss before any fresh JavaScript comparison.",
+      "closestPrior": "v10/v11 whip cases reach only the lash branch with no MON_WEP; v32-v47 whip attempt reached a goblin but did not disarm it. The armed target and successful object-extraction/possibly_unwield state transition are distinct if C confirms them.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-whip-armed-monster-disarm-cfirst-attempt3-level-and-enchanted-whip.recipe.session.json"
+    },
+    {
+      "id": "v47-whip-armed-monster-disarm-cfirst-attempt4-level-page-corrected",
+      "source": "apply.c:use_whip armed-monster disarm caller -> weapon.c:possibly_unwield",
+      "actions": "Reach level 10 with all nine C-confirmed level-up pager dismissals, wield +5 bullwhip, and apply it to the adjacent hostile watchman.",
+      "observation": "Pending C-first confirmation after pager correction.",
+      "closestPrior": "v10/v11 whip cases reach only the lash branch with no MON_WEP; v32-v47 whip attempt reached a goblin but did not disarm it. The armed target and successful object-extraction/possibly_unwield state transition are distinct if C confirms them.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-whip-armed-monster-disarm-cfirst-attempt4-level-page-corrected.recipe.session.json"
+    },
+    {
+      "id": "v47-whip-armed-monster-disarm-cfirst-attempt5-slot-and-turn-corrected",
+      "source": "apply.c:use_whip armed-monster disarm caller -> weapon.c:possibly_unwield",
+      "actions": "After C-observed level-up pages and item slot, wield the +5 bullwhip before spawning a hostile watchman, then whip it immediately.",
+      "observation": "Pending C-first confirmation of armed target/disarm.",
+      "closestPrior": "v10/v11 whip cases reach only the lash branch with no MON_WEP; v32-v47 whip attempt reached a goblin but did not disarm it. The armed target and successful object-extraction/possibly_unwield state transition are distinct if C confirms them.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-whip-armed-monster-disarm-cfirst-attempt5-slot-and-turn-corrected.recipe.session.json"
+    },
+    {
+      "id": "v47-whip-captain-armed-disarm-cfirst-attempt6-source-confirmed",
+      "source": "apply.c:use_whip armed-monster disarm caller -> weapon.c:possibly_unwield",
+      "actions": "Wield a +5 bullwhip before wizard-genesis creates a hostile captain, then use the whip at its observed adjacent location.",
+      "observation": "Pending C-first confirmation of actual captain MON_WEP and successful disarm.",
+      "closestPrior": "v10/v11 whip cases reach only the lash branch with no MON_WEP; v32-v47 whip attempt reached an unarmed goblin. The C source guarantees a weapon for PM_CAPTAIN via m_initweap, giving this successful armed-target state a source-defined distinction.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-whip-captain-armed-disarm-cfirst-attempt6-source-confirmed.recipe.session.json"
+    },
+    {
+      "id": "v47-whip-captain-armed-disarm-cfirst-attempt7-monster-turn-before-whip",
+      "source": "apply.c:use_whip armed-monster disarm caller -> weapon.c:possibly_unwield",
+      "actions": "Allow the source-armed hostile captain one turn to ready its weapon, then use the +5 bullwhip at the observed adjacent direction.",
+      "observation": "Pending C-only confirmation of captain MON_WEP before comparing JavaScript.",
+      "closestPrior": "v10/v11 whip cases reach only the lash branch with no MON_WEP; v32-v47 whip attempt reached an unarmed goblin. C initialization guarantees a captain weapon, and this action explicitly allows its separate wield turn before disarm.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-whip-captain-armed-disarm-cfirst-attempt7-monster-turn-before-whip.recipe.session.json"
+    },
+    {
+      "id": "v47-whip-captain-armed-state-scout-attempt8-six-turns",
+      "source": "apply.c:use_whip armed-monster disarm caller -> weapon.c:possibly_unwield",
+      "actions": "C-only scout of the hostile captain after six ordinary turns following its guaranteed weapon inventory.",
+      "observation": "C confirms PM_CAPTAIN carries a source-generated long sword, then reaches the active wield state after its ordinary turns. Its first attack/output path, including the wield message and subsequent attacks through a death boundary, strictly matches JS at 4460 RNG calls, 98 screens, and 98 cursors; no frames. Independent replay is byte-identical.",
+      "closestPrior": "v10/v11 whip cases reach only the lash branch with no MON_WEP; v32-v47 whip attempt reached an unarmed goblin. This setup tests the C-verified weapon-ready precondition before selecting a corrected disarm input.",
+      "disposition": "matching-control",
+      "recipe": "challenges/cases/v47/v47-whip-captain-armed-state-scout-attempt8-six-turns.recipe.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-whip-captain-armed-state-scout-attempt8-six-turns-independent.session.json",
+      "sha256": "eaca9e83fc6e090a82c0e550d3a68658df7f3bec843eab86494cd923ab83b147",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-whip-captain-armed-state-scout-attempt8-six-turns.log",
+      "recording": "challenges/cases/v47/v47-whip-captain-armed-state-scout-attempt8-six-turns.session.json"
+    },
+    {
+      "id": "v47-samurai-filler-sam-fila-program-cfirst-attempt1",
+      "source": "dat/Sam-fila.lua whole role quest filler program",
+      "actions": "From a new Samurai debug game, invoke #wizloaddes for Sam-fila.lua and reveal the resulting level.",
+      "observation": "C directly loads and completes dat/Sam-fila.lua, producing the Samurai mines-style map with objects, traps, and monsters; total recording contains 5,383 RNG calls and 35 screens/cursors. Independent replay is byte-identical. The fresh JS differential fails during initial-game setup before #wizloaddes with the already-known generic LR_BRANCH refusal: “Couldn’t place lregion type 3!” (no JS segment output).",
+      "closestPrior": "Distinct source unit from Bar-filb, Kni-filb, and the Kni-fila setup overlap; this Sam-fila program contains its own mines-style level initialization, stair/object/monster/trap statements.",
+      "disposition": "overlap-known-place_lregion-LR_BRANCH-before-target",
+      "recipe": "challenges/cases/v47/v47-samurai-filler-sam-fila-program-cfirst-attempt1.recipe.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-samurai-filler-sam-fila-program-cfirst-attempt1-independent.session.json",
+      "sha256": "1434805f5467e5fe347a057f264263c209de5c4cb9a11a1023baee987c85b4ac",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-samurai-filler-sam-fila-program-cfirst-attempt1.log",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 0,
+        "boundary": 1,
+        "key": null,
+        "owner": "initial-level generation -> rooms.js:place_lregion(LR_BRANCH type 3); Sam-fila load is not reached by JS"
+      }
+    },
+    {
+      "id": "v47-see-invisible-invisible-ogre-missmu-attempt1-cfirst",
+      "source": "mhitu.c:missmu invisible-but-spotted monster miss -> do_name.c:x_monnam",
+      "actions": "Wish and wear a ring of see invisible, create an invisible hostile ogre, and spend turns until its attack misses while still invisible and spotted.",
+      "observation": "Planned C-first. Count only if C shows the invisible hostile monster is spotted by the hero and reaches a miss; the target source branch is mhitu.c:missmu, including its x_monnam naming path for an invisible monster the hero can see.",
+      "closestPrior": "v12 make-invisible wand reaches zap.c:bhitm(WAN_MAKE_INVISIBLE), not a later monster miss. v10 see-invisible potion reaches potion.c:peffect_see_invisible, not mhitu.c:missmu. v19 invisible-orc warning-ring case is a warning glyph target miss and does not establish a spotted invisible attacker miss.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-see-invisible-invisible-ogre-missmu-attempt1-cfirst.recipe.session.json"
+    },
+    {
+      "id": "v47-see-invisible-invisible-ogre-missmu-attempt2-inventory",
+      "source": "mhitu.c:missmu invisible-but-spotted monster miss -> do_name.c:x_monnam",
+      "actions": "Repeat attempt1, inspect the actual inventory and ring menu, and correct the ring selector using C output.",
+      "observation": "C-first inventory/selector correction for attempt1. No JS comparison.",
+      "closestPrior": "v12 make-invisible wand is zap.c:bhitm(WAN_MAKE_INVISIBLE), not mhitu.c:missmu; v10 see-invisible potion is a different owner; v19 warning-ring case misses its warning threshold.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-see-invisible-invisible-ogre-missmu-attempt2-inventory.recipe.session.json"
+    },
+    {
+      "id": "v47-see-invisible-invisible-ogre-missmu-attempt3-wear-ring",
+      "source": "mhitu.c:missmu invisible-but-spotted monster miss -> do_name.c:x_monnam",
+      "actions": "Use slot o, the silver ring identified by C’s wear menu, then spend one turn and inspect monster activity.",
+      "observation": "C-first corrected ring-selector attempt; target requires see-invisible worn, invisible hostile ogre, and a miss by the spotted attacker.",
+      "closestPrior": "v12 WAN_MAKE_INVISIBLE and v10 peffect_see_invisible do not exercise mhitu.c:missmu. v19 ring-of-warning probe differs by its warning threshold and does not establish an attacker miss.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-see-invisible-invisible-ogre-missmu-attempt3-wear-ring.recipe.session.json"
+    },
+    {
+      "id": "v47-see-invisible-invisible-ogre-missmu-attempt4-finger-corrected",
+      "source": "mhitu.c:missmu invisible-but-spotted monster miss -> do_name.c:x_monnam",
+      "actions": "Choose the ring’s right finger from C’s prompt, then spend one turn.",
+      "observation": "C-first ring-finger correction; establish active see-invisible and attacker miss before differential.",
+      "closestPrior": "v12 WAN_MAKE_INVISIBLE, v10 peffect_see_invisible, and v19 warning-ring threshold do not exercise the spotted invisible attacker miss.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-see-invisible-invisible-ogre-missmu-attempt4-finger-corrected.recipe.session.json"
+    },
+    {
+      "id": "v47-see-invisible-invisible-ogre-missmu-attempt5-attack",
+      "source": "mhitu.c:missmu invisible-but-spotted monster miss -> do_name.c:x_monnam",
+      "actions": "Wear the C-identified silver ring on the right finger, let the ogre wield, then observe its next attack.",
+      "observation": "C-first attack attempt. The target remains a miss by the visible invisible ogre after its club-wield turn.",
+      "closestPrior": "v12 WAN_MAKE_INVISIBLE and v10 see-invisible potion are setup/action owners; neither reaches mhitu.c:missmu. v19 warning-ring case only probes warning rendering.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-see-invisible-invisible-ogre-missmu-attempt5-attack.recipe.session.json"
+    },
+    {
+      "id": "v47-see-invisible-invisible-grid-bug-missmu-attempt6-low-level",
+      "source": "mhitu.c:missmu invisible-but-spotted monster miss -> do_name.c:x_monnam",
+      "actions": "Use an invisible hostile grid bug to lower the hit chance; wear the C-identified see-invisible ring and let the bug act.",
+      "observation": "C-first source-distinct setup variation. Require C to show the still-invisible attacker misses while the see-invisible ring makes it spotted.",
+      "closestPrior": "v12 uses a hostile grid bug but its target is zap.c:bhitm(WAN_MAKE_INVISIBLE), not the subsequent missmu path. v10 is the see-invisible potion effect. Neither reaches this C branch.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-see-invisible-invisible-grid-bug-missmu-attempt6-low-level.recipe.session.json"
+    },
+    {
+      "id": "v47-see-invisible-grid-bug-missmu-seed47100102",
+      "source": "mhitu.c:missmu invisible-but-spotted monster miss -> do_name.c:x_monnam",
+      "actions": "Repeat the established invisible hostile grid bug setup with the same four-turn route and vary only the independent RNG seed to reach a miss roll.",
+      "observation": "C-first seed scan only. Require a spotted invisible attacker and the specific C miss message/call before counting.",
+      "closestPrior": "v12 reaches wand-of-make-invisible bhitm; v10 reaches the see-invisible potion; v19 warning ring does not reach this attack branch.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100102.recipe.session.json"
+    },
+    {
+      "id": "v47-see-invisible-grid-bug-missmu-seed47100103",
+      "source": "mhitu.c:missmu invisible-but-spotted monster miss -> do_name.c:x_monnam",
+      "actions": "Repeat the established invisible hostile grid bug setup with the same four-turn route and vary only the independent RNG seed to reach a miss roll.",
+      "observation": "C-first seed scan only. Require a spotted invisible attacker and the specific C miss message/call before counting.",
+      "closestPrior": "v12 reaches wand-of-make-invisible bhitm; v10 reaches the see-invisible potion; v19 warning ring does not reach this attack branch.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100103.recipe.session.json"
+    },
+    {
+      "id": "v47-see-invisible-grid-bug-missmu-seed47100104",
+      "source": "mhitu.c:missmu invisible-but-spotted monster miss -> do_name.c:x_monnam",
+      "actions": "Repeat the established invisible hostile grid bug setup with the same four-turn route and vary only the independent RNG seed to reach a miss roll.",
+      "observation": "Independent C replay is byte-identical. The ring is equipped on the right finger; the invisible hostile grid bug’s first post-setup bite matches and C then prints “The invisible grid bug misses!” at zero-based step 67. This is mhitu.c:missmu with the hero spotting the still-invisible monster. JS’s simple-monster action guard stops at this condition (`simple monster action requires a miss by an invisible monster the hero can see`), corresponding to js/mhitu.js:1368–69 and the skipped do_name.c:x_monnam/Monnam path; the next diff boundary is step 68. The independent replay is byte-identical. C and independent replay SHA-256: 500a4474ecfbd3e1db8eb7b0cd3e0330c37054f2c598231a142c5c7af16c6eed.",
+      "closestPrior": "v12 reaches wand-of-make-invisible bhitm; v10 reaches the see-invisible potion; v19 warning ring does not reach this attack branch.",
+      "disposition": "qualifying-mismatch-9",
+      "recipe": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.recipe.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-see-invisible-grid-bug-missmu-seed47100104-independent.session.json",
+      "sha256": "500a4474ecfbd3e1db8eb7b0cd3e0330c37054f2c598231a142c5c7af16c6eed",
+      "recipeSha256": "e943ff3e5b40eb6195855280f54cb90019d65660716e5db3602ce274b7a74ca6",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-see-invisible-grid-bug-missmu-seed47100104.log",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 67,
+        "boundary": 68,
+        "key": ".",
+        "owner": "mhitu.c:missmu invisible-and-spotted attacker miss; JS refuses the do_name.c:x_monnam/Monnam path before the miss message; diff first missing C call follows at monmove.c:distfleeck"
+      },
+      "recording": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.session.json"
+    },
+    {
+      "id": "v47-see-invisible-grid-bug-missmu-seed47100105",
+      "source": "mhitu.c:missmu invisible-but-spotted monster miss -> do_name.c:x_monnam",
+      "actions": "Repeat the established invisible hostile grid bug setup with the same four-turn route and vary only the independent RNG seed to reach a miss roll.",
+      "observation": "C-first seed scan only. Require a spotted invisible attacker and the specific C miss message/call before counting.",
+      "closestPrior": "v12 reaches wand-of-make-invisible bhitm; v10 reaches the see-invisible potion; v19 warning ring does not reach this attack branch.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100105.recipe.session.json"
+    },
+    {
+      "id": "v47-see-invisible-grid-bug-missmu-seed47100106",
+      "source": "mhitu.c:missmu invisible-but-spotted monster miss -> do_name.c:x_monnam",
+      "actions": "Repeat the established invisible hostile grid bug setup with the same four-turn route and vary only the independent RNG seed to reach a miss roll.",
+      "observation": "C-first seed scan only. Require a spotted invisible attacker and the specific C miss message/call before counting.",
+      "closestPrior": "v12 reaches wand-of-make-invisible bhitm; v10 reaches the see-invisible potion; v19 warning ring does not reach this attack branch.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100106.recipe.session.json"
+    },
+    {
+      "id": "v47-see-invisible-grid-bug-missmu-seed47100107",
+      "source": "mhitu.c:missmu invisible-but-spotted monster miss -> do_name.c:x_monnam",
+      "actions": "Repeat the established invisible hostile grid bug setup with the same four-turn route and vary only the independent RNG seed to reach a miss roll.",
+      "observation": "C-first seed scan only. Require a spotted invisible attacker and the specific C miss message/call before counting.",
+      "closestPrior": "v12 reaches wand-of-make-invisible bhitm; v10 reaches the see-invisible potion; v19 warning ring does not reach this attack branch.",
+      "disposition": "planned-c-first",
+      "recipe": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100107.recipe.session.json"
+    },
+    {
+      "id": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+      "source": "potion.c:make_hallucinated HALLUC timeout-clear branch -> eat.c:eatmupdate",
+      "actions": "Wish a small mimic corpse, set hallucination to 10 turns with #wizintrinsic, eat it from slot p, then dismiss the observed suitability, meal-completion, and mimic-start pages.",
+      "observation": "C reaches cpostfx(PM_SMALL_MIMIC) while hallucinating, starts orange-object mimicry, then clears hallucination during that state. C prints `Everything looks SO boring now. You now prefer mimicking yourself.` and changes the active mimic image. Independent replay is byte-identical. Recording/replay SHA-256: c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8. Fresh differential against accepted Main 643e2279 first differs at boundary 53, on timeout expiry, with a mimic-object glyph difference; the later RNG split begins at call 2259 (C rn2(1) in m_move; JS rn2(12)). JS reaches note_unported('eat.c eatmupdate') at potion.js:983-987.",
+      "closestPrior": "v9 peffect_hallucination turns hallucination on without active hero mimicry; v41 mimic-corpse cases exercise the pet's dogmove.c:quickmimic; v26 hero hide uses insight.c:youhiding and has no hallucination timeout transition.",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst-independent.session.json",
+      "sha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+      "recipeSha256": "39fd145127f7f4c41052613646c6eef92950924fc166825b6900382218052a41",
+      "disposition": "qualifying-mismatch-10",
+      "recipe": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.log",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 53,
+        "boundary": 53,
+        "key": " ",
+        "owner": "potion.c:make_hallucinated HALLUC timeout-clear branch -> eat.c:eatmupdate; JS explicitly skips the caller's active-mimic update"
+      }
+    },
+    {
+      "id": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+      "source": "do.c:dropz -> shk.c:sellobj for a hero-owned item deliberately dropped in a shop",
+      "actions": "Use the source wizard level transition to generated D:3, wish a +5 dagger, drop it in Upernavik's shop, dismiss the observed drop page, then accept the sale offer.",
+      "observation": "Independent C replay is byte-identical. At the drop prompt boundary, C enters shk.c:sellobj and prints Upernavik's offer; JS do.c:dropz records note_unported('shk.c sellobj') and omits the query. The fresh 643e2279 differential first differs at boundary 48; after the missing query, C alone creates the gold object with rnd(2)=1 at next_ident(mkobj.c:521). C recording and independent replay SHA-256: 83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525. Fresh differential log: .cache/prep-delivery/Prep11/main-643e2279/differentials/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.log.",
+      "closestPrior": "v40 rob_shop is a robbery/livelog branch; v40 shopdig is a live-keeper warning on a dig action; v43/v46 make_happy_shk cases exercise taming or pacification. No admitted manifest names sellobj or a hero-initiated sale offer.",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst-independent.session.json",
+      "sha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+      "recipeSha256": "d2da34f57daaaafb38866d452b63d8dbd42ee7fa80471edb5d112ef3dd69aec0",
+      "disposition": "qualifying-mismatch-11",
+      "recipe": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.log",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 48,
+        "boundary": 48,
+        "key": "o",
+        "owner": "do.c:dropz -> shk.c:sellobj sale-offer path; JS omits the source call, and the later next_ident gold-creation draw is downstream"
+      }
+    },
+    {
+      "id": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+      "source": "cmd.c:makemap_prepost(TRUE) -> dungeon.c:rm_mapseen for the replaced current level",
+      "actions": "Start a Barbarian debug game, take one turn so the starting level has an overview entry, run #wizmakemap, then run #overview.",
+      "observation": "The C command regenerates the current level; the later overview has one Level 1 row. The fresh differential matches all 5,031 RNG calls and first differs at overview boundary 24: C’s row is followed by the current map while JS has a duplicate Level 1 row. JS cmd.js:makemap_prepost records note_unported('dungeon.c rm_mapseen') and skips removal; replacement-level init_mapseen then appends a second D:1 record. C recording and byte-identical independent replay SHA-256: 1a058a4b18dcbf2754b4cca6cc2be1abec82a6f36a99e1a419423611a9b7790d. Differential summary is in .cache/prep-delivery/Prep11/logs/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-comparison.json; text log is .cache/prep-delivery/Prep11/logs/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-diff.log.",
+      "closestPrior": "v28-wiz-recreate-level stopped first at the then-unimplemented wiz_makemap dispatch and did not inspect overview. v37-wizmap-after-monster-reset first differed on a regenerated map cell after live-monster cleanup (row 20, column 37) and did not run #overview. This recipe’s first mismatch is specifically stale mapseen record removal and duplicate overview row.",
+      "recipe": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-independent.session.json",
+      "sha256": "1a058a4b18dcbf2754b4cca6cc2be1abec82a6f36a99e1a419423611a9b7790d",
+      "recipeSha256": "f43201b07f4e41b11b03ebbcf1802ccf164cd2b0a373d9e89f69bb6682a84390",
+      "comparisonLog": ".cache/prep-delivery/Prep11/logs/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-diff.log",
+      "disposition": "qualifying-mismatch-12",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 23,
+        "boundary": 24,
+        "key": "\\n",
+        "owner": "cmd.c:makemap_prepost(TRUE) -> dungeon.c:rm_mapseen; JS retains the replaced level entry, so #overview prints a duplicate Level 1 row"
+      }
+    },
+    {
+      "id": "v47-whip-captain-disarm-complete-attempt13-cfirst",
+      "source": "apply.c:use_whip on a hostile captain with a source-confirmed wielded weapon; disarm result path",
+      "actions": "Prepare the worn Dexterity ring and +5 bullwhip, establish C-observed experience level 30, create a hostile captain, wait until it wields its sword, then use the whip from the C-confirmed adjacent square and dismiss all pager boundaries.",
+      "observation": "C reaches the armed-monster disarm action; fresh differential fully matches: 2,609 RNG calls, 169 screens/cursors, and no animation frames. Independent C replay is byte-identical.",
+      "closestPrior": "Earlier v47 whip probes are setup misses or the separate armed-captain attack-state control. No admitted batch exercises the successful hero use_whip disarm action against an armed captain.",
+      "recipe": "challenges/cases/v47/v47-whip-captain-disarm-complete-attempt13-cfirst.recipe.session.json",
+      "recording": "challenges/cases/v47/v47-whip-captain-disarm-complete-attempt13-cfirst.session.json",
+      "independentReplay": ".cache/prep-delivery/Prep11/replays/v47-whip-captain-disarm-complete-attempt13-cfirst-independent.session.json",
+      "sha256": "7f35e482e0f8aff0ef6a0da37b349401c03b33789f6cd135776364da2bcfac05",
+      "recipeSha256": "36d4bf3d2c87562a46c68bd19ba8bcf69e5ccde34dfbaff2fe11ba6ef3d2f4e4",
+      "comparisonLog": ".cache/prep-delivery/Prep11/main-643e2279/differentials/v47-whip-captain-disarm-complete-attempt13-cfirst.log",
+      "disposition": "matching-control"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "v47-pri-fila-program",
+      "disposition": "overlap probe; identical source file and action exists in challenges/cases/v44/v44-pri-fila-program-cfirst."
+    },
+    {
+      "id": "v47-sam-fila-program",
+      "disposition": "overlap probe; identical source file and action exists in challenges/cases/v44/v44-sam-fila-program-cfirst."
+    },
+    {
+      "id": "v47-demonpet-barehand-polymorph",
+      "disposition": "overlap probe; v43 already reaches uhitm.c:damageum -> demonpet."
+    },
+    {
+      "id": "v47-energy-vortex-engulf-drain",
+      "disposition": "overlap probe; v46 already contains energy-vortex-drains-dragon reaching the same AD_DREN/xdrainenergym path."
+    },
+    {
+      "id": "v47-pet-leaves-by-migration",
+      "disposition": "deferred; the nearby pet uses the same keepdogs ordinary follower arm as v42, and a distant ordinary pet stays with its level rather than migrating."
+    },
+    {
+      "id": "v47-mjollnir-return-to-valkyrie",
+      "disposition": "overlap probe; v22 already recorded wished Mjollnir wielded and thrown through sho_obj_return_to_u; v45 separately explored boomerang return."
+    },
+    {
+      "id": "v47-hidden-mimic-death-unhides",
+      "disposition": "overlap probe; v45 already has mimic detach/seemimic C-first recipes and recordings."
+    },
+    {
+      "id": "v47-monster-missile-thitu",
+      "disposition": "overlap probe pending branch-specific crosswalk; v8 monster-thrown potion already reaches the m_throw/thitu family."
+    },
+    {
+      "id": "v47-rolling-boulder-trap-launch-creation",
+      "disposition": "overlap probe; v43 already reaches mkroll_launch placement."
+    },
+    {
+      "id": "v47-hostile-monster-picks-floor-object",
+      "disposition": "overlap probe; v11 already records hostile monster floor weapon pickup."
+    },
+    {
+      "id": "v47-fill-pit-with-boulder",
+      "disposition": "overlap probe; v41 already reaches trap.c:fill_pit from a hero boulder push."
+    },
+    {
+      "id": "v47-overcrowding-when-no-legal-square",
+      "disposition": "deferred after v44 no-legal-square target miss; not counted without a materially different successful setup."
+    },
+    {
+      "id": "v47-detect-opens-raised-drawbridge",
+      "disposition": "overlap/defer; v46 contains multiple Castle/drawbridge setup probes."
+    }
+  ],
+  "currentMainSha": "643e2279efd29389ff74a9fd5fe276f3aeaba62f",
+  "latestQueuePath": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+  "latestQueueSha256": "b898c491d2930a071e68d883e8544843bc9f6220c9891fb1b2e2a3520544a706",
+  "latestQueueCandidateIds": [
+    "v46-succubus-steals-monster-item-attempt2"
+  ],
+  "latestQueueUnmatchedSessions": 1
+}

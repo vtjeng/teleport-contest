@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected punishment-ball continuation: attempt 2 reached punishment and the attached ball's pool interaction, but its randomly cursed levitation ring blocked Ring_off. Wish an explicitly uncursed levitation ring, select its C-observed slot, recreate the pool and punishment, then remove levitation. No JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047203,
+      "datetime": "20571217111117",
+      "nethackrc": "OPTIONS=name:V47PunishBall3,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nuncursed ring of levitation\nPol #wizwish\npool\n#wizwish\ncursed scroll of punishment\nrp R     "
+    }
+  ]
+}

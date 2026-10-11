@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47070106,
+      "datetime": "20570106090100",
+      "nethackrc": "OPTIONS=name:V47HornedPet3,role:Monk,race:human,gender=female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".Da\nabcdefghijkl\n     #polyself\nhorned devil\n#wizgenesis\nhostile newt\nFuFuFuFu"
+    }
+  ],
+  "comment": "C-first reachability correction: use the map-observed northeast force-fight direction after #wizgenesis places the hostile newt. The intended owner remains uhitm.c:hmonas -> demonpet; no JavaScript differential yet."
+}

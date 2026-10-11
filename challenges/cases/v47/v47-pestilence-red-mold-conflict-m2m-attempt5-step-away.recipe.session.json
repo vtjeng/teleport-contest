@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction after attempt4 showed Pestilence choosing the adjacent hero rather than the adjacent red mold. Same seed and creation prefix as attempt3 confirm positions; immediately move east out of Pestilence's melee range so Conflict can select the adjacent fungus targets, then wait and inspect C output. The action is still only a setup path until C confirms Pestilence attacks red mold.",
+  "segments": [
+    {
+      "seed": 47001059,
+      "datetime": "20570615161721",
+      "nethackrc": "OPTIONS=name:V47PestConflict,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n 2#wizgenesis\nhostile red mold\n#wizgenesis\nhostile Pestilence\ny#wizmap\nl........#wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47100109,
+      "datetime": "20571009112738",
+      "nethackrc": "OPTIONS=name:V47WhipTurn12,role:Archeologist,race:human,gender=female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizwish\n+5 ring of increase dexterity\nPjl#wizwish\n+5 bullwhip\nwk#wizgenesis\nhostile captain\n. . #wizmap\n. #wizmap\naky"
+    }
+  ],
+  "comment": "C-first correction using attempt10’s C-confirmed inventory letters (ring j, whip k): allow the captain a second normal turn after its observed wand use so it can ready its generated sword, then remap and target the adjacent armed captain with the bullwhip. Retain/count only if MON_WEP is active before the whip and C reaches possibly_unwield."
+}

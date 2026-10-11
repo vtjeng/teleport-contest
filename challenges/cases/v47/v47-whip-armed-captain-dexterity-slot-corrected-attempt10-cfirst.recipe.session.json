@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47100109,
+      "datetime": "20570615201700",
+      "nethackrc": "OPTIONS=name:V47WhipDex2,role:Archeologist,race:human,gender=female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizwish\n+5 ring of increase dexterity\nPjl#wizwish\n+5 bullwhip\nwk#wizgenesis\nhostile captain\n. . #wizmap\naki y"
+    }
+  ],
+  "comment": "C-first correction after attempt9 revealed the wished ring occupies slot j and the bullwhip slot k; equip the ring on the left, wield the whip, allow the newly created source-armed captain two wait turns, dismiss the confirmed combat page, then apply the whip to the map-confirmed adjacent target. The C trace must confirm active MON_WEP and reach possibly_unwield before any JS comparison."
+}

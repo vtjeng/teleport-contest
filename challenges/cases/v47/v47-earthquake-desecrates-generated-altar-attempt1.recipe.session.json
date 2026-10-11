@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first replacement candidate for the missing music.c:do_earthquake -> pray.c:desecrate_altar caller. This uses a fresh depth-9 ordinary level, follows the independently observed map path to a generated low altar, and wishes a drum of earthquake there. The C trace must confirm the actual altar destruction and desecration before any differential.",
+  "segments": [
+    {
+      "seed": 47000147,
+      "datetime": "20571111091011",
+      "nethackrc": "OPTIONS=name:V47AltarQuake,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n9\n #wizmap\nkhkhkkkklkkkkkkhhhhhhhhhjhhkkkhhhhhhhhhhhhhhhjhhhhhhjjjhjjjjjjjhhkkhhh #wizwish\nDrum of earthquake\n #wizmap\n"
+    }
+  ]
+}

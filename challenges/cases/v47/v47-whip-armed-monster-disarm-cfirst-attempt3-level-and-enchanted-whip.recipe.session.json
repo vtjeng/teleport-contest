@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47001081,
+      "datetime": "20570615201510",
+      "nethackrc": "OPTIONS=name:V47WhipDisarm,role:Archeologist,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n10\n#wizwish\n+5 bullwhip\n#wizgenesis\nhostile watchman\n#wizmap\nwjajy ajy ajy ajy"
+    }
+  ],
+  "comment": "C-only revised setup after attempt2 missed with rnd(20)=11 at hitum. The correction uses source-relevant accuracy state (experience level 10 and a +5 bullwhip), then repeats the adjacent C-observed whip action after dismissing the miss pager. Count the intended branch only if C reports a wielded watchman weapon and the whip disarm branch reaches object extraction/possibly_unwield; do not compare JS during this setup attempt."
+}

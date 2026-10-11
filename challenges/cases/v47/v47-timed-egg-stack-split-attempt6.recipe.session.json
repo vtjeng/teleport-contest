@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first case: wish two eggs of giant ant, confirm recorder-observed inventory slot n, then split one through IA_ADJUST_STACK into z. The first mismatch is at the item-action split command; the extended wait is preserved as a target-miss probe, and no timed hatch behavior is claimed.",
+  "segments": [
+    {
+      "seed": 47001017,
+      "datetime": "20571011141014",
+      "nethackrc": "OPTIONS=name:V47EggTimerSplitE,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\n2 eggs of giant ant\ninIz...................................................................................................................................................................................................................."
+    }
+  ]
+}

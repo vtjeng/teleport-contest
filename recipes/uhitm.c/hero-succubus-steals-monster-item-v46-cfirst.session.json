@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent female Wizard replay of the hero succubus inventory theft path.",
+  "segments": [
+    {
+      "seed": 46104628,
+      "datetime": "20570101090713",
+      "nethackrc": "OPTIONS=name:CTheftV46b,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #polyself\nsuccubus\n#wizgenesis\nhostile orc-captain\nFy"
+    }
+  ]
+}

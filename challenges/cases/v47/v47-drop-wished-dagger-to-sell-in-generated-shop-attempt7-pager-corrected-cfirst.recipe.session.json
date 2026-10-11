@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47100115,
+      "datetime": "20571009112536",
+      "nethackrc": "OPTIONS=name:V47ShopSale,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizlevelport\n3\n  #wizmap\n#wizwish\n+5 dagger\ndo y"
+    }
+  ],
+  "comment": "C-first correction of the sale prompt boundary. After the deliberate shop drop, dismiss C’s confirmed pager with one space before answering the shopkeeper’s sale query; retain only if the source seller branch is reached."
+}

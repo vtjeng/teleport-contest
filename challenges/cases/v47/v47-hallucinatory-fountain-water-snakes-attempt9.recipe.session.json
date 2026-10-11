@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Attempt 8 revealed that the fate-20 foul-water result asks whether to dry up the fountain after the More boundary. Answer n to preserve the first fountain, then follow the recorded route to the second source-defined fountain.",
+  "segments": [
+    {
+      "seed": 47000150,
+      "datetime": "20571113111214",
+      "nethackrc": "OPTIONS=name:V47HallucFountainRoute3,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-2.lua\n #wizmap\n#wizwish\nwand of opening\n#wizwish\npotion of hallucination\nqnzmyhkkklllllqy nkkkllllqy"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only reachability attempt3 for eat.c:eatmupdate. The C timeout queue confirmed `20h` selects a 20-turn hallucination timeout. Eat the wished small mimic corpse and continue through its occupation; count only if timeout expiry runs after the C corpse effect has established orange-object mimicry.",
+  "segments": [
+    {
+      "seed": 47000133,
+      "datetime": "20571111111214",
+      "nethackrc": "OPTIONS=name:V47EatMimicTimeout,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nsmall mimic corpse\n#wizintrinsic\n20h\n eo.................................................."
+    }
+  ]
+}

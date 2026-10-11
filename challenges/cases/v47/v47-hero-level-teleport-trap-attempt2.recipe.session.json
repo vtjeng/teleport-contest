@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first direct trap placement probe for the hero level-teleport path: makewish's terrain handler creates a level-teleport trap at the current floor square, then reveal C's adjacent floor before moving off and back onto it. Preserve minend-3 attempt 1 as the source-file setup; no JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047302,
+      "datetime": "20571316101217",
+      "nethackrc": "OPTIONS=name:V47LevelTrap2,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nlevel teleport trap\n#wizmap\n"
+    }
+  ]
+}

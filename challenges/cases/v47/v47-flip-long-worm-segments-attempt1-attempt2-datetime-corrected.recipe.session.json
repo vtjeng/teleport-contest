@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Replacement C-first source route: create a long worm in the current wizard level, then horizontally flip the level through wizcmds.c:wiz_flip_level -> sp_lev.c:flip_level. The specific target is the worm.c:flip_worm_segs_horizontal segment update; no JavaScript differential before the full slate is reached. Corrected-recipe copy of the preserved earlier probe: use valid calendar datetime 20570517091017; earlier recipe/recording remains intact as attempt history.",
+  "segments": [
+    {
+      "seed": 47047701,
+      "datetime": "20570517091017",
+      "nethackrc": "OPTIONS=name:V47FlipWorm,role:Wizard,race:human,gender=male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizgenesis\nlong worm\n#wizfliplevel\n2"
+    }
+  ]
+}

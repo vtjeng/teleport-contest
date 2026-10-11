@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47001080,
+      "datetime": "20570615201210",
+      "nethackrc": "OPTIONS=name:V47WhipDisarm,role:Archeologist,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nbullwhip\n#wizgenesis\nhostile watchman\n#wizmap\nwjajy"
+    }
+  ],
+  "comment": "C-only correction of the initial scout, guided only by its C observation: the wished bullwhip is inventory letter j; #wizmap places a hostile watchman one northwest step from the hero. The recipe wields that bullwhip and uses it northwest. Count the target only if C reaches MON_WEP-based disarm rather than the ordinary lash/empty-hand branch; no JS result informed this correction."
+}

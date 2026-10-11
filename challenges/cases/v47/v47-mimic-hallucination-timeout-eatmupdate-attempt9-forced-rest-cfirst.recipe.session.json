@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only continuation after attempt8 shows the mimic occupation ends before the hallucination timeout is observed to expire when only spaces follow the pagers. Dismiss all four observed More prompts, then issue an explicit forced rest to pin the timeout transition; no JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 47000134,
+      "datetime": "20571111111214",
+      "nethackrc": "OPTIONS=name:V47EatMimicTimeout,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nsmall mimic corpse\n#wizintrinsic\n20h\n ep    20m."
+    }
+  ]
+}

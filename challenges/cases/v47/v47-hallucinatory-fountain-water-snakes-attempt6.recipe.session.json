@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Use the observed C #wizmap path to the fountain at (42,10). The first northeast step hits the closed door at (35,5), so allow C to open it, dismiss its message pager, enter, then follow the mapped path. Keep the wished wand unused; attempt 5 showed it did not remove this ordinary door on the selected zap.",
+  "segments": [
+    {
+      "seed": 47000203,
+      "datetime": "20571112101014",
+      "nethackrc": "OPTIONS=name:V47HallucFountain,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-2.lua\n #wizmap\n#wizwish\nwand of opening\n#wizwish\npotion of hallucination\nqou ullnnnnnqy"
+    }
+  ]
+}

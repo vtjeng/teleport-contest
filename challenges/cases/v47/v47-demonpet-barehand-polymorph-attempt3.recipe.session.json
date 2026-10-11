@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47070103,
+      "datetime": "20570103090100",
+      "nethackrc": "OPTIONS=name:V47BareDemon3,role:Monk,race:human,gender=female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "Da\nabcdefghijkl\n                #polyself\nmanes\n #wizgenesis\nhostile newt\n FhFhFlFlFjFjFkFk"
+    }
+  ],
+  "comment": "C-first corrected setup drops the starting inventory before polymorphing, dismisses the observed form and monster-creation pages, and then tests the bare-handed demonpet gate. C is the only comparator so far; no JavaScript differential is run before the planned slate is complete."
+}

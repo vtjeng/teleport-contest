@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Adapt the independently reached Minetown 2 fountain recipe at seed 47000150, whose #wizmap observation places the hero at (34,15) and whose observed wand slot m and path reach the fountain. Add and quaff a wished hallucination potion in slot n before the unchanged door/fountain route so C takes drinkfountain fate 22 if its draw selects snakes.",
+  "segments": [
+    {
+      "seed": 47000150,
+      "datetime": "20571111111214",
+      "nethackrc": "OPTIONS=name:V47HallucFountainRoute,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-2.lua\n #wizmap\n#wizwish\nwand of opening\n#wizwish\npotion of hallucination\nqnzmyhkkklllllqy"
+    }
+  ]
+}

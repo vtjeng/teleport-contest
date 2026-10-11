@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first reachability setup attempt 4 equips the fresh Wizard with a wished striking wand before summoning the hostile Wizard of Yendor, then inspects the real inventory slot and positions. It must still prove STRAT_HEAL from source output; no JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047104,
+      "datetime": "20571214111114",
+      "nethackrc": "OPTIONS=name:V47Tactics4,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nwand of striking\n#wizgenesis\nhostile Wizard of Yendor\ny#wizmap\ni\n"
+    }
+  ]
+}
