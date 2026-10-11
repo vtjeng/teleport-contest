@@ -1,0 +1,138 @@
+{
+  "session": "synthetic/v44/v44-magicbane-monster-probe-cfirst",
+  "corpus": "synthetic",
+  "batch": "v44",
+  "caseId": "v44-magicbane-monster-probe-cfirst",
+  "manifestPath": "challenges/manifests/v44.json",
+  "manifestSha256": "4eb8b2949c1c27ac716c7914f50df8f84e883a415fd05262428c2743f75841d0",
+  "recordingPath": "challenges/cases/v44/v44-magicbane-monster-probe-cfirst.session.json",
+  "recordingSha256": "168c9c11c7f79122b1ec2127268b84726de65285d4542715bfbffbe001fc95ed",
+  "evaluationPath": "challenges/evaluations/v44-baseline-542873573.json",
+  "evaluationCommit": "5428735736684d2c3a4a286d3a124f2887dfb547",
+  "remainingScreens": 5,
+  "recordedSteps": 108,
+  "status": "complete",
+  "commit": "805458f433d287559ae0d8007a134bda0a1c77bf",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v44",
+    "caseId": "v44-magicbane-monster-probe-cfirst",
+    "session": "synthetic/v44/v44-magicbane-monster-probe-cfirst",
+    "manifestPath": "challenges/manifests/v44.json",
+    "manifestSha256": "4eb8b2949c1c27ac716c7914f50df8f84e883a415fd05262428c2743f75841d0",
+    "recording": "challenges/cases/v44/v44-magicbane-monster-probe-cfirst.session.json",
+    "recordingPath": "challenges/cases/v44/v44-magicbane-monster-probe-cfirst.session.json",
+    "recordingSha256": "168c9c11c7f79122b1ec2127268b84726de65285d4542715bfbffbe001fc95ed",
+    "recipe": "challenges/cases/v44/v44-magicbane-monster-probe-cfirst.recipe.session.json",
+    "recipeSha256": "4912bec9bb62133850d83fadcc6b69fe13e5689692a15f497dbaf717f2b79333",
+    "replayInputSha256": "73ce6af99ed11efd3f7b25557f6a45415a1c4128ffadeaec7321e3cff79cbb7b",
+    "evaluationPath": "challenges/evaluations/v44-baseline-542873573.json",
+    "evaluationCommit": "5428735736684d2c3a4a286d3a124f2887dfb547",
+    "evaluationArtifact": "challenges/evaluations/v44-baseline-542873573.json",
+    "evaluationUtc": "2026-10-11T05:50:23.101Z",
+    "remainingScreens": 5,
+    "recordedSteps": 108,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 103,
+        "total": 108
+      },
+      "rng": {
+        "matched": 5192,
+        "total": 5192
+      },
+      "cursors": {
+        "matched": 104,
+        "total": 108
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 103,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 103,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 24,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 5192,
+        "cCaller": null,
+        "jsEntry": "rn2(20)=16",
+        "stepIndex": null
+      },
+      "cursor": {
+        "index": 103,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 103,
+          "key": " "
+        },
+        "cCursor": [
+          32,
+          0,
+          1
+        ],
+        "jsCursor": [
+          58,
+          18,
+          1
+        ]
+      }
+    },
+    "step": 103,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first v44 Magicbane mismatch is a missing production call from artifact.c:Mb_hit to the already implemented zap.c:probe_monster. When a hero hits a hostile monster with a +0 Magicbane and the MB_INDEX_PROBE branch is selected, C prints the insight message and then reports the target status and inventory. JavaScript stops at note_unported(\"zap.c probe_monster\"), so the target status page and subsequent no-inventory message are absent. The first screen and cursor mismatch is step 103; the C and JavaScript RNG streams agree for all 5192 expected calls before JavaScript makes one later extra call after the input/page sequence diverges.",
+  "source": {
+    "file": "artifact.c",
+    "branch": "The hero hits a hostile monster with Magicbane through artifact_hit, the AD_STUN artifact dispatch accepts the hit (dieroll <= MB_MAX_DIEROLL), and Mb_hit selects MB_INDEX_PROBE. In the selected case Magicbane has spe == 0, so the youattack probe condition succeeds without another random draw.",
+    "functions": [
+      "Mb_hit"
+    ],
+    "callers": [
+      "artifact.c:artifact_hit dispatches to Mb_hit when the weapon attacks with AD_STUN and dieroll <= MB_MAX_DIEROLL.",
+      "uhitm.c:hmon calls artifact_hit for the hero melee hit exercised by the selected recording.",
+      "JavaScript production path: uhitm.js:hmon -> artifacts.js:artifact_hit -> Mb_hit."
+    ],
+    "dependencies": [
+      "zap.c:probe_monster and its local probe_objchain are already implemented canonically in js/zap.js; Mb_hit still skips the call through note_unported.",
+      "zap.c:probe_monster calls insight.c:mstatusline before its inventory or no-inventory branch; those existing owners supply the output."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The authoritative saved combined queue has SHA-256 4d2fbb59ee38299c0fff283a3597d92083fcb640c66fdefac7c3de55ba5545ab. Its v44 entry uses manifest membership hash 4eb8b2949c1c27ac716c7914f50df8f84e883a415fd05262428c2743f75841d0, recording hash 168c9c11c7f79122b1ec2127268b84726de65285d4542715bfbffbe001fc95ed, and baseline evaluation challenges/evaluations/v44-baseline-542873573.json at 5428735736684d2c3a4a286d3a124f2887dfb547. It records 103/108 matching screens, 5192/5192 matching RNG calls, 104/108 matching cursors, and five remaining screens.",
+    "The queue locates the first mismatch at segment 0, step 103, on the space input: C has a dash at row 0, column 24 while JavaScript has a space; C cursor is [32,0,1] and JavaScript cursor is [58,18,1]. The queue reports JavaScript rn2(20)=16 as an extra call at RNG index 5192, after the expected C stream has ended.",
+    "The admitted C recording challenges/cases/v44/v44-magicbane-monster-probe-cfirst.session.json confirms the source order: step 102 attacks with the magic-absorbing blade probing the stone giant; its Mb_hit draws are rn2(11)=0 and rnd(4)=1. Since spe is zero, rn2(11)=0 makes do_stun false and leaves MB_INDEX_PROBE selected. Step 103 shows “The probe is insightful.--More--”; step 105 shows “Status of the stone giant ...” with another More prompt; step 107 reports that the giant is not carrying anything.",
+    "Upstream artifact.c:Mb_hit selects MB_INDEX_PROBE and calls probe_monster after the insight message (lines 1381-1386). artifact.c:artifact_hit dispatches Magicbane to Mb_hit at its AD_STUN and dieroll guard; uhitm.c:hmon reaches artifact_hit at lines 1015-1016.",
+    "JavaScript artifacts.js:Mb_hit emits the insight message and then calls note_unported(\"zap.c probe_monster\") at lines 1907-1913. Its artifact_hit already dispatches to Mb_hit at lines 2100-2104, and uhitm.js:hmon is the selected hero-melee production caller at lines 2793-2796.",
+    "The callee is already implemented: zap.c:probe_monster calls mstatusline first, then either probes and displays minventory or prints the no-inventory message (lines 625-640); local probe_objchain is at lines 612-623. js/zap.js has the matching probe_objchain at lines 1005-1016 and probe_monster at lines 3293-3313. scripts/zapyourself.test.mjs already pins the long-worm status-before-return behavior. The missing work is to complete the whole artifact.c:Mb_hit function by wiring this canonical callee, not to port zap.c again.",
+    "The source-based task kind is file-port because Mb_hit contains an explicit missing C call, rather than an incorrect implementation of the called probe behavior. Keep the implementation scope to the whole artifact.c:Mb_hit function and its existing production path; use scripts/artifacts.test.mjs for focused caller coverage. The admitted v44 range can provide runtime evidence after the corrected replay matches."
+  ]
+}
