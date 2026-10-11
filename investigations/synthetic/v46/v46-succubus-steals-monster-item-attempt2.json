@@ -129,7 +129,7 @@
       "steal_it() consumes theft_petrifies() as a boolean; both are in this uhitm.c task.",
       "theft_petrifies() consumes mondata.c:touch_petrifies() (pure and already ported in js/mondata.js) and calls trap.c:instapetrify() with a discarded void result (the existing js/trap.js implementation handles the hero death path).",
       "steal_it() consumes mhitu.c:could_seduce(), steal.c:findgold(), and invent.c:hold_another_object(); the corresponding existing JS functions are in mhitu.js, steal.js, and invent.js.",
-      "steal_it() calls steal.c:mpickobj(), worn.c:extract_from_minvent(), weapon.c:possibly_unwield(), and trap.c:mselftouch() with discarded results; their existing JS counterparts are in steal.js, worn.js, weapon.js, and trap_effects.js."
+      "steal_it() calls steal.c:mpickobj(), worn.c:extract_from_minvent(), weapon.c:possibly_unwield(), and trap.c:mselftouch() with discarded results; mpickobj, extract_from_minvent, and possibly_unwield have existing JavaScript implementations. trap.c:mselftouch is only partially implemented in trap_effects.js because its minstapetrify path is unported; preserve that void gap as note_unported('trap.c mselftouch') without using a result."
     ]
   },
   "goalKind": "file-port",
@@ -138,6 +138,6 @@
     "Queue entry from e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2 identifies segment 0 step 54, key l, with 54/55 screens, 2481/2481 RNG calls, and 54/55 cursors matched. At row 0 column 31 C shows s and JavaScript shows h; C cursor is [73,0,1] and JavaScript cursor is [59,0,1].",
     "The C recording at step 54 shows “You bite the orc-captain.  You steal:  o - a white-handed shield.--More--”. The source call is uhitm.c:mhitm_ad_sedu() at 4631, whose hero-attacker arm calls steal_it().",
     "At examined commit c1b9c6ee9313dfb9a380172e4134ad050fc3cbd0, js/uhitm.js:mhitm_ad_sedu() (3923 onward) records note_unported('uhitm.c steal_it') in its hero-attacker arm, which is the missing inventory-transfer behavior.",
-    "Source dependency audit found the return-valued theft_petrifies() call is local to uhitm.c and included in the proposed scope. Other return-valued callees are already ported in their canonical JS modules; discarded void helper results do not require new ownership."
+    "Source dependency audit found the return-valued theft_petrifies() call is local to uhitm.c and included in the proposed scope. Other return-valued callees are already ported in their canonical JS modules. The discarded trap.c:mselftouch() call remains an explicit void gap because its current JS body stops at unported minstapetrify(); no return value is used."
   ]
 }
