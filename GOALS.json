@@ -263154,6 +263154,232 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-v43-priest-ghod-hitsu-north-corrected-20261011",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Restore temple priest deity retaliation and altar deity naming",
+      "cFile": "priest.c",
+      "sessions": [
+        "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst"
+      ],
+      "selectionReason": "The current v43 queue first diverges at priest.c ghod_hitsu step 79; the complete investigation traces both active priest retaliation callers and the required altar-name helpers.",
+      "detail": "Port whole priest.c ghod_hitsu, pure pray.c a_gname_at and a_gname, and the exact active mon.c wakeup, uhitm.c hmon, pray.c offering, and invent.c dfeature_at call sites. Preserve the explicit offer_real_amulet frontier.",
+      "openedAt": "a4d02cb2480c4e97c5755b5206ba7f3e26f9d1fa",
+      "openStanding": {
+        "sha": "c64928df44aa809954e15310a8f77544ce9b51ab",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "ghod_hitsu",
+      "session": "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst",
+      "step": 79,
+      "syntheticProvenance": {
+        "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst": {
+          "session": "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.session.json",
+          "recordingSha256": "6a5fa06ef12755b7e11646d925f485a25d422f08ff7c6c16ee918f7ffa90fb3c",
+          "evaluationPath": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+          "evaluationCommit": "c64928df44aa809954e15310a8f77544ce9b51ab"
+        }
+      },
+      "activeStanding": {
+        "sha": "c64928df44aa809954e15310a8f77544ce9b51ab",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "session": "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.session.json",
+          "recordingSha256": "6a5fa06ef12755b7e11646d925f485a25d422f08ff7c6c16ee918f7ffa90fb3c",
+          "recipe": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "aeb433c2f0d40248ec09f7959131d9bdea36e4dd1ecb8123f8c5b6b16d1b0b82",
+          "replayInputSha256": "723df18fd4cb1c869ebc3c0d7ea6a48a9d42f69dda703a7a63cf77202c196bb0",
+          "evaluationPath": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+          "evaluationCommit": "c64928df44aa809954e15310a8f77544ce9b51ab",
+          "evaluationArtifact": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+          "evaluationUtc": "2026-10-11T02:59:34.296Z",
+          "remainingScreens": 0,
+          "recordedSteps": 80,
+          "previousScreensMatched": 80,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 80,
+              "total": 80
+            },
+            "rng": {
+              "matched": 8781,
+              "total": 8788
+            },
+            "cursors": {
+              "matched": 80,
+              "total": 80
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 8740,
+              "cEntry": "rn2(4)=3",
+              "cCaller": "ghod_hitsu(priest.c:827)",
+              "jsEntry": "rn2(3)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 79,
+                "key": "k"
+              },
+              "stepIndex": 79
+            },
+            "cursor": null
+          },
+          "step": 79,
+          "kind": "rng",
+          "sourceFile": "priest.c",
+          "function": "ghod_hitsu",
+          "message": null,
+          "cFile": "priest.c",
+          "luaFile": null,
+          "line": 827,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.json",
+            "result": {
+              "session": "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst",
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-priest-ghod-hitsu-north-corrected-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "6a5fa06ef12755b7e11646d925f485a25d422f08ff7c6c16ee918f7ffa90fb3c",
+              "evaluationPath": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+              "evaluationCommit": "c64928df44aa809954e15310a8f77544ce9b51ab",
+              "remainingScreens": 0,
+              "recordedSteps": 80,
+              "status": "complete",
+              "commit": "c64928df44aa809954e15310a8f77544ce9b51ab",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-priest-ghod-hitsu-north-corrected-cfirst",
+                "session": "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.session.json",
+                "recordingSha256": "6a5fa06ef12755b7e11646d925f485a25d422f08ff7c6c16ee918f7ffa90fb3c",
+                "recipe": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.recipe.session.json",
+                "recipeSha256": "aeb433c2f0d40248ec09f7959131d9bdea36e4dd1ecb8123f8c5b6b16d1b0b82",
+                "replayInputSha256": "723df18fd4cb1c869ebc3c0d7ea6a48a9d42f69dda703a7a63cf77202c196bb0",
+                "evaluationPath": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+                "evaluationCommit": "c64928df44aa809954e15310a8f77544ce9b51ab",
+                "evaluationArtifact": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+                "evaluationUtc": "2026-10-11T02:59:34.296Z",
+                "remainingScreens": 0,
+                "recordedSteps": 80,
+                "previousScreensMatched": 80,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 80,
+                    "total": 80
+                  },
+                  "rng": {
+                    "matched": 8781,
+                    "total": 8788
+                  },
+                  "cursors": {
+                    "matched": 80,
+                    "total": 80
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 8740,
+                    "cEntry": "rn2(4)=3",
+                    "cCaller": "ghod_hitsu(priest.c:827)",
+                    "jsEntry": "rn2(3)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 79,
+                      "key": "k"
+                    },
+                    "stepIndex": 79
+                  },
+                  "cursor": null
+                },
+                "step": 79,
+                "kind": "rng",
+                "sourceFile": "priest.c",
+                "function": "ghod_hitsu",
+                "message": null,
+                "cFile": "priest.c",
+                "luaFile": null,
+                "line": 827
+              },
+              "summary": "When an attack angers a peaceful priest in a temple, mon.c:wakeup calls priest.c:ghod_hitsu before the later uhitm.c:hmon wrapper. The C function selects a temple boundary with rn2(4), tests whether the hero is lined up with that square, and returns early when the line fails; JavaScript currently skips the function at both active callers. The v43 case reaches this boundary choice and exposes the missing draw while all 80 screens and cursors match. Port ghod_hitsu, wire both callers, and provide the source-exact a_gname_at and a_gname helpers for its deity messages and their other active callers.",
+              "source": {
+                "file": "priest.c",
+                "branch": "In an occupied temple with a priest who has a shrine, ghod_hitsu checks the altar position and line to the hero. When the hero is already on the shrine or is not lined up with it, it uses the door geometry or rn2(4) to choose a temple boundary, then returns if linedup() fails. A valid line consumes rn2(3), prints one of three deity responses, fires a six-die monster lightning spell from the selected square, restores current_wand and buzzer, and exercises Wisdom.",
+                "functions": [
+                  "ghod_hitsu() whole priest.c:796-874",
+                  "wakeup() whole mon.c:4333-4362; preserve the existing hot_pursuit frontier",
+                  "hmon() whole uhitm.c:817-834; preserve the existing angry_guards caller",
+                  "a_gname_at() whole pray.c:2514-2520; pure altar-to-deity name helper required by ghod_hitsu's consumed message value",
+                  "a_gname() whole pray.c:2507-2509; pure current-square wrapper wired into active offer_different_alignment_altar(), offer_corpse(), and invent.c:dfeature_at() callers"
+                ],
+                "callers": [
+                  "mon.c:wakeup:4357-4358 calls ghod_hitsu after setmangry when via_attack and the priest was peaceful; this is the exercised C path in the selected session",
+                  "uhitm.c:hmon:829-830 calls ghod_hitsu after hmon_hitmon when the priest gate rn2(2) succeeds",
+                  "pray.c:offer_different_alignment_altar:1642,1651,1660 and pray.c:offer_corpse:1981 call a_gname(); the active JS equivalents now use a_gname(state)",
+                  "invent.c:dfeature_at:4078 calls a_gname(); js/look_here calls dfeature_at(ux,uy), and its altar branch now uses the exact hero-square wrapper",
+                  "pray.c:offer_real_amulet:1542,1567,1569 also call a_gname(), but js/pray.js:413 explicitly refuses that source path, so there is no active JS production caller to wire"
+                ],
+                "dependencies": [
+                  "Reuse existing priest.c:temple_occupied and has_shrine implementations in js/priest.js.",
+                  "Reuse mthrowu.c:linedup in js/mthrowu.js; boulderhandling 1 skips its random test but retains its gt.tbx/gt.tby updates for the following direction.",
+                  "Reuse zap.c:buzz and dobuzz plus the existing lightning zhitu path in js/zap.js; the ghod_hitsu caller discards buzz's return value, but the ray's side effects are required.",
+                  "Reuse attrib.c:exercise, hacklib.c:sgn, const.js:IS_DOOR and u_at, and hacklib.c:s_suffix.",
+                  "The existing pray.c:a_align macro and align_gname implementation in js/pray.js supply the pure alignment operations for a_gname_at and a_gname. Active pray.js callers and invent.js:dfeature_at use the source wrapper; offer_real_amulet remains fail-closed and has no active JS caller."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved queue SHA-256 6a10f4282f6c57cf04294a5a97ba4835ab8ea0663c5863e8148850cd3a389288 identifies this v43 case at earliest step 79 with zero remaining screen mismatches.",
+                "The accepted c64928df44aa809954e15310a8f77544ce9b51ab v43 evaluation records 80/80 screens, 80/80 cursors, and 8781/8788 RNG matches; its first RNG divergence is C rn2(4)=3 in priest.c:ghod_hitsu while JavaScript proceeds to uhitm.c:mhitm_knockback.",
+                "The selected recording's step 79 RNG sequence starts with the matching hunger, exercise, hit roll, weapon damage, then rn2(4)=3 @ ghod_hitsu(priest.c:827), followed by mhitm_knockback's rn2(3) and rn2(6). C's step-79 message remains the priest hit and anger pager; ghod_hitsu's chosen boundary does not pass linedup, so the source returns before rn2(3), deity text, or the lightning ray.",
+                "Source inspection confirms the exact early-return branch at priest.c:796-874, the two active direct callers in mon.c:wakeup:4357-4358 and uhitm.c:hmon:829-830, and matching JavaScript refusal markers in js/mon.js:wakeup and js/uhitm.js:hmon. A source search finds no other active ghod_hitsu caller.",
+                "The required C function is not reserved by another worker: C owns mon.c:mondead, a different source function, and B owns zap.c:makewish, also a different source function. The active A2 leprechaun delivery reserves uhitm.c:mhitm_ad_sgld, distinct from hmon. Same-file functions remain separate under .agents/selection.md's source reservations rule.",
+                "An independently chosen Healer recording at recordings/priest.c/priest-hmon-second-response-independent.session.json exercises the caller order through hmon_hitmon, mon.c:wakeup, uhitm.c:hmon, and two priest.c:ghod_hitsu calls at segment 0, step 116. Its C RNG trace is rn2(4)=2 @ ghod_hitsu, rn2(2)=0 @ hmon, rn2(4)=2 @ ghod_hitsu. Both ghod_hitsu calls return at the source linedup boundary; this recording verifies the hmon gate and call order, not the later deity message or ray branches. The full C/JavaScript recording differential matches all 120 steps."
+              ],
+              "replayInputSha256": "723df18fd4cb1c869ebc3c0d7ea6a48a9d42f69dda703a7a63cf77202c196bb0",
+              "evaluationArtifact": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+              "evaluationUtc": "2026-10-11T02:59:34.296Z",
+              "queueSha256": "6a10f4282f6c57cf04294a5a97ba4835ab8ea0663c5863e8148850cd3a389288"
+            }
+          }
+        }
+      ]
     }
   ]
 }
