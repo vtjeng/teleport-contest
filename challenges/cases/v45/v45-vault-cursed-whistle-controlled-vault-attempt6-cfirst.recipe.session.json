@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026000,
+      "datetime": "20581011131700",
+      "nethackrc": "OPTIONS=name:V45VaultTarget,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizintrinsic\n150o>>150j\n  \n#wizwish\ncursed tin whistle\n#wizwish\nteleportation trap\nkjllllllllllllllllllllllllllllllllllllllllllllllllllllj.i"
+    }
+  ],
+  "comment": "Port-only seed scan range 45026000..45026000 found an actual VAULT room at (61..62,17..18). The previous attempt exposed intrinsic-menu pager order; this corrected C recipe sets teleport and control, wishes a cursed tin whistle and teleportation trap, then selects the vault coordinate after triggering the trap."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026000,
+      "datetime": "20581011131700",
+      "nethackrc": "OPTIONS=name:V45VaultTarget,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizintrinsic\n150o>>150j\n  \n#wizwish\ncursed tin whistle\n#wizmap\n\u0014  llllllllllllllllllllllllllllllllllllllllllllllllllll. #wizmap\nao"
+    }
+  ],
+  "comment": "C continuation after selecting the “dark part of a room” vault tile. Dismiss the landing pager, map the actual landing, then apply the cursed tin whistle in slot o. The only purpose is to establish whether C reaches vault_occupied before differential."
+}

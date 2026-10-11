@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024711,
+      "datetime": "20591017141611",
+      "nethackrc": "OPTIONS=name:V45LightGremlin,role:Valkyrie,race:dwarf,gender=female,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nSunsword\n#wizgenesis\nhostile gremlin\ny#wizmap\n"
+    }
+  ],
+  "comment": "C-first setup probe for uhitm.c:hmon_hitmon_msg_lightobj. Wish Sunsword and create a hostile gremlin; inspect C's actual adjacent square before selecting a forced melee direction."
+}

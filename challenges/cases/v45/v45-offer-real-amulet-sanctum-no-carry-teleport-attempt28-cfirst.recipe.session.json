@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024723,
+      "datetime": "20610921151617",
+      "nethackrc": "OPTIONS=name:V45SanctumOfferBare,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n?\n>v #teleport\n  llllllllllllllllllllllllllllllllljjjjjjj. #wizkill\n  ll. l. j.  \u001b\u001b\u001bll #wizwish\nAmulet of Yendor\n  potion of healing\n#offer\no"
+    }
+  ],
+  "comment": "C-first isolated pray.c:offer_real_amulet case. The hero enters Sanctum without the Amulet, clears local defenders, wishes for it after arrival, then offers the C-observed inventory slot o. This avoids scrolltele’s carried-Amulet guard as the first behavior."
+}

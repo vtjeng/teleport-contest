@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first reached camera-hit branch. `#wizwish` puts the expensive camera in inventory slot o; the complete wield list needs * then space to page 2 before selecting o. The corrected C map shows the newt diagonally northwest, so use y to swing the wielded camera. Preserve the first C source call through uhitm.c:hmon_hitmon_misc_obj(EXPENSIVE_CAMERA) -> dothrow.c:release_camera_demon.",
+  "segments": [
+    {
+      "seed": 45023503,
+      "datetime": "20581013132700",
+      "nethackrc": "OPTIONS=name:V45CameraPickup,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nexpensive camera\n#wizgenesis\nhostile newt\nw* oy"
+    }
+  ]
+}

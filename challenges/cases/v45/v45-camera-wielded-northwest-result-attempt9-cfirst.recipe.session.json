@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first camera melee result: pick a wielded camera from page 2 of the full wield list, swing northwest at the C-map-confirmed adjacent newt, then dismiss the resulting More pager to establish whether hmon_hitmon_misc_obj reaches the expensive-camera destruction/release call.",
+  "segments": [
+    {
+      "seed": 45023503,
+      "datetime": "20581013132700",
+      "nethackrc": "OPTIONS=name:V45CameraPickup,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nexpensive camera\n#wizgenesis\nhostile newt\nw* oy "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Vrock hit attempt. Create a sleeping hostile Vrock to reduce risk, reveal the map, then strike its C-observed adjacent tile with the starting quarterstaff. The intended call chain is uhitm.c:hmon successful hit -> monmove.c:monflee -> region.c:create_gas_cloud.",
+  "segments": [
+    {
+      "seed": 45024532,
+      "datetime": "20581013132800",
+      "nethackrc": "OPTIONS=name:V45VrockCloud,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nsleeping hostile vrock\n#wizmap\nu"
+    }
+  ]
+}

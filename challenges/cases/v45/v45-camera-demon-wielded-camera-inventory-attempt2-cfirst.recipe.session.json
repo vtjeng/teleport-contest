@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only continuation of the camera setup: inspect the newly wished camera's inventory letter and the newt's C-observed position before choosing the wielded-camera attack. Preserve this selector probe separately from any completed case.",
+  "segments": [
+    {
+      "seed": 45023501,
+      "datetime": "20581012121700",
+      "nethackrc": "OPTIONS=name:V45CameraDemon,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nexpensive camera\n #wizgenesis\nhostile newt\n #wizmap\ni"
+    }
+  ]
+}

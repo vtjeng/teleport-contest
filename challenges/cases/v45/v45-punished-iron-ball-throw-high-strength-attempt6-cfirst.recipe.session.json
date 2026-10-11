@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Materially different high-capacity C-first setup for dothrow.c:throwit -> ball.c:drop_ball. The prior Wizard attempt could not lift the attached heavy iron ball; use a Barbarian role to raise the source carrying-capacity contract, then read the punishment scroll, pick up the attached ball, and throw it onto clear floor if C permits.",
+  "segments": [
+    {
+      "seed": 45101206,
+      "datetime": "20581010102600",
+      "nethackrc": "OPTIONS=name:V45BallThrowStrength,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\nro , t p h"
+    }
+  ]
+}

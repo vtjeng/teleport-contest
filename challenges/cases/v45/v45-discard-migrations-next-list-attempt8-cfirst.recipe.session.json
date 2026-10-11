@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected next-list inspection. Wish the Amulet plus its bonus healing potion, create one random D:2 migrant, invoke #migratemons again, dismiss the count pager, select n at 'List which?' to display the migrating monster, dismiss the text window, cancel the optional count with ESC, then choose N - earth through Ctrl-V. The C recording must establish one actual migrating entity and the endgame transition.",
+  "segments": [
+    {
+      "seed": 45024508,
+      "datetime": "20581013132600",
+      "nethackrc": "OPTIONS=name:V45DiscardEndgame6,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nAmulet of Yendor\n  uncursed potion of healing\n#migratemons\n 1\n#migratemons\n n \u001b\u0016?\n  N"
+    }
+  ]
+}

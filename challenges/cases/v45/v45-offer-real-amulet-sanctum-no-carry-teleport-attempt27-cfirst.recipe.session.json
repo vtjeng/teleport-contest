@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024723,
+      "datetime": "20610921151617",
+      "nethackrc": "OPTIONS=name:V45SanctumOfferBare,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n?\n>v #teleport\n  llllllllllllllllllllllllllllllllljjjjjjj. #wizkill\n  ll. l. j.  \u001b\u001b\u001bll #wizwish\nAmulet of Yendor\n  potion of healing\n#offer\np"
+    }
+  ],
+  "comment": "C-first isolation of pray.c:offer_real_amulet after reaching Sanctum without the Amulet, so teleport.c:scrolltele’s carried-Amulet guard cannot be the first mismatch. Seed 45024723 places Sanctum at D:47. C-confirmed teleport coordinates reach the two-west floor; wizkill clears the barbed devil, demilich, and high priest before stepping to the altar and wishing for the Amulet."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first seed-and-position probe for uhitm.c:nohandglow. Keep ordinary human Wizard at level 1 to reduce bare-hand damage; reach the scroll buff, clear hands, create the hostile newt, and inspect its position before choosing the direction. This replaces the level-10 attempt that killed its target in one hit.",
+  "segments": [
+    {
+      "seed": 45024817,
+      "datetime": "20611012131420",
+      "nethackrc": "OPTIONS=name:V45NoHandGlow9,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of confuse monster\nro confuse\nw-#wizgenesis\nhostile newt\n#wizmap\n"
+    }
+  ]
+}

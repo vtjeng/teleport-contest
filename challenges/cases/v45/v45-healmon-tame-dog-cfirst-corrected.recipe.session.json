@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052006,
+    "datetime": "20561206121516",
+    "nethackrc": "OPTIONS=name:V45HealMon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": " \u0007tame dog\n\u0017wand of striking\n\u0017wand of healing\nzoyzpy",
+    "recorderIsDst": true
+  }],
+  "comment": "C-only continuation using the prior C-observed inventory: the first wished wand is slot o (striking), the second slot p (healing), and the dog is northwest of hero. Strike then heal the tame dog to establish mon.c:healmon."
+}

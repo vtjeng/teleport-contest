@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45052001,
+      "datetime": "20561101091011",
+      "nethackrc": "OPTIONS=name:V45Boomerang,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017boomerang\ntah",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first candidate for dothrow.c:sho_obj_return_to_u. Wish an independent boomerang and throw it west to test its return flight; inspect C prompts/output before choosing any further input."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup probe for dog.c:discard_migrations. In debug wizard mode, use the source-provided #migratemons command to send one independently generated ordinary monster from the main dungeon to the next non-endgame level. Preserve whether the configured recorder build exposes this migration helper; no JavaScript comparison is run before the C-first slate is complete.",
+  "segments": [
+    {
+      "seed": 45024501,
+      "datetime": "20581013131900",
+      "nethackrc": "OPTIONS=name:V45DiscardMigrations,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#migratemons\n1\n"
+    }
+  ]
+}

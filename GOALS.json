@@ -267064,39 +267064,46 @@
     {
       "id": "port-dog-mon-arrive-losedogs-v43-20261011",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port dog.c level arrival and elapsed monster catch-up",
       "cFile": "dog.c",
       "sessions": [
         "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst"
       ],
-      "selectionReason": "The refreshed current queue has one mismatch: v43 stops at dog.c:mon_arrive after the accepted keepdogs departure port.",
+      "selectionReason": "synthetic/v43 mounted steed descent diverged at dog.c level-arrival handling; whole losedogs, mon_arrive, elapsed catch-up, and consumed stairway lookup were selected from source",
       "detail": "Port contiguous dog.c losedogs, mon_arrive, and mon_catchup_elapsed_time; port required return-valued stairs.c stairway_find; wire existing do.c and cmd.c callers plus restore.c restmon and the existing-Wizard resurrection path. Keep void make_happy_shoppers and deliver_obj_to_mon callees as explicit gaps.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "87e183f4e58cd1ceae71086f9149a84419ab7c1a",
+      "openStanding": {
+        "sha": "87e183f4e58cd1ceae71086f9149a84419ab7c1a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "87e183f4e58cd1ceae71086f9149a84419ab7c1a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "losedogs",
           "line": 304,
           "endLine": 419,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "mon_arrive",
           "line": 420,
           "endLine": 626,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "mon_catchup_elapsed_time",
           "line": 627,
           "endLine": 728,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -267108,9 +267115,9 @@
           "name": "stairway_find",
           "line": 50,
           "endLine": 63,
-          "declared": false,
+          "declared": true,
           "sourceFile": "stairs.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -267126,6 +267133,234 @@
           "evaluationPath": "challenges/evaluations/accepted-61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983-v43.json",
           "evaluationCommit": "61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983"
         }
+      },
+      "activeStanding": {
+        "sha": "87e183f4e58cd1ceae71086f9149a84419ab7c1a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "losedogs",
+            "implementation": "js/dog.js",
+            "symbol": "losedogs",
+            "sourceReview": "Read the complete dog.c:losedogs definition (304-417), including dismissed-shopkeeper policing, exact migrants before followers, With_you follower order, non-exact migrants after followers, and the failed_arrivals list. JavaScript mirrors that order. It records the discarded void shk.c:make_happy_shoppers(TRUE) call. Failed placement re-adds the C monster to fmon, then records the discarded mon.c:m_into_limbo() -> dog.c:migrate_to_level() boundary without invoking the existing partial migration adapter. The latter remains an explicit downstream gap; losedogs and its ordering are implemented whole.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c:goto_level calls losedogs() after restoring the destination level at line 1816; js/do.js calls dog.js:losedogs at the matching level-arrival point."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "makemap_prepost",
+                "source": "cmd.c:makemap_prepost(FALSE) calls losedogs() after replacing a wizard-made map at line 1047; js/cmd.js:makemap_prepost wires the same post-replacement call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dog-migrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dog.c/mon-arrive-elapsed-migrant-probe.session.json",
+              "recordings/dog.c/mon-arrive-exact-wizard-probe.session.json",
+              "recordings/wizcmds.c/makemap-pet-transfer-outside-limit.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 165,
+                "source": "do.c:goto_level -> dog.c:losedogs -> dog.c:mon_arrive(With_you), including the mounted-steed early return"
+              }
+            ],
+            "checkedAt": "87e183f4e58cd1ceae71086f9149a84419ab7c1a"
+          },
+          {
+            "name": "mon_arrive",
+            "implementation": "js/dog.js",
+            "symbol": "mon_arrive",
+            "sourceReview": "Read the complete dog.c:mon_arrive definition (420-624), preserving arrival flags, residency, worm setup, source-level tracking, chameleon restoration, the early mounted-steed return, With_you placement, independent-arrival elapsed catch-up and wander, exact/stair/portal/hero/random destination selection, mnearto/rloc placement, and failed-arrival routing. stairs.c:stairway_find is ported because mon_arrive consumes its return value for MIGR_SSTAIRS. The C-discarded dokick.c:deliver_obj_to_mon and pline.c:impossible calls remain named void gaps. Failed arrivals record the void mon.c:m_into_limbo() -> dog.c:migrate_to_level() downstream gap without entering that partial adapter.",
+            "callers": [
+              {
+                "path": "js/dog.js",
+                "symbol": "losedogs",
+                "source": "dog.c:losedogs calls mon_arrive for Before_you, With_you, and After_you in that order at lines 371, 383, and 397."
+              },
+              {
+                "path": "js/wizard.js",
+                "symbol": "resurrectMigratingWizard",
+                "source": "wizard.c:resurrect calls mon_arrive(mtmp, Wiz_arrive) at line 748; js/do.js:goto_level supplies the monArrive adapter to js/wizard.js:resurrect, which routes the existing-Wizard arm through this function."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "The production level-transition caller injects dog.js:mon_arrive and dog.js:mon_catchup_elapsed_time into wizard.js:resurrect, matching do.c:goto_level -> wizard.c:resurrect -> dog.c:mon_arrive."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dog-migrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dog.c/mon-arrive-elapsed-migrant-probe.session.json",
+              "recordings/dog.c/mon-arrive-exact-wizard-probe.session.json",
+              "recordings/wizard.c/resurrect-existing-wizard-endgame-probe.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 165,
+                "source": "do.c:goto_level -> dog.c:losedogs -> dog.c:mon_arrive(With_you); C returns for u.usteed before map placement"
+              }
+            ],
+            "checkedAt": "87e183f4e58cd1ceae71086f9149a84419ab7c1a"
+          },
+          {
+            "name": "mon_catchup_elapsed_time",
+            "implementation": "js/dog.js",
+            "symbol": "mon_catchup_elapsed_time",
+            "sourceReview": "Read the complete dog.c:mon_catchup_elapsed_time definition (627-724), preserving LARGEST_INT capping, temporary-timer recovery order, conditional rn2 calls, eating completion, special cooldown, tame decay and untaming, pet hunger, leash cleanup, nonregenerator healing, and last-move update. The C-discarded pline.c:impossible diagnostic for zero time is recorded as a void gap; mon.c:m_unleash is wired for the discarded-result leash cleanup call.",
+            "callers": [
+              {
+                "path": "js/dog.js",
+                "symbol": "mon_arrive",
+                "source": "dog.c:mon_arrive calls mon_catchup_elapsed_time for independent arrivals after elapsed time at line 495."
+              },
+              {
+                "path": "js/restore.js",
+                "symbol": "getlev",
+                "source": "restore.c:restmon calls mon_catchup_elapsed_time for restored level monsters at line 1213; js/restore.js:getlev imports and calls the canonical dog.js implementation."
+              },
+              {
+                "path": "js/wizard.js",
+                "symbol": "resurrectMigratingWizard",
+                "source": "wizard.c:resurrect catches up the migrating Wizard at line 738; js/do.js:goto_level passes the dog.js catch-up adapter into js/wizard.js:resurrect."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "The endgame-arrival adapter wires wizard.js:resurrect to dog.js:mon_catchup_elapsed_time, matching do.c:goto_level -> wizard.c:resurrect -> dog.c:mon_catchup_elapsed_time."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dog-migrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dog.c/mon-arrive-elapsed-migrant-probe.session.json",
+              "recordings/dog.c/mon-arrive-exact-wizard-probe.session.json",
+              "recordings/wizard.c/resurrect-existing-wizard-endgame-probe.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "87e183f4e58cd1ceae71086f9149a84419ab7c1a"
+          },
+          {
+            "name": "stairway_find",
+            "implementation": "js/stairs.js",
+            "symbol": "stairway_find",
+            "sourceReview": "Read the complete stairs.c:stairway_find definition (50-64). It walks gs.stairs in linked-list order, returns the first stair whose tolev exactly matches fromdlev, or null, and does not mutate game state, write output, or consume randomness.",
+            "callers": [
+              {
+                "path": "js/dog.js",
+                "symbol": "mon_arrive",
+                "source": "dog.c:mon_arrive calls stairway_find(&fromdlev) when the saved migration destination is MIGR_SSTAIRS at line 536; js/dog.js:mon_arrive uses the source-matched stairs.js helper."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/stairs.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "stairs.c",
+            "synthetic": [],
+            "checkedAt": "87e183f4e58cd1ceae71086f9149a84419ab7c1a"
+          }
+        ],
+        "entryPointReview": "All direct production callers are wired: do.c:goto_level -> js/do.js:goto_level and cmd.c:makemap_prepost(FALSE) -> js/cmd.js:makemap_prepost call losedogs; losedogs dispatches Before_you, With_you, and After_you to mon_arrive; wizard.c:resurrect is reached from do.c:goto_level and its existing-Wizard arm uses the dog.js mon_arrive/catch-up adapters; restore.c:restmon -> js/restore.js:getlev uses the same catch-up owner. The independent random-migrant recipe exercises After_you plus elapsed catch-up; the exact Wizard recipe returns to the saved level to exercise restore catch-up and Before_you; the separate Fire-plane recipe reaches wizard.c:resurrect's existing-Wizard branch and records its `elude` line. The prior wizard map-replacement recording covers cmd.c:makemap_prepost's losedogs caller. The admitted v43 prefix through step 165 covers the With_you mounted-steed early return. stairs.c:stairway_find is a pure source helper called by mon_arrive's MIGR_SSTAIRS arm and its return values are pinned in scripts/stairs.test.mjs. Explicit downstream gaps are the discarded shk.c:make_happy_shoppers(TRUE), dokick.c:deliver_obj_to_mon, pline.c:impossible diagnostics, and failed-arrival mon.c:m_into_limbo() -> the still-partial dog.c:migrate_to_level adapter; those calls are recorded and skipped where C discards results. No behavior from dog.c:migrate_to_level is claimed.",
+        "entryPoints": [
+          {
+            "name": "Level transition restores exact-position migrants before arriving followers and other migrants",
+            "functions": [
+              "losedogs",
+              "mon_arrive",
+              "mon_catchup_elapsed_time",
+              {
+                "sourceFile": "stairs.c",
+                "name": "stairway_find"
+              }
+            ],
+            "recordings": [
+              "recordings/dog.c/mon-arrive-exact-wizard-probe.session.json",
+              "recordings/dog.c/mon-arrive-elapsed-migrant-probe.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Restoring a saved level catches residents up and places an exact-position Wizard before other arrivals",
+            "functions": [
+              "mon_catchup_elapsed_time",
+              "losedogs",
+              "mon_arrive"
+            ],
+            "recordings": [
+              "recordings/dog.c/mon-arrive-exact-wizard-probe.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard resurrection brings an existing migrating Wizard to the Endgame level",
+            "functions": [
+              "mon_catchup_elapsed_time",
+              "mon_arrive"
+            ],
+            "recordings": [
+              "recordings/wizard.c/resurrect-existing-wizard-endgame-probe.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard map replacement runs the post-replacement migrating-monster arrival pass",
+            "functions": [
+              "losedogs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-pet-transfer-outside-limit.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Mounted steed is transferred and returns before map placement on the new level",
+            "functions": [
+              "losedogs",
+              "mon_arrive"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 165,
+                "source": "do.c:goto_level -> dog.c:losedogs -> dog.c:mon_arrive(With_you); C returns for u.usteed before map placement"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "87e183f4e58cd1ceae71086f9149a84419ab7c1a",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

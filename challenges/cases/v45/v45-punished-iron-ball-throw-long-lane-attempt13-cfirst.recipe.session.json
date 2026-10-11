@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first long-lane route for `dothrow.c:throwit -> ball.c:drop_ball`. The deterministic starter map has a multi-square open southern lane from the initial hero square; throw the carried chained iron ball (slot g) south so the landing point can drag the hero and chain farther than the one-square matching control.",
+  "segments": [
+    {
+      "seed": 45101207,
+      "datetime": "20581010102600",
+      "nethackrc": "OPTIONS=name:V45BallThrowBarbarian,role=Barbarian,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\nrf , tgj"
+    }
+  ]
+}

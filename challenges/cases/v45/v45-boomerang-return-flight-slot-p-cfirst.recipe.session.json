@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45052001,
+      "datetime": "20561101091011",
+      "nethackrc": "OPTIONS=name:V45Boomerang,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017boomerang\ntph",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected from the C-observed inventory menu: boomerang is slot p, not a. Throw west once to reach dothrow.c:sho_obj_return_to_u; retain the earlier slot-a setup miss separately."
+}

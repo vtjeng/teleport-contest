@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first inventory correction of attempt9: that seed placed the wished scroll in slot n, while attempt9 selected empty slot o and lost the intended sequence. Select the observed n slot, read the scroll, name it, leave hands empty, create the hostile newt, and inspect its actual position.",
+  "segments": [
+    {
+      "seed": 45024817,
+      "datetime": "20611012131420",
+      "nethackrc": "OPTIONS=name:V45NoHandGlow9,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of confuse monster\nrn confuse\nw-#wizgenesis\nhostile newt\n#wizmap\n"
+    }
+  ]
+}

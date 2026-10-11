@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction for the two pager boundaries around wizard-controlled teleport. After #teleport, dismiss its More and the getpos tip with two spaces, move the cursor from the observed arrival tile 49 west and 2 north to the Sanctum altar at source coordinate (18,8), then wish a real Amulet and use #offer.",
+  "segments": [
+    {
+      "seed": 45024503,
+      "datetime": "20581013132700",
+      "nethackrc": "OPTIONS=name:V45OfferAmulet,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nsanctum.lua\n#wizmap\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkk\n#wizwish\nAmulet of Yendor\n#offer\n"
+    }
+  ]
+}

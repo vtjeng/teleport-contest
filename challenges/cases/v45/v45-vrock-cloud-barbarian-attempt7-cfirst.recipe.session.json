@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Vrock retreat attempt, pager correction. The same independent seed and C-confirmed north direction are retained. Attack twice, dismiss the attack and monster-scroll pagers in sequence, then resume striking.",
+  "segments": [
+    {
+      "seed": 45024578,
+      "datetime": "20581013132800",
+      "nethackrc": "OPTIONS=name:V45VrockCloudB,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nsleeping hostile vrock\nkk  kkk"
+    }
+  ]
+}

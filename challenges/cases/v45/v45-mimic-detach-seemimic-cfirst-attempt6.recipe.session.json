@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026032,
+      "datetime": "20581011132700",
+      "nethackrc": "OPTIONS=name:V45MimicDetach,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nsmall mimic\n#wizkill\n  j."
+    }
+  ],
+  "comment": "Corrected C target selection on the same attempt-4 layout. The preexisting colon remains visible at startup; C genesis adds the up-stair glyph immediately south of the hero, matching `A staircase up appears next to you`. Wizard removal selects that new mimic disguise at the observed coordinate."
+}

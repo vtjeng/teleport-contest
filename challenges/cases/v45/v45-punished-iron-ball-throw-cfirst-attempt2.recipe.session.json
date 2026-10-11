@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first attempt 2 for the punishment-ball throw. Use the slot observed in the inventory probe, dismiss the punishment pager, then invoke pickup to verify whether the attached iron ball is pickable under this state. This is a materially different access route from v45 attempted weapon throwing and retains the source setup state.",
+  "segments": [
+    {
+      "seed": 45101202,
+      "datetime": "20581010102600",
+      "nethackrc": "OPTIONS=name:V45BallThrow,role:Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\nro  ,"
+    }
+  ]
+}

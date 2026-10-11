@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45025101,
+      "datetime": "20581011131700",
+      "nethackrc": "OPTIONS=name:V45VrockFear,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nwand of fear\n#wizgenesis\nsleeping hostile vrock\ni"
+    }
+  ]
+}

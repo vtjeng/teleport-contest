@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024583,
+      "datetime": "20601215151617",
+      "nethackrc": "OPTIONS=name:V45SanctumOfferWizkillMonsters,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>v #teleport\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkk. #wizmap\n#wizkill\n  ll. #wizkill\n  lllj. ll#offer\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "The corrected levelport reached Sanctum. Prior C screen after teleport showed the altar blocked by a monster, and the attempted wizard-kill happened before the temple entry spawned it. This route first enters the source-map temple, inspects the resulting monster positions, then uses wizard targeting to clear the altar occupant before offering the real Amulet."
+}

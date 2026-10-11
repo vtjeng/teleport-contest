@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only scout for a planned apply.c:use_whistle -> vault.c:vault_summon_gd route. Use a fresh wizard level-teleport input to reach a generated ordinary dungeon level, reveal its map, and check whether a live vault can be reached. Do not compare JavaScript on this scout.",
+  "segments": [
+    {
+      "seed": 45101203,
+      "datetime": "20581010111700",
+      "nethackrc": "OPTIONS=name:V45VaultScout,role:Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n5\n#wizmap\n"
+    }
+  ]
+}

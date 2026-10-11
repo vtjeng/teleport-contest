@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052008,
+    "datetime": "20561208141718",
+    "nethackrc": "OPTIONS=name:V45QuestThrow,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": " \u0007peaceful Neferet the Green\ny\u0017The Eye of the Aethiopica\n tpb ",
+    "recorderIsDst": true
+  }],
+  "comment": "C-only correction based on the recorded screen: the jackal, not Neferet, is directly south; Neferet is southwest. Throw the observed slot-p Eye at b/southwest, then dismiss the leader catch/quest pager to confirm finish_quest output. Preserve the south-target miss."
+}

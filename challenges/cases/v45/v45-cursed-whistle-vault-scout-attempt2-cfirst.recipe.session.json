@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only second materially different vault scout after level 5 had no visible vault or shop state. Start independently and use #wizlevelport to depth 8, then #wizmap, looking for a source-generated vault the cursed-whistle branch can reach. No JavaScript comparison has run.",
+  "segments": [
+    {
+      "seed": 45101204,
+      "datetime": "20581010123800",
+      "nethackrc": "OPTIONS=name:V45VaultScout2,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n8\n#wizmap\n"
+    }
+  ]
+}

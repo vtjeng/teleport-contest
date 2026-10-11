@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45026025,
+      "datetime": "20581011132200",
+      "nethackrc": "OPTIONS=name:V45SinkGasCycle,role:Samurai,race:human,gender=male,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017sink\nqy    \u0017sink\nqy    \u0017sink\nqy    \u0017sink\nqy    \u0017sink\nqy    \u0017sink\nqy    \u0017sink\nqy    \u0017sink\nqy    \u0017sink\nqy    \u0017sink\nqy    \u0017sink\nqy    \u0017sink\nqy    "
+    }
+  ],
+  "comment": "C-first distinct fixture-state route for fountain.c:drinksink case 13. Recreate a sink with wizard wish between quaffs so case-6 breaks do not end the candidate before the stench branch."
+}

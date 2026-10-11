@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 45052004,
+    "datetime": "20561204101314",
+    "nethackrc": "OPTIONS=name:V45Leash,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": " \u0007tame dog\n\u0017leash\n\u0017wand of sleep\naohzphlll",
+    "recorderIsDst": true
+  }],
+  "comment": "C-only source-corrected second leash setup: the first attempt showed the dog follows to the room wall, so create the same adjacent dog, attach slot-o leash, sleep it with the C-wished slot-p wand of sleep to keep it stationary, then move east to the map-observed room limit and reach check_leash strain."
+}

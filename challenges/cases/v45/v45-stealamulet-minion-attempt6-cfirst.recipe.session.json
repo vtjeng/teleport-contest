@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024606,
+      "datetime": "20591217131415",
+      "nethackrc": "OPTIONS=name:V45SamuMinion,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nAmulet of Yendor\n  uncursed potion of healing\n#wizgenesis\nhostile Minion of Huhetotl\ny#wizmap\nm.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ],
+  "comment": "Second materially different C setup for the AD_SAMU theft target. Use a hostile quest nemesis with AD_SAMU rather than the Wizard of Yendor; keep the exact reached attack/caller trace and do not count unless steal.c:stealamulet runs."
+}

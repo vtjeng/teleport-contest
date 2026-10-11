@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024711,
+      "datetime": "20591017141612",
+      "nethackrc": "OPTIONS=name:V45LightGremlin,role:Valkyrie,race:dwarf,gender=female,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nSunsword\nwe #wizgenesis\nhostile gremlin\n#wizmap\nFl"
+    }
+  ],
+  "comment": "Corrected C-first route for uhitm.c:hmon_hitmon_msg_lightobj. Wield the wished Sunsword before summoning a hostile gremlin; do not spend a turn after its appearance. C attempt1 showed the gremlin adjacent east, so forcefight east immediately after the map inspection."
+}

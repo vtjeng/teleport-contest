@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first high-capacity route for dothrow.c:throwit -> ball.c:drop_ball. C identifies the wished punishment scroll in slot e, then the attached iron ball in slot p; after dismissing each pager, select and throw p west.",
+  "segments": [
+    {
+      "seed": 45101207,
+      "datetime": "20581010102600",
+      "nethackrc": "OPTIONS=name:V45BallThrowBarbarian,role=Barbarian,race=human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\nre , tph"
+    }
+  ]
+}
