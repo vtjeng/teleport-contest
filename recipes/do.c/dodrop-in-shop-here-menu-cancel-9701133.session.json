@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9701133,
+      "datetime": "20380103101522",
+      "nethackrc": "OPTIONS=name:MenuCancel,role:Ranger,race:elf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00165\n.\u0014  hhhhhhhhhhhhhhhhhhhhhhhhjjjjjjjjjj. #herecmdmenu\nb\u001b",
+      "comment": "The seed reproduces the verified generated D:5 shop layout from recipes/mkroom.c/shop-entry-seed9701133.session.json. The input uses #herecmdmenu at the same empty shop square, selects the second menu row (Drop items), and cancels getobj with Escape; this records cmd.c:MCMD_DROP queueing dodrop()."
+    }
+  ]
+}
