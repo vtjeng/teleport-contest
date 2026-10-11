@@ -5,7 +5,8 @@
 //        in_trouble() (198-284), worst_cursed_item() (288-346),
 //        god_zaps_you() (610-694), fry_by_god() (696-702),
 //        angrygods() (704-784), gods_upset() (1436-1443),
-//        consume_offering() (1446-1474), bestow_artifact() (1780-1834),
+//        consume_offering() (1446-1474), desecrate_altar() (1501-1523),
+//        bestow_artifact() (1780-1834),
 //        give_spell() (999-1070),
 //        sacrifice_your_race() (1698-1778), sacrifice_value() (1838-1850),
 //        dosacrifice() (1854-1896), eval_offering() (1898-1957),
@@ -574,6 +575,27 @@ async function offer_too_soon(altaralign, state) {
     await ttyPline(`${prefix} ${feeling}.`, state);
 }
 
+// C ref: pray.c desecrate_altar() (1501-1523). Keep the alignment penalty,
+// messages, god-voice draw, and divine retaliation in source order.
+export async function desecrate_altar(highaltar, altaralign, state = game) {
+    const { u } = state;
+    if (altaralign === u.ualign.type) {
+        adjalign(-20, state);
+        u.ugangr += 5;
+    }
+
+    await ttyPline('You feel the air around you grow charged...', state);
+    await ttyPline(
+        `Suddenly, you realize that ${align_gname(altaralign, state)} `
+            + 'has noticed you...',
+        state,
+    );
+    const temple = highaltar ? 'High Temple' : 'altar';
+    const words = `So, mortal!  You dare desecrate my ${temple}!`;
+    await godvoice(altaralign, words, state);
+    await god_zaps_you(altaralign, state);
+}
+
 // C ref: pray.c:1446-1474 consume_offering(). The offering is consumed before
 // its Wisdom exercise; the order matters because exercise() may draw RNG.
 async function consume_offering(otmp, state) {
@@ -747,9 +769,8 @@ async function eval_offering(otmp, altaralign, state) {
     return value;
 }
 
-// C ref: pray.c:1698-1780 sacrifice_your_race(). The altar-offense helpers
-// below are void calls in C; until those source units are ported, record and
-// skip them at their original call sites.
+// C ref: pray.c:1698-1780 sacrifice_your_race(). The high-altar branch calls
+// desecrate_altar() before returning, matching the source's retaliation order.
 async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
     const { u } = state;
     if (is_demon(state.youmonst?.data)) {
@@ -762,7 +783,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
 
     if (highaltar
         && (altaralign !== A_CHAOTIC || u.ualign.type !== A_CHAOTIC)) {
-        note_unported('pray.c desecrate_altar');
+        await desecrate_altar(highaltar, altaralign, state);
         return;
     } else if (altaralign !== A_CHAOTIC && altaralign !== A_NONE) {
         await ttyPline(
@@ -846,12 +867,12 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
     else await useupf(otmp, 1, useupEnv);
 }
 
-// C ref: pray.c:1592-1599 offer_negative_valued(). The high-altar
-// desecration result is discarded in C and remains a named void-call gap.
+// C ref: pray.c:1592-1599 offer_negative_valued(). C discards the helper's
+// result; JavaScript awaits its side effects before continuing.
 async function offer_negative_valued(highaltar, altaralign, state) {
     const { u } = state;
     if (altaralign !== u.ualign.type && highaltar) {
-        note_unported('pray.c desecrate_altar');
+        await desecrate_altar(highaltar, altaralign, state);
     } else {
         await gods_upset(altaralign, state);
     }
@@ -1017,7 +1038,7 @@ async function offer_corpse(otmp, highaltar, altaralign, state) {
         return;
     }
     if (altaralign !== u.ualign.type && highaltar) {
-        note_unported('pray.c desecrate_altar');
+        await desecrate_altar(highaltar, altaralign, state);
         return;
     }
     if (u.ualign.type !== altaralign) {

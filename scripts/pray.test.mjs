@@ -475,7 +475,7 @@ test('offer_negative_valued keeps its source branch and both caller arms', () =>
     assert.ok(jsHelper);
     assert.match(
         jsHelper[1],
-        /if \(altaralign !== u\.ualign\.type && highaltar\)\s*\{\s*note_unported\('pray\.c desecrate_altar'\);\s*\} else \{\s*await gods_upset\(altaralign, state\);/u,
+        /if \(altaralign !== u\.ualign\.type && highaltar\)\s*\{\s*await desecrate_altar\(highaltar, altaralign, state\);\s*\} else \{\s*await gods_upset\(altaralign, state\);/u,
     );
 
     const cOfferStart = PRAY_C.indexOf('staticfn void\noffer_corpse(');
@@ -495,6 +495,24 @@ test('offer_negative_valued keeps its source branch and both caller arms', () =>
         2,
     );
     assert.doesNotMatch(jsOffer, /note_unported\('pray\.c offer_negative_valued'\)/u);
+});
+
+test('desecrate_altar keeps C anger, messages, and retaliation order', () => {
+    const cHelper = PRAY_C.match(
+        /void\s+desecrate_altar\(boolean highaltar, aligntyp altaralign\)\s*\{([\s\S]*?)^\}/mu,
+    );
+    assert.ok(cHelper, 'C desecrate_altar definition');
+    const jsHelper = PRAY_JS.match(
+        /export async function desecrate_altar\(highaltar, altaralign, state = game\) \{([\s\S]*?)^\}/mu,
+    );
+    assert.ok(jsHelper, 'JavaScript desecrate_altar definition');
+
+    // C's -20 alignment adjustment and +5 anger apply only on the hero's own altar.
+    assert.match(cHelper[1], /if \(altaralign == u\.ualign\.type\)\s*\{\s*adjalign\(-20\);\s*u\.ugangr \+= 5;/u);
+    assert.match(jsHelper[1], /if \(altaralign === u\.ualign\.type\)\s*\{\s*adjalign\(-20, state\);\s*u\.ugangr \+= 5;/u);
+    assert.match(cHelper[1], /You_feel\("the air around you grow charged\.\.\."\);[\s\S]*?align_gname\(altaralign\)\);[\s\S]*?godvoice\(altaralign, gvbuf\);[\s\S]*?god_zaps_you\(altaralign\);/u);
+    assert.match(jsHelper[1], /You feel the air around you grow charged\.\.\.[\s\S]*?align_gname\(altaralign, state\)[\s\S]*?await godvoice\(altaralign, words, state\);\s*await god_zaps_you\(altaralign, state\);/u);
+    assert.match(jsHelper[1], /highaltar \? 'High Temple' : 'altar'/u);
 });
 
 // C pray.c:eval_offering suppresses the attribute change message after an

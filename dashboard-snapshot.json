@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T21:34:35.335Z",
+  "capturedAt": "2026-10-11T22:03:56.780Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -90127,19 +90127,144 @@
         "type": "accepted",
         "at": "2026-10-11T21:33:46.421Z",
         "task": "C-investigation-v47-wizard-death-wizdeadorgone-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v47-pestilence-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T21:37:05.378Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating an independent v47 monster-conflict mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v47-pestilence-conflict-investigation-20261011-retry1",
+        "type": "assign",
+        "at": "2026-10-11T21:37:29.917Z",
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-itemactions-3f4de0a1-20261011",
+        "type": "received",
+        "at": "2026-10-11T21:38:38.809Z",
+        "task": "B-investigation-v47-itemactions-adjust-stack-egg-split-20261011",
+        "delivery": "3f4de0a193243e6083cd5a8fae035a42d033f562"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d81df7f04b416670836fb938bb521163bc0fe502",
+        "type": "ready",
+        "at": "2026-10-11T21:40:53.514Z",
+        "task": "A2-investigation-v47-earthquake-desecrates-generated-altar-20261011",
+        "delivery": "d81df7f04b416670836fb938bb521163bc0fe502"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-v48-turn-active-20261011-accepted-sync",
+        "type": "turn",
+        "at": "2026-10-11T21:41:17.525Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v48 C-first slate is under source crosswalk; accepted Main sync is complete and differential verification is underway."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-sellobj-active-20261011T2148Z",
+        "type": "turn",
+        "at": "2026-10-11T21:42:56.892Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 submitted the altar port and is investigating an unreserved v47 shop-sale case while B and C continue their current source tasks."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v47-shop-wished-dagger-sellobj-20261011",
+        "type": "assign",
+        "at": "2026-10-11T21:42:59.028Z",
+        "task": "A2-investigation-v47-shop-wished-dagger-sellobj-state-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B-investigation-v47-itemactions-adjust-stack-egg-split-20261011-integrating-47ce6cdb",
+        "type": "integrating",
+        "at": "2026-10-11T21:43:45.606Z",
+        "task": "B-investigation-v47-itemactions-adjust-stack-egg-split-20261011",
+        "integration": "47ce6cdb703dac648a39587abe9512daf2ee2e50"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v47-dodrop-shop-bracketing-20261011",
+        "type": "implement",
+        "at": "2026-10-11T21:47:44.038Z",
+        "task": "A2-investigation-v47-shop-wished-dagger-sellobj-state-20261011",
+        "goal": "port-do-dodrop-shop-bracketing-v47-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A2-investigation-v47-earthquake-desecrates-generated-altar-20261011-received-d81df7f0",
+        "type": "received",
+        "at": "2026-10-11T21:48:04.128Z",
+        "task": "A2-investigation-v47-earthquake-desecrates-generated-altar-20261011",
+        "delivery": "d81df7f04b416670836fb938bb521163bc0fe502"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v47-dodrop-turn-resume-20261011",
+        "type": "turn",
+        "at": "2026-10-11T21:49:35.227Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-v48-turn-active-20261011-diff-crosswalk",
+        "type": "turn",
+        "at": "2026-10-11T21:52:01.965Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v48 has 11 provisional C-first first-mismatch candidates; accepted-base differentials and source crosswalks are underway."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B-investigation-v47-itemactions-adjust-stack-egg-split-20261011-validated-47ce6cdb",
+        "type": "validated",
+        "at": "2026-10-11T21:54:34.417Z",
+        "task": "B-investigation-v47-itemactions-adjust-stack-egg-split-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v47-pestilence-ad-dise-20261011",
+        "type": "implement",
+        "at": "2026-10-11T21:56:15.460Z",
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011",
+        "goal": "port-uhitm-mhitm-ad-dise-pest-v47-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v47-itemactions-adjust-stack-egg-split-20261011-47ce6cdb703dac648a39587abe9512daf2ee2e50-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T22:02:53.811Z",
+        "task": "B-investigation-v47-itemactions-adjust-stack-egg-split-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "B-investigation-v47-itemactions-adjust-stack-egg-split-20261011",
-        "worker": "B",
-        "goal": "fix-cmd-rhack-queued-adjust-split-v47-20261011",
+        "task": "A2-investigation-v47-earthquake-desecrates-generated-altar-20261011",
+        "worker": "A2",
+        "goal": "port-pray-desecrate-altar-v47-20261011",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "3f4de0a193243e6083cd5a8fae035a42d033f562",
-        "since": "2026-10-11T21:32:50.532Z",
+        "delivery": "d81df7f04b416670836fb938bb521163bc0fe502",
+        "since": "2026-10-11T21:40:53.514Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -90525,8 +90650,8 @@
     ]
   },
   "development": {
-    "executionCommit": "56fe7fb916a1ffdf783a557694a1c1c18af784de",
-    "measuredAt": "2026-10-11T21:20:50.403Z",
+    "executionCommit": "47ce6cdb703dac648a39587abe9512daf2ee2e50",
+    "measuredAt": "2026-10-11T21:54:18.149Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

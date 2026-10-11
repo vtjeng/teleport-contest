@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent patched-C high-altar offering recipe (seed 47110313, clock 2058-11-20): the lawful human Knight enters Astral, clears its five arrival pages and Amulet wish, then controlled #teleport selects the central sanctum from its source-defined landing square. The final human-corpse wish drops the corpse on the altar; #offer accepts the floor corpse and reaches sacrifice_your_race -> desecrate_altar(highaltar=true). The n answers decline debug-mode death so the C helper reaches its final servants message.",
+  "segments": [
+    {
+      "seed": 47110313,
+      "datetime": "20581120121314",
+      "nethackrc": "OPTIONS=name:A2HighAltar,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>J       gold piece\n#teleport\n   kkuuuuuuuu. #wizwish\nhuman corpse\n #offer\ny     n   n n "
+    }
+  ]
+}
