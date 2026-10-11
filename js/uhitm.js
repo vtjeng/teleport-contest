@@ -184,6 +184,7 @@ import {
     a_monnam,
     capitalizedAlwaysVisibleMonsterName,
     capitalizedMonsterName,
+    hcolor,
     hliquid,
     l_monnam,
     mon_nam,
@@ -3622,6 +3623,35 @@ export async function hmon_hitmon_msg_lightobj(hmd, mon, state = game, env = {})
     await requireAttackOperation(env, 'message')(line, state);
 }
 
+// C ref: uhitm.c nohandglow() (6314-6337). The helper emits the current
+// hand-feedback branch before consuming one turn of u.umconf. hcolor() keeps
+// its source display-RNG draw when the hero is hallucinating.
+async function nohandglow(mon, state, env) {
+    if (!state.u.umconf || mon.mconf) return;
+
+    const hands = makeplural(body_part(HAND, state.youmonst));
+    const altfeedback = heroIsBlind(state) || heroInvisible(state);
+    const postMessage = requireAttackOperation(env, 'message');
+    if (state.u.umconf === 1) {
+        if (altfeedback) {
+            await postMessage(`Your ${hands} stop tingling.`, state);
+        } else {
+            await postMessage(
+                `Your ${hands} stop glowing ${hcolor('red', state, env)}.`,
+                state,
+            );
+        }
+    } else if (altfeedback) {
+        await postMessage(`The tingling in your ${hands} lessens.`, state);
+    } else {
+        await postMessage(
+            `Your ${hands} no longer glow so brightly ${hcolor('red', state, env)}.`,
+            state,
+        );
+    }
+    state.u.umconf--;
+}
+
 // C ref: uhitm.c hmon_hitmon() (1752-1935), the guts of hmon(). Everything
 // between the decision that a blow landed and the target's reaction to it.
 //
@@ -3640,7 +3670,7 @@ export async function hmon_hitmon_msg_lightobj(hmd, mon, state = game, env = {})
 //   1898-1907 the poison messages and xkilled(); hmon_hitmon_poison() sets
 //             those flags before this tail.
 //   1911      killed(), the kill itself, which mon.c owns.
-//   1914-1919 the confused-touch arm behind u.umconf.
+//   1912-1917 nohandglow() feedback, then spellbook resistance and confusion.
 //
 // ispoisoned, dryit and unpoisonmsg are all live flags: their writers are the
 // weapon/misc/poison owners above, and their common-tail consumers preserve
@@ -3820,9 +3850,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
             state.gm.mkcorpstat_norevive = false;
         }
     } else if (state.u.umconf && hmd.hand_to_hand) {
-        /* nohandglow() is a discarded visual effect, but the source still
-           applies the canonical spellbook resistance before setting mconf. */
-        note_unported('uhitm.c nohandglow');
+        await nohandglow(mon, state, env);
         if (!mon.mconf
             && !await resist(mon, SPBOOK_CLASS, 0, NOTELL, state, random)) {
             mon.mconf = 1;
