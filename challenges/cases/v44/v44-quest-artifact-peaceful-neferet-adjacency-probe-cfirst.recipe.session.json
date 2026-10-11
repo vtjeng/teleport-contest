@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000827,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44QuestOfferProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\npeaceful Neferet the Green\ny#wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first setup probe for quest artifact presentation. C's read.c:create_particular parser accepts a peaceful disposition; confirm the unique MS_LEADER Neferet is created adjacent to the hero before recording the artifact handoff."
+}

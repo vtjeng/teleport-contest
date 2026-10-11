@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000601,
+      "datetime": "20550417181920",
+      "nethackrc": "OPTIONS=name:V44SteedGenesis,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\ntame saddled pony\n#wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C setup probe creates a tame saddled pony near the Wizard through the documented wizard monster-generation path, then maps its position for a distinct poly_steed quaff route."
+}

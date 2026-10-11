@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000841,
+      "datetime": "20570912112233",
+      "nethackrc": "OPTIONS=name:V44Encourage,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\npeaceful Neferet the Green\ny#wizmap\n#chat\nj#chat\nj",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first quest follow-up candidate: use the wizard-created peaceful MS_LEADER Neferet for an initial qualifying audience, dismiss its pager, then chat again to reach quest.c:chat_with_leader Rule 4 (Qstat(got_quest), no quest artifact) -> qt_pager(\"encourage\"). Record whether the assignment state and second audience are actually reachable before any JavaScript comparison."
+}

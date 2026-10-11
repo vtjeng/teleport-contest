@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v44 candidate for read.c:seffect_create_monster. The wizard wishes a scroll, then reads the observed newly assigned inventory letter; retain if C shows the create-monster effect and generated creatures.",
+  "segments": [
+    {
+      "seed": 44000201,
+      "datetime": "20540611121314",
+      "nethackrc": "OPTIONS=name:V44CreateMon,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nuncursed scroll of create monster\nro"
+    }
+  ]
+}

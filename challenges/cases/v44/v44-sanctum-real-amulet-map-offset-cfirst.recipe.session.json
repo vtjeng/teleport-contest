@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000876,
+      "datetime": "20580124173612",
+      "nethackrc": "OPTIONS=name:V44SanctumOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsanctum.lua\n#wizmap\n#wizkill\n  llllllllllljjj.y #wizwish\nAmulet of Yendor\n \nnothing\n#teleport\n y  llllllllllljjj.#offer\np"
+    }
+  ],
+  "comment": "C-first coordinate correction: sanctum.lua des.map is 76x20, centered at absolute xstart=3, ystart=1, so its local altar and barbed devil at (18,8) are at (21,9). Clear the altar monster with #wizkill, acquire the real Amulet, decline the pickup wish, teleport to absolute (21,9), and offer inventory item p."
+}

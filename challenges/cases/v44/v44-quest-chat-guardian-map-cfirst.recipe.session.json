@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000847,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44GuardianChat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\npeaceful apprentice\ny#wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first Wizard quest guardian chat candidate: create the role guardian apprentice (PM_APPRENTICE, MS_GUARDIAN) peacefully beside the hero and map its exact location before selecting #chat to reach quest.c:chat_with_guardian -> qt_pager(\"guardtalk_before\")."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v44 candidate for zap.c:probe_monster with a visible hostile soldier target. This initial route creates the charged item and target, then surveys the C map to confirm the target and inventory letter before selecting its zap direction; preserve it as setup evidence if the targeted branch is not reached.",
+  "segments": [
+    {
+      "seed": 44000101,
+      "datetime": "20540511121314",
+      "nethackrc": "OPTIONS=name:V44ProbeSoldier,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nuncursed wand of probing\n#wizgenesis\nhostile soldier\n#wizmap\n"
+    }
+  ]
+}

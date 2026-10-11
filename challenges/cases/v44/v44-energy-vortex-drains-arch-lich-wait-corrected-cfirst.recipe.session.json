@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000602,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44EnergyDrain,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\ntame energy vortex\n#wizgenesis\nhostile arch-lich\n#wizmap\nm.m.m.m.m.m.m.m.",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first corrected wait input: the initial dots were refused by the explicit debug anti-wait prompt. Use the documented m-prefix for eight no-op turns to let the energy vortex and arch-lich act."
+}

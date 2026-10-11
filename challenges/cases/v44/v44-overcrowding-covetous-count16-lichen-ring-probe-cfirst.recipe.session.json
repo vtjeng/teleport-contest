@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000836,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44OvercrowdingCount16,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nhostile Wizard of Yendor\ny16#wizgenesis\ntame lichen\n. . . . . . . . . ."
+    }
+  ],
+  "comment": "C-only overcrowding route: create the covetous Wizard before filling the passable neighbor ring with sixteen harmless tame lichens, then advance ten turns with pager dismissals. The exact candidate is monmove.c:tactics rn2(5) -> mnexto -> mon.c:deal_with_overcrowding; retain the first C trace and limbo outcome."
+}

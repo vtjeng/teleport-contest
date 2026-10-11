@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000846,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44NemesisChat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\npeaceful Dark One\ny#wizmap\n#chat\nj",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected C-first Wizard quest nemesis chat: after the map confirms the generated PM_DARK_ONE (The Dark One) directly south of the hero, select j to reach quest.c:quest_chat -> chat_with_nemesis -> qt_pager(\"discourage\")."
+}

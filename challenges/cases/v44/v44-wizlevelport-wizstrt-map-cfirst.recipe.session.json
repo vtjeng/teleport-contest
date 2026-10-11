@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000702,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44QuestEntry,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>y  #wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Inspect the role-specific Wiz-strt state reached through level_tele second-page selection; dismiss the materialization pager before invoking map display."
+}

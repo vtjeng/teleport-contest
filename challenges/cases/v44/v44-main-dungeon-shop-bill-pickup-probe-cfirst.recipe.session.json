@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000822,
+      "datetime": "20561213141516",
+      "nethackrc": "OPTIONS=name:V44ShopProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n5\n  #wizmap\nhhhnn,"
+    ,"recorderIsDst": true
+    }
+  ],
+  "comment": "C-first shop inventory bill route probe using an independently chosen seed. Levelport to generated dungeon level 5, map its rooms, walk to the floor weapon, and pick it up to test whether this room is an active shop and whether the object is billed. The map-only setup is preserved separately."
+}

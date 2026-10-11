@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000823,
+      "datetime": "20561213141517",
+      "nethackrc": "OPTIONS=name:V44ShopProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n11\n  #wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first generated main-dungeon live-shop search after the level-5 floor object proved to be an unbilled chest. Use a materially different depth and seed, and inspect whether the generated level provides a live shop for the planned used-up bill query."
+}

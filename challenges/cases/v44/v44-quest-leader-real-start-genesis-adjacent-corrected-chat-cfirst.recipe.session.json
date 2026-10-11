@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000902,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44QuestRealLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                   #wizlevelport\n?\n>y  #wizgenesis\npeaceful Neferet the Green\ny#wizmap\n#chat\nb #chat\nb",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first reached qstart with a generated peaceful Neferet on the southwest adjacent tile. The recording now follows that observed direction for first and second audience, with one pager dismissal."
+}

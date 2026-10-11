@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000701,
+      "datetime": "20550417181920",
+      "nethackrc": "OPTIONS=name:V44LevelMenu,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n\u001b",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first corrected wizard level-port menu probe: submit the ? response with Enter and cancel the resulting destination menu with Escape, preserving its exact special-level choices."
+}

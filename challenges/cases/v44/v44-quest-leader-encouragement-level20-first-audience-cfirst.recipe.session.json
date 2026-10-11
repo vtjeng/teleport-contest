@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000843,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44Encourage3,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n#wizgenesis\npeaceful Neferet the Green\ny#wizmap\n#chat\nn",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first prepared Rule 4 route: raise the Wizard to quest-capable level 20 with the C-supported #levelchange command, create the quest leader peacefully, then attempt the first audience. Only extend to a second audience if C confirms that the first chat set Qstat(got_quest)."
+}

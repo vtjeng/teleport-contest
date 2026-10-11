@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000904,
+      "datetime": "20580124173612",
+      "nethackrc": "OPTIONS=name:V44SanctumOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsanctum.lua\n#wizmap\n#wizkill\n  llllllllllkkk."
+    }
+  ],
+  "comment": "C-only source-offset-corrected #wizkill route: C sp_lev.c:lspo_map centers the string-form 76x20 map at internal origin (3,1), placing the Lua barbed devil (18,8) at game tile (21,9)."
+}

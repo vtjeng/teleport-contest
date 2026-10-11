@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000603,
+      "datetime": "20550419202122",
+      "nethackrc": "OPTIONS=name:V44EnergyDrain,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\ntame energy vortex\n#wizgenesis\nhostile kobold shaman\n#wizmap\nm. m. m. m. m.",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first revised mhitm_ad_dren route: use a hostile kobold shaman (a spell-capable target without the arch-lich teleport behavior), then clear each combat pager and wait via m-prefixed turns."
+}

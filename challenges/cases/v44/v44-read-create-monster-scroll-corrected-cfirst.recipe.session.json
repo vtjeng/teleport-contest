@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first create-monster scroll recipe. The independent inventory probe confirms the wished scroll is letter j; the space dismisses the wish output page before r-j selects the intended object.",
+  "segments": [
+    {
+      "seed": 44000201,
+      "datetime": "20540611121314",
+      "nethackrc": "OPTIONS=name:V44CreateMon,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nuncursed scroll of create monster\n rj"
+    }
+  ]
+}

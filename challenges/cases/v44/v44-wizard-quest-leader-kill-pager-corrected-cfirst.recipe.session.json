@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000302,
+      "datetime": "20540712131415",
+      "nethackrc": "OPTIONS=name:V44QuestLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-strt.lua\n#wizkill\n hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk.yq",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected C-first quest-leader death route. Dismiss the actual wiz_kill pager before moving the getpos cursor west/north to source coordinate (23,05); the recording determines whether Neferet is reached and killed."
+}

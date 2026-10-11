@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000801,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44StrongholdTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\nj#wizmap\n#wizkill\n  m."
+    }
+  ],
+  "comment": "C-only target-discovery probe: load the Castle and use #wizkill's getpos next-monster key after dismissing the first-use prompt and tip, to identify and clear the near-side monster that blocks the physical Stronghold route. Preserve as setup evidence regardless of result."
+}

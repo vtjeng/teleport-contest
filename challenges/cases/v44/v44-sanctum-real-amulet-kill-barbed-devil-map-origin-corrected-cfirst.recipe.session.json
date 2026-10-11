@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000904,
+      "datetime": "20580124173612",
+      "nethackrc": "OPTIONS=name:V44SanctumOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsanctum.lua\n#wizmap\n#wizkill\n  lllllllllkkk."
+    }
+  ],
+  "comment": "C-only source-offset-corrected #wizkill route: C has x_maze_max=78 and y_maze_max=20, so lspo_map centers the 76x20 string at internal origin (2,1), placing Lua barbed-devil coordinate (18,8) at game tile (20,9)."
+}

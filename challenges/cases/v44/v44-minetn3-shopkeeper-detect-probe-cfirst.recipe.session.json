@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000831,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44AlleyShopProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nminetn-3.lua\n#wizdetect\n#wizmap\n"
+    }
+  ],
+  "comment": "C-only shop setup probe: load the source-defined Alley Town with its several real shop rooms, use wizard detection, and reveal the map to locate live shopkeepers before deciding whether a home_shk transition can be reached cheaply. Keep any discovered live shop as source setup evidence."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000897,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44QuestRealLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                   #wizlevelport\n?\n>y  #teleport\nhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkkkkkk.#chat\nl  #chat\nl",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first corrected coordinate attempt: #wizlevelport selects the Wizard quest start, then #teleport moves from the observed entry tile to the west-adjacent square of dat/Wiz-strt.lua Neferet at source coordinate (23,5), using the full #wizmap coordinate frame. Chat east twice with a pager dismissal between audiences."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000501,
+      "datetime": "20550317181920",
+      "nethackrc": "OPTIONS=name:V44KnightSteed,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizmap\n#ride\nby#wizwish\nuncursed potion of polymorph\n i",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first mounted-steed polymorph candidate: use a Knight starting mount, force the source #ride direction if needed, wish a polymorph potion, and inspect inventory so the later quaff uses the observed letter."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000842,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44Encourage2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\npeaceful Neferet the Green\ny#wizmap\n#chat\nn",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first quest leader second-audience target; this preliminary recipe uses the map-confirmed southeast direction n to verify the initial Rule 5 assignment before extending to the Rule 4 encouragement audience."
+}
