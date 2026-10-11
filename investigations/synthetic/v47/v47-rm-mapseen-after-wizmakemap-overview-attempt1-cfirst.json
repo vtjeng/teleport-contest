@@ -1,0 +1,128 @@
+{
+  "session": "synthetic/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+  "remainingScreens": 1,
+  "recordedSteps": 24,
+  "corpus": "synthetic",
+  "batch": "v47",
+  "caseId": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+  "manifestPath": "challenges/manifests/v47.json",
+  "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+  "recordingSha256": "1a058a4b18dcbf2754b4cca6cc2be1abec82a6f36a99e1a419423611a9b7790d",
+  "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+  "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+  "status": "complete",
+  "commit": "412f06390d65ab0fe18f374e6c212b25acfaabda",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v47",
+    "caseId": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+    "session": "synthetic/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+    "manifestPath": "challenges/manifests/v47.json",
+    "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+    "recording": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.session.json",
+    "recordingPath": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.session.json",
+    "recordingSha256": "1a058a4b18dcbf2754b4cca6cc2be1abec82a6f36a99e1a419423611a9b7790d",
+    "recipe": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.recipe.session.json",
+    "recipeSha256": "f43201b07f4e41b11b03ebbcf1802ccf164cd2b0a373d9e89f69bb6682a84390",
+    "replayInputSha256": "6bc731e836ab03eb03f780f9eeec2d63994ab35dded835c7ecef5fd3a290d09a",
+    "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+    "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+    "evaluationArtifact": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+    "evaluationUtc": "2026-10-11T22:49:06.037Z",
+    "remainingScreens": 1,
+    "recordedSteps": 24,
+    "previousScreensMatched": 23,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 23,
+        "total": 24
+      },
+      "rng": {
+        "matched": 5031,
+        "total": 5031
+      },
+      "cursors": {
+        "matched": 23,
+        "total": 24
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 23,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 23,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 2,
+        "column": 41,
+        "cCell": {
+          "ch": "(",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 23,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 23,
+          "key": "\n"
+        },
+        "cCursor": [
+          47,
+          2,
+          1
+        ],
+        "jsCursor": [
+          47,
+          3,
+          1
+        ]
+      }
+    },
+    "step": 23,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The mismatch is the missing dungeon.c:rm_mapseen call in cmd.c:makemap_prepost(TRUE). C unlinks and discards the old current-level overview node before replacing the level; JS records note_unported and leaves it in state.svm.mapseenchn, then init_mapseen appends another D:1 node. The #overview command consequently renders a duplicate Level 1 row after #wizmakemap.",
+  "source": {
+    "file": "dungeon.c",
+    "branch": "When a level is replaced, find the first mapseen node whose dungeon ledger_start plus dlevel equals the requested ledger number; if found, release its custom annotation and final-resting-place chain, then unlink it from the mapseen list. If no node matches, return without changing the list.",
+    "functions": [
+      "rm_mapseen"
+    ],
+    "callers": [
+      "cmd.c:makemap_prepost(TRUE) -> dungeon.c:rm_mapseen(ledger_no(&u.uz))",
+      "wizcmds.c:wiz_makemap -> cmd.c:makemap_prepost(TRUE)",
+      "wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level(NULL) -> cmd.c:makemap_prepost(TRUE)",
+      "cmd.js:command dispatch (#wizmakemap/#wizloaddes) -> wizcmds.js -> cmd.js:makemap_prepost"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v47 queue identifies the exact remaining-screen mismatch at segment 0, step 23, the #overview boundary: 5,031/5,031 RNG calls match, while the C overview contains one Level 1 row and JS contains a duplicate. See challenges/manifests/v47.json case v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst and the matching case recording SHA in the saved queue.",
+    "Upstream dungeon.c:2665-2691 defines all of rm_mapseen: traverse svm.mapseenchn by ledger_start + dlevel; return if absent; free custom annotation; walk/free final_resting_place; unlink the matched node from the head or predecessor. It makes no random calls and writes no output; its game-state effect is removal of that remembered level node.",
+    "The only direct C caller is cmd.c:993 in makemap_prepost(TRUE), after makemap_remove_mons and before replacement-level generation. Its already ported JavaScript caller in js/cmd.js:2561-2570 computes ledger_no then currently records note_unported(\"dungeon.c rm_mapseen\") without removing the node. js/dungeon.js:init_mapseen (2364-2387) inserts a new D:1 node in sorted order, accounting for the duplicate.",
+    "The production #wizmakemap command reaches the pre path through wizcmds.c:wiz_makemap (161-166) and js/wizcmds.js:wiz_makemap. The separate active #wizloaddes path calls sp_lev.c:lspo_reset_level(NULL) from wizcmds.c:wiz_load_splua (388), which also reaches makemap_prepost(TRUE); existing recording recordings/wizcmds.c/wiz-load-des-explicit.session.json covers that caller route. The v47 case is the runtime evidence for the overview-observable removal behavior.",
+    "Upstream sp_lev.c labels lspo_reset_level as testing-only; the second active game entry is the explicit wizcmds.c:wiz_load_splua(NULL) call, whose runtime path is also present in recordings/wizcmds.c/wiz-load-des-explicit.session.json. The C makemap_prepost(FALSE) calls in wiz_makemap and lspo_finalize_level are post-generation paths and do not call rm_mapseen."
+  ]
+}
