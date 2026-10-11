@@ -1169,15 +1169,11 @@ test('maybewakesteed halves a frozen steed and ends its meal', async () => {
 
 // --- teleds(), the hero relocation both halves of the ride use ---
 
-test('teleds refuses every arm outside an ordinary adjacent square',
+test('teleds refuses its unported swallowed arm',
     async () => {
-    // teleport.c:448-573. Each guard names the C machinery it stands in for.
+    // teleport.c:448-573. Vault guard lookup is ported; swallowing is not.
     const rows = [
         ['out of an engulfer', (state) => { state.u.uswallow = 1; }],
-        ['out of an occupied vault', (state) => {
-            state.level.rooms = [{ rtype: VAULT }];
-            state.u.urooms = [ROOMOFFSET, 0, 0, 0, 0];
-        }],
     ];
     for (const [reason, mutate] of rows) {
         const state = await mounted();
