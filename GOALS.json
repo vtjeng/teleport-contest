@@ -271796,7 +271796,7 @@
     {
       "id": "port-pray-offer-real-amulet-v45-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port real Amulet offering on high altars",
       "cFile": "pray.c",
       "sessions": [
@@ -271810,8 +271810,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "offer_real_amulet",
@@ -272224,6 +272227,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "24970688b92d3929c8723c8b39f3ac86465a45ef",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
