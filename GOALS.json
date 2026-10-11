@@ -273814,7 +273814,7 @@
     {
       "id": "port-mkroom-mkswamp-v46-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port swamp-room generation and canonical door adjacency",
       "cFile": "mkroom.c",
       "sessions": [
@@ -273828,8 +273828,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "93c0b06e6d2f55791a72b45156715cd63c948996",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mkswamp",
@@ -274306,6 +274309,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "93c0b06e6d2f55791a72b45156715cd63c948996",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
