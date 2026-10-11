@@ -9,7 +9,6 @@ import {
     in_town,
     monstinroom,
     u_locomotion,
-    UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import {
     ACH_TOWN,
@@ -35,6 +34,8 @@ import {
     THRONE,
     ZOO,
 } from './const.js';
+import { isok } from './cmd_isok.js';
+import { heroIsBlind } from './startup_a11y.js';
 import {
     PM_CAPTAIN,
     PM_LIEUTENANT,
@@ -205,10 +206,8 @@ export function move_update(newlev, state = game) {
     return state;
 }
 
-// C ref: hack.c check_special_room() (3624-3777). Covered here: move_update(),
-// the leaving/town guards, generated-shop entry, the complete COURT and MORGUE
-// entry message/reset/wake arms, and the no-effect default. Later special-room
-// types remain named boundaries at their switch arm.
+// C ref: hack.c check_special_room() (3626-3780). The switch, one-time room
+// reset, discovery, and special-room wake scan follow that function's order.
 //
 // do.c goto_level() calls this twice.  The call at 1615 passes newlev TRUE, for
 // which the early return is unconditional because move_update(TRUE) has just
@@ -254,54 +253,26 @@ export async function check_special_room(
         // pointer once, so the type read and one-time reset share one owner.
         const room = mapseen_room(roomIndex, state);
         const rt = room?.rtype;
-        // Every arm of the entry switch that prints, sets a level flag, wakes
-        // a monster or calls room_discovered() is named here. C's `default`
-        // arm covers the rest, and for a room type that is neither TEMPLE nor
-        // a shop it leaves msg_given FALSE and rt zero, so the whole body
-        // below the switch does nothing -- which is why OROOM and THEMEROOM
-        // fall through this loop rather than being listed as exceptions.
-        if (rt === COURT) {
+        let msgGiven = true;
+        let resetType = rt;
+        if (rt === ZOO) {
+            await message("Welcome to David's treasure zoo!", state);
+        } else if (rt === SWAMP) {
+            const blind = heroIsBlind(state);
+            await message(
+                `It ${blind ? 'feels' : 'looks'} rather `
+                    + `${blind ? 'humid' : 'muddy'} down here.`,
+                state,
+            );
+        } else if (rt === COURT) {
             const hasThrone = furniture_present(THRONE, roomIndex, state);
             await message(
                 `You enter an opulent${hasThrone ? ' throne' : ''} room!`,
                 state,
             );
-            // room_discovered() records the room before its live one-time
-            // identity is cleared here.
-            room_discovered(roomIndex, state);
-            room.rtype = OROOM;
-            if (!state.level.rooms.some(
-                (candidate) => candidate?.rtype === COURT,
-            )) state.level.flags.has_court = false;
-
-            const stealth = state.u?.uprops?.[STEALTH];
-            const stealthy = Boolean(
-                (stealth?.intrinsic || stealth?.extrinsic)
-                && !stealth?.blocked,
-            );
-            for (let monster = state.level.monlist;
-                monster;
-                monster = monster.nmon) {
-                if ((monster.mhp ?? 0) <= 0) continue;
-                const location = state.level.at(monster.mx, monster.my);
-                // Preserve hack.c's accidental comparison exactly: roomno is
-                // the zero-based svr.rooms[] index here, while levl.roomno
-                // still includes ROOMOFFSET.  It normally skips the Court's
-                // own monsters, and can instead select monsters in an earlier
-                // room whose encoded number happens to equal this index.
-                if (!location || location.roomno !== roomIndex) continue;
-                if (!stealthy && !random(3)) {
-                    await wake_msg(monster, false, {
-                        state,
-                        message,
-                        canSeeMonster,
-                    });
-                    monster.msleeping = false;
-                }
-            }
-            continue;
-        }
-        if (rt === MORGUE) {
+        } else if (rt === LEPREHALL) {
+            await message('You enter a leprechaun hall!', state);
+        } else if (rt === MORGUE) {
             // C: hack.c:3685-3692. midnight() is evaluated before the
             // locomotion formatter, so the ordinary daytime path has no
             // dependency on the hero's monster form.
@@ -311,34 +282,13 @@ export async function check_special_room(
             } else {
                 await message('You have an uncanny feeling...', state);
             }
-            room_discovered(roomIndex, state);
-            room.rtype = OROOM;
-            if (!search_special(MORGUE, state))
-                state.level.flags.has_morgue = false;
-
-            const stealth = state.u?.uprops?.[STEALTH];
-            const stealthy = Boolean(
-                (stealth?.intrinsic || stealth?.extrinsic)
-                && !stealth?.blocked,
-            );
-            for (let monster = state.level.monlist;
-                monster;
-                monster = monster.nmon) {
-                if ((monster.mhp ?? 0) <= 0) continue;
-                const location = state.level.at(monster.mx, monster.my);
-                if (!location || location.roomno !== roomIndex) continue;
-                if (!stealthy && !random(3)) {
-                    await wake_msg(monster, false, {
-                        state,
-                        message,
-                        canSeeMonster,
-                    });
-                    monster.msleeping = false;
-                }
-            }
-            continue;
-        }
-        if (rt === BARRACKS) {
+        } else if (rt === BEEHIVE) {
+            await message('You enter a giant beehive!', state);
+        } else if (rt === COCKNEST) {
+            await message('You enter a disgusting nest!', state);
+        } else if (rt === ANTHOLE) {
+            await message('You enter an anthole!', state);
+        } else if (rt === BARRACKS) {
             const occupied = [
                 PM_SOLDIER,
                 PM_SERGEANT,
@@ -355,14 +305,7 @@ export async function check_special_room(
                     : 'You enter an abandoned barracks.',
                 state,
             );
-            room_discovered(roomIndex, state);
-            room.rtype = OROOM;
-            if (!state.level.rooms.some(
-                (candidate) => candidate?.rtype === BARRACKS,
-            )) state.level.flags.has_barracks = false;
-            continue;
-        }
-        if (rt === DELPHI) {
+        } else if (rt === DELPHI) {
             const oracle = monstinroom(
                 state.mons?.[PM_ORACLE],
                 roomIndex,
@@ -376,25 +319,79 @@ export async function check_special_room(
                         : `"You're in Delphi, ${state.plname}."`,
                     state,
                 );
-                room_discovered(roomIndex, state);
+            } else {
+                msgGiven = false;
             }
-            room.rtype = OROOM;
-            continue;
-        }
-        if (rt === TEMPLE) {
-            // C: intemple(roomno + ROOMOFFSET) then FALLTHRU to default
-            // where msg_given = TRUE and rt = 0. The room stays TEMPLE.
+        } else if (rt === TEMPLE) {
+            // C falls through to default after intemple(): discover the temple
+            // but retain its permanent room type.
             const { intemple } = await import('./priest.js');
             await intemple(roomno, { state, random: { rn2: random }, message });
-            room_discovered(roomIndex, state);
-            continue;
+            resetType = 0;
+        } else {
+            // C's default discovers temples and all shop types; ordinary and
+            // themed rooms leave msg_given false and rt zero.
+            msgGiven = rt === TEMPLE || rt >= SHOPBASE;
+            resetType = 0;
         }
-        if (rt === ZOO || rt === SWAMP || rt === LEPREHALL
-            || rt === MORGUE || rt === BEEHIVE || rt === COCKNEST
-            || rt === ANTHOLE) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                `check_special_room() entering room type ${rt}`,
-            );
+
+        if (msgGiven) room_discovered(roomIndex, state);
+
+        if (resetType) {
+            room.rtype = OROOM;
+            if (!search_special(resetType, state)) {
+                switch (resetType) {
+                case COURT:
+                    state.level.flags.has_court = false;
+                    break;
+                case SWAMP:
+                    state.level.flags.has_swamp = false;
+                    break;
+                case MORGUE:
+                    state.level.flags.has_morgue = false;
+                    break;
+                case ZOO:
+                    state.level.flags.has_zoo = false;
+                    break;
+                case BARRACKS:
+                    state.level.flags.has_barracks = false;
+                    break;
+                case TEMPLE:
+                    state.level.flags.has_temple = false;
+                    break;
+                case BEEHIVE:
+                    state.level.flags.has_beehive = false;
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            if ([COURT, SWAMP, MORGUE, ZOO].includes(resetType)) {
+                const stealth = state.u?.uprops?.[STEALTH];
+                const stealthy = Boolean(
+                    (stealth?.intrinsic || stealth?.extrinsic)
+                    && !stealth?.blocked,
+                );
+                for (let monster = state.level.monlist;
+                    monster;
+                    monster = monster.nmon) {
+                    if ((monster.mhp ?? 0) <= 0) continue;
+                    if (!isok(monster.mx, monster.my)) continue;
+                    const location = state.level.at(monster.mx, monster.my);
+                    // Preserve hack.c's accidental room comparison: the room
+                    // array index is compared to levl.roomno with ROOMOFFSET.
+                    if (!location || location.roomno !== roomIndex) continue;
+                    if (!stealthy && !random(3)) {
+                        await wake_msg(monster, false, {
+                            state,
+                            message,
+                            canSeeMonster,
+                        });
+                        monster.msleeping = false;
+                    }
+                }
+            }
         }
     }
 

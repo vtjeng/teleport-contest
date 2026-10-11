@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 46101411,
+      "datetime": "20561211131415",
+      "nethackrc": "OPTIONS=name:V46FurnitureInvoke11,role:Valkyrie,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u0017blessed crystal ball\n#invoke\ne < \u001b."
+    }
+  ],
+  "comment": "Independent #invoke path for a wished crystal ball; select furniture detection and complete the browse_map prompt at the hero's location."
+}

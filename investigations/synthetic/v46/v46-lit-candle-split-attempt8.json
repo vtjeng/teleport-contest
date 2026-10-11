@@ -1,0 +1,114 @@
+{
+  "session": "synthetic/v46/v46-lit-candle-split-attempt8",
+  "corpus": "synthetic",
+  "batch": "v46",
+  "caseId": "v46-lit-candle-split-attempt8",
+  "manifestPath": "challenges/manifests/v46.json",
+  "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+  "recordingPath": "challenges/cases/v46/v46-lit-candle-split-attempt8.session.json",
+  "recordingSha256": "03b8e83b6e60bf827d31e7e98e3c73eed129889d02a258a6d3f6d42d502a7341",
+  "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+  "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+  "remainingScreens": 1,
+  "recordedSteps": 25,
+  "status": "complete",
+  "commit": "28b7c9e526a93e9d660cca41aece6f1feadec28d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v46",
+    "caseId": "v46-lit-candle-split-attempt8",
+    "session": "synthetic/v46/v46-lit-candle-split-attempt8",
+    "manifestPath": "challenges/manifests/v46.json",
+    "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+    "recording": "challenges/cases/v46/v46-lit-candle-split-attempt8.session.json",
+    "recordingPath": "challenges/cases/v46/v46-lit-candle-split-attempt8.session.json",
+    "recordingSha256": "03b8e83b6e60bf827d31e7e98e3c73eed129889d02a258a6d3f6d42d502a7341",
+    "recipe": "challenges/cases/v46/v46-lit-candle-split-attempt8.recipe.session.json",
+    "recipeSha256": "b712826483f5e46a3ee11bd892c344f25234321c5485521369d6a91be9763cae",
+    "replayInputSha256": "939a3647d9cd362f2f28248cb75d1d57e0b1034405e548296ad75973ec29fe2d",
+    "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+    "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+    "evaluationArtifact": "challenges/evaluations/v46-baseline-29c284d97.json",
+    "evaluationUtc": "2026-10-11T15:24:07.625Z",
+    "remainingScreens": 1,
+    "recordedSteps": 25,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 24,
+        "total": 25
+      },
+      "rng": {
+        "matched": 2891,
+        "total": 2891
+      },
+      "cursors": {
+        "matched": 25,
+        "total": 25
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 24,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 24,
+          "key": "n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 29,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": ".",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": null
+    },
+    "step": 24,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The remaining v46 lit-candle split screen difference is caused by the missing light.c:obj_split_light_source() call during mkobj.c:splitobj(). When a lit candle stack is split for a drop, C attaches a second light-source node to the child and sets child.lamplit; the JavaScript caller currently records note_unported and leaves the child unlit, omitting the \"(lit)\" part of its drop name. Port the whole light.c function in js/light.js and call it from js/obj.js:splitobj() after timer splitting.",
+  "source": {
+    "file": "light.c",
+    "branch": "When src has an LS_OBJECT node in gl.light_base, C copies each matching light-source node to dest and prepends it to gl.light_base. For candles it recalculates the source and destination ranges with candle_light_range() and sets vision_full_recalc; for every matching source it changes the copied id to dest and marks dest.lamplit=1. The admitted recipe lights a five-candle stack, then drops one candle so mkobj.c:splitobj() reaches this call with a live candle light source.",
+    "functions": [
+      "obj_split_light_source"
+    ],
+    "callers": [
+      "C direct caller: mkobj.c:splitobj():501 checks obj_sheds_light(obj) and calls obj_split_light_source(obj, otmp) after obj_split_timers; C discards the helper result.",
+      "JavaScript owner: js/obj.js:splitobj() performs the same predicate and ordered call, but the active game path currently replaces the helper with note_unported(\"light.c obj_split_light_source\"). The command path is apply.c:use_candle -> use_lamp -> begin_burn, then do.c:doddrop -> drop -> mkobj.c:splitobj; JavaScript paths are js/apply.js:use_candle/use_lamp -> begin_burn and command dispatch -> js/do.js:doddrop/drop -> js/obj.js:splitobj."
+    ],
+    "dependencies": [
+      "light.c:candle_light_range() is already implemented in js/light.js and is used for both candle radii.",
+      "light.c:obj_sheds_light() is already implemented in js/light.js and remains the exact caller predicate.",
+      "No other direct C call site exists for obj_split_light_source(); mkobj.c:splitobj() is its sole active caller."
+    ]
+  },
+  "goalKind": "file-port",
+  "selectionReason": "Selected the next unreserved mismatch from saved combined queue SHA-256 e381a612fbd22667de87ac4a6627c90a0f4164c63559cd4be9d84ee756b8a3b2 after the troll-meal delivery. Current v46 reservations assign the swamp session to B, prayer/furniture to C, and prior shopkeeper/troll sessions to A2. This lit-candle case is independent; its queue owner is unset, and source tracing identifies light.c:obj_split_light_source().",
+  "evidence": [
+    "The saved v46 entry identifies one unmatched screen at segment 0 step 24, key n, with no RNG or cursor mismatch. The C recording step says \"You drop a partly used candle (lit).\"; direct current-head replay run-nUUpYO reproduces the mismatch at boundary 25: C has a blank at row 0 column 29 while JavaScript has a period. Their PRNG values, screen counts, and cursor positions match.",
+    "nethack-c/upstream/src/light.c:779-803 copies a matching LS_OBJECT node, updates candle radii through candle_light_range(), requests vision recalculation, prepends the cloned node, and marks dest.lamplit=1. Its sole C caller is nethack-c/upstream/src/mkobj.c:501-502, reached after timer splitting in splitobj().",
+    "js/obj.js:954-958 has the same obj_sheds_light() position and order, but only invokes an optional splitObjectLight hook; the game path falls through to note_unported(\"light.c obj_split_light_source\"). Consequently the child made by splitobj() remains lamplit=false, and objnam.js formats the drop message without the C \"(lit)\" suffix.",
+    "Source scope is the whole light.c:obj_split_light_source() plus its existing JavaScript caller wiring in js/obj.js. The complete helper can reuse the existing candle_light_range(), obj_sheds_light(), and gl.light_base representation in js/light.js; no extra C family is required."
+  ]
+}

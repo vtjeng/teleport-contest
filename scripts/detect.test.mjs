@@ -115,6 +115,10 @@ const MONSTER_DETECT_C = cDefinition(
     'int\nmonster_detect(struct obj *otmp,',
     '\nstaticfn void\nsense_trap(',
 );
+const FURNITURE_DETECT_C = cDefinition(
+    'staticfn int\nfurniture_detect(void)',
+    '\n/* way back in 3.0plN',
+);
 const DO_VICINITY_MAP_C = cDefinition(
     'void\ndo_vicinity_map(',
     '\n/* convert a secret door into a normal door',
@@ -2467,6 +2471,36 @@ test('object_detect preserves its C browser and terrain-bit order', () => {
     assert.match(implementation, /newsym\(state\.u\.ux, state\.u\.uy\);\s*terrainType \|= TER_MON;/u);
     assert.match(implementation, /await browse_map\(terrainType, 'object', state\);\s*await map_redisplay\(state\);/u);
     assert.doesNotMatch(implementation, /state\.gk/u);
+});
+
+test('furniture_detect browses map locations revealed by its scan', () => {
+    const js = readFileSync(new URL('../js/detect.js', import.meta.url), 'utf8');
+    const start = js.indexOf('async function furniture_detect(');
+    const end = js.indexOf('\n// C ref: detect.c map_redisplay()', start);
+    const implementation = js.slice(start, end);
+    assert.notEqual(start, -1);
+    assert.notEqual(end, -1);
+    assert.match(
+        FURNITURE_DETECT_C,
+        /if \(glyph_at\(x, y\) != glyph\)\s*\+\+revealed;/u,
+    );
+    assert.match(
+        FURNITURE_DETECT_C,
+        /if \(!revealed\)\s*display_nhwindow\(WIN_MAP, TRUE\);\s*else[\s\S]*?browse_map\(TER_DETECT \| TER_MAP \| TER_TRP \| TER_OBJ \| TER_MON,\s*"location"\);\s*map_redisplay\(\);/u,
+    );
+    assert.match(
+        implementation,
+        /if \(!revealed\) note_unported\('detect\.c display_nhwindow'\);\s*else\s*await browse_map\(\s*TER_DETECT \| TER_MAP \| TER_TRP \| TER_OBJ \| TER_MON,\s*'location',\s*state,\s*\);\s*await map_redisplay\(state\);/u,
+    );
+    assert.doesNotMatch(implementation, /note_unported\('detect\.c browse_map'\)/u);
+    assert.match(
+        DETECT_C,
+        /if \(def_char_is_furniture\(ch\) >= 0\)\s*\{\s*ret = furniture_detect\(\);/u,
+    );
+    assert.match(
+        js.slice(js.indexOf('export async function use_crystal_ball(')),
+        /if \(def_char_is_furniture\(ch\) >= 0\)\s*\{\s*detected = await furniture_detect\(state\);/u,
+    );
 });
 
 test('object_detect does not overwrite scroll knowledge when nothing is found', async () => {

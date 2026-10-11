@@ -121,7 +121,12 @@ import { book_cursed } from './spell.js';
 // attrib.js imports objectType from this file; both sides use the other's
 // exports only inside function bodies.
 import { set_moreluck } from './attrib.js';
-import { arti_light_radius, get_obj_location, obj_sheds_light } from './light.js';
+import {
+    arti_light_radius,
+    get_obj_location,
+    obj_sheds_light,
+    obj_split_light_source,
+} from './light.js';
 // curse() needs the same hero equipment predicates and takeoff reset used by
 // wielding and armor removal. These modules already form function-body-only
 // cycles with obj.js.
@@ -951,12 +956,8 @@ export function splitobj(obj, quantity, env = {}) {
         else if (normalized.state === game)
             note_unported('timeout.c obj_split_timers');
     }
-    if (obj_sheds_light(obj)) {
-        if (typeof normalized.hooks.splitObjectLight === 'function')
-            normalized.hooks.splitObjectLight(obj, child, normalized);
-        else if (normalized.state === game)
-            note_unported('light.c obj_split_light_source');
-    }
+    if (obj_sheds_light(obj))
+        obj_split_light_source(obj, child, normalized.state);
     return child;
 }
 

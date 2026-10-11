@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent wizard Sokoban recipe for hack.c:cannot_push when a stone giant attempts a diagonal boulder push; seed and timestamp selected for this source task.",
+  "segments": [{
+    "seed": 55988113,
+    "datetime": "20580622170000",
+    "nethackrc": "OPTIONS=name:GuiltCannotPush,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!safe_wait,pettype:none\n",
+    "moves": "  #wizlevelport\n?\n>B\n   \u0017boulder\n#polyself\nstone giant\nyn#conduct\n"
+  }]
+}

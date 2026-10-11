@@ -1,0 +1,205 @@
+{
+  "session": "synthetic/v46/v46-random-swamp-room-depth16-seed46101100",
+  "corpus": "synthetic",
+  "batch": "v46",
+  "caseId": "v46-random-swamp-room-depth16-seed46101100",
+  "manifestPath": "challenges/manifests/v46.json",
+  "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+  "recordingSha256": "14f8dfb253b1f4cc8c2b06583a0af45e9a759555349b562fa1c2beb0d3455151",
+  "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+  "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+  "remainingScreens": 10,
+  "recordedSteps": 28,
+  "status": "complete",
+  "commit": "31a5d76c38043a8aeefc014471f58e9db310aa4b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v46",
+    "caseId": "v46-random-swamp-room-depth16-seed46101100",
+    "session": "synthetic/v46/v46-random-swamp-room-depth16-seed46101100",
+    "manifestPath": "challenges/manifests/v46.json",
+    "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+    "recording": "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.session.json",
+    "recordingPath": "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.session.json",
+    "recordingSha256": "14f8dfb253b1f4cc8c2b06583a0af45e9a759555349b562fa1c2beb0d3455151",
+    "recipe": "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.recipe.session.json",
+    "recipeSha256": "f12a4b07fd9983175d9f265378febf62e1aa8d369379d6e532f052dcbfa438d2",
+    "replayInputSha256": "939a3647d9cd362f2f28248cb75d1d57e0b1034405e548296ad75973ec29fe2d",
+    "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+    "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+    "evaluationArtifact": "challenges/evaluations/v46-baseline-29c284d97.json",
+    "evaluationUtc": "2026-10-11T15:24:07.625Z",
+    "remainingScreens": 10,
+    "recordedSteps": 28,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 18,
+        "total": 28
+      },
+      "rng": {
+        "matched": 4184,
+        "total": 5183
+      },
+      "cursors": {
+        "matched": 25,
+        "total": 28
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 18,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 37,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 4184,
+        "cEntry": "rn2(5)=1",
+        "cCaller": "mkswamp(mkroom.c:559)",
+        "jsEntry": "rn2(3)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "\n"
+        },
+        "stepIndex": 18
+      },
+      "cursor": {
+        "index": 18,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "\n"
+        },
+        "cCursor": [
+          45,
+          0,
+          1
+        ],
+        "jsCursor": [
+          20,
+          9,
+          1
+        ]
+      }
+    },
+    "step": 18,
+    "kind": "rng",
+    "sourceFile": "mkroom.c",
+    "function": "mkswamp",
+    "message": null,
+    "cFile": "mkroom.c",
+    "luaFile": null,
+    "line": 559
+  },
+  "summary": "Ported mkroom.c:mkswamp and nexttodoor, wired the SWAMP level-generation and wizard SHOPTYPE='}' dispatches, and replaced fountain.js private door-adjacency logic with the canonical helper. The admitted v46 replay now advances through swamp generation and stops at the separate hack.c:check_special_room SWAMP-entry boundary.",
+  "source": {
+    "file": "mkroom.c",
+    "branch": "At depth 16, makelevel selects SWAMP and do_mkroom calls mkswamp; mkswamp tries up to five room indices, skips non-ordinary rooms and rooms containing stairs, then marks an eligible room SWAMP and mutates eligible room cells. Its door-adjacency predicate is consumed by both this path and fountain.c:gush.",
+    "functions": [
+      "mkswamp",
+      "nexttodoor"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkroom.c:do_mkroom(SWAMP) -> mkroom.c:mkswamp",
+      "mkroom.c:do_mkroom SWAMP branch -> mkroom.c:mkswamp",
+      "mkroom.c:mkshop wizard nh_getenv(\"SHOPTYPE\") == '}' branch -> mkroom.c:mkswamp",
+      "fountain.c:gush -> mkroom.c:nexttodoor"
+    ],
+    "dependencies": [
+      "mkroom.c:has_upstairs",
+      "mkroom.c:has_dnstairs",
+      "rm.h:OBJ_AT",
+      "rm.h:MON_AT",
+      "trap.c:t_at",
+      "engrave.c:del_engr_at",
+      "makemon.c:makemon",
+      "makemon.c:mkclass",
+      "cmd.c:isok"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v46 queue entry at challenges/evaluations/v46-baseline-29c284d97.json records segment 0, zero-based step 18, newline input, and first C RNG divergence rn2(5)=1 at mkroom.c:mkswamp:559. At the selected baseline commit, JavaScript do_mkroom(SWAMP) only recorded note_unported and consumed no swamp room-selection draw.",
+    "Upstream mkroom.c:mkswamp at lines 530-574 selects up to five rooms with rn2(svn.nroom), skips invalid/non-OROOM/stair rooms, sets SWAMP, then scans x-major/y-minor over matching room-number cells. It skips objects, monsters, traps, and cells adjacent to a door; odd cells remove engravings and become pools before eel placement draws, while even cells have a one-in-four fungus placement attempt; each selected room sets has_swamp.",
+    "Upstream mkroom.c:nexttodoor at lines 623-637 checks the 3-by-3 neighborhood in dx-major/dy-minor order, clips through isok, and returns true on a door or secret door. mkroom.c:mkswamp consumes this result; fountain.c:gush at lines 139-142 also consumes it, while js/fountain.js currently carries a private duplicate.",
+    "At the selected baseline commit, JavaScript mkshop wizard SHOPTYPE='}' and do_mkroom SWAMP both recorded note_unported('mkroom.c mkswamp'), and fountain.js carried a private nexttodoor copy. This task replaces those gaps with the canonical mkswamp/nexttodoor path and a shared fountain import.",
+    "The independent recipe recipes/mkroom.c/mkswamp-depth16-arrival-outside-seed46101145.session.json uses a different seed and character name. Its fresh C-versus-JavaScript replay matched all 5,306 RNG calls, 28 screens, and 28 cursors while executing mklev.c:makelevel -> mkroom.c:do_mkroom(SWAMP) -> mkroom.c:mkswamp.",
+    "The same recording executes mkroom.c:nexttodoor from mkswamp. The helper is pure: it scans the clipped 3-by-3 neighborhood for doors and secret doors without RNG, output, or mutation; scripts/mkroom-shop.test.mjs pins its return values and scripts/fountain.test.mjs covers the fountain caller.",
+    "A fresh replay of the selected admitted case now matches through swamp generation. Its first absent JavaScript screen and cursor are at segment 1, zero-based step 19, after the hero enters a SWAMP room. C has one further rn2(19)=10 call at segment 1, step 28, from exercise(attrib.c:509); JavaScript stops at the check_special_room SWAMP-entry boundary before that later operation.",
+    "The optional wizard SHOPTYPE='}' route is compiled and source-traced at mklev.c:1347-1348 and mkroom.c:102-143. It is not a session-addressable entrypoint: record-session.mjs:374-380 accepts v5 segments, recordSegment at 448-476 never applies per-segment environment fields, and output preservation at 758-762 does not make an unknown field active. record-session inherits ambient process.env, so an out-of-band SHOPTYPE can affect a manual run but cannot be bound to this case for later replay. The JS branch remains source-pinned by scripts/mkroom-shop.test.mjs:580-605; the depth-selected SWAMP caller and nexttodoor remain covered by the independent matching recording."
+  ],
+  "postPortReplay": {
+    "command": [
+      "node",
+      "scripts/diff-fresh.mjs",
+      "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.recipe.session.json"
+    ],
+    "result": "expected mismatch at the next out-of-scope source boundary",
+    "sourceBoundary": "hack.c:check_special_room() entering a SWAMP room",
+    "rng": {
+      "cCalls": 5183,
+      "javascriptCalls": 5182,
+      "firstMissing": {
+        "segment": 1,
+        "step": 28,
+        "c": "rn2(19)=10",
+        "caller": "exercise(attrib.c:509)"
+      }
+    },
+    "screens": {
+      "c": 28,
+      "javascript": 18,
+      "firstMissingBoundary": {
+        "segment": 1,
+        "step": 19
+      }
+    },
+    "cursors": {
+      "c": 28,
+      "javascript": 18,
+      "firstMissingBoundary": {
+        "segment": 1,
+        "step": 19
+      }
+    },
+    "outOfScope": true
+  },
+  "runtimeEvidence": {
+    "recipe": "recipes/mkroom.c/mkswamp-depth16-arrival-outside-seed46101145.session.json",
+    "recording": "recordings/mkroom.c/mkswamp-depth16-arrival-outside-seed46101145.session.json",
+    "seed": 46101145,
+    "depth": 16,
+    "result": {
+      "rngCalls": 5306,
+      "screens": 28,
+      "cursors": 28,
+      "matched": true
+    },
+    "arrivalAvoidsSwampEntry": true,
+    "recipeSha256": "2a8fb3abf327215f9062b0b3d94fc949dde51992d9a8f31c45f5b736c391f453",
+    "recordingSha256": "776009325ccac6b2e96823b7c7c0f589807c242dc6d15ee7f912114dff2b9275"
+  },
+  "entryPointReview": "The recorder-backed impure entry point is depth-selected SWAMP generation: mklev.c:makelevel -> mkroom.c:do_mkroom(SWAMP) -> mkswamp, exercised by the independent matching recording; that same path exercises nexttodoor. The optional wizard SHOPTYPE override is source-traced but is not a replayable per-session entry point. Upstream mklev.c:1347-1348 selects do_mkroom(SHOPBASE) only when wizard and nh_getenv(\"SHOPTYPE\") are true; mkroom.c:mkshop at 102-143 reads SHOPTYPE and dispatches '}' to mkswamp. This C branch is compiled, but v5 sessions cannot bind the environment to one case: scripts/record-session.mjs:374-380 only validates version and segments, and recordSegment at 448-476 reads seg.nethackrc while constructing the child environment from process.env and fixed recorder values; it never reads a per-segment env field. Its output code at 758-762 preserves unknown segment fields without applying them. Thus ambient SHOPTYPE can affect an ad hoc recording invocation, but no serialized per-case value survives to replay, so that external environment variant is excluded from the active recorded entryPoints list. The JS branch remains source-pinned by scripts/mkroom-shop.test.mjs:580-605, which verifies the wizard SHOPTYPE='}' dispatch, mkswamp call and immediate return. fountain.c:gush is the second caller of pure nexttodoor; scripts/fountain.test.mjs exercises the shared helper through dogushforth. The admitted v46 replay reaches a separate, out-of-scope hack.c:check_special_room SWAMP-entry boundary after level generation."
+}

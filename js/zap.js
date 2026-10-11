@@ -179,6 +179,7 @@ import {
     check_unpaid, billable, contained_cost, costly_spot, inhishop, inside_shop, shkcatch, shop_keeper, shk_your, stolen_value, } from './shk.js';
 import { Shknam, shkname } from './shknam.js';
 import { messageAt } from './startup_a11y.js';
+import { MIM_OMIT_WAIT, MIM_REVEAL } from './const.js';
 import {
     S_digbeam, S_flashbeam, S_hcdoor, S_vodoor, } from './symbols.js';
 import {
@@ -187,10 +188,11 @@ import { stairway_at } from './stairs.js';
 
 import { acid_damage, burnarmor } from './trap_erode_obj.js';
 import {
-    conjoined_pits, delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, t_at, trapname, trap_ice_effects } from './trap.js';
+    conjoined_pits, delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, sokoban_guilt, t_at, trapname, trap_ice_effects } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import {
     erode_armor, flash_hits_mon, m_is_steadfast, shade_miss,
+    that_is_a_mimic,
 } from './uhitm.js';
 import { enexto, rloco, tele, u_teleport_mon } from './teleport.js';
 import { block_point, cansee, couldsee, does_block, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
@@ -227,7 +229,7 @@ import {
     hits_bars, m_useup, m_useupall, rnd_hallublast, thitu,
 } from './mthrowu.js';
 import { note_unported } from './unported.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, set_msg_xy } from './pline.js';
 import { waterbody_name } from './pager.js';
 import { fix_wall_spines } from './mklev.js';
 import { boxlock, doorlock, picking_at, reset_pick } from './lock.js';
@@ -2303,11 +2305,8 @@ export async function poly_obj(obj, id, state = game,
     const oldLocation = obj.where;
     let replacement;
 
-    // zap.c keeps Sokoban's guilt accounting even though the terrain owner is
-    // not part of this span.  Keep the discarded call visible rather than
-    // silently changing that source branch.
     if (obj.otyp === BOULDER)
-        note_unported('sokoban.c sokoban_guilt');
+        sokoban_guilt(state);
 
     if (id === STRANGE_OBJECT) {
         // A degraded unicorn horn has lost its magic status before the
@@ -2776,7 +2775,7 @@ export async function fracture_rock(obj, state = game, random = { rn1 }, rawEnv 
         }
     }
     if (byHero && obj.otyp === BOULDER)
-        note_unported('sokoban.c sokoban_guilt');
+        sokoban_guilt(state);
 
     obj.otyp = ROCK;
     obj.oclass = GEM_CLASS;
@@ -3448,7 +3447,8 @@ export async function bhitm(monster, wand, state = game,
             await ttyPline(name + ' vanishes!', state, rawEnv);
         }
     } else if (otyp === WAN_LOCKING || otyp === SPE_WIZARD_LOCK) {
-        if (disguised_mimic && boxOrDoor) seemimic(monster, state);
+        if (disguised_mimic && boxOrDoor)
+            await that_is_a_mimic(monster, MIM_REVEAL, state, rawEnv);
         const trapped = await closeholdingtrap(monster, state);
         wake = Boolean(trapped.result);
         learn_it = Boolean(trapped.noticed);
@@ -3538,10 +3538,14 @@ export async function bhitm(monster, wand, state = game,
                 || (M_AP_TYPE(monster) === M_AP_OBJECT
                     && stone_object_type(monster.mappearance)))) {
             if (cansee(monster.mx, monster.my, state)) {
-                note_unported('pline.c set_msg_xy');
-                // zap.c discards that_is_a_mimic()'s result; wakeup() in the
-                // common tail reveals this mimic after the source call site.
-                note_unported('uhitm.c that_is_a_mimic');
+                set_msg_xy(monster.mx, monster.my, state);
+                // C's next pline consumes a11y.msg_loc, then reveals the mimic.
+                await that_is_a_mimic(
+                    monster,
+                    MIM_REVEAL | MIM_OMIT_WAIT,
+                    state,
+                    rawEnv,
+                );
             }
         } else {
             wake = false;
@@ -3632,7 +3636,8 @@ export async function bhitm(monster, wand, state = game,
             }
         }
     } else if (otyp === WAN_OPENING || otyp === SPE_KNOCK) {
-        if (disguised_mimic && boxOrDoor) seemimic(monster, state);
+        if (disguised_mimic && boxOrDoor)
+            await that_is_a_mimic(monster, MIM_REVEAL, state, rawEnv);
         wake = false;
         if (monster === state.u?.ustuck) {
             await release_hold(state);

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent wizard Sokoban recipe for steed.c:dismount_steed landing on a boulder. Seed 76832105 and the 2059 timestamp were selected for this source task; forced mounting is required because the generated horse is not tame.",
+  "segments": [{
+    "seed": 76832105,
+    "datetime": "20590102120000",
+    "nethackrc": "OPTIONS=name:SteedGuilt,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!safe_wait,pettype:none\n",
+    "moves": "  #wizlevelport\n?\n>B\n   \u0017boulder\n#wizgenesis\nsaddled tame horse\n#ride\nnyk#polyself\nstone giant\n\n#conduct\n"
+  }]
+}
