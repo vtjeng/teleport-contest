@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup probe for a saddled tame pony, followed by a level map. Reachable stairs and mounted stair descent will be added from observed map state.",
+  "segments": [
+    {
+      "seed": 43000041,
+      "datetime": "20520320110523",
+      "nethackrc": "OPTIONS=name:V43RideDown,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u00173 blessed potions of full healing\nqoqoqo\u0007tame saddled pony\n#ride\njy#wizmap\n"
+    }
+  ]
+}

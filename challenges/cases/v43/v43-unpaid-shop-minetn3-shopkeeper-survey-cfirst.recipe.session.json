@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only setup survey: use getpos monster cycling after the teleport/getpos pages to verify whether minetn-3.lua generated an active shopkeeper and obtain its source map coordinate; abort teleport after survey.",
+  "segments": [
+    {
+      "seed": 43050411,
+      "datetime": "20521011161300",
+      "nethackrc": "OPTIONS=name:V43ShopFee,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nminetn-3.lua\n#wizmap\n\u0014  mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm\u001b"
+    }
+  ]
+}

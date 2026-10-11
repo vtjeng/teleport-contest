@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050132,
+      "datetime": "20530401121314",
+      "nethackrc": "OPTIONS=name:V43Sacrifice,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017blessed scroll of teleportation\n#wizloaddes\nKni-loca.lua\n ro_.\u0017human corpse\n#offery"
+    }
+  ],
+  "comment": "C-first candidate for the own-race corpse branch at Kni-loca.lua's neutral shrine. A chaotic human Wizard loads the source temple, reads the wished blessed teleport scroll from the C-observed inventory slot o, uses getpos background-symbol search for the altar, wishes a human corpse on that square, and confirms #offer. The counted C path must show the altar-staining call to priest.c:angry_priest and the chaotic alignment branch without v29's later angrygods caller; preserve only if C proves it reached the shrine, accepted the corpse, and changed the priest state."
+}

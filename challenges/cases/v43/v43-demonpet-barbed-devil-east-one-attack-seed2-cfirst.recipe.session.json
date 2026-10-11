@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050045,
+      "datetime": "20530207121314",
+      "nethackrc": "OPTIONS=name:V43Demonpet,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #polyself\nbarbed devil\n\u0007hostile iron golem\nFl"
+    }
+  ],
+  "comment": "Corrected C-first direction from the source-recorded map: the hostile iron golem appears east of the unarmed polymorphed barbed devil. This one-hit recipe checks uhitm.c:damageum demonpet eligibility."
+}

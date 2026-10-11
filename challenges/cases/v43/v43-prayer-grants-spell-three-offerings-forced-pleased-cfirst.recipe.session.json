@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050008,
+      "datetime": "20530209121314",
+      "nethackrc": "OPTIONS=name:V43SpellPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .l\u0017blessed luckstone\n,\u0017neutral altar\n\u0017newt corpse\n#offer\no\n\u0017newt corpse\n#offer\np\n\u0017newt corpse\n #offer\nq\n#pray\ny\ny..."
+    }
+  ],
+  "comment": "C-first corrected attempt at prayer.c:pleased case 6 -> give_spell. After the three-offering route, confirm #pray, dismiss the start page, accept the debug forced-success prompt, and wait through the prayer occupation; retain only if C reaches the source spell-gift branch."
+}

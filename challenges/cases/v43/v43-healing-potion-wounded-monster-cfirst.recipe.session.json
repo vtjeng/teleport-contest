@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050010,
+      "datetime": "20530202121314",
+      "nethackrc": "OPTIONS=name:V43WoundedMonster,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017potion of healing\n\u0017hostile ogre\nFl\nt"
+    }
+  ],
+  "comment": "Independent C-first test of the throw-potion effect after attacking an adjacent ogre. Preserve the exact C map/message state and correct inventory selector from the trace; count only if C reaches the wounded-monster healmon caller."
+}

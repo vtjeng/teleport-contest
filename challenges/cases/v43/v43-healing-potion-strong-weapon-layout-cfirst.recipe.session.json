@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050060,
+      "datetime": "20530308121314",
+      "nethackrc": "OPTIONS=name:V43WoundedMonster,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed +5 dagger\n\u0017potion of healing\n #wizgenesis\nhostile ogre\nwo"
+    }
+  ],
+  "comment": "C-first continuation from the recorded wish slots (dagger o, healing potion p): create an ogre and attempt to wield the dagger, then read the live map before choosing attack directions. Preserve the initial setup recording."
+}

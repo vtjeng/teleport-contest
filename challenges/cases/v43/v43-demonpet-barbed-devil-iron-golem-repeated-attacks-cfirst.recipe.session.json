@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050043,
+      "datetime": "20530205121314",
+      "nethackrc": "OPTIONS=name:V43Demonpet,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #polyself\nbarbed devil\n\u0007hostile iron golem\nFk Fk Fk Fk"
+    }
+  ],
+  "comment": "C-first form correction from monsters.h: a barbed devil is a demon whose attack array begins AT_CLAW/AD_PHYS, so a bare-claw hit reaches damageum (unlike the Pit Fiend weapon attack). Stop at the source-observed target map before selecting a direction. The C map places the iron-golem apostrophe one square north of the Barbed Devil, so this recorded continuation attacks with direction k. This continuation dismisses the source-observed combat pager and makes one more C-map-confirmed northward attack to re-enter damageum. Continue the C-confirmed combat rhythm (space for the pager-resumed third attack, F+k for the next northward turn) while the durable golem remains adjacent; stop at any changed message/map state."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: read.c:maybe_tame calls dog.c:tamedog for a shopkeeper even when the normal resist check fails; tamedog then calls shk.c:make_happy_shk. Load minetn-3.lua to generate a source shopkeeper, wish a scroll of taming, and verify the exact affected monsters in C before comparing JavaScript.",
+  "segments": [
+    {
+      "seed": 43050301,
+      "datetime": "20521010161200",
+      "nethackrc": "OPTIONS=name:V43TameShopkeeper,role:Wizard,race:human,gender=female,align=chaotic,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017uncursed scroll of taming\n #wizloaddes\nminetn-3.lua\n #wizmap\n"
+    }
+  ]
+}

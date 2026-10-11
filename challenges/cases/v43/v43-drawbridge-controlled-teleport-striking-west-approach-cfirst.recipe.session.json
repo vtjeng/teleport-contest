@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050052,
+      "datetime": "20530214121314",
+      "nethackrc": "OPTIONS=name:V43BridgeTeleport,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ncastle.lua\n#wizmap\n\u0017wand of striking\n\u0014  hhhhkkk.zpl"
+    }
+  ],
+  "comment": "From the C-recorded hero location (8,11), dismiss both Ctrl-T pages, move the getpos cursor to the verified floor square (4,8) immediately west of Castle drawbridge (5,8), select it, and zap the wished striking wand east from the adjacent approach."
+}

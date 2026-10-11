@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050301,
+      "datetime": "20530501121314",
+      "nethackrc": "OPTIONS=name:V43GhodHit,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nblessed scroll of teleportation\n#wizloaddes\nKni-loca.lua\n ro   _.  Fk"
+    }
+  ],
+  "comment": "C-corrected adjacency route. On the post-teleport screen and cursor, the hero occupies the altar at row 11, column 37 and the peaceful priest is one square north at row 10, column 37; force-fight north (`k`) to reach hmon/ghod_hitsu. Preserve west and south direction misses."
+}

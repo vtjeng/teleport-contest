@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050056,
+      "datetime": "20530213121314",
+      "nethackrc": "OPTIONS=name:V43SpellPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .l\u0017blessed luckstone\n,\u0017neutral altar\n\u0017master lich corpse\n#offer\no\n\u0017master lich corpse\n#offer\np\n#pray\ny\nn..."
+    }
+  ],
+  "comment": "Source-correct high-value prayer route: a master lich corpse is a fresh, valid undead offering with source value difficulty+2 for Neutral; two offerings should reduce the debug-start prayer cooldown and raise alignment record/Luck. Wish and retain a luckstone, create a neutral altar off the stair, offer floor slots o and p after checking C selectors, confirm #pray, decline debug forced success, and record the three-turn result. This tests reachability of prayer_success case 6 -> give_spell, not its random result."
+}

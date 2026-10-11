@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050008,
+      "datetime": "20530209121314",
+      "nethackrc": "OPTIONS=name:V43SpellPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .l\u0017blessed luckstone\n,\u0017neutral altar\n\u0017newt corpse\n#offer\no\ny"
+    }
+  ],
+  "comment": "C-first correction from the recorded screen: the hero started on a stair, so the prior comma attempted to lift stairs rather than the wished stone. Move east off the stairs, wish and pick up the luckstone on ordinary floor, create the coaligned altar underfoot, wish a newt corpse, then offer the observed floor letter o."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050301,
+      "datetime": "20530501121314",
+      "nethackrc": "OPTIONS=name:V43GhodHit,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nblessed scroll of teleportation\n#wizloaddes\nKni-loca.lua\n ro   _.  Fj"
+    }
+  ],
+  "comment": "Corrected C-observed shrine-priest position: after teleport, the hero is one square north of the peaceful temple priest at the altar, so force-fight south (`j`). Preserve the west-direction miss."
+}

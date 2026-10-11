@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050008,
+      "datetime": "20530209121314",
+      "nethackrc": "OPTIONS=name:V43SpellPrayer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " .l\u0017blessed luckstone\n,\u0017neutral altar\n\u0017newt corpse\n#offer\no\n\u0017newt corpse\n#offer\np\n\u0017newt corpse\n #offer\nq\n#pray\ny"
+    }
+  ],
+  "comment": "C-first corrected multi-offering route: leave the startup stair before wishing, keep the luckstone on hero, place a neutral altar, offer the first corpse as floor letter o, then use the source-observed floor letter p for the second. Stop after the third corpse appears to record its selector before another offer. The C trace confirmed the third wished newt corpse is floor letter q and the first two offers produced hopeful feedback. This continuation offers q, then confirms #pray on the same coaligned altar after three sacrifices; record whether prayer_success case 6 reaches give_spell."
+}

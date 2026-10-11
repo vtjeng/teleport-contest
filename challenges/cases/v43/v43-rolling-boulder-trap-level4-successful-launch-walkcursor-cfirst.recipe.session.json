@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first successful-launch recipe after preserving the getpos fast-move differential. Use individual C getpos cursor steps from (10,13) to (60,15), then create and trigger the rolling-boulder trap in the broad source-generated room.",
+  "segments": [
+    {
+      "seed": 43050413,
+      "datetime": "20521011161500",
+      "nethackrc": "OPTIONS=name:V43RollingSurvey,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#wizlevelport\n4\n#wizmap\n\u0014  lllllllllllllllllllllllllllllllllllllllllllllllllljj.\u0017rolling boulder trap\nhl "
+    }
+  ]
+}

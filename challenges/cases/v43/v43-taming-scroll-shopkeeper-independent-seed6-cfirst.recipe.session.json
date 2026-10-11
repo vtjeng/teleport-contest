@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Third independent C-first ordinary-shop setup probe. A new seed and weekday/date are chosen for D:4 generation; map before a short eastward walk and map again to establish shop geometry and whether the keeper is reached. This is not a candidate until C confirms an initialized shopkeeper.",
+  "segments": [
+    {
+      "seed": 43100016,
+      "datetime": "20521113101500",
+      "nethackrc": "OPTIONS=name:V43KeeperProbe3,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n4\n#wizmap\nl#wizmap\n"
+    }
+  ]
+}

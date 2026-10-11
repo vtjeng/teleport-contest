@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050301,
+      "datetime": "20530501121314",
+      "nethackrc": "OPTIONS=name:V43GhodHit,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nblessed scroll of teleportation\ni"
+    }
+  ],
+  "comment": "C-only inventory-letter probe for the Kni-loca priest attack route. After wishing the teleport scroll, inspect its C-confirmed inventory slot; preserve the earlier wrong-slot input."
+}
