@@ -159,7 +159,9 @@ import { reset_trapset } from './apply.js';
 import { bones_include_name } from './bones.js';
 import { obj_resists } from './bury.js';
 import { buried_ball_to_punishment, bury_objs, rot_corpse, use_pick_axe2 } from './dig.js';
-import { ballfall, ballrelease, drag_down, placebc, unplacebc } from './ball.js';
+import {
+    ballfall, ballrelease, drag_down, drop_ball, placebc, unplacebc,
+} from './ball.js';
 import { next_to_u } from './apply_next_to_u.js';
 import {
     paranoid_ynq, reset_occupations, set_move_cmd, set_occupation, y_n,
@@ -2196,9 +2198,10 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
         const { impact_disturbs_zombies } = await import('./dothrow.js');
         impact_disturbs_zombies(obj, true, normalized.state);
         if (obj === normalized.state.uball) {
-            // ball.c:drop_ball() owns punishment-chain relocation and trap
-            // release; its result is void and this caller skips only that gap.
-            note_unported('ball.c drop_ball');
+            // C do.c:dropz() runs punishment-chain relocation after impact
+            // effects and before stacking the dropped object.
+            await drop_ball(normalized.state.u.ux, normalized.state.u.uy,
+                normalized.state);
         } else if (normalized.state.level?.flags?.has_shop) {
             // shk.c:sellobj() is void; shop billing is deliberately not
             // approximated here.

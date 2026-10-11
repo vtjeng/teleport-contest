@@ -62129,13 +62129,14 @@
     {
       "id": "port-uhitm-mhitm-ad-ston-seed4500-20260917",
       "kind": "file-port",
-      "status": "parked",
+      "status": "closed",
       "summary": "Complete stoning attack dispatch and source-ordered petrification gates",
       "cFile": "uhitm.c",
       "sessions": [
+        "synthetic/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
         "holdout/seed4500-knight-coverage"
       ],
-      "selectionReason": "Continue the Knight seed at step 1560 with 254 remaining screens; investigations/holdout/seed4500-knight-coverage.json identifies mhitm_ad_ston as the highest-ranked eligible source owner.",
+      "selectionReason": "Resume the parked complete uhitm.c:mhitm_ad_ston source unit for the admitted v45 monster-to-monster cockatrice case: its uncancelled branch still skips the already ported do_stone_mon helper, while worker B verified step 68 as the active production entry and reserved no conflicting source scope.",
       "detail": "Primary whole mhitm_ad_ston4203–4263 with supporting do_stone_u, petrifying-corpse continuation, fixed golem HP and planning-safe polymorph operations. Three cockatrice recordings reach monster-to-hero attacks; the separate golem command recording establishes a dependency, not attack-triggered conversion. Hero/monster directions, successful petrification and attack-triggered golem entry coverage remain open, so park after the verified primary span.",
       "spans": [
         {
@@ -62153,8 +62154,11 @@
         "screens": 11142,
         "rng": 785819
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1d37277547f03e37af5f2159baa0655c3830b8cd",
+      "delivered": {
+        "screens": 15,
+        "rng": 135
+      },
       "functions": [
         {
           "name": "mhitm_ad_ston",
@@ -62169,9 +62173,9 @@
         "to": 4264
       },
       "activeStanding": {
-        "sha": "58e2213278b377a9ba04d78685e58c5c1e4e5692",
-        "screens": 11142,
-        "rng": 785819
+        "sha": "cfead60783b397097e20e05274512010fec57464",
+        "screens": 11405,
+        "rng": 792838
       },
       "openMismatches": [
         {
@@ -62249,85 +62253,60 @@
             "name": "mhitm_ad_ston",
             "implementation": "js/uhitm.js",
             "symbol": "mhitm_ad_ston",
-            "sourceReview": "Read the whole uhitm.c mhitm_ad_ston4203–4263 and supporting do_stone_u3924–3942. Preserve the three attack directions, hitmsg before rn2(3), cancelled-attacker cough, Deaf/Hallucination/Blind messages, and rn2(10) before the new-moon fallback. The source-returned stoning result controls M_ATTK_HIT and done; successful stone-golem transformation returns false. Hero attack damage becomes zero after munstone. Discarded trap.c minstapetrify, uhitm.c do_stone_mon and potion.c make_stoned remain named gaps; no gap return is used as data. Wire AD_STON through the shared dispatcher and existing production callers. The supporting physical petrifying-corpse caller sets damage to 1 before its message and do_stone_u, then continues through dmgval and hitmsg when already stoned, resistant or transformed. Ordinary nonweapon, artifact and other preexisting unsupported physical branches remain outside this correction. Polymon uses canonical golemhp and forwards planning RNG, message, redraw and inventory operations through armor removal, dragon properties, cloak displacement, object discovery and hallucination. The Wisdom exercise uses cloned RNG; live default output and source state-update order are preserved.",
+            "sourceReview": "Read complete uhitm.c:mhitm_ad_ston (4203-4262) and its AD_STON dispatch in uhitm.c:mhitm_adtyping (4782-4796). Preserved the hero-to-monster munstone/minstapetrify ordering and damage reset, the monster-to-hero hit message, rn2(3) and rn2(10) gates, cancellation and hearing branches, and do_stone_u result handling. Replaced only the uncancelled monster-to-monster do_stone_mon gap with its existing canonical helper call, preserving mhm.done order. Remaining minstapetrify and potion.c:make_stoned void-call gaps are in the other directions and remain explicitly unported.",
             "callers": [
               {
                 "path": "js/uhitm.js",
                 "symbol": "mhitm_adtyping",
-                "source": "uhitm.c:4796 dispatches AD_STON to mhitm_ad_ston; JavaScript awaits this arm in the same source-order switch."
-              },
-              {
-                "path": "js/mhitu.js",
-                "symbol": "hitmu",
-                "source": "C mhitu.c hitmu calls mhitm_adtyping after the base damage roll; the JavaScript owner awaits that shared dispatcher with the attack environment."
+                "source": "uhitm.c:mhitm_adtyping dispatches AD_STON to mhitm_ad_ston."
               },
               {
                 "path": "js/mhitm.js",
                 "symbol": "mdamagem",
-                "source": "C mhitm.c mdamagem computes a monster-to-monster landed blow and calls mhitm_adtyping; the JavaScript owner awaits it with state, random and message operations."
+                "source": "mhitm.c:mdamagem calls uhitm.c:mhitm_adtyping after its monster-versus-monster petrification-contact preflight."
               },
               {
-                "path": "js/uhitm.js",
-                "symbol": "damageum",
-                "source": "C uhitm.c damageum calls mhitm_adtyping for the hero-as-monster attack path; JavaScript awaits it before applying damage flags."
+                "path": "js/monmove.js",
+                "symbol": "m_move_aggress",
+                "source": "monmove.c:m_move_aggress calls mhitm.c:mattackm when one monster attempts to move onto another monster's square."
               }
             ],
             "pure": false,
             "tests": [
-              "scripts/uhitm.test.mjs",
-              "scripts/mhitu.test.mjs",
-              "scripts/polyself.test.mjs",
-              "scripts/wear-armor.test.mjs",
-              "scripts/potion.test.mjs"
+              "scripts/uhitm.test.mjs"
             ],
-            "recordings": [
-              "recordings/uhitm.c/mhitm-ad-ston-monster-independent.session.json",
-              "recordings/uhitm.c/mhitm-ad-ston-monster-variation.session.json",
-              "recordings/uhitm.c/mhitm-ad-ston-stone-resistance-independent.session.json"
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+                "segment": 0,
+                "fromStep": 68,
+                "throughStep": 68,
+                "source": "monmove.c:m_move_aggress -> mhitm.c:mattackm/hitmm/mdamagem -> uhitm.c:mhitm_adtyping(AD_STON) -> mhitm_ad_ston -> do_stone_mon -> mon.c:monstone"
+              }
             ],
-            "checkedAt": "1a2e93933a204257cf5abc8f22cc5ceeece34baf"
+            "checkedAt": "0554d6f2afd128055ecd668fcc654b822c997f8a"
           }
         ],
-        "entryPointReview": "The primary range contains mhitm_ad_ston only: intervening C do_stone_mon and mhitm_ad_phys definitions are not claimed as whole-source units. Three independent cockatrice recordings reach the monster-to-hero AD_STON entry; the resistance recording also reaches do_stone_u through the random gate. The separate stone-golem polyself recording establishes the canonical fixed golemhp dependency but does not establish an attack-triggered transformation. Hero-to-monster and monster-to-monster entries remain unrecorded, with discarded minstapetrify and do_stone_mon gaps. Successful petrification remains open behind the discarded make_stoned call. The supporting physical corpse caller and attack-triggered golem escape have initialized-state tests but no matching independent production recording. Planning armor removal, discovery, hallucination and permanent-inventory checks establish isolated operations, not new production entries. Keep all these supporting coverage gaps open and park the source goal after the verified primary span.",
+        "entryPointReview": "The active entry point is monster-versus-monster cockatrice contact. In the admitted v45 case, wizard setup creates a tame cockatrice and hostile newt, then player rests advance monster movement until the cockatrice touches the newt. The matching step exercises the movement collision, monster attack, AD_STON dispatch, and petrification helper chain. Other directions in mhitm_ad_ston retain their existing separate unported callee gaps and are not claimed by this entry point.",
         "entryPoints": [
           {
-            "name": "monster-to-hero cockatrice AD_STON",
+            "name": "Monster-to-monster cockatrice AD_STON contact",
             "functions": [
               "mhitm_ad_ston"
             ],
-            "recordings": [
-              "recordings/uhitm.c/mhitm-ad-ston-monster-independent.session.json",
-              "recordings/uhitm.c/mhitm-ad-ston-monster-variation.session.json",
-              "recordings/uhitm.c/mhitm-ad-ston-stone-resistance-independent.session.json"
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+                "segment": 0,
+                "fromStep": 68,
+                "throughStep": 68,
+                "source": "monmove.c:m_move_aggress -> mhitm.c:mattackm/hitmm/mdamagem -> uhitm.c:mhitm_adtyping(AD_STON) -> mhitm_ad_ston -> do_stone_mon -> mon.c:monstone"
+              }
             ]
-          },
-          {
-            "name": "hero-to-monster AD_STON",
-            "functions": [
-              "mhitm_ad_ston"
-            ],
-            "recordings": []
-          },
-          {
-            "name": "monster-to-monster AD_STON",
-            "functions": [
-              "mhitm_ad_ston"
-            ],
-            "recordings": []
-          },
-          {
-            "name": "monster-to-hero successful petrification",
-            "functions": [
-              "mhitm_ad_ston"
-            ],
-            "recordings": []
-          },
-          {
-            "name": "monster-to-hero stoning escape through stone-golem transformation",
-            "functions": [
-              "mhitm_ad_ston"
-            ],
-            "recordings": []
           }
         ]
       },
@@ -62340,7 +62319,27 @@
         "screens": 11157,
         "rng": 785954
       },
-      "parkedReason": "The verified stoning span adds 15 development screen matches and four matching recordings. Hero/monster directions, successful petrification, physical corpse entry and attack-triggered stone-golem conversion remain unrecorded or blocked by make_stoned/minstapetrify/do_stone_mon gaps. Resume when the required source owners and production recordings are available and queue priority permits."
+      "parkedReason": "The verified stoning span adds 15 development screen matches and four matching recordings. Hero/monster directions, successful petrification, physical corpse entry and attack-triggered stone-golem conversion remain unrecorded or blocked by make_stoned/minstapetrify/do_stone_mon gaps. Resume when the required source owners and production recordings are available and queue priority permits.",
+      "syntheticProvenance": {
+        "synthetic/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst": {
+          "session": "synthetic/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst.session.json",
+          "recordingSha256": "59057f8ed9fd49c9cc63660514cb38103dbdfcea13b246f30f11c018e4ac616e",
+          "evaluationPath": "challenges/evaluations/accepted-cfead60783b397097e20e05274512010fec57464-v45.json",
+          "evaluationCommit": "cfead60783b397097e20e05274512010fec57464"
+        }
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1d37277547f03e37af5f2159baa0655c3830b8cd",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-insight-show-achievements-seed4500-20260917",
@@ -269054,7 +269053,7 @@
     {
       "id": "port-teleport-dotelecmd-dotele-v45-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete teleport command and relocation decision family, with direct and extended command dispatch plus the active drowning caller.",
       "cFile": "teleport.c",
       "sessions": [
@@ -269068,8 +269067,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dotelecmd",
@@ -269385,6 +269387,469 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+          "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+          "replayInputSha256": "84060dd7b48fcae242ce5b79a23a72a39cf1cc9e922c8a93918a65f2a91e7de1",
+          "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+          "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+          "evaluationArtifact": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+          "evaluationUtc": "2026-10-11T11:57:28.052Z",
+          "remainingScreens": 84,
+          "recordedSteps": 157,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 73,
+              "total": 157
+            },
+            "rng": {
+              "matched": 6986,
+              "total": 7512
+            },
+            "cursors": {
+              "matched": 73,
+              "total": 157
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 73,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 42,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "H",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 73,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "."
+              },
+              "cCursor": [
+                74,
+                0,
+                1
+              ],
+              "jsCursor": [
+                70,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 73,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.json",
+            "previousRemainingScreens": 127
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-ball-drop-ball-v45-ironball-longlane-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port complete punished iron ball landing relocation and wire both active drop and throw callers.",
+      "cFile": "ball.c",
+      "sessions": [
+        "synthetic/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst"
+      ],
+      "selectionReason": "The accepted v45 evaluation matches all RNG but diverges on the final throw screen because ball.c:drop_ball has not moved the punished hero and chain after the iron ball lands.",
+      "detail": "The current accepted evaluation has 48/49 matching screens, 2900/2900 RNG calls, and 48/49 cursors at step 48. The corrected investigation identifies complete ball.c:drop_ball and its active do.c:dropz and dothrow.c:throwit callers.",
+      "openedAt": "7854af358dc6797fad6a8c0d0224266b422edbac",
+      "openStanding": {
+        "sha": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "cfead60783b397097e20e05274512010fec57464",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "drop_ball",
+          "line": 882,
+          "endLine": 964,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 882,
+        "to": 964
+      },
+      "syntheticProvenance": {
+        "synthetic/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst": {
+          "session": "synthetic/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst.session.json",
+          "recordingSha256": "f836d4e724b3a185e4c60cc82cdd7c7d3b8a63dcba66c6cb6a3f60d65a12391c",
+          "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+          "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c"
+        }
+      },
+      "activeStanding": {
+        "sha": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "session": "synthetic/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst.session.json",
+          "recordingSha256": "f836d4e724b3a185e4c60cc82cdd7c7d3b8a63dcba66c6cb6a3f60d65a12391c",
+          "recipe": "challenges/cases/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst.recipe.session.json",
+          "recipeSha256": "cf779ebba3707a79e7dcf132e7f2cc116f363820e47193804481a5a19f3ae769",
+          "replayInputSha256": "84060dd7b48fcae242ce5b79a23a72a39cf1cc9e922c8a93918a65f2a91e7de1",
+          "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+          "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+          "evaluationArtifact": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+          "evaluationUtc": "2026-10-11T11:57:28.052Z",
+          "remainingScreens": 1,
+          "recordedSteps": 49,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 49
+            },
+            "rng": {
+              "matched": 2900,
+              "total": 2900
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 49
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "j"
+              },
+              "kind": "ch",
+              "row": 4,
+              "column": 63,
+              "cCell": {
+                "ch": "<",
+                "color": 11,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "@",
+                "color": 15,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "j"
+              },
+              "cCursor": [
+                63,
+                7,
+                1
+              ],
+              "jsCursor": [
+                63,
+                4,
+                1
+              ]
+            }
+          },
+          "step": 48,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst.json",
+            "result": {
+              "session": "synthetic/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingPath": "challenges/cases/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst.session.json",
+              "recordingSha256": "f836d4e724b3a185e4c60cc82cdd7c7d3b8a63dcba66c6cb6a3f60d65a12391c",
+              "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+              "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+              "remainingScreens": 1,
+              "recordedSteps": 49,
+              "status": "complete",
+              "commit": "9349ba8849738861f8ffb834a25e1afb6de91652",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+                "session": "synthetic/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst.session.json",
+                "recordingSha256": "f836d4e724b3a185e4c60cc82cdd7c7d3b8a63dcba66c6cb6a3f60d65a12391c",
+                "recipe": "challenges/cases/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst.recipe.session.json",
+                "recipeSha256": "cf779ebba3707a79e7dcf132e7f2cc116f363820e47193804481a5a19f3ae769",
+                "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+                "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+                "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationUtc": "2026-10-11T09:20:20.964Z",
+                "remainingScreens": 1,
+                "recordedSteps": 49,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 48,
+                    "total": 49
+                  },
+                  "rng": {
+                    "matched": 2900,
+                    "total": 2900
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 49
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 48,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": "j"
+                    },
+                    "kind": "ch",
+                    "row": 4,
+                    "column": 63,
+                    "cCell": {
+                      "ch": "<",
+                      "color": 11,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "@",
+                      "color": 15,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 48,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": "j"
+                    },
+                    "cCursor": [
+                      63,
+                      7,
+                      1
+                    ],
+                    "jsCursor": [
+                      63,
+                      4,
+                      1
+                    ]
+                  }
+                },
+                "step": 48,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The punished iron-ball throw reaches the source call to ball.c:drop_ball after dothrow.c:throwit lands and stacks the ball. That function moves the hero and chain behind the thrown ball when its landing square differs from the hero. JavaScript currently records note_unported('ball.c drop_ball') in throwit, so C moves the hero at step 48 while JS leaves the hero at the launch square. A second direct source caller is do.c:dropz; js/do.js contains the same unported callee marker.",
+              "selectionReason": "Selected as the highest queue candidate available after excluding A2- and B-reserved v45 cases and the submitted leash case; the source trace identifies an unreserved ball.c:drop_ball owner.",
+              "source": {
+                "file": "ball.c",
+                "branch": "When the punished iron ball has already been placed at its landing square, drop_ball() updates blind ball/chain glyph order if needed. If the landing square differs from the hero, it releases eligible traps, moves the hero to the landing square or the adjacent square behind it, moves the chain, refreshes vision, and triggers spot effects after a real hero move.",
+                "functions": [
+                  "drop_ball"
+                ],
+                "callers": [
+                  "dothrow.c:throwit() calls drop_ball(gb.bhitpos.x, gb.bhitpos.y) for the landed uball at lines 1838-1841, after place_object()/stackobj() and before the final newsym().",
+                  "do.c:dropz() calls drop_ball(u.ux, u.uy) at line 834 after place_object(), impact effects, and corpse disturbance, before stackobj()/newsym()."
+                ],
+                "dependencies": []
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved queue SHA-256 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b identifies this as the unreserved 48/49-screen v45 case; the first mismatch is the step-48 screen and cursor after key j, with all 2900 RNG calls matched.",
+                "Read complete upstream ball.c:drop_ball() at lines 882-961. Its changed-square branch updates the hero coordinates, moves uchain, requests vision recalculation, and invokes spoteffects only after movement; its trapped branches include reset_utrap/fill_pit and source-ordered messages, sound, and injury.",
+                "Read upstream dothrow.c:throwit() at lines 1838-1841: after the thrown uball is placed and stacked, C calls drop_ball at the projectile landing square. Current js/dothrow.js:2882 uses note_unported('ball.c drop_ball') at the corresponding point.",
+                "Read upstream do.c:dropz() at line 834 and current js/do.js:2199-2202: the ordinary drop caller also calls the same C function after placement and effects; JavaScript records the same unported gap.",
+                "A bounded fresh C/JavaScript differential at the current task boundary reproduced the queue mismatch at boundary 49 / input step 48: C cell row 5 column 64 is the ball glyph and cursor [63,7,1], while JS still shows the hero and cursor [63,4,1]. PRNG lengths and all 2900 values match; animation frames also match.",
+                "The required trap.c:reset_utrap and trap.c:fill_pit helpers are already implemented in js/trap.js; drop_ball discards their void results. The active direct caller families are do.c:dropz and dothrow.c:throwit."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "drop_ball",
+            "implementation": "js/ball.js",
+            "symbol": "drop_ball",
+            "sourceReview": "Read the complete ball.c:drop_ball() definition at lines 882-961 (80 lines). The port preserves the initial blind ball-order/glyph write; same-square early return; each eligible trap message and effect in source order; rn2(3) then rn1(1000,500) for bear-trap injury; reset_utrap(TRUE) and fill_pit after trap handling; ux0/uy0 snapshot; the non-levitating, unoccupied pool/pit/hole destination predicate; otherwise the adjacent-behind-ball destination; delayed vision recalculation; blind chain-glyph bookkeeping; chain relocation; old-square newsym; and spot effects only after actual hero movement. The C Soundeffect(se_destroy_web,30) has no recorder-visible effect and is left without an invented JS effect. Called return-value dependencies are already ported: bc_order, Levitation, is_pool, is_pit/is_hole, t_at/m_at, hliquid, set_wounded_legs, body_part, losehp, deltrap, reset_utrap, movobj and spoteffects. fill_pit is also wired; its existing do.c flooreffects note_unported remains limited to the separate boulder-in-pit subbranch. No return value is used as a substitute for any of these calls.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropz",
+                "source": "C do.c:dropz() (806-842) calls drop_ball(u.ux,u.uy) for uball after placement, optional impact and impact_disturbs_zombies, before stackobj/newsym (833-834). JS do.js:dropz() awaits drop_ball at the same point."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "C dothrow.c:throwit() calls drop_ball(gb.bhitpos.x,gb.bhitpos.y) after stackobj and before the final newsym (1839-1840). JS dothrow.js:throwit() awaits drop_ball(bx,by,state) at that point."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "hitfloor",
+                "source": "C dothrow.c:hitfloor() (606-655) calls do.c:dropz(obj,TRUE) after surface feedback, hero_breaks and ship_object. The recording reaches this caller from do.c:drop() while the hero is levitating; JS do.js:drop() calls dothrow.js:hitfloor(), which calls the wired do.js:dropz()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/ball-memory.test.mjs"
+            ],
+            "recordings": [
+              "recordings/ball.c/drop-punished-iron-ball-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 48,
+                "source": "dothrow.c:throwit() -> ball.c:drop_ball(); the thrown iron ball lands at a different square, and the recorded screen/cursor show the hero repositioned behind it."
+              }
+            ],
+            "checkedAt": "e994602e71114514215556cae98eae9829ba8b85"
+          }
+        ],
+        "entryPointReview": "ball.c:drop_ball has two direct active C callers. do.c:dropz is reached by an ordinary hero drop; this task records the unreachable-floor branch, do.c:drop() -> dothrow.c:hitfloor() -> do.c:dropz(TRUE) -> ball.c:drop_ball, without entering the separate preflight_dropx attached-object branch. dothrow.c:throwit directly calls drop_ball after a thrown uball is stacked. The v45 synthetic range reaches this caller at zero-based step 48 and matches every screen, cursor, and RNG value through that step. The independent ball.c recording reaches the ordinary dropz call and matches the complete C/JS replay.",
+        "entryPoints": [
+          {
+            "name": "Drop a carried punished ball while levitating and unable to reach the floor",
+            "functions": [
+              "drop_ball"
+            ],
+            "recordings": [
+              "recordings/ball.c/drop-punished-iron-ball-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Throw a punished iron ball to a landing square away from the hero",
+            "functions": [
+              "drop_ball"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 48,
+                "source": "dothrow.c:throwit() -> ball.c:drop_ball()"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "cfead60783b397097e20e05274512010fec57464",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
