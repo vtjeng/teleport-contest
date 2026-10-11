@@ -263393,7 +263393,7 @@
     {
       "id": "fix-v43-mounted-steed-stair-descent-pager-2-cfirst-20261011",
       "kind": "file-port",
-      "status": "parked",
+      "status": "superseded",
       "summary": "Port mounted steed transfer across level descent",
       "cFile": "apply.c",
       "sessions": [
@@ -263628,7 +263628,10 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "Whole-source review found next_to_u, keepdogs, and mon_arrive cannot be completed independently: they require incomplete leash, mon_leave, mon_catchup_elapsed_time, migration placement, and active caller families. Resume only after those source families are selected with complete caller and entry evidence."
+      "parkedReason": "Whole-source review found next_to_u, keepdogs, and mon_arrive cannot be completed independently: they require incomplete leash, mon_leave, mon_catchup_elapsed_time, migration placement, and active caller families. Resume only after those source families are selected with complete caller and entry evidence.",
+      "supersededBy": "port-apply-mleashed-next2u-v43-20261011",
+      "supersededReason": "Whole-source audit split the invalid three-branch plan into a complete apply.c leash/level-exit port followed by serial dog.c transfer and arrival ports; the replacement owns the first runnable stage.",
+      "supersededAt": "72fab4758a2db3b24793d04cb4f5208f97ebfaa8"
     },
     {
       "id": "port-v43-quest-nemesis-death-and-fumes-20261011",
