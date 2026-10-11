@@ -7,8 +7,11 @@ import {
     MON_MIGRATING,
 } from '../js/const.js';
 import { ledger_no } from '../js/dungeon.js';
-import { keepdogs, migrate_to_level } from '../js/dog.js';
+import {
+    keep_mon_accessible, keepdogs, migrate_to_level,
+} from '../js/dog.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     PM_KITTEN,
@@ -248,8 +251,9 @@ test('a migrating light invalidates vision after leaving the map', () => {
     ]);
 });
 
-// dog.c keepdogs(), which shares mon_leave() and relmon() with
-// migrate_to_level() above. do.c goto_level() is its only caller.
+// dog.c keepdogs() shares mon_leave() and relmon() with migrate_to_level()
+// above. do.c goto_level() uses pets_only=false; end.c really_done() and
+// wizcmds.c makemap_remove_mons() use pets_only=true.
 
 function heroAdjacentMonster(state, pmidx = PM_KITTEN, overrides = {}) {
     const monster = newMonster({
@@ -295,20 +299,20 @@ test('keepdogs leaves an ordinary monster on the level', async () => {
     assert.deepEqual([monster.mx, monster.my], [MONSTER_X, MONSTER_Y]);
 });
 
-test('keepdogs migrates a shopkeeper who is away from her shop', async () => {
+test('keepdogs records the partial migration of an accessible shopkeeper', async () => {
     const state = migrationState();
     state.gm.mydogs = null;
     // dog.c keep_mon_accessible():772-778. The shop is on another level, so
-    // the shopkeeper goes on the migrating list instead of into this level's
-    // save file. mon_leave()'s set_residency() is unported, so this stops.
+    // C delegates to dog.c:migrate_to_level(), which remains an explicit gap.
     const { monster } = onMapMonster(state, PM_SEWER_RAT);
     monster.isshk = true;
     monster.mextra = { eshk: { shoplevel: { ...UPWARD_DESTINATION } } };
 
-    await assert.rejects(
-        keepdogs(false, { newsym: () => {}, state }),
-        /shopkeeper migration is future work/u,
-    );
+    await keepdogs(false, { newsym: () => {}, state });
+
+    assert.equal(state.level.monlist, monster);
+    assert.equal(state.gm.migrating_mons, null);
+    assert.equal(game.unported.has('dog.c migrate_to_level'), true);
 });
 
 test('keepdogs leaves a shopkeeper standing in her own shop', async () => {
@@ -325,26 +329,33 @@ test('keepdogs leaves a shopkeeper standing in her own shop', async () => {
     assert.equal(state.level.monlist, monster);
 });
 
-test('keepdogs refuses unsupported branches and releases a stray leash', async () => {
-    // Each of these leaves the follower behind in C with a message, or needs a
-    // subsystem that is not ported. dog.c:815-834.
-    const cases = [
-        [{ mtame: 10, mtrapped: true }, /trapped follower/u],
-        [{ mtame: 10, meating: 3 }, /still eating/u],
-        // A kitten carries no M2_STALK and is not tame here, so it is not a
-        // follower and falls through to dog.c:878.
-    ];
-    for (const [overrides, message] of cases) {
-        const state = migrationState();
-        state.gm.mydogs = null;
-        heroAdjacentMonster(state, PM_KITTEN, overrides);
-        await assert.rejects(
-            keepdogs(false, { newsym: () => {}, state }),
-            message,
-            `${JSON.stringify(overrides)} stops`,
-        );
-    }
+test('keepdogs tries a trapped follower before deciding whether it stays', async () => {
+    const state = migrationState();
+    state.gm.mydogs = null;
+    const pet = heroAdjacentMonster(state, PM_KITTEN,
+        { mtame: 10, mtrapped: true });
 
+    // With no trap under it, trap.c:mintrap() clears C's stale trapped bit.
+    await keepdogs(false, { newsym: () => {}, state });
+
+    assert.equal(pet.mtrapped, false);
+    assert.equal(state.gm.mydogs, pet);
+    assert.equal(state.level.monlist, null);
+});
+
+test('keepdogs leaves a follower behind while it is eating', async () => {
+    const state = migrationState();
+    state.gm.mydogs = null;
+    const pet = heroAdjacentMonster(state, PM_KITTEN,
+        { mtame: 10, meating: 3 });
+
+    await keepdogs(false, { newsym: () => {}, state });
+
+    assert.equal(state.gm.mydogs, null);
+    assert.equal(state.level.monlist, pet);
+});
+
+test('keepdogs releases a stray leash from a follower left on the level', async () => {
     // dog.c:878-881 releases a non-following leashed monster and leaves it on
     // the map. The kitten is not a follower because it is not tame.
     const state = migrationState();
@@ -367,13 +378,27 @@ test('keepdogs refuses unsupported branches and releases a stray leash', async (
     assert.equal(state.level.monlist, monster);
 });
 
-test('keepdogs refuses the ascension arm', async () => {
-    // dog.c:797-805, which end.c drives. Nothing in this port ascends.
+test('keepdogs clears pet movement blockers for a pets-only transfer', async () => {
+    // dog.c:798-809, reached by end.c and wizcmds.c.
     const state = migrationState();
-    await assert.rejects(
-        keepdogs(true, { state }),
-        /escape or ascension/u,
-    );
+    state.gm.mydogs = null;
+    const pet = heroAdjacentMonster(state, PM_KITTEN, {
+        mtame: 10,
+        mtrapped: true,
+        meating: 3,
+        msleeping: true,
+        mfrozen: 5,
+        mcanmove: false,
+    });
+
+    await keepdogs(true, { newsym: () => {}, state });
+
+    assert.equal(state.gm.mydogs, pet);
+    assert.equal(pet.mtrapped, false);
+    assert.equal(pet.meating, 0);
+    assert.equal(pet.msleeping, false);
+    assert.equal(pet.mfrozen, 0);
+    assert.equal(pet.mcanmove, true);
 });
 
 test('migration clears the trapped and undetected flags', () => {
@@ -419,7 +444,7 @@ test('keepdogs still takes a follower down to its last hit point', async () => {
     assert.equal(state.gm.mydogs, pet);
 });
 
-test('keepdogs migrates a distant Wizard instead of following him', async () => {
+test('keepdogs leaves distant accessible monsters to the migration port', async () => {
     // dog.c:811-812 and keep_mon_accessible():770-771. Without the Amulet the
     // hero does not drag the Wizard along, but he stays reachable so that his
     // next harassment finds the same instance.
@@ -432,11 +457,13 @@ test('keepdogs migrates a distant Wizard instead of following him', async () => 
     // term answered, which is the state that hides dog.c:812's conjunction.
     monster.mcanmove = true;
 
+    game.unported?.delete('dog.c migrate_to_level');
     await keepdogs(false, { newsym: () => {}, state });
 
     assert.equal(state.gm.mydogs, null);
-    assert.equal(state.gm.migrating_mons, monster);
-    assert.equal(monster.mstate & MON_MIGRATING, MON_MIGRATING);
+    assert.equal(state.level.monlist, monster);
+    assert.equal(state.gm.migrating_mons, null);
+    assert.equal(game.unported.has('dog.c migrate_to_level'), true);
 });
 
 test('keepdogs migrates a vault guard who is away from his vault', async () => {
@@ -448,7 +475,34 @@ test('keepdogs migrates a vault guard who is away from his vault', async () => {
     monster.isgd = true;
     monster.mextra = { egd: { gdlevel: { ...UPWARD_DESTINATION } } };
 
+    game.unported?.delete('dog.c migrate_to_level');
     await keepdogs(false, { newsym: () => {}, state });
 
-    assert.equal(state.gm.migrating_mons, monster);
+    assert.equal(state.gm.migrating_mons, null);
+    assert.equal(state.level.monlist, monster);
+    assert.equal(game.unported.has('dog.c migrate_to_level'), true);
+});
+
+test('keep_mon_accessible matches the pure Wizard and level-home branches', () => {
+    const state = { u: { uz: CURRENT_LEVEL } };
+    const ordinary = { iswiz: false, isshk: false, ispriest: false, isgd: false };
+    assert.equal(keep_mon_accessible({ ...ordinary }, state), false);
+    assert.equal(keep_mon_accessible({ ...ordinary, iswiz: true }, state), true);
+
+    for (const [flag, home] of [
+        ['isshk', { eshk: { shoplevel: UPWARD_DESTINATION } }],
+        ['ispriest', { epri: { shrlevel: UPWARD_DESTINATION } }],
+        ['isgd', { egd: { gdlevel: UPWARD_DESTINATION } }],
+    ]) {
+        const away = { ...ordinary, [flag]: true, mextra: home };
+        assert.equal(keep_mon_accessible(away, state), true, `${flag} away`);
+        const local = structuredClone(away);
+        local.mextra = {
+            [flag === 'isshk' ? 'eshk' : flag === 'ispriest' ? 'epri' : 'egd']:
+                flag === 'isshk' ? { shoplevel: CURRENT_LEVEL }
+                    : flag === 'ispriest' ? { shrlevel: CURRENT_LEVEL }
+                        : { gdlevel: CURRENT_LEVEL },
+        };
+        assert.equal(keep_mon_accessible(local, state), false, `${flag} home`);
+    }
 });

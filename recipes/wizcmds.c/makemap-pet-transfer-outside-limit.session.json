@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Outside-limit source witness: wizcmds.c:makemap_remove_mons -> dog.c:keepdogs(TRUE) retains a nearby pet while replacing the map; current makemap_prepost records the discarded teardown helper gap. No pet-transfer completion credit.",
+  "comment": "Source witness: wizcmds.c:makemap_remove_mons calls dog.c:keepdogs(TRUE) before dmonsfree and level replacement. This fresh Valkyrie route checks tame-pet transfer only; later special-level teardown gaps remain outside this dog.c task.",
   "segments": [
     {
       "seed": 1464604,

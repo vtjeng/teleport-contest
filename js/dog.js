@@ -1,5 +1,5 @@
 // Starting-pet creation, tame-monster state, and the companions that leave a
-// level with the hero.
+// level with the hero, escape the dungeon, or move out of a wizard-made map.
 // C refs: dog.c pick_familiar_pm(), make_familiar(), newedog(), initedog(),
 // pet_type(), makedog(), mon_leave(),
 // keep_mon_accessible(), keepdogs(), migrate_to_level(), wary_dog() and abuse_dog();
@@ -15,6 +15,7 @@ import {
     CORPSTAT_FEMALE,
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
+    DISMOUNT_GENERIC,
     EDOG,
     EYE,
     G_EXTINCT,
@@ -24,7 +25,7 @@ import {
     M_AP_MONSTER,
     M_AP_NOTHING,
     M_AP_TYPMASK,
-    MIGR_EXACT_XY,
+    MAX_NUM_WORMS,
     MON_ARRIVE_WITH_YOU,
     MON_LIMBO,
     MON_MIGRATING,
@@ -35,6 +36,7 @@ import {
     MM_MALE,
     MM_NOMSG,
     NO_MINVENT,
+    NO_TRAP_FLAGS,
     MAXMONNO,
     NEED_HTH_WEAPON,
     ACCFOOD,
@@ -55,7 +57,6 @@ import {
 import { isok } from './cmd_isok.js';
 import {
     depth,
-    ledger_no,
     ledger_to_dlev,
     ledger_to_dnum,
 } from './dungeon.js';
@@ -67,7 +68,9 @@ import {
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { s_suffix } from './hacklib.js';
 import { game } from './gstate.js';
-import { can_saddle, put_saddle_on_mon } from './steed.js';
+import {
+    can_saddle, dismount_steed, put_saddle_on_mon,
+} from './steed.js';
 import { update_inventory } from './invent.js';
 import { mbirth_limit, rndmonst_adj, set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
@@ -75,6 +78,7 @@ import { minliquid, mnexto } from './mon.js';
 import {
     attacktype,
     haseyes,
+    humanoid,
     is_covetous,
     is_demon,
     is_human,
@@ -83,8 +87,10 @@ import {
 } from './mondata.js';
 import { monnear } from './monmove.js';
 import { restore_cham, wake_nearto } from './mon.js';
-import { m_at, mon_track_clear, remove_monster } from './monst.js';
-import { livelog_printf } from './pline.js';
+import {
+    m_at, mon_track_clear, place_monster, remove_monster,
+} from './monst.js';
+import { livelog_printf, pline_mon } from './pline.js';
 import {
     AT_WEAP,
     M2_DOMESTIC,
@@ -135,6 +141,9 @@ import { cansee } from './vision.js';
 import { note_unported } from './unported.js';
 import { finish_meating } from './dogmove.js';
 import { body_part } from './polyself.js';
+import { mintrap } from './trap_effects.js';
+import { mdrop_special_objs } from './steal.js';
+import { count_wsegs, wormgone } from './worm.js';
 
 import { has_oname, ONAME } from './const.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
@@ -809,9 +818,18 @@ function mon_leave(monster, state) {
         // set_residency(mtmp, TRUE) clears the shop's resident field.
         set_residency(monster, true, state);
     }
-    if (monster.wormno)
-        throw new RangeError('long-worm level departure is future work');
-    return 0;
+    let num_segs = 0;
+    if (monster.wormno) {
+        const count = count_wsegs(monster, state);
+        const mx = monster.mx;
+        const my = monster.my;
+        num_segs = Math.min(count, MAX_NUM_WORMS - 1);
+        wormgone(monster, { state });
+        // C restores the head after removing its tail segments. A failed
+        // migration can call this with a monster that is already off-map.
+        if (mx) place_monster(monster, mx, my, state);
+    }
+    return num_segs;
 }
 
 // C refs: mon.c relmon() (2558-2594) and mon_leaving_level() (2695-2730),
@@ -864,7 +882,7 @@ function relmon(monster, listName, state, env) {
 // data in mon->mextra joins the migrating list, where the game can still find
 // it while the hero is elsewhere. Every other monster goes into the level's
 // save file with the level.
-function keep_mon_accessible(monster, state) {
+export function keep_mon_accessible(monster, state) {
     if (monster.iswiz) return true;
     const mextra = monster.mextra;
     if (mextra
@@ -877,28 +895,33 @@ function keep_mon_accessible(monster, state) {
 }
 
 // C ref: dog.c keepdogs() (787-885), which do.c goto_level() calls once the
-// level it is leaving has been stripped of context. Every monster next to the
-// hero that follows her moves off this level's monster chain onto gm.mydogs;
-// the levels the hero can still return to keep theirs through
-// migrate_to_level().
+// level it is leaving has been stripped of context. A nearby follower moves
+// off this level's monster chain onto gm.mydogs. C also sends accessible
+// special monsters through migrate_to_level(); that separate source function
+// is still partial here, so this branch records its discarded-call gap and
+// leaves the monster with the departing level.
 //
-// `pets_only` is TRUE only for an ascension or a final escape, which end.c
-// drives and this port does not reach.
+// C's pets_only arm is used by end.c escape/ascension and by wizard map
+// replacement. The supplied departure-list adapter remains the existing
+// mon.c boundary; this function owns dog.c's complete selection and updates.
 export async function keepdogs(pets_only, rawEnv = {}) {
     const env = dogEnv(rawEnv);
     const { state } = env;
     const u = state.u;
 
-    if (pets_only) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'keepdogs() collecting pets for an escape or ascension',
-        );
-    }
-
     let next = null;
     for (let mtmp = state.level.monlist; mtmp; mtmp = next) {
         next = mtmp.nmon;
         if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
+
+        if (pets_only) {
+            if (!mtmp.mtame) continue; /* reject non-pets */
+            mtmp.mtrapped = false;
+            finish_meating(mtmp, env);
+            mtmp.msleeping = false;
+            mtmp.mfrozen = 0;
+            mtmp.mcanmove = true;
+        }
 
         const follows = (
             (monnear(mtmp, u.ux, u.uy, state) && levl_follower(mtmp, state))
@@ -909,39 +932,55 @@ export async function keepdogs(pets_only, rawEnv = {}) {
             && !(mtmp.mstrategy & STRAT_WAITFORU);
 
         if (follows) {
-            if (mtmp.mtrapped) {
-                // C gives a trapped follower one mintrap() escape attempt at
-                // dog.c:815, then leaves it behind with "%s is still trapped."
-                // if that fails. Both need mintrap()'s monster arm and
-                // canseemon(), and a pet standing in a trap beside the stairs
-                // is rare enough to defer.
-                throw new UnsupportedHeroMoveBoundaryError(
-                    'keepdogs() with a trapped follower',
-                );
-            }
+            if (mtmp.mtrapped)
+                await mintrap(mtmp, NO_TRAP_FLAGS, env);
+
+            let stay_behind = false;
             if (mtmp === u.usteed) {
-                // mdrop_special_objs() and the dismount bookkeeping at
-                // dog.c:817-821 belong with the steed work; apply.c
-                // next_to_u() refuses a mounted hero before this runs.
-                throw new UnsupportedHeroMoveBoundaryError(
-                    'keepdogs() with the hero mounted',
-                );
+                mtmp.mtrapped = false;
+                mtmp.meating = 0;
+                mdrop_special_objs(mtmp, env);
+            } else if (mtmp.meating || mtmp.mtrapped) {
+                if (canseemon(mtmp, state)) {
+                    await pline_mon(
+                        mtmp,
+                        `${Monnam(mtmp, state, env)} is still `
+                            + `${mtmp.meating ? 'eating' : 'trapped'}.`,
+                        state,
+                        env,
+                    );
+                }
+                stay_behind = true;
+            } else if (mon_has_amulet(mtmp)) {
+                if (canseemon(mtmp, state)) {
+                    const message = env.message ?? ttyPline;
+                    await message(
+                        `${Monnam(mtmp, state, env)} seems very disoriented `
+                            + 'for a moment.',
+                        state,
+                        env,
+                    );
+                }
+                stay_behind = true;
             }
-            if (mtmp.meating) {
-                // "%s is still eating." at dog.c:823-826, which leaves the
-                // eater behind. It needs canseemon() and Monnam(), and pet
-                // eating is not ported.
-                throw new UnsupportedHeroMoveBoundaryError(
-                    'keepdogs() with a follower that is still eating',
-                );
+
+            if (stay_behind) {
+                if (mtmp.mleashed) {
+                    const pronoun = humanoid(mtmp.data)
+                        ? (mtmp.female ? 'Her' : 'His')
+                        : 'Its';
+                    const message = env.message ?? ttyPline;
+                    await message(
+                        `${pronoun} leash suddenly comes loose.`, state, env,
+                    );
+                    m_unleash(mtmp, false, { ...env, state });
+                }
+                if (mtmp === u.usteed) {
+                    note_unported('pline.c impossible');
+                    await dismount_steed(DISMOUNT_GENERIC, state, env);
+                }
+                continue;
             }
-            if (mon_has_amulet(mtmp)) {
-                throw new UnsupportedHeroMoveBoundaryError(
-                    'keepdogs() with a follower carrying the Amulet',
-                );
-            }
-            // stay_behind is FALSE for everything admitted above, so the
-            // leash and steed cleanup at dog.c:836-849 cannot run.
 
             const num_segs = mon_leave(mtmp, state);
             relmon(mtmp, 'mydogs', state, env);
@@ -950,13 +989,10 @@ export async function keepdogs(pets_only, rawEnv = {}) {
             mtmp.wormno = num_segs;
             mtmp.mlstmv = state.moves;
         } else if (keep_mon_accessible(mtmp, state)) {
-            await migrate_to_level(
-                mtmp,
-                ledger_no(state.u.uz, state),
-                MIGR_EXACT_XY,
-                null,
-                env,
-            );
+            // dog.c discards migrate_to_level()'s result. That separate
+            // function is still partial in this port, so preserve the gap
+            // without calling its refusal through keepdogs().
+            note_unported('dog.c migrate_to_level');
         } else if (mtmp.mleashed) {
             const message = env.message ?? (env.planning ? async () => {}
                 : ttyPline);
@@ -979,12 +1015,11 @@ function set_mon_lastmove(monster, state) {
 // level is saved so that mon_arrive() can catch a restored monster up for the
 // turns it spent inactive.
 //
-// Every monster it writes to belongs to the level being left, because
-// keepdogs() has already moved the followers onto gm.mydogs and the accessible
-// ones onto gm.migrating_mons, and both of those set mlstmv themselves. The
-// port drops the leaving level rather than saving it, so nothing reads these
-// values back yet; they are written because the field has one owner and this
-// is where C writes it.
+// Every monster it writes to belongs to the level being left. C's keepdogs()
+// transfers followers to gm.mydogs and accessible monsters to
+// gm.migrating_mons; this port also has a documented migrate_to_level() gap,
+// so accessible monsters remain on the level chain here. The port drops the
+// leaving level rather than saving it, so nothing reads these values back yet.
 export function update_mlstmv(state = game) {
     for (let mtmp = state.level?.monlist ?? null; mtmp; mtmp = mtmp.nmon) {
         if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
@@ -1008,8 +1043,8 @@ async function mon_arrive(monster, when, env) {
         );
     }
     if (monster.data?.pmidx === PM_LONG_WORM) {
-        // get_wormno()/initworm() rebuild the tail keepdogs() stored in
-        // wormno; js/dog.js mon_leave() refuses a long worm on the way out.
+        // dog.c mon_leave() preserves the segment count in wormno. Rebuilding
+        // that tail is still outside this With_you arrival implementation.
         throw new UnsupportedHeroMoveBoundaryError(
             'mon_arrive() with a long worm',
         );
@@ -1065,9 +1100,9 @@ export async function losedogs(rawEnv = {}) {
     state.gm ??= {};
 
     // Phases one and two, the shopkeeper scans and make_happy_shoppers(), read
-    // ESHK(mtmp)->dismiss_kops. No shopkeeper reaches either list: js/dog.js
-    // keepdogs() refuses one through mon_leave(), and migrate_to_level()
-    // refuses one directly.
+    // ESHK(mtmp)->dismiss_kops. They run only for shopkeepers on the
+    // migrating_mons list; the With_you list that keepdogs() fills is handled
+    // in phase four.
     for (let mtmp = state.gm.migrating_mons; mtmp; mtmp = mtmp.nmon) {
         if (mtmp.isshk) {
             throw new UnsupportedHeroMoveBoundaryError(
@@ -1173,7 +1208,7 @@ export function migrate_to_level(
         ? migratingOperation(env, 'visionRecalc', vision_recalc)
         : null;
 
-    mon_leave(monster, state);
+    const num_segs = mon_leave(monster, state);
     relmon(monster, 'migrating_mons', state, env);
     monster.mstate |= MON_MIGRATING;
 
@@ -1184,7 +1219,7 @@ export function migrate_to_level(
         && inWizardTower(oldX, oldY, state.u.uz, state)) {
         xyFlags |= 2;
     }
-    monster.wormno = 0;
+    monster.wormno = num_segs;
     monster.mlstmv = state.moves;
     monster.mtrack[2].x = state.u.uz.dnum;
     monster.mtrack[2].y = state.u.uz.dlevel;
