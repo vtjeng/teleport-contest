@@ -278202,9 +278202,9 @@
           "name": "level_tele_trap",
           "line": 1538,
           "endLine": 1574,
-          "declared": false,
+          "declared": true,
           "sourceFile": "teleport.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "trapeffect_level_telep",
@@ -278390,7 +278390,164 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dotele",
+            "implementation": "js/teleport.js",
+            "symbol": "dotele",
+            "sourceReview": "Read nethack-c/upstream/src/teleport.c:dotele() (1034-1162) in full. Preserve the existing seen-trap check, yes/no prompt, one-shot and ordinary teleport-trap paths, movement restriction and spell-energy branches, relocation, hunger loss, and result order. Replace the level-teleporter yes-branch's skipped note_unported() call with await level_tele_trap(trap, FORCETRAP, state, env), still returning 1 so the attempted trigger always consumes a turn. dotelecmd() consumes this result. trap.c:drown() discards the result and has an existing JS caller; dig.c:escape_tomb() contains a dotele() call but no C caller of escape_tomb() was found and js/dig.js has no implementation. The new helper is now implemented, so dotele() has no unported level-trap callee.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "dotelecmd",
+                "source": "teleport.c:dotelecmd() calls dotele() and converts its returned integer to ECMD_TIME or ECMD_OK."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "drown",
+                "source": "trap.c:drown() calls dotele(FALSE) after its drowning escape attempt; this task keeps that existing caller read-only and it reaches the same canonical helper."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [
+              "recordings/teleport.c/level-teleport-trap-dotele-cfirst.session.json",
+              "recordings/teleport.c/dotelecmd-control-t-independent.session.json",
+              "recordings/teleport.c/dotelecmd-extended-independent.session.json",
+              "recordings/teleport.c/drown-teleport-attempt-independent.session.json"
+            ],
+            "checkedAt": "021f10f36c7a91a35ddd44c5d1b73b8cf3d1dd22"
+          },
+          {
+            "name": "level_tele_trap",
+            "implementation": "js/teleport.js",
+            "symbol": "level_tele_trap",
+            "sourceReview": "Read nethack-c/upstream/src/teleport.c:level_tele_trap() (1538-1574) in full. Match the VIASITTING/FORCETRAP intentional test and locomotion wording; natural Antimagic shields before the wrenching return, and endgame returns before trap deletion. Otherwise delete and redraw the trap, call level_tele(), report hallucinated orientation, controlled centering, or confusion-sensitive disorientation, then set HConfusion timeout to (HConfusion & TIMEOUT) + 3 only without Teleport_control. The existing JS owners for shieldeff(), deltrap(), newsym(), level_tele(), make_confused(), u_locomotion(), Antimagic, Confusion, Hallucination, and Teleport_control are used in source order; no return-valued unported callee remains.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_level_telep",
+                "source": "trap.c:trapeffect_level_telep() reveals the hero's trap with seetrap() and calls level_tele_trap(trap, trflags)."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "dotele",
+                "source": "teleport.c:dotele() calls level_tele_trap(trap, FORCETRAP) after the hero accepts a seen level teleporter."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport.test.mjs",
+              "scripts/hero-teleport-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-level-teleport-trap-walk-cfirst.session.json",
+              "recordings/teleport.c/level-teleport-trap-dotele-cfirst.session.json"
+            ],
+            "checkedAt": "021f10f36c7a91a35ddd44c5d1b73b8cf3d1dd22"
+          },
+          {
+            "name": "trapeffect_level_telep",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_level_telep",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c:trapeffect_level_telep() (2088-2105) in full. The hero arm calls seetrap() before the new level_tele_trap() owner and returns Trap_Effect_Finished. The monster arm still computes visibility and FORCETRAP in source order, calls mlevel_tele_trap(), and maps moved/finished to the source trap result. Its existing hole/trapdoor migration path remains evidenced; the helper's separately bounded monster-on-LEVEL_TELEP behavior is not changed here.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c:trapeffect_selector() dispatches LEVEL_TELEP to trapeffect_level_telep()."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "trap.c:dotrap() reaches trapeffect_selector() after the known-trap escape roll and the hero's source effect dispatch."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c:spoteffects() invokes dotrap() after a committed hero movement onto the trap."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_hole",
+                "source": "trap.c:trapeffect_hole() reaches trapeffect_level_telep() for the existing monster hole/trapdoor migration path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-teleport-trap.test.mjs",
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-level-teleport-trap-walk-cfirst.session.json",
+              "recordings/trap.c/monster-trapdoor-migration.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "checkedAt": "021f10f36c7a91a35ddd44c5d1b73b8cf3d1dd22"
+          }
+        ],
+        "entryPointReview": "The selected teleport.c range is dotele() (1034-1162) plus level_tele_trap() (1538-1574), with trap.c:trapeffect_level_telep() (2088-2105) as the natural-effect caller. Natural hero activation runs hack.c:domove_core -> spoteffects -> trap.c:dotrap -> trapeffect_selector -> trapeffect_level_telep -> level_tele_trap; the independent recording exercises the seen-trap rn2(5) gate, accepts the trap, chooses a level, and reaches the post-arrival confusion tail. The command entry runs cmd.c's #teleport registration -> dotelecmd -> dotele; after accepting a seen LEVEL_TELEP, dotele calls the same helper with FORCETRAP. Its independent recording reaches the forced helper path. Existing C(t), #teleport, and trap.c:drown recordings continue to cover dotele's other active callers. dig.c:escape_tomb() contains a result-discarding dotele call but has no active C caller and no JS implementation, so it is not an entry point in this task. trap.c:drown() is an active existing caller owned by A2 and was not edited. The prior monster trapdoor path through trapeffect_level_telep remains evidenced separately; no completion is claimed here for the helper's distinct monster-on-level-teleporter boundary.",
+        "entryPoints": [
+          {
+            "name": "Natural hero LEVEL_TELEP walk-in",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "trapeffect_level_telep"
+              },
+              "level_tele_trap"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-level-teleport-trap-walk-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "Seen LEVEL_TELEP through #teleport",
+            "functions": [
+              "dotele",
+              "level_tele_trap"
+            ],
+            "recordings": [
+              "recordings/teleport.c/level-teleport-trap-dotele-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "Direct C(t) and #teleport command dispatch",
+            "functions": [
+              "dotele"
+            ],
+            "recordings": [
+              "recordings/teleport.c/dotelecmd-control-t-independent.session.json",
+              "recordings/teleport.c/dotelecmd-extended-independent.session.json"
+            ]
+          },
+          {
+            "name": "trap.c:drown result-discarding dotele caller",
+            "functions": [
+              "dotele"
+            ],
+            "recordings": [
+              "recordings/teleport.c/drown-teleport-attempt-independent.session.json"
+            ]
+          },
+          {
+            "name": "Existing monster hole/trapdoor level migration",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "trapeffect_level_telep"
+              }
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-trapdoor-migration.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
