@@ -23,6 +23,10 @@ import {
     OBJ_INVENT,
     OBJ_MIGRATING,
     OBJ_MINVENT,
+    MIGR_APPROX_XY,
+    MIGR_EXACT_XY,
+    MON_MIGRATING,
+    MON_STILL_ARRIVING,
     ANTHOLE,
     BARRACKS,
     BEEHIVE,
@@ -38,6 +42,7 @@ import {
     RANGE_GLOBAL,
     RANGE_LEVEL,
     ROOM,
+    ROOMOFFSET,
     SHOPBASE,
     STEALTH,
     STONE,
@@ -97,6 +102,7 @@ import {
     PM_LITTLE_DOG,
     PM_HUMAN,
     PM_ORACLE,
+    PM_SHOPKEEPER,
     PM_SOLDIER,
     PM_TOURIST,
     PM_WIZARD,
@@ -837,30 +843,64 @@ test('update_mlstmv ages the level the hero is leaving', () => {
     assert.equal(dead.mlstmv, 0);
 });
 
-test('losedogs stops on every list it cannot deliver', async () => {
-    const state = dungeonState();
-    state.gm = { mydogs: null, migrating_mons: null };
-    // Nothing on either list: the walk finds nothing to place.
-    await losedogs({ state });
+test('losedogs delivers returning shopkeepers and independent migrants', async () => {
+    const shopState = arrivalState();
+    shopState.moves = 100;
+    const shopkeeper = newMonster({
+        data: shopState.mons[PM_SHOPKEEPER],
+        mhp: 12,
+        mhpmax: 12,
+        isshk: true,
+        mpeaceful: true,
+        mstate: MON_MIGRATING,
+        mux: 0,
+        muy: 1,
+        mlstmv: 99,
+        mtrack: [
+            { x: MIGR_EXACT_XY, y: 0 },
+            { x: shopState.u.ux - 1, y: shopState.u.uy },
+            { x: 0, y: 1 },
+            { x: 0, y: 0 },
+        ],
+        mextra: {
+            eshk: {
+                dismiss_kops: true,
+                shoplevel: { dnum: 0, dlevel: 1 },
+                shoproom: ROOMOFFSET,
+            },
+        },
+    });
+    shopState.level.rooms = [{ resident: null }];
+    shopState.gm.migrating_mons = shopkeeper;
 
-    const shopkeeper = newMonster();
-    shopkeeper.isshk = true;
-    state.gm.migrating_mons = shopkeeper;
-    await assert.rejects(
-        () => losedogs({ state }),
-        /shopkeeper returning to its shop level/u,
-    );
+    await losedogs({ state: shopState });
 
-    // A monster whose destination is the level being arrived on belongs to
-    // one of mon_arrive()'s independent-arrival modes.
-    const arriving = newMonster();
-    arriving.mux = 0;
-    arriving.muy = 1;
-    state.gm.migrating_mons = arriving;
-    await assert.rejects(
-        () => losedogs({ state }),
-        /migrating to the arrival level/u,
-    );
+    assert.equal(shopState.gm.migrating_mons, null);
+    assert.equal(shopState.level.monlist, shopkeeper);
+    assert.equal(m_at(shopState.u.ux - 1, shopState.u.uy, shopState), shopkeeper);
+    assert.equal(shopState.level.rooms[0].resident, shopkeeper);
+    assert.equal(shopkeeper.mextra.eshk.dismiss_kops, false);
+    assert.equal(shopkeeper.mstate & (MON_MIGRATING | MON_STILL_ARRIVING), 0);
+    assert.ok(shopState.unported.has('shk.c make_happy_shoppers'));
+
+    const migrantState = arrivalState();
+    migrantState.moves = 100;
+    const migrant = arrivingFollower(migrantState, 81);
+    migrant.mstate |= MON_MIGRATING;
+    migrant.mux = 0;
+    migrant.muy = 1;
+    migrant.mlstmv = 99;
+    migrant.mtrack[0] = { x: MIGR_APPROX_XY, y: 0 };
+    migrant.mtrack[1] = { x: migrantState.u.ux - 1, y: migrantState.u.uy };
+    migrant.mtrack[2] = { x: 0, y: 1 };
+    migrantState.gm.migrating_mons = migrant;
+
+    await losedogs({ state: migrantState });
+
+    assert.equal(migrantState.gm.migrating_mons, null);
+    assert.equal(migrantState.level.monlist, migrant);
+    assert.equal(m_at(migrantState.u.ux - 1, migrantState.u.uy, migrantState), migrant);
+    assert.equal(migrant.mstate & (MON_MIGRATING | MON_STILL_ARRIVING), 0);
 });
 
 // dog.c mon_arrive()'s With_you arm (468-480). Disposition changes one thing,

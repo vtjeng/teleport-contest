@@ -59,6 +59,18 @@ export function stairway_at(x, y, state = game) {
     return null;
 }
 
+// C ref: stairs.c stairway_find(). Return the stairway whose destination is
+// the level a migrating monster came from, preserving list order.
+export function stairway_find(fromdlev, state = game) {
+    for (let stway = state.stairs; stway; stway = stway.next) {
+        if (stway.tolev.dnum === fromdlev.dnum
+            && stway.tolev.dlevel === fromdlev.dlevel) {
+            return stway;
+        }
+    }
+    return null;
+}
+
 // C ref: stairs.c stairway_find_dir().
 export function stairway_find_dir(up, state = game) {
     const direction = Boolean(up);
