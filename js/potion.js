@@ -217,7 +217,7 @@ import {
     delayed_killer,
     find_delayed_killer,
 } from './end.js';
-import { fix_petrification } from './eat.js';
+import { eatmupdate, fix_petrification } from './eat.js';
 import { monstseesu, monstunseesu } from './mondata.js';
 import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
 import { aggravate } from './wizard.js';
@@ -980,11 +980,9 @@ export async function make_hallucinated(
 
     if (!changed) return false;
 
-    // C calls the void eatmupdate() helper when hallucination ends. That
-    // caller's mimic-message replacement is not ported, so retain it as an
-    // explicit discarded-result gap.
-    if (!Hallucination(state) && state === game)
-        note_unported('eat.c eatmupdate');
+    // potion.c calls the void eat.c:eatmupdate() helper when hallucination
+    // ends; its message and appearance update precedes the display rebuild.
+    if (!Hallucination(state)) eatmupdate(state, { redraw });
 
     if (state.u.uswallow) {
         await swallow(false, state, env);
