@@ -274687,7 +274687,7 @@
     {
       "id": "port-light-obj-split-light-source-v46-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port light source splitting for lit objects",
       "cFile": "light.c",
       "sessions": [
@@ -274701,8 +274701,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "faaac209f210ecca8b50ad1fe834b07d5132c80e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "obj_split_light_source",
@@ -274981,6 +274984,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "faaac209f210ecca8b50ad1fe834b07d5132c80e",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
