@@ -273810,6 +273810,324 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mkroom-mkswamp-v46-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port swamp-room generation and canonical door adjacency",
+      "cFile": "mkroom.c",
+      "sessions": [
+        "synthetic/v46/v46-random-swamp-room-depth16-seed46101100"
+      ],
+      "selectionReason": "The accepted v46 queue has 10 unmatched screens after depth-16 level generation selects SWAMP; investigations/synthetic/v46/v46-random-swamp-room-depth16-seed46101100.json traces the first RNG divergence to mkroom.c:mkswamp and its return-used nexttodoor helper.",
+      "detail": "Port complete mkroom.c mkswamp lines 529-574 and required pure helper nexttodoor lines 622-637. Wire normal do_mkroom and wizard mkshop dispatch plus the existing fountain.c gush helper caller, preserving room selection, x/y traversal, terrain, monster admission, RNG, and engraving order.",
+      "openedAt": "89963a2de3ec89a18d4da35b2037c618c1f691de",
+      "openStanding": {
+        "sha": "643e2279efd29389ff74a9fd5fe276f3aeaba62f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mkswamp",
+          "line": 530,
+          "endLine": 576,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 530,
+        "to": 576
+      },
+      "requiredFunctions": [
+        {
+          "name": "nexttodoor",
+          "line": 623,
+          "endLine": 639,
+          "declared": true,
+          "sourceFile": "mkroom.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v46/v46-random-swamp-room-depth16-seed46101100": {
+          "session": "synthetic/v46/v46-random-swamp-room-depth16-seed46101100",
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-random-swamp-room-depth16-seed46101100",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recordingPath": "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.session.json",
+          "recordingSha256": "14f8dfb253b1f4cc8c2b06583a0af45e9a759555349b562fa1c2beb0d3455151",
+          "evaluationPath": "challenges/evaluations/accepted-643e2279efd29389ff74a9fd5fe276f3aeaba62f-v46.json",
+          "evaluationCommit": "643e2279efd29389ff74a9fd5fe276f3aeaba62f"
+        }
+      },
+      "activeStanding": {
+        "sha": "643e2279efd29389ff74a9fd5fe276f3aeaba62f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-random-swamp-room-depth16-seed46101100",
+          "session": "synthetic/v46/v46-random-swamp-room-depth16-seed46101100",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recording": "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.session.json",
+          "recordingPath": "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.session.json",
+          "recordingSha256": "14f8dfb253b1f4cc8c2b06583a0af45e9a759555349b562fa1c2beb0d3455151",
+          "recipe": "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.recipe.session.json",
+          "recipeSha256": "f12a4b07fd9983175d9f265378febf62e1aa8d369379d6e532f052dcbfa438d2",
+          "replayInputSha256": "8494a6f29dde40ec9e577d3fb6aafbfd751666428321e3a242dccb32039a9d62",
+          "evaluationPath": "challenges/evaluations/accepted-643e2279efd29389ff74a9fd5fe276f3aeaba62f-v46.json",
+          "evaluationCommit": "643e2279efd29389ff74a9fd5fe276f3aeaba62f",
+          "evaluationArtifact": "challenges/evaluations/accepted-643e2279efd29389ff74a9fd5fe276f3aeaba62f-v46.json",
+          "evaluationUtc": "2026-10-11T16:51:27.277Z",
+          "remainingScreens": 10,
+          "recordedSteps": 28,
+          "previousScreensMatched": 18,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 18,
+              "total": 28
+            },
+            "rng": {
+              "matched": 4184,
+              "total": 5183
+            },
+            "cursors": {
+              "matched": 25,
+              "total": 28
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 37,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 4184,
+              "cEntry": "rn2(5)=1",
+              "cCaller": "mkswamp(mkroom.c:559)",
+              "jsEntry": "rn2(3)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "\n"
+              },
+              "stepIndex": 18
+            },
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "\n"
+              },
+              "cCursor": [
+                45,
+                0,
+                1
+              ],
+              "jsCursor": [
+                20,
+                9,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "rng",
+          "sourceFile": "mkroom.c",
+          "function": "mkswamp",
+          "message": null,
+          "cFile": "mkroom.c",
+          "luaFile": null,
+          "line": 559,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v46/v46-random-swamp-room-depth16-seed46101100.json",
+            "result": {
+              "session": "synthetic/v46/v46-random-swamp-room-depth16-seed46101100",
+              "corpus": "synthetic",
+              "batch": "v46",
+              "caseId": "v46-random-swamp-room-depth16-seed46101100",
+              "manifestPath": "challenges/manifests/v46.json",
+              "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+              "recordingSha256": "14f8dfb253b1f4cc8c2b06583a0af45e9a759555349b562fa1c2beb0d3455151",
+              "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+              "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+              "remainingScreens": 10,
+              "recordedSteps": 28,
+              "status": "complete",
+              "commit": "31a5d76c38043a8aeefc014471f58e9db310aa4b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v46",
+                "caseId": "v46-random-swamp-room-depth16-seed46101100",
+                "session": "synthetic/v46/v46-random-swamp-room-depth16-seed46101100",
+                "manifestPath": "challenges/manifests/v46.json",
+                "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+                "recording": "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.session.json",
+                "recordingPath": "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.session.json",
+                "recordingSha256": "14f8dfb253b1f4cc8c2b06583a0af45e9a759555349b562fa1c2beb0d3455151",
+                "recipe": "challenges/cases/v46/v46-random-swamp-room-depth16-seed46101100.recipe.session.json",
+                "recipeSha256": "f12a4b07fd9983175d9f265378febf62e1aa8d369379d6e532f052dcbfa438d2",
+                "replayInputSha256": "939a3647d9cd362f2f28248cb75d1d57e0b1034405e548296ad75973ec29fe2d",
+                "evaluationPath": "challenges/evaluations/v46-baseline-29c284d97.json",
+                "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
+                "evaluationArtifact": "challenges/evaluations/v46-baseline-29c284d97.json",
+                "evaluationUtc": "2026-10-11T15:24:07.625Z",
+                "remainingScreens": 10,
+                "recordedSteps": 28,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 18,
+                    "total": 28
+                  },
+                  "rng": {
+                    "matched": 4184,
+                    "total": 5183
+                  },
+                  "cursors": {
+                    "matched": 25,
+                    "total": 28
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 37,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 4184,
+                    "cEntry": "rn2(5)=1",
+                    "cCaller": "mkswamp(mkroom.c:559)",
+                    "jsEntry": "rn2(3)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "\n"
+                    },
+                    "stepIndex": 18
+                  },
+                  "cursor": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      45,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      20,
+                      9,
+                      1
+                    ]
+                  }
+                },
+                "step": 18,
+                "kind": "rng",
+                "sourceFile": "mkroom.c",
+                "function": "mkswamp",
+                "message": null,
+                "cFile": "mkroom.c",
+                "luaFile": null,
+                "line": 559
+              },
+              "summary": "The v46 depth-16 generation path reaches mkroom.c:mkswamp, which is still skipped by JavaScript do_mkroom(SWAMP). Porting mkswamp and its consumed nexttodoor helper will restore the swamp room selection and tile/population mutations; mkshop’s wizard SHOPTYPE='}' branch also has a stale skipped call, and fountain.c:gush uses a private duplicate of nexttodoor.",
+              "source": {
+                "file": "mkroom.c",
+                "branch": "At depth 16, makelevel selects SWAMP and do_mkroom calls mkswamp; mkswamp tries up to five room indices, skips non-ordinary rooms and rooms containing stairs, then marks an eligible room SWAMP and mutates eligible room cells. Its door-adjacency predicate is consumed by both this path and fountain.c:gush.",
+                "functions": [
+                  "mkswamp",
+                  "nexttodoor"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkroom.c:do_mkroom(SWAMP) -> mkroom.c:mkswamp",
+                  "mkroom.c:do_mkroom SWAMP branch -> mkroom.c:mkswamp",
+                  "mkroom.c:mkshop wizard nh_getenv(\"SHOPTYPE\") == '}' branch -> mkroom.c:mkswamp",
+                  "fountain.c:gush -> mkroom.c:nexttodoor"
+                ],
+                "dependencies": [
+                  "mkroom.c:has_upstairs",
+                  "mkroom.c:has_dnstairs",
+                  "rm.h:OBJ_AT",
+                  "rm.h:MON_AT",
+                  "trap.c:t_at",
+                  "engrave.c:del_engr_at",
+                  "makemon.c:makemon",
+                  "makemon.c:mkclass",
+                  "cmd.c:isok"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved v46 queue entry at challenges/evaluations/v46-baseline-29c284d97.json records segment 0, zero-based step 18, newline input, and first C RNG divergence rn2(5)=1 at mkroom.c:mkswamp:559; the current JavaScript do_mkroom(SWAMP) branch only records note_unported and therefore consumes no swamp room-selection draw.",
+                "Upstream mkroom.c:mkswamp at lines 530-574 selects up to five rooms with rn2(svn.nroom), skips invalid/non-OROOM/stair rooms, sets SWAMP, then scans x-major/y-minor over matching room-number cells. It skips objects, monsters, traps, and cells adjacent to a door; odd cells remove engravings and become pools before eel placement draws, while even cells have a one-in-four fungus placement attempt; each selected room sets has_swamp.",
+                "Upstream mkroom.c:nexttodoor at lines 623-637 checks the 3-by-3 neighborhood in dx-major/dy-minor order, clips through isok, and returns true on a door or secret door. mkroom.c:mkswamp consumes this result; fountain.c:gush at lines 139-142 also consumes it, while js/fountain.js currently carries a private duplicate.",
+                "The existing JavaScript mkshop wizard branch for SHOPTYPE='}' and do_mkroom SWAMP branch both record note_unported('mkroom.c mkswamp'). The task will wire both branches to the canonical mkswamp implementation and make fountain.js import the canonical nexttodoor helper."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
