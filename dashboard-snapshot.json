@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T03:58:49.061Z",
+  "capturedAt": "2026-10-11T04:11:07.087Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -86260,22 +86260,42 @@
         "worker": "B",
         "state": "idle",
         "reason": "B synced accepted spell-gift Main; prayer delivery remains unchanged and B is idle awaiting the refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v43-makewish-rnd-class-followup-20261011-c404806ae486b267bc5979e75c4f6ba7169abf93",
+        "type": "published",
+        "at": "2026-10-11T03:58:58.162Z",
+        "task": "B-investigation-v43-makewish-rnd-class-followup-20261011",
+        "commit": "c404806ae486b267bc5979e75c4f6ba7169abf93"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-wiz-loca-96f144375",
+        "type": "integrating",
+        "at": "2026-10-11T04:03:55.157Z",
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
+        "integration": "96f144375d45d50241fabbbe29b8a77d171ec3f0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-wiz-loca-38110431623",
+        "type": "validated",
+        "at": "2026-10-11T04:09:35.057Z",
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v43-wiz-loca-special-program-20261011-96f144375d45d50241fabbbe29b8a77d171ec3f0-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T04:10:32.358Z",
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
-        "worker": "C",
-        "goal": "fix-irregular-stair-room-selection-v43-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "3b1dd1c57aa9bb67e5a41ca8ff0d88b3361365b8",
-        "since": "2026-10-11T02:57:56.593Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "A2-investigation-v43-monster-cures-blindness-two-heals-20261011",
         "worker": "A2",
@@ -86669,8 +86689,8 @@
     ]
   },
   "development": {
-    "executionCommit": "5129203208b9223c3504a2b5e2abbf7f04890762",
-    "measuredAt": "2026-10-11T03:56:53.558Z",
+    "executionCommit": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+    "measuredAt": "2026-10-11T04:09:08.946Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

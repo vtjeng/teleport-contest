@@ -264583,7 +264583,7 @@
     {
       "id": "fix-irregular-stair-room-selection-v43-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Match generated stair-room selection to C room membership",
       "cFile": "mklev.c",
       "sessions": [
@@ -264597,8 +264597,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "generate_stairs_room_good",
@@ -265092,6 +265095,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
