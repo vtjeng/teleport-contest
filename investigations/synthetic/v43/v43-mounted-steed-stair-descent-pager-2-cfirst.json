@@ -90,10 +90,10 @@
       "scripts/end-really-done.test.mjs: ESCAPED/ASCENDED caller wiring."
     ],
     "runtimeEvidencePlan": [
-      "No existing recordings/dog.c or recipes/dog.c file currently covers keepdogs(), mon_leave(), or dog.c:migrate_to_level(); the two existing recordings are B119 revival cases.",
-      "Keepdogs(FALSE): preserve the selected v43 case as mounted-steed reachability evidence after downstream dog-arrival stages are implemented, and add a separate ordinary pet level-transfer recording so this goal has matching runtime evidence before the steed arrival stage is complete.",
-      "keepdogs(TRUE): record a C-first debug #wizmakemap recipe with a tame pet to exercise the pets_only caller and branch. The source caller in end.c remains wired and covered by scripts/end-really-done.test.mjs; if runtime source evidence requires the independent escape/ascension path, add a separate recipe before closing.",
-      "mon_leave(): add an independent C recording for the dog.c:migrate_to_level() call path if source validation treats that direct source call as a distinct entry point; preserve its returned worm segment count in the existing JS caller."
+      "The directly listed recordings/dog.c files are B119 corpse-revival recordings; recipes/dog.c additionally has the blocked C112 object-fed pet routes. Neither directory has keepdogs() or migrate_to_level() evidence.",
+      "Keepdogs(FALSE): the selected v43 case is the recorded mounted-steed route after downstream dog-arrival stages are implemented. Add an independent ordinary pet level-transfer recording so the keepdogs departure behavior can match before the separate steed arrival stage is complete.",
+      "keepdogs(TRUE): reuse the prepared C-first recipe recipes/wizcmds.c/makemap-pet-transfer-outside-limit.session.json (seed 1464604, debug Valkyrie, pettype:dog, #wizmakemap). It specifically reaches wizcmds.c:makemap_remove_mons -> dog.c:keepdogs(TRUE), has no matching recordings/wizcmds.c output yet, and its comment marks the current discarded keepdogs gap. Record it after this goal wires the branch.",
+      "mon_leave(): add an independent C recording for dog.c:migrate_to_level() if validation treats that direct call as a distinct entry point; preserve the returned worm segment count in the existing JS caller. Keep end.c:really_done() wired and its JavaScript call covered by scripts/end-really-done.test.mjs; only add a separate escape/ascension C recipe if the validator requires that caller route as distinct runtime evidence."
     ]
   },
   "goalKind": "file-port",
@@ -103,7 +103,7 @@
     "The selected case independently creates and tames a saddled pony with #wizgenesis, mounts it with #ride, reaches a down staircase with #wizmap, then descends. The C source path is do.c:goto_level() -> dog.c:keepdogs(FALSE); current JavaScript throws exactly in the u.usteed branch before the C steed transfer.",
     "Upstream dog.c:729-885 was read as a contiguous source unit. Source call search found keepdogs() at do.c:1624, end.c:1298, and wizcmds.c:116; mon_leave() is additionally called at dog.c:904 by migrate_to_level().",
     "The current JavaScript owner is js/dog.js:mon_leave()/keep_mon_accessible()/keepdogs(). The active do.js caller already awaits keepdogs(false), while end.js and wizcmds.js still record note_unported gaps for keepdogs(true). The v43 trace does not reach a matching JS screen after the step because downstream js/dog.js:mon_arrive() still refuses the steed.",
-    "The current directly listed recordings/dog.c and recipes/dog.c contain only the B119 corpse-revival material and no keepdogs or migrate_to_level evidence. The named focused source tests are scripts/dog-migrate.test.mjs, scripts/dodown.test.mjs, scripts/makemap-remove-mons.test.mjs, scripts/wizcmds.test.mjs, and scripts/end-really-done.test.mjs."
+    "The directly listed recordings/dog.c contain B119 revival cases and recipes/dog.c contain B119 plus blocked C112 pet routes, with no keepdogs or migrate_to_level record. A reusable, unrecorded pets-only recipe already exists at recipes/wizcmds.c/makemap-pet-transfer-outside-limit.session.json; the focused source tests are scripts/dog-migrate.test.mjs, scripts/dodown.test.mjs, scripts/makemap-remove-mons.test.mjs, scripts/wizcmds.test.mjs, and scripts/end-really-done.test.mjs."
   ],
   "replayInputSha256": "bfca62422f56a632b6eb437442de6e18721f75a8e1b9c7f545ec936531aef779",
   "evaluationArtifact": "challenges/evaluations/accepted-9768280e52603cd8a6a3848dfd0557ea699ab3ed-v43.json",
