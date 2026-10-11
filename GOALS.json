@@ -270819,7 +270819,7 @@
     {
       "id": "port-vault-guard-discovery-v45-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port vault guard discovery helpers and production callers",
       "cFile": "vault.c",
       "sessions": [
@@ -270833,8 +270833,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d6db550a19ff73dc442cabfd0acb3f89118d5b90",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "findgd",
@@ -271386,6 +271389,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d6db550a19ff73dc442cabfd0acb3f89118d5b90",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
