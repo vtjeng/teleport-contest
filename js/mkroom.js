@@ -1,7 +1,8 @@
 // Room-topology projections and the special room one level may receive.
 // C refs: mkroom.c cmap_to_type(), isbig(), do_mkroom(), mkshop(),
-// pick_room(), mkzoo(), fill_zoo(), courtmon(), squadmon(), has_dnstairs(),
-// has_upstairs(), invalid_shop_shape(), shrine_pos(), and mktemple().
+// pick_room(), mkzoo(), fill_zoo(), courtmon(), squadmon(), mkswamp(),
+// nexttodoor(), has_dnstairs(), has_upstairs(), invalid_shop_shape(),
+// shrine_pos(), and mktemple().
 
 import {
     AIR,
@@ -27,6 +28,8 @@ import {
     FILL_NORMAL,
     G_GONE,
     FOUNTAIN,
+    IS_DOOR,
+    IS_ROOM,
     GRAVE,
     HWALL,
     ICE,
@@ -43,6 +46,7 @@ import {
     ROOMOFFSET,
     SHOPBASE,
     SINK,
+    SDOOR,
     STAIRS,
     STONE,
     SWAMP,
@@ -63,14 +67,17 @@ import {
     LEPREHALL,
 } from './const.js';
 import { In_hell, induced_align, level_difficulty } from './dungeon.js';
+import { del_engr_at } from './engrave.js';
 import { dist2 } from './hacklib.js';
 import { game } from './gstate.js';
+import { isok } from './cmd_isok.js';
 import { add_to_container, sobj_at } from './invent.js';
 import { occupied, somexyspace, topologize } from './mklev.js';
 import { makemon, makemon_runtime, mongets } from './makemon_create.js';
 import { enexto } from './teleport.js';
 import { revive } from './zap.js';
 import { mkclass, set_malign } from './makemon.js';
+import { m_at } from './monst.js';
 import { ndemon } from './minion.js';
 import {
     PM_ARCHEOLOGIST,
@@ -84,6 +91,9 @@ import {
     PM_KILLER_BEE,
     PM_FIRE_ANT,
     PM_COCKATRICE,
+    PM_ELECTRIC_EEL,
+    PM_GIANT_EEL,
+    PM_PIRANHA,
     PM_LEPRECHAUN,
     PM_OGRE_TYRANT,
     PM_QUEEN_BEE,
@@ -96,6 +106,7 @@ import {
     PM_WRAITH,
     S_CENTAUR,
     S_DEMON,
+    S_FUNGUS,
     S_DRAGON,
     S_GIANT,
     S_GNOME,
@@ -131,6 +142,7 @@ import {
 import { priestini } from './priest.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { inside_room } from './room_coordinates.js';
+import { t_at } from './trap.js';
 import { SHTYPES } from './shtypes_data.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
 import { note_unported } from './unported.js';
@@ -301,6 +313,74 @@ export function has_upstairs(sroom, state = game) {
     return false;
 }
 
+// C ref: mkroom.c mkswamp() (530-574). Select up to five ordinary rooms,
+// mark each eligible room as a swamp, then place pools and swamp monsters in
+// source x-major/y-minor order.
+function mkswamp(state, random) {
+    let eelct = 0;
+    for (let attempt = 0; attempt < 5; ++attempt) {
+        const roomIndex = random.rn2(state.level.nroom);
+        const sroom = state.level.rooms[roomIndex];
+        if (sroom.hx < 0 || sroom.rtype !== OROOM
+            || has_upstairs(sroom, state) || has_dnstairs(sroom, state)) {
+            continue;
+        }
+
+        const roomNumber = roomIndex + ROOMOFFSET;
+        sroom.rtype = SWAMP;
+        for (let sx = sroom.lx; sx <= sroom.hx; ++sx) {
+            for (let sy = sroom.ly; sy <= sroom.hy; ++sy) {
+                const location = state.level.at(sx, sy);
+                if (!IS_ROOM(location.typ) || location.roomno !== roomNumber)
+                    continue;
+                if (state.level.objects[sx][sy] || m_at(sx, sy, state)
+                    || t_at(sx, sy, state) || nexttodoor(sx, sy, state)) {
+                    continue;
+                }
+
+                if ((sx + sy) % 2) {
+                    del_engr_at(sx, sy, state);
+                    location.typ = POOL;
+                    if (!eelct || !random.rn2(4)) {
+                        const species = random.rn2(5)
+                            ? state.mons[PM_GIANT_EEL]
+                            : random.rn2(2)
+                                ? state.mons[PM_PIRANHA]
+                                : state.mons[PM_ELECTRIC_EEL];
+                        // C discards makemon()'s return and increments eelct
+                        // even when creation finds no usable monster.
+                        makemon(species, sx, sy, 0, {
+                            state,
+                            random,
+                            _mkswampPoolSpecies: true,
+                        });
+                        ++eelct;
+                    }
+                } else if (!random.rn2(4)) {
+                    const species = mkclass(S_FUNGUS, 0, { state, random });
+                    // C discards makemon()'s return on this branch as well.
+                    makemon(species, sx, sy, 0, { state, random });
+                }
+            }
+        }
+        state.level.flags.has_swamp = true;
+    }
+}
+
+// C ref: mkroom.c nexttodoor() (623-637). A door in the surrounding 3-by-3
+// neighborhood makes this coordinate unavailable to swamp pools and fountain
+// water.
+export function nexttodoor(sx, sy, state = game) {
+    for (let dx = -1; dx <= 1; ++dx) {
+        for (let dy = -1; dy <= 1; ++dy) {
+            if (!isok(sx + dx, sy + dy)) continue;
+            const typ = state.level.at(sx + dx, sy + dy).typ;
+            if (IS_DOOR(typ) || typ === SDOOR) return true;
+        }
+    }
+    return false;
+}
+
 // C ref: mkroom.c invalid_shop_shape(). A shopkeeper standing just inside the
 // door needs somewhere else to step; a room that leaves it only one square is
 // rejected as a shop.
@@ -395,9 +475,8 @@ function mkshop(state, random) {
             return;
         }
         if (shopChar === '}') {
-            // mkshop() discards mkswamp()'s return value. The callee remains
-            // outside this span, so record the skipped source call.
-            note_unported('mkroom.c mkswamp');
+            // mkroom.c:142 returns after the source discards mkswamp()'s result.
+            mkswamp(state, random);
             return;
         }
         for (let index = 0; index < SHTYPES.length; ++index) {
@@ -954,9 +1033,7 @@ export function do_mkroom(roomtype, state = game, random = SOURCE_RANDOM) {
         return;
     }
     if (roomtype === SWAMP) {
-        // C discards mkswamp()'s result; the room population helper remains
-        // outside this span, so preserve the source call as a named gap.
-        note_unported('mkroom.c mkswamp');
+        mkswamp(state, random);
         return;
     }
     // C's impossible() result is discarded by do_mkroom().

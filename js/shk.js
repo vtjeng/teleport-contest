@@ -1079,17 +1079,29 @@ async function deserted_shop(
 }
 
 // C ref: shk.c after_shk_move(). A sentinel is installed only when a hero
-// enters a shop whose keeper is temporarily not on the level; an ordinary
-// shopkeeper move has no visible or random side effect here.
-export function after_shk_move(shopkeeper, state = game) {
+// enters a shop whose keeper is temporarily not on the level.
+export function after_shk_move(shopkeeper, state = game, {
+    defer = false,
+    message = ttyPline,
+    random = rn2,
+} = {}) {
     const extension = shopkeeper?.mextra?.eshk;
     if (!extension || extension.bill_p !== -1000
         || !inhishop(shopkeeper, state)) return;
 
     extension.bill_p = extension.bill ?? [];
-    // check_special_room(FALSE) is already the caller's movement boundary in
-    // this port. The sentinel reset is the only state change in this helper's
-    // supported path.
+    if (state.program_state?.gameover) return;
+
+    const check = async () => {
+        const { check_special_room } = await import('./rooms.js');
+        await check_special_room(false, state, { message, random });
+    };
+    if (defer) {
+        const previous = state._paybill_message ?? Promise.resolve();
+        state._paybill_message = Promise.resolve(previous).then(check);
+        return;
+    }
+    return check();
 }
 
 // C ref: shk.c is_fshk() (5010-5015), which exists for mondata.c
@@ -2821,7 +2833,7 @@ function shk_fixes_damage(shkp, state) {
 //
 // Return values match C: 1 = moved, 0 = didn't, -1 = let m_move do it,
 // -2 = died.
-export function shk_move(shkp, state, rawEnv = {}) {
+export async function shk_move(shkp, state, rawEnv = {}) {
     const env = { ...rawEnv, state };
     const eshkp = shkp.mextra?.eshk;
     if (!eshkp) {
@@ -2920,7 +2932,7 @@ export function shk_move(shkp, state, rawEnv = {}) {
         }
     }
 
-    const result = move_special(
+    const result = await move_special(
         shkp,
         inhishop(shkp, state),
         appr,
@@ -2933,7 +2945,10 @@ export function shk_move(shkp, state, rawEnv = {}) {
         gty,
         env,
     );
-    if (result > 0) after_shk_move(shkp, state);
+    if (result > 0) await after_shk_move(shkp, state, {
+        message: env.message ?? ttyPline,
+        random: env.random?.rn2 ?? rn2,
+    });
     return result;
 }
 
@@ -3387,7 +3402,10 @@ async function rouse_shk(shopkeeper, verbosely = false, state = game, env = {}) 
 function shopMessage(text, state) {
     // paybill() retains its source-shaped synchronous API. really_done()
     // awaits this one deferred tty write before it resumes disclosure.
-    state._paybill_message = ttyPline(text, state);
+    const previous = state._paybill_message ?? Promise.resolve();
+    state._paybill_message = Promise.resolve(previous).then(
+        () => ttyPline(text, state),
+    );
 }
 
 // C ref: shk.c home_shk() (1317-1330). Return a keeper to the square at its
@@ -3400,7 +3418,7 @@ function home_shk(shopkeeper, _killkops, state) {
     note_unported('mon.c mnearto');
     state.level.flags ??= {};
     state.level.flags.has_shop = true;
-    after_shk_move(shopkeeper, state);
+    after_shk_move(shopkeeper, state, { defer: true });
 }
 
 // C ref: shk.c inherits() (2570-2676). The ordinary death path below ports

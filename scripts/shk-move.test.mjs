@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -9,9 +10,16 @@ import {
     ROWNO,
     SHOPBASE,
 } from '../js/const.js';
-import { shk_move, UnsupportedShopError } from '../js/shk.js';
+import {
+    after_shk_move,
+    shk_move,
+    UnsupportedShopError,
+} from '../js/shk.js';
 import { m_move } from '../js/monmove.js';
 import { monst_globals_init, PM_SHOPKEEPER } from '../js/monsters.js';
+
+const SHK_C_SOURCE = readFileSync('nethack-c/upstream/src/shk.c', 'utf8');
+const SHK_JS_SOURCE = readFileSync('js/shk.js', 'utf8');
 
 // C's special shopkeeper form has the full fixed-size permonst attack array.
 const TEST_MONSTERS = monst_globals_init({});
@@ -93,17 +101,45 @@ function makeShopState({ ux = 10, uy = 10 } = {}) {
     };
 }
 
-test('shk_move returns 0 for a stationary shopkeeper at guard position', () => {
+test('shk_move returns 0 for a stationary shopkeeper at guard position', async () => {
     // C ref: shk.c:4976-4979.  A peaceful shopkeeper at its guard position
     // (GDIST == 0 < 3) with no bill, robbery, or debit returns 0 (didn't move).
     const shkp = makeStationaryShopkeeper();
     const state = makeShopState();
     state.level.rooms[0].resident = shkp;
 
-    const result = shk_move(shkp, state);
+    const result = await shk_move(shkp, state);
 
     // shk_move returns 0: the shopkeeper did not move.
     assert.equal(result, 0);
+});
+
+test('after_shk_move resets the sentinel before checking the hero room', async () => {
+    const shopkeeper = makeStationaryShopkeeper();
+    const state = makeShopState();
+    state.level.rooms.push({ rtype: ROOM });
+    state.level.at(10, 10).roomno = ROOMOFFSET + 1;
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    state.u.urooms = [0, 0, 0, 0, 0];
+    state.u.ushops = [0, 0, 0, 0, 0];
+    shopkeeper.mextra.eshk.bill = [{ price: 5, bquan: 1 }];
+    shopkeeper.mextra.eshk.bill_p = -1000;
+
+    await after_shk_move(shopkeeper, state);
+
+    assert.deepEqual(shopkeeper.mextra.eshk.bill_p, [{ price: 5, bquan: 1 }]);
+    assert.equal(state.u.urooms[0], ROOMOFFSET + 1,
+        'the source check updates the hero room state');
+    const cStart = SHK_C_SOURCE.indexOf('after_shk_move(struct monst *shkp)');
+    const cEnd = SHK_C_SOURCE.indexOf('\n}', cStart);
+    const cFunction = SHK_C_SOURCE.slice(cStart, cEnd);
+    assert.match(cFunction,
+        /eshkp->bill_p = &eshkp->bill\[0\];[\s\S]*?check_special_room\(FALSE\);/u);
+    const jsStart = SHK_JS_SOURCE.indexOf('export function after_shk_move(');
+    const jsEnd = SHK_JS_SOURCE.indexOf('// C ref: shk.c is_fshk()', jsStart);
+    const jsFunction = SHK_JS_SOURCE.slice(jsStart, jsEnd);
+    assert.match(jsFunction,
+        /extension\.bill_p = extension\.bill \?\? \[\];[\s\S]*?await check_special_room\(false, state,/u);
 });
 
 test('shk_move completes adjacent angry combat before returning zero', async () => {
@@ -135,7 +171,7 @@ test('shk_move completes adjacent angry combat before returning zero', async () 
     assert.deepEqual(order, ['attack completed']);
 });
 
-test('shk_move refuses a following shopkeeper', () => {
+test('shk_move refuses a following shopkeeper', async () => {
     // C ref: shk.c:4903-4931.  A following shopkeeper would talk to the hero
     const shkp = makeStationaryShopkeeper();
     shkp.mextra.eshk.following = true;
@@ -143,14 +179,14 @@ test('shk_move refuses a following shopkeeper', () => {
     const state = makeShopState({ ux: 4, uy: 5 });
     state.level.rooms[0].resident = shkp;
 
-    assert.throws(
+    await assert.rejects(
         () => shk_move(shkp, state),
         (err) => err instanceof UnsupportedShopError
             && err.message.includes('following'),
     );
 });
 
-test('shk_move moves an indebted shopkeeper toward its guard', () => {
+test('shk_move moves an indebted shopkeeper toward its guard', async () => {
     // C ref: shk.c:4976-4993.  A debit prevents the stationary return at
     // GDIST < 3, so the keeper reaches move_special() and takes a step toward
     // its guard position.
@@ -164,13 +200,13 @@ test('shk_move moves an indebted shopkeeper toward its guard', () => {
     // m_at() is part of move_special()'s initialized-level contract.
     state.level.monsters[shkp.mx][shkp.my] = shkp;
 
-    assert.equal(shk_move(shkp, state, { planning: true }), 1);
+    assert.equal(await shk_move(shkp, state, { planning: true }), 1);
     assert.deepEqual([shkp.mx, shkp.my], [9, 9]);
     assert.equal(state.level.monsters[10][10], null);
     assert.equal(state.level.monsters[9][9], shkp);
 });
 
-test('shk_fixes_damage is a no-op when level has no damagelist', () => {
+test('shk_fixes_damage is a no-op when level has no damagelist', async () => {
     // C ref: shk.c:4558-4561.  find_damage() walks level.damagelist; when the
     // list is absent (null/undefined), it returns null and shk_fixes_damage
     // returns immediately.  Verifying indirectly through shk_move: the
@@ -182,10 +218,10 @@ test('shk_fixes_damage is a no-op when level has no damagelist', () => {
     assert.equal(state.level.damagelist, undefined);
 
     // shk_move calls shk_fixes_damage internally; it should not throw.
-    assert.equal(shk_move(shkp, state), 0);
+    assert.equal(await shk_move(shkp, state), 0);
 });
 
-test('shk_fixes_damage refuses when damagelist exists', () => {
+test('shk_fixes_damage refuses when damagelist exists', async () => {
     // C ref: shk.c:4558-4576.  When find_damage() finds repairable damage,
     // C whispers an incantation and repairs it.  This port refuses rather
     // than implementing the repair path.
@@ -195,7 +231,7 @@ test('shk_fixes_damage refuses when damagelist exists', () => {
     // Simulate existing damage on the level.
     state.level.damagelist = { next: null, where: { x: 4, y: 5 } };
 
-    assert.throws(
+    await assert.rejects(
         () => shk_move(shkp, state),
         (err) => err instanceof UnsupportedShopError
             && err.message.includes('damage'),

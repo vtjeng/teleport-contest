@@ -15,6 +15,7 @@ import {
     FILL_NONE,
     FILL_NORMAL,
     COURT,
+    DOOR,
     FODDERSHOP,
     G_GONE,
     LOW_PM,
@@ -25,6 +26,7 @@ import {
     ROOM,
     ROOMOFFSET,
     SHOPBASE,
+    SDOOR,
     SWAMP,
     THRONE,
     VAULT,
@@ -42,6 +44,7 @@ import {
     do_mkroom,
     fill_zoo,
     pick_room,
+    nexttodoor,
     squadmon,
 } from '../js/mkroom.js';
 import { fill_special_room } from '../js/mklev.js';
@@ -574,18 +577,67 @@ test('wizard SHOPTYPE special-room dispatch returns before room scanning', () =>
     assert.equal(room.needfill, FILL_NORMAL);
 });
 
-test('wizard SHOPTYPE swamp dispatch records the unported callee', () => {
+test('wizard SHOPTYPE swamp dispatch calls mkswamp and returns', () => {
     const state = initializedState();
     state.wizard = true;
     state.environment = { SHOPTYPE: '}' };
     const room = shopCandidate(state, { hx: 13, hy: 8 });
+    const roomNumber = room.roomnoidx + ROOMOFFSET;
+    for (let x = room.lx; x <= room.hx; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y) {
+            // Occupied floor cells keep this caller test on mkshop/mkswamp
+            // dispatch without entering the eel or fungus population branches.
+            state.level.at(x, y).roomno = roomNumber;
+            state.level.objects[x][y] = {};
+        }
+    }
+    const draws = [];
 
-    // mkroom.c:136-139 calls mkswamp() and discards its result. That source
-    // callee remains outside this span, so mkshop records the skipped call.
-    do_mkroom(SHOPBASE, state, {});
+    // mkroom.c:141-143 returns after mkshop() calls mkswamp() and discards
+    // its return. Each of five source attempts therefore draws rn2(nroom).
+    do_mkroom(SHOPBASE, state, {
+        rn2(bound) { draws.push(bound); return 0; },
+    });
+
+    assert.equal(room.rtype, SWAMP);
+    assert.equal(state.level.flags.has_swamp, true);
+    assert.deepEqual(draws, [1, 1, 1, 1, 1]);
+});
+
+test('mkswamp skips rooms with stairs before mutating room state', () => {
+    const state = initializedCourtState();
+    const room = shopCandidate(state, { hx: 12, hy: 7 });
+    // C has_upstairs() rejects this room before its room type can change.
+    state.stairs = { up: true, sx: 10, sy: 5, next: null };
+    const draws = [];
+
+    do_mkroom(SWAMP, state, {
+        rn2(bound) { draws.push(bound); return 0; },
+    });
 
     assert.equal(room.rtype, OROOM);
-    assert.ok(state.unported.has('mkroom.c mkswamp'));
+    assert.equal(Boolean(state.level.flags.has_swamp), false);
+    assert.deepEqual(draws, [1, 1, 1, 1, 1]);
+});
+
+test('nexttodoor checks doors and secret doors in the clipped 3-by-3 area', () => {
+    const state = initializedState();
+    // This interior coordinate makes all eight neighboring map cells valid.
+    const sx = 20;
+    const sy = 8;
+    assert.equal(nexttodoor(sx, sy, state), false);
+
+    // C loops dx and dy from -1 through 1, so this diagonal door qualifies.
+    state.level.at(sx + 1, sy + 1).typ = DOOR;
+    assert.equal(nexttodoor(sx, sy, state), true);
+
+    // A secret door uses the explicit second test in mkroom.c:633.
+    state.level.at(sx + 1, sy + 1).typ = SDOOR;
+    assert.equal(nexttodoor(sx, sy, state), true);
+
+    // cmd.c:isok excludes column zero, so its door cannot qualify from x=1.
+    state.level.at(0, 0).typ = DOOR;
+    assert.equal(nexttodoor(1, 0, state), false);
 });
 
 test('stock_room rejects a row shtypes[] does not carry', () => {
@@ -601,8 +653,8 @@ test('stock_room rejects a row shtypes[] does not carry', () => {
 
 test('do_mkroom dispatches every source room family',
     () => {
-        // mkroom.c:50-92 dispatches each zoo family to mkzoo(). The source
-        // mkswamp() body is outside this span and is a discarded void call.
+        // mkroom.c:50-92 dispatches each zoo family to mkzoo(). The swamp
+        // branch below reaches mkswamp(), whose return value C discards.
         const state = initializedState();
         const room = shopCandidate(state, { hx: 13, hy: 8 });
 
@@ -644,10 +696,14 @@ test('do_mkroom dispatches every source room family',
 
         room.rtype = OROOM;
         room.needfill = FILL_NONE;
-        do_mkroom(SWAMP, state);
-        assert.equal(room.rtype, OROOM);
+        const swampDraws = [];
+        do_mkroom(SWAMP, state, {
+            rn2(bound) { swampDraws.push(bound); return 0; },
+        });
+        assert.equal(room.rtype, SWAMP);
         assert.equal(room.needfill, FILL_NONE);
-        assert.ok(state.unported.has('mkroom.c mkswamp'));
+        assert.equal(state.level.flags.has_swamp, true);
+        assert.deepEqual(swampDraws, [1, 1, 1, 1, 1]);
 
         do_mkroom(-1, state);
         assert.ok(state.unported.has('mkroom.c impossible'));

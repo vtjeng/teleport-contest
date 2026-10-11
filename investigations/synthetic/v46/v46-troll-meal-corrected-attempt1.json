@@ -11,7 +11,7 @@
   "evaluationCommit": "29c284d972eb5d2bb2d0ff02c3e0280ebcc35b6d",
   "remainingScreens": 3,
   "recordedSteps": 52,
-  "status": "resolved",
+  "status": "complete",
   "commit": "660dcb56d1c8d1a6b7dfefd994f82213a6e89e6d",
   "mismatch": {
     "corpus": "synthetic",
@@ -135,24 +135,5 @@
     "The implementation ports the complete eat.c:cant_finish_meal() body to js/eat.js, preserving the matching eatfood-and-piece guard, zero_victual assignment, oeaten floor of 1, non-null donull assignment, stop_occupation(), and newuhs(FALSE) order. js/zap.js:revive now awaits the helper after its source-ordered corpse-type and reviver classification and before location lookup, replacing the note_unported gap.",
     "Focused bounded tests pass: scripts/eat-occupation.test.mjs and scripts/do-revive.test.mjs, 46/46 total. They verify the exact matching-corpse guard, preserved oeaten object, occupation stop output and zeroed victual, and the zap.c:revive caller path with a locked corpse that cannot proceed to creation.",
     "Fresh post-change differential run run-KaEqjE passes for synthetic/v46/v46-troll-meal-corrected-attempt1, segment 0 steps 0-51: C and JavaScript match 3505 RNG values, all 52 screens and attributes, and all 52 cursor positions."
-  ],
-  "resolution": {
-    "implementation": "js/eat.js ports eat.c:cant_finish_meal() (3893-3912) and js/zap.js:revive awaits the owner immediately after the C-equivalent reviver classification, before location lookup.",
-    "focusedTests": [
-      "scripts/eat-occupation.test.mjs",
-      "scripts/do-revive.test.mjs"
-    ],
-    "admittedSynthetic": {
-      "batch": "v46",
-      "caseId": "v46-troll-meal-corrected-attempt1",
-      "segment": 0,
-      "fromStep": 0,
-      "throughStep": 51,
-      "matchedScreens": 52,
-      "matchedRng": 3505,
-      "matchedCursors": 52
-    },
-    "freshRun": "run-KaEqjE",
-    "firstMismatch": null
-  }
+  ]
 }
