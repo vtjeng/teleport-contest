@@ -1740,6 +1740,30 @@ export async function maybe_finished_meal(stopping, state = game, env = {}) {
     return false;
 }
 
+// C ref: eat.c cant_finish_meal() (3893-3912), called before revive() locates
+// the corpse or creates the monster. Clear the active meal first so a
+// makemon()-triggered stop_occupation() cannot finish and consume the corpse
+// while revive() still needs it. Keep the source's non-null donull occupation
+// until stop_occupation() runs; null would skip its "You stop eating" arm.
+export async function cant_finish_meal(corpse, state = game, env = {}) {
+    if (state.go?.occupation !== eatfood
+        || state.context?.victual?.piece !== corpse) return;
+
+    state.context.victual = zero_victual();
+    if (!corpse.oeaten) corpse.oeaten = 1;
+
+    const { donull } = await import('./cmd.js');
+    state.go.occupation = donull;
+    const { stop_occupation } = await import('./allmain.js');
+    const mealEnv = {
+        ...env,
+        message: env.message ?? (env.planning ? async () => {} : ttyPline),
+        endRunning: env.endRunning ?? endRunning,
+    };
+    await stop_occupation(state, mealEnv);
+    await newuhs(false, state, mealEnv);
+}
+
 // C ref: eat.c unfaint() (3336-3344), invoked by hack.c unmul().
 export async function unfaint(state = game, env = {}) {
     await Hear_again(state, env);
