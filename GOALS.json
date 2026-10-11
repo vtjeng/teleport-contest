@@ -275446,8 +275446,8 @@
           "name": "sokoban_guilt",
           "line": 7039,
           "endLine": 7058,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -275702,7 +275702,137 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "sokoban_guilt",
+            "implementation": "js/trap.js",
+            "symbol": "sokoban_guilt",
+            "sourceReview": "Read the complete nethack-c/upstream/src/trap.c:sokoban_guilt() definition at lines 7039-7054. The function evaluates the current-level Sokoban flag; only on that branch it increments u.uconduct.sokocheat and calls change_luck(-1), whose void result is discarded. It has no RNG or output. The JavaScript implementation follows the same guard and update order. The prior refusal at the steed caller was removed for the covered DISMOUNT_POLY route; no extra effect substitutes for a callee.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_earth",
+                "source": "read.c:seffect_earth():1951 calls sokoban_guilt() after the earth-scroll boulder effect; the admitted v46 case reaches it through the normal scroll-read command."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "poly_obj",
+                "source": "zap.c:poly_obj():1711 calls sokoban_guilt() when the boulder polymorph branch runs in Sokoban."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "fracture_rock",
+                "source": "zap.c:fracture_rock():5556 calls sokoban_guilt() for the corresponding fracture result."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "cannot_push",
+                "source": "hack.c:cannot_push():299,307 calls sokoban_guilt() on each relevant refusal branch."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "moverock_core",
+                "source": "hack.c:moverock_core():398,403 calls sokoban_guilt() on its two boulder movement branches."
+              },
+              {
+                "path": "js/steed.js",
+                "symbol": "dismount_steed",
+                "source": "steed.c:dismount_steed():767 calls sokoban_guilt() after teleds() lands on a boulder. The active supporting route is polyself.c:polymon():964 -> js/polyself.js:polymon(), which now calls dismount_steed(DISMOUNT_POLY) when can_ride() rejects the transformed hero. That uses the pre-existing landing_spot() implementation; this task does not claim landing_spot() or the whole polymon()/dismount_steed() functions as completed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-sokoban-guilt.test.mjs",
+              "scripts/read-earth.test.mjs",
+              "scripts/zap-poly-obj.test.mjs",
+              "scripts/hack.test.mjs",
+              "scripts/dismount-steed.test.mjs",
+              "scripts/polyself.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/sokoban-guilt-poly-obj-a2.session.json",
+              "recordings/trap.c/sokoban-guilt-fracture-rock-a2.session.json",
+              "recordings/trap.c/sokoban-guilt-moverock-core-a2.session.json",
+              "recordings/trap.c/sokoban-guilt-cannot-push-a2.session.json",
+              "recordings/trap.c/sokoban-guilt-dismount-steed-a2.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 120,
+                "source": "read.c:seffect_earth -> trap.c:sokoban_guilt"
+              }
+            ],
+            "checkedAt": "6917a9a8a6e40a65525119b46094a4fc70ffe4d9"
+          }
+        ],
+        "entryPointReview": "The completed source unit is the whole trap.c:sokoban_guilt() helper. Its active direct callers are read.c:seffect_earth, zap.c:poly_obj, zap.c:fracture_rock, hack.c:cannot_push, hack.c:moverock_core, and steed.c:dismount_steed. The admitted v46 case covers seffect_earth; five independent patched-C recordings cover the other callers. Supporting caller wiring adds polyself.c:polymon -> dismount_steed(DISMOUNT_POLY) for the steed recording. This delivery does not claim whole polymon(), dismount_steed(), or landing_spot() source completion.",
+        "entryPoints": [
+          {
+            "name": "Read an earth scroll on Sokoban",
+            "functions": [
+              "sokoban_guilt"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 120,
+                "source": "read.c:seffect_earth -> trap.c:sokoban_guilt"
+              }
+            ]
+          },
+          {
+            "name": "Polymorph a boulder on Sokoban",
+            "functions": [
+              "sokoban_guilt"
+            ],
+            "recordings": [
+              "recordings/trap.c/sokoban-guilt-poly-obj-a2.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Fracture a rock on Sokoban",
+            "functions": [
+              "sokoban_guilt"
+            ],
+            "recordings": [
+              "recordings/trap.c/sokoban-guilt-fracture-rock-a2.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Refuse or move a boulder on Sokoban",
+            "functions": [
+              "sokoban_guilt"
+            ],
+            "recordings": [
+              "recordings/trap.c/sokoban-guilt-cannot-push-a2.session.json",
+              "recordings/trap.c/sokoban-guilt-moverock-core-a2.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Dismount onto a boulder on Sokoban after polymorph",
+            "functions": [
+              "sokoban_guilt"
+            ],
+            "recordings": [
+              "recordings/trap.c/sokoban-guilt-dismount-steed-a2.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
