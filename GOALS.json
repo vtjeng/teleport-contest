@@ -274708,8 +274708,8 @@
           "name": "obj_split_light_source",
           "line": 779,
           "endLine": 807,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -274927,7 +274927,61 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "obj_split_light_source",
+            "implementation": "js/light.js",
+            "symbol": "obj_split_light_source",
+            "sourceReview": "Read the complete light.c:obj_split_light_source() definition at lines 779-803. It walks gl.light_base in list order, and for every LS_OBJECT node whose object identity is src it copies the whole node, recalculates source and destination radii for candles and sets gv.vision_full_recalc, then changes the copy's identity to dest, prepends it to the list, and sets dest->lamplit=1. The helper makes no RNG call and emits no output, but it mutates linked light-source state and the destination object, so it is impure by the project definition. JavaScript preserves the source's iteration order while prepending each clone and uses the existing candle_light_range() and vision_full_recalc state owner.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "splitobj",
+                "source": "The running apply-candle then partial-drop path reaches js/obj.js:splitobj(), which evaluates obj_sheds_light() after timer splitting and calls obj_split_light_source(obj, child, state), matching the sole direct C call at mkobj.c:splitobj():501-502. The helper's void result is discarded in C."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/light-vision.test.mjs",
+              "scripts/object-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-lit-candle-split-attempt8",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "apply.c:use_candle -> use_lamp -> begin_burn lights a five-candle stack; do.c:doddrop -> drop -> mkobj.c:splitobj -> light.c:obj_split_light_source splits one lit candle and copies its LS_OBJECT source"
+              }
+            ],
+            "checkedAt": "64814ca79e0777c49a074b0f11a95bd5aa7758c0"
+          }
+        ],
+        "entryPointReview": "The selected helper has one active direct C caller: mkobj.c:splitobj() after timer splitting, mirrored by js/obj.js:splitobj(). Its runtime entry is splitting a lit stack; the admitted v46 case exercises the apply.c:use_candle -> use_lamp -> begin_burn route and then do.c:doddrop -> drop -> splitobj through the complete final step. The source-pinned tests also cover copying multiple matching nodes, preserving unrelated nodes, candle radius recalculation, and the vision recalculation flag.",
+        "entryPoints": [
+          {
+            "name": "Split a burning candle stack while dropping one candle",
+            "functions": [
+              "obj_split_light_source"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-lit-candle-split-attempt8",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "apply.c:use_candle -> use_lamp -> begin_burn -> do.c:doddrop -> drop -> mkobj.c:splitobj -> light.c:obj_split_light_source"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
