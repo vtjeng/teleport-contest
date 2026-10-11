@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of attempt 3's identical seeded setup: the wish ledger showed the uncursed ring was letter n, not o. Select n on the left finger, then create the pool and punished ball. The subsequent scroll letter is changed to o based on the occupied inventory slots; verify both from C before counting reachability.",
+  "segments": [
+    {
+      "seed": 47047203,
+      "datetime": "20571217111117",
+      "nethackrc": "OPTIONS=name:V47PunishBall3,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nuncursed ring of levitation\nPnl #wizwish\npool\n#wizwish\ncursed scroll of punishment\nro R     "
+    }
+  ]
+}

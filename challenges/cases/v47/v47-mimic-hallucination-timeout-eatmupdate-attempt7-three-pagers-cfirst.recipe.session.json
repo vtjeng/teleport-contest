@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only continuation after attempt6 established three separate More screens and the reached `cpostfx(PM_SMALL_MIMIC)` orange-object branch. Dismiss all three pages before the 20-turn forced rest so hallucination can expire during the mimic occupation.",
+  "segments": [
+    {
+      "seed": 47000134,
+      "datetime": "20571111111214",
+      "nethackrc": "OPTIONS=name:V47EatMimicTimeout,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nsmall mimic corpse\n#wizintrinsic\n20h\n ep   20m."
+    }
+  ]
+}

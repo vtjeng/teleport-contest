@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of attempt 4's identical seeded setup: the unwelcome Wizard of Yendor appears southwest of the hero, and wished wand slot o is directed southwest with z-o-b. This tests whether the first zap reaches its low-HP stair-healing strategy; no JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047104,
+      "datetime": "20571214111114",
+      "nethackrc": "OPTIONS=name:V47Tactics4,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nwand of striking\n#wizgenesis\nhostile Wizard of Yendor\ny#wizmap\nzob"
+    }
+  ]
+}

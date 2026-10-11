@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first slot correction from attempt2's item-action screen: the actual wished egg stack is slot o (attempt2's slot m selected a spellbook). Split the egg stack through its inventory item action and assign the new stack to z.",
+  "segments": [
+    {
+      "seed": 47001015,
+      "datetime": "20571011121014",
+      "nethackrc": "OPTIONS=name:V47EggTimerSplitC,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\n2 eggs of giant ant\noIz"
+    }
+  ]
+}

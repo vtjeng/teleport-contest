@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate to exercise the distinct top-level dat/Rog-filb.lua quest filler program. It is loaded from a matching-role debug game and then exposed with #wizmap; no JavaScript differential before the complete slate. Corrected-recipe copy of the preserved earlier probe: use valid calendar datetime 20571212091012; earlier recipe/recording remains intact as attempt history.",
+  "segments": [
+    {
+      "seed": 47047005,
+      "datetime": "20571212091012",
+      "nethackrc": "OPTIONS=name:V47Rogfilb,role:Rogue,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nRog-filb.lua\n#wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47001081,
+      "datetime": "20570615201510",
+      "nethackrc": "OPTIONS=name:V47WhipDisarm,role:Archeologist,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n10\n         #wizwish\n+5 bullwhip\nwi#wizgenesis\nhostile captain\n#wizmap\naiy"
+    }
+  ],
+  "comment": "C-first source correction after watchman attempts lacked MON_WEP. In makemon.c:m_initweap, mercenary PM_CAPTAIN always receives a long sword or silver saber, unlike the conditional weapon for PM_WATCHMAN/PM_SOLDIER. Dismiss the nine C-observed level-up pages, wish and wield +5 bullwhip at slot i (confirmed by C), spawn the hostile captain, reveal its C position, and apply the whip. Count only if C confirms the weapon is actually wielded and reaches the successful disarm/extraction branch."
+}

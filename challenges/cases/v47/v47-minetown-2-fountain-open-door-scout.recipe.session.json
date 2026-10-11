@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only setup correction after Minetown 2's shortest fountain route stopped at a source-map locked door: reach the door, wish for a wand of opening, and inspect its inventory slot before retrying the route.",
+  "segments": [
+    {
+      "seed": 47000150,
+      "datetime": "20571111091014",
+      "nethackrc": "OPTIONS=name:V47FountainDoor,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-2.lua\n #wizmap\nhkk #wizwish\nwand of opening\ni"
+    }
+  ]
+}

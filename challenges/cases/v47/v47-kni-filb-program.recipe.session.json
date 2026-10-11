@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate to exercise the distinct top-level dat/Kni-filb.lua quest filler program. It is loaded from a matching-role debug game and then exposed with #wizmap; no JavaScript differential before the complete slate.",
+  "segments": [
+    {
+      "seed": 47047002,
+      "datetime": "20571111091011",
+      "nethackrc": "OPTIONS=name:V47Knifilb,role:Knight,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nKni-filb.lua\n#wizmap\n"
+    }
+  ]
+}

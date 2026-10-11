@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only source correction: attempt9 showed a nearby jackal interrupts the simulated mimic period before the timer effect is established. Use no-time #wizkill to remove the observed east-adjacent monster, then set a 10-turn hallucination timeout and eat the small mimic corpse; compare only if the timer expires while `ge.eatmbuf` is still active.",
+  "segments": [
+    {
+      "seed": 47000134,
+      "datetime": "20571111111214",
+      "nethackrc": "OPTIONS=name:V47EatMimicTimeout,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nsmall mimic corpse\n#wizkill\n  l.\u001b#wizintrinsic\n10h\n ep                                                                                                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first level-teleport trap setup probe: load source special level minend-3.lua, whose own Lua places two level-teleport traps, then reveal the C map to locate a reachable one. The case counts only if a hero actually enters trap.c:level_tele_trap; no JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047301,
+      "datetime": "20571315091216",
+      "nethackrc": "OPTIONS=name:V47LevelTrap1,role:Wizard,race:human,gender=male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminend-3.lua\n#wizmap\n"
+    }
+  ]
+}

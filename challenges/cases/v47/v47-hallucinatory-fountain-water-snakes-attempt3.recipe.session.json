@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected selector based on attempt 2 C evidence: the wish result assigns the potion of hallucination to q, so quaff the q potion before entering the fountain room.",
+  "segments": [
+    {
+      "seed": 47000203,
+      "datetime": "20571112101014",
+      "nethackrc": "OPTIONS=name:V47HallucFountain,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-2.lua\n #wizmap\n#wizwish\nwand of opening\n#wizwish\npotion of hallucination\nqqzmyhkkklllllqy"
+    }
+  ]
+}

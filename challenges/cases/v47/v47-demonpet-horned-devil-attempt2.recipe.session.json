@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47070105,
+      "datetime": "20570105090100",
+      "nethackrc": "OPTIONS=name:V47HornedPet2,role:Monk,race:human,gender=female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".Da\nabcdefghijkl\n     #polyself\nhorned devil\n#wizgenesis\nhostile newt\nFkFkFkFk"
+    }
+  ],
+  "comment": "C-first corrected attempt resets the initial message page, drops starting inventory through the observed drop menu, polymorphs to an actual M2_DEMON horned devil, creates an adjacent hostile newt, and checks the bare-handed demonpet gate. No JavaScript comparison yet."
+}
