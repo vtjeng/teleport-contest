@@ -271421,8 +271421,8 @@
           "name": "finish_quest",
           "line": 226,
           "endLine": 281,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -271707,7 +271707,82 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "finish_quest",
+            "implementation": "js/quest.js",
+            "symbol": "finish_quest",
+            "sourceReview": "Read the complete upstream quest.c:finish_quest definition at lines 226-279 and all direct call sites. The port preserves the Deaf early return for a non-quest object; identification before the imitation/Amulet/other-item message; the held-Amulet pager and identification/inventory refresh; offeredit versus offeredit2 and the missing-Bell common pager; then got_thanks and, only when obj is non-null, qcompleted, object identification and inventory refresh. It uses existing complete ports for is_quest_artifact, fully_identify_obj, qt_pager, com_pager, carrying, update_inventory, heroDeaf, verbalize, the and xname. No C callee is substituted with note_unported or a fabricated effect.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "C dothrow.c:thitmonst (line 2138) calls finish_quest(obj) after a peaceful, mobile quest leader catches a thrown quest artifact. The v45 recording reaches this call from the thrown-item path."
+              },
+              {
+                "path": "js/quest.js",
+                "symbol": "chat_with_leader",
+                "source": "C quest.c:chat_with_leader (lines 297 and 311) calls finish_quest(NULL) after the hero has the Amulet and got_thanks, or finish_quest(otmp) when the hero returns carrying the role quest artifact. quest_chat reaches this function from sounds.c:dotalk; quest_talk reaches it through leader_speaks on the monster-turn route."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "dotalk",
+                "source": "C sounds.c:dotalk (line 731) dispatches MS_LEADER to quest_chat; C quest.c:quest_chat (line 475) calls chat_with_leader. The independent C recipe uses #chat and reaches its Rule 3 finish_quest(otmp) call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-finish.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/finish-quest-chat-wizard-neferet-cfirst-20261011.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-quest-finish-thrown-artifact-cfirst-corrected",
+                "segment": 0,
+                "fromStep": 61,
+                "throughStep": 62,
+                "source": "dothrow.c:thitmonst -> quest.c:finish_quest(obj); the peaceful leader catches the thrown Eye and completes the returned-artifact pager path."
+              }
+            ],
+            "checkedAt": "b265888745552127ea0678ad6ff6bddba50b2bad"
+          }
+        ],
+        "entryPointReview": "The selected mismatch enters quest.c:finish_quest through dothrow.c:thitmonst when a peaceful mobile leader catches the thrown Eye. The second direct caller is quest.c:chat_with_leader, reached from quest.c:quest_chat via the #chat dispatch in sounds.c:dotalk and from quest.c:leader_speaks via quest_talk on the monster-turn path. The independent recording covers the #chat Rule 3 call with a carried quest artifact; the admitted v45 range covers the thrown-object call. The port keeps the source ordering for all other finish_quest branches, including the NULL-object/Amulet branch.",
+        "entryPoints": [
+          {
+            "name": "Throw the role quest artifact at a peaceful quest leader",
+            "functions": [
+              "finish_quest"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-quest-finish-thrown-artifact-cfirst-corrected",
+                "segment": 0,
+                "fromStep": 61,
+                "throughStep": 62,
+                "source": "dothrow.c:thitmonst -> quest.c:finish_quest(obj)"
+              }
+            ]
+          },
+          {
+            "name": "Return the carried role quest artifact through #chat",
+            "functions": [
+              "finish_quest"
+            ],
+            "recordings": [
+              "recordings/quest.c/finish-quest-chat-wizard-neferet-cfirst-20261011.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
