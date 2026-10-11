@@ -274320,7 +274320,7 @@
     {
       "id": "port-detect-furniture-detect-v46-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port crystal ball furniture detection",
       "cFile": "detect.c",
       "sessions": [
@@ -274334,8 +274334,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f808df42bbec3831d26ee2a1acd1f939e92106e4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "furniture_detect",
@@ -274673,6 +274676,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f808df42bbec3831d26ee2a1acd1f939e92106e4",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
