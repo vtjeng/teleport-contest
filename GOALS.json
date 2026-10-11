@@ -269851,6 +269851,251 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-nohandglow-v45-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port complete bare-handed confusion feedback and its live melee caller",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst"
+      ],
+      "selectionReason": "The current admitted v45 case has one remaining screen at step 86; the complete investigation traces it to uhitm.c:nohandglow, which is unclaimed and is called only from hmon_hitmon before spellbook resistance.",
+      "detail": "Port uhitm.c:nohandglow lines 6314-6337, preserving the zero/already-confused early return, blind-or-invisible tingling branches, visible hcolor feedback, umconf==1 wording, decrement order, and the sole hmon_hitmon production call site.",
+      "openedAt": "149a822a450e24ddc7d1b5d886b4a32570ffacb2",
+      "openStanding": {
+        "sha": "1d37277547f03e37af5f2159baa0655c3830b8cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "nohandglow",
+          "line": 6315,
+          "endLine": 6340,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 6315,
+        "to": 6340
+      },
+      "syntheticProvenance": {
+        "synthetic/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst": {
+          "session": "synthetic/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst.session.json",
+          "recordingSha256": "dae0f66c870c2d9344c866c4c106375eb47cda9c34b78e31b13f6de6fcc7b9cc",
+          "evaluationPath": "challenges/evaluations/accepted-1d37277547f03e37af5f2159baa0655c3830b8cd-v45.json",
+          "evaluationCommit": "1d37277547f03e37af5f2159baa0655c3830b8cd"
+        }
+      },
+      "activeStanding": {
+        "sha": "1d37277547f03e37af5f2159baa0655c3830b8cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "session": "synthetic/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst.session.json",
+          "recordingSha256": "dae0f66c870c2d9344c866c4c106375eb47cda9c34b78e31b13f6de6fcc7b9cc",
+          "recipe": "challenges/cases/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst.recipe.session.json",
+          "recipeSha256": "91c3c680253c47e840dd868b2e25745abfbe2b3e41cb3a83839d83ff03783e47",
+          "replayInputSha256": "aa8346de17fe93f1ba1334508eca716576bd56fbe9b4a2775384c51fd50f6902",
+          "evaluationPath": "challenges/evaluations/accepted-1d37277547f03e37af5f2159baa0655c3830b8cd-v45.json",
+          "evaluationCommit": "1d37277547f03e37af5f2159baa0655c3830b8cd",
+          "evaluationArtifact": "challenges/evaluations/accepted-1d37277547f03e37af5f2159baa0655c3830b8cd-v45.json",
+          "evaluationUtc": "2026-10-11T12:27:42.810Z",
+          "remainingScreens": 1,
+          "recordedSteps": 87,
+          "previousScreensMatched": 86,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 86,
+              "total": 87
+            },
+            "rng": {
+              "matched": 2871,
+              "total": 2871
+            },
+            "cursors": {
+              "matched": 87,
+              "total": 87
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 86,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 86,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 86,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+              "session": "synthetic/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingSha256": "dae0f66c870c2d9344c866c4c106375eb47cda9c34b78e31b13f6de6fcc7b9cc",
+              "evaluationPath": "challenges/evaluations/accepted-eecc04ac077b05f740cf2e3f57e11c4301552c26-v45.json",
+              "evaluationCommit": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+              "evaluationArtifact": "challenges/evaluations/accepted-eecc04ac077b05f740cf2e3f57e11c4301552c26-v45.json",
+              "evaluationUtc": "2026-10-11T11:27:50.961Z",
+              "replayInputSha256": "f12a3152d8beb2b19b3f4c0927cc9aebac2b36629d613237284cab5d81aa41ec",
+              "remainingScreens": 1,
+              "recordedSteps": 87,
+              "status": "complete",
+              "commit": "992f12b64528753a2c3de6389bade1b1e0876823",
+              "queueSha256": "b438b5796e09a288f6a8929e3c03d01b9bf67564c75954e4adca9f5efc36fbf0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+                "session": "synthetic/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst.session.json",
+                "recordingSha256": "dae0f66c870c2d9344c866c4c106375eb47cda9c34b78e31b13f6de6fcc7b9cc",
+                "recipe": "challenges/cases/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst.recipe.session.json",
+                "recipeSha256": "91c3c680253c47e840dd868b2e25745abfbe2b3e41cb3a83839d83ff03783e47",
+                "replayInputSha256": "f12a3152d8beb2b19b3f4c0927cc9aebac2b36629d613237284cab5d81aa41ec",
+                "evaluationPath": "challenges/evaluations/accepted-eecc04ac077b05f740cf2e3f57e11c4301552c26-v45.json",
+                "evaluationCommit": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+                "evaluationArtifact": "challenges/evaluations/accepted-eecc04ac077b05f740cf2e3f57e11c4301552c26-v45.json",
+                "evaluationUtc": "2026-10-11T11:27:50.961Z",
+                "remainingScreens": 1,
+                "recordedSteps": 87,
+                "previousScreensMatched": 86,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 86,
+                    "total": 87
+                  },
+                  "rng": {
+                    "matched": 2871,
+                    "total": 2871
+                  },
+                  "cursors": {
+                    "matched": 87,
+                    "total": 87
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 86,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 86,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 86,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The sole v45 mismatch is the missing uhitm.c:nohandglow helper after the Wizard hits an unconfused newt bare-handed while umconf is positive. C prints the feedback before spellbook resistance and decrements umconf; JavaScript skips the helper and continues at resist, so it omits the feedback and preserves the confusion counter.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "nohandglow"
+                ],
+                "branch": "When u.umconf is nonzero and the target is not already confused, nohandglow chooses tingling feedback if the hero is blind or invisible; otherwise it reports the hands glowing red. It chooses “stop” feedback when umconf equals one and the lesser-glow feedback otherwise, then decrements u.umconf. The selected recording reaches the visible, nonterminal-glow branch.",
+                "callers": [
+                  "Direct source caller: uhitm.c:hmon_hitmon calls nohandglow(mon) at line 1912 after hit processing and before resist(mon, SPBOOK_CLASS, 0, NOTELL). Its only call site in upstream uhitm.c is this branch.",
+                  "Recorded command path: cmd.c:do_fight sets context.forcefight for F; hack.c:domove_core sends the following j movement into domove_attackmon_at/do_attack; uhitm.c:hitum -> known_hitum -> hmon -> hmon_hitmon reaches nohandglow after the bare-handed hit."
+                ],
+                "dependencies": [
+                  "The helper calls makeplural(body_part(HAND)), selects Blind/Invisible feedback, emits the existing Your/pline_The message, and decrements u.umconf. The existing JS owners for body_part, message formatting, visibility state, and game state provide these operations; no random or other C callee is involved."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved combined queue b438b5796e09a288f6a8929e3c03d01b9bf67564c75954e4adca9f5efc36fbf0 and accepted v45 evaluation at eecc04ac077b05f740cf2e3f57e11c4301552c26 identify one remaining screen at zero-based step 86. The case has 86/87 screens, 2871/2871 RNG calls, and 87/87 cursors; the first difference is the message row beginning “Your hands no longer glow so brightly red.”",
+                "Read all of upstream uhitm.c:nohandglow at lines 6315-6338. For this visible branch, the function formats the plural hands message, selects “no longer glow so brightly” when umconf is greater than one, then decrements u.umconf. The helper makes no RNG calls.",
+                "Read the call site in upstream uhitm.c:hmon_hitmon at line 1912 and the surrounding branch: it calls nohandglow before SPBOOK_CLASS resistance and sets mon->mconf only after resistance succeeds. In js/uhitm.js:hmon_hitmon, the equivalent branch currently records note_unported(\"uhitm.c nohandglow\") and immediately performs the canonical resist path, which accounts for the absent C message and missing counter decrement.",
+                "The admitted recording challenges/cases/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst.session.json reaches this branch after the wizard reads a confuse-monster scroll, creates a hostile newt, and inputs F then j. At step 85, C records rnd(2)=1 at hmon_hitmon_barehands(uhitm.c:847); at step 86, C emits the nohandglow message before rn2(100)=89 at resist(zap.c:6141). The JS step 86 omits only the leading message while RNG and cursor outputs match."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
