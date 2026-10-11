@@ -265531,7 +265531,7 @@
     {
       "id": "A2-divergence-v43-potionhit-monster-blindness-cure-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore blessed healing potion monster blindness cure",
       "cFile": "potion.c",
       "sessions": [],
@@ -265543,8 +265543,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "34643f3e2165ce7769358970812543c951d2b27d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "potionhit",
       "session": "synthetic/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
       "step": 111,
@@ -265804,7 +265807,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "34643f3e2165ce7769358970812543c951d2b27d",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
