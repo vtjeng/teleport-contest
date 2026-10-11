@@ -23,13 +23,13 @@ import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { roles } from '../js/roles.js';
-import { monst_globals_init } from '../js/monsters.js';
+import { PM_NEWT, monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import {
-    BOULDER, DAGGER, FIGURINE, GEM_CLASS, HEAVY_IRON_BALL, SACK, SCR_BLANK_PAPER,
-    objects_globals_init,
+    BOULDER, CORPSE, DAGGER, FIGURINE, GEM_CLASS, HEAVY_IRON_BALL, SACK,
+    SCR_BLANK_PAPER, objects_globals_init,
 } from '../js/objects.js';
+import { roles } from '../js/roles.js';
 import { makewish } from '../js/zap.js';
 import { peek_timer } from '../js/timeout.js';
 import {
@@ -52,6 +52,9 @@ import {
 const EOF_BYTE = '\xFF';
 const C_INVENT = readFileSync(
     new URL('../nethack-c/upstream/src/invent.c', import.meta.url), 'utf8',
+);
+const C_ZAP = readFileSync(
+    new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8',
 );
 
 function topLine() {
@@ -571,6 +574,40 @@ test('a wish that merges into a carried stack announces the comparison',
         // and the `known` the merge discovered.
         assert.equal(daggerStack().quan, started + 1);
         assert.equal(daggerStack().known, true);
+    });
+
+test('makewish supplies invent.c the reviver predicate for corpse stacks',
+    async () => {
+        // zap.c:6419 hands the wished object to hold_another_object(); when
+        // addinv() compares matching corpses, invent.c:4442-4445 calls
+        // is_reviver() before it decides whether the two corpses can merge.
+        assert.match(C_ZAP,
+            /hold_another_object\(otmp, oops_msg, The\(aobjnam\(otmp, verb\)\),\s*\(const char \*\) 0\);/u);
+        assert.match(C_INVENT,
+            /obj->otyp == CORPSE && otmp->corpsenm >= LOW_PM\s*&& is_reviver\(&mons\[otmp->corpsenm\]\)/u);
+
+        const recorded = loadWizardWishRecipe().segments[0];
+        const boundaries = [];
+        await runSegment({
+            ...recorded,
+            moves: `.${WIZWISH_KEY}newt corpse\n ${WIZWISH_KEY}newt corpse\n.`,
+        }, { onBoundary: (error) => boundaries.push(error?.message ?? null) });
+
+        // Two light corpses stay in inventory, so the second C(w) wish reaches
+        // invent.c:mergable() without depending on a floor-drop branch. The
+        // first corpse came through the same production command and held in
+        // inventory; the second reaches the same matching-species predicate.
+        assert.deepEqual(boundaries, []);
+        assert.equal(game.u.uconduct.wishes, 2);
+        let matchingCorpse = game.invent;
+        while (matchingCorpse
+            && (matchingCorpse.otyp !== CORPSE
+                || matchingCorpse.corpsenm !== PM_NEWT)) {
+            matchingCorpse = matchingCorpse.nobj;
+        }
+        assert.ok(matchingCorpse, 'the newt corpse stack is carried');
+        assert.equal(matchingCorpse.quan, 2,
+            'mergable() accepts the non-reviver corpse pair');
     });
 
 // zap.c makewish() calls readobjnam(), whose typfnd: tail calls mksobj(). Five
