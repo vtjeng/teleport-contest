@@ -278164,6 +278164,67 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-hero-level-teleport-trap-v47-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port hero level-teleport trap activation and command dispatch.",
+      "cFile": "teleport.c",
+      "sessions": [
+        "synthetic/v47/v47-hero-level-teleport-trap"
+      ],
+      "selectionReason": "The accepted 6bb984834 v47 queue stops at hero movement onto a LEVEL_TELEP trap. The checked investigation traces the complete source scope to teleport.c:dotele, teleport.c:level_tele_trap, and the required trap.c:trapeffect_level_telep caller; independent C recordings cover natural and forced activation.",
+      "detail": "investigations/synthetic/v47/v47-hero-level-teleport-trap.json records current v47 provenance, source branches, callers, and the evidence gap filled by independent recordings.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dotele",
+          "line": 1034,
+          "endLine": 1164,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1034,
+        "to": 1164
+      },
+      "requiredFunctions": [
+        {
+          "name": "level_tele_trap",
+          "line": 1538,
+          "endLine": 1574,
+          "declared": false,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "trapeffect_level_telep",
+          "line": 2088,
+          "endLine": 2105,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v47/v47-hero-level-teleport-trap": {
+          "session": "synthetic/v47/v47-hero-level-teleport-trap",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-hero-level-teleport-trap",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json",
+          "recordingSha256": "f8ecd42405608bc3a91186f5a85d41eb6ddc7ee068f5474c64aaa85d33fcb673",
+          "evaluationPath": "challenges/evaluations/accepted-6bb984834630daf42b97272e584c999158fd328e-v47.json",
+          "evaluationCommit": "6bb984834630daf42b97272e584c999158fd328e"
+        }
+      }
     }
   ]
 }
