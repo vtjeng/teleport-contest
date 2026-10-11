@@ -39,6 +39,22 @@ function cFunction(source, declaration, endMarker) {
     return source.slice(start, end);
 }
 
+test('drown calls teleport.c:dotele before its pool-relocation check', () => {
+    const cDrown = cFunction(C_TRAP, 'drown(void)', '\ndrain_en(');
+    const jsDrownStart = JS_TRAP.indexOf('export async function drown(');
+    const jsDrownEnd = JS_TRAP.indexOf(
+        '// C ref: trap.c lava_effects()', jsDrownStart,
+    );
+    assert.ok(jsDrownStart >= 0 && jsDrownEnd > jsDrownStart);
+    const jsDrown = JS_TRAP.slice(jsDrownStart, jsDrownEnd);
+
+    assert.match(cDrown,
+        /if \(!noteleport_level\(&gy\.youmonst\)\) \{\s*\(void\) dotele\(FALSE\);\s*if \(!is_pool\(u\.ux, u\.uy\)\)\s*return TRUE;/u);
+    assert.match(jsDrown,
+        /if \(!noteleport_level\(state\.youmonst, state\)\) \{\s*await dotele\(false, state\);\s*if \(!is_pool\(u\.ux, u\.uy, state\)\) return true;/u);
+    assert.doesNotMatch(jsDrown, /await tele\(state\)/u);
+});
+
 test('chest_trap flushes its trigger message before the Luck roll', () => {
     const cChestTrap = cFunction(
         C_TRAP,

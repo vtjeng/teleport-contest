@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent trap.c:drown -> teleport.c:dotele witness. Seed 72061101 and the 2046-10-11 clock are newly chosen; debug Valkyrie level 16 avoids the low-level spell fallback, #wizintrinsic grants timed teleportation, and a terrain wish makes the starting tile a pool. Four spaces clear the observed water/teleport pagers and help page; h. selects the adjacent floor square in wizard controlled-teleport getpos.",
+  "segments": [
+    {
+      "seed": 72061101,
+      "datetime": "20461011104500",
+      "nethackrc": "OPTIONS=name:DrownTeleport,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #levelchange\n16\n               #wizintrinsic\no\n \u0017pool\n.    h."
+    }
+  ]
+}

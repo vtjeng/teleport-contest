@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first direct command-key entry to cmd.c:dotelecmd. Seed 72061102 and the 2046-10-11 clock are newly chosen; debug Wizard mode permits the command without teleportation, and the three spaces dismiss the observed teleport prompt/help pages before h. selects a nearby floor square in getpos.",
+  "segments": [
+    {
+      "seed": 72061102,
+      "datetime": "20461011110000",
+      "nethackrc": "OPTIONS=name:DoteleKey,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "\u0014   h."
+    }
+  ]
+}
