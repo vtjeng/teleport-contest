@@ -277873,7 +277873,7 @@
     {
       "id": "divergence-v47-gremlin-pool-split-drown-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore the gremlin pool-split call through canonical clone placement.",
       "cFile": "trap.c",
       "sessions": [],
@@ -277885,8 +277885,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6bb984834630daf42b97272e584c999158fd328e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "drown",
       "session": "synthetic/v47/v47-gremlin-pool-split",
       "step": 37,
@@ -278154,7 +278157,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6bb984834630daf42b97272e584c999158fd328e",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
