@@ -273835,8 +273835,8 @@
           "name": "mkswamp",
           "line": 530,
           "endLine": 576,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -273850,7 +273850,7 @@
           "endLine": 639,
           "declared": true,
           "sourceFile": "mkroom.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -274127,7 +274127,79 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mkswamp",
+            "implementation": "js/mkroom.js",
+            "symbol": "mkswamp",
+            "sourceReview": "Read the complete upstream mkroom.c:mkswamp body (lines 530-574). The port preserves the five random room attempts, invalid-room and stair checks, x-major/y-minor cell walk, object/monster/trap/door guards, engraving removal, pool conversion, eel/fungus selection and draw order, discarded makemon results, eel count, and has_swamp updates. It uses the existing has_upstairs, has_dnstairs, nexttodoor, del_engr_at, mkclass, and makemon owners. The three explicit pool species are admitted only for the marked initial-level mkswamp call while preserving the other makemon admission gates.",
+            "callers": [
+              {
+                "path": "js/mkroom.js",
+                "symbol": "do_mkroom",
+                "source": "mkroom.c:do_mkroom SWAMP case"
+              },
+              {
+                "path": "js/mkroom.js",
+                "symbol": "mkshop",
+                "source": "mkroom.c:mkshop wizard nh_getenv(\"SHOPTYPE\") == '}' branch"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkroom-shop.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/mkswamp-depth16-arrival-outside-seed46101145.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "869749842a7a4bfb78e9ee657874d0bf21028a1d"
+          },
+          {
+            "name": "nexttodoor",
+            "implementation": "js/mkroom.js",
+            "symbol": "nexttodoor",
+            "sourceReview": "Read the complete upstream mkroom.c:nexttodoor body (lines 623-637). It checks the clipped 3-by-3 neighborhood in dx-major/dy-minor order for ordinary and secret doors. The helper makes no random call, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/mkroom.js",
+                "symbol": "mkswamp",
+                "source": "mkroom.c:mkswamp"
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "gush",
+                "source": "fountain.c:gush"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mkroom-shop.test.mjs",
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "869749842a7a4bfb78e9ee657874d0bf21028a1d"
+          }
+        ],
+        "entryPointReview": "The recorder-backed impure entry point is depth-selected SWAMP generation: mklev.c:makelevel -> mkroom.c:do_mkroom(SWAMP) -> mkswamp, exercised by the independent matching recording; that same path exercises nexttodoor. The optional wizard SHOPTYPE override is source-traced but is not a replayable per-session entry point. Upstream mklev.c:1347-1348 selects do_mkroom(SHOPBASE) only when wizard and nh_getenv(\"SHOPTYPE\") are true; mkroom.c:mkshop at 102-143 reads SHOPTYPE and dispatches '}' to mkswamp. This C branch is compiled, but v5 sessions cannot bind the environment to one case: scripts/record-session.mjs:374-380 only validates version and segments, and recordSegment at 448-476 reads seg.nethackrc while constructing the child environment from process.env and fixed recorder values; it never reads a per-segment env field. Its output code at 758-762 preserves unknown segment fields without applying them. Thus ambient SHOPTYPE can affect an ad hoc recording invocation, but no serialized per-case value survives to replay, so that external environment variant is excluded from the active recorded entryPoints list. The JS branch remains source-pinned by scripts/mkroom-shop.test.mjs:580-605, which verifies the wizard SHOPTYPE='}' dispatch, mkswamp call and immediate return. fountain.c:gush is the second caller of pure nexttodoor; scripts/fountain.test.mjs exercises the shared helper through dogushforth. The admitted v46 replay reaches a separate, out-of-scope hack.c:check_special_room SWAMP-entry boundary after level generation.",
+        "entryPoints": [
+          {
+            "name": "Depth-selected SWAMP level generation",
+            "functions": [
+              "mkswamp",
+              "nexttodoor"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/mkswamp-depth16-arrival-outside-seed46101145.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
