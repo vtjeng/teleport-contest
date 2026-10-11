@@ -3588,6 +3588,30 @@ export async function hmon_hitmon_msg_silver(hmd, mon, state = game, env = {}) {
     await requireAttackOperation(env, 'message')(text, state);
 }
 
+// C ref: uhitm.c hmon_hitmon_msg_lightobj() (1702-1730); obj is unused.
+export async function hmon_hitmon_msg_lightobj(hmd, mon, state = game, env = {}) {
+    // C evaluates mon_nam() before its separate visibility test. Under
+    // hallucination, the existing name owner may consume display RNG here.
+    let whom = mon_nam(mon, state, env);
+    const visible = canspotmon(mon, state);
+    let prefix;
+    let suffix;
+    if (visible) {
+        prefix = hmd.saved_oname
+            ? s_suffix(hmd.saved_oname) + ' radiance penetrates deep into '
+            : 'The light sears ';
+        suffix = '!';
+    } else {
+        whom = highc(whom[0]) + whom.slice(1);
+        prefix = '';
+        suffix = ' is seared!';
+    }
+    if (!noncorporeal(hmd.mdat) && !amorphous(hmd.mdat))
+        whom = s_suffix(whom) + ' flesh';
+    const line = visible ? prefix + whom + suffix : whom + suffix;
+    await requireAttackOperation(env, 'message')(line, state);
+}
+
 // C ref: uhitm.c hmon_hitmon() (1752-1935), the guts of hmon(). Everything
 // between the decision that a blow landed and the target's reaction to it.
 //
@@ -3602,7 +3626,7 @@ export async function hmon_hitmon_msg_silver(hmd, mon, state = game, env = {}) {
 //   1821-1822 shade_miss() feedback, for a shade that took no damage.
 //   1826      hmon_hitmon_jousting(), which can move a mounted target through
 //             the return-valued mhurtle_to_doom() helper.
-//   1880      hmon_hitmon_msg_lightobj(), the remaining Sunsword feedback gap.
+//   1880      hmon_hitmon_msg_lightobj(), which uses the saved artifact name
 //   1898-1907 the poison messages and xkilled(); hmon_hitmon_poison() sets
 //             those flags before this tail.
 //   1911      killed(), the kill itself, which mon.c owns.
@@ -3758,7 +3782,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
         await hmon_hitmon_msg_silver(hmd, mon, state, env);
 
     if (hmd.lightobj)
-        note_unported('uhitm.c hmon_hitmon_msg_lightobj');
+        await hmon_hitmon_msg_lightobj(hmd, mon, state, env);
 
     const postMessage = requireAttackOperation(env, 'message');
     if (hmd.needpoismsg)
