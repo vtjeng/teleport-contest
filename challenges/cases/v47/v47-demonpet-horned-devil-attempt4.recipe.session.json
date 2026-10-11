@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47070106,
+      "datetime": "20570106090100",
+      "nethackrc": "OPTIONS=name:V47HornedPet4,role:Monk,race:human,gender=female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".Da\nabcdefghijkl\n     #polyself\nhorned devil\n#wizgenesis\nhostile newt\nFlFlFlFl"
+    }
+  ],
+  "comment": "C-first direction correction uses the observed eastward adjacent newt tile from the prior C setup. Preserve the reached hmonas evidence if the demonpet gate fires; no JavaScript comparison yet."
+}

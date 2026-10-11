@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Extend attempt 7 through both source-defined Minetown 2 fountains. The first hallucinating fountain fate 20 matches JS; after dismissing any result pager, cross to the second fountain and record its independent fate. This can distinguish the new drawfountain branch without changing the established C route.",
+  "segments": [
+    {
+      "seed": 47000150,
+      "datetime": "20571112111214",
+      "nethackrc": "OPTIONS=name:V47HallucFountainRoute2,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-2.lua\n #wizmap\n#wizwish\nwand of opening\n#wizwish\npotion of hallucination\nqnzmyhkkklllllqy kkkllllqy"
+    }
+  ]
+}

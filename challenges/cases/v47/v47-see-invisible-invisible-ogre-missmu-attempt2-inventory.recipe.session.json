@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first inventory-slot probe after attempt1 used f and C answered “That is a silly thing to put on.” Reuse the same setup and inspect the actual inventory plus ring-selection menu before choosing a ring; no JS comparison.",
+  "segments": [
+    {
+      "seed": 47100101,
+      "datetime": "20540119121420",
+      "nethackrc": "OPTIONS=name:V47SeeInvMiss,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " \u0017uncursed ring of see invisible\n\u0007invisible hostile ogre\ni P? "
+    }
+  ]
+}

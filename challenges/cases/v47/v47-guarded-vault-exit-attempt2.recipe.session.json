@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first guarded-vault exit candidate attempt 2 varies the depth and seed after attempt 1 reached D:8 without a visible guarded vault. Wish carried gold, enter D:10, and map the level to test whether a source-generated vault/guard room is reachable. No JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047112,
+      "datetime": "20571411091011",
+      "nethackrc": "OPTIONS=name:V47Vault2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017200 gold pieces\n#wizlevelport\n10\n#wizmap\n"
+    }
+  ]
+}

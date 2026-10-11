@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe for monmove.c:m_move -> worm.c:worm_nomove. Create a sleeping long worm on a fresh wizard level and reveal the actual placement; use the C map to design an enclosure route before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 47001041,
+      "datetime": "20571011171131",
+      "nethackrc": "OPTIONS=name:V47WormStuck1,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizgenesis\nsleeping long worm\n#wizmap\n"
+    }
+  ]
+}

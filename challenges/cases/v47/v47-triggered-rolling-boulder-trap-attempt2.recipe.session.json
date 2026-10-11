@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first direct rolling-boulder trigger probe: map the ordinary starting room, step east off the starting square, wish a rolling-boulder trap underfoot, then step west and back into it. This must establish the launched-boulder first behavior, not merely mkroll_launch setup; no JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047402,
+      "datetime": "20571417101419",
+      "nethackrc": "OPTIONS=name:V47RollTrap2,role:Wizard,race:human,gender=male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizmap\nl#wizwish\nrolling boulder trap\n#wizmap\nhl"
+    }
+  ]
+}

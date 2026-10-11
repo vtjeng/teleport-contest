@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of attempt 2: C created the rolling-boulder trap and confirmed its launch coordinate; stepping onto it reached the explicit warning. Answer yes to test trap.c:dotrap and launch_obj, rather than the separate trap-creation/setup owner. No JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047402,
+      "datetime": "20571417101419",
+      "nethackrc": "OPTIONS=name:V47RollTrap2,role:Wizard,race:human,gender=male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizmap\nl#wizwish\nrolling boulder trap\n#wizmap\nhly"
+    }
+  ]
+}

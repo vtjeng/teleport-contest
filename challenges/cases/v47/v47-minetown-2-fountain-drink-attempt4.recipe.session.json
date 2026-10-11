@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first route correction after attempt 3 successfully unlocked the door but its first `k` opened the still-closed door. Press one additional north step after opening before moving east to the fountain.",
+  "segments": [
+    {
+      "seed": 47000150,
+      "datetime": "20571111091014",
+      "nethackrc": "OPTIONS=name:V47FountainDrink2,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-2.lua\n #wizmap\n#wizwish\nwand of opening\nzmyhkkklllllqy"
+    }
+  ]
+}

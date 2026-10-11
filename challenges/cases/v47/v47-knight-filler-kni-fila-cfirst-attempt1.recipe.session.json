@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47001078,
+      "datetime": "20570615201010",
+      "nethackrc": "OPTIONS=name:V47KniFila,role:Knight,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizloaddes\nKni-fila.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "C-first candidate for the distinct role quest filler source unit dat/Kni-fila.lua. Directly load the upstream program and reveal its generated level. Compare its own level_init maze, object, monster, trap, and corridor program with prior role filler programs; no JavaScript observation informed the route."
+}

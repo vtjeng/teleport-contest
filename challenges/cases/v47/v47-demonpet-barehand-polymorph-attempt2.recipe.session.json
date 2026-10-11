@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47070102,
+      "datetime": "20570102090100",
+      "nethackrc": "OPTIONS=name:V47BareDemon2,role:Monk,race:human,gender=female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\nmanes\n #wizgenesis\nhostile newt\n FhFhFlFlFjFjFkFk"
+    }
+  ],
+  "comment": "C-first corrected setup: dismiss the observed polymorph page before creating a hostile newt, dismiss its creation page, then attempt bare-handed attacks as an unarmed Monk in manes form. Candidate target is uhitm.c:hmonas -> demonpet's 1/13 gate; do not compare with JavaScript until the C-only slate is complete."
+}

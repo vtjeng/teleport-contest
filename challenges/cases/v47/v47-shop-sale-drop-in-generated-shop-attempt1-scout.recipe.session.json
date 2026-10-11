@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47100112,
+      "datetime": "20571009112233",
+      "nethackrc": "OPTIONS=name:V47ShopSale,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizlevelport\n3\n "
+    }
+  ],
+  "comment": "C-first scout for an independently seeded real generated shop. After the source wizard level transition to D:3, confirm shop membership/store greeting and tile placement before attempting a drop that reaches shk.c:sellobj."
+}

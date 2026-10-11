@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first whole-program probe for dat/air.lua. In a fresh Wizard debug game, load this exact special-level program and expose the generated map. Compare only after the current accepted Main sync; crosswalk whole-program behavior against v40 Earth/Water and v43 Astral.",
+  "segments": [
+    {
+      "seed": 47001051,
+      "datetime": "20571011181014",
+      "nethackrc": "OPTIONS=name:V47AirProgram,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nair.lua\n#wizmap\n"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T20:08:00.506Z",
+  "capturedAt": "2026-10-11T20:32:20.468Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -89817,19 +89817,86 @@
         "type": "accepted",
         "at": "2026-10-11T20:07:25.266Z",
         "task": "A2-investigation-v46-sokoban-earth-guilt-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-dd8f-sokoban-accepted-20261011",
+        "type": "turn",
+        "at": "2026-10-11T20:08:27.765Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Idle: the only remaining queue candidate is C’s reserved succubus case. A2 preserved both accepted Sokoban deliveries and is available after the next queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-active-12-20261011",
+        "type": "turn",
+        "at": "2026-10-11T20:09:15.546Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has twelve approved distinct C-first mismatches; completing independent replay and overlap evidence for the prepared packet."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-v46-succubus-c383f0a96",
+        "type": "integrating",
+        "at": "2026-10-11T20:13:51.216Z",
+        "task": "C-investigation-v46-succubus-steals-monster-item-attempt2-cfirst-20261011",
+        "integration": "c383f0a96c6d303e1b62c4bdcef567ccdf1dc4aa"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e2393f2c56423c236de7bc42033f67effc9b0129",
+        "type": "ready",
+        "at": "2026-10-11T20:15:34.509Z",
+        "task": "Prep11",
+        "delivery": "e2393f2c56423c236de7bc42033f67effc9b0129"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-idle-waiting-v47-review-20261011",
+        "type": "turn",
+        "at": "2026-10-11T20:15:57.392Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "v47 preparation packet is submitted; waiting for Main integration review and admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-v46-succubus-c383f0a96",
+        "type": "validated",
+        "at": "2026-10-11T20:23:48.073Z",
+        "task": "C-investigation-v46-succubus-steals-monster-item-attempt2-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v46-succubus-steals-monster-item-attempt2-cfirst-20261011-c383f0a96c6d303e1b62c4bdcef567ccdf1dc4aa-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T20:31:13.920Z",
+        "task": "C-investigation-v46-succubus-steals-monster-item-attempt2-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-succubus-accepted-await-queue-20261011",
+        "type": "turn",
+        "at": "2026-10-11T20:32:17.647Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Succubus theft is accepted and synced; C is idle while Prep11/v47 awaits coordinator review and the queue refresh."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C-investigation-v46-succubus-steals-monster-item-attempt2-cfirst-20261011",
-        "worker": "C",
-        "goal": "port-uhitm-succubus-steal-v46-20261011",
-        "kind": "implementation",
+        "task": "Prep11",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
         "status": "ready",
-        "delivery": "c67e1ce2018e42d6e2cf4466a38a7dc9c2fe0efd",
-        "since": "2026-10-11T18:15:09.829Z",
+        "delivery": "e2393f2c56423c236de7bc42033f67effc9b0129",
+        "since": "2026-10-11T20:15:34.509Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -90215,8 +90282,8 @@
     ]
   },
   "development": {
-    "executionCommit": "dd8f450f2864f2521a5a0948c027fc47a1bd310e",
-    "measuredAt": "2026-10-11T19:56:19.317Z",
+    "executionCommit": "c383f0a96c6d303e1b62c4bdcef567ccdf1dc4aa",
+    "measuredAt": "2026-10-11T20:23:36.625Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first correction after attempt2 exposed the exact inventory letters: the +7 wand of opening is slot p and the second wished drum is slot q. The route uses that charged wand on both source-observed locked doors, then stands adjacent to the ordinary generated altar at (25,13) and plays a 127-charge drum repeatedly. Keep only if C reaches music.c:do_earthquake ALTAR -> pray.c:desecrate_altar.",
+  "segments": [
+    {
+      "seed": 47000147,
+      "datetime": "20571111091011",
+      "nethackrc": "OPTIONS=name:V47AltarQuake,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n9\n #wizwish\n+7 wand of opening\n #wizmap\nkyhzpk kkkkukyhyyyhhhhbhyyhkzph hhhhhhhhhhhhhhhhbbjjbjjjjjbhhyyh #wizwish\nuncursed drum of earthquake (0:127)\naqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy aqy ",
+      "comment": "C-first corrected route for music.c:do_earthquake -> pray.c:desecrate_altar. The first route reached a locked door before the source-mapped altar. This independently reruns the selected level seed, wishes a charged wand of opening before travel, opens both observed locked doors, reaches the ordinary generated altar at map coordinate (25,13), steps one square away, then wishes a charged drum of earthquake and plays it repeatedly. Keep only if C reaches the ALTAR arm and desecrate_altar."
+    }
+  ]
+}

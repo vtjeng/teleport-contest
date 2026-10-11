@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Attempt2: attempt1 left the wished pool visible and the return input produced C\u2019s avoid-stepping message without entering the tile. Insert a one-turn wait after stepping off so the corrected C recipe makes a plain single-step return rather than continuing a running movement.",
+  "segments": [
+    {
+      "seed": 47001011,
+      "datetime": "20571011091014",
+      "nethackrc": "OPTIONS=name:V47GremlinPoolSplit,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\ngremlin\n#wizwish\npool\nh.l"
+    }
+  ]
+}

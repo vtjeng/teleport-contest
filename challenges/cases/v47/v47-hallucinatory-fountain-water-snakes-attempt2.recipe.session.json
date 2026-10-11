@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Correct the selector from attempt 1: the C wish assigns the hallucination potion to slot p, shown by the wish result and the q menu. The intended route quaffs p before opening the Minetown 2 fountain room.",
+  "segments": [
+    {
+      "seed": 47000202,
+      "datetime": "20571111111014",
+      "nethackrc": "OPTIONS=name:V47HallucFountain,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-2.lua\n #wizmap\n#wizwish\nwand of opening\n#wizwish\npotion of hallucination\nqpzmyhkkklllllqy"
+    }
+  ]
+}

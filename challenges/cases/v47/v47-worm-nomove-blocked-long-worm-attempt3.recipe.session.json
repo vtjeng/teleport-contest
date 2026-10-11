@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first third setup attempt for monmove.c:m_move -> worm.c:worm_nomove. Attempt2 showed that each wall wish opened a --More-- boundary and swallowed the next direction; this recipe explicitly dismisses each page before moving around the sleeping-independent peaceful long worm. After closing the ring, wait three turns and inspect the C trace for worm_nomove shrink effects.",
+  "segments": [
+    {
+      "seed": 47001041,
+      "datetime": "20571011171131",
+      "nethackrc": "OPTIONS=name:V47WormStuck3,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizgenesis\npeaceful long worm\n#wizmap\n#wizwish\nwall\n l#wizwish\nwall\n j#wizwish\nwall\n j#wizwish\nwall\n h#wizwish\nwall\n h#wizwish\nwall\n k#wizwish\nwall\n k#wizwish\nwall\n h#wizmap\n..."
+    }
+  ]
+}

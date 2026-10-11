@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first trap reachability probe: load the source Sokoban room containing a fixed rolling-boulder trap, then map its actual C placement before selecting a safe trigger route. This probes trap.c:dotrap -> launch_obj; no JavaScript differential.",
+  "segments": [
+    {
+      "seed": 47047401,
+      "datetime": "20571106091215",
+      "nethackrc": "OPTIONS=name:V47RollTrap1,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsoko3-1.lua\n#wizmap\n"
+    }
+  ]
+}

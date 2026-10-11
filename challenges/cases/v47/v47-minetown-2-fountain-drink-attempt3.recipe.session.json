@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first input-shape correction for the Minetown 2 route. In attempt 2, a literal space was sent as the wand direction, so the wand only glowed and the locked door remained closed; use contiguous `zmy` to select wand `m` and direct it northwest before walking to the fountain.",
+  "segments": [
+    {
+      "seed": 47000150,
+      "datetime": "20571111091014",
+      "nethackrc": "OPTIONS=name:V47FountainDrink2,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-2.lua\n #wizmap\n#wizwish\nwand of opening\nzmyhkklllllqy"
+    }
+  ]
+}

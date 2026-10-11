@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only continuation of attempt3 after observing the paged corpse suitability message. Insert one explicit space to dismiss it before the bounded wait sequence; the target remains timeout expiry during orange-object mimicry.",
+  "segments": [
+    {
+      "seed": 47000134,
+      "datetime": "20571111111214",
+      "nethackrc": "OPTIONS=name:V47EatMimicTimeout,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nsmall mimic corpse\n#wizintrinsic\n20h\n eo .................................................."
+    }
+  ]
+}

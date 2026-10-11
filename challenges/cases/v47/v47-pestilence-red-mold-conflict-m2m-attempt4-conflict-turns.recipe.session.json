@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation from attempt3: its #wizmap shows Pestilence (&) adjacent to a red mold (F) and the hero, with another red mold nearby. Keep #wizintrinsic Conflict and record eight wait opportunities to see whether the Pestilence-vs-fungus AD_PEST branch reaches mhitm_ad_dise. Attempt1 lacked the unique-force response; attempt2 placed hero between the two monsters. No JavaScript result informs this continuation.",
+  "segments": [
+    {
+      "seed": 47001059,
+      "datetime": "20570615161721",
+      "nethackrc": "OPTIONS=name:V47PestConflict,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n 2#wizgenesis\nhostile red mold\n#wizgenesis\nhostile Pestilence\ny#wizmap\n........"
+    }
+  ]
+}
