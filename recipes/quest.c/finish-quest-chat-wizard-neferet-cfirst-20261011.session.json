@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45111415,
+      "datetime": "20581114131415",
+      "nethackrc": "OPTIONS=name:QuestChatWitness,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\npeaceful Neferet the Green\ny#wizmap\n#wizwish\nThe Eye of the Aethiopica\n #chat\nb",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Independent Wizard quest-chat recording: seed 45111415 and the November 2058 timestamp are new inputs. Wizard-generate a peaceful role quest leader, wish The Eye of the Aethiopica, inspect the map, and chat toward the adjacent leader to exercise quest.c:chat_with_leader Rule 3 -> finish_quest."
+}
