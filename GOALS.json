@@ -268476,8 +268476,8 @@
           "name": "hmon_hitmon_msg_lightobj",
           "line": 1702,
           "endLine": 1753,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -268804,7 +268804,42 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hmon_hitmon_msg_lightobj",
+            "implementation": "js/uhitm.js",
+            "symbol": "hmon_hitmon_msg_lightobj",
+            "sourceReview": "Read and ported the whole uhitm.c:hmon_hitmon_msg_lightobj definition (1702-1730). The helper evaluates mon_nam before canspotmon, chooses the saved artifact-name radiance or generic light-sear text for visible targets, capitalizes the name and uses the seared text for unseen targets, appends possessive flesh only for corporeal non-amorphous forms, and emits one message. obj is unused. The helper itself has no random draw or state mutation, but it emits output and the initial mon_nam can consume display RNG for a visible hallucinated target. Its hmon_hitmon caller now awaits the helper at the original position after silver feedback and before poison/kill feedback; the lightobj flag producer in hmon_hitmon_do_hit was already wired.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon",
+                "source": "uhitm.c:hmon_hitmon calls hmon_hitmon_msg_lightobj(&hmd, mon, obj) when hmd.lightobj is true at 1880-1881, after silver feedback and before poison/kill feedback. The JS caller now awaits hmon_hitmon_msg_lightobj(hmd, mon, state, env) in that same order. uhitm.c:hmon_hitmon_do_hit sets the flag for a lit light artifact hitting a light-hating monster; its existing JS producer remains unchanged."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+                "segment": 0,
+                "fromStep": 83,
+                "throughStep": 85,
+                "source": "cmd.c:rhack force-fight F -> hack.c movement attack dispatch -> uhitm.c:do_attack -> hitum -> hmon -> hmon_hitmon -> hmon_hitmon_msg_lightobj; the recorded gremlin hit is followed by the Sunsword radiance pager."
+              }
+            ],
+            "checkedAt": "fac0640aaa03183b42971c76f3c32d1c34ae3c6e"
+          }
+        ],
+        "entryPointReview": "Helper-only source range: hmon_hitmon_msg_lightobj is reached by uhitm.c:hmon_hitmon after a lit light artifact hits a light-hating target. The admitted v45 C-first Sunsword case exercises this production path at segment 0 steps 83-85, including the pager handoff and exact radiance/flesh message. The outer combat command and hmon_hitmon_do_hit flag producer are already wired and are not claimed as newly completed source units.",
+        "entryPoints": []
+      }
     }
   ]
 }
