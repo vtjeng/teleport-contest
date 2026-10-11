@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T03:18:53.215Z",
+  "capturedAt": "2026-10-11T03:44:55.109Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -86045,33 +86045,177 @@
         "at": "2026-10-11T03:18:17.821Z",
         "task": "B-investigation-v43-makewish-rnd-class-followup-20261011",
         "delivery": "b5b2e7abdb26a64537319e28e44f038e41e4f11f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011-aef70a0c0e9c0d799bd4d414d48c45053b607e0c",
+        "type": "published",
+        "at": "2026-10-11T03:19:02.363Z",
+        "task": "A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011",
+        "commit": "aef70a0c0e9c0d799bd4d414d48c45053b607e0c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-v43-prayer-session-b-resumes-20261011-1",
+        "type": "turn",
+        "at": "2026-10-11T03:19:54.863Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 is synced and idle; B resumes prayer-sacrifice, while all other saved v43 candidates belong to pending A2, B, or C deliveries."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-v43-pray-sacrifice-kni-shrine-20261011-2",
+        "type": "resume",
+        "at": "2026-10-11T03:21:14.360Z",
+        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-active-pray-sacrifice-resumed-20261011-1",
+        "type": "turn",
+        "at": "2026-10-11T03:21:20.167Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resuming the parked v43 prayer-sacrifice investigation after accepted priest integration; source scope remains unclaimed pending fresh trace."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v43-pray-sacrifice-angry-priest-20261011",
+        "type": "implement",
+        "at": "2026-10-11T03:23:45.185Z",
+        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011",
+        "goal": "port-priest-angry-priest-sacrifice-v43-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-mounted-whole-functions-62a839cd3",
+        "type": "feedback",
+        "at": "2026-10-11T03:23:53.052Z",
+        "task": "A2-investigation-v43-mounted-steed-stair-descent-20261011",
+        "delivery": "62a839cd330b48bd6d5386a482c80787a2887592"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-mounted-correction-20261011-1",
+        "type": "resume",
+        "at": "2026-10-11T03:26:41.940Z",
+        "task": "A2-investigation-v43-mounted-steed-stair-descent-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-mounted-correction-active-20261011-1",
+        "type": "turn",
+        "at": "2026-10-11T03:26:46.411Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is correcting the mounted-steed task evidence and source scope after integration feedback."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-mounted-scope-redesign-20261011",
+        "type": "park",
+        "at": "2026-10-11T03:30:20.681Z",
+        "task": "A2-investigation-v43-mounted-steed-stair-descent-20261011",
+        "reason": "Whole-source review found next_to_u, keepdogs, and mon_arrive require incomplete leash, migration, placement, elapsed-time, and active caller families. Resume after a complete source-family scope is selected with caller and entry evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep8-active-v44-energy-vortex-crosswalk-20261011",
+        "type": "turn",
+        "at": "2026-10-11T03:30:23.227Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v44 has three source-traced quest-path mismatches; the energy-vortex route is under first-boundary and v21 overlap review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-mounted-source-family-replan-20261011-1",
+        "type": "turn",
+        "at": "2026-10-11T03:30:52.710Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 is idle while Main replans the mounted-steed source family as a whole-function task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-quest-nemesis-6ac57170f",
+        "type": "integrating",
+        "at": "2026-10-11T03:36:07.209Z",
+        "task": "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
+        "integration": "6ac57170fdd3979fde91cc95abed9027bbf95166"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5f2f280bf6c2c72c3fa744e9aed8a478699a723a",
+        "type": "ready",
+        "at": "2026-10-11T03:36:16.312Z",
+        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011",
+        "delivery": "5f2f280bf6c2c72c3fa744e9aed8a478699a723a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v43-mounted-steed-stair-descent-pager-2-20261011",
+        "type": "assign",
+        "at": "2026-10-11T03:37:17.495Z",
+        "task": "B-investigation-v43-mounted-steed-stair-descent-pager-2-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-park-v43-mounted-steed-after-main-audit-20261011",
+        "type": "park",
+        "at": "2026-10-11T03:37:51.409Z",
+        "task": "B-investigation-v43-mounted-steed-stair-descent-pager-2-20261011",
+        "reason": "Main reports this case is parked-needs-recheck after A’s full source audit found that supporting mounted descent beyond apply.c:next_to_u requires the broader leash, migration, placement, elapsed-time, and active-caller families. Do not begin overlapping implementation while those scopes are assigned elsewhere; resume only after Main refreshes ownership/queue. The bounded replay I launched stopped immediately after C reached step 166; no source report or game edits were made."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-prayer-delivery-20261011",
+        "type": "turn",
+        "at": "2026-10-11T03:38:01.455Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B submitted prayer-sacrifice and is idle; remaining v43 queue candidates are owned or parked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-quest-nemesis-38108957317",
+        "type": "validated",
+        "at": "2026-10-11T03:41:57.907Z",
+        "task": "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011-6ac57170fdd3979fde91cc95abed9027bbf95166-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T03:43:01.567Z",
+        "task": "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-active-post-quest-merge-20261011",
+        "type": "turn",
+        "at": "2026-10-11T03:43:20.368Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is syncing accepted Main and preserving two submitted deliveries."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-sync-6ac-20261011",
+        "type": "turn",
+        "at": "2026-10-11T03:44:06.225Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B synced accepted Main and is waiting for the refreshed queue; spell-gift and prayer deliveries remain submitted."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-investigation-v43-mounted-steed-stair-descent-20261011",
-        "worker": "A2",
-        "goal": "fix-v43-mounted-steed-stair-descent-pager-2-cfirst-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "62a839cd330b48bd6d5386a482c80787a2887592",
-        "since": "2026-10-11T02:46:46.889Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
-        "task": "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
-        "worker": "B",
-        "goal": "port-v43-quest-nemesis-death-and-fumes-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "26b8b007292b62a956a8b971da3d0678a78782a3",
-        "since": "2026-10-11T02:54:16.873Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "C-investigation-v43-wiz-loca-special-program-20261011",
         "worker": "C",
@@ -86104,8 +86248,19 @@
         "status": "ready",
         "delivery": "b5b2e7abdb26a64537319e28e44f038e41e4f11f",
         "since": "2026-10-11T03:16:14.762Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011",
+        "worker": "B",
+        "goal": "port-priest-angry-priest-sacrifice-v43-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "5f2f280bf6c2c72c3fa744e9aed8a478699a723a",
+        "since": "2026-10-11T03:36:16.312Z",
         "blockedBy": [
-          "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011"
+          "B-investigation-v43-makewish-rnd-class-followup-20261011"
         ],
         "unblocks": 0
       }
@@ -86454,21 +86609,32 @@
         "reason": "The source trace points to mon.c:m_detach and quest.c:nemdead, but C owns the active mon.c:mondead task and js/mon.js write path for the Keystone Kop case. Park this session until that task is accepted or the coordinator assigns a disjoint source/write scope. Investigation: investigations/synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.json at b6453195534c0e8f1d8f6bbae4f820973948231b."
       },
       {
-        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011",
+        "task": "A2-investigation-v43-mounted-steed-stair-descent-20261011",
+        "worker": "A2",
+        "goal": "fix-v43-mounted-steed-stair-descent-pager-2-cfirst-20261011",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": "62a839cd330b48bd6d5386a482c80787a2887592",
+        "since": "2026-10-11T03:30:20.681Z",
+        "blockedBy": [],
+        "reason": "Whole-source review found next_to_u, keepdogs, and mon_arrive require incomplete leash, migration, placement, elapsed-time, and active caller families. Resume after a complete source-family scope is selected with caller and entry evidence."
+      },
+      {
+        "task": "B-investigation-v43-mounted-steed-stair-descent-pager-2-20261011",
         "worker": "B",
         "goal": null,
         "kind": "investigation",
         "status": "parked",
         "delivery": null,
-        "since": "2026-10-11T02:59:20.314Z",
+        "since": "2026-10-11T03:37:51.409Z",
         "blockedBy": [],
-        "reason": "Source trace identifies priest.c:angry_priest as the mismatch owner, but complete wiring requires pray.c:offer_corpse, pray.c:offer_different_alignment_altar, and js/pray.js, which A2 ready priest delivery currently reserves. Park until A2 is accepted and releases those reservations; report is preserved at investigations/synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.json."
+        "reason": "Main reports this case is parked-needs-recheck after A’s full source audit found that supporting mounted descent beyond apply.c:next_to_u requires the broader leash, migration, placement, elapsed-time, and active-caller families. Do not begin overlapping implementation while those scopes are assigned elsewhere; resume only after Main refreshes ownership/queue. The bounded replay I launched stopped immediately after C reached step 166; no source report or game edits were made."
       }
     ]
   },
   "development": {
-    "executionCommit": "57c44fa48bff87c33541a147cedd6d9a0018a494",
-    "measuredAt": "2026-10-11T03:15:48.739Z",
+    "executionCommit": "6ac57170fdd3979fde91cc95abed9027bbf95166",
+    "measuredAt": "2026-10-11T03:41:25.592Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

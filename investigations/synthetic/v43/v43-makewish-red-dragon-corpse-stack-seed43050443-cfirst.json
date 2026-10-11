@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v43.json",
   "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
   "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
-  "evaluationPath": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
-  "evaluationCommit": "c64928df44aa809954e15310a8f77544ce9b51ab",
+  "evaluationPath": "challenges/evaluations/accepted-6ac57170fdd3979fde91cc95abed9027bbf95166-v43.json",
+  "evaluationCommit": "6ac57170fdd3979fde91cc95abed9027bbf95166",
   "status": "complete",
-  "commit": "26b8b007292b62a956a8b971da3d0678a78782a3",
+  "commit": "6ac57170fdd3979fde91cc95abed9027bbf95166",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v43",
@@ -24,11 +24,11 @@
     "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
     "recipe": "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json",
     "recipeSha256": "b8e4ca41d452d1a4edfa0c9edf79687a46e0528b22985093b4d5f39b1a69003c",
-    "replayInputSha256": "723df18fd4cb1c869ebc3c0d7ea6a48a9d42f69dda703a7a63cf77202c196bb0",
-    "evaluationPath": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
-    "evaluationCommit": "c64928df44aa809954e15310a8f77544ce9b51ab",
-    "evaluationArtifact": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
-    "evaluationUtc": "2026-10-11T02:59:34.296Z",
+    "replayInputSha256": "da61f54f629e68ddf15f8708d40c6ec95bcdb6b5d6e28e9c3f30558d22005a87",
+    "evaluationPath": "challenges/evaluations/accepted-6ac57170fdd3979fde91cc95abed9027bbf95166-v43.json",
+    "evaluationCommit": "6ac57170fdd3979fde91cc95abed9027bbf95166",
+    "evaluationArtifact": "challenges/evaluations/accepted-6ac57170fdd3979fde91cc95abed9027bbf95166-v43.json",
+    "evaluationUtc": "2026-10-11T03:40:25.108Z",
     "remainingScreens": 2,
     "recordedSteps": 301,
     "previousScreensMatched": 299,
@@ -131,7 +131,7 @@
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved combined queue SHA-256 6a10f4282f6c57cf04294a5a97ba4835ab8ea0663c5863e8148850cd3a389288 records the current admitted v43 session with 2 remaining screens, 299/301 screens and 300/301 cursors matched, and the first mismatch at segment 0, zero-based step 291, key space. C shows a horizontal More line at row 0 column 31; JavaScript has a blank cell.",
+    "Saved combined queue SHA-256 efc035535719686f8e7a650c89cc8e644b48b45df754dd5991ee7f9714655709 records the current admitted v43 session with 2 remaining screens, 299/301 screens and 300/301 cursors matched, and the first mismatch at segment 0, zero-based step 291, key space. C shows a horizontal More line at row 0 column 31; JavaScript has a blank cell.",
     "C path: pray.c:pleased (1071-1386), successful prayer reward switch at 1344-1350, enters case 6 and calls give_spell(). Whole give_spell is pray.c:999-1067. Its initial mkobj(SPBOOK_no_NOVEL, TRUE) reaches mkobj.c:mkobj then objnam.c:rnd_class; its retry loop calls rnd_class directly and preserves known-spell, restricted-skill, discovery, direct-learning, blessing, object-free, placement, and newsym behavior.",
     "JavaScript path: js/pray.js:pleased case 6 is now wired to give_spell, replacing the earlier note_unported placeholder.",
     "Current queue annotation cites objnam.c:rnd_class at line 5413: C records rnd(999)=358 and JS next records rn2(1000)=579 at RNG index 2607. The source trace places this at the start of the omitted give_spell object-generation path; the existing js/obj.js mkobj/rnd_class functions remain the canonical helpers.",
@@ -141,7 +141,7 @@
     "Independent fresh C-first Healer recipe recipes/pray.c/give-spell-direct-healer-seed43050662.session.json matches its recording completely. Segment 0, step 291 records rn2(4)=0 at pray.c:give_spell and step 292 shows “Divine knowledge of light fills your mind!  Spell 'd'.”, exercising spell.c:force_learn_spell and its returned letter.",
     "Focused scripts/pray-give-spell.test.mjs covers new slot assignment, forgotten spell refresh, fresh spell rejection, excluded book types, and a full spell list; npm run lint passes."
   ],
-  "queueSha256": "6a10f4282f6c57cf04294a5a97ba4835ab8ea0663c5863e8148850cd3a389288",
+  "queueSha256": "efc035535719686f8e7a650c89cc8e644b48b45df754dd5991ee7f9714655709",
   "implementation": {
     "status": "complete",
     "functions": [
@@ -171,6 +171,7 @@
       "result": "Full fresh C/JavaScript parity; step 291 rn2(4)=0 and step 292 reports learning light as spell d."
     }
   },
-  "evaluationArtifact": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
-  "evaluationUtc": "2026-10-11T02:59:34.296Z"
+  "evaluationArtifact": "challenges/evaluations/accepted-6ac57170fdd3979fde91cc95abed9027bbf95166-v43.json",
+  "evaluationUtc": "2026-10-11T03:40:25.108Z",
+  "replayInputSha256": "da61f54f629e68ddf15f8708d40c6ec95bcdb6b5d6e28e9c3f30558d22005a87"
 }
