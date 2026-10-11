@@ -273044,7 +273044,7 @@
     {
       "id": "port-eat-cant-finish-meal-v46-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port cant_finish_meal and wire timed corpse revival meal interruption.",
       "cFile": "eat.c",
       "sessions": [
@@ -273058,8 +273058,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "cant_finish_meal",
@@ -273385,6 +273388,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
