@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 19420786,
+      "datetime": "20471029140200",
+      "nethackrc": "OPTIONS=name:A2Amulet,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait,pettype:dog,montelecontrol\n",
+      "moves": "\u0007saddled tame red dragon\n\u0017Amulet of Yendor\n  wand of teleportation\ndlh#ride\nly\u00162\n"
+    }
+  ],
+  "_comment": "Independent C-first apply.c:next_to_u mounted-steed Amulet refusal recipe. `saddled tame red dragon` is valid ^G genesis input; the wished real Amulet is dropped, and the tame steed picks it up before #ride and Ctrl-V levelport. The bounded port-only scan over seeds 19420750-19420849 replayed 100 seeds and retained five where the steed still carries the Amulet after the mount turn; this uses seed 19420786. No session-specific behavior is encoded."
+}
