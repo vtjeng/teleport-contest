@@ -2355,6 +2355,62 @@ test('runtime random creation selects a compatible unseen D:1 monster', async ()
     assert.equal(monster.nmon, null);
 });
 
+test('runtime random creation admits source-supported Ettins beyond D:5',
+    async () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.uz = { ...state.u.uz, dnum: 0, dlevel: 12 };
+        state.u.ulevel = 20;
+        leaveOnlyRandomSpecies(state, [PM_ETTIN]);
+        state.level.at(17, 4).typ = ROOM;
+        let firstLocationRow = true;
+        const random = recordingRandom({
+            rn1Result: (_range, base) => base + 15,
+            rn2Result: (bound) => {
+                if (firstLocationRow) {
+                    firstLocationRow = false;
+                    return 4;
+                }
+                return bound - 1;
+            },
+        });
+
+        const monster = await makemon_runtime(
+            null,
+            0,
+            0,
+            NO_MM_FLAGS,
+            { state, random: random.random },
+        );
+
+        assert.equal(monster.data, state.mons[PM_ETTIN]);
+        assert.deepEqual([monster.mx, monster.my], [17, 4]);
+        assert.equal(monster.mgenmklev, false);
+        assert.deepEqual(random.calls.map(({ kind, args }) => [kind, ...args]), [
+            ['rn1', COLNO - 3, 2],
+            ['rn2', ROWNO],
+            ['rn2', 1],
+            ['rnd', 2],
+            ['d', 12, 8],
+            ['rn2', 2],
+            ['rn2', 2],
+            ['rnd', 2],
+            ['rn2', 11],
+            ['rn2', 10],
+            ['rn2', 10],
+            ['rn2', 75],
+            ['rn2', 50],
+            ['rn2', 100],
+            ['rn2', 100],
+        ]);
+        const makemonStart = MAKEMON_C_SOURCE.indexOf('\nmakemon(');
+        const makemonEnd = MAKEMON_C_SOURCE.indexOf(
+            '/* caller rejects makemon()', makemonStart,
+        );
+        const cMakemon = MAKEMON_C_SOURCE.slice(makemonStart, makemonEnd);
+        assert.match(cMakemon, /ptr = rndmonst\(\)/u);
+    });
+
 test('runtime random creation admits a non-main dungeon level', async () => {
     const state = initialLevelState();
     state.in_mklev = false;
@@ -5826,7 +5882,7 @@ test('the giant gemstone predicate remains is_giant rather than the glyph alone'
         );
     });
 
-test('stone giant NO_MINVENT preserves non-giant and unique admission boundaries',
+test('stone giant NO_MINVENT preserves unique admission boundaries',
     () => {
         const suppressed = createPlannedStoneGiant({}, NO_MINVENT);
         assert.equal(suppressed.monster.minvent, null);
@@ -5839,9 +5895,10 @@ test('stone giant NO_MINVENT preserves non-giant and unique admission boundaries
             false,
         );
 
-        // Ettins share S_GIANT but not is_giant. Quest nemeses Cyclops and
-        // Lord Surtur are unique true giants with separate source lifecycles.
-        for (const mndx of [PM_ETTIN, PM_CYCLOPS, PM_LORD_SURTUR]) {
+        // Ettins share S_GIANT but not is_giant; the runtime Ettin test above
+        // covers their source-supported non-giant admission. Quest nemeses
+        // Cyclops and Lord Surtur are unique giants with separate lifecycles.
+        for (const mndx of [PM_CYCLOPS, PM_LORD_SURTUR]) {
             const state = initialLevelState();
             const random = recordingRandom();
             assert.throws(
