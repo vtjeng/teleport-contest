@@ -268112,8 +268112,8 @@
           "name": "check_leash",
           "line": 931,
           "endLine": 996,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -268357,7 +268357,90 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "check_leash",
+            "implementation": "js/apply.js",
+            "symbol": "check_leash",
+            "sourceReview": "Read the complete apply.c:check_leash() definition at lines 931-996. The port preserves inventory traversal, find_mid(FM_FMON), impossible-diagnostic leash clearing, the strict squared-distance gate, the Chebyshev radius-3 no-op, cursed/non-breathless choke and lifesaving conduct restoration, the rn2(mtame) tameness decrement, leash snap/unleash, and rn2(3) sound feedback order. The only remaining unported callee is the discarded void pline.c:impossible diagnostic, recorded with note_unported('pline.c impossible'); it is not used as data. All existing return-value dependencies are wired.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "C hack.c:domove_core() calls check_leash(u.ux0, u.uy0) at line 2962 after hideunder/mimic handling and before movement redraw, vision refresh, and destination spot effects; js/hack.js calls the same port at that point."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "move_into_trap",
+                "source": "C trap.c:move_into_trap() calls check_leash(u.ux0, u.uy0) at line 5413 after u_on_newpos/newsym/vision_recalc and before punished-ball movement and spoteffects; js/trap.js wires the port in that order."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurnAfterTimeout",
+                "source": "C allmain.c:moveloop_core() calls check_leash(old_ux, old_uy) at line 314 after tele() changes the hero position and next_to_u() is false; js/allmain.js contains the matching downstream call, but its current note_unported('teleport.c tele') prevents reaching a changed-position case."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-board-adjacent-punished.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-leash-sleep-wand-strain-cfirst-corrected",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 43,
+                "source": "Hero movement reaches hack.c:domove_core() -> apply.c:check_leash(); step 43 records the check_leash rn2(3) sound choice and leash feedback."
+              }
+            ],
+            "checkedAt": "914a6619a2afa93453f625acfe67e11d284f3509"
+          }
+        ],
+        "entryPointReview": "The complete source caller list for apply.c:check_leash has three active entries. Hero movement is exercised by v45/v45-leash-sleep-wand-strain-cfirst-corrected segment 0 through step 43, where the pet leash produces the source rn2(3) feedback. Failed adjacent trap disarm is exercised by recordings/trap.c/untrap-board-adjacent-punished.session.json: step 99 records rnl(5)=2 at trap.c:try_disarm, selecting move_into_trap; source trap.c:move_into_trap then calls apply.c:check_leash before spoteffects, and the complete recording freshly matches C and JavaScript. The allmain.c:moveloop_core teleport-relocation entry remains blocked: js/allmain.js still records note_unported('teleport.c tele') in the dry-run path before changed coordinates can reach its check_leash call. This task does not port teleport.c:tele or claim runtime completion of the allmain entry; the source goal should be parked after the verified implementation is accepted until that dependency is available.",
+        "entryPoints": [
+          {
+            "name": "Hero movement increases distance from an attached pet",
+            "functions": [
+              "check_leash"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-leash-sleep-wand-strain-cfirst-corrected",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 43,
+                "source": "hack.c:domove_core() -> apply.c:check_leash(); the leash pull and sound-choice draw are visible at the cited boundary."
+              }
+            ]
+          },
+          {
+            "name": "Failed adjacent trap disarm moves the hero onto the trap",
+            "functions": [
+              "check_leash"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-board-adjacent-punished.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Periodic teleport leaves an attached pet separated after relocation",
+            "functions": [
+              "check_leash"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
