@@ -673,7 +673,7 @@ export async function fall_through(td, ftflags, state = game) {
         dontFall = "don't fall in.";
     } else if (state.youmonst.data.msize >= MZ_HUGE) {
         dontFall = "don't fit through.";
-    } else if (!next_to_u(state)) {
+    } else if (!(await next_to_u(state))) {
         dontFall = 'are jerked back by your pet!';
     }
 

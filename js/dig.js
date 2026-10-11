@@ -1451,7 +1451,8 @@ export async function digactualhole(
     } else if (atHero) {
         await switch_terrain(state, rawEnv);
         if (Levitation(state) || Flying(state)) wontFall = true;
-        if (!state.u.ustuck && !wontFall && !next_to_u(state)) {
+        if (!state.u.ustuck && !wontFall
+            && !(await next_to_u(state, rawEnv))) {
             await message('You are jerked back by your pet!', state, rawEnv);
             wontFall = true;
         }

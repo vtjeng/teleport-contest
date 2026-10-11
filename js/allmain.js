@@ -1021,7 +1021,10 @@ async function finishElapsedTurnAfterTimeout(
             // Keep the source's moved-square aftermath in order for when tele()
             // is plan-safe: unchanged coordinates leave both queues untouched.
             if (state.u.ux !== oldUx || state.u.uy !== oldUy) {
-                if (!next_to_u(state))
+                if (!(await next_to_u(state, {
+                    random,
+                    message: turnMessage,
+                })))
                     note_unported('dog.c check_leash');
                 cmdq_clear(CQ_CANNED, state);
                 cmdq_clear(CQ_REPEAT, state);

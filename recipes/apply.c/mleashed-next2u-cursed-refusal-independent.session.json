@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 68321461,
+      "datetime": "20471027140200",
+      "nethackrc": "OPTIONS=name:LeashCursedA2,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait,pettype:dog,montelecontrol\n",
+      "moves": "\u0017cursed leash\namh\u0014  lll.  hhhk.\u00162\n mh."
+    }
+  ],
+  "_comment": "Independent C-first runtime recipe for apply.c:mleashed_next2u cursed-leash refusal. After wizard Ctrl-T relocates the hero, montelecontrol moves the still-leashed pet onto a distant good square before dotele's post-teleport next_to_u() call."
+}
