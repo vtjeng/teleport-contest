@@ -72,6 +72,7 @@ import {
     AT_TENT,
     PM_GELATINOUS_CUBE,
     PM_GIANT_EEL,
+    PM_GHOST,
     PM_GHOUL,
     PM_GREMLIN,
     PM_COCKATRICE,
@@ -123,6 +124,7 @@ import {
     mhitm_adtyping,
     mhitm_mgc_atk_negated,
     mhitm_really_poison,
+    hmon_hitmon_msg_lightobj,
     shade_miss,
 } from '../js/uhitm.js';
 import {
@@ -135,6 +137,9 @@ import { planningState } from '../js/unported_monster_actions.js';
 const DATETIME = '20300102030405';
 const UHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url), 'utf8',
+);
+const UHITM_JS = readFileSync(
+    new URL('../js/uhitm.js', import.meta.url), 'utf8',
 );
 const WERE_C = readFileSync(
     new URL('../nethack-c/upstream/src/were.c', import.meta.url), 'utf8',
@@ -221,6 +226,77 @@ function standPetEastOf(pet, terrain) {
     place_monster(pet, ...destination, game);
     return { destination, oldHero };
 }
+
+test('hmon_hitmon_msg_lightobj follows C naming, visibility and form branches', async () => {
+    const helper = UHITM_C.match(
+        /staticfn void\nhmon_hitmon_msg_lightobj\([\s\S]*?\n\}\n/u,
+    );
+    assert.ok(helper, 'the complete C helper remains source-pinned');
+    assert.match(helper[0], /char \*whom = mon_nam\(mon\);/u);
+    assert.match(helper[0], /if \(canspotmon\(mon\)\)/u);
+    assert.match(helper[0], /s_suffix\(hmd->saved_oname\)/u);
+    assert.match(helper[0], /!noncorporeal\(hmd->mdat\) && !amorphous\(hmd->mdat\)/u);
+    assert.match(UHITM_C,
+        /if \(hmd\.lightobj\)\s+hmon_hitmon_msg_lightobj\(&hmd,\s*mon,\s*obj\);/u,
+    );
+    assert.match(UHITM_JS,
+        /if \(hmd\.lightobj\)\s*await hmon_hitmon_msg_lightobj\(hmd, mon, state, env\);/u,
+    );
+    assert.doesNotMatch(UHITM_JS, /note_unported\('uhitm\.c hmon_hitmon_msg_lightobj'\)/u);
+
+    await runSegment({
+        seed: 7710060, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const previousDetect = game.u.uprops[DETECT_MONSTERS];
+    const target = {
+        data: game.mons[PM_GREMLIN],
+        m_id: 93060,
+        minvis: false,
+        mundetected: false,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+    };
+    const lines = [];
+    const displayDraws = [];
+    const env = {
+        displayRandom: (bound) => { displayDraws.push(bound); return 0; },
+        message: async (line) => { lines.push(line); },
+    };
+    try {
+        game.u.uprops[DETECT_MONSTERS] = { intrinsic: 1, extrinsic: 0 };
+        await hmon_hitmon_msg_lightobj(
+            { mdat: target.data, saved_oname: 'Sunsword' }, target, game, env,
+        );
+        assert.deepEqual(lines, ["Sunsword's radiance penetrates deep into the gremlin's flesh!"]);
+        assert.deepEqual(displayDraws, [], 'the non-hallucinating target spends no name draw');
+
+        lines.length = 0;
+        await hmon_hitmon_msg_lightobj(
+            { mdat: target.data, saved_oname: '' }, target, game, env,
+        );
+        assert.deepEqual(lines, ["The light sears the gremlin's flesh!"]);
+
+        delete game.u.uprops[DETECT_MONSTERS];
+        target.minvis = true;
+        lines.length = 0;
+        await hmon_hitmon_msg_lightobj(
+            { mdat: target.data, saved_oname: 'Sunsword' }, target, game, env,
+        );
+        assert.deepEqual(lines, ['Its flesh is seared!']);
+
+        target.minvis = false;
+        game.u.uprops[DETECT_MONSTERS] = { intrinsic: 1, extrinsic: 0 };
+        target.data = game.mons[PM_GHOST];
+        lines.length = 0;
+        await hmon_hitmon_msg_lightobj(
+            { mdat: target.data, saved_oname: '' }, target, game, env,
+        );
+        assert.deepEqual(lines, ['The light sears the ghost!']);
+    } finally {
+        if (previousDetect === undefined) delete game.u.uprops[DETECT_MONSTERS];
+        else game.u.uprops[DETECT_MONSTERS] = previousDetect;
+    }
+});
 
 test('the pet-swap arrival recipe contains replay inputs only', () => {
     const recipe = loadPetSwapArrivalRecipe();
