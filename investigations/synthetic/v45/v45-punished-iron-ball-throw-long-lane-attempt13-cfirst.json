@@ -120,7 +120,7 @@
   "goalKind": "file-port",
   "evidence": [
     "Saved queue SHA-256 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b identifies this as the unreserved 48/49-screen v45 case; the first mismatch is the step-48 screen and cursor after key j, with all 2900 RNG calls matched.",
-    "Read complete upstream ball.c:drop_ball() at lines 882-965. Its changed-square branch updates the hero coordinates, moves uchain, requests vision recalculation, and invokes spoteffects only after movement; its trapped branches include reset_utrap/fill_pit and source-ordered messages, sound, and injury.",
+    "Read complete upstream ball.c:drop_ball() at lines 882-961. Its changed-square branch updates the hero coordinates, moves uchain, requests vision recalculation, and invokes spoteffects only after movement; its trapped branches include reset_utrap/fill_pit and source-ordered messages, sound, and injury.",
     "Read upstream dothrow.c:throwit() at lines 1838-1841: after the thrown uball is placed and stacked, C calls drop_ball at the projectile landing square. Current js/dothrow.js:2882 uses note_unported('ball.c drop_ball') at the corresponding point.",
     "Read upstream do.c:dropz() at line 834 and current js/do.js:2199-2202: the ordinary drop caller also calls the same C function after placement and effects; JavaScript records the same unported gap.",
     "A bounded fresh C/JavaScript differential at the current task boundary reproduced the queue mismatch at boundary 49 / input step 48: C cell row 5 column 64 is the ball glyph and cursor [63,7,1], while JS still shows the hero and cursor [63,4,1]. PRNG lengths and all 2900 values match; animation frames also match.",
