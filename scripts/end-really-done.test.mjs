@@ -27,6 +27,9 @@ import { runSegment } from '../js/jsmain.js';
 const END_C = readFileSync(
     new URL('../nethack-c/upstream/src/end.c', import.meta.url), 'utf8',
 );
+const END_JS = readFileSync(
+    new URL('../js/end.js', import.meta.url), 'utf8',
+);
 const RC = [
     'OPTIONS=name:A20,role:Tourist,race:human,gender:male,align:neutral',
     'OPTIONS=!legacy,!tutorial,!splash_screen',
@@ -72,6 +75,18 @@ test('fixup_death removes and substitutes source multi reasons', () => {
     fixup_death(STARVING, state);
     assert.equal(state.multi_reason, 'fainted');
     assert.equal(state.multireasonbuf, '');
+});
+
+test('really_done transfers pets for escaped and ascended endings', () => {
+    assert.match(
+        END_C,
+        /if \(how == ESCAPED \|\| how == ASCENDED\)\s+keepdogs\(TRUE\);/u,
+    );
+    assert.match(
+        END_JS,
+        /if \(how === ESCAPED \|\| how === ASCENDED\)\s+await keepdogs\(true, \{ state \}\);/u,
+    );
+    assert.doesNotMatch(END_JS, /note_unported\('dog\.c keepdogs'\)/u);
 });
 
 test('get_valuables recurses through containers and combines glass gems', async () => {

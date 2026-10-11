@@ -33,7 +33,8 @@ test('makemap removal follows wizcmds.c order and the cmd.c pre caller', () => {
     const jsRemoveEnd = JS_SOURCE.indexOf('\n}', jsRemoveStart);
     assert.ok(jsRemoveStart >= 0 && jsRemoveEnd > jsRemoveStart);
     const jsRemove = JS_SOURCE.slice(jsRemoveStart, jsRemoveEnd);
-    assert.match(jsRemove, /note_unported\('dog\.c keepdogs'\);[\s\S]*for \(let monster = state\.level\.monlist;[\s\S]*dmonsfree\(state\);/u);
+    assert.match(jsRemove, /await keepdogs\(true, \{ state \}\);[\s\S]*for \(let monster = state\.level\.monlist;[\s\S]*dmonsfree\(state\);/u);
+    assert.doesNotMatch(jsRemove, /note_unported\('dog\.c keepdogs'\)/u);
     assert.match(CMD_SOURCE, /if \(pre\) \{\s*await makemap_remove_mons\(state\);/u);
     assert.doesNotMatch(CMD_SOURCE, /note_unported\('wizcmds\.c makemap_remove_mons'\)/u);
 });
@@ -63,5 +64,5 @@ test('makemap removal resets a dead unique resident before dmonsfree', async () 
     assert.equal(vital.born, 0);
     assert.equal(game.gm.migrating_mons, null);
     assert.equal(game.level.monlist, null);
-    assert.equal(game.unported.has('dog.c keepdogs'), true);
+    assert.equal(game.unported?.has('dog.c keepdogs') ?? false, false);
 });

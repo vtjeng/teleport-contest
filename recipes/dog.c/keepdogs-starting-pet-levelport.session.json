@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent keepdogs(FALSE) runtime witness: a fresh tame starting dog follows the debug level-port through do.c:goto_level() into gm.mydogs and dog.c:losedogs(). The later arrival is included only to check that the transferred list is drained.",
+  "segments": [
+    {
+      "seed": 5814037,
+      "datetime": "20450823112642",
+      "nethackrc": "OPTIONS=name:LevelPet5814037,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:dog,!autopickup,!acoustics\n",
+      "moves": "\u00162\n"
+    }
+  ]
+}
