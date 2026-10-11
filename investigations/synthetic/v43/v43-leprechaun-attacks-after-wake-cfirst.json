@@ -1,0 +1,145 @@
+{
+  "session": "synthetic/v43/v43-leprechaun-attacks-after-wake-cfirst",
+  "corpus": "synthetic",
+  "batch": "v43",
+  "caseId": "v43-leprechaun-attacks-after-wake-cfirst",
+  "manifestPath": "challenges/manifests/v43.json",
+  "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+  "recordingSha256": "7c49b4d17f6d9860f9450517594a95c4b12c068206314812ea46c629f0e4933d",
+  "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+  "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
+  "remainingScreens": 15,
+  "recordedSteps": 77,
+  "status": "complete",
+  "commit": "5aa9231ad558c46b6b23638b9899cc8209a77aa1",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v43",
+    "caseId": "v43-leprechaun-attacks-after-wake-cfirst",
+    "session": "synthetic/v43/v43-leprechaun-attacks-after-wake-cfirst",
+    "manifestPath": "challenges/manifests/v43.json",
+    "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+    "recording": "challenges/cases/v43/v43-leprechaun-attacks-after-wake-cfirst.session.json",
+    "recordingPath": "challenges/cases/v43/v43-leprechaun-attacks-after-wake-cfirst.session.json",
+    "recordingSha256": "7c49b4d17f6d9860f9450517594a95c4b12c068206314812ea46c629f0e4933d",
+    "recipe": "challenges/cases/v43/v43-leprechaun-attacks-after-wake-cfirst.recipe.session.json",
+    "recipeSha256": "44b344df909e5690019c8f8b0331a78b961bdf168f2272dcacc1fa72b7eee98a",
+    "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f",
+    "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
+    "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
+    "evaluationArtifact": "challenges/evaluations/v43-baseline-d89e1af6.json",
+    "evaluationUtc": "2026-10-11T01:16:14.974Z",
+    "remainingScreens": 15,
+    "recordedSteps": 77,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 62,
+        "total": 77
+      },
+      "rng": {
+        "matched": 2131,
+        "total": 2267
+      },
+      "cursors": {
+        "matched": 63,
+        "total": 77
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 62,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 62,
+          "key": "l"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 46,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2110,
+        "cEntry": "rn2(501)=353",
+        "cCaller": "somegold(steal.c:27)",
+        "jsEntry": "rn2(3)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 62,
+          "key": "l"
+        },
+        "stepIndex": 62
+      },
+      "cursor": {
+        "index": 62,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 62,
+          "key": "l"
+        },
+        "cCursor": [
+          54,
+          0,
+          1
+        ],
+        "jsCursor": [
+          45,
+          16,
+          1
+        ]
+      }
+    },
+    "step": 62,
+    "kind": "rng",
+    "sourceFile": "steal.c",
+    "function": "somegold",
+    "message": null,
+    "cFile": "steal.c",
+    "luaFile": null,
+    "line": 27
+  },
+  "summary": "At segment 0 step 62, a woken hostile leprechaun reaches the incoming AD_SGLD attack and should transfer gold from the hero. C calls steal.c:stealgold after hitmsg(), the same-species guard, and the attacker-canceled guard; JS leaves note_unported(\"steal.c stealgold\") in that exact mhitm_ad_sgld branch. The first divergence is the carried-gold subset draw: C calls somegold(money_cnt(invent)) and records rn2(501)=353, while JS records an unrelated rn2(3)=2 and does not transfer the purse. Implement the contiguous steal.c helper family somegold/findgold/stealgold and wire its existing AD_SGLD and fountain-dip callers.",
+  "source": {
+    "file": "steal.c",
+    "branch": "For an uncanceled AD_SGLD attacker hitting the hero, uhitm.c:mhitm_ad_sgld emits hitmsg(), returns for same-species combat, then calls stealgold(). stealgold prefers floor gold when it is available and wins its quantity/random comparison; otherwise, if the hero carries a GOLD_PIECE stack, it calls somegold(money_cnt(invent)), converts the returned value to coins, transfers that quantity, prints the purse-lighter message, teleports/flees when allowed, and sets disp.botl. somegold() uses the source bracket thresholds and rn1 calls, so its selected range also includes the existing findgold() helper in definition order.",
+    "functions": [
+      "somegold",
+      "findgold",
+      "stealgold"
+    ],
+    "callers": [
+      "uhitm.c:mhitm_adtyping dispatches AD_SGLD to mhitm_ad_sgld; mhitu.c:mattacku reaches hitmu, whose AD_SGLD path uses that shared dispatcher before calling steal.c:stealgold.",
+      "fountain.c:dipfountain case 28 calls steal.c:somegold to determine the coin loss; js/fountain.js previously kept a private copy rather than using the steal.c owner.",
+      "steal.c:relobj releases a vault guard gold stack through findgold(), obj_extract_self(), and obfree(); js/steal.js previously stopped on isgd without checking for gold."
+    ],
+    "dependencies": [
+      "Existing JS helpers cover findgold, money_cnt, object extraction/splitting, inventory transfer, monster inventory transfer, message/display, teleport restriction, relocation, and monster fleeing; preserve their source order and thread the existing state/random/message environment through the new owner. The steal.c:relobj caller also needs its existing findgold refusal removed.",
+      "The v43 recording proves the carried-gold somegold/stealgold branch. The separate floor-gold snatch branch has source-pinned tests but no matching C recording that reaches it. The committed blocked recipe records the source-based setup barrier in monmove.c:leppie_avoidance."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The v43 baseline queue SHA-256 1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093 records 15 remaining screens for this case; challenges/evaluations/v43-baseline-d89e1af6.json pins the first mismatch at zero-based segment 0 step 62 (key \"l\"), call 2110: C rn2(501)=353 from somegold(steal.c:27), JS rn2(3)=2, with C cursor [54,0,1] and JS cursor [45,16,1].",
+    "The admitted v43 source trace states that the hero's prior hit wakes the hostile leprechaun; its next attack enters mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping(AD_SGLD) -> mhitm_ad_sgld -> steal.c:stealgold. At uhitm.c:2815-2821 C performs hitmsg, same-species return, then the !magr->mcan stealgold call; at the inspected baseline, js/uhitm.js:mhitm_ad_sgld replaced that call with note_unported(\"steal.c stealgold\").",
+    "Upstream steal.c:14-34 defines somegold’s bounded int conversion and six rn1 brackets; steal.c:45-52 defines findgold; steal.c:58-116 implements floor-stack preference, carried-gold subset and split, ownership transfer, feedback, optional relocation/fleeing, and botl update. The active steal.c:relobj findgold caller had a stale isgd-only refusal; this task wires its source guard, message, extraction, and freeing without claiming unrelated relobj behavior.",
+    "The source call sites are distinct and both must remain wired: uhitm.c:mhitm_ad_sgld calls stealgold at 2821, and fountain.c:dipfountain case 28 calls somegold at 510. at the inspected baseline, js/fountain.js:919-942 duplicated somegold privately for dipfountain; centralize it in js/steal.js and import the single owner from fountain.js.",
+    "Prior mismatch reports do not cover this behavior: investigations/synthetic/v19/leprechaun-steals-carried-gold-c62.json confirms the sleeping leprechaun never wakes or reaches AD_SGLD/stealgold; investigations/synthetic/v33/v33-leprechaun-hero-gold-steal.json covers the reverse direction (hero leprechaun attacks a no-gold dwarf) and documents the missing stealgold call as a discarded void-call gap; neither exercises successful incoming carried-gold theft.",
+    "The current report selects steal.c:somegold/findgold/stealgold and the active callers uhitm.c:mhitm_ad_sgld, fountain.c:dipfountain, and steal.c:relobj. It does not claim unrelated steal.c functions as complete. The v43 replay exercises the carried-gold branch. A separate floor-gold recording is still missing; the blocked recipe names monmove.c:leppie_avoidance as the source barrier when the hero carries no gold.",
+    "recipes/steal.c/stealgold-floor-gold-blocked-leppie-avoidance.session.json and its recording match fresh C/JavaScript replay but do not exercise stealgold. C monmove.c:leppie_avoidance makes a leprechaun carrying more gold than the hero avoid the hero; the probe drops all hero gold before creating the leprechaun."
+  ]
+}
