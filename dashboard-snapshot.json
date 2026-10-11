@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T12:30:43.674Z",
+  "capturedAt": "2026-10-11T12:42:26.549Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -88182,22 +88182,78 @@
         "type": "accepted",
         "at": "2026-10-11T12:30:16.280Z",
         "task": "B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-nohandglow-b9b3f3d4-20261011",
+        "type": "received",
+        "at": "2026-10-11T12:32:51.401Z",
+        "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011",
+        "delivery": "b9b3f3d44a8125ed564e2eb82762fadc57a8c2a6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-active-post-cockatrice-merge-20261011T1231Z",
+        "type": "turn",
+        "at": "2026-10-11T12:34:37.245Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resumed after cockatrice acceptance and checking live queue ownership for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-nohandglow-1ca31bc67",
+        "type": "integrating",
+        "at": "2026-10-11T12:34:49.216Z",
+        "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011",
+        "integration": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep10-v46-active-20261011-3",
+        "type": "turn",
+        "at": "2026-10-11T12:35:01.698Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v46 has four confirmed mismatches; continuing C-first candidate search after teleport acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-post-cockatrice-no-free-v45-20261011T1232Z",
+        "type": "turn",
+        "at": "2026-10-11T12:35:03.514Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "No independent v45 case is free. A2 owns the vault case, C owns quest-finish, and B has nohandglow and both Sanctum fixes queued for integration. Resume after a reservation release or refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-nohandglow-38139861186",
+        "type": "validated",
+        "at": "2026-10-11T12:40:57.140Z",
+        "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep10-v46-active-20261011-4",
+        "type": "turn",
+        "at": "2026-10-11T12:40:58.857Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v46 has four confirmed distinct mismatches; one new reached Stone-to-Flesh mimic mismatch is under crosswalk review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011-1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T12:41:59.350Z",
+        "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011",
-        "worker": "B",
-        "goal": "port-uhitm-nohandglow-v45-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b9b3f3d44a8125ed564e2eb82762fadc57a8c2a6",
-        "since": "2026-10-11T11:46:15.952Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011",
         "worker": "B",
@@ -88206,9 +88262,7 @@
         "status": "ready",
         "delivery": "0de38ac5d27d117737b9324a53fcb8c80913d1e6",
         "since": "2026-10-11T12:24:41.808Z",
-        "blockedBy": [
-          "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -88593,8 +88647,8 @@
     ]
   },
   "development": {
-    "executionCommit": "1d37277547f03e37af5f2159baa0655c3830b8cd",
-    "measuredAt": "2026-10-11T12:28:37.745Z",
+    "executionCommit": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf",
+    "measuredAt": "2026-10-11T12:40:11.280Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -269855,7 +269855,7 @@
     {
       "id": "port-uhitm-nohandglow-v45-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete bare-handed confusion feedback and its live melee caller",
       "cFile": "uhitm.c",
       "sessions": [
@@ -269869,8 +269869,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "nohandglow",
@@ -270128,7 +270131,524 @@
         ],
         "entryPointReview": "nohandglow is a static helper with one active source caller, uhitm.c:hmon_hitmon:1912; it has no independent command dispatcher. The admitted v45 hero melee case enters through the force-fight prefix and movement attack path, then executes the helper before spellbook resistance. The cited step covers the visible nonterminal glow branch; the source implementation also preserves the terminal, blind, invisible and hallucinated-color branches.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf",
+        "screens": 11405,
+        "rng": 792838
       }
+    },
+    {
+      "id": "fix-v45-intemple-monname-20261011",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Use canonical priest naming on Sanctum entry",
+      "cFile": "priest.c",
+      "sessions": [
+        "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+        "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst"
+      ],
+      "selectionReason": "The v45 queue identifies the step-73 Sanctum entry mismatch; the approach case reaches the same priest.c:intemple naming defect at step 130.",
+      "detail": "C temporarily clears ispriest and calls Monnam, preserving the definite article; JavaScript called priestname directly and dropped it.",
+      "openedAt": "b558b29d4a2a1b9b5292d676164d5148cdbcc48c",
+      "openStanding": {
+        "sha": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "intemple",
+      "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+      "step": 73,
+      "syntheticProvenance": {
+        "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst": {
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "evaluationPath": "challenges/evaluations/accepted-1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf-v45.json",
+          "evaluationCommit": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf"
+        },
+        "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst": {
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+          "recordingSha256": "6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca",
+          "evaluationPath": "challenges/evaluations/accepted-1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf-v45.json",
+          "evaluationCommit": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf"
+        }
+      },
+      "activeStanding": {
+        "sha": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+          "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+          "replayInputSha256": "787cb936c8049ec476885fa95dfe2f3465d231140689d19b20f08d0172c2883c",
+          "evaluationPath": "challenges/evaluations/accepted-1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf-v45.json",
+          "evaluationCommit": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf",
+          "evaluationArtifact": "challenges/evaluations/accepted-1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf-v45.json",
+          "evaluationUtc": "2026-10-11T12:39:09.086Z",
+          "remainingScreens": 84,
+          "recordedSteps": 157,
+          "previousScreensMatched": 73,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 73,
+              "total": 157
+            },
+            "rng": {
+              "matched": 6986,
+              "total": 7512
+            },
+            "cursors": {
+              "matched": 73,
+              "total": 157
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 73,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 42,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "H",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 73,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "."
+              },
+              "cCursor": [
+                74,
+                0,
+                1
+              ],
+              "jsCursor": [
+                70,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 73,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.json",
+            "result": {
+              "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+              "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+              "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+              "remainingScreens": 84,
+              "recordedSteps": 157,
+              "status": "complete",
+              "commit": "67d757adfce6fb701df5218060e04b6318f47626",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+                "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+                "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+                "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+                "replayInputSha256": "84060dd7b48fcae242ce5b79a23a72a39cf1cc9e922c8a93918a65f2a91e7de1",
+                "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+                "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+                "evaluationArtifact": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+                "evaluationUtc": "2026-10-11T11:57:28.052Z",
+                "remainingScreens": 84,
+                "recordedSteps": 157,
+                "previousScreensMatched": 30,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 73,
+                    "total": 157
+                  },
+                  "rng": {
+                    "matched": 6986,
+                    "total": 7512
+                  },
+                  "cursors": {
+                    "matched": 73,
+                    "total": 157
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 73,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 42,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "H",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 73,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      74,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      70,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 73,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After the accepted teleport.c:dotelecmd/dotele port, this case now reaches the same temple-entry mismatch as the advanced Sanctum approach case. At step 73, priest.c:intemple() temporarily clears priest->ispriest and calls Monnam(priest), producing “The high priest intones:”. JavaScript performs the same temporary state change but calls priestname() directly and capitalizes its raw return. priestname() takes its non-priest early return and omits ARTICLE_THE, producing “High priest intones:”. Route the caller through the existing canonical Monnam() formatter; the prior screen and RNG history match through this point.",
+              "source": {
+                "file": "priest.c",
+                "functions": [
+                  "priest.c:intemple()"
+                ],
+                "branch": "A visible, non-hallucinated hero teleports into a Sanctum TEMPLE room while a speaking high priest is present and intone_time has elapsed. intemple() saves priest->ispriest, clears it for the name-formatting call, emits the introduction, then restores the value before scheduling the next intone.",
+                "callers": [
+                  "teleport.c:teleds() calls spoteffects(TRUE) after relocation; hack.c:spoteffects() calls check_special_room(FALSE); hack.c:check_special_room() calls intemple() for an entered TEMPLE.",
+                  "JavaScript mirrors this route through teleport.js:teleds(), hack.js:spoteffects(), rooms.js:check_special_room(), and priest.js:intemple()."
+                ],
+                "dependencies": [
+                  "priest.c:intemple() calls do_name.c:Monnam(priest) after temporarily clearing ispriest. The existing canonical js/do_name.js:Monnam() delegates to x_monnam(), whose ordinary-species path retains ARTICLE_THE after the priest/minion special case no longer applies."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Queue actionable from 7 current sessions at SHA-256 8e3cc52f29759118832c5b4a20bc5b578638d7adccd7c89524d205a4916496ff records the current v45 evaluation challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json at 671938b9bce6f6f152d2f38a1cc5b3db8e38e36c, with 84 remaining screens and first divergence at segment 0, step 73.",
+                "The recorded step 73 is input `.`. Its C RNG entry is d(10,500)=2345 at priest.c:443; the full recorded screen says “You materialize in a different location!  The high priest intones:”. Queue comparison reports C row 0, column 42 as `T` and JavaScript as `H`, with the cursor also diverging at that screen.",
+                "nethack-c/upstream/src/priest.c:intemple() lines 430-444 temporarily sets priest->ispriest to zero for a visible non-hallucinated Sanctum introduction, then calls Monnam(priest) and restores the saved field. nethack-c/upstream/src/do_name.c:x_monnam() lines 876-885 only takes its priestname() special case while ispriest or isminion is set; after the temporary clear, its ordinary naming path applies ARTICLE_THE to mon_pmname(priest).",
+                "js/priest.js:intemple() lines 817-832 performs the temporary ispriest clear but directly calls priestname(priest, ARTICLE_THE, false) and highc(). js/priest.js:priestname() lines 718-722 returns mon_pmname() immediately when both ispriest and isminion are false, dropping the article. Use the already imported Monnam(priest, state) at this source call site instead of duplicating the formatter.",
+                "The current queue entry for v45-offer-real-amulet-sanctum-approach-attempt17-cfirst reaches the same C d(10,500) at priest.c:443 on step 130 and the same `T` versus `H` name boundary. It corroborates this priest.c:intemple scope; it is not a source-independent second task."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+          "recordingSha256": "6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.recipe.session.json",
+          "recipeSha256": "1c35cd806beff1d162ddd353766d798eb8847fb0ee51589f2cdc4884d34e7e7c",
+          "replayInputSha256": "787cb936c8049ec476885fa95dfe2f3465d231140689d19b20f08d0172c2883c",
+          "evaluationPath": "challenges/evaluations/accepted-1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf-v45.json",
+          "evaluationCommit": "1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf",
+          "evaluationArtifact": "challenges/evaluations/accepted-1ca31bc6715bdeaeb8801c7592e7e2efb8e14abf-v45.json",
+          "evaluationUtc": "2026-10-11T12:39:09.086Z",
+          "remainingScreens": 2,
+          "recordedSteps": 162,
+          "previousScreensMatched": 160,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 160,
+              "total": 162
+            },
+            "rng": {
+              "matched": 7856,
+              "total": 7856
+            },
+            "cursors": {
+              "matched": 160,
+              "total": 162
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 130,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 130,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 42,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "H",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 7856,
+              "cCaller": null,
+              "jsEntry": "rn2(5)=4",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 130,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 130,
+                "key": "."
+              },
+              "cCursor": [
+                77,
+                0,
+                1
+              ],
+              "jsCursor": [
+                73,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 130,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.json",
+            "result": {
+              "session": "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingSha256": "6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca",
+              "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+              "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+              "remainingScreens": 2,
+              "recordedSteps": 162,
+              "status": "complete",
+              "commit": "852dd3237664b6965c7d983e72d55f0e3366539c",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+                "session": "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+                "recordingSha256": "6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca",
+                "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.recipe.session.json",
+                "recipeSha256": "1c35cd806beff1d162ddd353766d798eb8847fb0ee51589f2cdc4884d34e7e7c",
+                "replayInputSha256": "84060dd7b48fcae242ce5b79a23a72a39cf1cc9e922c8a93918a65f2a91e7de1",
+                "evaluationPath": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+                "evaluationCommit": "671938b9bce6f6f152d2f38a1cc5b3db8e38e36c",
+                "evaluationArtifact": "challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json",
+                "evaluationUtc": "2026-10-11T11:57:28.052Z",
+                "remainingScreens": 2,
+                "recordedSteps": 162,
+                "previousScreensMatched": 75,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 160,
+                    "total": 162
+                  },
+                  "rng": {
+                    "matched": 7856,
+                    "total": 7856
+                  },
+                  "cursors": {
+                    "matched": 160,
+                    "total": 162
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 130,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 130,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 42,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "H",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 7856,
+                    "cCaller": null,
+                    "jsEntry": "rn2(5)=4",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 130,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 130,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      77,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      73,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 130,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This approach session reaches the same priest.c:intemple() name-formatting defect as the related no-carry Sanctum session. At step 130, C emits “The high priestess intones:” after clearing priest->ispriest and calling Monnam(); JavaScript clears ispriest but calls priestname() directly, whose ordinary-monster early return omits ARTICLE_THE and produces “High priestess intones:”. This is corroborating runtime evidence for the same divergence-fix scope, not a separate source task.",
+              "source": {
+                "file": "priest.c",
+                "functions": [
+                  "priest.c:intemple()"
+                ],
+                "branch": "A visible, non-hallucinated hero teleports into a Sanctum TEMPLE room while a speaking high priestess is present and intone_time has elapsed. intemple() saves priest->ispriest, clears it for Monnam(), emits the introduction, then restores the value before scheduling the next intone.",
+                "callers": [
+                  "teleport.c:teleds() calls spoteffects(TRUE) after relocation; hack.c:spoteffects() calls check_special_room(FALSE); hack.c:check_special_room() calls intemple() for an entered TEMPLE.",
+                  "JavaScript mirrors this route through teleport.js:teleds(), hack.js:spoteffects(), rooms.js:check_special_room(), and priest.js:intemple()."
+                ],
+                "dependencies": [
+                  "priest.c:intemple() calls do_name.c:Monnam(priest) after temporarily clearing ispriest. The existing canonical js/do_name.js:Monnam() delegates to x_monnam(), whose ordinary-species path retains ARTICLE_THE after the priest/minion special case no longer applies."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Queue actionable from 7 current sessions at SHA-256 8e3cc52f29759118832c5b4a20bc5b578638d7adccd7c89524d205a4916496ff records challenges/evaluations/accepted-671938b9bce6f6f152d2f38a1cc5b3db8e38e36c-v45.json at 671938b9bce6f6f152d2f38a1cc5b3db8e38e36c, with 2 remaining screens and first divergence at segment 0, step 130.",
+                "The recorded step 130 is input `.`. Its C RNG entry is d(10,500)=2204 at priest.c:443; the full recorded screen says “You materialize in a different location!  The high priestess intones:”. Queue comparison reports C row 0, column 42 as `T` and JavaScript as `H`, while all 7856 recorded C RNG calls still match at that first visual divergence.",
+                "nethack-c/upstream/src/priest.c:intemple() lines 430-444 temporarily sets priest->ispriest to zero for a visible non-hallucinated Sanctum introduction, then calls Monnam(priest) and restores the saved field. nethack-c/upstream/src/do_name.c:x_monnam() lines 876-885 bypasses its priestname() case after that temporary clear and applies ARTICLE_THE to mon_pmname(priest).",
+                "js/priest.js:intemple() lines 817-832 performs the temporary ispriest clear but directly calls priestname(priest, ARTICLE_THE, false) and highc(). js/priest.js:priestname() lines 718-722 returns mon_pmname() immediately when both ispriest and isminion are false, dropping the article. Use the existing Monnam(priest, state) at this caller.",
+                "The no-carry Sanctum companion v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst reaches the same C d(10,500) branch at step 73 and the same `T` versus `H` boundary. The two sessions therefore share priest.c:intemple and should be bundled under one fix."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
