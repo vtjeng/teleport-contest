@@ -32,6 +32,9 @@ import {
     GP_ALLOW_XY,
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
+    FORCETRAP,
+    HALLUC,
+    HALLUC_RES,
     HOLE,
     IS_STWALL,
     I_SPECIAL,
@@ -68,11 +71,13 @@ import {
     TELEP_TRAP,
     TELEPORT,
     TELEPORT_CONTROL,
+    TIMEOUT,
     TRAPDOOR,
     TT_BURIEDBALL,
     UTOTYPE_NONE,
     VAULT,
     VIBRATING_SQUARE,
+    VIASITTING,
     WATER,
     WWALKING,
     FIRE_RES,
@@ -216,7 +221,7 @@ import { rn1, rn2, rnd, rnl } from './rng.js';
 import { messageAt } from './startup_a11y.js';
 import { getpos } from './getpos.js';
 import { in_out_region } from './region.js';
-import { make_blinded } from './potion.js';
+import { make_blinded, make_confused } from './potion.js';
 import { mon_has_amulet } from './wizard.js';
 import { verbalize } from './pline.js';
 import { y_n } from './cmd.js';
@@ -1647,9 +1652,9 @@ export async function dotele(breakTheRules = false, state = game, rawEnv = {}) {
             if (await askYesNo(
                 'There is a level teleporter here. Trigger it?', state,
             ) === 'y'.charCodeAt(0)) {
-                // teleport.c:level_tele_trap() is void and has no JS owner;
-                // C discards the result and always spends this attempted jump.
-                note_unported('teleport.c level_tele_trap');
+                // C discards level_tele_trap()'s void result and always spends
+                // this attempted jump, even when the level change is refused.
+                await level_tele_trap(trap, FORCETRAP, state, env);
                 return 1;
             }
             trap = null;
@@ -1991,6 +1996,60 @@ export async function tele_trap(trap, state = game) {
         }
     } finally {
         in_tele_trap = false;
+    }
+}
+
+// C ref: teleport.c level_tele_trap() (1538-1574). Both the walking trap
+// effect and dotele()'s forced trigger call this same hero path.
+export async function level_tele_trap(
+    trap,
+    trflags,
+    state = game,
+    rawEnv = {},
+) {
+    const env = teleportEnv({ ...rawEnv, state });
+    const message = env.message ?? ttyPline;
+    const intentional = (trflags & (VIASITTING | FORCETRAP)) !== 0;
+    const verb = intentional ? 'trigger'
+        : `${u_locomotion('step', state)} onto`;
+
+    await message(`You ${verb} a level teleport trap!`, state, env);
+
+    const antimagic = Antimagic_prop(state);
+    if (antimagic && !intentional)
+        await shieldeff(state.u.ux, state.u.uy, state);
+    if ((antimagic && !intentional) || inEndgame(state)) {
+        await message('You feel a wrenching sensation.', state, env);
+        return;
+    }
+
+    deltrap(trap, state);
+    if (typeof env.redraw === 'function')
+        env.redraw(state.u.ux, state.u.uy);
+    else
+        newsym(state.u.ux, state.u.uy);
+    await level_tele(state);
+
+    const hallucination = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
+        && !Boolean(state.u?.uprops?.[HALLUC_RES]?.intrinsic
+            || state.u?.uprops?.[HALLUC_RES]?.extrinsic);
+    if (hallucination || Teleport_control_prop(state)) {
+        await message(
+            `You briefly feel ${hallucination ? 'oriented' : 'centered'}.`,
+            state,
+            env,
+        );
+    } else {
+        await message(
+            `You feel ${Confusion(state) ? 'even more ' : ''}disoriented.`,
+            state,
+            env,
+        );
+    }
+
+    if (!Teleport_control_prop(state)) {
+        const confusion = state.u?.uprops?.[CONFUSION]?.intrinsic ?? 0;
+        await make_confused((confusion & TIMEOUT) + 3, false, state, env);
     }
 }
 

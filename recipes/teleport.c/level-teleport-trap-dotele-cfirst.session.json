@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first forced-entry route to teleport.c:dotele's seen LEVEL_TELEP branch. A fresh debug Wizard moves onto ordinary floor, wishes a level teleporter underfoot, then uses the registered #teleport command and accepts its trigger prompt. Its seed, date, role, and character name differ from the selected challenge input.",
+  "segments": [
+    {
+      "seed": 47101919,
+      "datetime": "20550823104911",
+      "nethackrc": "OPTIONS=name:LevelCommandProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #wizmap\nl#wizwish\nlevel teleporter\n#wizmap\n#teleport\ny 2\n "
+    }
+  ]
+}

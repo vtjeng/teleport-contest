@@ -351,7 +351,12 @@ import {
     trapname,
     activate_statue_trap,
 } from './trap.js';
-import { mlevel_tele_trap, mtele_trap, tele_trap } from './teleport.js';
+import {
+    level_tele_trap,
+    mlevel_tele_trap,
+    mtele_trap,
+    tele_trap,
+} from './teleport.js';
 import { Fire_resistance, poly_obj, resist } from './zap.js';
 import { Punished } from './steed.js';
 import { ttyPline } from './tty_message.js';
@@ -2044,14 +2049,13 @@ async function trapeffect_telep_trap(mtmp, trap, _trflags, env) {
 // C ref: trap.c trapeffect_level_telep() (2088-2105). The monster arm's
 // mlevel_tele_trap() return is retained as the string API used by the existing
 // teleport helper tests, then translated to trap.c's numeric result code for
-// mintrap() and postmov().
+// mintrap() and postmov(); the hero arm reveals the trap before level travel.
 async function trapeffect_level_telep(mtmp, trap, trflags, env) {
     const { state } = env;
     if (mtmp === state.youmonst) {
-        const unsupported = requireTrapOperation(env, 'unsupported');
         seetrap(trap, env);
-        unsupported('level_tele_trap() for the hero');
-        return Trap_Effect_Finished; // unreachable
+        await level_tele_trap(trap, trflags, state, env);
+        return Trap_Effect_Finished;
     }
 
     const result = await mlevel_tele_trap(
@@ -3851,19 +3855,20 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //   every type but ARROW_TRAP, BEAR_TRAP, DART_TRAP, ROCKTRAP, MAGIC_TRAP, POLY_TRAP,
 //     ANTI_MAGIC,
 //     FIRE_TRAP, SLP_GAS_TRAP, RUST_TRAP, LANDMINE, PIT, SPIKED_PIT,
-//     TELEP_TRAP, WEB, STATUE_TRAP and ROLLING_BOULDER_TRAP -- its own
+//     TELEP_TRAP, LEVEL_TELEP, WEB, STATUE_TRAP and ROLLING_BOULDER_TRAP -- its own
 //     trapeffect_*() arm;
 //   a fixed-destination teleport trap with a monster standing on the
 //     destination -- teleport.c:1516's rloc_to(), whose port covers only a
 //     monster that is not yet on the map;
 //   a seen trap except ARROW_TRAP, MAGIC_TRAP, WEB, LANDMINE, ROCKTRAP,
 //     ANTI_MAGIC, STATUE_TRAP, SQKY_BOARD and pits/holes -- the "You escape ..." line
-//     at trap.c:3039
-//     is outside those effects;
+//     at trap.c:3039; LEVEL_TELEP reaches this completed escape check in
+//     dotrap() before its own source-backed effect;
 //   a mounted hero where the effect has no corresponding source arm --
 //     s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509 (bear trap),
 //     while steedintrap() handles the arrow, dart, gas, magic, polymorph,
-//     landmine and pit arms;
+//     landmine and pit arms; LEVEL_TELEP targets the hero directly in its
+//     source effect and is admitted here for a mounted hero too;
 //     ROCKTRAP still targets the hero and ANTI_MAGIC acts directly on them;
 //   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
 export function preflight_dotrap(trap, state = game, trflags = 0) {
@@ -3875,6 +3880,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== ANTI_MAGIC
         && trap.ttyp !== RUST_TRAP && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== TELEP_TRAP
+        && trap.ttyp !== LEVEL_TELEP
         && trap.ttyp !== LANDMINE && !pitTrap
         && trap.ttyp !== WEB
         && trap.ttyp !== POLY_TRAP
@@ -3907,6 +3913,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== LANDMINE && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== STATUE_TRAP
         && trap.ttyp !== SQKY_BOARD
+        && trap.ttyp !== LEVEL_TELEP
         && !pitTrap && !is_hole(trap.ttyp)) {
         throw new UnsupportedHeroMoveBoundaryError(
             'a trap the hero has already seen',
@@ -3919,6 +3926,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== SLP_GAS_TRAP && trap.ttyp !== MAGIC_TRAP
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== POLY_TRAP
         && trap.ttyp !== SQKY_BOARD
+        && trap.ttyp !== LEVEL_TELEP
         && !pitTrap) {
         // trap.c:1507-1511 names a bear-trap steed through
         // s_suffix(mon_nam()) and mbodypart(); the other mounted arms call
