@@ -269516,8 +269516,8 @@
           "name": "drop_ball",
           "line": 882,
           "endLine": 964,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -269767,7 +269767,82 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "drop_ball",
+            "implementation": "js/ball.js",
+            "symbol": "drop_ball",
+            "sourceReview": "Read the complete ball.c:drop_ball() definition at lines 882-961 (80 lines). The port preserves the initial blind ball-order/glyph write; same-square early return; each eligible trap message and effect in source order; rn2(3) then rn1(1000,500) for bear-trap injury; reset_utrap(TRUE) and fill_pit after trap handling; ux0/uy0 snapshot; the non-levitating, unoccupied pool/pit/hole destination predicate; otherwise the adjacent-behind-ball destination; delayed vision recalculation; blind chain-glyph bookkeeping; chain relocation; old-square newsym; and spot effects only after actual hero movement. The C Soundeffect(se_destroy_web,30) has no recorder-visible effect and is left without an invented JS effect. Called return-value dependencies are already ported: bc_order, Levitation, is_pool, is_pit/is_hole, t_at/m_at, hliquid, set_wounded_legs, body_part, losehp, deltrap, reset_utrap, movobj and spoteffects. fill_pit is also wired; its existing do.c flooreffects note_unported remains limited to the separate boulder-in-pit subbranch. No return value is used as a substitute for any of these calls.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropz",
+                "source": "C do.c:dropz() (806-842) calls drop_ball(u.ux,u.uy) for uball after placement, optional impact and impact_disturbs_zombies, before stackobj/newsym (833-834). JS do.js:dropz() awaits drop_ball at the same point."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "C dothrow.c:throwit() calls drop_ball(gb.bhitpos.x,gb.bhitpos.y) after stackobj and before the final newsym (1839-1840). JS dothrow.js:throwit() awaits drop_ball(bx,by,state) at that point."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "hitfloor",
+                "source": "C dothrow.c:hitfloor() (606-655) calls do.c:dropz(obj,TRUE) after surface feedback, hero_breaks and ship_object. The recording reaches this caller from do.c:drop() while the hero is levitating; JS do.js:drop() calls dothrow.js:hitfloor(), which calls the wired do.js:dropz()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/ball-memory.test.mjs"
+            ],
+            "recordings": [
+              "recordings/ball.c/drop-punished-iron-ball-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 48,
+                "source": "dothrow.c:throwit() -> ball.c:drop_ball(); the thrown iron ball lands at a different square, and the recorded screen/cursor show the hero repositioned behind it."
+              }
+            ],
+            "checkedAt": "e994602e71114514215556cae98eae9829ba8b85"
+          }
+        ],
+        "entryPointReview": "ball.c:drop_ball has two direct active C callers. do.c:dropz is reached by an ordinary hero drop; this task records the unreachable-floor branch, do.c:drop() -> dothrow.c:hitfloor() -> do.c:dropz(TRUE) -> ball.c:drop_ball, without entering the separate preflight_dropx attached-object branch. dothrow.c:throwit directly calls drop_ball after a thrown uball is stacked. The v45 synthetic range reaches this caller at zero-based step 48 and matches every screen, cursor, and RNG value through that step. The independent ball.c recording reaches the ordinary dropz call and matches the complete C/JS replay.",
+        "entryPoints": [
+          {
+            "name": "Drop a carried punished ball while levitating and unable to reach the floor",
+            "functions": [
+              "drop_ball"
+            ],
+            "recordings": [
+              "recordings/ball.c/drop-punished-iron-ball-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Throw a punished iron ball to a landing square away from the hero",
+            "functions": [
+              "drop_ball"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 48,
+                "source": "dothrow.c:throwit() -> ball.c:drop_ball()"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
