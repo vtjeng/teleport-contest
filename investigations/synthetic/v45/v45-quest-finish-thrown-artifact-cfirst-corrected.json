@@ -1,0 +1,148 @@
+{
+  "session": "synthetic/v45/v45-quest-finish-thrown-artifact-cfirst-corrected",
+  "corpus": "synthetic",
+  "batch": "v45",
+  "caseId": "v45-quest-finish-thrown-artifact-cfirst-corrected",
+  "manifestPath": "challenges/manifests/v45.json",
+  "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+  "recordingPath": "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.session.json",
+  "recordingSha256": "7d78dbdbcb2f002923618be436ab22115fd3401f18b3580d9a69538011b6eab5",
+  "evaluationPath": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+  "evaluationCommit": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+  "remainingScreens": 1,
+  "recordedSteps": 63,
+  "status": "complete",
+  "commit": "86b80de46acc0cae4cf6ccd084723b9520222c43",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v45",
+    "caseId": "v45-quest-finish-thrown-artifact-cfirst-corrected",
+    "session": "synthetic/v45/v45-quest-finish-thrown-artifact-cfirst-corrected",
+    "manifestPath": "challenges/manifests/v45.json",
+    "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+    "recording": "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.session.json",
+    "recordingPath": "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.session.json",
+    "recordingSha256": "7d78dbdbcb2f002923618be436ab22115fd3401f18b3580d9a69538011b6eab5",
+    "recipe": "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.recipe.session.json",
+    "recipeSha256": "efb3a40cb225cac793818580732e8a8bef85437e6dd3b6bbe76e1c54a2f8bd3e",
+    "replayInputSha256": "4044080e4efdfdb0b59832522405707840dde5930b2833dc24614114489fccb8",
+    "evaluationPath": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+    "evaluationCommit": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+    "evaluationArtifact": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+    "evaluationUtc": "2026-10-11T09:59:16.363Z",
+    "remainingScreens": 1,
+    "recordedSteps": 63,
+    "previousScreensMatched": 62,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 62,
+        "total": 63
+      },
+      "rng": {
+        "matched": 3301,
+        "total": 3303
+      },
+      "cursors": {
+        "matched": 62,
+        "total": 63
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 62,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 62,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 18,
+        "cCell": {
+          "ch": "n",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "h",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3301,
+        "cEntry": "rn2(3)=1",
+        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 61,
+          "key": "b"
+        },
+        "stepIndex": 61
+      },
+      "cursor": {
+        "index": 62,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 62,
+          "key": " "
+        },
+        "cCursor": [
+          8,
+          23,
+          1
+        ],
+        "jsCursor": [
+          20,
+          1,
+          1
+        ]
+      }
+    },
+    "step": 61,
+    "kind": "rng",
+    "sourceFile": "nhlib.lua",
+    "function": "shuffle",
+    "message": null,
+    "cFile": null,
+    "luaFile": "nhlib.lua",
+    "line": 19,
+    "helper": {
+      "function": "random",
+      "luaFile": "nhlib.lua",
+      "line": 8
+    }
+  },
+  "summary": "The queue labels the first extra RNG calls as nhlib.lua shuffle, but that helper is not the missing owner. Throwing the Eye of the Aethiopica southwest into peaceful, mobile quest leader Neferet enters dothrow.c:throwit special_obj_hits_leader, which calls the absent quest.c:finish_quest. Its offeredit qt_pager initializes a fresh Lua state, producing the two rn2 calls at segment 0 step 61. JavaScript currently notes the finish_quest gap and therefore skips the pager. The remaining caller-wiring scope intersects C’s queued iron-ball delivery reservation for dothrow.c:throwit/js/dothrow.js, so implementation must wait for that delivery to be accepted or otherwise cleared.",
+  "source": {
+    "file": "quest.c",
+    "branch": "When a peaceful quest leader is able to move after catching a thrown quest artifact, and the hero has not already completed the quest or obtained the Amulet, finish_quest(obj) selects offeredit/offeredit2, displays the quest completion pager, sets got_thanks and qcompleted, identifies the returned artifact, and updates inventory. If the hero has the Amulet, it uses hasamulet instead; non-quest unique items follow their own identify/verbalize branches.",
+    "functions": [
+      "finish_quest"
+    ],
+    "callers": [
+      "dothrow.c:throwit (call at line 2138 after special_obj_hits_leader catches a quest artifact; this is the selected production entry).",
+      "quest.c:chat_with_leader (calls finish_quest(NULL) when got_thanks and the Amulet is carried, and finish_quest(quest artifact) when the leader is peaceful and the hero returns with it; lines 297 and 311)."
+    ],
+    "dependencies": [
+      "questpgr.c:qt_pager/com_pager_core and dat/quest.lua provide the offeredit text; JavaScript js/questpgr.js already implements the pager and its two-draw nhlib.lua alignment shuffle.",
+      "nhlua.c:nhl_init loads dat/nhlib.lua before dat/quest.lua; the helper random src=nhlib.lua:8 is downstream evidence for pager initialization, not the missing behavior owner.",
+      "The selected dothrow.c:throwit caller and js/dothrow.js path are reserved by C delivery 064be92725ba74d474ee0e8f42fe45517f27e34d until acceptance."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved combined queue SHA-256 1d07a7380e0d22c5e5eee819110569cf42e2585a29f7e826babbe3a4ddb7d24d reports this admitted v45 case at segment 0 step 61: C rn2(3)=1 then rn2(2)=0 from random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19); the first screen mismatch is screen 62, and the case has one remaining screen.",
+    "The C recipe is an independently recorded wizard-mode run (seed 45052008) that wishes the Eye of the Aethiopica and throws it southwest with key b. The observed south-target miss is retained; at step 61 Neferet catches the Eye, entering dothrow.c:throwit and its special_obj_hits_leader branch.",
+    "nethack-c/upstream/src/dothrow.c:throwit lines 2104-2149 handles the peaceful leader catch and invokes finish_quest(obj) at line 2138 before returning the artifact and updating inventory.",
+    "nethack-c/upstream/src/quest.c:finish_quest lines 226-275 chooses qt_pager(\"offeredit\") for this branch, sets Qstat(got_thanks), marks u.uevent.qcompleted, fully identifies the quest artifact, and updates inventory. quest.c:chat_with_leader lines 281-369 has two additional direct finish_quest callers.",
+    "nethack-c/upstream/src/questpgr.c:com_pager_core calls nhl_init before reading quest text; nethack-c/upstream/src/nhlua.c:nhl_init loads nhlib.lua, whose top-level shuffle at dat/nhlib.lua:17-25 consumes rn2(3), rn2(2). This matches the two C RNG entries at step 61.",
+    "js/dothrow.js:throw_obj/throwit corresponding special_obj_hits_leader branch calls note_unported(\"quest.c finish_quest\") before returning the artifact. js/quest.js:chat_with_leader likewise refuses the already-thanked and returned-artifact branches. js/questpgr.js already implements qt_pager, comPagerCore and initializeQuestPagerLua, so the RNG helper is not the missing code.",
+    "Source ownership is quest.c:finish_quest. Complete wiring must cover both its dothrow.c:throwit caller and quest.c:chat_with_leader callers. The dothrow caller source/path is currently reserved by C delivery 064be92725ba74d474ee0e8f42fe45517f27e34d, so no implementation scope has been claimed."
+  ]
+}
