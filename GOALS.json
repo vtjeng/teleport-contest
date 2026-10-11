@@ -275846,7 +275846,7 @@
     {
       "id": "port-uhitm-succubus-steal-v46-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port uhitm.c theft_petrifies and steal_it and restore the hero-attacker arm of mhitm_ad_sedu so polymorphed theft transfers monster inventory in C order.",
       "cFile": "uhitm.c",
       "sessions": [
@@ -275860,8 +275860,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c383f0a96c6d303e1b62c4bdcef567ccdf1dc4aa",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "theft_petrifies",
@@ -276308,6 +276311,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c383f0a96c6d303e1b62c4bdcef567ccdf1dc4aa",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
