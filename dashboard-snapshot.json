@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T20:54:03.566Z",
+  "capturedAt": "2026-10-11T21:34:35.335Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -89994,11 +89994,156 @@
         "task": "A2-investigation-v47-earthquake-desecrates-generated-altar-20261011",
         "worker": "A2",
         "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-pray-desecrate-altar-v47-20261011",
+        "type": "implement",
+        "at": "2026-10-11T20:57:05.804Z",
+        "task": "A2-investigation-v47-earthquake-desecrates-generated-altar-20261011",
+        "goal": "port-pray-desecrate-altar-v47-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v47-wizard-death-wizdeadorgone-20261011",
+        "type": "implement",
+        "at": "2026-10-11T20:57:41.001Z",
+        "task": "C-investigation-v47-wizard-death-wizdeadorgone-cfirst-20261011",
+        "goal": "port-wizdeadorgone-v47-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v47-wizard-death-ready-20261011",
+        "type": "turn",
+        "at": "2026-10-11T21:04:18.445Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Completed Wizard removal bookkeeping with matching death and live-removal evidence; packaging the delivery now."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-005e9b1af7ebb16e47a3d57d7eed0523584fe7df",
+        "type": "ready",
+        "at": "2026-10-11T21:04:22.714Z",
+        "task": "C-investigation-v47-wizard-death-wizdeadorgone-cfirst-20261011",
+        "delivery": "005e9b1af7ebb16e47a3d57d7eed0523584fe7df"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-v47-wizard-005e9b1af",
+        "type": "received",
+        "at": "2026-10-11T21:04:53.463Z",
+        "task": "C-investigation-v47-wizard-death-wizdeadorgone-cfirst-20261011",
+        "delivery": "005e9b1af7ebb16e47a3d57d7eed0523584fe7df"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-v47-hallucinated-missile-20261011",
+        "type": "turn",
+        "at": "2026-10-11T21:05:13.727Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Starting a separate v47 source investigation for a hallucinated monster missile mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v47-hallucinated-monster-missile-name-20261011",
+        "type": "assign",
+        "at": "2026-10-11T21:05:18.460Z",
+        "task": "C-investigation-v47-hallucinated-monster-missile-name-cfirst-20261011",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v47-adjust-split-queue-20261011",
+        "type": "implement",
+        "at": "2026-10-11T21:07:01.270Z",
+        "task": "B-investigation-v47-itemactions-adjust-stack-egg-split-20261011",
+        "goal": "fix-cmd-rhack-queued-adjust-split-v47-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v47-adjust-split-implementation-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T21:07:34.107Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing queued stack-split dispatch in cmd.c:rhack and a production-path regression test for the v47 case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-wizard-20261011-1420",
+        "type": "integrating",
+        "at": "2026-10-11T21:10:39.279Z",
+        "task": "C-investigation-v47-wizard-death-wizdeadorgone-cfirst-20261011",
+        "integration": "56fe7fb916a1ffdf783a557694a1c1c18af784de"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-v47-missile-caller-evidence-20261011T2114Z",
+        "type": "turn",
+        "at": "2026-10-11T21:14:20.400Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the shared hallucinated missile-name adapter and confirming both direct caller routes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-v48-turn-active-20261011-resume",
+        "type": "turn",
+        "at": "2026-10-11T21:29:28.048Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v48 C-first screening is active; 3 distinct first-mismatch candidates are provisionally identified, with fresh JS comparisons awaiting accepted Main sync."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v47-wizard-death-wizdeadorgone-cfirst-20261011-56fe7fb916a1ffdf783a557694a1c1c18af784de-validated",
+        "type": "validated",
+        "at": "2026-10-11T21:32:47.261Z",
+        "task": "C-investigation-v47-wizard-death-wizdeadorgone-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3f4de0a193243e6083cd5a8fae035a42d033f562",
+        "type": "ready",
+        "at": "2026-10-11T21:32:50.532Z",
+        "task": "B-investigation-v47-itemactions-adjust-stack-egg-split-20261011",
+        "delivery": "3f4de0a193243e6083cd5a8fae035a42d033f562"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v47-hallucinated-monster-missile-name-monshoot-20261011-retry1",
+        "type": "implement",
+        "at": "2026-10-11T21:33:16.168Z",
+        "task": "C-investigation-v47-hallucinated-monster-missile-name-cfirst-20261011",
+        "goal": "div-monshoot-hallucinated-display-rng-v47-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v47-wizard-death-wizdeadorgone-cfirst-20261011-56fe7fb916a1ffdf783a557694a1c1c18af784de-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T21:33:46.421Z",
+        "task": "C-investigation-v47-wizard-death-wizdeadorgone-cfirst-20261011"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "B-investigation-v47-itemactions-adjust-stack-egg-split-20261011",
+        "worker": "B",
+        "goal": "fix-cmd-rhack-queued-adjust-split-v47-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "3f4de0a193243e6083cd5a8fae035a42d033f562",
+        "since": "2026-10-11T21:32:50.532Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -90380,8 +90525,8 @@
     ]
   },
   "development": {
-    "executionCommit": "5f8f3a9e09ac934f9c25f5b3fcc3977f08ba91c6",
-    "measuredAt": "2026-10-11T20:46:13.534Z",
+    "executionCommit": "56fe7fb916a1ffdf783a557694a1c1c18af784de",
+    "measuredAt": "2026-10-11T21:20:50.403Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
