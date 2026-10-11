@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T23:34:05.110Z",
+  "capturedAt": "2026-10-11T00:02:48.509Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -84686,19 +84686,166 @@
         "worker": "C",
         "state": "idle",
         "reason": "Synced accepted lichen; waiting for published closure and refreshed work queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v42-monster-undead-turning-lichen-corpse-investigation-20261010-3f59c8ddb9fb16046ae1c63d4375cc84565e5bcc",
+        "type": "published",
+        "at": "2026-10-10T23:34:14.152Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
+        "commit": "3f59c8ddb9fb16046ae1c63d4375cc84565e5bcc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-after-lichen-closure-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:36:59.304Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Synced the lichen closure; remaining v42 cases are reserved by A and B."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-a-baalz-2990f7cfc",
+        "type": "received",
+        "at": "2026-10-10T23:37:07.051Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
+        "delivery": "2990f7cfc6d3503eb2d040ce30ed2034095a98de"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-prayer-pleased-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:39:49.425Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has nine approved distinct C-first mismatches; the prayer candidate now reaches `pleased` and is being checked for a distinct case-6 branch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-a-baalz-c85a22f33",
+        "type": "integrating",
+        "at": "2026-10-10T23:41:38.831Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
+        "integration": "c85a22f33772394ab54ecd7c6b0ec7ef0412f524"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-ten-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:45:46.417Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has ten approved distinct C-first mismatches; the prayer recipe’s first mismatch is the distinct corpse-stack merge path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-a-baalz-c85a22f33-fail",
+        "type": "validated",
+        "at": "2026-10-10T23:47:20.229Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-a-baalz-2990f7cfc-tests",
+        "type": "feedback",
+        "at": "2026-10-10T23:47:56.555Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
+        "delivery": "2990f7cfc6d3503eb2d040ce30ed2034095a98de"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-resume-baalz-checkpoint-correction-20261010",
+        "type": "resume",
+        "at": "2026-10-10T23:49:13.046Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-active-baalz-source-shape-correction-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:49:21.248Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5181ef96ced30eb92c36cea3cb2007678f90a02f",
+        "type": "ready",
+        "at": "2026-10-10T23:53:39.460Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
+        "delivery": "5181ef96ced30eb92c36cea3cb2007678f90a02f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-idle-after-baalz-test-correction-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:54:14.461Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Idle after Baalz correction submission. The remaining saved-queue cases are A2’s Baalz delivery and B’s reserved Zhitu task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-895802817641637644dee93cd9ed1288f054aea5",
+        "type": "ready",
+        "at": "2026-10-10T23:54:27.261Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "delivery": "895802817641637644dee93cd9ed1288f054aea5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-a-baalz-correction-5181ef96c",
+        "type": "received",
+        "at": "2026-10-10T23:54:32.762Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
+        "delivery": "5181ef96ced30eb92c36cea3cb2007678f90a02f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-a-baalz-correction-0fd61bce3",
+        "type": "integrating",
+        "at": "2026-10-10T23:54:46.735Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
+        "integration": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-post-B42-idle-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:55:27.185Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B42 is queued for integration; A2 owns the remaining Baalz case and Prep owns v43. No unreserved source case remains, so B will resume after the next queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-a-baalz-correction-0fd61bce3",
+        "type": "validated",
+        "at": "2026-10-11T00:00:29.419Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v42-baalz-special-program-20261010-0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T00:01:07.706Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "A2-investigation-v42-baalz-special-program-20261010",
-        "worker": "A2",
-        "goal": "div-v42-baalz-wizloaddes-topology-finalization-20261010",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "worker": "B",
+        "goal": "port-trap-acid-damage-v42-20261010",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "2990f7cfc6d3503eb2d040ce30ed2034095a98de",
-        "since": "2026-10-10T22:11:56.673Z",
+        "delivery": "895802817641637644dee93cd9ed1288f054aea5",
+        "since": "2026-10-10T23:54:27.261Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -85038,8 +85185,8 @@
     ]
   },
   "development": {
-    "executionCommit": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
-    "measuredAt": "2026-10-10T23:30:56.379Z",
+    "executionCommit": "0fd61bce3fc7e2aebf68d8f3d35f54cd386a5337",
+    "measuredAt": "2026-10-10T23:59:52.610Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
