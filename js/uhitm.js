@@ -11,6 +11,7 @@ import {
     artifact_hit,
     artifact_light,
     defends,
+    find_artifact,
     is_art,
     permapoisoned,
     retouch_equipment,
@@ -21,6 +22,7 @@ import {
     is_waterwall,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
+import { upstart } from './hacklib.js';
 import { adjalign, adjattrib, exercise } from './attrib.js';
 import { some_armor, setwornEnv } from './do_wear.js';
 import { snuff_lit } from './apply_splash_lit.js';
@@ -160,12 +162,14 @@ import {
     W_RINGL,
     W_RINGR,
     W_SADDLE,
+    W_WEP,
     W_ARMU,
     engulfing_u,
     helpless,
     ismnum,
     M_AP_TYPE,
     HAND,
+    OBJ_INVENT,
     NO_TRAP_FLAGS,
     MAX_EGG_HATCH_TIME,
     NEW_MOON,
@@ -359,6 +363,7 @@ import {
     sticks,
     thick_skinned,
     touch_petrifies,
+    mhe,
     poly_when_stoned,
     unsolid,
     is_swimmer,
@@ -532,7 +537,7 @@ import {
 } from './obj.js';
 import {
     add_to_minv, addinv_runtime, carrying, freeinv, INVLET_BASIC, merge_choice,
-    obfree, obj_extract_self, update_inventory, useup, useupall,
+    hold_another_object, obfree, obj_extract_self, update_inventory, useup, useupall,
 } from './invent.js';
 import { clone_mon, grow_up } from './makemon.js';
 import {
@@ -566,6 +571,7 @@ import {
     BOOMERANG,
     BOULDER,
     CLOVE_OF_GARLIC,
+    COIN_CLASS,
     CORPSE,
     CREAM_PIE,
     DUNCE_CAP,
@@ -647,11 +653,12 @@ import {
     set_twoweap,
     which_armor,
 } from './worn.js';
-import { findgold, steal, stealgold, stealamulet } from './steal.js';
+import { findgold, mpickobj, steal, stealgold, stealamulet } from './steal.js';
 import { rloc, tele, tele_restrict, u_teleport_mon } from './teleport.js';
 import {
     Flying,
     Levitation,
+    instapetrify,
     unconscious,
 } from './trap.js';
 import { mintrap } from './trap_effects.js';
@@ -3940,9 +3947,122 @@ function first_weapon_hit(weapon, state = game) {
     );
 }
 
+// C ref: uhitm.c theft_petrifies() (2148-2173). A stolen cockatrice or
+// Medusa corpse stops further theft even when instapetrify() is survived.
+async function theft_petrifies(otmp, state = game, rawEnv = {}) {
+    if (state.uarmg || otmp.otyp !== CORPSE
+        || !touch_petrifies(state.mons?.[otmp.corpsenm])
+        || heroStoneResistance(state)) {
+        return false;
+    }
+    await instapetrify(
+        corpse_xname(otmp, 'stolen', CXN_ARTICLE, state),
+        state,
+        { ...rawEnv, state },
+    );
+    return true;
+}
+
+// C ref: uhitm.c steal_it() (2174-2280). Remove monster gold while choosing
+// thefts, then restore it through mpickobj() in the same source order.
+async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const message = requireAttackOperation(rawEnv, 'message');
+    const env = { ...rawEnv, state, random, message };
+    const nameEnv = { ...env, canSpotMonster: canspotmon };
+    const inventoryEnv = {
+        ...env,
+        hooks: {
+            ...env.hooks,
+            message: env.hooks?.message ?? message,
+            encumberMessage: env.hooks?.encumberMessage
+                ?? env.encumberMessage
+                ?? ((currentState) => encumber_msg(currentState, { message })),
+        },
+    };
+    let otmp = mdef.minvent;
+    if (!otmp || (otmp.oclass === COIN_CLASS && !otmp.nobj))
+        return;
+
+    let ustealo = null;
+    if (could_seduce(state.youmonst, mdef, mattk, env) && mdef.mcanmove) {
+        let link = mdef;
+        let linkField = 'minvent';
+        while (link[linkField]) {
+            otmp = link[linkField];
+            if (otmp.owornmask & W_ARM) {
+                if (ustealo)
+                    throw new Error('steal_it: multiple worn suits');
+                link[linkField] = otmp.nobj;
+                ustealo = otmp;
+                ustealo.nobj = null;
+            } else {
+                link = otmp;
+                linkField = 'nobj';
+            }
+        }
+        link[linkField] = ustealo;
+    }
+
+    let gold = findgold(mdef.minvent);
+    if (ustealo) {
+        if (Boolean(gender(mdef)) === Boolean(state.u.mfemale)
+            && state.youmonst.data.mlet === S_NYMPH) {
+            await message(
+                `You charm ${mon_nam(mdef, state, env)}.  ${upstart(mhe(mdef, nameEnv))} gladly hands over ${gold ? 'most of ' : ''}${mhis(mdef, nameEnv)} possessions.`,
+                state,
+            );
+        } else {
+            await message(
+                `You seduce ${mon_nam(mdef, state, env)} and ${mhe(mdef, nameEnv)} starts to take off ${mhis(mdef, nameEnv)} clothes.`,
+                state,
+            );
+        }
+    }
+
+    if (gold) obj_extract_self(gold, env);
+    while ((otmp = mdef.minvent)) {
+        if (gold) {
+            mpickobj(mdef, gold, env);
+            gold = null;
+        }
+        if (!Upolyd(state.u)) break;
+        const unwornmask = otmp.owornmask ?? 0;
+        if (otmp.oartifact && !heroIsBlind(state))
+            find_artifact(otmp, state);
+        await extract_from_minvent(mdef, otmp, true, false, env);
+        if (otmp === ustealo) {
+            await message(
+                `${Monnam(mdef, state, env)} finishes taking off ${mhis(mdef, nameEnv)} suit.`,
+                state,
+            );
+        }
+        otmp = await hold_another_object(
+            otmp,
+            'You snatched but dropped %s.',
+            donameFresh(otmp, state),
+            'You steal: ',
+            inventoryEnv,
+        );
+        if (!otmp || otmp.where !== OBJ_INVENT) continue;
+        if (await theft_petrifies(otmp, state, env)) break;
+        if (unwornmask & W_WEP) {
+            possibly_unwield(mdef, false, env);
+        } else if (unwornmask & W_ARMG) {
+            // trap.c:mselftouch() is a void callee with an unfinished
+            // minstapetrify() path; record and skip that source boundary.
+            note_unported('trap.c mselftouch');
+            if (mdef.mhp < 1) break;
+        }
+        if (!ustealo) break;
+        if ((gold = findgold(mdef.minvent))) obj_extract_self(gold, env);
+    }
+    if (gold) mpickobj(mdef, gold, env);
+}
+
 // C ref: uhitm.c mhitm_ad_sedu() (4623-4748). Seduction / item theft attack.
-// Three arms: hero attacks monster (uhitm, still delegated to steal_it()),
-// monster attacks hero (mhitu, ported below), and monster attacks monster
+// Three arms: hero attacks monster (uhitm via steal_it()), monster attacks
+// hero (mhitu, ported below), and monster attacks monster
 // (mhitm, ported below).
 //
 // The mhitu arm: if the attacker is an animal, it acts like a hit message then
@@ -3954,10 +4074,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
     const message = requireAttackOperation(env, 'message');
 
     if (magr === state.youmonst) {
-        // uhitm: steal_it() is a void callee whose result C discards. Keep
-        // the source call boundary visible while the hero-versus-monster
-        // theft operation remains outside this span.
-        note_unported('uhitm.c steal_it');
+        await steal_it(mdef, mattk, state, { ...env, state, random, message });
         mhm.damage = 0;
         return;
     }
