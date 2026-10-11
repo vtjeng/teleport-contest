@@ -275031,15 +275031,15 @@
           "endLine": 6281,
           "declared": true,
           "sourceFile": "uhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "set_msg_xy",
           "line": 93,
           "endLine": 103,
-          "declared": false,
+          "declared": true,
           "sourceFile": "pline.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -275275,7 +275275,143 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "bhitm",
+            "implementation": "js/zap.js",
+            "symbol": "bhitm",
+            "sourceReview": "Read the full zap.c:bhitm definition at 160-577 and compared switch arms, guard ordering, state/RNG/output order, and common wake/reveal/learn tail. This change replaces the stone-to-flesh branch’s two note_unported calls with set_msg_xy then canonical that_is_a_mimic(MIM_REVEAL | MIM_OMIT_WAIT). WAN_LOCKING and WAN_OPENING box/door mimic calls also now use that helper, as the C source does. Existing unrelated branches and their explicit unported callees remain unchanged; bhitm still skips the discarded mcureblindness and expels(TRUE) results through source-named note_unported gaps. The matching v46 range covers the newly reached stone-to-flesh branch and its output dependencies.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "weffects",
+                "source": "zap.c:weffects passes bhitm as the bhit callback and calls bhitm directly for a swallowed target"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhit",
+                "source": "zap.c:bhit invokes its callback for each monster hit by the ray"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_steed",
+                "source": "zap.c:zap_steed delegates its default mounted target arm to bhitm(u.usteed, obj)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/bhit.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 134,
+                "source": "cmd.c:read/cast -> zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm SPE_STONE_TO_FLESH -> pline.c:set_msg_xy -> uhitm.c:that_is_a_mimic -> pager.c:object_from_map -> mkobj.c:dealloc_obj -> seemimic"
+              }
+            ],
+            "checkedAt": "433694e5a221d44a3d68497619b87e8a274b2c23"
+          },
+          {
+            "name": "that_is_a_mimic",
+            "implementation": "js/uhitm.js",
+            "symbol": "that_is_a_mimic",
+            "sourceReview": "Read uhitm.c:that_is_a_mimic at 6201-6276 in source order. The implementation preserves blinded/telepathic selection, visible glyph-based format selection, MIM_OMIT_WAIT handling, object_from_map reconstruction and fake-object deallocation, message output, then MIM_REVEAL. The bhitm callers use the three C call modes: MIM_REVEAL for locking/opening and MIM_REVEAL | MIM_OMIT_WAIT for stone-to-flesh. The new v46 range runs the object-glyph path through its production caller.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm calls that_is_a_mimic from WAN_LOCKING, WAN_OPENING, and SPE_STONE_TO_FLESH mimic branches"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "stumble_onto_mimic",
+                "source": "uhitm.c:stumble_onto_mimic calls that_is_a_mimic when the hero stumbles onto a mimic"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-to-hit.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 134,
+                "source": "cmd.c:read/cast -> zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm SPE_STONE_TO_FLESH -> pline.c:set_msg_xy -> uhitm.c:that_is_a_mimic -> pager.c:object_from_map -> mkobj.c:dealloc_obj -> seemimic"
+              }
+            ],
+            "checkedAt": "433694e5a221d44a3d68497619b87e8a274b2c23"
+          },
+          {
+            "name": "set_msg_xy",
+            "implementation": "js/pline.js",
+            "symbol": "set_msg_xy",
+            "sourceReview": "Read pline.c:set_msg_xy at 93-97 and the vpline consumer at 162-176. The setter stores the next-message coordinate; the JS consumer resets it on message emission and uses it only for a valid accessible-message location. zap.c:bhitm sets the coordinate immediately before the mimic message.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm SPE_STONE_TO_FLESH visible mimic branch calls set_msg_xy(mtmp->mx, mtmp->my) before that_is_a_mimic"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pline.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "pline.c",
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 134,
+                "source": "cmd.c:read/cast -> zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm SPE_STONE_TO_FLESH -> pline.c:set_msg_xy -> uhitm.c:that_is_a_mimic -> pager.c:object_from_map -> mkobj.c:dealloc_obj -> seemimic"
+              }
+            ],
+            "checkedAt": "433694e5a221d44a3d68497619b87e8a274b2c23"
+          }
+        ],
+        "entryPointReview": "The selected active entry point is a direct aimed Stone to Flesh spell cast that reaches the ordinary weffects -> bhit callback -> bhitm route. Its complete admitted segment reaches the visible stone-disguised mimic path, the message-coordinate setter, the canonical mimic formatter, the object glyph reconstruction and temporary-object cleanup, and the reveal. Source review also confirms the two other active bhitm calls to that_is_a_mimic (WAN_LOCKING and WAN_OPENING) are wired in source order; those calls do not change the selected runtime claim. bhitm’s other production callers remain weffects direct swallowed dispatch and zap_steed default delegation.",
+        "entryPoints": [
+          {
+            "name": "Aimed Stone to Flesh cast hits a visible mimic disguised as stone furniture or a stone object",
+            "functions": [
+              "bhitm",
+              {
+                "sourceFile": "uhitm.c",
+                "name": "that_is_a_mimic"
+              },
+              {
+                "sourceFile": "pline.c",
+                "name": "set_msg_xy"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-stone-to-flesh-statue-mimic-cast-attempt11",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 134,
+                "source": "cmd.c:read/cast -> zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm SPE_STONE_TO_FLESH -> pline.c:set_msg_xy -> uhitm.c:that_is_a_mimic -> pager.c:object_from_map -> mkobj.c:dealloc_obj -> seemimic"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
