@@ -1,5 +1,6 @@
 // quest.js -- quest dungeon branch routines.
-// C ref: quest.c onquest(), on_start(), on_locate(), on_goal(), not_capable(),
+// C ref: quest.c nemdead(), nemesis_stinks(), onquest(), on_start(), on_locate(),
+// on_goal(), not_capable(),
 // is_pure(), ok_to_quest(), expulsion(), chat_with_leader(), leader_speaks(),
 // quest_chat(), quest_talk(), and quest_stat_check().
 
@@ -25,7 +26,7 @@ import { align_str } from './insight.js';
 import { monnear } from './monmove.js';
 import { MS_DJINNI, MS_NEMESIS } from './monsters.js';
 import { qt_pager, QUEST_PAGER_OUTPUT } from './questpgr.js';
-import { rn2 } from './rng.js';
+import { rn2, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { noit_mon_nam } from './do_name.js';
 import { livelog_printf } from './pline.js';
@@ -75,6 +76,56 @@ export function artitouch(obj, state = game, ops = {}) {
     )).then(() => {
         exercise_nonphysical(A_WIS, true, state, random);
     });
+}
+
+// C ref: quest.c nemdead(). Mark the quest transition before showing its
+// pager; m_detach() must not repeat either the state change or the message.
+export function nemdead(state = game, ops = {}) {
+    const status = state.svq.quest_status;
+    if (status.killed_nemesis) return;
+
+    status.killed_nemesis = true;
+    const random = ops.random ?? { rn2, rnd };
+    const pagerRandom = typeof random === 'function' ? random : random.rn2;
+    return qt_pager(
+        'killed_nemesis', state, pagerRandom,
+        ops.output ?? QUEST_PAGER_OUTPUT,
+    );
+}
+
+// C ref: quest.c nemesis_stinks(). The temporary mon_moving value prevents
+// the hero from being credited with a cloud produced by the monster death.
+// region.create_gas_cloud is async in this port; restore the C state after its
+// source effects and message have completed, including on a thrown error.
+export async function nemesis_stinks(mx, my, state = game, ops = {}) {
+    const context = state.context ?? (state.context = {});
+    const saveMonMoving = context.mon_moving;
+    context.mon_moving = true;
+    try {
+        const [
+            { create_gas_cloud },
+            { block_point, cansee },
+            { newsym },
+            { ttyPline },
+        ] = await Promise.all([
+            import('./region.js'),
+            import('./vision.js'),
+            import('./display.js'),
+            import('./tty_message.js'),
+        ]);
+        await create_gas_cloud(mx, my, 5, 8, {
+            ...ops,
+            state,
+            random: ops.random ?? { rn2, rnd },
+            blockPoint: ops.blockPoint
+                ?? ((x, y) => block_point(x, y, state)),
+            canSee: ops.canSee ?? ((x, y) => cansee(x, y, state)),
+            newsym: ops.newsym ?? ((x, y) => newsym(x, y)),
+            message: ops.message ?? ((text) => ttyPline(text, state)),
+        });
+    } finally {
+        context.mon_moving = saveMonMoving;
+    }
 }
 
 // C ref: quest.c not_capable() (146-150).
