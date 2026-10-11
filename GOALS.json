@@ -277625,6 +277625,37 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "div-monshoot-hallucinated-display-rng-v47-20261011",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Keep hallucinated monster missile naming and projectile glyphs on the injected display RNG in live and planned callers.",
+      "cFile": "mthrowu.c",
+      "sessions": [],
+      "selectionReason": "The current v47 evaluation still first differs at step 106 while gameplay RNG and cursors fully match. The refreshed investigation traces the screen-only mismatch to mthrowu.c:monshoot naming and m_throw projectile glyphs losing the cloned display RNG in the shared JavaScript missile adapter; both thrwmu and thrwmm callers are exercised.",
+      "detail": "Pass the caller-owned display RNG through monshoot target naming, m_throw object glyph selection, and the pet mattackm adapter. This is a bounded divergence correction; m_throw remains incomplete for whole-source completion because its active spitmm caller lacks matching runtime evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "monshoot",
+      "session": "synthetic/v47/v47-hallucinated-monster-missile-name",
+      "step": 106,
+      "syntheticProvenance": {
+        "synthetic/v47/v47-hallucinated-monster-missile-name": {
+          "session": "synthetic/v47/v47-hallucinated-monster-missile-name",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-hallucinated-monster-missile-name",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+          "recordingSha256": "1631f5a7c1ff2e11a7a30fc0a833bf5a75fcbc26d72f77ef189a3af4acb44cf2",
+          "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+          "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89"
+        }
+      }
     }
   ]
 }
