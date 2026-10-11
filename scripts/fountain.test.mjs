@@ -806,7 +806,7 @@ test('drinksink scalding water respects fire resistance without a damage draw', 
     ]);
 });
 
-test('drinksink records discarded unported effects and respects Unchanging', async () => {
+test('drinksink preserves the unported polymorph and creates its stench cloud', async () => {
     for (const unchanging of [false, true]) {
         await startedGame();
         game.u.uprops[UNCHANGING].intrinsic = unchanging ? FROMOUTSIDE : 0;
@@ -824,16 +824,31 @@ test('drinksink records discarded unported effects and respects Unchanging', asy
         assert.equal(game.unported?.has('polyself.c polyself') ?? false, !unchanging);
     }
     await startedGame();
+    const cSource = await readFile(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url), 'utf8');
+    assert.match(cSource,
+        /case 13:\s*pline\("Ew, what a stench!"\);\s*create_gas_cloud\(u\.ux, u\.uy, 1, 4\);/u);
     const messages = [];
+    const pending = [[20, 13], [3, 1]];
     await drinksink(game, {
         message: (line) => messages.push(line),
         random: { rn2(bound) {
-            assert.equal(bound, 20);
-            return 13; // Positive-damage gas cloud remains a discarded gap.
+            const expected = pending.shift();
+            assert.ok(expected, `unexpected rn2(${bound})`);
+            assert.equal(bound, expected[0]);
+            return expected[1];
         } },
     });
-    assert.deepEqual(messages, ['Ew, what a stench!']);
-    assert.ok(game.unported.has('region.c create_gas_cloud'));
+    assert.deepEqual(pending, []);
+    assert.deepEqual(messages, [
+        'Ew, what a stench!',
+        'You are enveloped in a cloud of noxious gas!',
+    ]);
+    assert.equal(game.level.regions.length, 1);
+    assert.equal(game.level.regions[0].arg, 4);
+    assert.equal(game.level.regions[0].ttl, 5);
+    assert.equal(game.level.regions[0].hero_inside, true);
+    assert.equal(game.unported?.has('region.c create_gas_cloud') ?? false, false);
 });
 
 const RC = [

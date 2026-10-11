@@ -24,12 +24,14 @@ import {
     P_SKILLED,
     P_NUM_SKILLS,
     P_UNSKILLED,
+    MS_SILENT,
     ROWNO,
     TIMEOUT,
     W_TOOL,
 } from '../js/const.js';
 import {
     beautiful,
+    check_leash,
     can_grapple_location,
     grapple_menu_choice_to_hit,
     grapple_range,
@@ -77,6 +79,12 @@ const APPLY_C = readFileSync(
 const APPLY_JS = readFileSync(new URL('../js/apply.js', import.meta.url), 'utf8');
 const MON_JS = readFileSync(new URL('../js/mon.js', import.meta.url), 'utf8');
 const VAULT_JS = readFileSync(new URL('../js/vault.js', import.meta.url), 'utf8');
+const HACK_C = readFileSync(new URL('../nethack-c/upstream/src/hack.c', import.meta.url), 'utf8');
+const TRAP_C = readFileSync(new URL('../nethack-c/upstream/src/trap.c', import.meta.url), 'utf8');
+const ALLMAIN_C = readFileSync(new URL('../nethack-c/upstream/src/allmain.c', import.meta.url), 'utf8');
+const HACK_JS = readFileSync(new URL('../js/hack.js', import.meta.url), 'utf8');
+const TRAP_JS = readFileSync(new URL('../js/trap.js', import.meta.url), 'utf8');
+const ALLMAIN_JS = readFileSync(new URL('../js/allmain.js', import.meta.url), 'utf8');
 
 test('um_dist keeps the strict Chebyshev boundary in one apply.c owner', () => {
     const cStart = APPLY_C.indexOf('\num_dist(');
@@ -256,6 +264,59 @@ test('beautiful() uses poly_gender only in the two gendered ranges', () => {
     assert.equal(beautiful(stateAtCharisma(16, true)), 'beautiful');
     assert.equal(beautiful(stateAtCharisma(19, true)), 'splendorous');
     assert.equal(FEMALE, 1);
+});
+
+test('apply.c check_leash follows its distance gate and all three production callers', async () => {
+    const cStart = APPLY_C.indexOf('\ncheck_leash(coordxy x, coordxy y)');
+    const cEnd = APPLY_C.indexOf('\n}\n', cStart) + 2;
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'apply.c must contain the complete check_leash definition');
+    const cBody = APPLY_C.slice(cStart, cEnd);
+    assert.match(cBody, /find_mid\(otmp->leashmon, FM_FMON\)/u);
+    assert.match(cBody, /dist2\(u\.ux, u\.uy, mtmp->mx, mtmp->my\)\s*>\s*dist2\(x, y, mtmp->mx, mtmp->my\)/u);
+    assert.match(cBody, /if \(!um_dist\(mtmp->mx, mtmp->my, 3\)\)/u);
+    assert.match(cBody, /otmp->cursed && !breathless\(mtmp->data\)/u);
+    assert.match(cBody, /switch \(rn2\(3\)\)/u);
+
+    const jsStart = APPLY_JS.indexOf('export async function check_leash(');
+    const jsEnd = APPLY_JS.indexOf('\n// C ref: apply.c grapple_range()', jsStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsBody = APPLY_JS.slice(jsStart, jsEnd);
+    assert.match(jsBody, /dist2\(state\.u\.ux, state\.u\.uy, monster\.mx, monster\.my\)[\s\S]*dist2\(x, y, monster\.mx, monster\.my\)/u);
+    assert.match(jsBody, /random\.rn2\(3\)/u);
+    assert.match(jsBody, /await xkilled\(monster, XKILL_NOMSG/u);
+
+    assert.match(HACK_C, /check_leash\(u\.ux0, u\.uy0\);/u);
+    assert.match(TRAP_C, /vision_recalc\(1\);\s*check_leash\(u\.ux0, u\.uy0\);\s*if \(Punished\)/u);
+    assert.match(ALLMAIN_C, /if \(!next_to_u\(\)\) \{\s*check_leash\(old_ux, old_uy\);/u);
+    assert.match(HACK_JS, /hideunder\(state\.youmonst, \{ state \}\);\s*\}\s*\/\/ C ref: hack\.c domove_core\(\):2962[\s\S]*?await check_leash\(u\.ux0, u\.uy0, \{ state \}\);\s*newsym/u);
+    assert.match(TRAP_JS, /vision_recalc\(1, \{ state \}\);\s*\/\/ C ref: trap\.c move_into_trap\(\):5413[\s\S]*?await check_leash\(u\.ux0, u\.uy0, \{ state \}\);\s*if \(Punished/u);
+    assert.match(ALLMAIN_JS, /teleport\.c:tele\(\) is a discarded void call[\s\S]*?note_unported\('teleport\.c tele'\);[\s\S]*?await check_leash\(oldUx, oldUy/u);
+
+    const monster = {
+        m_id: 27, mx: 6, my: 10, mleashed: 1, mhp: 8, mtame: 10,
+        data: { msound: MS_SILENT },
+    };
+    const leash = { otyp: LEASH, leashmon: 27, cursed: false, nobj: null };
+    const state = {
+        u: { ux: 10, uy: 10, uconduct: { killer: 0 } },
+        invent: leash,
+        level: { monlist: monster },
+    };
+    const messages = [];
+    const draws = [];
+    await check_leash(9, 10, {
+        state,
+        message: async line => messages.push(line),
+        random: {
+            rnd: n => { draws.push(`rnd(${n})`); return 1; },
+            rn2: n => { draws.push(`rn2(${n})`); return 0; },
+        },
+    });
+    assert.deepEqual(messages, ['You pull on the leash.']);
+    assert.deepEqual(draws, [], "silent pets skip the sound-choice draw");
+    assert.equal(leash.leashmon, 27);
+    assert.equal(monster.mleashed, 1);
 });
 
 test('number_leashed counts only active inventory leash objects', () => {

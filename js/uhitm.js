@@ -636,10 +636,11 @@ import {
     find_mac,
     is_pole,
     mon_adjust_speed,
+    setnotworn,
     set_twoweap,
     which_armor,
 } from './worn.js';
-import { findgold, steal, stealgold } from './steal.js';
+import { findgold, steal, stealgold, stealamulet } from './steal.js';
 import { rloc, tele, tele_restrict, u_teleport_mon } from './teleport.js';
 import {
     Flying,
@@ -2900,13 +2901,21 @@ async function hmon_hitmon_weapon(hmd, mon, obj, state, env, random) {
     }
 }
 
-// C ref: uhitm.c hmon_hitmon_misc_obj() (1204-1300). The cream pie arm is
-// reached by dothrow.c for a thrown nonweapon. It blinds and angers a visible
-// defender, consumes the object, and leaves zero damage while marking the hit
-// text so the generic damage and message tails do not add a second result.
+// C ref: uhitm.c hmon_hitmon_misc_obj() (1119-1386). This switch handles
+// held and thrown nonweapon hits, including their object-lifetime effects.
 async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
     const message = requireAttackOperation(env, 'message');
-    const lifeEnv = { ...env, state, random };
+    const wornEnv = setwornEnv(state, env);
+    const lifeEnv = {
+        ...env,
+        state,
+        random,
+        hooks: {
+            ...wornEnv.hooks,
+            // invent.c:useupall reaches worn.c:setnotworn before extraction.
+            setNotWorn: target => setnotworn(target, wornEnv),
+        },
+    };
 
     /* Keep the complete non-weapon switch in the uhitm.c owner.  These arms
        are reached by do_hit() for ordinary objects and by dothrow for thrown
@@ -2942,9 +2951,10 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             `You succeed in destroying ${ysimpleName(obj, state)}.  Congratulations!`,
             state,
         );
-        // release_camera_demon() is a discarded side effect in C.  Preserve
-        // that explicit source boundary without inventing a monster or draw.
-        note_unported('dothrow.c release_camera_demon');
+        // dothrow.c's void helper runs before invent.c consumes the equipped
+        // camera. Dynamic import follows the adjacent breaktest() path above.
+        const { release_camera_demon } = await import('./dothrow.js');
+        await release_camera_demon(obj, state.u.ux, state.u.uy, lifeEnv);
         await useup(obj, lifeEnv);
         hmd.doreturn = true;
         hmd.retval = true;
@@ -3588,6 +3598,30 @@ export async function hmon_hitmon_msg_silver(hmd, mon, state = game, env = {}) {
     await requireAttackOperation(env, 'message')(text, state);
 }
 
+// C ref: uhitm.c hmon_hitmon_msg_lightobj() (1702-1730); obj is unused.
+export async function hmon_hitmon_msg_lightobj(hmd, mon, state = game, env = {}) {
+    // C evaluates mon_nam() before its separate visibility test. Under
+    // hallucination, the existing name owner may consume display RNG here.
+    let whom = mon_nam(mon, state, env);
+    const visible = canspotmon(mon, state);
+    let prefix;
+    let suffix;
+    if (visible) {
+        prefix = hmd.saved_oname
+            ? s_suffix(hmd.saved_oname) + ' radiance penetrates deep into '
+            : 'The light sears ';
+        suffix = '!';
+    } else {
+        whom = highc(whom[0]) + whom.slice(1);
+        prefix = '';
+        suffix = ' is seared!';
+    }
+    if (!noncorporeal(hmd.mdat) && !amorphous(hmd.mdat))
+        whom = s_suffix(whom) + ' flesh';
+    const line = visible ? prefix + whom + suffix : whom + suffix;
+    await requireAttackOperation(env, 'message')(line, state);
+}
+
 // C ref: uhitm.c hmon_hitmon() (1752-1935), the guts of hmon(). Everything
 // between the decision that a blow landed and the target's reaction to it.
 //
@@ -3602,7 +3636,7 @@ export async function hmon_hitmon_msg_silver(hmd, mon, state = game, env = {}) {
 //   1821-1822 shade_miss() feedback, for a shade that took no damage.
 //   1826      hmon_hitmon_jousting(), which can move a mounted target through
 //             the return-valued mhurtle_to_doom() helper.
-//   1880      hmon_hitmon_msg_lightobj(), the remaining Sunsword feedback gap.
+//   1880      hmon_hitmon_msg_lightobj(), which uses the saved artifact name
 //   1898-1907 the poison messages and xkilled(); hmon_hitmon_poison() sets
 //             those flags before this tail.
 //   1911      killed(), the kill itself, which mon.c owns.
@@ -3758,7 +3792,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
         await hmon_hitmon_msg_silver(hmd, mon, state, env);
 
     if (hmd.lightobj)
-        note_unported('uhitm.c hmon_hitmon_msg_lightobj');
+        await hmon_hitmon_msg_lightobj(hmd, mon, state, env);
 
     const postMessage = requireAttackOperation(env, 'message');
     if (hmd.needpoismsg)
@@ -6470,7 +6504,8 @@ export async function mhitm_ad_samu(
     } else if (mdef === state.youmonst) {
         await hitmsg(magr, mattk, state, env);
         const random = env.random ?? { rn2 };
-        if (!random.rn2(20)) note_unported('steal.c stealamulet');
+        if (!random.rn2(20))
+            await stealamulet(magr, { ...env, state });
     } else {
         mhm.damage = 0;
     }

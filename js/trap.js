@@ -230,7 +230,7 @@ import {
 } from './dungeon.js';
 import { schedule_goto } from './do.js';
 import { next_to_u } from './apply_next_to_u.js';
-import { number_leashed, unleash_all } from './apply.js';
+import { check_leash, number_leashed, unleash_all } from './apply.js';
 import { done } from './end.js';
 import {
     canseemon, feel_newsym, rank_of, map_invisible, under_water,
@@ -2522,7 +2522,8 @@ async function move_into_trap(ttmp, state = game) {
         u.umoved = true;
         newsym(u.ux0, u.uy0);
         vision_recalc(1, { state });
-        note_unported('apply.c check_leash');
+        // C ref: trap.c move_into_trap():5413, before move_bc() and spoteffects().
+        await check_leash(u.ux0, u.uy0, { state });
         if (Punished(state))
             move_bc(0, bc.value, bx.value, by.value, cx.value, cy.value, state);
         ttmp.tseen = 0; /* hack for check_here() */

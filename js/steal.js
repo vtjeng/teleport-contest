@@ -74,6 +74,7 @@ import {
 import { obj_sheds_light } from './light.js';
 import {
     attacktype,
+    can_teleport,
     dead_species,
     dmgtype,
     is_animal,
@@ -90,14 +91,20 @@ import { objectGenerationEnv } from './object_generation.js';
 import {
     ARMOR_CLASS,
     AMULET_CLASS,
+    AMULET_OF_YENDOR,
+    BELL,
+    BELL_OF_OPENING,
     BOULDER,
+    CANDELABRUM_OF_INVOCATION,
     COIN_CLASS,
     CORPSE,
+    FAKE_AMULET_OF_YENDOR,
     FOOD_CLASS,
     GOLD_PIECE,
     LEASH,
     RING_CLASS,
     ROCK_CLASS,
+    SPE_BOOK_OF_THE_DEAD,
     TOOL_CLASS,
 } from './objects.js';
 import {
@@ -143,7 +150,7 @@ import { rloc, tele_restrict } from './teleport.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { canseemon, canspotmon } from './display.js';
-import { touch_artifact } from './artifacts.js';
+import { ART_ORB_OF_DETECTION, touch_artifact } from './artifacts.js';
 import { body_part, mbodypart } from './polyself.js';
 
 export class UnsupportedMonsterPickupOperationError extends Error {
@@ -841,6 +848,106 @@ export async function steal(
     }
 
     return (state.multi ?? 0) < 0 ? 0 : 1;
+}
+
+// C ref: steal.c:stealamulet(). A Wizard or quest nemesis uses this
+// void effect after the AD_SAMU hit chance succeeds. The C caller discards
+// mpickobj() and rloc() results; their inventory and relocation effects still
+// run before the theft message and encumbrance update.
+export async function stealamulet(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2, rnd };
+    const message = rawEnv.message ?? ttyPline;
+    const have = state.u?.uhave ?? {};
+    let otmp = null;
+    let n = 0;
+
+    // obj.h:any_quest_artifact() includes every role's artifact, not just the
+    // one for the current hero.
+    const anyQuestArtifact = (obj) =>
+        obj.oartifact >= ART_ORB_OF_DETECTION;
+    for (let obj = state.invent; obj; obj = obj.nobj) {
+        if (anyQuestArtifact(obj)) {
+            n++;
+            otmp = obj;
+        }
+    }
+    if (n > 1) {
+        n = random.rnd(n);
+        for (otmp = state.invent; otmp; otmp = otmp.nobj) {
+            if (anyQuestArtifact(otmp) && !--n) break;
+        }
+    }
+
+    if (!otmp) {
+        let real = 0;
+        let fake = 0;
+        if (have.amulet) {
+            real = AMULET_OF_YENDOR;
+            fake = FAKE_AMULET_OF_YENDOR;
+        } else if (have.bell) {
+            real = BELL_OF_OPENING;
+            fake = BELL;
+        } else if (have.book) {
+            real = SPE_BOOK_OF_THE_DEAD;
+        } else if (have.menorah) {
+            real = CANDELABRUM_OF_INVOCATION;
+        } else {
+            return;
+        }
+
+        for (let obj = state.invent; obj; obj = obj.nobj) {
+            if (obj.otyp === real || (obj.otyp === fake && !mtmp.iswiz)) {
+                n++;
+                otmp = obj;
+            }
+        }
+        if (n > 1) {
+            n = random.rnd(n);
+            for (otmp = state.invent; otmp; otmp = otmp.nobj) {
+                if ((otmp.otyp === real
+                    || (otmp.otyp === fake && !mtmp.iswiz)) && !--n)
+                    break;
+            }
+        }
+    }
+
+    if (!otmp) return;
+
+    // Remove outer equipment before a protected artifact under it, in the
+    // order steal.c uses so each removal observes the then-current state.
+    if ((otmp === state.uarm || otmp === state.uarmu) && state.uarmc)
+        await worn_item_removal(mtmp, state.uarmc, state, rawEnv);
+    if (otmp === state.uarmu && state.uarm)
+        await worn_item_removal(mtmp, state.uarm, state, rawEnv);
+    if ((otmp === state.uarmg
+        || ((otmp === state.uright || otmp === state.uleft) && state.uarmg))
+        && state.uwep) {
+        if (state.u.twoweap)
+            await worn_item_removal(mtmp, state.uswapwep, state, rawEnv);
+        await worn_item_removal(mtmp, state.uwep, state, rawEnv);
+    }
+    if ((otmp === state.uright || otmp === state.uleft) && state.uarmg)
+        await worn_item_removal(mtmp, state.uarmg, state, rawEnv);
+    if (otmp.owornmask)
+        await worn_item_removal(mtmp, otmp, state, rawEnv);
+
+    if (otmp.unpaid)
+        subfrombill(
+            otmp,
+            shop_keeper(state.u?.ushops?.[0] ?? 0, state),
+            state,
+            rawEnv,
+        );
+    await freeinv(otmp, { ...rawEnv, state });
+    const objectName = donameFresh(otmp, state);
+    mpickobj(mtmp, otmp, { ...rawEnv, state, random });
+    await message(`${Some_Monnam(mtmp, state)} steals ${objectName}!`, state);
+    if (can_teleport(mtmp.data)
+        && !await tele_restrict(mtmp, state, rawEnv)) {
+        await rloc(mtmp, RLOC_MSG, { ...rawEnv, state, random });
+    }
+    await encumber_msg(state, { message });
 }
 
 function dropEnv(rawEnv = {}) {

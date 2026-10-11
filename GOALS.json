@@ -267362,6 +267362,1685 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-fountain-drinksink-v45-sink-gas-cloud-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port complete sink drinking outcomes and damaging gas-cloud creation.",
+      "cFile": "fountain.c",
+      "sessions": [
+        "synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture"
+      ],
+      "selectionReason": "The current v45 baseline and complete investigation trace step 32 to fountain.c:drinksink case 13, where JavaScript records a gap instead of calling region.c:create_gas_cloud; the whole drinksink function and its existing potion.c:dodrink caller form the selected source task.",
+      "detail": "",
+      "openedAt": "ebcc0ba2d557819e4dae5c97aa9c700fe8f0fe5c",
+      "openStanding": {
+        "sha": "528fa2cac0c345d688aef964249dad5b49ba58a1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "drinksink",
+          "line": 595,
+          "endLine": 715,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 595,
+        "to": 715
+      },
+      "syntheticProvenance": {
+        "synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture": {
+          "session": "synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.session.json",
+          "recordingSha256": "c74d0b24289928a6682a504634f97d7c6c11043aac89792ff63f76934f848782",
+          "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+          "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55"
+        }
+      },
+      "activeStanding": {
+        "sha": "528fa2cac0c345d688aef964249dad5b49ba58a1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "session": "synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.session.json",
+          "recordingPath": "challenges/cases/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.session.json",
+          "recordingSha256": "c74d0b24289928a6682a504634f97d7c6c11043aac89792ff63f76934f848782",
+          "recipe": "challenges/cases/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.recipe.session.json",
+          "recipeSha256": "55069c7a255ee25ff26e8ea461eb1fb330d8834aaaa6bc2ed45a8438b40dccb9",
+          "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+          "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+          "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+          "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+          "evaluationUtc": "2026-10-11T09:20:20.964Z",
+          "remainingScreens": 113,
+          "recordedSteps": 145,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 145
+            },
+            "rng": {
+              "matched": 2887,
+              "total": 3257
+            },
+            "cursors": {
+              "matched": 103,
+              "total": 145
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 20,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2881,
+              "cEntry": "rn2(3)=1",
+              "cCaller": "create_gas_cloud(region.c:1303)",
+              "jsEntry": "rn2(12)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "y"
+              },
+              "stepIndex": 32
+            },
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "y"
+              },
+              "cCursor": [
+                72,
+                0,
+                1
+              ],
+              "jsCursor": [
+                63,
+                8,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "rng",
+          "sourceFile": "region.c",
+          "function": "create_gas_cloud",
+          "message": null,
+          "cFile": "region.c",
+          "luaFile": null,
+          "line": 1303,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.json",
+            "result": {
+              "session": "synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+              "remainingScreens": 113,
+              "recordedSteps": 145,
+              "status": "complete",
+              "commit": "8ea8ac149e8b07bb027b2b2fcfec5e6641c3210e",
+              "queueSha256": "9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+                "session": "synthetic/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recordingPath": "challenges/cases/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.session.json",
+                "recordingSha256": "c74d0b24289928a6682a504634f97d7c6c11043aac89792ff63f76934f848782",
+                "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+                "remainingScreens": 113,
+                "recordedSteps": 145,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 145
+                  },
+                  "rng": {
+                    "matched": 2887,
+                    "total": 3257
+                  },
+                  "cursors": {
+                    "matched": 103,
+                    "total": 145
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 20,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2881,
+                    "cEntry": "rn2(3)=1",
+                    "cCaller": "create_gas_cloud(region.c:1303)",
+                    "jsEntry": "rn2(12)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "y"
+                    },
+                    "stepIndex": 32
+                  },
+                  "cursor": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "y"
+                    },
+                    "cCursor": [
+                      72,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      63,
+                      8,
+                      1
+                    ]
+                  }
+                },
+                "step": 32,
+                "kind": "rng",
+                "sourceFile": "region.c",
+                "function": "create_gas_cloud",
+                "cFile": "region.c",
+                "line": 1303
+              },
+              "summary": "At zero-based step 32, fountain.c:drinksink selects case 13, prints the stench message, and C creates a size-one damaging gas cloud on the hero. JavaScript prints the message but skips that source call through note_unported, so C's cloud TTL draw and region side effects are absent; the next JS draw belongs to monster movement. The missing behavior is the sink caller branch, not a defect in the existing region cloud algorithm.",
+              "source": {
+                "file": "fountain.c",
+                "branch": "drinksink case 13 is selected by rn2(20)==13 after dodrink accepts a sink prompt; the hero is standing on the sink and drinksink calls create_gas_cloud(u.ux, u.uy, 1, 4). The source function's entire case switch is already represented in JS except that this positive-damage gas-cloud call is skipped.",
+                "functions": [
+                  "drinksink"
+                ],
+                "callers": [
+                  "potion.c:dodrink calls drinksink after IS_SINK and can_reach_floor pass and the user answers yes; js/potion.js:dodrink already wires that production path to js/fountain.js:drinksink."
+                ],
+                "dependencies": [
+                  "region.c:create_gas_cloud is already implemented by js/region.js:create_gas_cloud, including positive damage, the 1..3 TTL draw, visible region activation, hero-inside state, and the enveloped message. Its runtime caller environment requires blockPoint, canSee, newsym, and message operations."
+                ]
+              },
+              "goalKind": "file-port",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingSha256": "c74d0b24289928a6682a504634f97d7c6c11043aac89792ff63f76934f848782",
+              "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+              "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+              "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+              "evidence": [
+                "Saved combined queue 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b and v45 evaluation b317571a6e76a6dfab39e023745bcec4ea758e55 identify the first mismatch at zero-based step 32, key y: cloud glyph cell (row 0, column 20), RNG call 2881, and cursor. The recorded C step has 32/145 screens and 103/145 cursors matched before this boundary.",
+                "nethack-c/upstream/src/fountain.c:595-712 — the whole drinksink function selects one of twenty outcomes; case 13 at lines 696-699 prints the stench and calls create_gas_cloud(u.ux, u.uy, 1, 4). The production caller is potion.c:dodrink at line 556 after the sink prompt succeeds.",
+                "nethack-c/upstream/src/region.c:1213-1308 — create_gas_cloud on cloudsize 1 skips the expansion loop, draws rn1(3,4) at line 1303, builds a region, and calls make_gas_cloud. With a damage-4 cloud centered on the hero, make_gas_cloud adds the visible region and prints the enveloped-in-noxious-gas message because the Samurai is not poison-gas immune.",
+                "The admitted recording's step 32 C RNG begins rn2(20)=13 at fountain.c:604, then rn2(3)=1 at create_gas_cloud(region.c:1303); its C screen says ‘Ew, what a stench! You are enveloped in a cloud of noxious gas!’ and displays the cloud glyph. Step 33 then reaches inside_gas_cloud with the eyes/lungs effects.",
+                "js/fountain.js:1269-1402 — drinksink case 13 prints the same stench line, then calls note_unported('region.c create_gas_cloud') instead of its already imported create_gas_cloud helper. Consequently the next recorded JS RNG is rn2(12)=0 from mon.c:mcalcmove; it has no cloud glyph or hero-inside region state.",
+                "js/region.js:962-1037 and scripts/region.test.mjs:309-353 — the canonical JS create_gas_cloud path already accepts positive damage and matches C's size-one TTL and visible activation contract; current direct tests cover the damaging helper. The remaining scope is the drinksink production call and its focused caller test, not a second region implementation.",
+                "The manifest compares the behavior with v13 scroll-created poison gas and v29 sink-quaff attempts; those do not reach this source-specific fountain.c:drinksink case-13 call. This case is the admitted C-first sink caller evidence."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "drinksink",
+            "implementation": "js/fountain.js",
+            "symbol": "drinksink",
+            "sourceReview": "Read all of fountain.c:595-712 in definition order, including every fate and the rn2(20) selection/default temperature draw ordering. Case 13 now preserves the C order: emit the stench message, create a one-square damage-4 cloud at the hero through region.js:create_gas_cloud, then return without consuming its unused result. The helper owns the rn1(3,4) TTL draw and visible region activation. The pre-existing case-10 note_unported(\"polyself.c polyself\") remains because C discards that call result; no placeholder remains for the implemented region.c:create_gas_cloud call.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "nethack-c/upstream/src/potion.c:dodrink calls drinksink after the IS_SINK/can_reach_floor checks and a yes answer; js/potion.js awaits drinksink(state) at its corresponding accepted-prompt branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 34,
+                "source": "potion.c:dodrink accepts the sink prompt -> fountain.c:drinksink case 13 -> region.c:create_gas_cloud -> region.c:inside_gas_cloud"
+              }
+            ],
+            "checkedAt": "d5e6136482d87d917d185f18bfab95c1a2a596bc"
+          }
+        ],
+        "entryPointReview": "fountain.c:drinksink has one active production entry path in this source unit: potion.c:dodrink passes the accepted sink prompt to drinksink after checking that the hero can reach the floor. The existing js/potion.js:dodrink caller performs the same dispatch. The admitted v45 case traverses that command path and reaches case 13 at step 32; steps 31–34 cover the confirmation, cloud creation, and ensuing gas-region effects. No caller is excluded by recorder build conditions.",
+        "entryPoints": [
+          {
+            "name": "Drink from a sink after accepting the prompt",
+            "functions": [
+              "drinksink"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 34,
+                "source": "potion.c:dodrink accepts the sink prompt -> fountain.c:drinksink case 13 -> region.c:create_gas_cloud -> region.c:inside_gas_cloud"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-steal-stealamulet-v45-wizard-demon-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port Wizard and quest-nemesis special-item theft from the complete stealamulet source function.",
+      "cFile": "steal.c",
+      "sessions": [
+        "synthetic/v45/v45-stealamulet-wizard-demon-attempt10-cfirst"
+      ],
+      "selectionReason": "The admitted v45 Wizard case first diverges when the AD_SAMU gate reaches the unported steal.c stealamulet behavior.",
+      "detail": "Port complete steal.c:stealamulet and wire its active uhitm.c:mhitm_ad_samu caller, preserving quest-artifact choice, worn-item removal, billing, inventory transfer, theft message, relocation, and encumbrance order.",
+      "openedAt": "c2397ffc5057eb99004d3f515be4ed0083adf907",
+      "openStanding": {
+        "sha": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "stealamulet",
+          "line": 689,
+          "endLine": 771,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 689,
+        "to": 771
+      },
+      "syntheticProvenance": {
+        "synthetic/v45/v45-stealamulet-wizard-demon-attempt10-cfirst": {
+          "session": "synthetic/v45/v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.session.json",
+          "recordingSha256": "2e228e977c11b0b56d8419558bf9649e4b1a3fbec242ee88376e40f5a6e6a376",
+          "evaluationPath": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+          "evaluationCommit": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e"
+        }
+      },
+      "activeStanding": {
+        "sha": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "session": "synthetic/v45/v45-stealamulet-wizard-demon-attempt10-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.session.json",
+          "recordingSha256": "2e228e977c11b0b56d8419558bf9649e4b1a3fbec242ee88376e40f5a6e6a376",
+          "recipe": "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.recipe.session.json",
+          "recipeSha256": "e5f92ace07beba8131620a568b0f7a84e874e6269672e8d19da71f4816dd73d2",
+          "replayInputSha256": "4044080e4efdfdb0b59832522405707840dde5930b2833dc24614114489fccb8",
+          "evaluationPath": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+          "evaluationCommit": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+          "evaluationArtifact": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+          "evaluationUtc": "2026-10-11T09:59:16.363Z",
+          "remainingScreens": 33,
+          "recordedSteps": 184,
+          "previousScreensMatched": 151,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 151,
+              "total": 184
+            },
+            "rng": {
+              "matched": 2831,
+              "total": 3047
+            },
+            "cursors": {
+              "matched": 153,
+              "total": 184
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 151,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 151,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 26,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2826,
+              "cEntry": "rnd(79)=45",
+              "cCaller": "rloc(teleport.c:1850)",
+              "jsEntry": "rn2(3)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 154,
+                "key": " "
+              },
+              "stepIndex": 154
+            },
+            "cursor": {
+              "index": 151,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 151,
+                "key": " "
+              },
+              "cCursor": [
+                34,
+                0,
+                1
+              ],
+              "jsCursor": [
+                78,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 151,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.json",
+            "result": {
+              "session": "synthetic/v45/v45-stealamulet-wizard-demon-attempt10-cfirst",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-stealamulet-wizard-demon-attempt10-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingPath": "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.session.json",
+              "recordingSha256": "2e228e977c11b0b56d8419558bf9649e4b1a3fbec242ee88376e40f5a6e6a376",
+              "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+              "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+              "remainingScreens": 33,
+              "recordedSteps": 184,
+              "status": "complete",
+              "commit": "59e77ae81300ee8c0ebcab04852f42a38f5a3cc3",
+              "queueSha256": "9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-stealamulet-wizard-demon-attempt10-cfirst",
+                "session": "synthetic/v45/v45-stealamulet-wizard-demon-attempt10-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.session.json",
+                "recordingSha256": "2e228e977c11b0b56d8419558bf9649e4b1a3fbec242ee88376e40f5a6e6a376",
+                "recipe": "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.recipe.session.json",
+                "recipeSha256": "e5f92ace07beba8131620a568b0f7a84e874e6269672e8d19da71f4816dd73d2",
+                "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+                "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+                "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationUtc": "2026-10-11T09:20:20.964Z",
+                "remainingScreens": 33,
+                "recordedSteps": 184,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 151,
+                    "total": 184
+                  },
+                  "rng": {
+                    "matched": 2831,
+                    "total": 3047
+                  },
+                  "cursors": {
+                    "matched": 153,
+                    "total": 184
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 151,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 151,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 26,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2826,
+                    "cEntry": "rnd(79)=45",
+                    "cCaller": "rloc(teleport.c:1850)",
+                    "jsEntry": "rn2(3)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 154,
+                      "key": " "
+                    },
+                    "stepIndex": 154
+                  },
+                  "cursor": {
+                    "index": 151,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 151,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      34,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      78,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 151,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v45 Wizard-of-Yendor Amulet-theft case reaches the monster-to-hero AD_SAMU hit path at segment 0 step 151. C draws rn2(20)=0 in uhitm.c:mhitm_ad_samu and calls steal.c:stealamulet; JavaScript preserves the 1-in-20 gate but records note_unported(\"steal.c stealamulet\"), so it does not remove the Amulet or perform the thief inventory, message, and relocation effects. The C recording shows the theft message at step 154 and then the Wizard vanishing. The missing owner is the whole steal.c:stealamulet function and its existing uhitm.js caller site.",
+              "source": {
+                "file": "steal.c",
+                "branch": "A Wizard or quest nemesis hits the hero with AD_SAMU and the uhitm.c:mhitm_ad_samu rn2(20) gate succeeds. stealamulet first seeks any carried quest artifact; if none exists, it selects the Amulet, Bell, Book, or Candelabrum according to u.uhave, avoiding fake Amulets for the Wizard. For a selected object it removes required outer gear, extracts the item from hero inventory, gives it to the monster, prints the theft message, relocates a teleport-capable thief unless tele_restrict applies, and updates encumbrance.",
+                "functions": [
+                  "stealamulet"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_ad_samu calls stealamulet(magr) after hitmsg when rn2(20) is zero. For the selected monster-to-hero attack, mhitu.c:mattacku calls uhitm.c:mhitm_adtyping, which dispatches AD_SAMU to mhitm_ad_samu.",
+                  "JavaScript production path: mhitu.js:mattacku -> uhitm.js:mhitm_adtyping -> mhitm_ad_samu. The helper preserves the same rn2(20) gate and now awaits stealamulet at the former note_unported call site."
+                ],
+                "dependencies": [
+                  "The existing JavaScript owners provide worn_item_removal and mpickobj in steal.js, freeinv and encumber_msg in invent.js/pickup.js, shop_keeper and subfrombill in shk.js, and can_teleport, tele_restrict, and rloc in mondata.js/teleport.js. The C results from worn_item_removal, mpickobj, rloc, and encumber_msg are discarded here.",
+                  "C obj.h:any_quest_artifact is a macro that recognizes every quest artifact by its artifact-number range; steal.js currently has is_quest_artifact for only the hero role, so the port must preserve the broader C predicate rather than reuse the narrower helper."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved combined queue SHA-256 is 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b. Its v45 entry has manifest c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649, recording 2e228e977c11b0b56d8419558bf9649e4b1a3fbec242ee88376e40f5a6e6a376, evaluation challenges/evaluations/v45-baseline-b317571a6.json at b317571a6e76a6dfab39e023745bcec4ea758e55, and 33 remaining screens out of 184 recorded steps.",
+                "The admitted C recording reaches the gate at segment 0 step 151 on space and logs rn2(20)=0 @ mhitm_ad_samu(uhitm.c:4583). At step 154 it displays “The Wizard of Yendor steals the Amulet of Yendor!” and logs the monster relocation draws from rloc(teleport.c:1850-1851).",
+                "Upstream mhitu.c:mattacku (1191) calls uhitm.c:mhitm_adtyping, which dispatches AD_SAMU to mhitm_ad_samu (4782-4823). The monster-to-hero branch of mhitm_ad_samu (4570-4589) emits hitmsg, then calls stealamulet(magr) when rn2(20) is zero. Upstream steal.c:stealamulet (689-767) scans inventory for any quest artifact, falls back to the invocation objects carried, removes required worn outer items in source order, bills and removes the selected object, copies its name, transfers it with mpickobj, emits the theft message, conditionally calls rloc, then calls encumber_msg.",
+                "The live JavaScript path is mhitu.js:mattacku -> uhitm.js:mhitm_adtyping -> mhitm_ad_samu. That caller previously preserved hitmsg and the same random gate but substituted note_unported(\"steal.c stealamulet\"); it now calls the new steal.js:stealamulet helper. steal.js's canonical worn_item_removal and mpickobj helpers and existing inventory/shop helpers are reused.",
+                "The mismatch is missing behavior, not an RNG defect inside the existing teleport.c:rloc implementation: C reaches rloc only after the theft selection, inventory transfer, and theft message. The source scope is the complete steal.c:stealamulet function plus the exact uhitm.js caller wiring; preserve the distinct uhitm.c:mhitm_ad_samu implementation and its other combat-direction branches."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "stealamulet",
+            "implementation": "js/steal.js",
+            "symbol": "stealamulet",
+            "sourceReview": "Read the whole upstream steal.c:stealamulet() definition (689-767). The implementation scans the hero inventory in C linked-list order for any quest artifact using the obj.h threshold, otherwise selects among carried invocation objects from u.uhave while excluding fake Amulets for the Wizard. It preserves both rnd(n) selection loops, outer-gear removal order, shop billing, freeinv before doname, mpickobj before the theft message, conditional rloc after that message, and encumber_msg last. All required effects reuse existing owners; C discards the result of worn_item_removal, mpickobj, rloc, and encumber_msg. The former gated note_unported(\"steal.c stealamulet\") was removed from uhitm.js.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_samu",
+                "source": "uhitm.c:mhitm_ad_samu calls stealamulet(magr) after hitmsg when rn2(20) is zero; the JavaScript helper is awaited at that exact gate."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping dispatches AD_SAMU to mhitm_ad_samu; only its monster-to-hero direction can reach stealamulet."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku calls uhitm.c:mhitm_adtyping for the monster attack against the hero; this is the admitted Wizard production route."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-samu.test.mjs",
+              "scripts/steal.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-stealamulet-wizard-demon-attempt10-cfirst",
+                "segment": 0,
+                "fromStep": 151,
+                "throughStep": 157,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping/mhitm_ad_samu -> steal.c:stealamulet; the successful AD_SAMU gate steals the carried Amulet, transfers it with mpickobj, prints the theft, and relocates the Wizard through teleport.c:rloc"
+              }
+            ],
+            "checkedAt": "5cbb3cd37f9e17accf1f8314a96ab8d14cac260b"
+          }
+        ],
+        "entryPointReview": "The complete steal.c:stealamulet function has one active C entry path: mhitu.c:mattacku reaches uhitm.c:mhitm_adtyping, whose AD_SAMU dispatch calls uhitm.c:mhitm_ad_samu; that handler calls stealamulet only in its monster-to-hero branch after rn2(20) succeeds. The admitted Wizard case exercises this path and matches through the successful theft, object transfer, theft message, and Wizard relocation. The other two mhitm_ad_samu direction branches do not call stealamulet, so they are not additional active entries for this function.",
+        "entryPoints": [
+          {
+            "name": "A Wizard or quest nemesis hits the hero with AD_SAMU and passes the 1-in-20 theft gate",
+            "functions": [
+              "stealamulet"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-stealamulet-wizard-demon-attempt10-cfirst",
+                "segment": 0,
+                "fromStep": 151,
+                "throughStep": 157,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping/mhitm_ad_samu -> steal.c:stealamulet; the successful AD_SAMU gate steals the carried Amulet, transfers it with mpickobj, prints the theft, and relocates the Wizard through teleport.c:rloc"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-apply-check-leash-v45-20261011",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete leash-distance handling and wire its movement, trap, and periodic teleport callers.",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v45/v45-leash-sleep-wand-strain-cfirst-corrected"
+      ],
+      "selectionReason": "The admitted v45 leash case first diverges when hero movement reaches the unported apply.c check_leash behavior.",
+      "detail": "Port complete apply.c:check_leash with hack.c:domove_core, trap.c:move_into_trap, and allmain.c:moveloop_core caller wiring. Hero movement and trap entry have matching evidence; periodic teleport remains blocked by the separate allmain teleport gap, so park the source goal after accepting the verified implementation.",
+      "openedAt": "600e84a276c12acf4941af78d976799e8e740df4",
+      "openStanding": {
+        "sha": "70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "check_leash",
+          "line": 931,
+          "endLine": 996,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 931,
+        "to": 996
+      },
+      "syntheticProvenance": {
+        "synthetic/v45/v45-leash-sleep-wand-strain-cfirst-corrected": {
+          "session": "synthetic/v45/v45-leash-sleep-wand-strain-cfirst-corrected",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.session.json",
+          "recordingSha256": "fddc4d223742ddabd445d937340883771f9175aa4bf9243d4ca8ef496900971d",
+          "evaluationPath": "challenges/evaluations/accepted-70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d-v45.json",
+          "evaluationCommit": "70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d"
+        }
+      },
+      "activeStanding": {
+        "sha": "70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-leash-sleep-wand-strain-cfirst-corrected",
+          "session": "synthetic/v45/v45-leash-sleep-wand-strain-cfirst-corrected",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.session.json",
+          "recordingPath": "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.session.json",
+          "recordingSha256": "fddc4d223742ddabd445d937340883771f9175aa4bf9243d4ca8ef496900971d",
+          "recipe": "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.recipe.session.json",
+          "recipeSha256": "5f6b697fc85860de9e74b42b3c8495abe2c982da6d812f0ec47230cba426e7fb",
+          "replayInputSha256": "4b7f8245ed7a46ecc4b707d6c4c7f90bf248460f2a27ded188fec3e007e42e0c",
+          "evaluationPath": "challenges/evaluations/accepted-70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d-v45.json",
+          "evaluationCommit": "70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d",
+          "evaluationArtifact": "challenges/evaluations/accepted-70c31c250e35fec1fdbca3e8a3557cbc5bcd4a0d-v45.json",
+          "evaluationUtc": "2026-10-11T10:23:05.986Z",
+          "remainingScreens": 1,
+          "recordedSteps": 44,
+          "previousScreensMatched": 43,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 44
+            },
+            "rng": {
+              "matched": 3923,
+              "total": 3932
+            },
+            "cursors": {
+              "matched": 44,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3920,
+              "cEntry": "rn2(3)=0",
+              "cCaller": "check_leash(apply.c:977)",
+              "jsEntry": "rn2(5)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "l"
+              },
+              "stepIndex": 43
+            },
+            "cursor": null
+          },
+          "step": 43,
+          "kind": "rng",
+          "sourceFile": "apply.c",
+          "function": "check_leash",
+          "message": null,
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": 977,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-leash-sleep-wand-strain-cfirst-corrected.json",
+            "result": {
+              "session": "synthetic/v45/v45-leash-sleep-wand-strain-cfirst-corrected",
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-leash-sleep-wand-strain-cfirst-corrected",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingPath": "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.session.json",
+              "recordingSha256": "fddc4d223742ddabd445d937340883771f9175aa4bf9243d4ca8ef496900971d",
+              "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+              "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+              "remainingScreens": 1,
+              "recordedSteps": 44,
+              "status": "complete",
+              "commit": "0bc6e0e64358a89c2aff59ac973ae787297ad06d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-leash-sleep-wand-strain-cfirst-corrected",
+                "session": "synthetic/v45/v45-leash-sleep-wand-strain-cfirst-corrected",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.session.json",
+                "recordingPath": "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.session.json",
+                "recordingSha256": "fddc4d223742ddabd445d937340883771f9175aa4bf9243d4ca8ef496900971d",
+                "recipe": "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.recipe.session.json",
+                "recipeSha256": "5f6b697fc85860de9e74b42b3c8495abe2c982da6d812f0ec47230cba426e7fb",
+                "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+                "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+                "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationUtc": "2026-10-11T09:20:20.964Z",
+                "remainingScreens": 1,
+                "recordedSteps": 44,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 43,
+                    "total": 44
+                  },
+                  "rng": {
+                    "matched": 3923,
+                    "total": 3932
+                  },
+                  "cursors": {
+                    "matched": 44,
+                    "total": 44
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3920,
+                    "cEntry": "rn2(3)=0",
+                    "cCaller": "check_leash(apply.c:977)",
+                    "jsEntry": "rn2(5)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "l"
+                    },
+                    "stepIndex": 43
+                  },
+                  "cursor": null
+                },
+                "step": 43,
+                "kind": "rng",
+                "sourceFile": "apply.c",
+                "function": "check_leash",
+                "message": null,
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": 977
+              },
+              "summary": "apply.c:check_leash is absent from the JavaScript movement path. The C function processes attached inventory leashes only when the hero step increases the pet distance: within three squares it does nothing; otherwise a non-breathless cursed leash chokes/damages the pet, an uncursed or breathless leash snaps loose beyond five squares, and closer movement prints “You pull on the leash.” and spends rn2(3) before the pet sound. C calls it from ordinary domove, failed-untrap movement, and after random teleport when next_to_u fails. JavaScript lacks the normal movement implementation, leaves a note_unported in move_into_trap, and has a mislabeled gap after teleport.c:tele, which remains unported.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For each carried LEASH with nonzero leashmon, resolve the monster and compare squared hero-to-monster distance before and after the proposed position; only an increase is processed. At Chebyshev distance at most 3 return without effects. Beyond that, cursed non-breathless leashes damage or kill the pet; otherwise distance greater than 5 releases it, while closer movement pulls and may draw rn2(3) for a non-silent pet.",
+                "functions": [
+                  "check_leash"
+                ],
+                "callers": [
+                  "hack.c:domove_core:2962 calls check_leash(u.ux0,u.uy0) after u_on_newpos and hide/mimic handling, before movement success, redraw, vision and spoteffects; js/hack.js:domove_core has no call at the matching point.",
+                  "trap.c:move_into_trap:5413 calls check_leash(u.ux0,u.uy0) after u_on_newpos and vision_recalc, before move_bc and trap/spoteffects; js/trap.js:move_into_trap currently has note_unported(\"apply.c check_leash\") there.",
+                  "allmain.c:moveloop_core:314 calls check_leash(old_ux,old_uy) only after tele() changes coordinates and next_to_u() returns false; js/allmain.js still notes teleport.c:tele as unported and then has a mislabeled note_unported(\"dog.c check_leash\")."
+                ],
+                "dependencies": [
+                  "light.c:find_mid (find the carried leash target by id)",
+                  "hacklib.c:dist2 and apply.c:um_dist (movement-distance and radius tests; existing JavaScript helpers)",
+                  "mondata.c:breathless (existing JavaScript helper)",
+                  "apply.c:m_unleash (already ported JavaScript release helper)",
+                  "mon.c:xkilled (already implemented JavaScript kill path; C discards its return)",
+                  "do_name.c:mon_nam and Monnam, pline.c:pline_mon, sounds.c:growl/yelp/whimper (existing JavaScript output paths)",
+                  "rng.c:rnd and rn2 (use the active operation random source when supplied; otherwise core RNG)"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Upstream nethack-c/upstream/src/apply.c:931-994 defines the complete function: inventory iteration and missing-id cleanup; dist2 increase gate; um_dist radius-3 no-op; cursed/breathless choke, rnd(2), death and pacifism preservation; radius-5 release; pull feedback and rn2(3) sound dispatch.",
+                "Upstream nethack-c/upstream/src/hack.c:2962, trap.c:5413, and allmain.c:314 are the three direct C callers. Corresponding JavaScript trace at the assigned base finds no normal-move call, a note_unported in js/trap.js:2525, and a dog.c-labeled note in js/allmain.js:1028 after the separate unported teleport.c:tele call.",
+                "Saved v45 queue 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b identifies synthetic/v45/v45-leash-sleep-wand-strain-cfirst-corrected: step 43 (zero based), `rn2(3)=0 @ check_leash(apply.c:977)` versus JavaScript `rn2(5)=1`, with 43/44 screens, 3923/3932 RNG values and 44/44 cursors matched at the examined base. Recipe and recording hashes are preserved in the mismatch object.",
+                "The selected v45 input starts as a debug Wizard with pettype:none, tames a dog, attaches a leash, sleeps it with a wished wand, then walks west. It supplies natural ordinary-movement caller evidence; trap-fall and random-teleport caller entry points remain to be independently recorded or explicitly blocked by their unported prerequisites."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "check_leash",
+            "implementation": "js/apply.js",
+            "symbol": "check_leash",
+            "sourceReview": "Read the complete apply.c:check_leash() definition at lines 931-996. The port preserves inventory traversal, find_mid(FM_FMON), impossible-diagnostic leash clearing, the strict squared-distance gate, the Chebyshev radius-3 no-op, cursed/non-breathless choke and lifesaving conduct restoration, the rn2(mtame) tameness decrement, leash snap/unleash, and rn2(3) sound feedback order. The only remaining unported callee is the discarded void pline.c:impossible diagnostic, recorded with note_unported('pline.c impossible'); it is not used as data. All existing return-value dependencies are wired.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "C hack.c:domove_core() calls check_leash(u.ux0, u.uy0) at line 2962 after hideunder/mimic handling and before movement redraw, vision refresh, and destination spot effects; js/hack.js calls the same port at that point."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "move_into_trap",
+                "source": "C trap.c:move_into_trap() calls check_leash(u.ux0, u.uy0) at line 5413 after u_on_newpos/newsym/vision_recalc and before punished-ball movement and spoteffects; js/trap.js wires the port in that order."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurnAfterTimeout",
+                "source": "C allmain.c:moveloop_core() calls check_leash(old_ux, old_uy) at line 314 after tele() changes the hero position and next_to_u() is false; js/allmain.js contains the matching downstream call, but its current note_unported('teleport.c tele') prevents reaching a changed-position case."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-board-adjacent-punished.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-leash-sleep-wand-strain-cfirst-corrected",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 43,
+                "source": "Hero movement reaches hack.c:domove_core() -> apply.c:check_leash(); step 43 records the check_leash rn2(3) sound choice and leash feedback."
+              }
+            ],
+            "checkedAt": "914a6619a2afa93453f625acfe67e11d284f3509"
+          }
+        ],
+        "entryPointReview": "The complete source caller list for apply.c:check_leash has three active entries. Hero movement is exercised by v45/v45-leash-sleep-wand-strain-cfirst-corrected segment 0 through step 43, where the pet leash produces the source rn2(3) feedback. Failed adjacent trap disarm is exercised by recordings/trap.c/untrap-board-adjacent-punished.session.json: step 99 records rnl(5)=2 at trap.c:try_disarm, selecting move_into_trap; source trap.c:move_into_trap then calls apply.c:check_leash before spoteffects, and the complete recording freshly matches C and JavaScript. The allmain.c:moveloop_core teleport-relocation entry remains blocked: js/allmain.js still records note_unported('teleport.c tele') in the dry-run path before changed coordinates can reach its check_leash call. This task does not port teleport.c:tele or claim runtime completion of the allmain entry; the source goal should be parked after the verified implementation is accepted until that dependency is available.",
+        "entryPoints": [
+          {
+            "name": "Hero movement increases distance from an attached pet",
+            "functions": [
+              "check_leash"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-leash-sleep-wand-strain-cfirst-corrected",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 43,
+                "source": "hack.c:domove_core() -> apply.c:check_leash(); the leash pull and sound-choice draw are visible at the cited boundary."
+              }
+            ]
+          },
+          {
+            "name": "Failed adjacent trap disarm moves the hero onto the trap",
+            "functions": [
+              "check_leash"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-board-adjacent-punished.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Periodic teleport leaves an attached pet separated after relocation",
+            "functions": [
+              "check_leash"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f2b63ca31d1c650f2b606665f735b7fc202d067d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Periodic teleport caller coverage remains blocked until teleport.c:tele changes hero coordinates in allmain.c:moveloop_core; hero movement and failed-trap movement are verified at f2b63ca31d1c650f2b606665f735b7fc202d067d."
+    },
+    {
+      "id": "port-uhitm-hmon-hitmon-msg-lightobj-v45-sunsword-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port Sunsword light-object hit feedback and wire its existing hmon_hitmon caller.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst"
+      ],
+      "selectionReason": "The admitted v45 Sunsword case first diverges when uhitm.c:hmon_hitmon reaches the unported hmon_hitmon_msg_lightobj helper after a confirmed hit.",
+      "detail": "Port complete uhitm.c:hmon_hitmon_msg_lightobj and replace its production note_unported call in hmon_hitmon; preserve source naming evaluation, visibility, saved artifact name, corporeal suffix, and message order.",
+      "openedAt": "3485f2039a7ea424846e9316cd1399ea3e581f72",
+      "openStanding": {
+        "sha": "f2b63ca31d1c650f2b606665f735b7fc202d067d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "hmon_hitmon_msg_lightobj",
+          "line": 1702,
+          "endLine": 1753,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1702,
+        "to": 1753
+      },
+      "syntheticProvenance": {
+        "synthetic/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst": {
+          "session": "synthetic/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json",
+          "recordingSha256": "a2d7078ffd4e6e11384d0a9cdfe3e98ef236c962e34676290a625e02081a9f8a",
+          "evaluationPath": "challenges/evaluations/accepted-f2b63ca31d1c650f2b606665f735b7fc202d067d-v45.json",
+          "evaluationCommit": "f2b63ca31d1c650f2b606665f735b7fc202d067d"
+        }
+      },
+      "activeStanding": {
+        "sha": "f2b63ca31d1c650f2b606665f735b7fc202d067d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "session": "synthetic/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json",
+          "recordingSha256": "a2d7078ffd4e6e11384d0a9cdfe3e98ef236c962e34676290a625e02081a9f8a",
+          "recipe": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.recipe.session.json",
+          "recipeSha256": "7fd2beea6269a4769187e7d8ec93ab223a19da3de48be8431a58349d15295284",
+          "replayInputSha256": "4d39f0495a5d822df0a2f27836c1ce26f903dc6f1c6d262dde0c651da3b9d745",
+          "evaluationPath": "challenges/evaluations/accepted-f2b63ca31d1c650f2b606665f735b7fc202d067d-v45.json",
+          "evaluationCommit": "f2b63ca31d1c650f2b606665f735b7fc202d067d",
+          "evaluationArtifact": "challenges/evaluations/accepted-f2b63ca31d1c650f2b606665f735b7fc202d067d-v45.json",
+          "evaluationUtc": "2026-10-11T10:58:30.435Z",
+          "remainingScreens": 2,
+          "recordedSteps": 86,
+          "previousScreensMatched": 84,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 84,
+              "total": 86
+            },
+            "rng": {
+              "matched": 3965,
+              "total": 3965
+            },
+            "cursors": {
+              "matched": 85,
+              "total": 86
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 84,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 84,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 20,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 84,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 84,
+                "key": "l"
+              },
+              "cCursor": [
+                28,
+                0,
+                1
+              ],
+              "jsCursor": [
+                22,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 84,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+              "session": "synthetic/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recording": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json",
+              "recordingPath": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json",
+              "recordingSha256": "a2d7078ffd4e6e11384d0a9cdfe3e98ef236c962e34676290a625e02081a9f8a",
+              "recipe": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.recipe.session.json",
+              "recipeSha256": "7fd2beea6269a4769187e7d8ec93ab223a19da3de48be8431a58349d15295284",
+              "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+              "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+              "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+              "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+              "evaluationUtc": "2026-10-11T09:20:20.964Z",
+              "remainingScreens": 2,
+              "recordedSteps": 86,
+              "previousScreensMatched": null,
+              "regression": false,
+              "passed": false,
+              "error": null,
+              "metrics": {
+                "screens": {
+                  "matched": 84,
+                  "total": 86
+                },
+                "rng": {
+                  "matched": 3965,
+                  "total": 3965
+                },
+                "cursors": {
+                  "matched": 85,
+                  "total": 86
+                }
+              },
+              "firstMismatch": {
+                "screen": {
+                  "index": 84,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 84,
+                    "key": "l"
+                  },
+                  "kind": "ch",
+                  "row": 0,
+                  "column": 20,
+                  "cCell": {
+                    "ch": "-",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  },
+                  "jsCell": {
+                    "ch": " ",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  }
+                },
+                "rng": null,
+                "cursor": {
+                  "index": 84,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 84,
+                    "key": "l"
+                  },
+                  "cCursor": [
+                    28,
+                    0,
+                    1
+                  ],
+                  "jsCursor": [
+                    22,
+                    6,
+                    1
+                  ]
+                }
+              },
+              "step": 84,
+              "kind": "screen",
+              "sourceFile": null,
+              "function": null,
+              "message": null,
+              "cFile": null,
+              "luaFile": null,
+              "line": null,
+              "status": "complete",
+              "commit": "f848e37cfd483c3a1bc0bbcf5755b8c2efd24ad3",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+                "session": "synthetic/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json",
+                "recordingSha256": "a2d7078ffd4e6e11384d0a9cdfe3e98ef236c962e34676290a625e02081a9f8a",
+                "recipe": "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.recipe.session.json",
+                "recipeSha256": "7fd2beea6269a4769187e7d8ec93ab223a19da3de48be8431a58349d15295284",
+                "replayInputSha256": "3148483375f069fbc225496e65799f4e563c19a774917f6773f88cacf63fd2ca",
+                "evaluationPath": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationCommit": "b317571a6e76a6dfab39e023745bcec4ea758e55",
+                "evaluationArtifact": "challenges/evaluations/v45-baseline-b317571a6.json",
+                "evaluationUtc": "2026-10-11T09:20:20.964Z",
+                "remainingScreens": 2,
+                "recordedSteps": 86,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 84,
+                    "total": 86
+                  },
+                  "rng": {
+                    "matched": 3965,
+                    "total": 3965
+                  },
+                  "cursors": {
+                    "matched": 85,
+                    "total": 86
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 84,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 84,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 20,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 84,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 84,
+                      "key": "l"
+                    },
+                    "cCursor": [
+                      28,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      22,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 84,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "file-port",
+              "summary": "At v45 step 84, the confirmed Sunsword hit reaches uhitm.c:hmon_hitmon_msg_lightobj, but JavaScript only records note_unported and omits the radiance message. C uses the saved lit-artifact name, target visibility, and corporeal/form guards to print source-ordered feedback before poison and kill messages. The helper itself has no random call, though its first mon_nam call can use display RNG for a visible target under hallucination. The prior v33 reach attempt fled before this helper; this admitted v45 case reaches it after the hit pager.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "hmon_hitmon_msg_lightobj"
+                ],
+                "branch": "uhitm.c:hmon_hitmon_do_hit sets hmd.lightobj when a lit light artifact hits a monster that hates light. After the hit and silver messages, hmon_hitmon calls this helper when that flag is set. A visible target with saved_oname gets “<saved name>’s radiance penetrates deep into”; a visible target without it gets “The light sears”; an unseen target is capitalized and gets “is seared”. Append “ flesh” when the target is neither noncorporeal nor amorphous. The obj argument is unused. The helper makes one message and has no direct random call or game-state write; its initial mon_nam dependency can spend display RNG for visible targets while hallucinating.",
+                "callers": [
+                  "C producer: uhitm.c:hmon_hitmon_do_hit:1038–1040 sets hmd.lightobj for a lit artifact-light object and a light-hating target; js/uhitm.js:hmon_hitmon_do_hit:2821 already mirrors that flag.",
+                  "C caller: uhitm.c:hmon_hitmon:1880–1881 invokes hmon_hitmon_msg_lightobj after hmon_hitmon_msg_silver and before poison/kill feedback; js/uhitm.js:hmon_hitmon:3760–3761 currently records note_unported at the same position.",
+                  "Runtime route: cmd.c:rhack force-fight input F, hack.c movement attack dispatch, uhitm.c:do_attack:448 -> hitum:758 -> hmon:819 -> hmon_hitmon:1754 -> hmon_hitmon_msg_lightobj:1702. The JavaScript path is cmd.js force-fight dispatch -> hack.js attack dispatch -> uhitm.js do_attack -> hitum -> hmon -> hmon_hitmon."
+                ],
+                "dependencies": [
+                  "The initial mon_nam call reuses do_name.c:x_monnam and its existing JS owner. For a visible monster under hallucination it can call rndmonnam through display RNG, so preserve this first evaluation and pass the established env through mon_nam. The selected v45 case is not hallucinating and makes no such naming draw.",
+                  "canspotmon, highc, noncorporeal, amorphous, and s_suffix already have canonical JS owners. Keep the source order: evaluate mon_nam before visibility, select the format, apply the target-form flesh rule, then emit the message."
+                ]
+              },
+              "evidence": [
+                "Read the complete source helper uhitm.c:1702–1730. It initializes mon_nam before branching, chooses the visible/invisible format, conditionally appends the target’s flesh suffix, and emits exactly one pline. obj is explicitly UNUSED. The helper makes no direct random call; mon_nam can indirectly spend display RNG on visible hallucinated targets through do_name.c:x_monnam/rndmonnam.",
+                "Read do_name.c:1042–1046 and x_monnam:861–862, 949–955, plus the canonical JS x_monnam implementation. The helper’s initial mon_nam evaluation may select a hallucinated name using display RNG when the target is visible; the recorded v45 character has no hallucination property, so this selected branch has no naming RNG.",
+                "Saved admitted v45 C-first recording challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json has input F at zero-based step 83, a confirmed Sunsword hit on the gremlin at step 84, and a space at step 85 that reveals “Sunsword’s radiance penetrates deep into the gremlin’s flesh!”. The selected evaluation reports the first screen mismatch at step 84 with matched RNG through that boundary.",
+                "The closest earlier record, investigations/synthetic/v33/v33-sunsword-light-sears.json, reached a fleeing boundary at step 53 in monmove.c:distfleeck before hmon_hitmon_msg_lightobj. It did not provide runtime evidence for this helper; the v45 C-first forced-hit case is a distinct successful-hit path."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hmon_hitmon_msg_lightobj",
+            "implementation": "js/uhitm.js",
+            "symbol": "hmon_hitmon_msg_lightobj",
+            "sourceReview": "Read and ported the whole uhitm.c:hmon_hitmon_msg_lightobj definition (1702-1730). The helper evaluates mon_nam before canspotmon, chooses the saved artifact-name radiance or generic light-sear text for visible targets, capitalizes the name and uses the seared text for unseen targets, appends possessive flesh only for corporeal non-amorphous forms, and emits one message. obj is unused. The helper itself has no random draw or state mutation, but it emits output and the initial mon_nam can consume display RNG for a visible hallucinated target. Its hmon_hitmon caller now awaits the helper at the original position after silver feedback and before poison/kill feedback; the lightobj flag producer in hmon_hitmon_do_hit was already wired.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon",
+                "source": "uhitm.c:hmon_hitmon calls hmon_hitmon_msg_lightobj(&hmd, mon, obj) when hmd.lightobj is true at 1880-1881, after silver feedback and before poison/kill feedback. The JS caller now awaits hmon_hitmon_msg_lightobj(hmd, mon, state, env) in that same order. uhitm.c:hmon_hitmon_do_hit sets the flag for a lit light artifact hitting a light-hating monster; its existing JS producer remains unchanged."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+                "segment": 0,
+                "fromStep": 83,
+                "throughStep": 85,
+                "source": "cmd.c:rhack force-fight F -> hack.c movement attack dispatch -> uhitm.c:do_attack -> hitum -> hmon -> hmon_hitmon -> hmon_hitmon_msg_lightobj; the recorded gremlin hit is followed by the Sunsword radiance pager."
+              }
+            ],
+            "checkedAt": "fac0640aaa03183b42971c76f3c32d1c34ae3c6e"
+          }
+        ],
+        "entryPointReview": "Helper-only source range: hmon_hitmon_msg_lightobj is reached by uhitm.c:hmon_hitmon after a lit light artifact hits a light-hating target. The admitted v45 C-first Sunsword case exercises this production path at segment 0 steps 83-85, including the pager handoff and exact radiance/flesh message. The outer combat command and hmon_hitmon_do_hit flag producer are already wired and are not claimed as newly completed source units.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "divergence-v45-camera-wielded-melee-20261011",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Restore source-ordered demon release when an expensive camera is destroyed in melee.",
+      "cFile": "uhitm.c",
+      "sessions": [],
+      "selectionReason": "The accepted v45 queue retains one camera screen mismatch; the C-first replay reaches uhitm.c hmon_hitmon_misc_obj expensive-camera destruction and the queued delivery restores source-ordered demon release before canonical wield teardown.",
+      "detail": "Repair only the EXPENSIVE_CAMERA branch: await dothrow.c release_camera_demon before invent.c useup, passing the existing worn.c setnotworn adapter. Preserve all other hmon_hitmon_misc_obj object branches.",
+      "openedAt": "0fe1e2cd35e18a6e46614bbc0909921ddf3f0a4e",
+      "openStanding": {
+        "sha": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "hmon_hitmon_misc_obj",
+      "session": "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst",
+      "step": 57,
+      "syntheticProvenance": {
+        "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst": {
+          "session": "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recordingPath": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json",
+          "recordingSha256": "9012243d2235a7461f9b360d0df220a1ebdd102ebd41afac8a9e00fa4d813bad",
+          "evaluationPath": "challenges/evaluations/accepted-eecc04ac077b05f740cf2e3f57e11c4301552c26-v45.json",
+          "evaluationCommit": "eecc04ac077b05f740cf2e3f57e11c4301552c26"
+        }
+      },
+      "activeStanding": {
+        "sha": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "session": "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json",
+          "recordingSha256": "9012243d2235a7461f9b360d0df220a1ebdd102ebd41afac8a9e00fa4d813bad",
+          "recipe": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.recipe.session.json",
+          "recipeSha256": "d50bf4178ba0f9c318ef5ee93860a05f8b92afaad5eccd7afb913cbabe7ed1a1",
+          "replayInputSha256": "f12a3152d8beb2b19b3f4c0927cc9aebac2b36629d613237284cab5d81aa41ec",
+          "evaluationPath": "challenges/evaluations/accepted-eecc04ac077b05f740cf2e3f57e11c4301552c26-v45.json",
+          "evaluationCommit": "eecc04ac077b05f740cf2e3f57e11c4301552c26",
+          "evaluationArtifact": "challenges/evaluations/accepted-eecc04ac077b05f740cf2e3f57e11c4301552c26-v45.json",
+          "evaluationUtc": "2026-10-11T11:27:50.961Z",
+          "remainingScreens": 1,
+          "recordedSteps": 58,
+          "previousScreensMatched": 57,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 57,
+              "total": 58
+            },
+            "rng": {
+              "matched": 2954,
+              "total": 2960
+            },
+            "cursors": {
+              "matched": 57,
+              "total": 58
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 229",
+            "step": 57
+          },
+          "step": 57,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 229",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v45",
+              "caseId": "v45-camera-wielded-northwest-result-attempt9-cfirst",
+              "session": "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst",
+              "manifestPath": "challenges/manifests/v45.json",
+              "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+              "recordingSha256": "9012243d2235a7461f9b360d0df220a1ebdd102ebd41afac8a9e00fa4d813bad",
+              "evaluationPath": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+              "evaluationCommit": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+              "evaluationArtifact": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+              "evaluationUtc": "2026-10-11T09:59:16.363Z",
+              "replayInputSha256": "4044080e4efdfdb0b59832522405707840dde5930b2833dc24614114489fccb8",
+              "remainingScreens": 1,
+              "recordedSteps": 58,
+              "status": "complete",
+              "commit": "3ef09acaf86104dd0feb2ff0a76c117a59da45f3",
+              "queueSha256": "1d07a7380e0d22c5e5eee819110569cf42e2585a29f7e826babbe3a4ddb7d24d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v45",
+                "caseId": "v45-camera-wielded-northwest-result-attempt9-cfirst",
+                "session": "synthetic/v45/v45-camera-wielded-northwest-result-attempt9-cfirst",
+                "manifestPath": "challenges/manifests/v45.json",
+                "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+                "recording": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json",
+                "recordingPath": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json",
+                "recordingSha256": "9012243d2235a7461f9b360d0df220a1ebdd102ebd41afac8a9e00fa4d813bad",
+                "recipe": "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.recipe.session.json",
+                "recipeSha256": "d50bf4178ba0f9c318ef5ee93860a05f8b92afaad5eccd7afb913cbabe7ed1a1",
+                "replayInputSha256": "4044080e4efdfdb0b59832522405707840dde5930b2833dc24614114489fccb8",
+                "evaluationPath": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+                "evaluationCommit": "42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e",
+                "evaluationArtifact": "challenges/evaluations/accepted-42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e-v45.json",
+                "evaluationUtc": "2026-10-11T09:59:16.363Z",
+                "remainingScreens": 1,
+                "recordedSteps": 58,
+                "previousScreensMatched": 57,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 57,
+                    "total": 58
+                  },
+                  "rng": {
+                    "matched": 2954,
+                    "total": 2960
+                  },
+                  "cursors": {
+                    "matched": 57,
+                    "total": 58
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 229",
+                  "step": 57
+                },
+                "step": 57,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 229",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v45 melee hit reaches uhitm.c:hmon_hitmon_misc_obj(EXPENSIVE_CAMERA). C calls dothrow.c:release_camera_demon before invent.c:useup removes the wielded camera. JavaScript skips the already ported release helper, then its useup call stops because the life environment lacks the setNotWorn adapter. Wire the helper in source order and pass the canonical worn-state hooks into object consumption.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "hmon_hitmon_misc_obj"
+                ],
+                "branch": "A hero uses an expensive camera as a held nonweapon in melee. hmon_hitmon_do_hit dispatches to this nonweapon switch; the camera arm prints the destruction message, calls release_camera_demon(obj, u.ux, u.uy), calls useup(obj), and returns through hmd.doreturn/hmd.retval. For the singleton wielded camera, invent.c:useup calls useupall, which calls setnotworn before freeinv and obfree. JavaScript currently reaches useup without the required setNotWorn adapter and stops before the early return.",
+                "callers": [
+                  "C direct caller: uhitm.c:hmon_hitmon_do_hit calls hmon_hitmon_misc_obj for a non-weapon object after its shade check; uhitm.c:hmon_hitmon calls hmon_hitmon_do_hit and returns hmd.retval when doreturn is set. JavaScript mirrors these calls in js/uhitm.js:hmon_hitmon_do_hit and hmon_hitmon.",
+                  "Runtime entry: the admitted C-first v45 recipe wishes and wields an expensive camera, creates a hostile newt, confirms the northwest adjacent melee hit, and sends the next space input after the camera arm. Its C step 57 records release_camera_demon before the continuing turn; JS stops at the object-removal hook."
+                ],
+                "dependencies": [
+                  "dothrow.c:release_camera_demon is already ported in js/dothrow.js and its independent camera-throw path. The helper is void in C; the melee caller must execute it before useup. A dynamic import follows the existing dothrow.js import pattern in js/uhitm.js and avoids an eager module cycle.",
+                  "invent.c:useup/useupall are already implemented in js/invent.js. useupall requires setNotWorn for an equipped inventory object; the existing do_wear.js:setwornEnv and worn.js:setnotworn owners provide the canonical adapter and must run before freeinv/obfree."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved combined queue 1d07a7380e0d22c5e5eee819110569cf42e2585a29f7e826babbe3a4ddb7d24d and baseline evaluation 42a04a69cf8c06ec078d2d0efe4ad4599d30fb6e identify the stop at zero-based step 57, with 57/58 screens, 2954/2960 RNG calls, and 57/58 cursors matched. The queue message is the missing setNotWorn hook for object type 229.",
+                "Read the complete upstream uhitm.c:hmon_hitmon_misc_obj (1119-1384) and hmon_hitmon_do_hit (1387-1433). The camera case calls release_camera_demon before useup and sets doreturn/retval only after object consumption; the production nonweapon dispatch calls this case for the recorded held camera.",
+                "The admitted C recording challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json has a confirmed northwest melee input at zero-based step 56. At step 57, C records rn2(3)=1 @ release_camera_demon(dothrow.c:2460), then later calls in the same turn; the fresh comparison identifies that call as the first RNG divergence at the next input boundary, with the JS screen and cursor also absent.",
+                "In js/uhitm.js:hmon_hitmon_misc_obj, the EXPENSIVE_CAMERA arm records note_unported(dothrow.c release_camera_demon), then awaits useup. Its lifeEnv currently contains only env, state, and random. js/dothrow.js:release_camera_demon is the canonical implementation; js/invent.js:useupall invokes requiredHook(setNotWorn) before extraction, so the missing caller adapter causes the observed stop.",
+                "The canonical unworn path already exists: js/do_wear.js:setwornEnv supplies cancelDoff, monsterUnseesProperty, and setArtifactIntrinsic, and js/worn.js:setnotworn applies the source state changes and inventory refresh. The bounded fix belongs at the uhitm caller and preserves the C ordering of release, unworn transition, extraction, and deletion.",
+                "Manifest challenges/manifests/v45.json identifies this as the wielded-camera melee arm. The closest earlier v33 camera case reaches dothrow.c:breakobj after throwing at a wall, while v16/v18 apply or flash the camera; none reaches this uhitm.c melee caller."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
