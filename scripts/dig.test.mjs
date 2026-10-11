@@ -400,9 +400,9 @@ test('digactualhole preserves the old visible furniture label in its fall messag
             typ: ALTAR,
             flags: AM_LAWFUL,
             furniture: 'lawful altar',
+            heroFault: false, // Keep this case focused on the label captured before maketrap.
             // The altar label must keep the alignment that C reads before maketrap.
             messages: [
-                'You dig a pit in the floor.',
                 'The lawful altar falls into the pit!',
             ],
         },
@@ -426,7 +426,8 @@ test('digactualhole preserves the old visible furniture label in its fall messag
         const messages = [];
         const rngBounds = [];
 
-        await digactualhole(X, Y, state.youmonst, PIT, state, {
+        const madeby = row.heroFault === false ? { mx: 0, my: 0 } : state.youmonst;
+        await digactualhole(X, Y, madeby, PIT, state, {
             message: async (line) => messages.push(line),
             random: {
                 rn1: (range, base) => {
@@ -443,6 +444,21 @@ test('digactualhole preserves the old visible furniture label in its fall messag
         assert.equal(state.level.at(X, Y).typ, ROOM,
             'maketrap changes furniture to room floor before the fall message');
     }
+});
+
+test('digactualhole calls desecrate_altar after hero-caused altar damage', () => {
+    const cSource = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
+    const jsSource = readFileSync('js/dig.js', 'utf8');
+    const cDig = cSource.match(
+        /void\s+digactualhole\(coordxy x, coordxy y, struct monst \*madeby, int ttyp\)\s*\{([\s\S]*?)^\}/mu,
+    );
+    const jsDig = jsSource.match(
+        /export async function digactualhole\([\s\S]*?\) \{([\s\S]*?)^\}/mu,
+    );
+    assert.ok(cDig, 'C digactualhole definition');
+    assert.ok(jsDig, 'JavaScript digactualhole definition');
+    assert.match(cDig[1], /if \(heros_fault && old_typ == ALTAR\)\s*desecrate_altar\(FALSE, old_aligntyp\);/u);
+    assert.match(jsDig[1], /if \(herosFault && oldType === ALTAR\)\s*await desecrate_altar\(false, oldAlignment, state\);/u);
 });
 
 test('dig_up_grave keeps the C selector values for zombie and mummy creation', () => {

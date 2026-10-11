@@ -236,7 +236,7 @@ import { abon, dbon, dmgval, setmnotwielded } from './weapon.js';
 import {
     corpse_xname, otense, simpleonames, the, xnameFresh, yname, yobjnam, Yobjnam2,
 } from './objnam.js';
-import { altar_wrath, altarmask_at } from './pray.js';
+import { altar_wrath, altarmask_at, desecrate_altar } from './pray.js';
 import { note_unported } from './unported.js';
 import { angry_priest } from './priest.js';
 import { heroIsBlind } from './startup_a11y.js';
@@ -1354,7 +1354,7 @@ export async function furniture_handled(
 
 // C ref: dig.c digactualhole() (640-829). BY_YOU is youmonst and
 // BY_OBJECT is null: the broken wand is still the hero's responsibility.
-// Discarded shop and altar calls retain named gaps.
+// The discarded shop calls remain named gaps.
 export async function digactualhole(
     x, y, madeby, trapType, state = game, rawEnv = {},
 ) {
@@ -1423,7 +1423,7 @@ export async function digactualhole(
     if (IS_FURNITURE(oldType) && cansee(x, y, state))
         await message(`The ${furniture} falls into the ${name}!`, state, rawEnv);
     if (herosFault && oldType === ALTAR)
-        note_unported('pray.c desecrate_altar');
+        await desecrate_altar(false, oldAlignment, state);
 
     if (trapType === PIT) {
         if (shopdoor && herosFault) note_unported('shk.c pay_for_damage');

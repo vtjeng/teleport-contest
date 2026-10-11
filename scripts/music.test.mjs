@@ -85,6 +85,7 @@ test('earthquake ports whole source scans and caps force at thirteen', async () 
     assert.match(quake, /if \(force > 13\)[\s\S]*?force = 13;/u);
     assert.match(quake, /for \(x = start_x; x <= end_x; x\+\+\)\s*for \(y = start_y; y <= end_y; y\+\+\)/u);
     assert.match(quake, /wakeup\(mtmp, TRUE\);[\s\S]*?if \(rn2\(14 - force\)\)/u);
+    assert.match(quake, /case ALTAR:[\s\S]*?desecrate_altar\(FALSE, algn\);\s*do_pit\(x, y, tu_pit\);/u);
     assert.match(quake, /case SCORR:[\s\S]*?FALLTHROUGH;[\s\S]*?case CORR:[\s\S]*?case ROOM:/u);
 
     const js = readFileSync(new URL('../js/music.js', import.meta.url), 'utf8');
@@ -97,6 +98,7 @@ test('earthquake ports whole source scans and caps force at thirteen', async () 
     assert.match(jsQuake, /if \(force > 13\) force = 13;/u);
     assert.match(jsQuake, /for \(let x = startX; x <= endX; x\+\+\)\s*\{\s*for \(let y = startY; y <= endY; y\+\+\)/u);
     assert.match(jsQuake, /await wakeup\(mtmp, true[\s\S]*?if \(random\.rn2\(14 - force\)\) continue;/u);
+    assert.match(jsQuake, /await desecrate_altar\(false, alignment, state\);\s*await do_pit\(x, y, tuPit, state, \{ \.\.\.env, random, message \}\);/u);
     assert.match(js, /await do_earthquake\(Math\.trunc\(\(state\.u\.ulevel - 1\) \/ 3\) \+ 1,[\s\S]*?state, \{ \.\.\.env, message, random \}\);/u);
     assert.doesNotMatch(js, /note_unported\('music\.c do_earthquake'\)/u);
 
