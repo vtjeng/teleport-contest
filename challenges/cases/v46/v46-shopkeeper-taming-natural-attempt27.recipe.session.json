@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 46101125,
+      "datetime": "20561208091234",
+      "nethackrc": "OPTIONS=name:V46ShopTame27,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n3\n  #wizwish\nscroll of taming\nllllljro "
+    }
+  ],
+  "comment": "C-first continuation probe: same natural-shop adjacency route as attempt26, adding one input after the taming-scroll pager to expose the neighborhood and shopkeeper state response."
+}

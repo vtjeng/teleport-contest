@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 46100104,
+    "datetime": "20561204081234",
+    "nethackrc": "OPTIONS=name:V46CandleSplit8,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+    "moves": "#wizwish\n5 candles\nand1n"
+  }],
+  "comment": "C-only count correction for light.c:obj_split_light_source. Enter the quantity at getobj's drop prompt, after d; attempts6-7 put the count before the command/prompt and dropped the full stack."
+}

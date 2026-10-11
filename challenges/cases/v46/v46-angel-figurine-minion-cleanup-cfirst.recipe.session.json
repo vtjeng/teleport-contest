@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 46100208,
+      "datetime": "20561205091234",
+      "nethackrc": "OPTIONS=name:V46MinionCleanup4,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nfigurine of an angel\naol"
+    }
+  ],
+  "comment": "C-first candidate: applying a wished Angel figurine from observed slot o reaches makemon.c:1416 with rn2(3)==0, creating an Angel minion and entering dog.c:make_familiar cleanup through minion.c:free_emin."
+}
