@@ -17,6 +17,8 @@ import {
     HALLUC_RES,
     HVY_ENCUMBER,
     GLIB,
+    MIM_OMIT_WAIT,
+    MIM_REVEAL,
     MMOVE_DIED,
     M_AP_OBJECT,
     M_AP_TYPE,
@@ -74,6 +76,7 @@ import {
     missum,
     mon_maybe_unparalyze,
     passive,
+    that_is_a_mimic,
 } from '../js/uhitm.js';
 import { skillSlot } from '../js/startup_skills.js';
 import { can_twoweapon } from '../js/wield.js';
@@ -85,6 +88,9 @@ const UHITM_C = readFileSync(
 );
 const FLAG_H = readFileSync(
     new URL('../nethack-c/upstream/include/flag.h', import.meta.url), 'utf8',
+);
+const UHITM_JS = readFileSync(
+    new URL('../js/uhitm.js', import.meta.url), 'utf8',
 );
 
 function rc({ role, gender, align, race, options }) {
@@ -1575,6 +1581,38 @@ test('attack_checks mimic branch calls stumble_onto_mimic and returns true',
         // stumble_onto_mimic wakes the mimic via wakeup().
         assert.equal(mimic.msleeping, 0,
             'mimic should be awake after stumble_onto_mimic');
+    });
+
+test('that_is_a_mimic formats the object glyph and reveals after its message',
+    async () => {
+        const cStart = UHITM_C.indexOf('\nthat_is_a_mimic(');
+        const cEnd = UHITM_C.indexOf('\nRESTORE_WARNING_FORMAT_NONLITERAL', cStart);
+        const cBody = UHITM_C.slice(cStart, cEnd);
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        assert.match(cBody, /object_from_map\(glyph, x, y, &otmp\)/u);
+        assert.match(cBody, /if \(fakeobj && otmp\)[\s\S]*?dealloc_obj\(otmp\)/u);
+        assert.ok(cBody.indexOf('pline(&fmtbuf[i], what)')
+            < cBody.indexOf('seemimic(mtmp)'));
+
+        await hero();
+        const mimic = target(PM_SMALL_MIMIC, {
+            m_ap_type: M_AP_OBJECT,
+            mappearance: CHEST,
+            msleeping: 1,
+        });
+        place_monster(mimic, mimic.mx, mimic.my, game);
+        (game.gb ??= {}).bhitpos = { x: mimic.mx, y: mimic.my };
+        const lines = [];
+        await that_is_a_mimic(
+            mimic,
+            MIM_REVEAL | MIM_OMIT_WAIT,
+            game,
+            { pline: async (line) => lines.push(line) },
+        );
+        assert.equal(lines.length, 1);
+        assert.ok(lines[0].includes('small mimic'), lines[0]);
+        assert.equal(M_AP_TYPE(mimic), 0,
+            'MIM_REVEAL runs after the identification line');
     });
 
 // C ref: uhitm.c:260-263. A mimic where the glyph is an invisible-monster

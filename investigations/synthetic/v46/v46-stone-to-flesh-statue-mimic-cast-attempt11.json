@@ -106,20 +106,25 @@
     ],
     "callers": [
       "zap.c:weffects -> bhit callback -> bhitm for an aimed Stone to Flesh cast",
-      "zap.c:weffects -> bhitm directly when the hero is swallowed or when zap_steed delegates a mounted target"
+      "zap.c:weffects -> bhitm directly when the hero is swallowed or when zap_steed delegates a mounted target",
+      "zap.c:bhitm WAN_LOCKING and WAN_OPENING branches also call that_is_a_mimic(MIM_REVEAL) for box or door disguises; all three bhitm call sites must use the canonical helper."
     ],
     "dependencies": [
       "uhitm.c:that_is_a_mimic",
-      "pline.c:set_msg_xy"
+      "pline.c:set_msg_xy",
+      "pager.c:object_from_map",
+      "mkobj.c:dealloc_obj"
     ]
   },
   "goalKind": "file-port",
   "evidence": [
     "Saved queue SHA-256 dac3b5757457451aec387a05fdb9fd07c51b0001b0f7ed54951d9ccf512a759e retains this case as the first unreserved candidate after the accepted troll case was removed. Its queue entry reports earliestStep 133, remainingScreens 1, and source annotation mkobj.c; the admitted v46 manifest clarifies that the first visible mismatch is the bhitm mimic message at boundary 134 and that the next_ident RNG divergence is downstream.",
     "nethack-c/upstream/src/zap.c:506-516 enters the SPE_STONE_TO_FLESH mimic arm only for M_AP_FURNITURE accepted by stone_furniture_type() or M_AP_OBJECT accepted by stone_object_type(), then requires cansee(mtmp->mx, mtmp->my). It sets the message coordinate and calls that_is_a_mimic(mtmp, MIM_REVEAL | MIM_OMIT_WAIT).",
-    "nethack-c/upstream/src/uhitm.c:6199-6275 implements that_is_a_mimic(): it formats the message from the visible glyph and mimic disguise, strips the leading Wait! text under MIM_OMIT_WAIT, and calls seemimic() under MIM_REVEAL. Its object-glyph path calls object_from_map(), matching the downstream next_ident(mkobj.c:521) RNG annotation. The existing JS implementation is js/uhitm.js:1019-1094 but is private and emits only through an optional env.pline callback.",
+    "nethack-c/upstream/src/uhitm.c:6199-6276 implements that_is_a_mimic(): it formats the message from the visible glyph and mimic disguise, strips “Wait!” text under MIM_OMIT_WAIT, reveals under MIM_REVEAL, reconstructs object glyphs through pager.c:object_from_map, and releases synthetic objects with mkobj.c:dealloc_obj. The existing JavaScript helper is in js/uhitm.js and is now exported for bhitm wiring.",
     "nethack-c/upstream/src/pline.c:91-97 defines set_msg_xy() as the display coordinate for the next message. JS zap.js:3531-3541 currently records note_unported('pline.c set_msg_xy') and note_unported('uhitm.c that_is_a_mimic') instead of printing the message. The existing js/startup_a11y.js:290-295 messageAt() can carry the source coordinate into accessible-message formatting without changing default text.",
     "The selected production path is the existing zap.js command path through weffects() and bhit() to bhitm(); the JS bhitm() body is at js/zap.js:3333-3798. The helper's other C entry is uhitm.c:stumble_onto_mimic() at 6282-6284, already represented by js/uhitm.js:1100-1101. The previous closest case v19:cancellation-reveals-hostile-large-mimic-c62 exercises cancellation reveal, not this stone-to-flesh message branch.",
-    "Selection classifies this as a file-port candidate because bhitm() is an existing partial source unit with explicit unported branches. The source scope must cover the whole zap.c:bhitm function, its currently supported callers, and required helper wiring; implementation work was not included in this investigation-only assignment."
+    "Selection classifies this as a file-port candidate because bhitm() is an existing partial source unit with explicit unported branches. The source scope must cover the whole zap.c:bhitm function, its currently supported callers, and required helper wiring; implementation work was not included in this investigation-only assignment.",
+    "nethack-c/upstream/src/zap.c:373-385 calls that_is_a_mimic(MIM_REVEAL) for WAN_LOCKING/WAN_OPENING box-or-door disguises in addition to the stone-to-flesh call at 514-515. The implementation wires all three calls to the canonical JS helper.",
+    "nethack-c/upstream/src/pline.c:93-97 sets a11y.msg_loc for the next output line. JavaScript js/pline.js stores that coordinate and consumes it at the immediate helper message, applying messageAt only for accessiblemsg and resetting the location after the line."
   ]
 }
