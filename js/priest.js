@@ -67,7 +67,7 @@ import {
 import { assign_level, find_mapseen, mapseen_room, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
-import { dist2, highc, s_suffix, sgn } from './hacklib.js';
+import { dist2, s_suffix, sgn } from './hacklib.js';
 import { record_achievement } from './insight.js';
 import { makemon, makemon_runtime, mongets } from './makemon_create.js';
 import { set_malign } from './makemon.js';
@@ -819,12 +819,8 @@ export async function intemple(roomno, env = {}) {
             const save_priest = priest.ispriest;
             if (sanctum && !heroHallucinating(state))
                 priest.ispriest = 0;
-            // C: Monnam(priest) = capitalize(mon_nam(priest))
-            //    = capitalize(x_monnam(priest, ARTICLE_THE, ...))
-            //    = capitalize(priestname(priest, ARTICLE_THE, false))
-            const pname = priestname(priest, ARTICLE_THE, false, state);
             const who = canseemon(priest, state)
-                ? highc(pname[0]) + pname.slice(1)
+                ? Monnam(priest, state)
                 : 'A nearby voice';
             await message(`${who} intones:`, state);
             priest.ispriest = save_priest;

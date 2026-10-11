@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE } from '../js/const.js';
+import { Monnam } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
 import {
     angry_priest,
@@ -11,7 +12,11 @@ import {
     mon_aligntyp,
 } from '../js/priest.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_ALIGNED_CLERIC, PM_HIGH_CLERIC } from '../js/monsters.js';
+import {
+    MONSTER_TEMPLATES,
+    PM_ALIGNED_CLERIC,
+    PM_HIGH_CLERIC,
+} from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
 
 const PRIEST_C_SOURCE = readFileSync('nethack-c/upstream/src/priest.c', 'utf8');
@@ -20,6 +25,36 @@ const PRAY_C_SOURCE = readFileSync('nethack-c/upstream/src/pray.c', 'utf8');
 const PRAY_JS_SOURCE = readFileSync('js/pray.js', 'utf8');
 const DIG_C_SOURCE = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
 const DIG_JS_SOURCE = readFileSync('js/dig.js', 'utf8');
+
+test('priest.c intemple uses Monnam after suppressing the priest title', () => {
+    const cStart = PRIEST_C_SOURCE.indexOf('intemple(int roomno)');
+    const cEnd = PRIEST_C_SOURCE.indexOf('\n}\n', cStart);
+    const intempleC = PRIEST_C_SOURCE.slice(cStart, cEnd);
+    assert.match(intempleC,
+        /canseemon\(priest\).*Monnam\(priest\)/su);
+
+    const start = PRIEST_JS_SOURCE.indexOf('export async function intemple(');
+    const end = PRIEST_JS_SOURCE.indexOf(
+        '// C ref: priest.c priest_talk()', start,
+    );
+    const intempleSource = PRIEST_JS_SOURCE.slice(start, end);
+    assert.match(intempleSource,
+        /canseemon\(priest, state\)\s*\?\s*Monnam\(priest, state\)/u);
+    assert.doesNotMatch(intempleSource, /priestname\(priest,/u);
+
+    const namingState = { mons: MONSTER_TEMPLATES, u: {} };
+    const priest = {
+        data: MONSTER_TEMPLATES[PM_HIGH_CLERIC],
+        ispriest: false,
+        isminion: false,
+        minvis: false,
+        female: false,
+    };
+    assert.equal(Monnam(priest, namingState, { canSpotMonster: () => true }),
+        'The high priest');
+    assert.equal(Monnam({ ...priest, female: true }, namingState,
+        { canSpotMonster: () => true }), 'The high priestess');
+});
 
 const RECIPE = JSON.parse(readFileSync(
     new URL('../recordings/priest.c/roamer-sanctum-gnome-wizard.session.json',
