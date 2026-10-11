@@ -267650,7 +267650,60 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "drinksink",
+            "implementation": "js/fountain.js",
+            "symbol": "drinksink",
+            "sourceReview": "Read all of fountain.c:595-712 in definition order, including every fate and the rn2(20) selection/default temperature draw ordering. Case 13 now preserves the C order: emit the stench message, create a one-square damage-4 cloud at the hero through region.js:create_gas_cloud, then return without consuming its unused result. The helper owns the rn1(3,4) TTL draw and visible region activation. The pre-existing case-10 note_unported(\"polyself.c polyself\") remains because C discards that call result; no placeholder remains for the implemented region.c:create_gas_cloud call.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "nethack-c/upstream/src/potion.c:dodrink calls drinksink after the IS_SINK/can_reach_floor checks and a yes answer; js/potion.js awaits drinksink(state) at its corresponding accepted-prompt branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 34,
+                "source": "potion.c:dodrink accepts the sink prompt -> fountain.c:drinksink case 13 -> region.c:create_gas_cloud -> region.c:inside_gas_cloud"
+              }
+            ],
+            "checkedAt": "d5e6136482d87d917d185f18bfab95c1a2a596bc"
+          }
+        ],
+        "entryPointReview": "fountain.c:drinksink has one active production entry path in this source unit: potion.c:dodrink passes the accepted sink prompt to drinksink after checking that the hero can reach the floor. The existing js/potion.js:dodrink caller performs the same dispatch. The admitted v45 case traverses that command path and reaches case 13 at step 32; steps 31–34 cover the confirmation, cloud creation, and ensuing gas-region effects. No caller is excluded by recorder build conditions.",
+        "entryPoints": [
+          {
+            "name": "Drink from a sink after accepting the prompt",
+            "functions": [
+              "drinksink"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 34,
+                "source": "potion.c:dodrink accepts the sink prompt -> fountain.c:drinksink case 13 -> region.c:create_gas_cloud -> region.c:inside_gas_cloud"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
