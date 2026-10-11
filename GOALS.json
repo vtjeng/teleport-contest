@@ -267738,8 +267738,8 @@
           "name": "stealamulet",
           "line": 689,
           "endLine": 771,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -268013,7 +268013,71 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "stealamulet",
+            "implementation": "js/steal.js",
+            "symbol": "stealamulet",
+            "sourceReview": "Read the whole upstream steal.c:stealamulet() definition (689-767). The implementation scans the hero inventory in C linked-list order for any quest artifact using the obj.h threshold, otherwise selects among carried invocation objects from u.uhave while excluding fake Amulets for the Wizard. It preserves both rnd(n) selection loops, outer-gear removal order, shop billing, freeinv before doname, mpickobj before the theft message, conditional rloc after that message, and encumber_msg last. All required effects reuse existing owners; C discards the result of worn_item_removal, mpickobj, rloc, and encumber_msg. The former gated note_unported(\"steal.c stealamulet\") was removed from uhitm.js.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_samu",
+                "source": "uhitm.c:mhitm_ad_samu calls stealamulet(magr) after hitmsg when rn2(20) is zero; the JavaScript helper is awaited at that exact gate."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping dispatches AD_SAMU to mhitm_ad_samu; only its monster-to-hero direction can reach stealamulet."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku calls uhitm.c:mhitm_adtyping for the monster attack against the hero; this is the admitted Wizard production route."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-samu.test.mjs",
+              "scripts/steal.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-stealamulet-wizard-demon-attempt10-cfirst",
+                "segment": 0,
+                "fromStep": 151,
+                "throughStep": 157,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping/mhitm_ad_samu -> steal.c:stealamulet; the successful AD_SAMU gate steals the carried Amulet, transfers it with mpickobj, prints the theft, and relocates the Wizard through teleport.c:rloc"
+              }
+            ],
+            "checkedAt": "5cbb3cd37f9e17accf1f8314a96ab8d14cac260b"
+          }
+        ],
+        "entryPointReview": "The complete steal.c:stealamulet function has one active C entry path: mhitu.c:mattacku reaches uhitm.c:mhitm_adtyping, whose AD_SAMU dispatch calls uhitm.c:mhitm_ad_samu; that handler calls stealamulet only in its monster-to-hero branch after rn2(20) succeeds. The admitted Wizard case exercises this path and matches through the successful theft, object transfer, theft message, and Wizard relocation. The other two mhitm_ad_samu direction branches do not call stealamulet, so they are not additional active entries for this function.",
+        "entryPoints": [
+          {
+            "name": "A Wizard or quest nemesis hits the hero with AD_SAMU and passes the 1-in-20 theft gate",
+            "functions": [
+              "stealamulet"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v45",
+                "caseId": "v45-stealamulet-wizard-demon-attempt10-cfirst",
+                "segment": 0,
+                "fromStep": 151,
+                "throughStep": 157,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping/mhitm_ad_samu -> steal.c:stealamulet; the successful AD_SAMU gate steals the carried Amulet, transfers it with mpickobj, prints the theft, and relocates the Wizard through teleport.c:rloc"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
