@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first namefloorobj route with the observed slot n and a dedicated space to dismiss getpos's first-use tip before selecting the hero square and entering the alias.",
+  "segments": [
+    {
+      "seed": 48071009,
+      "datetime": "20571023101519",
+      "nethackrc": "OPTIONS=name:V48NameFloor,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed ring of protection\ndn#name\nf @.V48ring\n"
+    }
+  ]
+}

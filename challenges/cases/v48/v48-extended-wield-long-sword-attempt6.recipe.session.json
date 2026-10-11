@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first slot correction on the same deterministic prefix/seed as attempt5: the C screen showed the wished long sword in slot o, so #wield selects o to reach an actual weapon switch.",
+  "segments": [
+    {
+      "seed": 48072010,
+      "datetime": "20571023110830",
+      "nethackrc": "OPTIONS=name:V48ExtendedWield6,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nlong sword\n#wield\no"
+    }
+  ]
+}

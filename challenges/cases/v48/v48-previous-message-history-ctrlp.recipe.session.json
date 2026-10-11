@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for cmd.c:doprev_message -> nhwindows.c:nh_doprev_message. Ctrl-P invokes the TTY history view over startup messages; the observation is a previous-message screen/pager without a game turn.",
+  "segments": [
+    {
+      "seed": 48070017,
+      "datetime": "20571016091317",
+      "nethackrc": "OPTIONS=name:V48History,role:Valkyrie,race:human,gender=female,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "\u0010"
+    }
+  ]
+}

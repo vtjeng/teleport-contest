@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate for invent.c:doprgold with known carried currency outside any shop. A wizard creates 123 gold pieces, then invokes #showgold; observe the amount report and the source shopper_financial_report no-shop branch.",
+  "segments": [
+    {
+      "seed": 48072001,
+      "datetime": "20571023110000",
+      "nethackrc": "OPTIONS=name:V48Showgold,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\n123 gold pieces\n#showgold\n"
+    }
+  ]
+}

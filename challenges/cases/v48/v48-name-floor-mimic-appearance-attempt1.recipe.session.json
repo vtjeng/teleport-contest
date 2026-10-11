@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first probe for do_name.c:namefloorobj's fake-object branch: create a mimic disguised as a floor object, then select the apparent object from the name-floor targeting flow.",
+  "segments": [
+    {
+      "seed": 48071231,
+      "datetime": "20571022110231",
+      "nethackrc": "OPTIONS=name:V48MimicName,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nmimic\n#wizmap\n #name\nf  !o"
+    }
+  ]
+}

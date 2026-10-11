@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first route after attempt1 showed the marker's `More` page before the text-entry prompt. Dismiss that page, write V48 with the starting marker, then select do_look's nearby-engravings choice to reach pager.c:look_engrs(TRUE).",
+  "segments": [
+    {
+      "seed": 48071243,
+      "datetime": "20571022110740",
+      "nethackrc": "OPTIONS=name:V48WhatisEngr,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "i Em V48\n #whatis\ne"
+    }
+  ]
+}

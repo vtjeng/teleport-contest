@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for pager.c:do_look case '?' -> getlin/checkfile: request the ordinary WhatIs menu's textual-name lookup, then look up an item name. Distinct from map selector and the known do_oname/docall naming paths; no prior batch records the branch.",
+  "segments": [
+    {
+      "seed": 48071247,
+      "datetime": "20571022111139",
+      "nethackrc": "OPTIONS=name:V48WhatisText,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#whatis\n?sword\n"
+    }
+  ]
+}

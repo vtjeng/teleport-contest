@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate for do_name.c:docallcmd option m -> do_mgivenname: wish a visible adjacent newt, select the confirmed south direction, and assign a monster name.",
+  "segments": [
+    {
+      "seed": 48071004,
+      "datetime": "20571018101519",
+      "nethackrc": "OPTIONS=name:V48NameMonster,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizgenesis\nnewt\n#wizmap\n #name\nmjV48Newt\n"
+    }
+  ]
+}

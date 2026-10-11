@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe for the named #fire command row, which dispatches to dothrow.c:dofire. A no-ammunition state will establish whether C reaches its explicit empty-quiver refusal branch.",
+  "segments": [
+    {
+      "seed": 48072011,
+      "datetime": "20571023110930",
+      "nethackrc": "OPTIONS=name:V48ExtendedFire,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#fire\n"
+    }
+  ]
+}

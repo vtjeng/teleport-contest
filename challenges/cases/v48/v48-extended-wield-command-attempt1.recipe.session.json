@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for the named #wield row: cmd.c:doextcmd resolves it to wield.c:dowield, then selects the first listed weapon slot. This is a separate command action from the already explored #close, #fight, and #throw handlers.",
+  "segments": [
+    {
+      "seed": 48072006,
+      "datetime": "20571023110430",
+      "nethackrc": "OPTIONS=name:V48ExtendedWield,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wield\na"
+    }
+  ]
+}

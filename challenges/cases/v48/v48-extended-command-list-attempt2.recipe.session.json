@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction after attempt1 pressed the ordinary '?' help key and opened the main help menu. Enter '#' then the extended-command name '?' and Enter to reach cmd.c:doextlist directly in non-wizard mode; cancel the resulting list with Escape.",
+  "segments": [
+    {
+      "seed": 48070036,
+      "datetime": "20571023120741",
+      "nethackrc": "OPTIONS=name:V48ExtList2,role:Valkyrie,race:human,gender=female,align=neutral,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#?\n\u001b"
+    }
+  ]
+}

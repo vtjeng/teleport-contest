@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first control for the object-next getpos branch: drop a callable ring, move one square away, then select its floor location with getpos.o and . without using getpos.self.",
+  "segments": [
+    {
+      "seed": 48071228,
+      "datetime": "20571022110102",
+      "nethackrc": "OPTIONS=name:V48FloorCycle,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nuncursed ring of protection\ndnl#name\nf  o.V48cycle\n"
+    }
+  ]
+}

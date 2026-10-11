@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first probe for do_name.c:namefloorobj's hallucination arm: set a 10-turn hallucination intrinsic, create a disguised floor mimic, and select its apparent object through getpos's object menu.",
+  "segments": [
+    {
+      "seed": 48071232,
+      "datetime": "20571022110302",
+      "nethackrc": "OPTIONS=name:V48HallName,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizintrinsic\n10h\n #wizgenesis\nmimic\n#wizmap\n#name\nf  !oa."
+    }
+  ]
+}

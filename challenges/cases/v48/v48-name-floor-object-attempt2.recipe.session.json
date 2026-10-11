@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first route for do_name.c:docallcmd option f -> namefloorobj -> docall: wish a callable ring, drop its observed slot o under the hero, select getpos self then pick, and assign a type alias.",
+  "segments": [
+    {
+      "seed": 48071009,
+      "datetime": "20571023101519",
+      "nethackrc": "OPTIONS=name:V48NameFloor,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed ring of protection\ndo #name\nf@.V48ring\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-first probe of pager.c:do_look's carried-object lookup during Hallucination. C permits the ordinary What do you want to look at menu, then inventory display; JS currently refuses any selected whatis item when the hero is hallucinating.",
+  "segments": [
+    {
+      "seed": 48071241,
+      "datetime": "20571022110519",
+      "nethackrc": "OPTIONS=name:V48WhatisHallu,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizintrinsic\n10h\n #whatis\ni"
+    }
+  ]
+}

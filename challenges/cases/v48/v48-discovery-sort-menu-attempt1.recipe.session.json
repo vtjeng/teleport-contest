@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for o_init.c:choose_disco_sort via the menu-prefixed discoveries command. Pressing m before \\ makes C open the ordering selection menu, then selecting the default order completes the command.",
+  "segments": [
+    {
+      "seed": 48071233,
+      "datetime": "20571022110333",
+      "nethackrc": "OPTIONS=name:V48DiscoMenu,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "m\\o"
+    }
+  ]
+}
