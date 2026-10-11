@@ -123,8 +123,8 @@
       "stealamulet"
     ],
     "callers": [
-      "uhitm.c:mhitm_ad_samu calls stealamulet(magr) after hitmsg when rn2(20) is zero; this is the selected monster-to-hero production path.",
-      "JavaScript caller: uhitm.js:mhitm_ad_samu currently preserves the same rn2(20) gate but records note_unported(\"steal.c stealamulet\") instead of calling a helper."
+      "uhitm.c:mhitm_ad_samu calls stealamulet(magr) after hitmsg when rn2(20) is zero. For the selected monster-to-hero attack, mhitu.c:mattacku calls uhitm.c:mhitm_adtyping, which dispatches AD_SAMU to mhitm_ad_samu.",
+      "JavaScript production path: mhitu.js:mattacku -> uhitm.js:mhitm_adtyping -> mhitm_ad_samu. The helper preserves the same rn2(20) gate and now awaits stealamulet at the former note_unported call site."
     ],
     "dependencies": [
       "The existing JavaScript owners provide worn_item_removal and mpickobj in steal.js, freeinv and encumber_msg in invent.js/pickup.js, shop_keeper and subfrombill in shk.js, and can_teleport, tele_restrict, and rloc in mondata.js/teleport.js. The C results from worn_item_removal, mpickobj, rloc, and encumber_msg are discarded here.",
@@ -135,8 +135,8 @@
   "evidence": [
     "The saved combined queue SHA-256 is 9edb63a9a40e02e21bab96178737b56a53a8820b654e9ce5cb82375309f7ca4b. Its v45 entry has manifest c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649, recording 2e228e977c11b0b56d8419558bf9649e4b1a3fbec242ee88376e40f5a6e6a376, evaluation challenges/evaluations/v45-baseline-b317571a6.json at b317571a6e76a6dfab39e023745bcec4ea758e55, and 33 remaining screens out of 184 recorded steps.",
     "The admitted C recording reaches the gate at segment 0 step 151 on space and logs rn2(20)=0 @ mhitm_ad_samu(uhitm.c:4583). At step 154 it displays “The Wizard of Yendor steals the Amulet of Yendor!” and logs the monster relocation draws from rloc(teleport.c:1850-1851).",
-    "Upstream uhitm.c:mhitm_ad_samu (4570-4589) emits hitmsg, then calls stealamulet(magr) when rn2(20) is zero. Upstream steal.c:stealamulet (689-773) scans inventory for any quest artifact, falls back to the invocation objects carried, removes required worn outer items in source order, bills and removes the selected object, copies its name, transfers it with mpickobj, emits the theft message, conditionally calls rloc, then calls encumber_msg.",
-    "JavaScript uhitm.js:mhitm_ad_samu (6457-6474) already performs hitmsg and the same random gate but substitutes note_unported(\"steal.c stealamulet\") for the gated C helper. steal.js has no stealamulet export; its canonical worn_item_removal and mpickobj helpers and existing inventory/shop helpers can be reused.",
+    "Upstream mhitu.c:mattacku (1191) calls uhitm.c:mhitm_adtyping, which dispatches AD_SAMU to mhitm_ad_samu (4782-4823). The monster-to-hero branch of mhitm_ad_samu (4570-4589) emits hitmsg, then calls stealamulet(magr) when rn2(20) is zero. Upstream steal.c:stealamulet (689-767) scans inventory for any quest artifact, falls back to the invocation objects carried, removes required worn outer items in source order, bills and removes the selected object, copies its name, transfers it with mpickobj, emits the theft message, conditionally calls rloc, then calls encumber_msg.",
+    "The live JavaScript path is mhitu.js:mattacku -> uhitm.js:mhitm_adtyping -> mhitm_ad_samu. That caller previously preserved hitmsg and the same random gate but substituted note_unported(\"steal.c stealamulet\"); it now calls the new steal.js:stealamulet helper. steal.js's canonical worn_item_removal and mpickobj helpers and existing inventory/shop helpers are reused.",
     "The mismatch is missing behavior, not an RNG defect inside the existing teleport.c:rloc implementation: C reaches rloc only after the theft selection, inventory transfer, and theft message. The source scope is the complete steal.c:stealamulet function plus the exact uhitm.js caller wiring; preserve the distinct uhitm.c:mhitm_ad_samu implementation and its other combat-direction branches."
   ]
 }
