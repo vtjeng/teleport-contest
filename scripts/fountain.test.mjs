@@ -17,6 +17,7 @@ import {
     A_MAX,
     BLINDED,
     COULD_SEE,
+    DOOR,
     DEAF,
     FIRE_RES,
     FAST,
@@ -188,6 +189,25 @@ test('dogushforth interleaves candidate RNG with each square effect', async () =
 // teleporter survivor arm still consumes its rloc() boolean before gush moves
 // on.  A supplied relocation seam makes that source caller contract directly
 // observable without depending on a particular random destination.
+test('gush skips a square next to a door through mkroom nexttodoor', async () => {
+    await prepareGushingSquares();
+    // The first visible candidate at (42, 10) is next to this door; the next
+    // candidate at (44, 10) lies three columns away and remains eligible.
+    game.level.at(41, 10).typ = DOOR;
+    const draws = [];
+
+    await dogushforth(false, game, {
+        message: () => {},
+        random: {
+            rn2(bound) { draws.push(bound); return 0; },
+        },
+    });
+
+    assert.deepEqual(draws, [3, 5]);
+    assert.equal(game.level.at(42, 10).typ, ROOM);
+    assert.equal(game.level.at(44, 10).typ, POOL);
+});
+
 test('gush forwards its monster liquid relocation operation', async () => {
     await prepareGushingSquares();
     const monster = newMonster({
