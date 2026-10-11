@@ -265106,7 +265106,7 @@
     {
       "id": "port-priest-angry-priest-sacrifice-v43-20261011",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port priest anger after altar conversion and human sacrifice",
       "cFile": "priest.c",
       "sessions": [
@@ -265114,8 +265114,12 @@
       ],
       "selectionReason": "The current admitted v43 replay first differs at step 108 after pray.c:sacrifice_your_race changes the shrine altar and calls missing priest.c:angry_priest. Port the whole angry_priest function and its return-independent priest.c:free_epri callee, then wire the complete active sacrifice and altar-conversion caller branches; the later dig.c call remains source-unreachable because dig_check rejects altar terrain first.",
       "detail": "The refreshed investigation records 108/110 matching screens, full 8697/8697 RNG agreement, and independent fresh C-first evidence for pray.c:offer_different_alignment_altar. angry_priest consumes no RNG and transfers shrine alignment into EMIN before clearing EPRI.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "99f453b504a64e7dcb40b5d2d2115ec98045ca9b",
+      "openStanding": {
+        "sha": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -265154,7 +265158,258 @@
           "evaluationPath": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
           "evaluationCommit": "96f144375d45d50241fabbbe29b8a77d171ec3f0"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "session": "synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.session.json",
+          "recordingSha256": "fe726abaade0a3907af6c0b88a27374e2a5c9191b5507a0d59298cfa81a79090",
+          "recipe": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.recipe.session.json",
+          "recipeSha256": "c00fc0a1f386865ab08f728a4b6de0b9cff4519f9e327d8738efc2cf682b76e6",
+          "replayInputSha256": "2ccc96f912e661c4cb80f47b85e2af32eac5ef8a072aae9f7fcb1ce98f0fae75",
+          "evaluationPath": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+          "evaluationCommit": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+          "evaluationArtifact": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+          "evaluationUtc": "2026-10-11T04:07:54.192Z",
+          "remainingScreens": 2,
+          "recordedSteps": 110,
+          "previousScreensMatched": 108,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 108,
+              "total": 110
+            },
+            "rng": {
+              "matched": 8697,
+              "total": 8697
+            },
+            "cursors": {
+              "matched": 109,
+              "total": 110
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 108,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 108,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 7,
+              "column": 39,
+              "cCell": {
+                "ch": "i",
+                "color": 4,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 8697,
+              "cCaller": null,
+              "jsEntry": "rn2(11)=3",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 109,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 109,
+                "key": " "
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                78,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 108,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.json",
+            "result": {
+              "session": "synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+              "remainingScreens": 2,
+              "recordedSteps": 110,
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "fe726abaade0a3907af6c0b88a27374e2a5c9191b5507a0d59298cfa81a79090",
+              "evaluationPath": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+              "evaluationCommit": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+              "status": "complete",
+              "commit": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+                "session": "synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.session.json",
+                "recordingSha256": "fe726abaade0a3907af6c0b88a27374e2a5c9191b5507a0d59298cfa81a79090",
+                "recipe": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.recipe.session.json",
+                "recipeSha256": "c00fc0a1f386865ab08f728a4b6de0b9cff4519f9e327d8738efc2cf682b76e6",
+                "replayInputSha256": "2ccc96f912e661c4cb80f47b85e2af32eac5ef8a072aae9f7fcb1ce98f0fae75",
+                "evaluationPath": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+                "evaluationCommit": "96f144375d45d50241fabbbe29b8a77d171ec3f0",
+                "evaluationArtifact": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+                "evaluationUtc": "2026-10-11T04:07:54.192Z",
+                "remainingScreens": 2,
+                "recordedSteps": 110,
+                "previousScreensMatched": 108,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 108,
+                    "total": 110
+                  },
+                  "rng": {
+                    "matched": 8697,
+                    "total": 8697
+                  },
+                  "cursors": {
+                    "matched": 109,
+                    "total": 110
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 108,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 108,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 7,
+                    "column": 39,
+                    "cCell": {
+                      "ch": "i",
+                      "color": 4,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 8697,
+                    "cCaller": null,
+                    "jsEntry": "rn2(11)=3",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 109,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 109,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      42,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      78,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 108,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The step-108 sacrifice mismatch is the missing priest.c:angry_priest state transition after pray.c:sacrifice_your_race stains the shrine altar. The helper now transfers the priest's remembered shrine alignment to EMIN and frees EPRI, matching the following priest glyph and turn. Its second active prayer caller is covered by an independent accepted-corpse case. dig.c:dig retains a source call site but its player-down branch is unreachable because dig_check rejects altar terrain first.",
+              "source": {
+                "file": "priest.c",
+                "functions": [
+                  "free_epri",
+                  "angry_priest"
+                ],
+                "branch": "angry_priest finds the priest in the occupied temple, wakes and angers it, then checks its remembered shrine square. If the altar is gone or its alignment changed, ensure EMIN exists, clear priest status, set minion status and the remembered alignment, clear renegade, then free EPRI. free_epri clears EPRI when present and always clears ispriest.",
+                "callers": [
+                  "pray.c:offer_different_alignment_altar calls angry_priest after a successful non-coaligned altar conversion.",
+                  "pray.c:sacrifice_your_race calls angry_priest after staining a lawful/neutral altar chaotic and after removing a non-chaotic altar for a chaotic hero.",
+                  "dig.c:dig contains an altar_wrath/angry_priest call in its player-down branch, but dig_check(BY_YOU, u.ux, u.uy) rejects every altar before this branch can reach that call."
+                ],
+                "dependencies": [
+                  "priest.c:findpriest and temple_occupied are already ported and identify the current temple priest.",
+                  "mon.c:wakeup and setmangry are already ported; the C helper discards both void results and the JS path awaits them in source order.",
+                  "minion.c:newemin is already ported and supplies the required EMIN extension before priest data is discarded.",
+                  "priest.c:free_epri is included in this task because angry_priest calls it to clear the former shrine record.",
+                  "dig.c:dig is wired to the helper, but its altar caller branch is source-inaccessible to a player because dig_check rejects the altar first."
+                ],
+                "sourceReview": "Read upstream priest.c:free_epri (28-36) and angry_priest (877-911), plus pray.c:offer_different_alignment_altar (1631-1695), pray.c:sacrifice_your_race (1698-1780), and dig.c:dig/dig_check (207-300 and the player-down block around 429). The selected sacrifice branch calls angry_priest immediately after changing/removing the altar mask. The rival-offering branch calls it only after the successful altar conversion and non-coaligned priest check. angry_priest consumes no RNG; preserve wakeup then setmangry order, transfer the shrine alignment before free_epri, and keep the EMIN record distinct from EPRI. The dig call is after the earlier altar rejection, so no valid player recipe reaches it."
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved combined queue SHA-256 3fc504e31e6f6d95d2e39d1fd57d43ee8e09917b6c9a43408d51f45c427eeb31 identifies v43 session v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst at 108/110 screens, 8697/8697 RNG, and 109/110 cursors; its first mismatch is step 108 after the human-corpse sacrifice, with C showing the priest glyph at row 7 column 39 and JS showing floor.",
+                "C source trace at the selected case: pray.c:offer_corpse -> pray.c:sacrifice_your_race changes the altar state and calls priest.c:angry_priest. The source helper wakes/angers the priest and converts it to a minion when the remembered shrine altar is no longer present or no longer matches shralign.",
+                "Fresh differential after the implementation matched the admitted recipe through all 110 screens, 110 cursors, and 8697 RNG calls.",
+                "Independent C-first recipe/recording recipes/pray.c/angry-priest-different-alignment-cfirst.session.json and recordings/pray.c/angry-priest-different-alignment-cfirst.session.json reach pray.c:offer_different_alignment_altar -> priest.c:angry_priest. At segment 0 step 130 C records rn2(18)=8 in offer_different_alignment_altar; the priest of Thoth was established at the loaded temple and the altar converts before the angry_priest call. The fresh differential matched all 133 screens/cursors and 10488 RNG calls.",
+                "The existing independent anger-rival-altar recording also freshly matched its 753 screens/cursors and 7640 RNG calls through pray.c:offer_different_alignment_altar.",
+                "dig.c:dig caller evidence is explicitly blocked by the source guard: recipes/dig.c/altar-wrath-dig-down-blocked-b24.session.json records that dig_check(BY_YOU, u.ux, u.uy) returns DIGCHECK_FAIL_ALTAR before dig.c:dig can reach its later altar_wrath/angry_priest call. This path is not claimed as a reachable entry point."
+              ],
+              "queueSha256": "3fc504e31e6f6d95d2e39d1fd57d43ee8e09917b6c9a43408d51f45c427eeb31",
+              "evaluationArtifact": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+              "evaluationUtc": "2026-10-11T04:07:54.192Z",
+              "replayInputSha256": "2ccc96f912e661c4cb80f47b85e2af32eac5ef8a072aae9f7fcb1ce98f0fae75"
+            }
+          }
+        }
+      ]
     }
   ]
 }
