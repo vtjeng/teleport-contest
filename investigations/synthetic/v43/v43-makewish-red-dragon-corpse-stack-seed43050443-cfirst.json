@@ -64,29 +64,79 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The admitted wizard wish reaches zap.c:makewish and then invent.c:mergable while placing a wished-for corpse stack. C evaluates is_reviver(&mons[otmp->corpsenm]) to keep revivable corpses from merging. JavaScript already ports mergable and has the canonical objectGenerationEnv isReviver adapter, but makewish passes a separate holdEnv without that predicate, so requiredHook throws at the first corpse-stack comparison. Wire the existing adapter into makewish’s holdEnv; no invent.c:mergable behavior is missing.",
+  "summary": "The original wizard-wish corpse-stack stop is fixed by wiring makewish’s canonical isReviver hook. Continued replay exposed two bounded source-path defects, also fixed here: do.js preflight now admits the timed corpse pile merge allowed by invent.c:mergable, and pray.js imports canonical align_str for eval_offering’s unicorn branch. After these fixes the admitted v43 replay matches through step 290 (291 screens, cursors, and RNG prefix); its first remaining divergence at step 291 is the separate pray.c:give_spell spellbook-generation path, which is intentionally outside this delivery.",
   "source": {
     "file": "zap.c",
     "branch": "In zap.c:makewish, when a wizard wish creates a CORPSE and hold_another_object adds it to inventory, invent.c:mergable reaches its corpse branch after candidate objects have matching corpsenm values; for corpsenm >= LOW_PM it calls is_reviver(&mons[otmp->corpsenm]) and refuses to merge if true. JavaScript reaches the same branch in js/invent.js:mergable, which requires hooks.isReviver. The makewish-specific holdEnv omits the adapter already supplied by objectGenerationEnv, producing the step-100 UnsupportedObjectOperationError instead of C’s predicate result.",
     "functions": [
-      "makewish"
+      "makewish",
+      "dropx",
+      "eval_offering"
     ],
     "callers": [
-      "cmd.c:rhack dispatches C(w) through the wizwish row at 2000 to wizcmds.c:wiz_wish, which calls zap.c:makewish at 38",
-      "js/cmd.js:runWishCommand dispatches C(w) to js/wizcmds.js:wiz_wish, which calls js/zap.js:makewish"
+      "cmd.c:rhack dispatches C(w) through wizcmds.c:wiz_wish to zap.c:makewish; JavaScript follows js/cmd.js:runWishCommand -> js/wizcmds.js:wiz_wish -> js/zap.js:makewish.",
+      "zap.c:makewish passes its inventory/drop callbacks to hold_another_object, which reaches do.c:dropx when the wished object is dropped; js/zap.js:makewish supplies dropObject: js/do.js:dropx, whose preflight_dropx previously rejected a timed corpse merge admitted by invent.c:mergable.",
+      "pray.c:dosacrifice -> offer_corpse -> eval_offering; JavaScript js/pray.js:dosacrifice -> offer_corpse -> eval_offering."
     ],
     "dependencies": [
       "invent.c:hold_another_object -> addinv_core0 -> mergable at 4442-4445",
       "mondata.h:is_reviver, already ported as js/mondata.js:is_reviver",
       "js/object_generation.js:objectGenerationEnv already provides the canonical hooks.isReviver adapter"
+    ],
+    "additionalUnits": [
+      {
+        "file": "do.c",
+        "function": "dropx",
+        "lines": "786-796",
+        "implementation": "js/do.js:dropx / preflight_dropx",
+        "correction": "Preflight admits a timed corpse pile member only when both objects are corpses with matching species and the member is neither lamplit nor globby, preserving the downstream merged() timer stop."
+      },
+      {
+        "file": "pray.c",
+        "function": "eval_offering",
+        "lines": "1899-1956",
+        "implementation": "js/pray.js:eval_offering",
+        "correction": "Added the canonical align_str import used by the source branch when a unicorn is offered on an altar aligned with the hero; the source function logic was already ported."
+      }
     ]
   },
   "evidence": [
     "Saved combined queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json (SHA-256 1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093) identifies synthetic/v43/v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst, with first stop at step 100: unsupported hero command: an unported branch of this command: isReviver is not available for otyp 265; it records 201 remaining screens over 301 steps.",
     "Fresh differential of the admitted input-only recipe challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json at examined commit 42b8e23687eab4b71988b73708c121750093abe7 reproduces the early JS stop: the reference has 2,617 RNG calls and continues past step 100, while JavaScript stops at 2,399 calls; the next reference draw is zap.c:makewish at line 6421.",
     "Upstream nethack-c/upstream/src/zap.c:6314-6422 builds the wished object and calls hold_another_object at 6419. Upstream nethack-c/upstream/src/invent.c:1208-1311 adds the object through inventory handling; mergable at 4442-4445 checks eggs and revivable corpses with is_reviver. The C branch already defines the expected behavior.",
-    "JavaScript js/zap.js:1942-1971 creates a custom holdEnv whose hooks cover inventory effects but omit isReviver. js/invent.js:3553-3554 requires that hook at the corpse branch. js/object_generation.js:42-50 already exports the canonical adapter, and js/mondata.js:1382 already ports is_reviver. The actionable scope is limited to wiring that adapter in js/zap.js and adding a source-pinned production-path regression in scripts/wizard-wish.test.mjs."
+    "JavaScript js/zap.js:1942-1971 creates a custom holdEnv whose hooks cover inventory effects but omit isReviver. js/invent.js:3553-3554 requires that hook at the corpse branch. js/object_generation.js:42-50 already exports the canonical adapter, and js/mondata.js:1382 already ports is_reviver. The actionable scope is limited to wiring that adapter in js/zap.js and adding a source-pinned production-path regression in scripts/wizard-wish.test.mjs.",
+    "A trimmed input-only recipe ending at zero-based step 290 was freshly recorded and replayed with exact parity: 2,605 RNG calls, 291 screens, and 291 cursors match. This prefix reaches makewish’s reviver hook, the compatible timed corpse drop/stack path, and the later hero-aligned unicorn offering branch.",
+    "Implementation replay after the three bounded corrections: full C and JavaScript output contains 301 screens and cursors each. The first differing boundary is 292 (zero-based input step 291), when C begins pray.c:give_spell and reaches objnam.c:rnd_class. First RNG difference is call index 2608: C rnd(999)=358 @ rnd_class(objnam.c:5413), JavaScript rn2(1000)=579."
   ],
   "queueSha256": "1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093",
-  "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f"
+  "replayInputSha256": "32d65c97c7366a0cfa89e566b23f305c6d5e6a9a201448976b1a8e337e00844f",
+  "postImplementationDifferential": {
+    "command": "node scripts/diff-fresh.mjs challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json",
+    "result": "The full admitted replay now has an exact matching C/JavaScript prefix through zero-based step 290: 2,605 RNG calls, 291 of 301 screens, and 291 of 301 cursors match. The admitted white-unicorn offering reaches eval_offering’s align_str message branch before the cited prefix ends.",
+    "firstRemainingMismatch": {
+      "zeroBasedStep": 291,
+      "oneBasedBoundary": 292,
+      "rngIndex": 2608,
+      "source": "pray.c:pleased -> give_spell -> mkobj -> rnd_class (objnam.c:5413)",
+      "cRng": "rnd(999)=358 @ rnd_class(objnam.c:5413)",
+      "jsRng": "rn2(1000)=579",
+      "screen": "At boundary 292, C displays “You feel that Thoth is pleased.--More--”; JavaScript does not pause for that page because js/pray.js:pleased still calls note_unported('pray.c give_spell').",
+      "scope": "Separate source unit; pray.c:give_spell is not reserved, edited, or claimed in this delivery."
+    },
+    "fullReplayMetrics": {
+      "c": {
+        "screens": 301,
+        "rng": 2617,
+        "cursors": 301
+      },
+      "js": {
+        "screens": 301,
+        "rng": 2612,
+        "cursors": 301
+      }
+    },
+    "fullReplayLog": "/tmp/B-v43-makewish-after-pray-diff.log",
+    "exactPrefixRecipe": "/tmp/B-v43-makewish-prefix-291.recipe.session.json",
+    "exactPrefixLog": "/tmp/B-v43-makewish-prefix-291-diff.log"
+  }
 }
