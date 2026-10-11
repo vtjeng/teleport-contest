@@ -1,0 +1,144 @@
+{
+  "session": "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+  "corpus": "synthetic",
+  "batch": "v47",
+  "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+  "manifestPath": "challenges/manifests/v47.json",
+  "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+  "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+  "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+  "evaluationPath": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
+  "evaluationCommit": "56fe7fb916a1ffdf783a557694a1c1c18af784de",
+  "remainingScreens": 12,
+  "recordedSteps": 150,
+  "status": "complete",
+  "commit": "307c71fed0bfee2b73f9c409863e9f087a67b82e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v47",
+    "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+    "session": "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+    "manifestPath": "challenges/manifests/v47.json",
+    "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+    "recording": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+    "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+    "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+    "recipe": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.recipe.session.json",
+    "recipeSha256": "71d1a4f2d140f88a7a658b3a44ef6b7913e10ecb21ed7dc61f84beb43d3533df",
+    "replayInputSha256": "7257e6f9cb3d5083103e10aa607d9d8d162ac7375ca640184e2b8b6c805e10cd",
+    "evaluationPath": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
+    "evaluationCommit": "56fe7fb916a1ffdf783a557694a1c1c18af784de",
+    "evaluationArtifact": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
+    "evaluationUtc": "2026-10-11T21:29:11.560Z",
+    "remainingScreens": 12,
+    "recordedSteps": 150,
+    "previousScreensMatched": 138,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 138,
+        "total": 150
+      },
+      "rng": {
+        "matched": 2663,
+        "total": 2669
+      },
+      "cursors": {
+        "matched": 138,
+        "total": 150
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 138,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 138,
+          "key": "."
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 34,
+        "cCell": {
+          "ch": "P",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2663,
+        "cEntry": "d(2,4)=2",
+        "cCaller": "passivemm(mhitm.c:1326)",
+        "jsEntry": "rn2(3)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 138,
+          "key": "."
+        },
+        "stepIndex": 138
+      },
+      "cursor": {
+        "index": 138,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 138,
+          "key": "."
+        },
+        "cCursor": [
+          70,
+          0,
+          1
+        ],
+        "jsCursor": [
+          14,
+          6,
+          1
+        ]
+      }
+    },
+    "step": 138,
+    "kind": "rng",
+    "sourceFile": "mhitm.c",
+    "function": "passivemm",
+    "message": null,
+    "cFile": "mhitm.c",
+    "luaFile": null,
+    "line": 1326
+  },
+  "summary": "The first mismatch is caused by the missing whole uhitm.c:mhitm_ad_dise helper at the monster-to-monster AD_PEST path. mhitm_ad_pest copies Pestilence’s attack, changes it to AD_DISE, and calls the helper; the helper must zero damage against S_FUNGUS, Ghouls, and monsters defended against disease. JS currently records note_unported and keeps normal damage, so the Red Mold dies. The later corpse_chance RNG and missing Red Mold passive d(2,4) are downstream consequences, not passivemm defects.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "For a monster-pair hit, mhitm_ad_dise uses the monster defender’s data: S_FUNGUS, PM_GHOUL, or defended(mdef, AD_DISE) sets mhm.damage to zero; all other defenders take the attack’s normal damage. A hero attacker goes to this same branch. The separate monster-attacks-hero arm emits hitmsg and retains normal damage only when diseasemu succeeds; existing production dispatchers mdamagem and damageum do not pass a hero defender to this helper.",
+    "functions": [
+      "mhitm_ad_dise"
+    ],
+    "callers": [
+      "uhitm.c:mhitm_ad_pest: the monster-pair branch copies mattk, sets alt_attk.adtyp=AD_DISE, and calls mhitm_ad_dise.",
+      "uhitm.c:mhitm_adtyping: the AD_DISE case directly calls mhitm_ad_dise; mdamagem dispatches monster-pair attacks through this switch, and damageum dispatches hero-to-monster attacks."
+    ],
+    "dependencies": [
+      "uhitm.c:mhitm_ad_pest source caller branch must call the JS helper instead of note_unported.",
+      "uhitm.c:mhitm_adtyping AD_DISE switch arm must call the JS helper instead of unported.",
+      "Existing JS defended(..., AD_DISE) preserves the C monster-defense predicate.",
+      "Existing JS diseasemu() and hitmsg() implement the helper’s non-monster-pair source arm."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current saved v47 queue entry: C and JS first disagree at zero-based step 138, screen index 138. C shows Pestilence touching the Red Mold and the monster remains alive; JS shows the tourist glyph at that map position after the target dies. At that action C next logs d(2,4)=2 in passivemm(mhitm.c:1326), while JS next logs rn2(3)=2 from corpse_chance after the Red Mold was killed. This places the causative difference before passivemm.",
+    "Upstream uhitm.c:4593-4619 defines the entire missing helper. Its monster-pair arm sets mhm.damage=0 for S_FUNGUS, PM_GHOUL, or defended(mdef, AD_DISE), and leaves ordinary damage unchanged otherwise.",
+    "Upstream uhitm.c:3808-3833 shows mhitm_ad_pest’s exact call: it copies mattk, changes adtyp to AD_DISE, then discards the void helper result. JS uhitm.js:mhitm_ad_pest currently substitutes note_unported in this monster-pair arm.",
+    "Upstream uhitm.c:4782-4825 contains the direct AD_DISE caller in mhitm_adtyping. JS uhitm.js currently stops that arm at unported(\"mhitm_ad_dise\"). The complete source task must wire both existing callers.",
+    "The selected v47 recipe places a forced hostile Pestilence and hostile Red Mold under Conflict, then waits for the adjacent monster fight. The admitted queue identifies the exact caller and target state; its C/JS diff shows downstream corpse RNG only after JS omits the fungus damage guard.",
+    "Earlier v20 Pestilence-vs-hero cases exercise mhitu.c disease handling, not this monster-pair helper. The existing v21 Conflict cases and earlier uhitm recordings do not cover this Pestilence-against-fungus branch."
+  ]
+}
