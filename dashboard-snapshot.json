@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T19:26:42.267Z",
+  "capturedAt": "2026-10-11T20:08:00.506Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -89701,22 +89701,127 @@
         "at": "2026-10-11T19:26:38.034Z",
         "worker": "B",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-stone-idle-reserved-queue-20261011",
+        "type": "turn",
+        "at": "2026-10-11T19:27:08.142Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Synced accepted Main; both remaining v46 cases are reserved by ready C and A2 deliveries. Waiting for acceptance and queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-sokoban-7db847b9",
+        "type": "integrating",
+        "at": "2026-10-11T19:30:44.219Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "integration": "7db847b9ebdf04e633644c75d18a4373fe1f49ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-active-ten-20261011-1938",
+        "type": "turn",
+        "at": "2026-10-11T19:33:41.807Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has ten approved distinct C-first mismatches; continuing source-based candidate work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-active-nine-corrected-20261011-1942",
+        "type": "turn",
+        "at": "2026-10-11T19:34:03.969Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has nine approved distinct C-first mismatches; continuing source-based candidate work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-sokoban-7db847b9-failed",
+        "type": "validated",
+        "at": "2026-10-11T19:41:53.024Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-sokoban-checkpoint-correction-20261011",
+        "type": "resume",
+        "at": "2026-10-11T19:43:07.660Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-active-10-20261011",
+        "type": "turn",
+        "at": "2026-10-11T19:43:30.326Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has ten approved distinct C-first mismatches; continuing candidate work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-62b23d136ca0d7beb59f84c88ddd674b7b391b9a",
+        "type": "ready",
+        "at": "2026-10-11T19:45:44.185Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "delivery": "62b23d136ca0d7beb59f84c88ddd674b7b391b9a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-sokoban-correction-62b23d13",
+        "type": "received",
+        "at": "2026-10-11T19:46:21.725Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "delivery": "62b23d136ca0d7beb59f84c88ddd674b7b391b9a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-sokoban-correction-20261011",
+        "type": "turn",
+        "at": "2026-10-11T19:46:24.183Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Idle: C owns the remaining succubus candidate; A2’s Sokoban delivery and correction are queued. Waiting for integration and the next queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-sokoban-dd8f450f",
+        "type": "integrating",
+        "at": "2026-10-11T19:46:40.715Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "integration": "dd8f450f2864f2521a5a0948c027fc47a1bd310e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-active-11-20261011",
+        "type": "turn",
+        "at": "2026-10-11T19:50:54.510Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has eleven approved distinct C-first mismatches; continuing candidate work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-sokoban-dd8f450f",
+        "type": "validated",
+        "at": "2026-10-11T19:56:35.735Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v46-sokoban-earth-guilt-20261011-dd8f450f2864f2521a5a0948c027fc47a1bd310e-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T20:07:25.266Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
-        "worker": "A2",
-        "goal": "port-trap-sokoban-guilt-v46-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "781bf8cc9e1eb0efc6d0ece84d470e502eb0a03f",
-        "since": "2026-10-11T17:02:08.232Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-investigation-v46-succubus-steals-monster-item-attempt2-cfirst-20261011",
         "worker": "C",
@@ -90110,8 +90215,8 @@
     ]
   },
   "development": {
-    "executionCommit": "34287484a30d00e42da741c0a2ea369df7e096e7",
-    "measuredAt": "2026-10-11T19:17:43.068Z",
+    "executionCommit": "dd8f450f2864f2521a5a0948c027fc47a1bd310e",
+    "measuredAt": "2026-10-11T19:56:19.317Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

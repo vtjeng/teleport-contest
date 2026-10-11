@@ -275425,7 +275425,7 @@
     {
       "id": "port-trap-sokoban-guilt-v46-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port trap.c sokoban_guilt and wire every active caller so Sokoban conduct and luck penalties match C.",
       "cFile": "trap.c",
       "sessions": [
@@ -275439,8 +275439,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "dd8f450f2864f2521a5a0948c027fc47a1bd310e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "sokoban_guilt",
@@ -275832,6 +275835,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "dd8f450f2864f2521a5a0948c027fc47a1bd310e",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
