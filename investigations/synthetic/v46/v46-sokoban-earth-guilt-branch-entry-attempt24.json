@@ -1,0 +1,134 @@
+{
+  "session": "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24",
+  "corpus": "synthetic",
+  "batch": "v46",
+  "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+  "manifestPath": "challenges/manifests/v46.json",
+  "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+  "recordingPath": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+  "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+  "evaluationPath": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+  "evaluationCommit": "696981041adb7876b92090fe5486dc9ca68af575",
+  "remainingScreens": 1,
+  "recordedSteps": 121,
+  "status": "complete",
+  "commit": "d404c42c66e68b5c46965a3a526962b43a03698d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v46",
+    "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+    "session": "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24",
+    "manifestPath": "challenges/manifests/v46.json",
+    "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+    "recording": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+    "recordingPath": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+    "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+    "recipe": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.recipe.session.json",
+    "recipeSha256": "2c5b5e7c57a4a299bdea02c19b2cabd48da74512530d20e21fa206afb9c7d51e",
+    "replayInputSha256": "abc2aa4838bc14431291da1b19050d36a86aee2cf5a46c0f40f8bdf02c44adcf",
+    "evaluationPath": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+    "evaluationCommit": "696981041adb7876b92090fe5486dc9ca68af575",
+    "evaluationArtifact": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+    "evaluationUtc": "2026-10-11T15:59:10.197Z",
+    "remainingScreens": 1,
+    "recordedSteps": 121,
+    "previousScreensMatched": 120,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 120,
+        "total": 121
+      },
+      "rng": {
+        "matched": 6674,
+        "total": 6674
+      },
+      "cursors": {
+        "matched": 120,
+        "total": 121
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 119,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 119,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 24,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "V",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 119,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 119,
+          "key": "\n"
+        },
+        "cCursor": [
+          37,
+          17,
+          1
+        ],
+        "jsCursor": [
+          32,
+          17,
+          1
+        ]
+      }
+    },
+    "step": 119,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first mismatch is the final #conduct view after the hero enters Sokoban and reads an uncursed scroll of earth. C calls trap.c:sokoban_guilt() from read.c:seffect_earth(), incrementing u.uconduct.sokocheat and applying change_luck(-1); JavaScript currently records note_unported and leaves the count at zero. The existing insight.js:show_conduct() already reads that count, so the missing helper side effect explains the visible conduct line difference.",
+  "source": {
+    "file": "trap.c",
+    "branch": "trap.c:sokoban_guilt() tests the current level Sokoban flag; only on Sokoban it increments u.uconduct.sokocheat and calls change_luck(-1). The helper has no RNG or output, but mutates both conduct and luck state.",
+    "functions": [
+      "sokoban_guilt"
+    ],
+    "callers": [
+      "read.c:seffect_earth():1951 -> js/read.js:seffect_earth():2462, currently note_unported(\"trap.c sokoban_guilt\"). The admitted recipe reaches this path and the later insight.c:show_conduct() display.",
+      "zap.c:poly_obj():1711 -> js/zap.js:poly_obj():2310, currently note_unported with the stale label \"sokoban.c sokoban_guilt\".",
+      "zap.c:fracture_rock():5556 -> js/zap.js:fracture_rock():2779, currently note_unported with the stale label \"sokoban.c sokoban_guilt\".",
+      "hack.c:moverock_core():299,307,398,403 -> js/hack.js:moverock_core():1935,1948,2388,2397, each currently records the named gap.",
+      "steed.c:dismount_steed():767 -> js/steed.js:dismount_steed():1032-1038 currently throws for the boulder landing. Its earlier teleds() call is blocked by teleport.js:teleds() -> requireSimpleHeroDestination(), while C teleport.c:teleds() does not reject a boulder destination; this caller cannot reach the guilt side effect until that source mismatch is resolved."
+    ],
+    "dependencies": [
+      "attrib.c:change_luck(-1) already has the JavaScript owner change_luck() in js/moveloop_preamble.js; C discards the void result.",
+      "insight.c:show_conduct() already reads u.uconduct.sokocheat in js/insight.js; the missing value is produced by sokoban_guilt().",
+      "The steed.c caller depends on the existing JS teleds() boulder-destination refusal being removed or source-corrected before it can run; C teleport.c:teleds() allows that destination."
+    ]
+  },
+  "goalKind": "file-port",
+  "selectionReason": "Selected candidate 6, the first unreserved item in saved combined queue SHA-256 9d2425b60017f469943e7c22789e06736445e2c603c966cfcde87f3250e5d528 at accepted Main 696981041adb7876b92090fe5486dc9ca68af575. B owns the random-swamp case; C owns prayer, crystal-ball, and succubus; earlier A2 deliveries own troll-meal and lit-candle. This Sokoban guilt case is independent from those reservations.",
+  "evidence": [
+    "The immutable v46 manifest identifies source pointers read.c:seffect_earth and trap.c:sokoban_guilt. The saved queue reproduces the mismatch at segment 0 step 119/key newline: C and JavaScript match 6674 RNG calls; C has 120/121 screens and JS displays the unviolated-conduct text at the point where C has a violated-Sokoban-conduct line.",
+    "nethack-c/upstream/src/trap.c:7039-7054 defines the whole helper. The Sokoban guard is the current-level flag macro from include/rm.h:538; its only effects are incrementing u.uconduct.sokocheat and calling change_luck(-1).",
+    "All active direct C call sites are read.c:1951, zap.c:1711 and 5556, hack.c:299/307/398/403, and steed.c:767. Current JS read/zap/hack sites record note_unported; the steed site is an explicit UnsupportedSteedError path gated by the separate teleds boulder refusal.",
+    "insight.c:2215-2225 and js/insight.js:2970-2983 show the conduct counter controls the observed final line. change_luck() already maps to js/moveloop_preamble.js; no RNG, message, or additional callee is introduced by this helper."
+  ]
+}
