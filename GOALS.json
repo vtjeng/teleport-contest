@@ -270142,7 +270142,7 @@
     {
       "id": "fix-v45-intemple-monname-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Use canonical priest naming on Sanctum entry",
       "cFile": "priest.c",
       "sessions": [
@@ -270157,8 +270157,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "88b2206624a4f646c63e69dcafec6a73a250d3e2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "intemple",
       "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
       "step": 73,
@@ -270648,7 +270651,170 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+          "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+          "replayInputSha256": "d80380803f70e38236e44d5608c9e03515a9c3526390a8d38b477a1111411bc1",
+          "evaluationPath": "challenges/evaluations/accepted-88b2206624a4f646c63e69dcafec6a73a250d3e2-v45.json",
+          "evaluationCommit": "88b2206624a4f646c63e69dcafec6a73a250d3e2",
+          "evaluationArtifact": "challenges/evaluations/accepted-88b2206624a4f646c63e69dcafec6a73a250d3e2-v45.json",
+          "evaluationUtc": "2026-10-11T12:51:25.191Z",
+          "remainingScreens": 83,
+          "recordedSteps": 157,
+          "previousScreensMatched": 73,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 74,
+              "total": 157
+            },
+            "rng": {
+              "matched": 6986,
+              "total": 7512
+            },
+            "cursors": {
+              "matched": 74,
+              "total": 157
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported initial-level monster creation: makemon() monster 174",
+            "step": 74
+          },
+          "step": 74,
+          "kind": "stop",
+          "sourceFile": "makemon.c",
+          "function": "makemon",
+          "message": "unsupported initial-level monster creation: makemon() monster 174",
+          "cFile": "makemon.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.json",
+            "previousRemainingScreens": 84
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+          "recordingSha256": "6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.recipe.session.json",
+          "recipeSha256": "1c35cd806beff1d162ddd353766d798eb8847fb0ee51589f2cdc4884d34e7e7c",
+          "replayInputSha256": "d80380803f70e38236e44d5608c9e03515a9c3526390a8d38b477a1111411bc1",
+          "evaluationPath": "challenges/evaluations/accepted-88b2206624a4f646c63e69dcafec6a73a250d3e2-v45.json",
+          "evaluationCommit": "88b2206624a4f646c63e69dcafec6a73a250d3e2",
+          "evaluationArtifact": "challenges/evaluations/accepted-88b2206624a4f646c63e69dcafec6a73a250d3e2-v45.json",
+          "evaluationUtc": "2026-10-11T12:51:25.191Z",
+          "remainingScreens": 1,
+          "recordedSteps": 162,
+          "previousScreensMatched": 160,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 161,
+              "total": 162
+            },
+            "rng": {
+              "matched": 7856,
+              "total": 7856
+            },
+            "cursors": {
+              "matched": 161,
+              "total": 162
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 161,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 161,
+                "key": "p"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "N",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 7856,
+              "cCaller": null,
+              "jsEntry": "rn2(5)=4",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 161,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 161,
+                "key": "p"
+              },
+              "cCursor": [
+                51,
+                0,
+                1
+              ],
+              "jsCursor": [
+                20,
+                10,
+                1
+              ]
+            }
+          },
+          "step": 161,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.json",
+            "previousRemainingScreens": 2
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "88b2206624a4f646c63e69dcafec6a73a250d3e2",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
