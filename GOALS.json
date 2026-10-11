@@ -275421,6 +275421,288 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-trap-sokoban-guilt-v46-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port trap.c sokoban_guilt and wire every active caller so Sokoban conduct and luck penalties match C.",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24"
+      ],
+      "selectionReason": "The admitted v46 case is the next dependency-ready queued mismatch: read.c seffect_earth reaches the missing trap.c sokoban_guilt side effects, leaving the final conduct screen wrong while RNG remains exact.",
+      "detail": "Port the complete trap.c sokoban_guilt helper and wire its active read.c, zap.c, hack.c, and steed.c callers. Preserve current-level Sokoban gating, u.uconduct.sokocheat update, and change_luck(-1) order. Runtime evidence covers the read entry plus independent recordings for the other active callers; supporting polymon-to-DISMOUNT_POLY wiring does not claim whole caller completion.",
+      "openedAt": "b8795645b1d11864e62a4488f693b709dfb29007",
+      "openStanding": {
+        "sha": "34287484a30d00e42da741c0a2ea369df7e096e7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "sokoban_guilt",
+          "line": 7039,
+          "endLine": 7058,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 7039,
+        "to": 7058
+      },
+      "syntheticProvenance": {
+        "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24": {
+          "session": "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24",
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recordingPath": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+          "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+          "evaluationPath": "challenges/evaluations/accepted-34287484a30d00e42da741c0a2ea369df7e096e7-v46.json",
+          "evaluationCommit": "34287484a30d00e42da741c0a2ea369df7e096e7"
+        }
+      },
+      "activeStanding": {
+        "sha": "34287484a30d00e42da741c0a2ea369df7e096e7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v46",
+          "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+          "session": "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24",
+          "manifestPath": "challenges/manifests/v46.json",
+          "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+          "recording": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+          "recordingPath": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+          "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+          "recipe": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.recipe.session.json",
+          "recipeSha256": "2c5b5e7c57a4a299bdea02c19b2cabd48da74512530d20e21fa206afb9c7d51e",
+          "replayInputSha256": "10d2d991152eef809a45b825126d737f24d6741b6f3d1f1d7a77fa1ca27ae893",
+          "evaluationPath": "challenges/evaluations/accepted-34287484a30d00e42da741c0a2ea369df7e096e7-v46.json",
+          "evaluationCommit": "34287484a30d00e42da741c0a2ea369df7e096e7",
+          "evaluationArtifact": "challenges/evaluations/accepted-34287484a30d00e42da741c0a2ea369df7e096e7-v46.json",
+          "evaluationUtc": "2026-10-11T19:23:23.295Z",
+          "remainingScreens": 1,
+          "recordedSteps": 121,
+          "previousScreensMatched": 120,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 120,
+              "total": 121
+            },
+            "rng": {
+              "matched": 6674,
+              "total": 6674
+            },
+            "cursors": {
+              "matched": 120,
+              "total": 121
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 119,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 119,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 24,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "V",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 119,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 119,
+                "key": "\n"
+              },
+              "cCursor": [
+                37,
+                17,
+                1
+              ],
+              "jsCursor": [
+                32,
+                17,
+                1
+              ]
+            }
+          },
+          "step": 119,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.json",
+            "result": {
+              "session": "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24",
+              "corpus": "synthetic",
+              "batch": "v46",
+              "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+              "manifestPath": "challenges/manifests/v46.json",
+              "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+              "recordingPath": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+              "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+              "evaluationPath": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+              "evaluationCommit": "696981041adb7876b92090fe5486dc9ca68af575",
+              "remainingScreens": 1,
+              "recordedSteps": 121,
+              "status": "complete",
+              "commit": "d404c42c66e68b5c46965a3a526962b43a03698d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v46",
+                "caseId": "v46-sokoban-earth-guilt-branch-entry-attempt24",
+                "session": "synthetic/v46/v46-sokoban-earth-guilt-branch-entry-attempt24",
+                "manifestPath": "challenges/manifests/v46.json",
+                "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
+                "recording": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+                "recordingPath": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.session.json",
+                "recordingSha256": "a3142a1a95355ec94cc1af327f3e507619d312d460026516563d33468d06d1d5",
+                "recipe": "challenges/cases/v46/v46-sokoban-earth-guilt-branch-entry-attempt24.recipe.session.json",
+                "recipeSha256": "2c5b5e7c57a4a299bdea02c19b2cabd48da74512530d20e21fa206afb9c7d51e",
+                "replayInputSha256": "abc2aa4838bc14431291da1b19050d36a86aee2cf5a46c0f40f8bdf02c44adcf",
+                "evaluationPath": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+                "evaluationCommit": "696981041adb7876b92090fe5486dc9ca68af575",
+                "evaluationArtifact": "challenges/evaluations/accepted-696981041adb7876b92090fe5486dc9ca68af575-v46.json",
+                "evaluationUtc": "2026-10-11T15:59:10.197Z",
+                "remainingScreens": 1,
+                "recordedSteps": 121,
+                "previousScreensMatched": 120,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 120,
+                    "total": 121
+                  },
+                  "rng": {
+                    "matched": 6674,
+                    "total": 6674
+                  },
+                  "cursors": {
+                    "matched": 120,
+                    "total": 121
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 119,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 119,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 24,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "V",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 119,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 119,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      37,
+                      17,
+                      1
+                    ],
+                    "jsCursor": [
+                      32,
+                      17,
+                      1
+                    ]
+                  }
+                },
+                "step": 119,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the final #conduct view after the hero enters Sokoban and reads an uncursed scroll of earth. C calls trap.c:sokoban_guilt() from read.c:seffect_earth(), incrementing u.uconduct.sokocheat and applying change_luck(-1); JavaScript currently records note_unported and leaves the count at zero. The existing insight.js:show_conduct() already reads that count, so the missing helper side effect explains the visible conduct line difference.",
+              "source": {
+                "file": "trap.c",
+                "branch": "trap.c:sokoban_guilt() tests the current level Sokoban flag; only on Sokoban it increments u.uconduct.sokocheat and calls change_luck(-1). The helper has no RNG or output, but mutates both conduct and luck state.",
+                "functions": [
+                  "sokoban_guilt"
+                ],
+                "callers": [
+                  "read.c:seffect_earth():1951 -> js/read.js:seffect_earth():2462, currently note_unported(\"trap.c sokoban_guilt\"). The admitted recipe reaches this path and the later insight.c:show_conduct() display.",
+                  "zap.c:poly_obj():1711 -> js/zap.js:poly_obj():2310, currently note_unported with the stale label \"sokoban.c sokoban_guilt\".",
+                  "zap.c:fracture_rock():5556 -> js/zap.js:fracture_rock():2779, currently note_unported with the stale label \"sokoban.c sokoban_guilt\".",
+                  "hack.c:cannot_push():299,307 -> js/hack.js:cannot_push():1935,1948, currently records the named gap.",
+                  "hack.c:moverock_core():398,403 -> js/hack.js:moverock_core():2388,2397, currently records the named gap.",
+                  "steed.c:dismount_steed():767 -> js/steed.js:dismount_steed():1028-1038. Both C and JavaScript teleds() reach a floor boulder destination; JavaScript currently throws after arrival instead of making the source sokoban_guilt() call. Replace that refusal with the helper call."
+                ],
+                "dependencies": [
+                  "attrib.c:change_luck(-1) already has the JavaScript owner change_luck() in js/moveloop_preamble.js; C discards the void result.",
+                  "insight.c:show_conduct() already reads u.uconduct.sokocheat in js/insight.js; the missing value is produced by sokoban_guilt()."
+                ]
+              },
+              "goalKind": "file-port",
+              "selectionReason": "Selected candidate 6, the first unreserved item in saved combined queue SHA-256 9d2425b60017f469943e7c22789e06736445e2c603c966cfcde87f3250e5d528 at accepted Main 696981041adb7876b92090fe5486dc9ca68af575. B owns the random-swamp case; C owns prayer, crystal-ball, and succubus; earlier A2 deliveries own troll-meal and lit-candle. This Sokoban guilt case is independent from those reservations.",
+              "evidence": [
+                "The immutable v46 manifest identifies source pointers read.c:seffect_earth and trap.c:sokoban_guilt. The saved queue reproduces the mismatch at segment 0 step 119/key newline: C and JavaScript match 6674 RNG calls; C has 120/121 screens and JS displays the unviolated-conduct text at the point where C has a violated-Sokoban-conduct line.",
+                "nethack-c/upstream/src/trap.c:7039-7054 defines the whole helper. The Sokoban guard is the current-level flag macro from include/rm.h:538; its only effects are incrementing u.uconduct.sokocheat and calling change_luck(-1).",
+                "All active direct C call sites are read.c:1951, zap.c:1711 and 5556, hack.c:cannot_push():299/307, hack.c:moverock_core():398/403, and steed.c:767. Current JS read/zap/hack sites record note_unported; the steed site throws after teleds() has placed the hero on the boulder instead of making the source helper call. C teleport.c:teleds() and a current JavaScript diagnostic both allow that boulder destination.",
+                "insight.c:2215-2225 and js/insight.js:2970-2983 show the conduct counter controls the observed final line. change_luck() already maps to js/moveloop_preamble.js; no RNG, message, or additional callee is introduced by this helper."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
