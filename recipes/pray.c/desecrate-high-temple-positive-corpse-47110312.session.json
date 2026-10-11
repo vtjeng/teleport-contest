@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47110312,
+      "datetime": "20581120121314",
+      "nethackrc": "OPTIONS=name:A2HighAltarRogue,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>J       gold piece\n#teleport\n   kkyyyyyyyy. #wizwish\nnewt corpse\n#offer\nh     n   n n"
+    }
+  ],
+  "comment": "Independent C recording for pray.c:offer_corpse high-altar handling. A chaotic human Rogue enters Astral and controlled-teleports to the neutral central sanctum (Mog); a wished newt corpse has positive value and is not the hero’s race, so choosing inventory slot h reaches offer_corpse’s direct highaltar branch. The Amulet occupies g, so h is the C-observed corpse slot. The final n answers decline debug-mode death, followed by spaces that clear each retaliation page."
+}
