@@ -23,6 +23,8 @@ import {
     PLNMSG_ENVELOPED_IN_GAS,
     POISON_RES,
     ROWNO,
+    TELEDS_NO_FLAGS,
+    TIMEOUT,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { on_level } from './dungeon.js';
@@ -48,9 +50,9 @@ import {
     wake_nearto,
 } from './mon.js';
 import { AD_DRST, PM_FOG_CLOUD } from './monsters.js';
-import { make_blinded } from './potion.js';
+import { make_blinded, set_itimeout } from './potion.js';
 import { body_part } from './polyself.js';
-import { rn2, rnd } from './rng.js';
+import { d as roll_d, rn2, rnd } from './rng.js';
 import { S_cloud, S_poisoncloud } from './symbols.js';
 import { TOWEL } from './objects.js';
 import { note_unported } from './unported.js';
@@ -888,6 +890,54 @@ export function region_danger(state = game) {
         return true;
     }
     return false;
+}
+
+// C ref: region.c region_safety() (1368-1405). The prayer caller supplies
+// the existing teleport, message, and map-visual operations; keeping those
+// boundaries injected avoids a region.js cycle through teleport.js/vision.js.
+export async function region_safety(state = game, rawEnv = {}) {
+    const env = { ...rawEnv, state };
+    let removable = null;
+    let count = 0;
+
+    for (const region of state.level?.regions ?? []) {
+        if (!region.hero_inside) continue;
+        if (callbackName(region.inside_f) !== INSIDE_GAS_CLOUD) continue;
+        if (count === 0 && region.ttl >= 0) removable = region;
+        ++count;
+    }
+
+    if (count > 1 || (count === 1 && !removable)) {
+        await requiredOperation(env, 'safeTeleds')(
+            TELEDS_NO_FLAGS, state, env,
+        );
+        if (region_danger(state)) {
+            const d = env.random?.d ?? env.d ?? roll_d;
+            if (typeof d !== 'function')
+                throw new TypeError('region_safety random injection requires d');
+            set_itimeout(
+                state.u.uprops[MAGICAL_BREATHING], d(4, 4) + 4,
+            );
+            await requiredOperation(env, 'message')(
+                'You feel able to breathe.', state, env,
+            );
+        }
+    } else if (removable) {
+        remove_region(removable, state, env);
+        await requiredOperation(env, 'message')(
+            'The gas cloud enveloping you dissipates.', state, env,
+        );
+    } else {
+        await requiredOperation(env, 'message')(
+            'The gas cloud has dissipated.', state, env,
+        );
+    }
+
+    const blindedTimeout = state.u?.uprops?.[BLINDED]?.intrinsic & TIMEOUT;
+    if (blindedTimeout === 1) {
+        const makeBlinded = env.makeBlinded ?? make_blinded;
+        await makeBlinded(0, true, state, env);
+    }
 }
 
 // C ref: read.c valid_cloud_pos().
