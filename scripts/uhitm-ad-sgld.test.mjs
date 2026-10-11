@@ -8,7 +8,7 @@ import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { mhitm_adtyping } from '../js/uhitm.js';
 import { findgold } from '../js/steal.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj, mksobj_at, remove_object } from '../js/obj.js';
 import { add_to_minv, addinv_runtime, INVLET_BASIC, obj_extract_self } from '../js/invent.js';
 import { inv_cnt } from '../js/hack.js';
 import { GOLD_PIECE, DAGGER } from '../js/objects.js';
@@ -136,16 +136,74 @@ test('incoming same-species attack prints hit but preserves initialized damage',
     assert.equal(game.unported?.has('steal.c stealgold') ?? false, false);
 });
 
-test('canceled incoming attacker skips the precisely named discarded stealgold call', async () => {
+test('canceled incoming attacker leaves carried gold alone', async () => {
     const { monster, env } = await fixture();
     const attacker = monster(PM_LEPRECHAUN); attacker.mcan = 1;
+    const purse = findgold(game.invent);
+    const before = purse.quan;
     const hit = mhm();
     await mhitm_adtyping(attacker, mattk, game.youmonst, hit, game, env);
     assert.equal(hit.damage, 9);
+    assert.equal(purse.quan, before);
+    assert.equal(attacker.minvent, null);
     assert.equal(game.unported?.has('steal.c stealgold') ?? false, false);
-    attacker.mcan = 0;
-    await mhitm_adtyping(attacker, mattk, game.youmonst, hit, game, env);
-    assert.equal(game.unported.has('steal.c stealgold'), true);
+});
+
+test('incoming leprechaun transfers a source-sized subset of carried gold', async () => {
+    const { monster, lines, env } = await fixture();
+    const attacker = monster(PM_LEPRECHAUN);
+    const purse = findgold(game.invent);
+    assert.ok(purse, 'fixture supplies the hero with gold');
+    purse.quan = 1000;
+    const randomCalls = [];
+    const hit = mhm();
+    await mhitm_adtyping(attacker, mattk, game.youmonst, hit, game, {
+        ...env,
+        random: {
+            rn1: (range, base) => { randomCalls.push(['rn1', range, base]); return base; },
+            rn2: bound => { randomCalls.push(['rn2', bound]); return bound - 1; },
+        },
+        teleRestrict: async () => true,
+        monflee: async () => {},
+    });
+    const stolen = findgold(attacker.minvent);
+    assert.equal(purse.quan, 500);
+    assert.equal(stolen.quan, 500);
+    assert.deepEqual(randomCalls, [['rn1', 501, 500]]);
+    assert.ok(lines.includes('Your purse feels lighter.'));
+    assert.equal(hit.damage, 9, 'incoming AD_SGLD retains its physical hit damage');
+    assert.equal(game.unported?.has('steal.c stealgold') ?? false, false);
+});
+
+test('incoming leprechaun prefers a larger floor-gold stack', async () => {
+    const { monster, lines, env } = await fixture();
+    const attacker = monster(PM_LEPRECHAUN);
+    const purse = findgold(game.invent);
+    assert.ok(purse, 'fixture supplies the hero with gold');
+    purse.quan = 50;
+    const floorGold = mksobj_at(GOLD_PIECE, game.u.ux, game.u.uy, false, false, {
+        state: game,
+    });
+    floorGold.quan = 100;
+    const randomCalls = [];
+    const redraws = [];
+    await mhitm_adtyping(attacker, mattk, game.youmonst, mhm(), game, {
+        ...env,
+        random: {
+            rn1: () => { throw new Error('floor stack does not call somegold'); },
+            rn2: bound => { randomCalls.push(bound); return bound - 1; },
+        },
+        teleRestrict: async () => true,
+        monflee: async () => {},
+        newsym: (x, y) => redraws.push([x, y]),
+        hooks: { extractExternalObject: (obj, hookEnv) => remove_object(obj, hookEnv) },
+    });
+    assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
+    assert.equal(findgold(attacker.minvent), floorGold);
+    assert.equal(floorGold.quan, 100);
+    assert.deepEqual(randomCalls, [5], 'only the post-message flee check draws');
+    assert.deepEqual(redraws, [[game.u.ux, game.u.uy]]);
+    assert.ok(lines.some(line => /quickly snatches some gold from between your feet!/u.test(line)));
 });
 
 test('monster-pair cancellation clears damage before leaving gold and strategy alone', async () => {
@@ -262,4 +320,8 @@ test('source pins all direction branches and the inventory/relocation order', ()
     assert.match(body, /exercise\(A_DEX, TRUE\);\s+mhm->damage = 0;/u);
     assert.match(body, /hitmsg\(magr, mattk\);\s+if \(pd->mlet == pa->mlet\)\s+return;\s+if \(!magr->mcan\)\s+stealgold\(magr\);/u);
     assert.match(body, /obj_extract_self\(gold\);\s+add_to_minv\(magr, gold\);[\s\S]*?mdef->mstrategy &= ~STRAT_WAITFORU[\s\S]*?mhm->hitflags = M_ATTK_AGR_DONE;\s+\(void\) rloc\(magr, RLOC_NOMSG\);/u);
+    const js = readFileSync(new URL('../js/uhitm.js', import.meta.url), 'utf8');
+    const jsBody = js.slice(js.indexOf('export async function mhitm_ad_sgld('),
+        js.indexOf('// C ref: uhitm.c mhitm_ad_tlpt'));
+    assert.match(jsBody, /await hitmsg\(magr, mattk, state, env\);\s+if \(pd\.mlet === pa\.mlet\) return;\s+if \(!magr\.mcan\) \{\s+await stealgold\(magr,/u);
 });

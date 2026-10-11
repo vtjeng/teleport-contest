@@ -1,11 +1,12 @@
 // Monster pickup, theft and release transfer primitives.
-// C refs: src/steal.c mpickobj(), mdrop_obj(), relobj(), steal(),
-// worn_item_removal() and remove_worn_item().
+// C refs: src/steal.c somegold(), findgold(), stealgold(), mpickobj(),
+// mdrop_obj(), relobj(), steal(), worn_item_removal() and remove_worn_item().
 
 import {
     ADORNED,
     BLINDED,
     CONFLICT,
+    FOOT,
     HAND,
     LEFT_HANDED,
     LEFT_RING,
@@ -32,7 +33,7 @@ import {
 } from './const.js';
 import { newsym } from './display.js';
 import { o_unleash } from './apply.js';
-import { flooreffects } from './do.js';
+import { dropCommandEnv, flooreffects } from './do.js';
 import {
     Amulet_off,
     Armor_off,
@@ -58,12 +59,15 @@ import {
 import { droppables } from './dogmove.js';
 import { game } from './gstate.js';
 import { inv_cnt, nomul } from './hack.js';
-import { dist2, upstart } from './hacklib.js';
+import { dist2, s_suffix, upstart } from './hacklib.js';
 import {
     add_to_minv,
     carry_obj_effects,
     count_unpaid,
     freeinv,
+    money_cnt,
+    obfree,
+    obj_extract_self,
     preflight_carry_obj_effects,
     stackobj,
 } from './invent.js';
@@ -73,12 +77,15 @@ import {
     dead_species,
     dmgtype,
     is_animal,
+    slithy,
     touch_petrifies,
     throws_rocks,
 } from './mondata.js';
 import { AD_SITM, AT_ENGL, S_NYMPH } from './monsters.js';
 import { can_carry } from './moncarry.js';
-import { carried, objectType, place_object, unknow_object } from './obj.js';
+import {
+    carried, g_at, objectType, place_object, splitobj, unknow_object,
+} from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     ARMOR_CLASS,
@@ -104,7 +111,7 @@ import {
 import { makeplural } from './fruit.js';
 import { encumber_msg } from './pickup.js';
 import { in_rooms } from './rooms.js';
-import { rn2, rnd } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
 import { obj_resists } from './bury.js';
 import { is_quest_artifact } from './questpgr.js';
 import { costly_spot, find_objowner, shop_keeper, subfrombill } from './shk.js';
@@ -112,7 +119,9 @@ import { messageAt } from './startup_a11y.js';
 import { attach_fig_transform_timeout } from './timeout.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { cansee } from './vision.js';
-import { openholdingtrap, unconscious } from './trap.js';
+import {
+    Flying, Levitation, openholdingtrap, unconscious,
+} from './trap.js';
 import { is_fainted, maybe_finished_meal } from './eat.js';
 import {
     extract_from_minvent,
@@ -135,7 +144,7 @@ import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { canseemon, canspotmon } from './display.js';
 import { touch_artifact } from './artifacts.js';
-import { body_part } from './polyself.js';
+import { body_part, mbodypart } from './polyself.js';
 
 export class UnsupportedMonsterPickupOperationError extends Error {
     constructor(operation, obj = null) {
@@ -1034,11 +1043,10 @@ export function mdrop_special_objs(mon, rawEnv = {}) {
 // droppables() offers, which is what keeps a pet's wielded weapon and its one
 // useful tool in its inventory.
 //
-// C's vault-guard arm is gated on `isgd && findgold(minvent)`. findgold() is
-// not ported, so the whole arm stops on `isgd` alone.
 export async function relobj(mtmp, show, is_pet, rawEnv = {}) {
     const env = dropEnv(rawEnv);
-    const { state, unsupported } = env;
+    const { state } = env;
+    const message = env.message ?? ttyPline;
     // dog_move() normalizes droppables() into its own environment, so taking
     // it from there keeps this loop and dog_invent()'s gate on one selector.
     const findDroppable = env.droppables ?? droppables;
@@ -1046,7 +1054,18 @@ export async function relobj(mtmp, show, is_pet, rawEnv = {}) {
     const omx = mtmp.mx;
     const omy = mtmp.my;
 
-    if (mtmp.isgd) unsupported("a vault guard's gold vanishing");
+    const gold = mtmp.isgd ? findgold(mtmp.minvent) : null;
+    if (gold) {
+        if (canspotmon(mtmp, state)) {
+            const verb = canseemon(mtmp, state) ? 'vanishes' : 'seems to vanish';
+            await message(
+                `${s_suffix(Monnam(mtmp, state, env))} gold ${verb}.`,
+                state,
+            );
+        }
+        obj_extract_self(gold, env);
+        obfree(gold, null, env);
+    }
 
     for (;;) {
         const otmp = is_pet ? findDroppable(mtmp, env) : mtmp.minvent;
@@ -1062,6 +1081,31 @@ export async function relobj(mtmp, show, is_pet, rawEnv = {}) {
     if (show && cansee(omx, omy, state)) redraw(omx, omy, state);
 }
 
+// C ref: steal.c somegold() (14-34). Return a bounded proportional subset of
+// the available money, preserving the source's thresholds and rn1 arguments.
+export function somegold(lmoney, random = { rn1 }) {
+    const largestInt = 0x7fffffff;
+    let igold = lmoney >= largestInt ? largestInt : Math.trunc(lmoney);
+
+    if (igold < 50) {
+        // All gold.
+    } else if (igold < 100) {
+        igold = random.rn1(igold - 25 + 1, 25);
+    } else if (igold < 500) {
+        igold = random.rn1(igold - 50 + 1, 50);
+    } else if (igold < 1000) {
+        igold = random.rn1(igold - 100 + 1, 100);
+    } else if (igold < 5000) {
+        igold = random.rn1(igold - 500 + 1, 500);
+    } else if (igold < 10000) {
+        igold = random.rn1(igold - 1000 + 1, 1000);
+    } else {
+        igold = random.rn1(igold - 5000 + 1, 5000);
+    }
+
+    return igold;
+}
+
 // C ref: steal.c findgold() (45-52). Walk an object chain and return the
 // first gold-piece stack, or null if none is found.
 export function findgold(chain) {
@@ -1069,4 +1113,85 @@ export function findgold(chain) {
     while (obj && obj.otyp !== GOLD_PIECE)
         obj = obj.nobj;
     return obj ?? null;
+}
+
+// C ref: steal.c stealgold() (58-116). Leprechauns prefer a larger floor
+// stack, otherwise taking a proportional subset of the hero's carried gold.
+export async function stealgold(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = { rn1, rn2, ...(rawEnv.random ?? {}) };
+    const message = rawEnv.message ?? ttyPline;
+    const env = { ...rawEnv, state, random, message };
+    const inventoryEnv = dropCommandEnv(state, env);
+    const redraw = rawEnv.newsym ?? rawEnv.redraw ?? newsym;
+    const teleRestrict = rawEnv.teleRestrict ?? tele_restrict;
+    const relocate = rawEnv.relocate ?? rloc;
+    const flee = rawEnv.monflee ?? monflee;
+
+    let floorGold = g_at(state.u.ux, state.u.uy, state);
+    while (floorGold && floorGold.otyp !== GOLD_PIECE)
+        floorGold = floorGold.nexthere;
+
+    let heroGold = findgold(state.invent);
+    if (floorGold && (!heroGold
+        || floorGold.quan > heroGold.quan
+        || !random.rn2(5))) {
+        obj_extract_self(floorGold, inventoryEnv);
+        add_to_minv(mtmp, floorGold, inventoryEnv);
+        redraw(state.u.ux, state.u.uy, state);
+
+        let whose;
+        let what;
+        let who;
+        if (state.u.usteed) {
+            who = state.u.usteed;
+            whose = s_suffix(y_monnam(who, state, env));
+            what = makeplural(mbodypart(who, FOOT));
+        } else {
+            who = state.youmonst;
+            whose = 'your';
+            what = makeplural(body_part(FOOT, who));
+        }
+        if (slithy(who.data)) what = 'coils';
+        if (what.startsWith('rear ')) what = what.slice(5);
+        await message(
+            `${Monnam(mtmp, state, env)} quickly snatches some gold from `
+                + `${Levitation(state) || Flying(state) ? 'beneath' : 'between'} `
+                + `${whose} ${what}!`,
+            state,
+            env,
+        );
+        if (!heroGold || !random.rn2(5)) {
+            if (!await teleRestrict(mtmp, state, env)) {
+                await relocate(mtmp, RLOC_MSG, {
+                    ...inventoryEnv,
+                    newsym: redraw,
+                });
+            }
+            await flee(mtmp, 0, false, false, inventoryEnv);
+        }
+    } else if (heroGold) {
+        const goldPrice = objectType(GOLD_PIECE, state).oc_cost;
+        let amount = Math.trunc(
+            (somegold(money_cnt(state.invent), random) + goldPrice - 1)
+                / goldPrice,
+        );
+        amount = Math.min(amount, heroGold.quan);
+        if (amount < heroGold.quan)
+            heroGold = splitobj(heroGold, amount, inventoryEnv);
+        else
+            await setnotworn(heroGold, inventoryEnv);
+        await freeinv(heroGold, inventoryEnv);
+        add_to_minv(mtmp, heroGold, inventoryEnv);
+        await message('Your purse feels lighter.', state, env);
+        if (!await teleRestrict(mtmp, state, env)) {
+            await relocate(mtmp, RLOC_MSG, {
+                ...inventoryEnv,
+                newsym: redraw,
+            });
+        }
+        await flee(mtmp, 0, false, false, inventoryEnv);
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
 }

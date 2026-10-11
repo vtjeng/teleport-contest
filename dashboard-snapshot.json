@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T00:37:36.773Z",
+  "capturedAt": "2026-10-11T02:16:10.391Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -85014,11 +85014,580 @@
         "worker": "B",
         "state": "idle",
         "reason": "Accepted B42 Main is synced; waiting for the refreshed v43 queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-v42-zhitu-acid-damage-dual-wield-investigation-20261010-72f2ce2a25a9d561e6c490a3ac07d5514931d434",
+        "type": "published",
+        "at": "2026-10-11T00:37:44.613Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "commit": "72f2ce2a25a9d561e6c490a3ac07d5514931d434"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-sync-publication-72f2ce2a-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:37:59.012Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Refreshing the worker boundary to published Main before waiting for v43 admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-72f2-publication-idle-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:38:12.145Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Published Main is synced; the refreshed queue is empty, so I’m available for v43 admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-idle-after-zhitu-publication-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:38:14.703Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Synced published Main 72f2ce2a. The saved queue is empty; A2 is idle and available for v43 admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-idle-empty-queue-clarification-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:38:22.060Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Synced published Main 72f2ce2a. The saved queue has zero candidates; A2 is idle and available for v43 admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-empty-queue-v43-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:38:25.489Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C is available for the first independent task after v43 admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-twelve-package-20261010",
+        "type": "turn",
+        "at": "2026-10-11T00:47:55.452Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has twelve approved distinct C-first mismatches; packaging the manifest and validation evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-ten-resume-search-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:50:44.671Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has ten approved distinct C-first mismatches; continuing source-based search for two more."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-ten-packaging-20261011",
+        "type": "turn",
+        "at": "2026-10-11T00:53:56.722Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has ten verified distinct mismatches; packaging the prepared manifest, controls, misses, and search record."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-903ed040d84634bece8da00bf3ad8d08ca3ab29c",
+        "type": "ready",
+        "at": "2026-10-11T01:09:00.217Z",
+        "task": "Prep7",
+        "delivery": "903ed040d84634bece8da00bf3ad8d08ca3ab29c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-submitted-idle-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:09:13.192Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "v43 preparation is delivered with ten verified mismatches and preserved controls; waiting for coordinator review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep7-903ed040-20261010",
+        "type": "received",
+        "at": "2026-10-11T01:09:15.285Z",
+        "task": "Prep7",
+        "delivery": "903ed040d84634bece8da00bf3ad8d08ca3ab29c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep7-review-20261010",
+        "type": "activity",
+        "at": "2026-10-11T01:09:18.749Z",
+        "task": "Prep7",
+        "phase": "review",
+        "reason": "Reviewing the v43 preparation packet, retained case hashes, replay evidence, and reduced-batch rationale before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep7-9c4c0b31-20261010",
+        "type": "integrating",
+        "at": "2026-10-11T01:10:04.971Z",
+        "task": "Prep7",
+        "integration": "9c4c0b3144fb50e0bb2823a055f3f41dbfca0dfb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-Prep7-9c4c0b31-20261010",
+        "type": "validated",
+        "at": "2026-10-11T01:15:10.161Z",
+        "task": "Prep7",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep7-9c4c0b3144fb50e0bb2823a055f3f41dbfca0dfb-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T01:15:24.785Z",
+        "task": "Prep7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep7-admission-v43-20261010",
+        "type": "activity",
+        "at": "2026-10-11T01:15:35.980Z",
+        "task": "Prep7",
+        "phase": "admission",
+        "reason": "Admitting the oldest accepted v43 manifest at the tested clean boundary because A, B, and C have no selectable implementation work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-accepted-wait-admission-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:16:27.490Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "v43 preparation is accepted and synced; waiting idle for Main admission and its first baseline before the next trigger check."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v43-sync-select-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:19:10.889Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Refreshing B’s worktree to the v43 baseline before selecting an unowned mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-v44-active-trigger-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:20:02.670Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 is admitted with ten unmatched sessions remaining; the preparation trigger applies, so Prep is beginning the next source-based batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-active-v43-selection-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:20:04.220Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep8-v44-assign-20261011",
+        "type": "assign",
+        "at": "2026-10-11T01:20:08.047Z",
+        "task": "Prep8",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v43-leprechaun-wake-20261011",
+        "type": "assign",
+        "at": "2026-10-11T01:20:10.317Z",
+        "task": "A2-investigation-v43-leprechaun-attacks-after-wake-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v43-makewish-red-dragon-corpse-stack-20261011",
+        "type": "assign",
+        "at": "2026-10-11T01:20:29.372Z",
+        "task": "B-investigation-v43-makewish-red-dragon-corpse-stack-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-v43-keystone-investigation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:21:37.403Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the independent v43 Keystone Kop death mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v43-keystone-kop-return-startup2-20261011",
+        "type": "assign",
+        "at": "2026-10-11T01:21:42.519Z",
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v43-makewish-analysis-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:23:11.844Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B has claimed the v43 makewish corpse-stack session and is tracing the first mismatch before source-scope assignment."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-implement-v43-steal-gold-theft-20261011",
+        "type": "implement",
+        "at": "2026-10-11T01:24:43.131Z",
+        "task": "A2-investigation-v43-leprechaun-attacks-after-wake-20261011",
+        "goal": "port-steal-gold-theft-v43-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep7-676884379f2bd0ebc0e53f3397a85eef8f7fc771",
+        "type": "published",
+        "at": "2026-10-11T01:25:51.070Z",
+        "task": "Prep7",
+        "commit": "676884379f2bd0ebc0e53f3397a85eef8f7fc771"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v43-makewish-isreviver-20261011",
+        "type": "implement",
+        "at": "2026-10-11T01:25:57.602Z",
+        "task": "B-investigation-v43-makewish-red-dragon-corpse-stack-20261011",
+        "goal": "fix-v43-makewish-isreviver-hook-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v43-keystone-kop-mondead-vault-guard-20261011",
+        "type": "implement",
+        "at": "2026-10-11T01:30:53.725Z",
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
+        "goal": "port-v43-keystone-kop-mondead-vault-guard-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v43-keystone-implementation-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:31:14.499Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C traced the Keystone Kop mismatch to missing mondead source behavior and is implementing its shared vault-guard death dependency."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v43-makewish-finalize-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:46:04.285Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Finalizing the v43 makewish fixes and documenting the remaining spell-grant boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a56dc678b8cdbc271f8e3cf0bc04ec7832a5e350",
+        "type": "ready",
+        "at": "2026-10-11T01:47:22.616Z",
+        "task": "A2-investigation-v43-leprechaun-attacks-after-wake-20261011",
+        "delivery": "a56dc678b8cdbc271f8e3cf0bc04ec7832a5e350"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-v43-leprechaun-a56dc678",
+        "type": "received",
+        "at": "2026-10-11T01:47:31.945Z",
+        "task": "A2-investigation-v43-leprechaun-attacks-after-wake-20261011",
+        "delivery": "a56dc678b8cdbc271f8e3cf0bc04ec7832a5e350"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-review-A2-v43-leprechaun-a56dc678",
+        "type": "activity",
+        "at": "2026-10-11T01:47:39.375Z",
+        "task": "A2-investigation-v43-leprechaun-attacks-after-wake-20261011",
+        "phase": "review",
+        "reason": "Reviewing the incoming-gold theft delivery and its source, focused-test, and replay evidence before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v43-turn-after-stealgold-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:49:18.530Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Continuing with the next independent v43 source task after submitting leprechaun gold theft."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v43-quest-nemesis-corrected-20261011",
+        "type": "assign",
+        "at": "2026-10-11T01:49:24.272Z",
+        "task": "A2-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-173d2c1b567c2756e4840203ca319b945734511c",
+        "type": "ready",
+        "at": "2026-10-11T01:50:09.123Z",
+        "task": "B-investigation-v43-makewish-red-dragon-corpse-stack-20261011",
+        "delivery": "173d2c1b567c2756e4840203ca319b945734511c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v43-boulder-investigation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:51:12.570Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the next unreserved v43 rolling-boulder mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v43-boulder-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T01:51:14.418Z",
+        "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-v43-quest-nemesis-corrected-20261011",
+        "type": "park",
+        "at": "2026-10-11T01:52:16.045Z",
+        "task": "A2-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
+        "reason": "The source trace points to mon.c:m_detach and quest.c:nemdead, but C owns the active mon.c:mondead task and js/mon.js write path for the Keystone Kop case. Park this session until that task is accepted or the coordinator assigns a disjoint source/write scope. Investigation: investigations/synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.json at b6453195534c0e8f1d8f6bbae4f820973948231b."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v43-priest-ghod-hitsu-north-20261011",
+        "type": "assign",
+        "at": "2026-10-11T01:52:52.434Z",
+        "task": "A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep8-v44-active-energy-overlap-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:52:55.588Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v44 C-first slate has seven confirmed matches and one v21 overlap; quest-leader setup is blocked at source-target selection, with additional targets under investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-receive-B-makewish-20261011T0200Z",
+        "type": "received",
+        "at": "2026-10-11T01:55:52.744Z",
+        "task": "B-investigation-v43-makewish-red-dragon-corpse-stack-20261011",
+        "delivery": "173d2c1b567c2756e4840203ca319b945734511c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-review-A2-gold-theft-20261011T0201Z",
+        "type": "activity",
+        "at": "2026-10-11T01:55:54.330Z",
+        "task": "A2-investigation-v43-leprechaun-attacks-after-wake-20261011",
+        "phase": "review",
+        "reason": "Reviewing A2's source evidence and integrated gold-theft changes before hosted validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-integrate-A2-gold-theft-043ba3ff2",
+        "type": "integrating",
+        "at": "2026-10-11T01:55:55.952Z",
+        "task": "A2-investigation-v43-leprechaun-attacks-after-wake-20261011",
+        "integration": "043ba3ff2e1b7558f7e25ef1a9daa70130c173f6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-blocked-relobj-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:56:16.529Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C is waiting for A2’s accepted object-release dependency before completing the vault guard-death evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v43-boulder-trap-20261011",
+        "type": "implement",
+        "at": "2026-10-11T01:57:42.987Z",
+        "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011",
+        "goal": "fix-v43-rolling-boulder-launch-redraw-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v43-priest-hitsu-audit-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:57:59.191Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is tracing the v43 temple priest response and checking source ownership before implementation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v43-boulder-implementation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T01:58:24.729Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Fixing the rolling-boulder launch-square redraw and verifying its production wish path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-validate-A2-gold-theft-38103515693",
+        "type": "validated",
+        "at": "2026-10-11T02:01:12.704Z",
+        "task": "A2-investigation-v43-leprechaun-attacks-after-wake-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v43-priest-ghod-hitsu-implement-20261011",
+        "type": "implement",
+        "at": "2026-10-11T02:02:27.385Z",
+        "task": "A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011",
+        "goal": "fix-v43-priest-ghod-hitsu-north-corrected-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v43-leprechaun-attacks-after-wake-20261011-043ba3ff2e1b7558f7e25ef1a9daa70130c173f6-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T02:04:06.775Z",
+        "task": "A2-investigation-v43-leprechaun-attacks-after-wake-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-active-relobj-accepted-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:05:11.033Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C resumed the vault guard-death task after A2’s object-release dependency was accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v43-leprechaun-attacks-after-wake-20261011-71a69184dafb89ae207363af07f55b6f508036e5",
+        "type": "published",
+        "at": "2026-10-11T02:05:26.438Z",
+        "task": "A2-investigation-v43-leprechaun-attacks-after-wake-20261011",
+        "commit": "71a69184dafb89ae207363af07f55b6f508036e5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-review-B-makewish-20261011T0210Z",
+        "type": "activity",
+        "at": "2026-10-11T02:09:19.255Z",
+        "task": "B-investigation-v43-makewish-red-dragon-corpse-stack-20261011",
+        "phase": "review",
+        "reason": "Reviewing B's bounded makewish, corpse-drop, and offering corrections before hosted validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-integrate-B-makewish-d2438d33b2",
+        "type": "integrating",
+        "at": "2026-10-11T02:09:20.910Z",
+        "task": "B-investigation-v43-makewish-red-dragon-corpse-stack-20261011",
+        "integration": "d2438d33b21ca5ecdd867cacd2b73876e21d274f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep8-v44-energy-exact-overlap-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:09:31.114Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v44 energy-vortex attack probe overlaps v21 at the shared AT_ENGL-to-gulpmm path; the Arch-Lich control matches. Continuing C-first routes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep8-v44-wizstrt-leaddead-cfirst-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:12:16.160Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v44 keeps the energy-vortex route as a v21 overlap; the real Wizard quest leader is now reached and independently replayed. Continuing C-first routes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-v43-makewish-38104232127",
+        "type": "validated",
+        "at": "2026-10-11T02:14:34.507Z",
+        "task": "B-investigation-v43-makewish-red-dragon-corpse-stack-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a301ece4d8b5383d2f73b45a61b6cb4ff9adbb3d",
+        "type": "ready",
+        "at": "2026-10-11T02:15:29.077Z",
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
+        "delivery": "a301ece4d8b5383d2f73b45a61b6cb4ff9adbb3d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v43-makewish-red-dragon-corpse-stack-20261011-d2438d33b21ca5ecdd867cacd2b73876e21d274f-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T02:15:37.508Z",
+        "task": "B-investigation-v43-makewish-red-dragon-corpse-stack-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4eebdbb5df69f470f3fb410461520fdafd5b96b6",
+        "type": "ready",
+        "at": "2026-10-11T02:15:55.889Z",
+        "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011",
+        "delivery": "4eebdbb5df69f470f3fb410461520fdafd5b96b6"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
+        "worker": "C",
+        "goal": "port-v43-keystone-kop-mondead-vault-guard-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "a301ece4d8b5383d2f73b45a61b6cb4ff9adbb3d",
+        "since": "2026-10-11T02:15:29.077Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011",
+        "worker": "B",
+        "goal": "fix-v43-rolling-boulder-launch-redraw-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "4eebdbb5df69f470f3fb410461520fdafd5b96b6",
+        "since": "2026-10-11T02:15:55.889Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -85350,12 +85919,23 @@
         "since": "2026-10-10T18:02:30.072Z",
         "blockedBy": [],
         "reason": "Committed refreshed complete expels caller map at 5d1a4c1e7. The full C function has 14 active call expressions across 13 caller functions. Implementation must wire all active direct callers; A2 currently owns overlapping js/zap.js, js/polyself.js, and js/mon.js paths, and B225 owns overlapping js/mon.js. Park until both A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010 and B225-investigation-v41-forced-steed-dismount-at-pool-20261010 are accepted; no game code or implementation scope was claimed."
+      },
+      {
+        "task": "A2-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-11T01:52:16.045Z",
+        "blockedBy": [],
+        "reason": "The source trace points to mon.c:m_detach and quest.c:nemdead, but C owns the active mon.c:mondead task and js/mon.js write path for the Keystone Kop case. Park this session until that task is accepted or the coordinator assigns a disjoint source/write scope. Investigation: investigations/synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.json at b6453195534c0e8f1d8f6bbae4f820973948231b."
       }
     ]
   },
   "development": {
-    "executionCommit": "b73fdc85db11090859404e7c98f66b6e384dfbfc",
-    "measuredAt": "2026-10-11T00:34:53.111Z",
+    "executionCommit": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
+    "measuredAt": "2026-10-11T02:14:02.267Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

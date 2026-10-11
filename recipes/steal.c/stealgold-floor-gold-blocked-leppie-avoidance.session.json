@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked reachability probe for steal.c:stealgold floor-gold snatch. After dropping all wizard-wished gold, the hero carries none; monmove.c:leppie_avoidance makes a generated leprechaun with gold avoid the hero, so this recording never reaches the AD_SGLD steal path.",
+  "segments": [
+    {
+      "seed": 43052022,
+      "datetime": "20550406070809",
+      "nethackrc": "OPTIONS=name:FloorGold,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\n1000 gold pieces\nd$\n#wizgenesis\nhostile leprechaun\n...................."
+    }
+  ]
+}
