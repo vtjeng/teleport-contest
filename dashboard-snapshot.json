@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T02:16:10.391Z",
+  "capturedAt": "2026-10-11T03:04:12.187Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -85560,30 +85560,430 @@
         "at": "2026-10-11T02:15:55.889Z",
         "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011",
         "delivery": "4eebdbb5df69f470f3fb410461520fdafd5b96b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-v43-keystone-ready-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:16:14.550Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C submitted the completed Kop and vault guard task; its natural runtime recordings now match and it awaits integration review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v43-makewish-red-dragon-corpse-stack-20261011-c32ff6c5f80842623cecacc3e09a12370ed6dadc",
+        "type": "published",
+        "at": "2026-10-11T02:16:19.353Z",
+        "task": "B-investigation-v43-makewish-red-dragon-corpse-stack-20261011",
+        "commit": "c32ff6c5f80842623cecacc3e09a12370ed6dadc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-boulder-submit-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:17:22.265Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v43-quest-nemesis-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T02:17:26.070Z",
+        "task": "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v43-quest-nemesis-await-C-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:18:08.938Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Waiting for C’s mon.c delivery to clear and for a refreshed queue to confirm the quest-nemesis case still mismatches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-v43-kop-a301ece4d",
+        "type": "received",
+        "at": "2026-10-11T02:18:33.017Z",
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
+        "delivery": "a301ece4d8b5383d2f73b45a61b6cb4ff9adbb3d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v43-wiz-loca-special-program-20261011",
+        "type": "assign",
+        "at": "2026-10-11T02:19:24.011Z",
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-active-v43-wiz-loca-investigation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:19:42.579Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C submitted the Kop and vault guard fix, then claimed the independent v43 Wizard location special-level case for source investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-v43-kop-1f2a222c9c4",
+        "type": "integrating",
+        "at": "2026-10-11T02:25:29.086Z",
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
+        "integration": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v43-priest-delivery-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:30:35.623Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 completed the priest response and active altar-name caller wiring; all focused checks pass and delivery is being prepared."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-v43-kop-38105131808",
+        "type": "validated",
+        "at": "2026-10-11T02:30:57.816Z",
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-52e80dc0bb1d38dd285cd3a6eddcdffbb615d83b",
+        "type": "ready",
+        "at": "2026-10-11T02:31:43.046Z",
+        "task": "A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011",
+        "delivery": "52e80dc0bb1d38dd285cd3a6eddcdffbb615d83b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v43-keystone-kop-return-startup2-20261011-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T02:32:37.203Z",
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-resume-v43-quest-nemesis-after-C-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:33:22.691Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v43-wiz-loca-special-program-20261011",
+        "type": "implement",
+        "at": "2026-10-11T02:33:24.458Z",
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
+        "goal": "fix-irregular-stair-room-selection-v43-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v43-keystone-kop-return-startup2-20261011-9848ddad74ad61a6202374c73313067de38eab56",
+        "type": "published",
+        "at": "2026-10-11T02:33:29.084Z",
+        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
+        "commit": "9848ddad74ad61a6202374c73313067de38eab56"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-after-priest-ready-v43-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:34:50.749Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 submitted the v43 priest task and is investigating an independent mounted-steed stair-descent case from the saved queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v43-mounted-steed-stair-descent-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T02:34:55.182Z",
+        "task": "A2-investigation-v43-mounted-steed-stair-descent-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-v43-boulder-4eebdbb5d",
+        "type": "received",
+        "at": "2026-10-11T02:35:38.472Z",
+        "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011",
+        "delivery": "4eebdbb5df69f470f3fb410461520fdafd5b96b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-implement-v43-mounted-steed-stair-descent-20261011",
+        "type": "implement",
+        "at": "2026-10-11T02:40:22.002Z",
+        "task": "A2-investigation-v43-mounted-steed-stair-descent-20261011",
+        "goal": "fix-v43-mounted-steed-stair-descent-pager-2-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v43-quest-nemesis-death-20261011",
+        "type": "implement",
+        "at": "2026-10-11T02:41:05.477Z",
+        "task": "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
+        "goal": "port-v43-quest-nemesis-death-and-fumes-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v43-quest-nemesis-implementation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:41:27.818Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the quest-nemesis death message and source-ordered fumes cloud, with true-fumes recording evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep8-v44-turn-castle-deferred-quest-replays-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:43:14.714Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v44 has the Neferet offering and minetn-3 program independently replayed; Castle is deferred after corrected target-selection probes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-62a839cd330b48bd6d5386a482c80787a2887592",
+        "type": "ready",
+        "at": "2026-10-11T02:46:46.889Z",
+        "task": "A2-investigation-v43-mounted-steed-stair-descent-20261011",
+        "delivery": "62a839cd330b48bd6d5386a482c80787a2887592"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-v43-monster-cures-blindness-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:51:33.021Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 submitted the mounted-steed descent fix and is investigating the independent v43 monster-blindness session from the saved queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v43-monster-cures-blindness-20261011",
+        "type": "assign",
+        "at": "2026-10-11T02:51:44.695Z",
+        "task": "A2-investigation-v43-monster-cures-blindness-two-heals-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-26b8b007292b62a956a8b971da3d0678a78782a3",
+        "type": "ready",
+        "at": "2026-10-11T02:54:16.873Z",
+        "task": "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
+        "delivery": "26b8b007292b62a956a8b971da3d0678a78782a3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-v43-quest-nemesis-submit-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:54:40.327Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "The quest-nemesis delivery is ready; checking the refreshed v43 queue for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v43-pray-sacrifice-kni-shrine-20261011",
+        "type": "assign",
+        "at": "2026-10-11T02:55:15.927Z",
+        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v43-pray-sacrifice-kni-investigate-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:55:33.082Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the next unreserved v43 mismatch at the prayer-turn boundary; source scope is not claimed yet."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-B-boulder-c64928df4",
+        "type": "integrating",
+        "at": "2026-10-11T02:55:37.561Z",
+        "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011",
+        "integration": "c64928df44aa809954e15310a8f77544ce9b51ab"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-mounted-62a839cd3",
+        "type": "received",
+        "at": "2026-10-11T02:55:44.244Z",
+        "task": "A2-investigation-v43-mounted-steed-stair-descent-20261011",
+        "delivery": "62a839cd330b48bd6d5386a482c80787a2887592"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-quest-nemesis-26b8b0072",
+        "type": "received",
+        "at": "2026-10-11T02:55:50.161Z",
+        "task": "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
+        "delivery": "26b8b007292b62a956a8b971da3d0678a78782a3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3b1dd1c57aa9bb67e5a41ca8ff0d88b3361365b8",
+        "type": "ready",
+        "at": "2026-10-11T02:57:56.593Z",
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
+        "delivery": "3b1dd1c57aa9bb67e5a41ca8ff0d88b3361365b8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-wiz-loca-3b1dd1c57",
+        "type": "received",
+        "at": "2026-10-11T02:58:24.209Z",
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
+        "delivery": "3b1dd1c57aa9bb67e5a41ca8ff0d88b3361365b8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-wiz-loca-submit-20261011-1",
+        "type": "turn",
+        "at": "2026-10-11T02:58:54.028Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C submitted its v43 Wiz-loca stair fix and is selecting the next independent task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v43-monster-cure-blindness-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T02:59:16.279Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is investigating v43 monster blindness healing after a blessed potion."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-park-v43-pray-sacrifice-kni-priest-conflict-20261011",
+        "type": "park",
+        "at": "2026-10-11T02:59:20.314Z",
+        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011",
+        "reason": "Source trace identifies priest.c:angry_priest as the mismatch owner, but complete wiring requires pray.c:offer_corpse, pray.c:offer_different_alignment_altar, and js/pray.js, which A2 ready priest delivery currently reserves. Park until A2 is accepted and releases those reservations; report is preserved at investigations/synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.json."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-park-pray-20261011",
+        "type": "turn",
+        "at": "2026-10-11T03:00:03.964Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Prayer sacrifice is parked on A2’s ready caller scope; investigating the next unreserved same-seed source boundary from the saved v43 queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v43-makewish-rnd-class-followup-20261011",
+        "type": "assign",
+        "at": "2026-10-11T03:00:08.267Z",
+        "task": "B-investigation-v43-makewish-rnd-class-followup-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-boulder-38106756671",
+        "type": "validated",
+        "at": "2026-10-11T03:01:13.026Z",
+        "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v43-monster-blindness-20261011",
+        "type": "implement",
+        "at": "2026-10-11T03:02:12.270Z",
+        "task": "A2-investigation-v43-monster-cures-blindness-two-heals-20261011",
+        "goal": "A2-divergence-v43-potionhit-monster-blindness-cure-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011-c64928df44aa809954e15310a8f77544ce9b51ab-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T03:02:13.788Z",
+        "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-v43-queue-reservations-20261011-1",
+        "type": "turn",
+        "at": "2026-10-11T03:02:25.802Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C submitted the Wiz-loca fix; remaining v43 cases are reserved by A2 or B or depend on their ready deliveries. C is available for the next independent task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v43-prayer-divine-spell-gift-20261011",
+        "type": "implement",
+        "at": "2026-10-11T03:03:11.333Z",
+        "task": "B-investigation-v43-makewish-rnd-class-followup-20261011",
+        "goal": "port-v43-prayer-divine-spell-gift-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C-investigation-v43-keystone-kop-return-startup2-20261011",
-        "worker": "C",
-        "goal": "port-v43-keystone-kop-mondead-vault-guard-20261011",
+        "task": "A2-investigation-v43-priest-ghod-hitsu-north-corrected-20261011",
+        "worker": "A2",
+        "goal": "fix-v43-priest-ghod-hitsu-north-corrected-20261011",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "a301ece4d8b5383d2f73b45a61b6cb4ff9adbb3d",
-        "since": "2026-10-11T02:15:29.077Z",
+        "delivery": "52e80dc0bb1d38dd285cd3a6eddcdffbb615d83b",
+        "since": "2026-10-11T02:31:43.046Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v43-rolling-boulder-trap-level4-successful-launch-walkcursor-20261011",
-        "worker": "B",
-        "goal": "fix-v43-rolling-boulder-launch-redraw-20261011",
+        "task": "A2-investigation-v43-mounted-steed-stair-descent-20261011",
+        "worker": "A2",
+        "goal": "fix-v43-mounted-steed-stair-descent-pager-2-cfirst-20261011",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "4eebdbb5df69f470f3fb410461520fdafd5b96b6",
-        "since": "2026-10-11T02:15:55.889Z",
+        "delivery": "62a839cd330b48bd6d5386a482c80787a2887592",
+        "since": "2026-10-11T02:46:46.889Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
+        "worker": "B",
+        "goal": "port-v43-quest-nemesis-death-and-fumes-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "26b8b007292b62a956a8b971da3d0678a78782a3",
+        "since": "2026-10-11T02:54:16.873Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v43-wiz-loca-special-program-20261011",
+        "worker": "C",
+        "goal": "fix-irregular-stair-room-selection-v43-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "3b1dd1c57aa9bb67e5a41ca8ff0d88b3361365b8",
+        "since": "2026-10-11T02:57:56.593Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -85930,12 +86330,23 @@
         "since": "2026-10-11T01:52:16.045Z",
         "blockedBy": [],
         "reason": "The source trace points to mon.c:m_detach and quest.c:nemdead, but C owns the active mon.c:mondead task and js/mon.js write path for the Keystone Kop case. Park this session until that task is accepted or the coordinator assigns a disjoint source/write scope. Investigation: investigations/synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.json at b6453195534c0e8f1d8f6bbae4f820973948231b."
+      },
+      {
+        "task": "B-investigation-v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-20261011",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-11T02:59:20.314Z",
+        "blockedBy": [],
+        "reason": "Source trace identifies priest.c:angry_priest as the mismatch owner, but complete wiring requires pray.c:offer_corpse, pray.c:offer_different_alignment_altar, and js/pray.js, which A2 ready priest delivery currently reserves. Park until A2 is accepted and releases those reservations; report is preserved at investigations/synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.json."
       }
     ]
   },
   "development": {
-    "executionCommit": "d2438d33b21ca5ecdd867cacd2b73876e21d274f",
-    "measuredAt": "2026-10-11T02:14:02.267Z",
+    "executionCommit": "c64928df44aa809954e15310a8f77544ce9b51ab",
+    "measuredAt": "2026-10-11T03:00:41.336Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

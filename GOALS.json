@@ -262411,7 +262411,7 @@
     {
       "id": "port-v43-keystone-kop-mondead-vault-guard-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete Keystone Kop death and vault guard removal paths",
       "cFile": "mon.c",
       "sessions": [
@@ -262425,15 +262425,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mondead",
           "line": 3081,
           "endLine": 3180,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -262447,7 +262450,7 @@
           "endLine": 3286,
           "declared": true,
           "sourceFile": "mon.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "clear_fcorr",
@@ -262455,7 +262458,7 @@
           "endLine": 122,
           "declared": true,
           "sourceFile": "vault.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "parkguard",
@@ -262463,15 +262466,15 @@
           "endLine": 174,
           "declared": true,
           "sourceFile": "vault.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "grddead",
           "line": 175,
           "endLine": 191,
-          "declared": false,
+          "declared": true,
           "sourceFile": "vault.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "in_fcorridor",
@@ -262479,7 +262482,7 @@
           "endLine": 203,
           "declared": true,
           "sourceFile": "vault.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -262654,6 +262657,725 @@
               "evaluationPath": "challenges/evaluations/v43-baseline-d89e1af6.json",
               "evaluationCommit": "d89e1af62c39bbe9014da094714ed70adad1141a",
               "recordedSteps": 38
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mondead",
+            "implementation": "js/mon.js",
+            "symbol": "mondead",
+            "sourceReview": "Read the complete mon.c:mondead() definition at lines 3081-3177. The port clears iflags.sad_feeling, handles lifesaving and vampire reversion, emits the pending sad-pet message, creates the harmless steam-vortex cloud, awaits grddead for vault guards and stops when it refuses disposal, restores form, increments the death count, logs/unmaps/detaches, then handles the Kop rnd(5) and makemon branches in C order. The discarded makemon results remain discarded. No refusal remains in the changed arms. The vault branch uses the complete same-task grddead family and the accepted A2 steal.c:relobj dependency at Main 043ba3ff2e1b7558f7e25ef1a9daa70130c173f6.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "xkilled",
+                "source": "cmd.c:#wizkill -> wizcmds.c:wiz_kill -> mon.c:xkilled -> mon.c:mondead; JavaScript runs cmd.js:runKillCommand -> wizcmds.js:wiz_kill -> mon.js:xkilled -> mon.js:mondead."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mondied",
+                "source": "mon.c:mondied calls mon.c:mondead before corpse handling; js/mon.js:mondied awaits mondead in the same order."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mondead",
+                "source": "The other active source callers include mon.c:minliquid_core, monstone, monkilled, kill_genocided_monsters, muse.c:mon_consume, explode.c:mon_explodes, mhitm.c:mon_explodes, and mhitu.c:gazeu; their existing JavaScript paths call the shared mon.js:mondead implementation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/keystone-kop-wizard-kill-runtime.session.json",
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-keystone-kop-return-startup2-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd.c:#wizkill -> wizcmds.c:wiz_kill -> mon.c:xkilled -> mon.c:mondead"
+              }
+            ],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "mongone",
+            "implementation": "js/mon.js",
+            "symbol": "mongone",
+            "sourceReview": "Read the complete mon.c:mongone() definition at lines 3267-3283. The port awaits grddead when isgd is set and returns without detach when grddead reports that the guard still occupies a fake-corridor square; the ordinary removal path continues to m_detach and dmonsfree. The return-bearing guard dependency is implemented in js/vault.js.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "restfakecorr",
+                "source": "vault.c:restfakecorr calls mongone(grd) after clear_fcorr succeeds; js/vault.js:restfakecorr calls mon.js:mongone."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_kill",
+                "source": "wizcmds.c:wiz_kill clears isgd and then calls mongone for the wizard removal route; js/wizcmds.js:wiz_kill awaits mon.js:mongone."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-kill.test.mjs",
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "clear_fcorr",
+            "implementation": "js/vault.js",
+            "symbol": "clear_fcorr",
+            "sourceReview": "Read vault.c:clear_fcorr() lines 48-116. The port checks the current level, source fake-corridor half-open range, hero/guard/ball occupancy, visibility and stopprint state; it waits for the pet yelp before restoring the map, applies blackout/unseen updates in loop order, advances fcbeg, emits the disappearance and encased messages, and returns the source boolean. grddead and restfakecorr consume that boolean. The direct C gd_move calls at lines 922 and 927 are in hostile paths still refused by the existing gd_move adapter and are outside this task scope; matching natural guard-death and escort-cleanup routes cover the implemented callers.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "grddead",
+                "source": "vault.c:grddead calls clear_fcorr(grd, TRUE) before and after parking the guard; js/vault.js:grddead awaits clear_fcorr and consumes both booleans."
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "restfakecorr",
+                "source": "vault.c:restfakecorr calls clear_fcorr(grd, FALSE) before mongone; js/vault.js:restfakecorr awaits clear_fcorr before removing the guard."
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "gd_move",
+                "source": "vault.c:gd_move has direct clear_fcorr calls at lines 922 and 927; the corresponding JavaScript hostile-guard route is an existing UnsupportedVaultGuardError and is explicitly outside this task."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json",
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "sourceFile": "vault.c",
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "parkguard",
+            "implementation": "js/vault.js",
+            "symbol": "parkguard",
+            "sourceReview": "Read the complete vault.c:parkguard() body at lines 155-171. It clears the polearm hitmon reference, removes and redraws the guard when mapped, moves it to (0,0) if needed, then stores the resulting coordinates in EGD. The same operations and order are implemented in js/vault.js.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "grddead",
+                "source": "vault.c:grddead calls parkguard after the first clear_fcorr returns false; js/vault.js:grddead awaits parkguard before retrying clear_fcorr."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "sourceFile": "vault.c",
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "grddead",
+            "implementation": "js/vault.js",
+            "symbol": "grddead",
+            "sourceReview": "Read the complete vault.c:grddead() body at lines 175-188. It calls clear_fcorr(TRUE), and on failure awaits the void side effects of relobj(grd, 0, FALSE), sets hp to zero, parks the guard, and retries clear_fcorr(TRUE), clearing isgd only when disposal succeeds. js/vault.js now awaits the accepted steal.js:relobj implementation for guard-gold removal and remaining inventory drops; no C return value is consumed.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mondead",
+                "source": "mon.c:mondead calls vault.c:grddead for isgd monsters and returns before detach when it is false; js/mon.js:mondead awaits vault.js:grddead and preserves that result."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mongone",
+                "source": "mon.c:mongone calls vault.c:grddead for isgd monsters and returns before detach when it is false; js/mon.js:mongone awaits vault.js:grddead and preserves that result."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs",
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "sourceFile": "vault.c",
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          },
+          {
+            "name": "in_fcorridor",
+            "implementation": "js/vault.js",
+            "symbol": "in_fcorridor",
+            "sourceReview": "Read the complete vault.c:in_fcorridor() definition at lines 192-201. It returns true only when (x,y) equals an active fakecorr entry in [fcbeg, fcend); the JavaScript loop uses the same bounds and comparisons.",
+            "callers": [
+              {
+                "path": "js/vault.js",
+                "symbol": "clear_fcorr",
+                "source": "vault.c:clear_fcorr calls in_fcorridor for hero occupancy; js/vault.js:clear_fcorr calls the same predicate."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/vault-guard-escort.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "vault.c",
+            "synthetic": [],
+            "checkedAt": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+          }
+        ],
+        "entryPointReview": "Active entry points for the assigned source units are a monster death through xkilled/mondead (including the admitted #wizkill Kop route), a vault guard death while occupying the temporary fake corridor (mondead -> grddead -> clear_fcorr -> relobj -> parkguard -> clear_fcorr), and a peaceful vault guard leaving after the escort (restfakecorr -> mongone). Independent recordings exercise each changed impure path; the admitted v43 Kop case now strictly matches through its final recorded step. in_fcorridor is pure and has a source-pinned boundary test. mon.c:mondead has additional existing callers that funnel into the same shared implementation and are enumerated in the source review. clear_fcorr also has direct C calls from vault.c:gd_move at lines 922/927, but those hostile-guard routes remain refused by the existing gd_move adapter and are outside this task; they are not claimed as covered entry points.",
+        "entryPoints": [
+          {
+            "name": "Wizard kills a Keystone Kop through #wizkill",
+            "functions": [
+              "mondead"
+            ],
+            "recordings": [
+              "recordings/mon.c/keystone-kop-wizard-kill-runtime.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-keystone-kop-return-startup2-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd.c:#wizkill -> wizcmds.c:wiz_kill -> mon.c:xkilled -> mon.c:mondead"
+              }
+            ]
+          },
+          {
+            "name": "Vault guard dies inside the temporary fake corridor",
+            "functions": [
+              "mondead",
+              {
+                "sourceFile": "vault.c",
+                "name": "grddead"
+              },
+              {
+                "sourceFile": "vault.c",
+                "name": "clear_fcorr"
+              },
+              {
+                "sourceFile": "vault.c",
+                "name": "parkguard"
+              }
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-death-invault-teleport-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Peaceful vault guard leaves after its escort",
+            "functions": [
+              "mongone",
+              {
+                "sourceFile": "vault.c",
+                "name": "clear_fcorr"
+              }
+            ],
+            "recordings": [
+              "recordings/vault.c/guard-cleanup-fresh-sage.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-v43-rolling-boulder-launch-redraw-20261011",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix rolling boulder launch redraw and canonical path geometry",
+      "cFile": "trap.c",
+      "sessions": [],
+      "selectionReason": "The committed v43 investigation traces the step-102 glyph mismatch to trap.c:mkroll_launch omitting its unconditional newsym redraw after the launch boulder is placed.",
+      "detail": "Restore the source redraw, retain the complete launch-coordinate helper family, and wire the verified mthrowu.c linedup dependency so explicit launch geometry and side effects follow C.",
+      "openedAt": "918dbe47e6e2e7309c5e7ff11a16bc8429fefb94",
+      "openStanding": {
+        "sha": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c64928df44aa809954e15310a8f77544ce9b51ab",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "mkroll_launch",
+      "session": "synthetic/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+      "step": 102,
+      "syntheticProvenance": {
+        "synthetic/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst": {
+          "session": "synthetic/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.session.json",
+          "recordingSha256": "af6ecccfdeb743dd8ecd0fc23d3b502b98e9d4e8342983ac87f660e7ca19341e",
+          "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
+          "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c"
+        }
+      },
+      "activeStanding": {
+        "sha": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "session": "synthetic/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.session.json",
+          "recordingSha256": "af6ecccfdeb743dd8ecd0fc23d3b502b98e9d4e8342983ac87f660e7ca19341e",
+          "recipe": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.recipe.session.json",
+          "recipeSha256": "6ec774050be36fdd1180da75b2a77b2313b492eff76ac6644c3c8de968a2f998",
+          "replayInputSha256": "d652fa57c326bf68debc5c2fcd23217a0c0127a05049046723d9062066dc7630",
+          "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
+          "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+          "evaluationArtifact": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
+          "evaluationUtc": "2026-10-11T02:29:19.784Z",
+          "remainingScreens": 2,
+          "recordedSteps": 106,
+          "previousScreensMatched": 104,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 104,
+              "total": 106
+            },
+            "rng": {
+              "matched": 4807,
+              "total": 4807
+            },
+            "cursors": {
+              "matched": 106,
+              "total": 106
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 102,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 102,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 15,
+              "column": 64,
+              "cCell": {
+                "ch": "`",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 102,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.json",
+            "result": {
+              "session": "synthetic/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingPath": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.session.json",
+              "recordingSha256": "af6ecccfdeb743dd8ecd0fc23d3b502b98e9d4e8342983ac87f660e7ca19341e",
+              "recipe": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.recipe.session.json",
+              "recipeSha256": "6ec774050be36fdd1180da75b2a77b2313b492eff76ac6644c3c8de968a2f998",
+              "replayInputSha256": "d652fa57c326bf68debc5c2fcd23217a0c0127a05049046723d9062066dc7630",
+              "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
+              "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+              "remainingScreens": 2,
+              "recordedSteps": 106,
+              "status": "complete",
+              "goalKind": "divergence-fix",
+              "commit": "9848ddad74ad61a6202374c73313067de38eab56",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+                "session": "synthetic/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.session.json",
+                "recordingSha256": "af6ecccfdeb743dd8ecd0fc23d3b502b98e9d4e8342983ac87f660e7ca19341e",
+                "recipe": "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.recipe.session.json",
+                "recipeSha256": "6ec774050be36fdd1180da75b2a77b2313b492eff76ac6644c3c8de968a2f998",
+                "replayInputSha256": "d652fa57c326bf68debc5c2fcd23217a0c0127a05049046723d9062066dc7630",
+                "evaluationPath": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
+                "evaluationCommit": "1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c",
+                "evaluationArtifact": "challenges/evaluations/accepted-1f2a222c9c4b33a5a422a5c7ca2f0381ba7b779c-v43.json",
+                "evaluationUtc": "2026-10-11T02:29:19.784Z",
+                "remainingScreens": 2,
+                "recordedSteps": 106,
+                "previousScreensMatched": 104,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 104,
+                    "total": 106
+                  },
+                  "rng": {
+                    "matched": 4807,
+                    "total": 4807
+                  },
+                  "cursors": {
+                    "matched": 106,
+                    "total": 106
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 102,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 102,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 15,
+                    "column": 64,
+                    "cCell": {
+                      "ch": "`",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 102,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The admitted C-first wizard wish creates a rolling-boulder trap at the hero’s square. C and JavaScript choose the same launch coordinate and create the same boulder, but the first screen differs at the boulder’s floor glyph: C shows ` while JavaScript still shows . In trap.c:mkroll_launch(), C unconditionally calls newsym() after assigning launch/launch2; the existing JavaScript makeRollingBoulderLaunch() makes this callback optional, and the wizard wish reaches maketrap without a newsym capability or a DEFAULT_CAPABILITIES fallback. Add the canonical display redraw default in js/trap.js. This is a source-order display defect, not a launch-coordinate or RNG defect.",
+              "source": {
+                "file": "trap.c",
+                "functions": [
+                  "find_random_launch_coord",
+                  "mkroll_launch",
+                  "isclearpath"
+                ],
+                "branch": "trap.c:mkroll_launch always redraws the chosen launch square with newsym after it assigns launch and launch2.",
+                "callers": [
+                  "C: cmd.c:rhack -> wizcmds.c:wiz_wish -> zap.c:makewish -> objnam.c:readobjnam/wizterrainwish -> trap.c:maketrap -> trap.c:mkroll_launch; maketrap consumes find_random_launch_coord’s Boolean result, which itself consumes both isclearpath results.",
+                  "JavaScript: js/cmd.js:runWishCommand -> js/wizcmds.js:wiz_wish -> js/zap.js:makewish -> js/objnam_readobjnam.js:readobjnam/apply_wizterrainwish -> js/trap.js:maketrap -> makeRollingBoulderLaunch -> findRandomLaunchCoordinate -> clearLaunchPath."
+                ],
+                "dependencies": [
+                  "trap.c:maketrap already wires the rolling-boulder branch; its return from mkroll_launch is discarded.",
+                  "mkobj.c:mksobj, weight, place_object and stackobj already own boulder construction and placement.",
+                  "display.c:newsym is already ported as js/display.js:newsym; it is not supplied through objectGenerationEnv."
+                ],
+                "sourceReview": "Read complete upstream trap.c:find_random_launch_coord() (3599-3656), mkroll_launch() (3659-3692), and isclearpath() (3694-3722), plus their trap.c:maketrap() caller (456-588), objnam.c:wizterrainwish() (3554-3916), and the objnam.c readobjnam wizard-trap dispatch (4975-4979). find_random_launch_coord returns whether a launch coordinate was found and consumes isclearpath results; mkroll_launch uses that result to create/place the boulder or fall back to the trap square, assigns launch and mirrored launch2, calls newsym unconditionally, and returns 1 (discarded by maketrap). The existing JavaScript family already preserves the draw sequence, path checks, object creation, coordinates and order, but makeRollingBoulderLaunch invokes newsym with optional chaining and no default provider exists in DEFAULT_CAPABILITIES. The wizard-wish environment carries object-generation hooks but not a display callback, so the C redraw is omitted."
+              },
+              "evidence": [
+                "Saved queue SHA-256 1d8802a0f215249923602217eab5fcec9b1d8c57311d4e82b20e23c60140a093 identifies this v43 case with a screen-cell mismatch at segment 0, step 102, on the newline after the wish text. The first differing cell is row 15, column 64: C has backtick (`), JavaScript has floor (.). The queue reports no RNG mismatch at that boundary.",
+                "The admitted C recording’s step 102 draws rn2(5)=0 and rn2(8)=1 in trap.c:find_random_launch_coord, then rnd(2)=2 in next_ident; JavaScript replay of the same 102 input keys records the same three values. C shows “A rolling boulder trap.” and the launch boulder glyph; JavaScript shows the same message but not the new boulder glyph.",
+                "A worker-local JavaScript replay through the trap-creation input confirms that the trap is at (61,14), its launch coordinate is (65,14), and a floor boulder object exists at (65,14). The map grid still displays floor at that coordinate. This distinguishes missing newsym display refresh from a missing object, wrong coordinate, or random-call defect.",
+                "Source comparison: trap.c:mkroll_launch lines 3683-3691 stores both launch coordinates then always calls newsym(ttmp->launch.x, ttmp->launch.y). js/trap.js:makeRollingBoulderLaunch lines 543-550 stores the same coordinates but calls capability(env, 'newsym')?.(...); js/trap.js:DEFAULT_CAPABILITIES does not define newsym, and objnam_readobjnam.js passes the wish environment directly to maketrap."
+              ],
+              "queueSha256": "daf596ad43e6d480fef4ebcc59e8f886f44e362b1ceabda10e010899d9d3362b"
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c64928df44aa809954e15310a8f77544ce9b51ab",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-v43-priest-ghod-hitsu-north-corrected-20261011",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Restore temple priest deity retaliation and altar deity naming",
+      "cFile": "priest.c",
+      "sessions": [
+        "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst"
+      ],
+      "selectionReason": "The current v43 queue first diverges at priest.c ghod_hitsu step 79; the complete investigation traces both active priest retaliation callers and the required altar-name helpers.",
+      "detail": "Port whole priest.c ghod_hitsu, pure pray.c a_gname_at and a_gname, and the exact active mon.c wakeup, uhitm.c hmon, pray.c offering, and invent.c dfeature_at call sites. Preserve the explicit offer_real_amulet frontier.",
+      "openedAt": "a4d02cb2480c4e97c5755b5206ba7f3e26f9d1fa",
+      "openStanding": {
+        "sha": "c64928df44aa809954e15310a8f77544ce9b51ab",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "ghod_hitsu",
+      "session": "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst",
+      "step": 79,
+      "syntheticProvenance": {
+        "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst": {
+          "session": "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.session.json",
+          "recordingSha256": "6a5fa06ef12755b7e11646d925f485a25d422f08ff7c6c16ee918f7ffa90fb3c",
+          "evaluationPath": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+          "evaluationCommit": "c64928df44aa809954e15310a8f77544ce9b51ab"
+        }
+      },
+      "activeStanding": {
+        "sha": "c64928df44aa809954e15310a8f77544ce9b51ab",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "session": "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.session.json",
+          "recordingSha256": "6a5fa06ef12755b7e11646d925f485a25d422f08ff7c6c16ee918f7ffa90fb3c",
+          "recipe": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "aeb433c2f0d40248ec09f7959131d9bdea36e4dd1ecb8123f8c5b6b16d1b0b82",
+          "replayInputSha256": "723df18fd4cb1c869ebc3c0d7ea6a48a9d42f69dda703a7a63cf77202c196bb0",
+          "evaluationPath": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+          "evaluationCommit": "c64928df44aa809954e15310a8f77544ce9b51ab",
+          "evaluationArtifact": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+          "evaluationUtc": "2026-10-11T02:59:34.296Z",
+          "remainingScreens": 0,
+          "recordedSteps": 80,
+          "previousScreensMatched": 80,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 80,
+              "total": 80
+            },
+            "rng": {
+              "matched": 8781,
+              "total": 8788
+            },
+            "cursors": {
+              "matched": 80,
+              "total": 80
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 8740,
+              "cEntry": "rn2(4)=3",
+              "cCaller": "ghod_hitsu(priest.c:827)",
+              "jsEntry": "rn2(3)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 79,
+                "key": "k"
+              },
+              "stepIndex": 79
+            },
+            "cursor": null
+          },
+          "step": 79,
+          "kind": "rng",
+          "sourceFile": "priest.c",
+          "function": "ghod_hitsu",
+          "message": null,
+          "cFile": "priest.c",
+          "luaFile": null,
+          "line": 827,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.json",
+            "result": {
+              "session": "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst",
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-priest-ghod-hitsu-north-corrected-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "6a5fa06ef12755b7e11646d925f485a25d422f08ff7c6c16ee918f7ffa90fb3c",
+              "evaluationPath": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+              "evaluationCommit": "c64928df44aa809954e15310a8f77544ce9b51ab",
+              "remainingScreens": 0,
+              "recordedSteps": 80,
+              "status": "complete",
+              "commit": "c64928df44aa809954e15310a8f77544ce9b51ab",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-priest-ghod-hitsu-north-corrected-cfirst",
+                "session": "synthetic/v43/v43-priest-ghod-hitsu-north-corrected-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.session.json",
+                "recordingSha256": "6a5fa06ef12755b7e11646d925f485a25d422f08ff7c6c16ee918f7ffa90fb3c",
+                "recipe": "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.recipe.session.json",
+                "recipeSha256": "aeb433c2f0d40248ec09f7959131d9bdea36e4dd1ecb8123f8c5b6b16d1b0b82",
+                "replayInputSha256": "723df18fd4cb1c869ebc3c0d7ea6a48a9d42f69dda703a7a63cf77202c196bb0",
+                "evaluationPath": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+                "evaluationCommit": "c64928df44aa809954e15310a8f77544ce9b51ab",
+                "evaluationArtifact": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+                "evaluationUtc": "2026-10-11T02:59:34.296Z",
+                "remainingScreens": 0,
+                "recordedSteps": 80,
+                "previousScreensMatched": 80,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 80,
+                    "total": 80
+                  },
+                  "rng": {
+                    "matched": 8781,
+                    "total": 8788
+                  },
+                  "cursors": {
+                    "matched": 80,
+                    "total": 80
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 8740,
+                    "cEntry": "rn2(4)=3",
+                    "cCaller": "ghod_hitsu(priest.c:827)",
+                    "jsEntry": "rn2(3)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 79,
+                      "key": "k"
+                    },
+                    "stepIndex": 79
+                  },
+                  "cursor": null
+                },
+                "step": 79,
+                "kind": "rng",
+                "sourceFile": "priest.c",
+                "function": "ghod_hitsu",
+                "message": null,
+                "cFile": "priest.c",
+                "luaFile": null,
+                "line": 827
+              },
+              "summary": "When an attack angers a peaceful priest in a temple, mon.c:wakeup calls priest.c:ghod_hitsu before the later uhitm.c:hmon wrapper. The C function selects a temple boundary with rn2(4), tests whether the hero is lined up with that square, and returns early when the line fails; JavaScript currently skips the function at both active callers. The v43 case reaches this boundary choice and exposes the missing draw while all 80 screens and cursors match. Port ghod_hitsu, wire both callers, and provide the source-exact a_gname_at and a_gname helpers for its deity messages and their other active callers.",
+              "source": {
+                "file": "priest.c",
+                "branch": "In an occupied temple with a priest who has a shrine, ghod_hitsu checks the altar position and line to the hero. When the hero is already on the shrine or is not lined up with it, it uses the door geometry or rn2(4) to choose a temple boundary, then returns if linedup() fails. A valid line consumes rn2(3), prints one of three deity responses, fires a six-die monster lightning spell from the selected square, restores current_wand and buzzer, and exercises Wisdom.",
+                "functions": [
+                  "ghod_hitsu() whole priest.c:796-874",
+                  "wakeup() whole mon.c:4333-4362; preserve the existing hot_pursuit frontier",
+                  "hmon() whole uhitm.c:817-834; preserve the existing angry_guards caller",
+                  "a_gname_at() whole pray.c:2514-2520; pure altar-to-deity name helper required by ghod_hitsu's consumed message value",
+                  "a_gname() whole pray.c:2507-2509; pure current-square wrapper wired into active offer_different_alignment_altar(), offer_corpse(), and invent.c:dfeature_at() callers"
+                ],
+                "callers": [
+                  "mon.c:wakeup:4357-4358 calls ghod_hitsu after setmangry when via_attack and the priest was peaceful; this is the exercised C path in the selected session",
+                  "uhitm.c:hmon:829-830 calls ghod_hitsu after hmon_hitmon when the priest gate rn2(2) succeeds",
+                  "pray.c:offer_different_alignment_altar:1642,1651,1660 and pray.c:offer_corpse:1981 call a_gname(); the active JS equivalents now use a_gname(state)",
+                  "invent.c:dfeature_at:4078 calls a_gname(); js/look_here calls dfeature_at(ux,uy), and its altar branch now uses the exact hero-square wrapper",
+                  "pray.c:offer_real_amulet:1542,1567,1569 also call a_gname(), but js/pray.js:413 explicitly refuses that source path, so there is no active JS production caller to wire"
+                ],
+                "dependencies": [
+                  "Reuse existing priest.c:temple_occupied and has_shrine implementations in js/priest.js.",
+                  "Reuse mthrowu.c:linedup in js/mthrowu.js; boulderhandling 1 skips its random test but retains its gt.tbx/gt.tby updates for the following direction.",
+                  "Reuse zap.c:buzz and dobuzz plus the existing lightning zhitu path in js/zap.js; the ghod_hitsu caller discards buzz's return value, but the ray's side effects are required.",
+                  "Reuse attrib.c:exercise, hacklib.c:sgn, const.js:IS_DOOR and u_at, and hacklib.c:s_suffix.",
+                  "The existing pray.c:a_align macro and align_gname implementation in js/pray.js supply the pure alignment operations for a_gname_at and a_gname. Active pray.js callers and invent.js:dfeature_at use the source wrapper; offer_real_amulet remains fail-closed and has no active JS caller."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved queue SHA-256 6a10f4282f6c57cf04294a5a97ba4835ab8ea0663c5863e8148850cd3a389288 identifies this v43 case at earliest step 79 with zero remaining screen mismatches.",
+                "The accepted c64928df44aa809954e15310a8f77544ce9b51ab v43 evaluation records 80/80 screens, 80/80 cursors, and 8781/8788 RNG matches; its first RNG divergence is C rn2(4)=3 in priest.c:ghod_hitsu while JavaScript proceeds to uhitm.c:mhitm_knockback.",
+                "The selected recording's step 79 RNG sequence starts with the matching hunger, exercise, hit roll, weapon damage, then rn2(4)=3 @ ghod_hitsu(priest.c:827), followed by mhitm_knockback's rn2(3) and rn2(6). C's step-79 message remains the priest hit and anger pager; ghod_hitsu's chosen boundary does not pass linedup, so the source returns before rn2(3), deity text, or the lightning ray.",
+                "Source inspection confirms the exact early-return branch at priest.c:796-874, the two active direct callers in mon.c:wakeup:4357-4358 and uhitm.c:hmon:829-830, and matching JavaScript refusal markers in js/mon.js:wakeup and js/uhitm.js:hmon. A source search finds no other active ghod_hitsu caller.",
+                "The required C function is not reserved by another worker: C owns mon.c:mondead, a different source function, and B owns zap.c:makewish, also a different source function. The active A2 leprechaun delivery reserves uhitm.c:mhitm_ad_sgld, distinct from hmon. Same-file functions remain separate under .agents/selection.md's source reservations rule.",
+                "An independently chosen Healer recording at recordings/priest.c/priest-hmon-second-response-independent.session.json exercises the caller order through hmon_hitmon, mon.c:wakeup, uhitm.c:hmon, and two priest.c:ghod_hitsu calls at segment 0, step 116. Its C RNG trace is rn2(4)=2 @ ghod_hitsu, rn2(2)=0 @ hmon, rn2(4)=2 @ ghod_hitsu. Both ghod_hitsu calls return at the source linedup boundary; this recording verifies the hmon gate and call order, not the later deity message or ray branches. The full C/JavaScript recording differential matches all 120 steps."
+              ],
+              "replayInputSha256": "723df18fd4cb1c869ebc3c0d7ea6a48a9d42f69dda703a7a63cf77202c196bb0",
+              "evaluationArtifact": "challenges/evaluations/accepted-c64928df44aa809954e15310a8f77544ce9b51ab-v43.json",
+              "evaluationUtc": "2026-10-11T02:59:34.296Z",
+              "queueSha256": "6a10f4282f6c57cf04294a5a97ba4835ab8ea0663c5863e8148850cd3a389288"
             }
           }
         }
