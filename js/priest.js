@@ -1,7 +1,7 @@
 // Temple, shrine, and priest creation, movement, and queries.
 // C ref: priest.c newepri(), priestini(), pri_move(), move_special(),
 // mon_aligntyp(), p_coaligned(), temple_occupied(), histemple_at(),
-// inhistemple(), has_shrine(), findpriest(), in_your_sanctuary(),
+// inhistemple(), has_shrine(), ghod_hitsu(), findpriest(), in_your_sanctuary(),
 // clearpriests(), and intemple().
 
 import {
@@ -10,6 +10,9 @@ import {
     ALL_TRAPS,
     ALLOW_M,
     ALLOW_ROCK,
+    BZ_M_SPELL,
+    BZ_OFS_AD,
+    AM_MASK,
     AM_SHRINE,
     Amask2align,
     MM_ADJACENTOK,
@@ -32,6 +35,7 @@ import {
     HOT,
     INVIS,
     IS_ALTAR,
+    IS_DOOR,
     IS_ROOM,
     Is_astralevel,
     INTRINSIC,
@@ -63,12 +67,13 @@ import {
 import { assign_level, find_mapseen, mapseen_room, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
-import { dist2, highc } from './hacklib.js';
+import { dist2, highc, s_suffix, sgn } from './hacklib.js';
 import { record_achievement } from './insight.js';
 import { makemon, makemon_runtime, mongets } from './makemon_create.js';
 import { set_malign } from './makemon.js';
 import { mattacku, m_next2u } from './mhitu.js';
-import { mon_allowflags, mongone } from './mon.js';
+import { mon_allowflags, mongone, setmangry, wakeup } from './mon.js';
+import { newemin } from './minion.js';
 import {
     amphibious,
     is_flyer,
@@ -84,13 +89,20 @@ import {
     resist_conflict,
 } from './mondata.js';
 import { mfndpos, monnear } from './monmove.js';
-import { PM_ALIGNED_CLERIC, PM_GHOST, PM_HIGH_CLERIC, S_EEL } from './monsters.js';
+import {
+    AD_ELEC,
+    PM_ALIGNED_CLERIC,
+    PM_GHOST,
+    PM_HIGH_CLERIC,
+    S_EEL,
+} from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import { AMULET_OF_YENDOR } from './objects.js';
 import { just_an } from './objnam.js';
 import { curse, mkobj, SPBOOK_NO_NOVEL } from './obj.js';
 import { body_part } from './polyself.js';
-import { halu_gname } from './pray.js';
+import { a_gname_at, halu_gname } from './pray.js';
+import { linedup } from './mthrowu.js';
 import { is_ok_location } from './room_coordinates.js';
 import { in_rooms } from './rooms.js';
 import { d, rn1, rn2 } from './rng.js';
@@ -104,6 +116,7 @@ import { ttyPline } from './tty_message.js';
 import { rloc } from './teleport.js';
 import { which_armor } from './worn.js';
 import { canseemon } from './display.js';
+import { buzz } from './zap.js';
 
 // C ref: priest.c local constants.
 const ALGN_SINNED = -4;
@@ -169,6 +182,109 @@ export function has_shrine(priest, state) {
         && extension.shralign === Amask2align(mask & ~AM_SHRINE);
 }
 
+// C ref: priest.c ghod_hitsu() (796-874).  When a peaceful temple priest is
+// struck or angered, choose a shrine-facing boundary, then call down the
+// source's lightning response only when that square is lined up with the
+// hero.  The caller discards the result, but this function's RNG, messages,
+// ray effects, and Wisdom exercise are observable.
+export async function ghod_hitsu(priest, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const { u } = state;
+    const roomno = temple_occupied(u.urooms, state);
+
+    if (!roomno || !has_shrine(priest, state)) return;
+
+    const altar = priest.mextra.epri.shrpos;
+    const ax = altar.x;
+    const ay = altar.y;
+    let x = ax;
+    let y = ay;
+    const troom = state.level.rooms[roomno - ROOMOFFSET];
+
+    if (u_at(x, y, state)
+        || !linedup(u.ux, u.uy, x, y, 1, { ...rawEnv, state })) {
+        if (IS_DOOR(state.level.at(u.ux, u.uy).typ)) {
+            if (u.ux === troom.lx - 1) {
+                x = troom.hx;
+                y = u.uy;
+            } else if (u.ux === troom.hx + 1) {
+                x = troom.lx;
+                y = u.uy;
+            } else if (u.uy === troom.ly - 1) {
+                x = u.ux;
+                y = troom.hy;
+            } else if (u.uy === troom.hy + 1) {
+                x = u.ux;
+                y = troom.ly;
+            }
+        } else {
+            const roll = (rawEnv.random?.rn2 ?? rn2)(4);
+            switch (roll) {
+            case 0:
+                x = u.ux;
+                y = troom.ly;
+                break;
+            case 1:
+                x = u.ux;
+                y = troom.hy;
+                break;
+            case 2:
+                x = troom.lx;
+                y = u.uy;
+                break;
+            default:
+                x = troom.hx;
+                y = u.uy;
+                break;
+            }
+        }
+        if (!linedup(u.ux, u.uy, x, y, 1, { ...rawEnv, state })) return;
+    }
+
+    switch ((rawEnv.random?.rn2 ?? rn2)(3)) {
+    case 0:
+        await ttyPline(
+            `${a_gname_at(ax, ay, state)} roars in anger:  "Thou shalt suffer!"`,
+            state,
+        );
+        break;
+    case 1:
+        await ttyPline(
+            `${s_suffix(a_gname_at(ax, ay, state))} voice booms:  `
+                + '"How darest thou harm my servant!"',
+            state,
+        );
+        break;
+    default:
+        await ttyPline(
+            `${a_gname_at(ax, ay, state)} roars:  `
+                + '"Thou dost profane my shrine!"',
+            state,
+        );
+        break;
+    }
+
+    const oldcurrwand = state.current_wand;
+    state.current_wand = null;
+    state.gb ??= {};
+    const oldbuzzer = state.gb.buzzer;
+    state.gb.buzzer = 0;
+    await buzz(
+        BZ_M_SPELL(BZ_OFS_AD(AD_ELEC)),
+        6,
+        x,
+        y,
+        sgn(state.gt.tbx),
+        sgn(state.gt.tby),
+        state,
+        rawEnv.random,
+        rawEnv,
+    );
+    state.gb.buzzer = oldbuzzer;
+    state.current_wand = oldcurrwand;
+    await exercise(A_WIS, false, state, rawEnv.random);
+}
+
 // C ref: priest.c findpriest().
 export function findpriest(roomNumber, state) {
     for (let monster = state.level?.monlist ?? null;
@@ -221,6 +337,14 @@ export function newepri(monster) {
     };
 }
 
+// C ref: priest.c free_epri(). EPRI is the priest's remembered shrine data;
+// clearing it leaves the monster's other mextra records intact.
+export function free_epri(monster) {
+    if (monster.mextra && monster.mextra.epri)
+        monster.mextra.epri = null;
+    monster.ispriest = false;
+}
+
 // C ref: priest.c clearpriests() (917-929). Called from end.c really_done()
 // before bones are saved: a priest whose shrine is on another level would be
 // impossible to restore, so it is discarded. Its own priest stays.
@@ -236,6 +360,36 @@ export function clearpriests(state = game) {
 // priest's alignment (read from the shrine, not from the species).
 export function p_coaligned(priest, state = game) {
     return state.u?.ualign?.type === mon_aligntyp(priest);
+}
+
+
+// C ref: priest.c angry_priest(). When a priest's former shrine has been
+// removed or converted, preserve its shrine alignment in EMIN before freeing
+// EPRI so it becomes a roaming minion.
+export async function angry_priest(state = game, rawEnv = {}) {
+    const room = temple_occupied(state.u?.urooms, state);
+    const priest = findpriest(room, state);
+    if (!priest) return;
+
+    const epri = priest.mextra?.epri;
+    if (!epri) return;
+    const env = { ...rawEnv, state };
+    await wakeup(priest, false, env);
+    await setmangry(priest, false, env);
+
+    const shrine = state.level?.at(epri.shrpos.x, epri.shrpos.y);
+    if (!IS_ALTAR(shrine?.typ)
+        || Amask2align((shrine.flags ?? 0) & AM_MASK) !== epri.shralign) {
+        if (!priest.mextra?.emin) newemin(priest);
+        priest.ispriest = false;
+        priest.isminion = true;
+        const emin = priest.mextra.emin;
+        if (!emin)
+            throw new Error('angry_priest requires the newemin extension');
+        emin.min_align = epri.shralign;
+        emin.renegade = false;
+        free_epri(priest);
+    }
 }
 
 // C ref: sp_lev.c pm_to_humidity(). Maps a permonst's movement capabilities

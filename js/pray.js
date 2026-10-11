@@ -6,6 +6,7 @@
 //        god_zaps_you() (610-694), fry_by_god() (696-702),
 //        angrygods() (704-784), gods_upset() (1436-1443),
 //        consume_offering() (1446-1474), bestow_artifact() (1780-1834),
+//        give_spell() (999-1070),
 //        sacrifice_your_race() (1698-1778), sacrifice_value() (1838-1850),
 //        dosacrifice() (1854-1896), eval_offering() (1898-1957),
 //        offer_corpse() (1959-2122),
@@ -13,7 +14,8 @@
 //        pray_revive() (2177-2195),
 //        dopray() (2199-2273), prayer_done() (2276-2346),
 //        maybe_turn_mon_iter() (2347-2405), doturn() (2407-2489),
-//        u_gname() (2524), and align_gname() (2530).
+//        a_gname() (2507), a_gname_at() (2514), u_gname() (2524), and
+//        align_gname() (2530).
 //
 // prayer_done() handles delayed prayer resolution; pray_revive() scans the
 // hero-square floor pile for a saved tame pet to restore. pleased() is ported below;
@@ -206,10 +208,15 @@ import {
 } from './monsters.js';
 import { Glib } from './wield.js';
 import {
+    bless,
     carried,
     is_weptool,
+    mkobj,
     peek_at_iced_corpse_age,
+    place_object,
     remove_object,
+    rnd_class,
+    SPBOOK_NO_NOVEL,
     set_bknown,
     uncurse,
 } from './obj.js';
@@ -222,6 +229,9 @@ import {
     FAKE_AMULET_OF_YENDOR,
     POTION_CLASS,
     POT_WATER,
+    MAGIC_MARKER,
+    SPE_BLANK_PAPER,
+    SPBOOK_CLASS,
     FUMBLE_BOOTS,
     GAUNTLETS_OF_FUMBLING,
     HELM_OF_OPPOSITE_ALIGNMENT,
@@ -234,6 +244,7 @@ import {
     STATUE,
     WEAPON_CLASS,
     SPE_TURN_UNDEAD,
+    OBJ_NAME,
 } from './objects.js';
 import { body_part, mbodypart, rehumanize } from './polyself.js';
 import {
@@ -263,6 +274,7 @@ import { safe_teleds } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { set_voice } from './sounds.js';
 import {
+    angry_priest,
     findpriest,
     p_coaligned,
     temple_occupied,
@@ -278,15 +290,35 @@ import { dlord, summon_minion } from './minion.js';
 import { cmap_to_type } from './mkroom.js';
 import { resist, revive } from './zap.js';
 import { ureflects } from './muse.js';
-import { known_spell, spelleffects } from './spell.js';
+import {
+    force_learn_spell,
+    known_spell,
+    spe_Forgotten,
+    spe_Fresh,
+    spe_Unknown,
+    spelleffects,
+} from './spell.js';
 import { welded } from './wield.js';
 import { bimanual, setnotworn, which_armor } from './worn.js';
 import { encumber_msg, rider_corpse_revival } from './pickup.js';
 import { init_uhunger } from './u_init.js';
 import { see_monsters } from './display.js';
-import { feel_cockatrice, update_inventory, useup, useupf, sobj_at } from './invent.js';
+import {
+    carrying,
+    feel_cockatrice,
+    obfree,
+    update_inventory,
+    useup,
+    useupf,
+    sobj_at,
+} from './invent.js';
 import { discover_object, observe_object } from './o_init.js';
-import { unrestrict_weapon_skill, weapon_type } from './startup_skills.js';
+import {
+    P_RESTRICTED,
+    spell_skilltype,
+    unrestrict_weapon_skill,
+    weapon_type,
+} from './startup_skills.js';
 import {
     an, ansimpleoname, bare_artifactname, corpse_xname,
     gloves_simple_name, otense, vtense, yname, Yobjnam2,
@@ -372,6 +404,21 @@ export function altarmask_at(x, y, state = game) {
     return IS_ALTAR(location?.typ)
         ? location.flags ?? 0
         : 0;
+}
+
+// C ref: pray.c a_gname_at() (2514-2520). Unlike altarmask_at(), this reads
+// the real level tile and returns null when that square is not an altar.
+export function a_gname_at(x, y, state = game) {
+    const location = state.level.at(x, y);
+    if (!IS_ALTAR(location.typ)) return null;
+    return align_gname(a_align(x, y, state), state);
+}
+
+// C ref: pray.c a_gname() (2507-2509). This deliberately reads the hero's
+// current square through a_gname_at(), including its non-altar null result.
+export function a_gname(state = game) {
+    const { u } = state;
+    return a_gname_at(u.ux, u.uy, state);
 }
 
 // C ref: pray.c dosacrifice() (1854-1896). The floorfood() selector is shared
@@ -640,7 +687,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
         );
         state.level.at(u.ux, u.uy).flags = AM_CHAOTIC;
         newsym(u.ux, u.uy, state);
-        note_unported('priest.c angry_priest');
+        await angry_priest(state);
     } else {
         let demonlessMessage;
         if (altaralign === A_CHAOTIC && u.ualign.type !== A_CHAOTIC) {
@@ -652,7 +699,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
             altar.typ = ROOM;
             altar.flags = 0;
             newsym(u.ux, u.uy, state);
-            note_unported('priest.c angry_priest');
+            await angry_priest(state);
             demonlessMessage = 'cloud dissipates';
         } else {
             await ttyPline('The blood covers the altar!', state);
@@ -776,7 +823,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
             );
             await consume_offering(otmp, state);
             await ttyPline(
-                `${align_gname(altaralign, state)} accepts your allegiance.`,
+                `${a_gname(state)} accepts your allegiance.`,
                 state,
             );
             await uchangealign(altaralign, A_CG_CONVERT, state);
@@ -786,7 +833,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
             u.ugangr += 3;
             adjalign(-5, state);
             await ttyPline(
-                `${align_gname(altaralign, state)} rejects your sacrifice!`,
+                `${a_gname(state)} rejects your sacrifice!`,
                 state,
             );
             await godvoice(altaralign, 'Suffer, infidel!', state);
@@ -800,7 +847,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
     await consume_offering(otmp, state);
     await ttyPline(
         `You sense a conflict between ${u_gname(state)} and `
-            + `${align_gname(altaralign, state)}.`,
+            + `${a_gname(state)}.`,
         state,
     );
     if (rn2(8 + u.ulevel) > 5) {
@@ -827,7 +874,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
         }
         const priest = findpriest(temple_occupied(u.urooms, state), state);
         if (priest && !p_coaligned(priest, state))
-            note_unported('priest.c angry_priest');
+            await angry_priest(state);
     } else {
         await ttyPline(
             `Unluckily, you feel the power of ${u_gname(state)} decrease.`,
@@ -853,7 +900,7 @@ async function offer_corpse(otmp, highaltar, altaralign, state) {
         livelog_printf(
             LL_CONDUCT,
             `rejected atheism by offering ${corpse_xname(otmp, null, CXN_ARTICLE, state)}`
-                + ` on an altar of ${align_gname(altaralign, state)}`,
+                + ` on an altar of ${a_gname(state)}`,
             state,
         );
     }
@@ -1990,6 +2037,64 @@ export async function doturn(state = game, env = {}) {
     return ECMD_TIME;
 }
 
+// C ref: pray.c give_spell() (999-1070). God generates a spellbook, rerolls
+// unusable books up to u.ulevel times, and either teaches its spell directly
+// or blesses and places the book at the hero's feet.
+export async function give_spell(state = game, env = {}) {
+    const random = env.random ?? { rn1, rn2, rnd, rne };
+    let trycnt = state.u.ulevel + 1;
+    let otmp = mkobj(SPBOOK_NO_NOVEL, true, { ...env, state, random });
+
+    while (--trycnt > 0) {
+        if (otmp.otyp !== SPE_BLANK_PAPER) {
+            if (known_spell(otmp.otyp, state) <= spe_Unknown
+                && !P_RESTRICTED(spell_skilltype(otmp.otyp, state), state)) {
+                break;
+            }
+        } else if (!state.objects[SPE_BLANK_PAPER].oc_name_known
+            || carrying(MAGIC_MARKER, state)) {
+            break;
+        }
+
+        otmp.otyp = rnd_class(
+            state.svb.bases[SPBOOK_CLASS], SPE_BLANK_PAPER,
+            { ...env, state, random },
+        );
+    }
+
+    let spe_knowledge;
+    if (otmp.otyp !== SPE_BLANK_PAPER
+        && !random.rn2(4)
+        && (spe_knowledge = known_spell(otmp.otyp, state)) !== spe_Fresh) {
+        const spe_let = force_learn_spell(otmp.otyp, state);
+        if (spe_let !== '\0') {
+            const spe_name = OBJ_NAME(state.objects[otmp.otyp], state);
+            if (spe_knowledge === spe_Unknown) {
+                await ttyPline(
+                    `Divine knowledge of ${spe_name} fills your mind!  Spell '${spe_let}'.`,
+                    state,
+                );
+            } else {
+                const restored = spe_knowledge === spe_Forgotten
+                    ? 'restored' : 'refreshed';
+                await ttyPline(
+                    `Your knowledge of spell '${spe_let}' - ${spe_name} is ${restored}.`,
+                    state,
+                );
+            }
+        }
+        obfree(otmp, null, { ...env, state, random });
+    } else {
+        observe_object(otmp, state);
+        if (otmp.otyp === SPE_BLANK_PAPER || !random.rn2(100))
+            discover_object(otmp.otyp, true, true, true, state, { ...env, random });
+        bless(otmp, { ...env, state, random });
+        await at_your_feet(upstart(ansimpleoname(otmp, state)), state);
+        place_object(otmp, state.u.ux, state.u.uy, { ...env, state, random });
+        newsym(state.u.ux, state.u.uy);
+    }
+}
+
 // C ref: pray.c pleased() (1071-1386). A successful prayer first reports the
 // deity's satisfaction, then chooses a trouble repair, blessing, recovery, or
 // divine gift. The source helpers that are still outside the port are recorded
@@ -2264,7 +2369,7 @@ export async function pleased(g_align, state = game) {
             }
             // FALLTHROUGH
         case 6:
-            note_unported('pray.c give_spell');
+            await give_spell(state);
             break;
         default:
             note_unported('pray.c impossible');

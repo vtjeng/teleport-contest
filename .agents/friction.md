@@ -21,6 +21,24 @@ triage decisions or fix references.
 
 ## Observations
 
+### 2026-10-10 — accepted dependency verification exceeded the Git patch buffer
+
+- Context: B rolling-boulder integration at
+  `ddf5412d0452339261cff3b0fb162fba10f0b5a5`, while recording the
+  `integrating` ledger event.
+- Friction: the delivery inherited more than 120 accepted dependencies from a
+  long-lived worker branch. `checkCandidate()` rehashed every accepted task,
+  and a historical large commit exceeded its 32 MiB `git show` buffer. Two
+  ledger attempts each spent about two minutes before failing.
+- Evidence: the verifier failed in `contextFreePatchId()` with
+  `spawnSync git ENOBUFS`; `git cherry` independently reported both B delivery
+  patches as present in the candidate.
+- Reason: `.agents/loop.md`, "Integration and publication", requires the exact
+  delivery and dependency check before checkpoint validation.
+- Outcome: `checkCandidate()` now returns immediately when the accepted
+  integration is an ancestor of the candidate. Diverged histories still use
+  the existing patch comparison, including repaired dependency branches.
+
 ### 2026-10-07 — failed hosted shard did not retain its test log
 
 - Context: B136, `f9932445178a37fcbe5df051c1b9bb88a8b8e0c0`, hosted

@@ -221,9 +221,9 @@ import {
     surface,
 } from './dungeon.js';
 import { del_engr_at, sengr_at } from './engrave.js';
-import { p_coaligned } from './priest.js';
+import { ghod_hitsu, p_coaligned } from './priest.js';
 import { record_achievement } from './insight.js';
-import { quest_info } from './questpgr.js';
+import { quest_info, stinky_nemesis } from './questpgr.js';
 import { in_rooms } from './rooms.js';
 import { adjalign, ALIGNLIM } from './attrib.js';
 import { experience, more_experienced, newexplevel } from './exper.js';
@@ -3955,7 +3955,7 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
         if (was_peaceful) {
             if (monster.ispriest
                 && in_rooms(monster.mx, monster.my, TEMPLE, state).length)
-                note_unported('priest.c ghod_hitsu');
+                await ghod_hitsu(monster, { ...rawEnv, state });
             if (monster.isshk && !state.u.ushops?.[0])
                 note_unported('shk.c hot_pursuit');
         }
@@ -4719,11 +4719,11 @@ export function mnearto(
 // of mtmp from other data structures". `mptr` is mtmp->data as it stood before
 // the death, which mondead() saves before restoring a chameleon's true form.
 //
-// The still-unported branches stop under their source conditions:
+// The remaining unported branches stop under their source conditions:
 //
 //   2741-2742  m_unleash(), for a leashed pet.
 //   2761-2762  wizdeadorgone(), for the Wizard of Yendor.
-//   2768-2776  nemdead(), nemesis_stinks() and leaddead(), the quest arms.
+//   2774-2775  leaddead(), for a dying quest leader.
 //   2800-2801  asynchronous DISMOUNT_GENERIC release when the departing
 //              monster was the hero's steed.
 // thiefdead(), shkgone(), wormgone(), MON_ENDGAME_FREE, and the detach flag
@@ -4744,6 +4744,7 @@ export function m_detach(
 ) {
     const unsupported = requiredKillOperation(env, 'unsupported');
     const mx = mtmp.mx;
+    const my = mtmp.my;
 
     if (mtmp.mleashed) m_unleash(mtmp, false, { ...env, state });
 
@@ -4811,14 +4812,32 @@ export function m_detach(
 
     const finishAfterLeaving = () => {
         if (due_to_death) {
-            if (mtmp.data.msound === MS_NEMESIS)
-                unsupported("the quest nemesis's death");
-            if (mtmp.data.msound === MS_LEADER)
-                unsupported("the quest leader's death");
-            /* "release (drop onto map) all objects carried by mtmp; assumes that
-               mtmp->mx,my contains the appropriate location" */
-            return relobj(mtmp, 1, false, { ...env, state })
-                .then(finishDetach);
+            const finishDeathEffects = async () => {
+                if (mtmp.data.msound === MS_NEMESIS) {
+                    // mon.c:2769-2773. nemdead() displays and records the
+                    // role's quest message before stinky_nemesis() reads its
+                    // unconverted text; only then can a cloud be created.
+                    const { nemdead, nemesis_stinks } = await import('./quest.js');
+                    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+                    await nemdead(state, {
+                        random,
+                        output: env.output,
+                    });
+                    if (await stinky_nemesis(mtmp, state, random.rn2)) {
+                        await nemesis_stinks(mx, my, state, {
+                            ...env,
+                            random,
+                        });
+                    }
+                }
+                if (mtmp.data.msound === MS_LEADER)
+                    unsupported("the quest leader's death");
+                /* "release (drop onto map) all objects carried by mtmp; assumes that
+                   mtmp->mx,my contains the appropriate location" */
+                await relobj(mtmp, 1, false, { ...env, state });
+                return finishDetach();
+            };
+            return finishDeathEffects();
         }
         return finishDetach();
     };
@@ -4869,8 +4888,6 @@ export function mongone(monster, env = {}) {
                 note_unported('mon.c seemimic');
             else if (branch === "the Wizard of Yendor's death")
                 note_unported('end.c wizdeadorgone');
-            else if (branch === 'the quest nemesis\'s death')
-                note_unported('quest.c nemdead');
             else if (branch === 'the quest leader\'s death')
                 note_unported('questpgr.c leaddead');
             else

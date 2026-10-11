@@ -296,6 +296,7 @@ import {
 import {
     healmon, killed, mongone, monkilled, new_were, wake_nearto, wakeup,
 } from './mon.js';
+import { mcureblindness } from './muse.js';
 import { paralyze_monst, sleep_monst, slept_monst } from './mhitm.js';
 import { which_armor, mon_adjust_speed, mon_set_minvis } from './worn.js';
 import { in_rooms } from './rooms.js';
@@ -2803,7 +2804,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
                     await message(`${Monnam(mon, state, env)} looks sound and hale again.`, state);
             }
             if (cureblind)
-                note_unported('mon.c mcureblindness');
+                await mcureblindness(mon, canseemon(mon, state), state);
         } else if (illness && mon.mhp > 2) {
             mon.mhp = Math.trunc(mon.mhp / 2);
             if (canseemon(mon, state))

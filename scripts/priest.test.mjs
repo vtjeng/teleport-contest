@@ -4,13 +4,22 @@ import test from 'node:test';
 
 import { A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { mon_aligntyp } from '../js/priest.js';
+import {
+    angry_priest,
+    free_epri,
+    ghod_hitsu,
+    mon_aligntyp,
+} from '../js/priest.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_ALIGNED_CLERIC, PM_HIGH_CLERIC } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
 
 const PRIEST_C_SOURCE = readFileSync('nethack-c/upstream/src/priest.c', 'utf8');
 const PRIEST_JS_SOURCE = readFileSync('js/priest.js', 'utf8');
+const PRAY_C_SOURCE = readFileSync('nethack-c/upstream/src/pray.c', 'utf8');
+const PRAY_JS_SOURCE = readFileSync('js/pray.js', 'utf8');
+const DIG_C_SOURCE = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
+const DIG_JS_SOURCE = readFileSync('js/dig.js', 'utf8');
 
 const RECIPE = JSON.parse(readFileSync(
     new URL('../recordings/priest.c/roamer-sanctum-gnome-wizard.session.json',
@@ -114,6 +123,80 @@ test('priest.c mon_aligntyp selects the source extension and preserves A_NONE', 
         ispriest: true,
         mextra: { epri: { shralign: A_NONE } },
     }), A_NONE);
+});
+
+test('priest.c angry_priest transfers shrine state to a roaming minion', () => {
+    const freeStart = PRIEST_C_SOURCE.indexOf('\nfree_epri(');
+    const freeEnd = PRIEST_C_SOURCE.indexOf('\n/*\n * Move for priests', freeStart);
+    const angryStart = PRIEST_C_SOURCE.indexOf('\nangry_priest(void)');
+    const angryEnd = PRIEST_C_SOURCE.indexOf('\n/*\n * When saving bones', angryStart);
+    const freeFunction = PRIEST_C_SOURCE.slice(freeStart, freeEnd);
+    const angryFunction = PRIEST_C_SOURCE.slice(angryStart, angryEnd);
+
+    assert.ok(freeStart >= 0 && freeEnd > freeStart);
+    assert.match(freeFunction, /EPRI\(mtmp\) = \(struct epri \*\) 0;/u);
+    assert.match(freeFunction, /mtmp->ispriest = 0;/u);
+    assert.ok(angryStart >= 0 && angryEnd > angryStart);
+    assert.ok(angryFunction.indexOf('wakeup(priest, FALSE);')
+        < angryFunction.indexOf('setmangry(priest, FALSE);'));
+    assert.ok(angryFunction.indexOf('EMIN(priest)->min_align = eprip->shralign;')
+        < angryFunction.indexOf('free_epri(priest);'));
+
+    const jsAngry = PRIEST_JS_SOURCE.slice(
+        PRIEST_JS_SOURCE.indexOf('export async function angry_priest('),
+    );
+    assert.equal(typeof angry_priest, 'function');
+    assert.equal(typeof free_epri, 'function');
+    assert.match(jsAngry, /await wakeup\(priest, false, env\);[\s\S]*await setmangry\(priest, false, env\);/u);
+    assert.match(jsAngry, /newemin\(priest\)/u);
+    assert.match(jsAngry, /emin\.min_align = epri\.shralign;/u);
+    assert.match(jsAngry, /emin\.renegade = false;/u);
+    assert.match(jsAngry, /free_epri\(priest\);/u);
+
+    const otherExtra = { value: 9 };
+    const priest = {
+        ispriest: true,
+        isminion: true,
+        mextra: { epri: { shralign: A_LAWFUL }, emin: otherExtra },
+    };
+    free_epri(priest);
+    assert.equal(priest.ispriest, false);
+    assert.equal(priest.mextra.epri, null);
+    assert.equal(priest.mextra.emin, otherExtra);
+    const priestWithoutExtra = { ispriest: true };
+    free_epri(priestWithoutExtra);
+    assert.equal(priestWithoutExtra.ispriest, false);
+
+    const sourceCallerCount = [PRAY_C_SOURCE, DIG_C_SOURCE]
+        .join('\n').match(/angry_priest\(\);/gu)?.length ?? 0;
+    const jsCallerCount = [PRAY_JS_SOURCE, DIG_JS_SOURCE]
+        .join('\n').match(/await angry_priest\(state(?:, rawEnv)?\);/gu)?.length ?? 0;
+    assert.equal(sourceCallerCount, 4);
+    assert.equal(jsCallerCount, sourceCallerCount);
+    assert.doesNotMatch(`${PRAY_JS_SOURCE}\n${DIG_JS_SOURCE}`,
+        /note_unported\(['"](?:priest|pray)\.c angry_priest['"]\)/u);
+});
+
+test('priest.c ghod_hitsu preserves boundary selection and response order', () => {
+    const cStart = PRIEST_C_SOURCE.indexOf('\nghod_hitsu(');
+    const cEnd = PRIEST_C_SOURCE.indexOf('\nvoid\nangry_priest', cStart);
+    const cFunction = PRIEST_C_SOURCE.slice(cStart, cEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cFunction, /temple_occupied\(u\.urooms\)/u);
+    assert.match(cFunction, /!has_shrine\(priest\)/u);
+    assert.match(cFunction, /switch \(rn2\(4\)\)/u);
+    assert.match(cFunction, /if \(!linedup\(u\.ux, u\.uy, x, y, 1\)\)\s*return;/u);
+    assert.match(cFunction, /switch \(rn2\(3\)\)/u);
+    assert.match(cFunction, /buzz\(BZ_M_SPELL\(BZ_OFS_AD\(AD_ELEC\)\), 6,/u);
+    assert.ok(cFunction.indexOf('gb.buzzer = oldbuzzer;')
+        < cFunction.indexOf('gc.current_wand = oldcurrwand;'));
+    assert.match(cFunction, /exercise\(A_WIS, FALSE\);/u);
+
+    assert.equal(typeof ghod_hitsu, 'function');
+    assert.match(PRIEST_JS_SOURCE, /export async function ghod_hitsu\(priest, rawEnv = \{\}\)/u);
+    assert.match(PRIEST_JS_SOURCE, /await buzz\([\s\S]*?rawEnv\.random,[\s\S]*?rawEnv,/u);
+    assert.match(PRIEST_JS_SOURCE, /await exercise\(A_WIS, false, state, rawEnv\.random\)/u);
 });
 
 test('priestini marks only its source sanctum High Cleric creation for makemon', () => {

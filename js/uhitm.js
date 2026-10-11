@@ -659,6 +659,7 @@ import {
     newuhs,
 } from './eat.js';
 import { note_unported } from './unported.js';
+import { ghod_hitsu } from './priest.js';
 import { m_useup } from './mthrowu.js';
 import { explode, adtyp_to_expltype } from './explode.js';
 import { cansee } from './vision.js';
@@ -2606,9 +2607,8 @@ export async function hitum(mon, uattk, state = game, env = {}) {
 // body is two consequences of striking a monster the town protects.
 //
 // `anger_guards` is computed at 826-828, before hmon_hitmon() runs, and is
-// called after the hit just as C does. ghod_hitsu() is a discarded void
-// consequence, but its priest-only rn2(2) still belongs to this source
-// wrapper and must be consumed before returning the hit result.
+// called after the hit just as C does. The priest-only rn2(2) gates the
+// source-owned ghod_hitsu() response before returning the hit result.
 export async function hmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     const random = env.random ?? { rn2 };
     const angerGuards = mon.mpeaceful
@@ -2616,7 +2616,7 @@ export async function hmon(mon, obj, thrown, dieroll, state = game, env = {}) {
 
     const result = await hmon_hitmon(mon, obj, thrown, dieroll, state, env);
     if (mon.ispriest && !random.rn2(2))
-        note_unported('priest.c ghod_hitsu');
+        await ghod_hitsu(mon, { ...env, state });
     if (angerGuards) {
         const deaf = state.u?.uprops?.[DEAF];
         await angry_guards(

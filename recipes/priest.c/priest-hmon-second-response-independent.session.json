@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22190537,
+      "datetime": "20480917073822",
+      "nethackrc": "OPTIONS=name:Cedar,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nblessed scroll of teleportation\n#wizwish\namulet of reflection\nPl \n#wizloaddes\nKni-loca.lua\n rk   _.  Fk Fj   ",
+      "comment": "Independent priest.c caller witness: enter the built-in Tor temple with a new seed, date, neutral human Healer, a wished reflection amulet, and two distinct attack directions. The second strike tests uhitm.c:hmon's separate random priest-response call to ghod_hitsu after the peaceful priest has turned hostile. This recipe is independently parameterized from the admitted synthetic setup and targets the second C call edge."
+    }
+  ]
+}

@@ -27,7 +27,6 @@ import {
     ARROW_TRAP,
     BEAR_TRAP,
     BLINDED,
-    BOLT_LIM,
     CONFUSION,
     CORR,
     DIR_180,
@@ -88,7 +87,6 @@ import {
     LEG,
     LIFESAVED,
     LANDMINE,
-    LAVAWALL,
     LEVEL_TELEP,
     LEVITATION,
     M_SEEN_FIRE,
@@ -167,7 +165,6 @@ import {
     UTOTYPE_NONE,
     Upolyd,
     VIBRATING_SQUARE,
-    WATER,
     WEB,
     WWALKING,
     WT_TOOMUCH_DIAGONAL,
@@ -349,6 +346,7 @@ import { welded, uwepgone, uswapwepgone } from './wield.js';
 import { bimanual } from './worn.js';
 import { newsym, bot, shieldeff } from './display.js';
 import { m_next2u } from './mhitu.js';
+import { linedup } from './mthrowu.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { costly_spot, shop_keeper, shk_your, shopdig } from './shk.js';
 import { quest_info } from './questpgr.js';
@@ -432,6 +430,7 @@ function closedDoor(location) {
         && Boolean(mask & (D_CLOSED | D_LOCKED));
 }
 
+// C ref: trap.c:isclearpath().
 function clearLaunchPath(coordinate, distance, dx, dy, env) {
     let { x, y } = coordinate;
     while (distance-- > 0) {
@@ -452,35 +451,18 @@ function clearLaunchPath(coordinate, distance, dx, dy, env) {
     return true;
 }
 
-// mthrowu.c:linedup(..., 1) for an explicitly supplied launch offset.  The
-// boulderhandling=1 branch ignores intervening boulders, so only terrain and
-// the source's orthogonal-or-diagonal range contract matter here.
+// C ref: trap.c:find_random_launch_coord() -> mthrowu.c:linedup(..., 1).
 function explicitLaunchCoordinate(trap, env) {
-    const offset = env.state.launchplace;
-    if (!offset) return null;
+    const offset = env.state.launchplace ?? { x: 0, y: 0 };
     const target = {
         x: trap.tx + offset.x,
         y: trap.ty + offset.y,
     };
-    if (!isok(target.x, target.y)) return null;
-    const dx = target.x - trap.tx;
-    const dy = target.y - trap.ty;
-    const distance = Math.max(Math.abs(dx), Math.abs(dy));
-    if (!distance || distance >= BOLT_LIM
-        || (dx && dy && Math.abs(dx) !== Math.abs(dy))) {
+    if (!isok(target.x, target.y)
+        || !linedup(trap.tx, trap.ty, target.x, target.y, 1, {
+            state: env.state,
+        })) {
         return null;
-    }
-    const sx = Math.sign(dx);
-    const sy = Math.sign(dy);
-    for (let step = 1; step < distance; ++step) {
-        const location = env.state.level.at(
-            trap.tx + sx * step,
-            trap.ty + sy * step,
-        );
-        if (!ZAP_POS(location.typ) || closedDoor(location)
-            || location.typ === WATER || location.typ === LAVAWALL) {
-            return null;
-        }
     }
     return target;
 }
@@ -546,12 +528,13 @@ function makeRollingBoulderLaunch(trap, x, y, env) {
         x: x - (launch.x - x),
         y: y - (launch.y - y),
     };
-    capability(env, 'newsym')?.(launch.x, launch.y, env);
+    capability(env, 'newsym')(launch.x, launch.y, env);
     return true;
 }
 
 const DEFAULT_CAPABILITIES = Object.freeze({
     makeRollingBoulderLaunch,
+    newsym(x, y, env) { newsym(x, y, env.state); },
     resetUtrap(msg, env) { return reset_utrap(msg, env.state); },
     objIceEffects: obj_ice_effects,
     spotStopTimers(x, y, action, env) {

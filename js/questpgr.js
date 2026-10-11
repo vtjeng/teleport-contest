@@ -1,5 +1,5 @@
 // questpgr.js -- quest text and quest-artifact bookkeeping.
-// C ref: questpgr.c com_pager_core(), com_pager(), qt_pager(),
+// C ref: questpgr.c com_pager_core(), com_pager(), qt_pager(), stinky_nemesis(),
 // convert_line(), convert_arg(), qtext_pronoun(), ldrname(), neminame(),
 // guardname(), homebase(), intermed(), deliver_splev_message(), and
 // is_quest_artifact().
@@ -348,7 +348,7 @@ const BUFSZ = 256;
 // section (role filecode) and message ID, produces the nhlib shuffle,
 // reads the text and output mode, and delivers the message.
 async function comPagerCore(
-    section, msgid, showerror, state, random, output,
+    section, msgid, showerror, state, random, output, rawText = null,
 ) {
     if (skip_pager(state)) return false;
     initializeQuestPagerLua(random);
@@ -372,6 +372,15 @@ async function comPagerCore(
             throw new Error(
                 `com_pager: ${section}.${msgid} not found`);
         return false;
+    }
+
+    // C's com_pager_core(..., rawtext) returns the unconverted text without
+    // selecting array alternatives or displaying it. stinky_nemesis() uses
+    // this out-parameter after qt_pager() has shown the same role message.
+    if (rawText) {
+        rawText.value = entry && !Array.isArray(entry)
+            && typeof entry.text === 'string' ? entry.text : null;
+        return true;
     }
 
     let text = null;
@@ -440,6 +449,31 @@ export async function qt_pager(
         state.urole?.filecode, msgid, false, state, random, output)) {
         await comPagerCore('common', msgid, true, state, random, output);
     }
+}
+
+// C ref: questpgr.c stinky_nemesis(). Read the source role's raw death text
+// without delivering it, then apply its ordered case-insensitive phrase
+// checks. C deliberately bases the cloud on the message qt_pager() showed,
+// even when the dying monster belongs to another role.
+export async function stinky_nemesis(
+    mon, state = game, random = rn2,
+) {
+    void mon; // The active C implementation intentionally ignores this value.
+    const rawText = { value: null };
+    await comPagerCore(
+        state.urole?.filecode, 'killed_nemesis', false, state, random,
+        QUEST_PAGER_OUTPUT, rawText,
+    );
+    if (typeof rawText.value !== 'string') return false;
+
+    const normalized = rawText.value.replaceAll('\n', ' ');
+    let at = normalized.toLowerCase().indexOf('noxious');
+    if (at < 0) at = normalized.toLowerCase().indexOf('poisonous');
+    if (at < 0) at = normalized.toLowerCase().indexOf('toxic');
+    if (at < 0) return false;
+
+    const suffix = normalized.slice(at).toLowerCase();
+    return suffix.includes(' gas') || suffix.includes(' fumes');
 }
 
 // C ref: questpgr.c com_pager(). The wrapper selects the common section;

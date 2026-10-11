@@ -284,6 +284,12 @@ function replacedCacheDelivery(root, state, task) {
 function checkCandidate(root, state, task, commit, visited = new Set(), patchIds = new Map()) {
     if (visited.has(task.id)) return;
     visited.add(task.id);
+    const accepted = state.deliveries[task.deliveries.at(-1)];
+    // An ancestor contains the exact accepted integration, including every
+    // delivery and dependency it already verified. Long-lived workers can
+    // otherwise make each later integration rehash the full accepted history.
+    if (accepted?.acceptedAt && accepted.integration
+        && isAncestor(root, accepted.integration, commit)) return;
     const replaced = replacedCacheDelivery(root, state, task);
     // Incremental corrections retain every earlier patch. A rejected cache-only
     // packaging error can be replaced after Git verifies every other blob.

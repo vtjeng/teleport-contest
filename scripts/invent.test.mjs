@@ -3,10 +3,11 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { compareSessionOutputs } from './diff-fresh.mjs';
 
-import { COLNO, ROOM, ROWNO } from '../js/const.js';
+import { ALTAR, AM_LAWFUL, COLNO, ROOM, ROWNO } from '../js/const.js';
 import {
     consume_obj_charge,
     display_binventory,
+    dfeature_at,
     only_here,
     sobj_at,
 } from '../js/invent.js';
@@ -18,6 +19,30 @@ const INVENT_C = readFileSync(
     new URL('../nethack-c/upstream/src/invent.c', import.meta.url), 'utf8',
 );
 const INVENT_JS = readFileSync('js/invent.js', 'utf8');
+
+test('invent.c altar descriptions use the hero-square a_gname wrapper', () => {
+    const cStart = INVENT_C.indexOf(
+        'dfeature_at(coordxy x, coordxy y, char *buf)',
+    );
+    const cEnd = INVENT_C.indexOf('\n}', cStart) + 2;
+    const cFunction = INVENT_C.slice(cStart, cEnd);
+    const jsStart = INVENT_JS.indexOf('export function dfeature_at(');
+    const jsEnd = INVENT_JS.indexOf('\n}', jsStart) + 2;
+    const jsFunction = INVENT_JS.slice(jsStart, jsEnd);
+    assert.match(cFunction, /a_gname\(\)/u);
+    assert.match(jsFunction, /a_gname\(state\)/u);
+
+    const location = { typ: ALTAR, flags: AM_LAWFUL };
+    const state = {
+        u: { ux: 4, uy: 7 },
+        level: { at: () => location },
+        urole: { lgod: '_A lawful deity' },
+    };
+    assert.equal(
+        dfeature_at(4, 7, state),
+        'altar to A lawful deity (lawful)',
+    );
+});
 
 test('dotypeinv includes billed categories only when a shopping bill exists', () => {
     const cStart = INVENT_C.indexOf('dotypeinv(void)');

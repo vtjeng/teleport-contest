@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first runtime case for quest.c:nemdead -> questpgr.c:stinky_nemesis -> quest.c:nemesis_stinks. The Archeologist's role text says 'noxious fumes', exercising the true branch and cloud creation; the seed, date, role, name, and initial wizard actions were selected separately from the admitted Wizard case.",
+  "segments": [
+    {
+      "seed": 43050187,
+      "datetime": "20530517115900",
+      "nethackrc": "OPTIONS=name:V43Fumes,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017wand of death\n\u0007hostile Dark One\nyzjh "
+    }
+  ]
+}

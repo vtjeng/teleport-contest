@@ -30,6 +30,8 @@ import {
     antholemon,
     do_mkroom,
     fill_zoo,
+    has_dnstairs,
+    has_upstairs,
     mk_tt_object,
 } from './mkroom.js';
 import { mkcorpstat } from './corpstat.js';
@@ -7357,19 +7359,16 @@ export function somexyspace(croom, c, rawEnv = {}) {
 // Stairs
 // ============================================================
 
-function generate_stairs_room_good(croom, phase) {
-    if (!croom || croom.hx < 0) return false;
-    if (!croom.needjoining && phase >= 0) return false;
-    let hasDown = false, hasUp = false;
-    for (let st = game.stairs; st; st = st.next) {
-        const inRoom = st.sx >= croom.lx && st.sx <= croom.hx
-            && st.sy >= croom.ly && st.sy <= croom.hy;
-        if (!inRoom) continue;
-        if (st.up) hasUp = true; else hasDown = true;
-    }
-    if (phase >= 1 && (hasDown || hasUp)) return false;
-    if (croom.rtype !== OROOM && !(phase < 2 && croom.rtype === THEMEROOM)) return false;
-    return true;
+export function generate_stairs_room_good(croom, phase, state = game) {
+    // C ref: mklev.c generates stair candidates through has_dnstairs() and
+    // has_upstairs(). Their inside_room() check distinguishes irregular room
+    // membership from overlapping room bounds and includes regular room walls.
+    return Boolean(croom
+        && (croom.needjoining || phase < 0)
+        && ((!has_dnstairs(croom, state) && !has_upstairs(croom, state))
+            || phase < 1)
+        && (croom.rtype === OROOM
+            || (phase < 2 && croom.rtype === THEMEROOM)));
 }
 
 function generate_stairs_find_room() {
