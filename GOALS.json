@@ -265102,6 +265102,59 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-priest-angry-priest-sacrifice-v43-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port priest anger after altar conversion and human sacrifice",
+      "cFile": "priest.c",
+      "sessions": [
+        "synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst"
+      ],
+      "selectionReason": "The current admitted v43 replay first differs at step 108 after pray.c:sacrifice_your_race changes the shrine altar and calls missing priest.c:angry_priest. Port the whole angry_priest function and its return-independent priest.c:free_epri callee, then wire the complete active sacrifice and altar-conversion caller branches; the later dig.c call remains source-unreachable because dig_check rejects altar terrain first.",
+      "detail": "The refreshed investigation records 108/110 matching screens, full 8697/8697 RNG agreement, and independent fresh C-first evidence for pray.c:offer_different_alignment_altar. angry_priest consumes no RNG and transfers shrine alignment into EMIN before clearing EPRI.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "angry_priest",
+          "line": 877,
+          "endLine": 918,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 877,
+        "to": 918
+      },
+      "requiredFunctions": [
+        {
+          "name": "free_epri",
+          "line": 28,
+          "endLine": 41,
+          "declared": false,
+          "sourceFile": "priest.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst": {
+          "session": "synthetic/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.session.json",
+          "recordingSha256": "fe726abaade0a3907af6c0b88a27374e2a5c9191b5507a0d59298cfa81a79090",
+          "evaluationPath": "challenges/evaluations/accepted-96f144375d45d50241fabbbe29b8a77d171ec3f0-v43.json",
+          "evaluationCommit": "96f144375d45d50241fabbbe29b8a77d171ec3f0"
+        }
+      }
     }
   ]
 }
