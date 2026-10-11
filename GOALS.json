@@ -265127,8 +265127,8 @@
           "name": "angry_priest",
           "line": 877,
           "endLine": 918,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -265140,9 +265140,9 @@
           "name": "free_epri",
           "line": 28,
           "endLine": 41,
-          "declared": false,
+          "declared": true,
           "sourceFile": "priest.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -265409,7 +265409,115 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "free_epri",
+            "implementation": "js/priest.js",
+            "symbol": "free_epri",
+            "sourceReview": "Compared the full priest.c:free_epri definition (28-35). If mextra and EPRI exist, C frees only the priest extension and writes the pointer to null; it clears ispriest regardless. The JavaScript helper stores the pointer-null state as mextra.epri=null, preserves other mextra extensions, and always clears ispriest.",
+            "callers": [
+              {
+                "path": "js/priest.js",
+                "symbol": "angry_priest",
+                "source": "priest.c:angry_priest calls free_epri after transferring shrine alignment to EMIN and clearing ispriest."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/priest.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/angry-priest-different-alignment-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+                "segment": 0,
+                "fromStep": 108,
+                "throughStep": 109,
+                "source": "The angry_priest conversion branch invokes priest.c:free_epri after preserving shralign in EMIN."
+              }
+            ],
+            "checkedAt": "a18a2b5ebe182407beb2b29605debfd46cb7703c"
+          },
+          {
+            "name": "angry_priest",
+            "implementation": "js/priest.js",
+            "symbol": "angry_priest",
+            "sourceReview": "Compared the full priest.c:angry_priest definition (877-911). Preserve findpriest(temple_occupied()), wakeup(FALSE), setmangry(FALSE), the remembered shrine altar/alignment predicate, newemin() only when EMIN is missing, priest-to-minion flags, shralign transfer, renegade=false, then free_epri. This function consumes no RNG. Existing helpers findpriest, temple_occupied, wakeup, setmangry, and newemin are called directly. The selected sacrifice and accepted rival-offering callers reach its conversion branch; the dig.c caller is separately source-blocked by dig_check.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "sacrifice_your_race",
+                "source": "pray.c:sacrifice_your_race calls angry_priest after staining a lawful/neutral altar or destroying a non-chaotic altar."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_different_alignment_altar",
+                "source": "pray.c:offer_different_alignment_altar calls angry_priest after successful conversion when findpriest returns a non-coaligned priest."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "dig",
+                "source": "dig.c:dig calls angry_priest after altar_wrath in its down branch; dig_check(BY_YOU,...) rejects altar terrain first, so this caller branch is unreachable from player input."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/priest.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/angry-priest-different-alignment-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+                "segment": 0,
+                "fromStep": 108,
+                "throughStep": 109,
+                "source": "pray.c:offer_corpse -> pray.c:sacrifice_your_race changes the altar, then priest.c:angry_priest wakes/angers the priest and transfers it to EMIN."
+              }
+            ],
+            "checkedAt": "a18a2b5ebe182407beb2b29605debfd46cb7703c"
+          }
+        ],
+        "entryPointReview": "Compared all four source call sites across pray.c and dig.c. The admitted human-sacrifice case reaches sacrifice_your_race after converting the altar; the independent newt-corpse recipe reaches offer_different_alignment_altar on the successful conversion branch with the Kni-loca temple priest. dig.c:dig contains an altar_wrath/angry_priest call only in its player-down block, but the preceding dig_check(BY_YOU, u.ux, u.uy) rejects IS_ALTAR and returns before it; recipes/dig.c/altar-wrath-dig-down-blocked-b24.session.json and scripts/dig.test.mjs preserve this exact source blocker. No dig entry point is claimed.",
+        "entryPoints": [
+          {
+            "name": "Human corpse sacrifice stains a non-chaotic temple altar and releases its priest",
+            "functions": [
+              "angry_priest",
+              "free_epri"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+                "segment": 0,
+                "fromStep": 108,
+                "throughStep": 109,
+                "source": "pray.c:offer_corpse -> pray.c:sacrifice_your_race changes/removes the altar -> priest.c:angry_priest converts the temple priest and calls free_epri."
+              }
+            ]
+          },
+          {
+            "name": "Accepted non-racial corpse on a rival shrine converts the altar and releases its priest",
+            "functions": [
+              "angry_priest",
+              "free_epri"
+            ],
+            "recordings": [
+              "recordings/pray.c/angry-priest-different-alignment-cfirst.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
