@@ -266385,7 +266385,7 @@
     {
       "id": "port-artifact-mb-hit-probe-v44-20261011",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete artifact.c Mb_hit and wire Magicbane probing",
       "cFile": "artifact.c",
       "sessions": [
@@ -266393,17 +266393,24 @@
       ],
       "selectionReason": "The highest-ranked unreserved v44 mismatch has five remaining screens and reaches artifact.c:Mb_hit's omitted probe_monster call.",
       "detail": "The admitted v44 baseline matches 103/108 screens and all 5192 expected RNG calls. Port the whole Mb_hit function, reuse zap.c:probe_monster from js/zap.js, preserve artifact_hit and uhitm.hmon production wiring, and avoid duplicating the zap implementation.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "b567b6d2f72f23031b3f83d8996be9856dc36db9",
+      "openStanding": {
+        "sha": "b567b6d2f72f23031b3f83d8996be9856dc36db9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "b567b6d2f72f23031b3f83d8996be9856dc36db9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Mb_hit",
           "line": 1249,
           "endLine": 1446,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -266423,6 +266430,76 @@
           "evaluationPath": "challenges/evaluations/v44-baseline-542873573.json",
           "evaluationCommit": "5428735736684d2c3a4a286d3a124f2887dfb547"
         }
+      },
+      "activeStanding": {
+        "sha": "b567b6d2f72f23031b3f83d8996be9856dc36db9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Mb_hit",
+            "implementation": "js/artifacts.js",
+            "symbol": "Mb_hit",
+            "sourceReview": "Read the complete artifact.c:Mb_hit function (lines 1249-1446) and compared every selector branch, the source-ordered random draws, messages, state changes, and return value. The probe feedback now calls the canonical zap.c:probe_monster implementation after the insight message; its pre-damage mstatusline and inventory/no-inventory output remain owned by js/zap.js and js/insight.js. The earlier visible-feedback path now preserves C's canspotmon guard and map_invisible side effect through existing display.js helpers. The only retained unported callee in Mb_hit is timeout.c:make_confused in the youdefend branch; C discards its void result, so no replacement state change was invented. The artifacts.js <-> zap.js and artifacts.js <-> display.js import edges already existed; the added bindings are called only at runtime and do not add a new module cycle.",
+            "callers": [
+              {
+                "path": "js/artifacts.js",
+                "symbol": "artifact_hit",
+                "source": "artifact.c:artifact_hit dispatches AD_STUN attacks with dieroll <= MB_MAX_DIEROLL to Mb_hit."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon",
+                "source": "uhitm.c:hmon calls artifact_hit for the hero's hand-to-hand weapon attack; this is the admitted Magicbane probe path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/artifacts.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v44",
+                "caseId": "v44-magicbane-monster-probe-cfirst",
+                "segment": 0,
+                "fromStep": 102,
+                "throughStep": 107,
+                "source": "uhitm.c:hmon -> artifact.c:artifact_hit -> artifact.c:Mb_hit -> zap.c:probe_monster -> insight.c:mstatusline, then the no-inventory message"
+              }
+            ],
+            "checkedAt": "b567b6d2f72f23031b3f83d8996be9856dc36db9"
+          }
+        ],
+        "entryPointReview": "Mb_hit is a static helper called by artifact.c:artifact_hit's AD_STUN/dieroll dispatch. The selected active entry point is a hero hand-to-hand attack with Magicbane; uhitm.c:hmon reaches that dispatcher and is covered by the admitted v44 range. Other artifact_hit callers (monster melee and thrown-artifact paths in uhitm.c, dothrow.c, and mthrowu.c) share the existing dispatcher but do not satisfy Mb_hit's youattack condition, so they do not invoke probe_monster. The optional canspotmon/map_invisible feedback arm is ported in source order using the existing display helpers; the selected v44 target is already spotted, so the case exercises the probe branch rather than the invisible-marker sub-branch. The youdefend confusion arm retains the explicit void timeout.c:make_confused gap.",
+        "entryPoints": [
+          {
+            "name": "Hero melee Magicbane probe",
+            "functions": [
+              "Mb_hit"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v44",
+                "caseId": "v44-magicbane-monster-probe-cfirst",
+                "segment": 0,
+                "fromStep": 102,
+                "throughStep": 107,
+                "source": "uhitm.c:hmon -> artifact.c:artifact_hit -> artifact.c:Mb_hit -> zap.c:probe_monster -> insight.c:mstatusline and no-inventory output"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b567b6d2f72f23031b3f83d8996be9856dc36db9",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
