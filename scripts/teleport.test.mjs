@@ -536,7 +536,7 @@ test('mtele_trap uses the canonical RLOC_MSG relocation caller', () => {
     assert.doesNotMatch(jsTrap, /relocateToFixedDestination/u);
 });
 
-test('level_tele evaluates next_to_u before a forced wizard destination', () => {
+test('level_tele awaits next_to_u before a forced wizard destination', () => {
     // teleport.c:1304 uses !next_to_u() && !force_dest. Since && evaluates
     // left to right, companion scanning runs even when force_dest is true.
     assert.match(
@@ -545,7 +545,7 @@ test('level_tele evaluates next_to_u before a forced wizard destination', () => 
     );
     assert.match(
         JS_TELEPORT_SOURCE,
-        /if\s*\(!next_to_u\(state\)\s*&&\s*!force_dest\)/u,
+        /if\s*\(!\(await next_to_u\(state\)\)\s*&&\s*!force_dest\)/u,
     );
 });
 

@@ -2501,7 +2501,7 @@ async function invoke_create_portal(obj, state) {
         newlev.dlevel = state.dungeons[chosen].dunlev_ureached;
 
     if (u.uhave?.amulet || In_endgame(u.uz) || In_endgame(newlev)
-        || newlev.dnum === u.uz.dnum || !next_to_u(state)) {
+        || newlev.dnum === u.uz.dnum || !(await next_to_u(state))) {
         await ttyPline('You feel very disoriented for a moment.', state);
     } else {
         const blind = (u.uprops?.[44]?.intrinsic ?? 0) !== 0
