@@ -277869,6 +277869,37 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "divergence-v47-gremlin-pool-split-drown-20261011",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore the gremlin pool-split call through canonical clone placement.",
+      "cFile": "trap.c",
+      "sessions": [],
+      "selectionReason": "The accepted b43246ec1 v47 queue has two screens left for synthetic/v47/v47-gremlin-pool-split. The checked investigation traces the annotated teleport.c:collect_coords RNG gap upstream to trap.c:drown skipping the existing potion.c:split_mon call; the bounded fix also admits that canonical cloneu hero-square makemon call shape.",
+      "detail": "investigations/synthetic/v47/v47-gremlin-pool-split.json records the immutable v47 case, current evaluation provenance, source branch, active callers, and exact step-37 trace.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "drown",
+      "session": "synthetic/v47/v47-gremlin-pool-split",
+      "step": 37,
+      "syntheticProvenance": {
+        "synthetic/v47/v47-gremlin-pool-split": {
+          "session": "synthetic/v47/v47-gremlin-pool-split",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-gremlin-pool-split",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.session.json",
+          "recordingSha256": "cec2aac1f4630221ca4cba8708f20db1a2ebe82d18391e4b42c7c782fbaed8cd",
+          "evaluationPath": "challenges/evaluations/accepted-b43246ec1a9272603cd098324ed32ef2d3054292-v47.json",
+          "evaluationCommit": "b43246ec1a9272603cd098324ed32ef2d3054292"
+        }
+      }
     }
   ]
 }
