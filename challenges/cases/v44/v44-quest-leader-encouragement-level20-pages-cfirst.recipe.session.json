@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000844,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44Encourage4,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                   #wizgenesis\npeaceful Neferet the Green\ny#wizmap\n#chat\nn",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first quest audience route with the level-change page sequence observed in the prior recording: 19 spaces dismiss the 19 level-up pages, then the Wizard reaches level 20 before Neferet creation and the first quest audience."
+}

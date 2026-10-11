@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000872,
+      "datetime": "20571223114408",
+      "nethackrc": "OPTIONS=name:V44PrisonerTarget,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-goal.lua\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhj."
+    }
+  ],
+  "comment": "Coordinate-corrected C-first route for quest.c:prisoner_speaks. With the same fresh game and observed wizard-teleport cursor (57,10), dismiss both getpos pages, move west 21 and south once to the source-defined floor at (36,11), adjacent to Wiz-goal.lua's awake captive at (35,11), and accept. The earlier east/north selection miss is preserved separately."
+}

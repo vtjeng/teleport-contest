@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000827,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44QuestOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\npeaceful Neferet the Green\ny#wizmap\n#wizwish\nThe Eye of the Aethiopica\n #chat\nj",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first quest completion case: create the Wizard's MS_LEADER Neferet peacefully next to the hero via #wizgenesis, wish The Eye of the Aethiopica, dismiss its touch message, and chat south into quest.c:chat_with_leader Rule 3 -> finish_quest. The separately recorded map probe established Neferet south of the hero at (41,16) vs (41,15)."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000801,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44CastleScout,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\nj  #wizwish\nwand of opening\n  i",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-only inventory slot probe for the planned Castle opening action; load Castle, wish a wand of opening, clear pages, and inspect inventory letters."
+}

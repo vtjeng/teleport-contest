@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000801,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44StrongholdTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\nj#wizmap\n#wizkill\n  mm."
+    }
+  ],
+  "comment": "C-only target-discovery correction: the first getpos next-monster key selects the hero's current square, so press next-monster twice to advance past self and select the first actual monster on the Castle map. Preserve this as setup evidence whether or not it kills a route blocker."
+}

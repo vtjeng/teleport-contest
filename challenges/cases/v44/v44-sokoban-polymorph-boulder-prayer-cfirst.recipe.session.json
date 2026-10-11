@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44004410,
+      "datetime": "20550610101010",
+      "nethackrc": "OPTIONS=name:V44SokoLuck,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsoko1-1.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "C-first setup probe for trap.c:sokoban_guilt through zap.c:poly_obj on a source-generated Sokoban level; inspect C's map and hero/boulder positions before adding the polymorph action."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first continuation from the preserved v44 probe setup: C showed the wished wand assigned to letter o and the hostile soldier adjacent east after #wizgenesis. The appended z-o-l actions target that observed soldier; retain only if C confirms the monster-target probe_monster branch.",
+  "segments": [
+    {
+      "seed": 44000101,
+      "datetime": "20540511121314",
+      "nethackrc": "OPTIONS=name:V44ProbeSoldier,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nuncursed wand of probing\n#wizgenesis\nhostile soldier\n#wizmap\nzol"
+    }
+  ]
+}

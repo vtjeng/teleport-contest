@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000702,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44QuestEntry,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>y  #wizkill\n  hhhhhhhhhhhhhhhhhhhkkkkkkkkkk.\u001b",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first role-generated Wizard quest leader death. The recorded Wiz-strt map is horizontally flipped versus dat/Wiz-strt.lua; source Neferet (23,5) transforms to (52,5). From the levelport entry at (71,15), getpos moves west 19 and north 10, then selects the source-placed Neferet."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000836,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44OvercrowdingOutside,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "16#wizgenesis\ntame lichen\n#wizgenesis\nhostile Wizard of Yendor\nym."
+    }
+  ],
+  "comment": "C-only overcrowding correction: fill the passable neighbor ring first with sixteen tame lichens, then create the covetous Wizard so it must spawn outside that ring. Use m-prefix wait to advance one monster turn without debug-mode safety rejection. Preserve prior Wizard-inside-ring attempts."
+}

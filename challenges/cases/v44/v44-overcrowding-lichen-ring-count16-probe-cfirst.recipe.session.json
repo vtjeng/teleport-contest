@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000836,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44OvercrowdingSixteen,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "16#wizgenesis\ntame lichen\n"
+    }
+  ],
+  "comment": "C-only overcrowding setup probe: increase the harmless tame lichen ring count to sixteen after the eight-monster ring still left an adjacent square open for mnexto. Stop at the C result to measure whether this small-room placement blocks all legal neighbors before attempting a covetous monster."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000869,
+      "datetime": "20570920195531",
+      "nethackrc": "OPTIONS=name:V44PrisonerNear,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-goal.lua\n#teleport\nhhhhhhhhhhhhhjjj.#wizmap\n."
+    }
+  ],
+  "comment": "Corrected C-first route for quest.c:prisoner_speaks: load Wizard's quest-goal descriptor, then use controlled wizard teleport to the adjacent floor square at (36,11) beside the source-placed awake prisoner at (35,11), reveal the resulting state, and give the waiting prisoner a turn."
+}

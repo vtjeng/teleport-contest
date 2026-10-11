@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000404,
+      "datetime": "20541114151617",
+      "nethackrc": "OPTIONS=name:V44Ranger,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nRan-fila.lua\n#wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first independent whole-program candidate: load and display Ran-fila.lua, preserving its role-specific generated layout and source-declared content."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000850,
+      "datetime": "20561012192307",
+      "nethackrc": "OPTIONS=name:V44MagicbaneProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n30\n                            \u0017Magicbane\n.\u0007hostile stone giant\nwoj j j j j j j j j j j j j j j j j j j j j j j j ",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected C-first Magicbane artifact-probe route. Dismiss all level-up More pages after raising the Wizard to level 30, then wish +0 Magicbane, create a hostile stone giant, wield the C-observed slot, and attack south repeatedly. Target artifact.c:Mb_hit MB_INDEX_PROBE -> probe_monster; preserve as a setup miss if the source branch is not reached."
+}

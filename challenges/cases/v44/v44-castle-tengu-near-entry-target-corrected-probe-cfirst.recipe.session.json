@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000801,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44StrongholdTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\nj#wizmap\n#wizkill\nuk. "
+    }
+  ],
+  "comment": "C-only corrected target probe: load the Castle, reveal its map, then use #wizkill target selection from the hero at (72,12), moving northeast then north to the map-derived nearby tengu at (73,10). The final space dismisses a possible post-kill pager; keep this probe as setup evidence either way."
+}

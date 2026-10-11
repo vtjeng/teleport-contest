@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000900,
+      "datetime": "20561213141521",
+      "nethackrc": "OPTIONS=name:V44QuestRealLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                   #wizlevelport\n?\n>y  #teleport\n  lllllllllllllllkkk.#chat\nl #chat\nl",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first coordinate correction on the preserved qstart seed: #teleport getpos begins at observed [7,8], so move east 15 and north 3 to the west-adjacent source tile [22,5] beside Neferet at [23,5]."
+}

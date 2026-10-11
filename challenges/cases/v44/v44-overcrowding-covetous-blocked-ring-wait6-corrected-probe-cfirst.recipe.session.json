@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000834,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44OvercrowdingWait6,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "8#wizgenesis\ntame gnome\n  #wizgenesis\nhostile Wizard of Yendor\ny. . . . . ."
+    }
+  ],
+  "comment": "C-only overcrowding source probe with pager handling: generate the tame gnome ring, create a hostile Wizard of Yendor, then advance six game turns (a space follows each wait to dismiss possible monster-spell pages) so the 1-in-5 tactics branch can reach mnexto and deal_with_overcrowding. Preserve all earlier route attempts."
+}

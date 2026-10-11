@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected scroll inventory probe. The previous C trace showed the wish emits a more prompt before accepting the next command; dismiss that page first, then inspect the current inventory slot letters.",
+  "segments": [
+    {
+      "seed": 44000201,
+      "datetime": "20540611121314",
+      "nethackrc": "OPTIONS=name:V44CreateMon,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nuncursed scroll of create monster\n i"
+    }
+  ]
+}

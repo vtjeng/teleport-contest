@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000801,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44CastleScout,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\nj  #wizwish\nwand of opening\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkk.znl",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected C-first Castle bridge path: source drawbridge occupies x=5,y=8, so teleport to the valid outside square x=4,y=8 (x=64,y=10 arrival -> west 60/north 2), then zap the wished wand of opening east."
+}

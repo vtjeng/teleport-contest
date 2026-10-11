@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000854,
+      "datetime": "20561014192309",
+      "nethackrc": "OPTIONS=name:V44MagicbaneProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n30\n                             \u0017Magicbane\n.\u0007hostile stone giant\nwokkl l l l l l l l l l l l ",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first +0 Magicbane monster-probe case. Level 30 Wizard, Magicbane, and a hostile stone giant are set up using observed C prompts; the geometry is aligned from the C map. The retained prefix ends after the probe and carried-item status display. Target artifact.c:Mb_hit MB_INDEX_PROBE -> probe_monster; retain as a candidate only if the first mismatch is source-distinct."
+}

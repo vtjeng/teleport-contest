@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000874,
+      "datetime": "20580124173612",
+      "nethackrc": "OPTIONS=name:V44SanctumOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsanctum.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "Intro-corrected C-first setup probe for pray.c:offer_real_amulet: dismiss the startup new-moon page before loading dat/sanctum.lua and revealing the high altar at (18,8). The earlier consumed-command attempt is preserved separately."
+}

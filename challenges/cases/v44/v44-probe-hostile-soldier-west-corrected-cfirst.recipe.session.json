@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Second direction correction from the preserved v44 probe setup. The eastward zap produced no probe status page, so this input keeps the same independent C seed/setup and targets the opposite adjacent square to verify the soldier location shown by C.",
+  "segments": [
+    {
+      "seed": 44000101,
+      "datetime": "20540511121314",
+      "nethackrc": "OPTIONS=name:V44ProbeSoldier,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nuncursed wand of probing\n#wizgenesis\nhostile soldier\n#wizmap\nzoh"
+    }
+  ]
+}

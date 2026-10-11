@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000301,
+      "datetime": "20540711121314",
+      "nethackrc": "OPTIONS=name:V44QuestLead,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-strt.lua\n#wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first probe for quest source behavior: load the Wizard quest start program and inspect whether the source-defined leader is available for a distinct leaddead branch."
+}

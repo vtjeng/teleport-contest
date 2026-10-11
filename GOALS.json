@@ -263393,7 +263393,7 @@
     {
       "id": "fix-v43-mounted-steed-stair-descent-pager-2-cfirst-20261011",
       "kind": "file-port",
-      "status": "parked",
+      "status": "superseded",
       "summary": "Port mounted steed transfer across level descent",
       "cFile": "apply.c",
       "sessions": [
@@ -263628,7 +263628,10 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "Whole-source review found next_to_u, keepdogs, and mon_arrive cannot be completed independently: they require incomplete leash, mon_leave, mon_catchup_elapsed_time, migration placement, and active caller families. Resume only after those source families are selected with complete caller and entry evidence."
+      "parkedReason": "Whole-source review found next_to_u, keepdogs, and mon_arrive cannot be completed independently: they require incomplete leash, mon_leave, mon_catchup_elapsed_time, migration placement, and active caller families. Resume only after those source families are selected with complete caller and entry evidence.",
+      "supersededBy": "port-apply-mleashed-next2u-v43-20261011",
+      "supersededReason": "Whole-source audit split the invalid three-branch plan into a complete apply.c leash/level-exit port followed by serial dog.c transfer and arrival ports; the replacement owns the first runnable stage.",
+      "supersededAt": "72fab4758a2db3b24793d04cb4f5208f97ebfaa8"
     },
     {
       "id": "port-v43-quest-nemesis-death-and-fumes-20261011",
@@ -265531,7 +265534,7 @@
     {
       "id": "A2-divergence-v43-potionhit-monster-blindness-cure-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore blessed healing potion monster blindness cure",
       "cFile": "potion.c",
       "sessions": [],
@@ -265543,8 +265546,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "34643f3e2165ce7769358970812543c951d2b27d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "potionhit",
       "session": "synthetic/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
       "step": 111,
@@ -265804,7 +265810,106 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "34643f3e2165ce7769358970812543c951d2b27d",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-apply-mleashed-next2u-v43-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete leash-aware level-exit eligibility and await every production caller.",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst"
+      ],
+      "selectionReason": "The corrected synthetic v43 mounted descent investigation selects apply.c:mleashed_next2u through next_to_u as the first whole-source stage. Complete async leash relocation and every active caller before the separately staged dog.c transfer and arrival families.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mleashed_next2u",
+          "line": 891,
+          "endLine": 918,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "next_to_u",
+          "line": 919,
+          "endLine": 930,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 891,
+        "to": 930
+      },
+      "syntheticProvenance": {
+        "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst": {
+          "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+          "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+          "evaluationPath": "challenges/evaluations/accepted-34643f3e2165ce7769358970812543c951d2b27d-v43.json",
+          "evaluationCommit": "34643f3e2165ce7769358970812543c951d2b27d"
+        }
+      }
+    },
+    {
+      "id": "port-artifact-mb-hit-probe-v44-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete artifact.c Mb_hit and wire Magicbane probing",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v44/v44-magicbane-monster-probe-cfirst"
+      ],
+      "selectionReason": "The highest-ranked unreserved v44 mismatch has five remaining screens and reaches artifact.c:Mb_hit's omitted probe_monster call.",
+      "detail": "The admitted v44 baseline matches 103/108 screens and all 5192 expected RNG calls. Port the whole Mb_hit function, reuse zap.c:probe_monster from js/zap.js, preserve artifact_hit and uhitm.hmon production wiring, and avoid duplicating the zap implementation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Mb_hit",
+          "line": 1249,
+          "endLine": 1446,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1249,
+        "to": 1446
+      },
+      "syntheticProvenance": {
+        "synthetic/v44/v44-magicbane-monster-probe-cfirst": {
+          "session": "synthetic/v44/v44-magicbane-monster-probe-cfirst",
+          "corpus": "synthetic",
+          "batch": "v44",
+          "caseId": "v44-magicbane-monster-probe-cfirst",
+          "manifestPath": "challenges/manifests/v44.json",
+          "manifestSha256": "4eb8b2949c1c27ac716c7914f50df8f84e883a415fd05262428c2743f75841d0",
+          "recordingPath": "challenges/cases/v44/v44-magicbane-monster-probe-cfirst.session.json",
+          "recordingSha256": "168c9c11c7f79122b1ec2127268b84726de65285d4542715bfbffbe001fc95ed",
+          "evaluationPath": "challenges/evaluations/v44-baseline-542873573.json",
+          "evaluationCommit": "5428735736684d2c3a4a286d3a124f2887dfb547"
+        }
+      }
     }
   ]
 }

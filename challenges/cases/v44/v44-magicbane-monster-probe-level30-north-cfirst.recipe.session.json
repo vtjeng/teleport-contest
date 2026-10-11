@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000854,
+      "datetime": "20561014192309",
+      "nethackrc": "OPTIONS=name:V44MagicbaneProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n30\n                             \u0017Magicbane\n.\u0007hostile stone giant\nwokkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected Magicbane C-first attempt using the same independently chosen deterministic setup. The preceding C screen places the hostile stone giant north of the hero, so attack north; count only if C reaches artifact.c:Mb_hit MB_INDEX_PROBE -> probe_monster."
+}

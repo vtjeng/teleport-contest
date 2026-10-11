@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000801,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44CastleScout,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\nj  #wizwish\nwand of opening\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh.znl",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first Castle drawbridge route: map alignment places the levelport arrival at source x=64,y=8; teleport 60 west to valid outside side x=4,y=8, then zap the wished wand of opening east at the drawbridge x=5,y=8."
+}

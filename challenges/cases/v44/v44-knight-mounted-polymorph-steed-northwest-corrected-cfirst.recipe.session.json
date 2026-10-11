@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000503,
+      "datetime": "20550319202122",
+      "nethackrc": "OPTIONS=name:V44KnightSteed,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizmap\n#ride\nyy#wizwish\nuncursed potion of polymorph\nqi",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Second direction correction follows the C #wizmap coordinates: the starting horse is northwest of the hero, so #ride targets y before wishing and quaffing a polymorph potion."
+}

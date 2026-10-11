@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000306,
+      "datetime": "20540716171819",
+      "nethackrc": "OPTIONS=name:V44QuestOffering,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nhostile Neferet the Green\ny#wizmap\n#wizwish\nThe Eye of the Aethiopica\n y",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first corrected quest artifact offer. The previous route cleared the wish pager but selected east; the recorded map puts Neferet northwest of the hero. Dismiss the artifact page and select northwest for #chat, then preserve the actual quest-state result."
+}

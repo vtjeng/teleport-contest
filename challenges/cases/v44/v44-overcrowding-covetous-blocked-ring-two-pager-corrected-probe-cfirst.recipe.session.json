@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000833,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44OvercrowdingProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "8#wizgenesis\ntame gnome\n  #wizgenesis\nhostile Wizard of Yendor\ny ."
+    }
+  ],
+  "comment": "C-only corrected overcrowding route: dismiss the two observed pages after generating the tame gnome ring before starting a second wizard-genesis command; then create a hostile covetous Wizard and advance one turn to test monmove.c:tactics -> mnexto -> deal_with_overcrowding. Preserve both earlier pager-interrupted probes."
+}

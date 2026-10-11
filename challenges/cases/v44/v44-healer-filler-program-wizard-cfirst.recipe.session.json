@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000407,
+      "datetime": "20550217181920",
+      "nethackrc": "OPTIONS=name:V44HealerProgramWizard,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nHea-fila.lua\n#wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Retry the Hea-fila whole-program C-first route with a Wizard runtime role so source recording and JS setup can be separated from a role-specific initial lregion placement failure."
+}

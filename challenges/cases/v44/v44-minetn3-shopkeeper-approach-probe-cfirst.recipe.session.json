@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000828,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44AlleyShopApproach,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nminetn-3.lua\n#wizmap\nhhhkkk"
+    }
+  ],
+  "comment": "C-only Alley Town approach probe: start from the same deterministic minetn-3.lua shop program and move west/north toward the source-defined monk-food shop near the Wizard start, recording whether C exposes its live keeper and merchandise to a cheap bill/home_shk route."
+}

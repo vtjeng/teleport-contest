@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000303,
+      "datetime": "20540713141516",
+      "nethackrc": "OPTIONS=name:V44QuestLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nWiz-strt.lua\n#wizkill\n  m.yq",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first quest leader target-selection probe. The two leading spaces clear the wizard kill message and getpos tip; `m` cycles to the nearest monster and the recording verifies its source identity before any target is claimed."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000835,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44OvercrowdingLichens,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "8#wizgenesis\ntame lichen\n  #wizgenesis\nhostile Wizard of Yendor\ny. . . . . . . . . ."
+    }
+  ],
+  "comment": "C-only overcrowding replacement setup: use tame lichens to occupy adjacent legal squares without the weapon/drop pager stream of tame gnomes, then create a hostile covetous Wizard and give its tactics ten turns to reach the rn2(5) -> mnexto -> deal_with_overcrowding path. Preserve prior gnome-ring attempts."
+}

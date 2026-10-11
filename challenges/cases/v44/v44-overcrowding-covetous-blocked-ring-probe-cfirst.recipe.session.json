@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000833,
+      "datetime": "20550418192021",
+      "nethackrc": "OPTIONS=name:V44OvercrowdingProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "8#wizgenesis\ntame gnome\n#wizgenesis\nhostile Wizard of Yendor\n"
+    }
+  ],
+  "comment": "C-only overcrowding route probe: use the count-prefixed wizard monster generator to place eight tame gnomes around the hero, then request a hostile Wizard of Yendor. The source candidate is covetous monmove.c:tactics -> mnexto -> deal_with_overcrowding when no adjacent square is legal; retain the setup attempt even if creation or relocation misses."
+}

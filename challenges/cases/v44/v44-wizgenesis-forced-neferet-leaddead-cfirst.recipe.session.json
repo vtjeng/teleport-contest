@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44000306,
+      "datetime": "20540716171819",
+      "nethackrc": "OPTIONS=name:V44QuestLeader,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nhostile Neferet the Green\ny#wizmap\n#wizkill\n  m.y \u001b",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected C-first quest leader-death probe: answer the source wizard-genesis force prompt for Neferet the Green, reveal the map, and target the resulting leader through #wizkill after clearing its prompt and getpos tip."
+}
