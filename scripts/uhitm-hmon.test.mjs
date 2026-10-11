@@ -106,6 +106,7 @@ import {
     BOW,
     CORPSE,
     CREAM_PIE,
+    EXPENSIVE_CAMERA,
     BULLWHIP,
     DART,
     KATANA,
@@ -299,6 +300,32 @@ test('hmon admits a thrown cream pie', async () => {
     assert.equal(pie.where, OBJ_DELETED);
     assert.ok(env.lines.some((line) => line.includes('cream pie')));
 });
+
+// uhitm.c:1140-1152 calls release_camera_demon() before useup(); the latter
+// reaches invent.c:useupall() and worn.c:setnotworn() for a held camera.
+test('a wielded camera releases its helper before canonical unwield teardown',
+    async () => {
+        await hero({ role: 'Wizard', gender: 'male' });
+        // A known singleton expensive camera selects the admitted melee arm.
+        const camera = mksobj(EXPENSIVE_CAMERA, true, false, { state: game });
+        await addinv(camera, { state: game });
+        await setuwep(camera, setwornEnv(game));
+        const mon = target(PM_NEWT);
+        // The admitted C recording has rn2(3)=1, which exercises the helper's
+        // no-spawn return before inventory unwinding.
+        const env = hitEnv({ rolls: [1] });
+
+        assert.equal(
+            await hmon(mon, camera, HMON_MELEE, 10, game, env),
+            true,
+        );
+        assert.deepEqual(env.bounds, ['rn2(3)']);
+        assert.equal(camera.where, OBJ_DELETED);
+        assert.equal(game.uwep, null);
+        assert.equal(camera.owornmask & W_WEP, 0);
+        assert.ok(env.lines.some(line => line.includes('succeed in destroying')));
+        assert.equal(game.unported.has('dothrow.c release_camera_demon'), false);
+    });
 
 // uhitm.c:1095-1117 calls setuwep(NULL) for a singleton potion before
 // freeinv() and potionhit(). That call crosses wield.c -> worn.c setworn(),
