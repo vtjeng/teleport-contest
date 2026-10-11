@@ -276657,7 +276657,7 @@
     {
       "id": "fix-cmd-rhack-queued-adjust-split-v47-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Dispatch IA_ADJUST_STACK queued adjust_split commands through cmd.c rhack semantics.",
       "cFile": "cmd.c",
       "sessions": [
@@ -276671,8 +276671,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "47ce6cdb703dac648a39587abe9512daf2ee2e50",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "rhack",
       "session": "synthetic/v47/v47-itemactions-adjust-stack-egg-split",
       "step": 33,
@@ -276844,7 +276847,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "47ce6cdb703dac648a39587abe9512daf2ee2e50",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
