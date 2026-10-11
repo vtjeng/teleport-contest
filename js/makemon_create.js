@@ -284,6 +284,7 @@ import {
     PM_NALFESHNEE,
     PM_MINOTAUR,
     PM_GIANT_EEL,
+    PM_ELECTRIC_EEL,
     PM_GUARD,
     PM_TRAPPER,
     PM_NAZGUL,
@@ -301,6 +302,7 @@ import {
     PM_ORCUS,
     PM_OGRE_LEADER,
     PM_PESTILENCE,
+    PM_PIRANHA,
     PM_OGRE_TYRANT,
     PM_PAGE,
     PM_PONY,
@@ -641,6 +643,14 @@ const INITIAL_LEVEL_MONSTERS = new Set([
     PM_YELLOW_LIGHT,
     PM_BLACK_LIGHT,
     PM_SHOPKEEPER,
+]);
+
+// mkroom.c:mkswamp() selects one of these three species directly instead
+// of asking mkclass() to choose a fungus or another common monster.
+const SWAMP_POOL_SPECIES = new Set([
+    PM_GIANT_EEL,
+    PM_PIRANHA,
+    PM_ELECTRIC_EEL,
 ]);
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
@@ -1067,6 +1077,16 @@ function isMausoleumSpecies(species) {
 
 function assertSupportedSpecies(species, env = {}) {
     const createParticular = env._createParticular === true;
+    // mkroom.c:mkswamp() directly requests one of its three explicit pool
+    // species after changing its room square to POOL. C makemon() has no
+    // species allowlist on that initial-level call; tie the extra admission
+    // to that exact caller and level-generation state.
+    const mkswampPoolSpecies = env._mkswampPoolSpecies === true
+        && env.state?.in_mklev === true
+        && SWAMP_POOL_SPECIES.has(species?.pmidx);
+    // Runtime wizard genesis already admits giant eels outside level setup.
+    const runtimeGiantEel = env.state?.in_mklev !== true
+        && species?.pmidx === PM_GIANT_EEL;
     // priest.c:priestini() explicitly requests the Astral sanctum High Cleric
     // with MM_EPRI. C makemon() has no generated-species allowlist for that
     // explicit call; keep this exception tied to the caller marker and species.
@@ -1128,13 +1148,13 @@ function assertSupportedSpecies(species, env = {}) {
             && species.pmidx !== PM_WATER_ELEMENTAL
             && species.pmidx !== PM_WATER_MOCCASIN
             && species.pmidx !== PM_WATER_NYMPH
-            // The eel-concealment goal needs an active, unconcealed eel, and
-            // mklev() hides every eel it places (makemon.c:1392). The one
-            // running-game path that produces an unhidden one is wizcmds.c
-            // wiz_genesis(), whose create_particular() reaches makemon()
-            // outside mklev. S_EEL has no arm in m_initweap() or m_initinv(),
-            // so the generic makemon() path already builds it.
-            && species.pmidx !== PM_GIANT_EEL
+            // mkswamp's direct ternary admits its complete pool family
+            // during initial-level creation. The caller marker only admits
+            // these species while in_mklev; giant eels also retain their
+            // separately supported runtime path below.
+            && (!SWAMP_POOL_SPECIES.has(species.pmidx)
+                || !(mkswampPoolSpecies
+                    || (species.pmidx === PM_GIANT_EEL && runtimeGiantEel)))
             // read.c wiz_genesis() explicitly reaches makemon() for
             // hell-only covetous species; the ordinary level reservoir does
             // not, so keep master lich out of isMausoleumSpecies() while
@@ -1517,9 +1537,13 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'shopkeeper extension outside shkinit',
         );
     }
+    // read.c:create_particular_creation() may force PM_SHOPKEEPER after its
+    // cant_revive() prompt.  That source call has no MM_ESHK bit, so it creates
+    // the ordinary monster record rather than a shop's extended data.
     if (ptr?.pmidx === PM_SHOPKEEPER && !shopkeeperCall
         && !explicitInventorylessHeroCall && !hatchEggCall
         && !explicitCoordinateRuntimeCall
+        && !createParticularCall
         && !explicitCoordinateNoFlagsRuntimeCall
         && !explicitCoordinateNoMinventRuntimeCall) {
         throw new UnsupportedMonsterCreationError(

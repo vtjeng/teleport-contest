@@ -52,7 +52,9 @@ import {
 import {
     christen_monst, free_oname, hliquid, a_monnam, noit_Monnam, Monnam, mon_nam, monsterCommonName, rndmonnam, } from './do_name.js';
 import { get_mtraits } from './corpstat.js';
-import { eaten_stat, fix_petrification, vegetarian } from './eat.js';
+import {
+    cant_finish_meal, eaten_stat, fix_petrification, vegetarian,
+} from './eat.js';
 import { cvt_sdoor_to_door, findit, show_map_spot } from './detect.js';
 import {
     adj_pit_checks, bury_objs, dighole, fillholetyp, pit_flow, watch_dig,
@@ -570,15 +572,17 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
     const env = revivalEnv(rawEnv);
     const { state } = env;
     if (corpse?.otyp !== CORPSE) return null;
-    if (state.context?.victual?.piece === corpse) {
-        note_unported('eat.c cant_finish_meal');
-    }
 
     const originalType = corpse.corpsenm;
     const originalSpecies = state.mons?.[originalType];
     if (!originalSpecies) return null;
     const isZombie = originalSpecies.mlet === S_ZOMBIE
         || (corpse.where === OBJ_BURIED && is_reviver(originalSpecies));
+    await cant_finish_meal(corpse, state, {
+        ...env,
+        statusRefresh: env.statusRefresh ?? (env.planning
+            ? async () => {} : () => bot(state)),
+    });
     let container = null;
     let containerNesting = 0;
     let coordinate = null;

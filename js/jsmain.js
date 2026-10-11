@@ -561,6 +561,11 @@ export class NethackGame {
             else
                 await ttyPline(welcomeBackMessage(g), g);
 
+            // C ref: restore.c:dorecover() calls check_special_room(FALSE)
+            // immediately after welcome(FALSE) on a successful restore.
+            const { check_special_room } = await import('./rooms.js');
+            await check_special_room(false, g);
+
             // C ref: unixmain.c:266-272. Debug/explore restores ask whether
             // to retain the save. VFS needs no chmod or compression operation.
             if (g.discover || g.wizard) {

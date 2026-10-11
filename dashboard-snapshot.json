@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T14:21:19.722Z",
+  "capturedAt": "2026-10-11T18:16:16.317Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -88730,11 +88730,894 @@
         "type": "accepted",
         "at": "2026-10-11T14:20:03.759Z",
         "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-wait-v46-20261011-960efc2",
+        "type": "turn",
+        "at": "2026-10-11T14:21:35.609Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B has synced accepted Main. The saved queue still lists only the now-fixed v45 case; Prep10 is preparing v46, which is not yet admitted or baselined. Waiting for the refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep10-active-20261011-v46-eight-confirmed",
+        "type": "turn",
+        "at": "2026-10-11T14:23:38.462Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v46 has eight approved distinct C-first mismatches; continuing the remaining independent search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep10-active-20261011-v46-nine-confirmed-finalizing",
+        "type": "turn",
+        "at": "2026-10-11T14:54:43.209Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v46 has nine approved distinct mismatches; packaging the smaller batch with matching controls and search evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5684c55d10b2e055bb6a82fd1fe31084ab900b4c",
+        "type": "ready",
+        "at": "2026-10-11T15:13:14.105Z",
+        "task": "Prep10",
+        "delivery": "5684c55d10b2e055bb6a82fd1fe31084ab900b4c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep10-v46-idle-awaiting-integration-20261011",
+        "type": "turn",
+        "at": "2026-10-11T15:13:40.014Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep10/v46 is submitted; waiting for coordinator integration and admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep10-5684c55d",
+        "type": "received",
+        "at": "2026-10-11T15:16:30.173Z",
+        "task": "Prep10",
+        "delivery": "5684c55d10b2e055bb6a82fd1fe31084ab900b4c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep10-71de9c66",
+        "type": "integrating",
+        "at": "2026-10-11T15:16:49.190Z",
+        "task": "Prep10",
+        "integration": "71de9c6695c5b720888da195ebb4eec5d8c0304f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-Prep10-38150673841",
+        "type": "validated",
+        "at": "2026-10-11T15:22:46.344Z",
+        "task": "Prep10",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep10-71de9c6695c5b720888da195ebb4eec5d8c0304f-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T15:22:59.240Z",
+        "task": "Prep10"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep10-v46-idle-admitted-awaiting-baseline-20261011",
+        "type": "turn",
+        "at": "2026-10-11T15:24:04.366Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Accepted Main is synced; v46 is admitted and awaiting its first baseline. Waiting for the trigger recheck before any v47 work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v46-shopkeeper-active-20261011T1350Z",
+        "type": "turn",
+        "at": "2026-10-11T15:27:12.495Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Claiming the v46 shopkeeper Genesis case for source diagnosis."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v46-swamp-investigation-20261011-retry1",
+        "type": "assign",
+        "at": "2026-10-11T15:27:31.530Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v46-swamp-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T15:27:40.624Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v46-shopkeeper-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T15:27:42.640Z",
+        "task": "A2-investigation-v46-shopkeeper-make-happy-scroll-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v46-prayer-region-active-20261011T1535Z",
+        "type": "turn",
+        "at": "2026-10-11T15:28:13.496Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Starting the assigned v46 prayer-region safety investigation from the admitted queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v46-prayer-region-safety-attempt11-20261011",
+        "type": "assign",
+        "at": "2026-10-11T15:28:15.331Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep11-v47-assign-20261011",
+        "type": "assign",
+        "at": "2026-10-11T15:28:17.293Z",
+        "task": "Prep11",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep11-v47-active-candidate-planning-20261011",
+        "type": "turn",
+        "at": "2026-10-11T15:28:22.672Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 is claimed at accepted Main 31a5d76; planning 12+ independent C-first candidates from the nine-session post-v46 queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v46-shopkeeper-makemon-20261011",
+        "type": "implement",
+        "at": "2026-10-11T15:32:30.458Z",
+        "task": "A2-investigation-v46-shopkeeper-make-happy-scroll-20261011",
+        "goal": "fix-makemon-shopkeeper-genesis-admission-v46-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v46-mkswamp-20261011",
+        "type": "implement",
+        "at": "2026-10-11T15:36:36.492Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "goal": "port-mkroom-mkswamp-v46-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-660dcb56d1c8d1a6b7dfefd994f82213a6e89e6d",
+        "type": "ready",
+        "at": "2026-10-11T15:37:35.393Z",
+        "task": "A2-investigation-v46-shopkeeper-make-happy-scroll-20261011",
+        "delivery": "660dcb56d1c8d1a6b7dfefd994f82213a6e89e6d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v46-prayer-region-safety-20261011",
+        "type": "implement",
+        "at": "2026-10-11T15:38:29.746Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "goal": "port-region-prayer-safety-v46-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A-v46-shopkeeper-660dcb56",
+        "type": "received",
+        "at": "2026-10-11T15:38:39.563Z",
+        "task": "A2-investigation-v46-shopkeeper-make-happy-scroll-20261011",
+        "delivery": "660dcb56d1c8d1a6b7dfefd994f82213a6e89e6d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v46-next-investigation-20261011T1540Z",
+        "type": "turn",
+        "at": "2026-10-11T15:39:48.053Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v46-troll-meal-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T15:39:59.394Z",
+        "task": "A2-investigation-v46-troll-meal-corrected-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A2-integrating-69698104",
+        "type": "integrating",
+        "at": "2026-10-11T15:41:21.606Z",
+        "task": "A2-investigation-v46-shopkeeper-make-happy-scroll-20261011",
+        "integration": "696981041adb7876b92090fe5486dc9ca68af575"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v46-cant-finish-meal-20261011",
+        "type": "implement",
+        "at": "2026-10-11T15:44:27.463Z",
+        "task": "A2-investigation-v46-troll-meal-corrected-20261011",
+        "goal": "port-eat-cant-finish-meal-v46-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-19003b60069b417d2dea5693b652ea35bc6da6ac",
+        "type": "ready",
+        "at": "2026-10-11T15:45:17.324Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "delivery": "19003b60069b417d2dea5693b652ea35bc6da6ac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v46-crystal-ball-active-20261011T1550Z",
+        "type": "turn",
+        "at": "2026-10-11T15:46:26.079Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Prayer-region safety is ready to merge; starting an independent v46 crystal-ball mismatch investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v46-crystal-ball-furniture-attempt10-20261011",
+        "type": "assign",
+        "at": "2026-10-11T15:46:39.822Z",
+        "task": "C-investigation-v46-crystal-ball-furniture-attempt10-cfirst-20261011",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v46-crystal-ball-furniture-20261011",
+        "type": "implement",
+        "at": "2026-10-11T15:51:29.567Z",
+        "task": "C-investigation-v46-crystal-ball-furniture-attempt10-cfirst-20261011",
+        "goal": "port-detect-furniture-detect-v46-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-28b7c9e526a93e9d660cca41aece6f1feadec28d",
+        "type": "ready",
+        "at": "2026-10-11T15:53:01.900Z",
+        "task": "A2-investigation-v46-troll-meal-corrected-20261011",
+        "delivery": "28b7c9e526a93e9d660cca41aece6f1feadec28d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v46-lit-candle-20261011T1555Z",
+        "type": "turn",
+        "at": "2026-10-11T15:54:40.482Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v46-lit-candle-split-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T15:54:49.076Z",
+        "task": "A2-investigation-v46-lit-candle-split-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c1b9c6ee9313dfb9a380172e4134ad050fc3cbd0",
+        "type": "ready",
+        "at": "2026-10-11T15:56:06.094Z",
+        "task": "C-investigation-v46-crystal-ball-furniture-attempt10-cfirst-20261011",
+        "delivery": "c1b9c6ee9313dfb9a380172e4134ad050fc3cbd0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v46-succubus-active-20261011T1600Z",
+        "type": "turn",
+        "at": "2026-10-11T15:57:31.459Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Two source tasks are ready to merge; investigating the unreserved v46 succubus item-theft mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v46-succubus-steals-monster-item-attempt2-20261011",
+        "type": "assign",
+        "at": "2026-10-11T15:57:37.756Z",
+        "task": "C-investigation-v46-succubus-steals-monster-item-attempt2-cfirst-20261011",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v46-obj-split-light-source-20261011",
+        "type": "implement",
+        "at": "2026-10-11T15:59:13.009Z",
+        "task": "A2-investigation-v46-lit-candle-split-20261011",
+        "goal": "port-light-obj-split-light-source-v46-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v46-shopkeeper-make-happy-scroll-20261011-696981041adb7876b92090fe5486dc9ca68af575-validated",
+        "type": "validated",
+        "at": "2026-10-11T16:01:24.329Z",
+        "task": "A2-investigation-v46-shopkeeper-make-happy-scroll-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v46-shopkeeper-make-happy-scroll-20261011-696981041adb7876b92090fe5486dc9ca68af575-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T16:02:13.269Z",
+        "task": "A2-investigation-v46-shopkeeper-make-happy-scroll-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d404c42c66e68b5c46965a3a526962b43a03698d",
+        "type": "ready",
+        "at": "2026-10-11T16:06:22.258Z",
+        "task": "A2-investigation-v46-lit-candle-split-20261011",
+        "delivery": "d404c42c66e68b5c46965a3a526962b43a03698d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-active-resume-20261011b",
+        "type": "turn",
+        "at": "2026-10-11T16:06:24.272Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has 12 planned C-first candidates; seven whole-program routes are recorded, with the remaining source behaviors still under C verification."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a2-troll-28b7c9e5",
+        "type": "received",
+        "at": "2026-10-11T16:06:41.173Z",
+        "task": "A2-investigation-v46-troll-meal-corrected-20261011",
+        "delivery": "28b7c9e526a93e9d660cca41aece6f1feadec28d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-after-lit-candle-ready-20261011",
+        "type": "turn",
+        "at": "2026-10-11T16:07:47.635Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Submitted the lit-candle port and selected the next unreserved v46 mismatch for investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v46-sokoban-earth-guilt-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T16:07:52.040Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A2-troll-integrating-dfe97e57",
+        "type": "integrating",
+        "at": "2026-10-11T16:09:55.046Z",
+        "task": "A2-investigation-v46-troll-meal-corrected-20261011",
+        "integration": "dfe97e57d941c9248d79f51e393a889a743a7b92"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A2-troll-integrating-52a03df2",
+        "type": "integrating",
+        "at": "2026-10-11T16:10:39.046Z",
+        "task": "A2-investigation-v46-troll-meal-corrected-20261011",
+        "integration": "52a03df2ec5cadc89b33e26c7cccc848fd358cf2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v46-swamp-implementation-validation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T16:20:50.852Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is validating the v46 swamp task. Independent seed 46101145 matches; the admitted case now stops at hack.c:check_special_room."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8f52f8e61323d1076ca22d8834ef76122b85c75b",
+        "type": "ready",
+        "at": "2026-10-11T16:25:11.387Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "delivery": "8f52f8e61323d1076ca22d8834ef76122b85c75b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v46-submitted-awaiting-main-sync-20261011",
+        "type": "turn",
+        "at": "2026-10-11T16:26:47.305Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B46 is ready to merge. Next task selection awaits an authorized accepted-Main sync after automatic approval review rejected the merge."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v46-troll-meal-corrected-20261011-52a03df2ec5cadc89b33e26c7cccc848fd358cf2-validated",
+        "type": "validated",
+        "at": "2026-10-11T16:27:55.900Z",
+        "task": "A2-investigation-v46-troll-meal-corrected-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v46-troll-meal-corrected-20261011-52a03df2ec5cadc89b33e26c7cccc848fd358cf2-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T16:28:46.369Z",
+        "task": "A2-investigation-v46-troll-meal-corrected-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v46-stone-to-flesh-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T16:28:53.565Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the unreserved v46 statue mimic cast mismatch; B46 is preserved as a queued dependency."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v46-stone-to-flesh-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T16:28:59.411Z",
+        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v46-sokoban-implementation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T16:30:03.875Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing the Sokoban earth-guilt source helper and its verified callers for v46 case v46-sokoban-earth-guilt-branch-entry-attempt24."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v46-sokoban-earth-guilt-20261011",
+        "type": "implement",
+        "at": "2026-10-11T16:30:20.375Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "goal": "port-trap-sokoban-guilt-v46-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-prayer-19003b60",
+        "type": "received",
+        "at": "2026-10-11T16:32:24.347Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "delivery": "19003b60069b417d2dea5693b652ea35bc6da6ac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-cfirst-complete-diff-start-20261011",
+        "type": "turn",
+        "at": "2026-10-11T16:33:51.867Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has 14 C-first candidates; 13 valid recipes replay byte-identically in C, and fresh comparisons are starting."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-prayer-665350e9",
+        "type": "integrating",
+        "at": "2026-10-11T16:35:41.753Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "integration": "665350e91222d523d635ca7eb0681f9cfe6a92e8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v46-stone-to-flesh-mimic-20261011",
+        "type": "implement",
+        "at": "2026-10-11T16:38:30.143Z",
+        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
+        "goal": "port-zap-bhitm-mimic-reveal-v46-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-prayer-643e2279",
+        "type": "integrating",
+        "at": "2026-10-11T16:52:30.510Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "integration": "643e2279efd29389ff74a9fd5fe276f3aeaba62f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-prayer-643e2279",
+        "type": "validated",
+        "at": "2026-10-11T16:52:37.090Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011-643e2279efd29389ff74a9fd5fe276f3aeaba62f-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T16:54:31.990Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-cdc48ee5377c2a0647766f8e0c2467beaa9ab38c",
+        "type": "ready",
+        "at": "2026-10-11T16:54:46.198Z",
+        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
+        "delivery": "cdc48ee5377c2a0647766f8e0c2467beaa9ab38c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-active-halluc-fountain-20261011-01",
+        "type": "turn",
+        "at": "2026-10-11T16:55:14.598Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has 14 planned candidates; C replay and differential work continues after a reached matching fountain control."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-stone-to-flesh-20261011",
+        "type": "turn",
+        "at": "2026-10-11T16:56:48.970Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Idle: all six current v46 candidates are reserved by A2/C or covered by B two queued deliveries. Waiting for acceptance and a refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-crystal-c1b9c6ee",
+        "type": "received",
+        "at": "2026-10-11T16:57:53.178Z",
+        "task": "C-investigation-v46-crystal-ball-furniture-attempt10-cfirst-20261011",
+        "delivery": "c1b9c6ee9313dfb9a380172e4134ad050fc3cbd0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-candle-d404c42c",
+        "type": "received",
+        "at": "2026-10-11T16:57:54.779Z",
+        "task": "A2-investigation-v46-lit-candle-split-20261011",
+        "delivery": "d404c42c66e68b5c46965a3a526962b43a03698d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-swamp-8f52f8e6",
+        "type": "received",
+        "at": "2026-10-11T16:57:56.388Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "delivery": "8f52f8e61323d1076ca22d8834ef76122b85c75b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-stone-cdc48ee5",
+        "type": "received",
+        "at": "2026-10-11T16:57:58.008Z",
+        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
+        "delivery": "cdc48ee5377c2a0647766f8e0c2467beaa9ab38c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-swamp-shoptype-evidence",
+        "type": "feedback",
+        "at": "2026-10-11T17:00:36.529Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "delivery": "8f52f8e61323d1076ca22d8834ef76122b85c75b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-781bf8cc9e1eb0efc6d0ece84d470e502eb0a03f",
+        "type": "ready",
+        "at": "2026-10-11T17:02:08.232Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "delivery": "781bf8cc9e1eb0efc6d0ece84d470e502eb0a03f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-sokoban-20261011",
+        "type": "turn",
+        "at": "2026-10-11T17:02:47.994Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Idle: all remaining v46 candidates are reserved by B/C or covered by A2 ready deliveries. Waiting for integration and the next refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B46-shoptype-evidence-correction-20261011",
+        "type": "resume",
+        "at": "2026-10-11T17:03:56.998Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-swamp-correction-20261011",
+        "type": "turn",
+        "at": "2026-10-11T17:05:13.466Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Correcting B46 evidence to classify the external SHOPTYPE environment hook outside replayable session entrypoints; the natural mkswamp recording remains the runtime proof."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-eabad200e0c629f62cc712ca0f5990b83e7abde9",
+        "type": "ready",
+        "at": "2026-10-11T17:09:06.770Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "delivery": "eabad200e0c629f62cc712ca0f5990b83e7abde9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-swamp-correction-eabad200",
+        "type": "received",
+        "at": "2026-10-11T17:09:24.243Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "delivery": "eabad200e0c629f62cc712ca0f5990b83e7abde9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-swamp-a376cc3a",
+        "type": "integrating",
+        "at": "2026-10-11T17:09:53.752Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "integration": "a376cc3a32ec330ca239ca41a6fd41816426a4e5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-active-trap-family-20261011-02",
+        "type": "turn",
+        "at": "2026-10-11T17:13:39.220Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has two source-distinct mismatch candidates; the known-trap routes are one primary case with a rolling-boulder variation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-active-three-mismatches-20261011-01",
+        "type": "turn",
+        "at": "2026-10-11T17:22:28.131Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has three approved source-distinct mismatches; the earthquake ALTAR branch is independently replayed and classified."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-swamp-a376cc3a",
+        "type": "validated",
+        "at": "2026-10-11T17:25:38.606Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B-swamp-post-checkpoint-cursor-regression-20261011",
+        "type": "park",
+        "at": "2026-10-11T17:27:44.003Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "reason": "Post-checkpoint synthetic review rejected the candidate: selected v46 swamp case lost 7 cursor matches (25/28 to 18/28). Park the validated delivery so it can re-enter correction flow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-swamp-review-rejection-20261011",
+        "type": "resume",
+        "at": "2026-10-11T17:27:48.111Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-swamp-cursor-regression-a376cc3a-20261011",
+        "type": "feedback",
+        "at": "2026-10-11T17:27:52.007Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "delivery": "eabad200e0c629f62cc712ca0f5990b83e7abde9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-swamp-cursor-correction-20261011",
+        "type": "resume",
+        "at": "2026-10-11T17:27:55.635Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-sokoban-781bf8cc-20261011",
+        "type": "received",
+        "at": "2026-10-11T17:28:35.287Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "delivery": "781bf8cc9e1eb0efc6d0ece84d470e502eb0a03f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-active-four-mismatches-20261011-01",
+        "type": "turn",
+        "at": "2026-10-11T17:32:17.958Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has four approved source-distinct mismatches; the Gremlin pool split is independently replayed and crosswalked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v46-succubus-theft-scope-20261011",
+        "type": "implement",
+        "at": "2026-10-11T17:38:26.427Z",
+        "task": "C-investigation-v46-succubus-steals-monster-item-attempt2-cfirst-20261011",
+        "goal": "port-uhitm-succubus-steal-v46-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v46-check-special-callers-20261011",
+        "type": "turn",
+        "at": "2026-10-11T17:39:57.501Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Correcting the B46 swamp delivery after review found a cursor regression at check_special_room; implementing the complete room-entry behavior and source callers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-v46-succubus-implementation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T17:40:57.452Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Porting the missing hero succubus item-theft branch from uhitm.c and validating its existing combat dispatch path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-active-five-mismatches-20261011-01",
+        "type": "turn",
+        "at": "2026-10-11T17:47:51.410Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has five approved source-distinct mismatches; the item-action egg split is independently replayed and crosswalked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9f379e795593c3fad1dab2ecf92168da86fc4636",
+        "type": "ready",
+        "at": "2026-10-11T17:54:52.697Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "delivery": "9f379e795593c3fad1dab2ecf92168da86fc4636"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-swamp-correction-9f379e79-20261011",
+        "type": "received",
+        "at": "2026-10-11T17:55:13.728Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "delivery": "9f379e795593c3fad1dab2ecf92168da86fc4636"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-swamp-correction-idle-20261011",
+        "type": "turn",
+        "at": "2026-10-11T17:55:24.516Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B46 correction is queued for integration; all remaining v46 candidates are reserved by B, C, or A2. Waiting for acceptance and a refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-swamp-correction-93c0b06e-20261011",
+        "type": "integrating",
+        "at": "2026-10-11T17:56:52.030Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "integration": "93c0b06e6d2f55791a72b45156715cd63c948996"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-swamp-correction-93c0b06e-20261011",
+        "type": "validated",
+        "at": "2026-10-11T18:06:42.845Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep11-v47-active-six-mismatches-20261011-02",
+        "type": "turn",
+        "at": "2026-10-11T18:12:55.431Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v47 has six approved distinct C-first mismatches, including the energy-vortex drain path; continuing source-based candidate work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c67e1ce2018e42d6e2cf4466a38a7dc9c2fe0efd",
+        "type": "ready",
+        "at": "2026-10-11T18:15:09.829Z",
+        "task": "C-investigation-v46-succubus-steals-monster-item-attempt2-cfirst-20261011",
+        "delivery": "c67e1ce2018e42d6e2cf4466a38a7dc9c2fe0efd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011-93c0b06e6d2f55791a72b45156715cd63c948996-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T18:15:37.525Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "C-investigation-v46-crystal-ball-furniture-attempt10-cfirst-20261011",
+        "worker": "C",
+        "goal": "port-detect-furniture-detect-v46-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "c1b9c6ee9313dfb9a380172e4134ad050fc3cbd0",
+        "since": "2026-10-11T15:56:06.094Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "A2-investigation-v46-lit-candle-split-20261011",
+        "worker": "A2",
+        "goal": "port-light-obj-split-light-source-v46-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d404c42c66e68b5c46965a3a526962b43a03698d",
+        "since": "2026-10-11T16:06:22.258Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
+        "worker": "B",
+        "goal": "port-zap-bhitm-mimic-reveal-v46-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "cdc48ee5377c2a0647766f8e0c2467beaa9ab38c",
+        "since": "2026-10-11T16:54:46.198Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "worker": "A2",
+        "goal": "port-trap-sokoban-guilt-v46-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "781bf8cc9e1eb0efc6d0ece84d470e502eb0a03f",
+        "since": "2026-10-11T17:02:08.232Z",
+        "blockedBy": [
+          "A2-investigation-v46-lit-candle-split-20261011"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v46-succubus-steals-monster-item-attempt2-cfirst-20261011",
+        "worker": "C",
+        "goal": "port-uhitm-succubus-steal-v46-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "c67e1ce2018e42d6e2cf4466a38a7dc9c2fe0efd",
+        "since": "2026-10-11T18:15:09.829Z",
+        "blockedBy": [
+          "C-investigation-v46-crystal-ball-furniture-attempt10-cfirst-20261011"
+        ],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -89116,8 +89999,8 @@
     ]
   },
   "development": {
-    "executionCommit": "960efc2aac7081f5501bedb82d87b99dafd6431c",
-    "measuredAt": "2026-10-11T14:18:43.654Z",
+    "executionCommit": "93c0b06e6d2f55791a72b45156715cd63c948996",
+    "measuredAt": "2026-10-11T18:06:33.075Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

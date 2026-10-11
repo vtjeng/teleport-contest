@@ -136,6 +136,8 @@ import {
     PM_GIANT_RAT,
     PM_GIANT_MUMMY,
     PM_GIANT_EEL,
+    PM_ELECTRIC_EEL,
+    PM_PIRANHA,
     PM_GIANT_ZOMBIE,
     PM_GOBLIN,
     PM_HIGH_CLERIC,
@@ -310,6 +312,9 @@ import { loadMonsterPickupRecipe } from './run-monster-pickup.mjs';
 
 const MAKEMON_C_SOURCE = readFileSync(
     'nethack-c/upstream/src/makemon.c', 'utf8',
+);
+const MKROOM_C_SOURCE = readFileSync(
+    'nethack-c/upstream/src/mkroom.c', 'utf8',
 );
 const ENGRAVE_C_SOURCE = readFileSync(
     'nethack-c/upstream/src/engrave.c', 'utf8',
@@ -980,6 +985,94 @@ test('mklev sleeper species match the complete source predicate', () => {
         ].map((mndx) => mklevSleeperSpecies(state.mons[mndx])),
         [true, true, true, true, false],
     );
+});
+
+test('mkswamp admits its complete explicit initial-level pool species family', async () => {
+    const cStart = MKROOM_C_SOURCE.indexOf('\nmkswamp(void)');
+    const cEnd = MKROOM_C_SOURCE.indexOf('\nstaticfn coord *\nshrine_pos', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cMkswamp = MKROOM_C_SOURCE.slice(cStart, cEnd);
+    assert.match(cMkswamp,
+        /makemon\(rn2\(5\)\s*\?\s*&mons\[PM_GIANT_EEL\]\s*:\s*rn2\(2\)\s*\?\s*&mons\[PM_PIRANHA\]\s*:\s*&mons\[PM_ELECTRIC_EEL\]/u);
+
+    const jsMkswampStart = readFileSync('js/mkroom.js', 'utf8')
+        .indexOf('function mkswamp(');
+    const jsMkswampEnd = readFileSync('js/mkroom.js', 'utf8')
+        .indexOf('\n// C ref: mkroom.c nexttodoor()', jsMkswampStart);
+    assert.ok(jsMkswampStart >= 0 && jsMkswampEnd > jsMkswampStart);
+    const jsMkswamp = readFileSync('js/mkroom.js', 'utf8')
+        .slice(jsMkswampStart, jsMkswampEnd);
+    assert.match(jsMkswamp, /_mkswampPoolSpecies:\s*true/u);
+
+    // This list follows the three source branches of mkswamp's ternary.
+    for (const mndx of [PM_GIANT_EEL, PM_PIRANHA, PM_ELECTRIC_EEL]) {
+        const rejectedState = initialLevelState();
+        rejectedState.level.at(MON_X, MON_Y).typ = POOL;
+        const rejectedRandom = recordingRandom();
+        assert.throws(
+            () => makemon(
+                rejectedState.mons[mndx],
+                MON_X,
+                MON_Y,
+                NO_MM_FLAGS,
+                { state: rejectedState, random: rejectedRandom.random },
+            ),
+            (error) => error instanceof UnsupportedMonsterCreationError,
+            `unmarked initial-level species ${mndx} should remain gated`,
+        );
+
+        const state = initialLevelState();
+        state.level.at(MON_X, MON_Y).typ = POOL;
+        const random = recordingRandom();
+        const eel = makemon(
+            state.mons[mndx],
+            MON_X,
+            MON_Y,
+            NO_MM_FLAGS,
+            {
+                state,
+                random: random.random,
+                _mkswampPoolSpecies: true,
+            },
+        );
+        assert.equal(eel.data, state.mons[mndx]);
+        assert.equal(eel.mgenmklev, true);
+        assert.equal(state.mvitals[mndx].born, 1);
+    }
+
+    const runtimeState = initialLevelState();
+    runtimeState.in_mklev = false;
+    runtimeState.level.at(MON_X, MON_Y).typ = POOL;
+    const runtimeEel = await makemon_runtime(
+        runtimeState.mons[PM_GIANT_EEL],
+        MON_X,
+        MON_Y,
+        NO_MM_FLAGS,
+        { state: runtimeState, random: recordingRandom().random },
+    );
+    assert.equal(runtimeEel.data, runtimeState.mons[PM_GIANT_EEL]);
+
+    for (const mndx of [PM_PIRANHA, PM_ELECTRIC_EEL]) {
+        const runtimeState = initialLevelState();
+        runtimeState.in_mklev = false;
+        // C's (0, 0) request asks makemon to find a square; unlike an explicit
+        // valid coordinate, it still exercises JavaScript's species gate.
+        await assert.rejects(
+            makemon_runtime(
+                runtimeState.mons[mndx],
+                0,
+                0,
+                NO_MM_FLAGS,
+                {
+                    state: runtimeState,
+                    random: recordingRandom().random,
+                    _mkswampPoolSpecies: true,
+                },
+            ),
+            (error) => error instanceof UnsupportedMonsterCreationError,
+            `mkswamp marker must not admit runtime species ${mndx}`,
+        );
+    }
 });
 
 test('mklev Wumpus and ordinary demon sleep only on a nonzero roll', () => {
@@ -2851,6 +2944,15 @@ test('particular creation requires its runtime owner for source flag variants',
                 name: 'invisible without gender',
                 flags: MM_NOEXCLAM | MM_MINVIS, admitted: true,
             },
+            {
+                // read.c:create_particular_creation() can restore PM_SHK
+                // after the wizard confirms cant_revive()'s substitution.
+                // C passes only MM_NOEXCLAM, without MM_ESHK.
+                name: 'forced shopkeeper Genesis',
+                mndx: PM_SHOPKEEPER,
+                flags: MM_NOEXCLAM,
+                admitted: true,
+            },
             { name: 'unsupported angry flag', flags: MM_ANGRY,
                 admitted: false },
             { name: 'missing caller marker', flags: MM_NOEXCLAM,
@@ -2874,7 +2976,8 @@ test('particular creation requires its runtime owner for source flag variants',
             state.u.ux = heroSquare.x;
             state.u.uy = heroSquare.y;
             const random = scriptedRandom([]);
-            const ptr = scenario.ptr === null ? null : state.mons[PM_NEWT];
+            const ptr = scenario.ptr === null ? null
+                : state.mons[scenario.mndx ?? PM_NEWT];
 
             assert.throws(
                 () => makemon(
