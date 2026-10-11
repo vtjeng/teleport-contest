@@ -277312,7 +277312,7 @@
           "line": 29,
           "endLine": 49,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -277488,7 +277488,77 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dodrop",
+            "implementation": "js/do.js",
+            "symbol": "dodrop",
+            "sourceReview": "Read the complete do.c:dodrop() definition at lines 29-49. C calls sellobj_state(SELL_DELIBERATE) when *u.ushops is nonempty, calls drop(getobj(\"drop\", any_obj_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT)), restores SELL_NORMAL under the same shop predicate, calls reset_occupations only for a true drop result, and returns that result. js/do.js preserves this order and reads the fixed JS shop list at u.ushops[0]. Its callees getobj, drop, sellobj_state, and reset_occupations are existing owners. The later item-sale branch inside dropz reaches the separate void shk.c:sellobj gap, which remains note_unported in js/do.js and is outside this source unit.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runDropCommand",
+                "source": "cmd.c:1709 registers 'd' to dodrop; cmd.c's rhack dispatch maps the 'drop' command to runDropCommand, which calls dodrop."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "act_on_act",
+                "source": "cmd.c:4807-4808 queues dodrop for MCMD_DROP; JS there_cmd_menu queues the dodrop handler, then runCommand dispatches it."
+              },
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions_pushkeys",
+                "source": "iactions.c:173-175 queues dodrop followed by the selected inventory letter; JS queues extcmdRow('drop') followed by that letter, and the normal command dispatcher reaches runDropCommand and dodrop."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/drop-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/dodrop-in-generated-shop-cancel-9701133.session.json",
+              "recordings/do.c/dodrop-in-shop-here-menu-cancel-9701133.session.json",
+              "recordings/do.c/dodrop-via-itemaction-knight-47111304.session.json"
+            ],
+            "checkedAt": "42294623087909f28f4bcbb36273cfe4caebe185"
+          }
+        ],
+        "entryPointReview": "Audited the active C entry points in cmd.c and iactions.c: the ordinary d command at cmd.c:1709, the MCMD_DROP queue at cmd.c:4807-4808, and IA_DROP_OBJ at iactions.c:173-175. JS routes each through its existing command dispatcher into dodrop; each route has a matching independent C recording. The two shop recordings cancel the drop chooser inside the generated shop, proving both sellobj_state modes run and normal billing is restored without entering a sale. The item-action recording chooses the Knight’s alternate lance and exercises the queued command plus item letter through a successful drop. Actual shop sale handling remains a downstream gap at void shk.c:sellobj, which js/do.js records with note_unported; this delivery does not claim sale completion.",
+        "entryPoints": [
+          {
+            "name": "Ordinary d command inside a generated shop; cancel the drop chooser",
+            "functions": [
+              "dodrop"
+            ],
+            "recordings": [
+              "recordings/do.c/dodrop-in-generated-shop-cancel-9701133.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "MCMD_DROP from #herecmdmenu inside a generated shop",
+            "functions": [
+              "dodrop"
+            ],
+            "recordings": [
+              "recordings/do.c/dodrop-in-shop-here-menu-cancel-9701133.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "IA_DROP_OBJ queues dodrop and the selected inventory letter",
+            "functions": [
+              "dodrop"
+            ],
+            "recordings": [
+              "recordings/do.c/dodrop-via-itemaction-knight-47111304.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
