@@ -263654,8 +263654,8 @@
           "name": "nemdead",
           "line": 107,
           "endLine": 115,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -263667,17 +263667,17 @@
           "name": "stinky_nemesis",
           "line": 150,
           "endLine": 198,
-          "declared": false,
+          "declared": true,
           "sourceFile": "questpgr.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "nemesis_stinks",
           "line": 426,
           "endLine": 440,
-          "declared": false,
+          "declared": true,
           "sourceFile": "quest.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -263978,7 +263978,148 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "nemdead",
+            "implementation": "js/quest.js",
+            "symbol": "nemdead",
+            "sourceReview": "Read quest.c:nemdead() (107-114) in full. If Qstat(killed_nemesis) is already true it returns without output; otherwise it sets the flag before calling qt_pager(\"killed_nemesis\"). JavaScript sets state.svq.quest_status.killed_nemesis before awaiting the pager and preserves the one-time ordering.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c:m_detach (2768-2770) calls nemdead() only in due_to_death && mtmp->data->msound == MS_NEMESIS; mondead passes TRUE and mongone passes FALSE."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-death.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/v43-quest-nemesis-archeologist-fumes-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-quest-nemesis-death-wizard-corrected-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "mon.c:mondead -> m_detach -> quest.c:nemdead; the quest completion state is set before the role pager is shown."
+              }
+            ],
+            "checkedAt": "aa059a096d741543042220cd9ba56e3ced4840b5"
+          },
+          {
+            "name": "stinky_nemesis",
+            "implementation": "js/questpgr.js",
+            "symbol": "stinky_nemesis",
+            "sourceReview": "Read questpgr.c:stinky_nemesis() (150-196) in full, including the active #else branch. The active C implementation ignores mon, retrieves the hero role's raw killed_nemesis text with com_pager_core, normalizes every newline to a space, then checks in order for noxious, poisonous, or toxic and searches from that match for gas or fumes. JavaScript preserves this role choice and check order. The required raw-text mode returns the original non-array message text without selecting alternatives or delivering output.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c:m_detach (2771-2773) calls stinky_nemesis(mtmp) after nemdead() and consumes its integer result to decide whether nemesis_stinks runs."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-death.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/v43-quest-nemesis-archeologist-fumes-cfirst.session.json"
+            ],
+            "sourceFile": "questpgr.c",
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-quest-nemesis-death-wizard-corrected-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "mon.c:m_detach -> questpgr.c:stinky_nemesis; the Wizard role's raw text takes the false result branch."
+              }
+            ],
+            "checkedAt": "aa059a096d741543042220cd9ba56e3ced4840b5"
+          },
+          {
+            "name": "nemesis_stinks",
+            "implementation": "js/quest.js",
+            "symbol": "nemesis_stinks",
+            "sourceReview": "Read quest.c:nemesis_stinks() (426-439) in full. It saves context.mon_moving, sets it true around create_gas_cloud(mx,my,5,8), then restores the saved value. JavaScript uses the existing region create_gas_cloud implementation with the source-equivalent block_point, cansee, newsym, and output operations, and restores mon_moving in a finally block.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c:m_detach (2772-2773) conditionally calls nemesis_stinks(mx,my) only when stinky_nemesis returns true."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-death.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/v43-quest-nemesis-archeologist-fumes-cfirst.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "aa059a096d741543042220cd9ba56e3ced4840b5"
+          }
+        ],
+        "entryPointReview": "The selected active entry is the due-to-death MS_NEMESIS branch in mon.c:m_detach. Its active caller is mondead (mon.c:3175), which calls m_detach(..., TRUE); mongone calls m_detach(..., FALSE) (mon.c:3282) and therefore skips all of this death handling. In source order m_detach removes the monster from the map, then calls nemdead, stinky_nemesis, conditionally nemesis_stinks, then relobj. This task ports those three whole source functions and wires only that bounded m_detach branch; it does not claim whole m_detach completion. questpgr.c:stinky_nemesis intentionally ignores its monster argument and requests the same role-specific killed_nemesis text that nemdead displayed. Its required raw-text retrieval is an added path through the existing JS comPagerCore; the wider com_pager_core source function remains a separately partial implementation and is not claimed complete here. The admitted Wizard case reaches the false-fumes branch; the independent Archeologist recording reaches the true-fumes cloud branch.",
+        "entryPoints": [
+          {
+            "name": "Due-to-death removal of an MS_NEMESIS monster with the Wizard role's false-fumes message",
+            "functions": [
+              {
+                "sourceFile": "quest.c",
+                "name": "nemdead"
+              },
+              {
+                "sourceFile": "questpgr.c",
+                "name": "stinky_nemesis"
+              },
+              {
+                "sourceFile": "quest.c",
+                "name": "nemesis_stinks"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v43",
+                "caseId": "v43-quest-nemesis-death-wizard-corrected-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "mon.c:mondead -> m_detach(due_to_death=TRUE) -> quest.c:nemdead -> questpgr.c:stinky_nemesis -> quest.c:nemesis_stinks is skipped because the role message does not mention noxious gas/fumes; m_detach then continues to relobj."
+              }
+            ]
+          },
+          {
+            "name": "Due-to-death removal of an MS_NEMESIS monster with the Archeologist true-fumes message",
+            "functions": [
+              {
+                "sourceFile": "quest.c",
+                "name": "nemdead"
+              },
+              {
+                "sourceFile": "questpgr.c",
+                "name": "stinky_nemesis"
+              },
+              {
+                "sourceFile": "quest.c",
+                "name": "nemesis_stinks"
+              }
+            ],
+            "recordings": [
+              "recordings/quest.c/v43-quest-nemesis-archeologist-fumes-cfirst.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
