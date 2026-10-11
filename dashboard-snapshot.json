@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T13:48:33.779Z",
+  "capturedAt": "2026-10-11T14:03:21.147Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -88599,23 +88599,51 @@
         "worker": "A2",
         "state": "idle",
         "reason": "Accepted A2 work is synced; waiting for a queue refresh because the saved v45 candidates are accepted or reserved by B."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-post-accepted-queue-9f541df4-20261011T1348Z",
+        "type": "turn",
+        "at": "2026-10-11T13:49:00.755Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Synced accepted Main; the only unresolved v45 case is reserved by B, so A2 is idle pending reservation release or new admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-ettin-fafd9a241-20261011",
+        "type": "received",
+        "at": "2026-10-11T13:51:44.310Z",
+        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011",
+        "delivery": "fafd9a2419bd9d0512dc02efbce1f0218c7e45fc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-ettin-4155c3865",
+        "type": "integrating",
+        "at": "2026-10-11T13:55:39.532Z",
+        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011",
+        "integration": "4155c38654a493477fa04e1f3089882aa2110af0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-ettin-4155c3865-hosted-38145180352",
+        "type": "validated",
+        "at": "2026-10-11T14:01:40.190Z",
+        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011-4155c38654a493477fa04e1f3089882aa2110af0-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T14:02:34.931Z",
+        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011",
-        "worker": "B",
-        "goal": "fix-makemon-ettin-admission-v45-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "fafd9a2419bd9d0512dc02efbce1f0218c7e45fc",
-        "since": "2026-10-11T13:44:59.930Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -88997,8 +89025,8 @@
     ]
   },
   "development": {
-    "executionCommit": "24970688b92d3929c8723c8b39f3ac86465a45ef",
-    "measuredAt": "2026-10-11T13:45:16.150Z",
+    "executionCommit": "4155c38654a493477fa04e1f3089882aa2110af0",
+    "measuredAt": "2026-10-11T14:01:04.270Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

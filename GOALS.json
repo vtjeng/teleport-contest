@@ -272238,7 +272238,7 @@
     {
       "id": "fix-makemon-ettin-admission-v45-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit source-supported Ettins in runtime monster creation",
       "cFile": "makemon.c",
       "sessions": [],
@@ -272250,8 +272250,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4155c38654a493477fa04e1f3089882aa2110af0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "makemon",
       "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
       "step": 74,
@@ -272423,7 +272426,120 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v45",
+          "caseId": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "session": "synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+          "manifestPath": "challenges/manifests/v45.json",
+          "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+          "recording": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingPath": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+          "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+          "recipe": "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+          "recipeSha256": "cbf4a7f7bd9684509048de45c4adcb207342b9b29f9bdf3427b395eb288b1f27",
+          "replayInputSha256": "dac61d81e93232da0f457c8a633e69ea5323b4793ea6d359497ed6d9144eb276",
+          "evaluationPath": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+          "evaluationCommit": "4155c38654a493477fa04e1f3089882aa2110af0",
+          "evaluationArtifact": "challenges/evaluations/accepted-4155c38654a493477fa04e1f3089882aa2110af0-v45.json",
+          "evaluationUtc": "2026-10-11T14:00:02.298Z",
+          "remainingScreens": 2,
+          "recordedSteps": 157,
+          "previousScreensMatched": 74,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 155,
+              "total": 157
+            },
+            "rng": {
+              "matched": 7511,
+              "total": 7512
+            },
+            "cursors": {
+              "matched": 156,
+              "total": 157
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 91,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 91,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 27,
+              "cCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 7233,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "xkilled(mon.c:3574)",
+              "jsEntry": "rn2(6)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 91,
+                "key": "."
+              },
+              "stepIndex": 91
+            },
+            "cursor": {
+              "index": 91,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 91,
+                "key": "."
+              },
+              "cCursor": [
+                65,
+                0,
+                1
+              ],
+              "jsCursor": [
+                74,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 91,
+          "kind": "rng",
+          "sourceFile": "mon.c",
+          "function": "xkilled",
+          "message": null,
+          "cFile": "mon.c",
+          "luaFile": null,
+          "line": 3574,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.json",
+            "previousRemainingScreens": 83
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "4155c38654a493477fa04e1f3089882aa2110af0",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
