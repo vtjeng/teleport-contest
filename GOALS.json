@@ -265527,6 +265527,37 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "A2-divergence-v43-potionhit-monster-blindness-cure-20261011",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore blessed healing potion monster blindness cure",
+      "cFile": "potion.c",
+      "sessions": [],
+      "selectionReason": "The current admitted v43 replay first differs at step 111 after potion.c:potionhit heals a blinded ogre with a blessed potion. C sets cureblind and calls muse.c:mcureblindness, which restores sight and prints the missing visible-monster message; JavaScript recorded the callee as unported.",
+      "detail": "The current queue has 111/112 screens, 2793/2793 RNG calls, and 111/112 cursors matched. The fix wires the existing whole mcureblindness helper through potionhit and preserves the C visibility argument and message order.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "potionhit",
+      "session": "synthetic/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+      "step": 111,
+      "syntheticProvenance": {
+        "synthetic/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst": {
+          "session": "synthetic/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst.session.json",
+          "recordingSha256": "5943595e0e52793b6553dad2bb2a314b48c7c8424fc4509d3f05724740b6cb16",
+          "evaluationPath": "challenges/evaluations/accepted-c7271e507384b244820f4b96872f6bc085862a85-v43.json",
+          "evaluationCommit": "c7271e507384b244820f4b96872f6bc085862a85"
+        }
+      }
     }
   ]
 }
