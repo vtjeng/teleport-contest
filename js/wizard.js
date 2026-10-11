@@ -264,6 +264,17 @@ export async function resurrect(state = game, rawEnv = {}) {
     return monster;
 }
 
+// C ref: wizard.c:wizdeadorgone() (812-822). The Wizard is counted as gone
+// whether he dies or leaves the dungeon alive; only the first removal marks
+// the hero demigod and starts the countdown.
+export function wizdeadorgone(state = game, random = { rn1 }) {
+    state.context.no_of_wizards--;
+    if (!state.u.uevent.udemigod) {
+        state.u.uevent.udemigod = true;
+        state.u.udg_cnt = (random?.rn1 ?? rn1)(250, 50);
+    }
+}
+
 // The existing-Wizard arm of wizard.c resurrect(). Caller-supplied dog.c
 // operations keep the source file ownership explicit and avoid a module cycle.
 async function resurrectMigratingWizard(state, rawEnv) {

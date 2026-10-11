@@ -108,6 +108,7 @@ import {
     PM_WINGED_GARGOYLE,
     PM_WOOD_NYMPH,
     PM_WRAITH,
+    PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
 } from '../js/monsters.js';
 import {
@@ -136,6 +137,7 @@ import { canspotmon } from '..//js/display.js';
 const MON_C = readFileSync(
     new URL('../nethack-c/upstream/src/mon.c', import.meta.url), 'utf8',
 );
+const MON_JS = readFileSync(new URL('../js/mon.js', import.meta.url), 'utf8');
 
 // A Valkyrie on a plain first level. Any seed that reaches the first prompt
 // will do; 7710044 is the base row of the kill matrix, so this is the hero
@@ -918,6 +920,37 @@ test('m_detach keeps inventory when the monster merely goes away',
         assert.equal(game.level.monsters[x][y], null);
         assert.equal(mon.minvent, dagger, 'kept its inventory');
         assert.equal(game.level.objects[x][y], null, 'nothing on the floor');
+    });
+
+test('m_detach updates Wizard bookkeeping before either removal path',
+    async () => {
+        const sourceStart = MON_C.indexOf("'mtmp' is going away; remove effects");
+        const sourceBody = MON_C.indexOf('\nm_detach(\n', sourceStart);
+        const sourceEnd = MON_C.indexOf('\n/* give a life-saved monster', sourceBody);
+        const source = MON_C.slice(sourceBody, sourceEnd);
+        assert.match(source,
+            /mon_leaving_level\(mtmp\);[\s\S]*mtmp->mhp = 0;[\s\S]*if \(mtmp->iswiz\)\s+wizdeadorgone\(\);[\s\S]*if \(due_to_death\)/u);
+
+        const jsStart = MON_JS.indexOf('export function m_detach(');
+        const jsEnd = MON_JS.indexOf('\nfunction monsterOnLevelChain', jsStart);
+        const jsSource = MON_JS.slice(jsStart, jsEnd);
+        assert.match(jsSource,
+            /const finishAfterLeaving = \(\) => \{\s*mtmp\.mhp = 0;[\s\S]*if \(mtmp\.iswiz\) wizdeadorgone\(state, env\.random\);[\s\S]*if \(due_to_death\)/u);
+
+        await hero();
+        game.context.no_of_wizards = 1;
+        game.u.uevent.udemigod = false;
+        game.u.udg_cnt = 0;
+        const wizard = spawn(PM_WIZARD_OF_YENDOR, { iswiz: true });
+        const env = killEnv([73]);
+
+        await m_detach(wizard, wizard.data, false, game, env);
+
+        assert.equal(game.context.no_of_wizards, 0);
+        assert.equal(game.u.uevent.udemigod, true);
+        assert.equal(game.u.udg_cnt, 123);
+        assert.deepEqual(env.bounds, ['rn1(250,50)']);
+        assert.equal(wizard.mstate & MON_DETACH, MON_DETACH);
     });
 
 // mon.c:2699-2716 runs unstuck() to completion before m_detach():2751
