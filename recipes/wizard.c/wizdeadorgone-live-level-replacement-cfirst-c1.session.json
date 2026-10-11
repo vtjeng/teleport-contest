@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47047219,
+      "datetime": "20591011131415",
+      "nethackrc": "OPTIONS=name:C47Live,role:Wizard,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nhostile Wizard of Yendor\ny#wizmakemap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Independent live-removal route for wizard.c:wizdeadorgone: force a unique Wizard onto the current level, then invoke #wizmakemap so makemap_remove_mons -> mongone -> m_detach removes it alive while the old level is discarded."
+}

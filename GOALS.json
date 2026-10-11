@@ -276318,6 +276318,332 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizdeadorgone-v47-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port wizard.c wizdeadorgone and wire Wizard death and live-removal bookkeeping through mon.c m_detach.",
+      "cFile": "wizard.c",
+      "sessions": [
+        "synthetic/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final"
+      ],
+      "selectionReason": "The admitted v47 Wizard-death mismatch reaches m_detach with an explicit missing wizdeadorgone call, and the same source call is active for live Wizard removal.",
+      "detail": "Port whole wizard.c:wizdeadorgone. Wire mon.c:m_detach after mon_leaving_level and mhp reset but before due-to-death effects, covering both mondead and mongone. Preserve one-time demigod countdown initialization and decrement every Wizard removal.",
+      "openedAt": "dbd8c9540d502541471cd9361cfed53142b18039",
+      "openStanding": {
+        "sha": "5f8f3a9e09ac934f9c25f5b3fcc3977f08ba91c6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wizdeadorgone",
+          "line": 815,
+          "endLine": 845,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 815,
+        "to": 845
+      },
+      "syntheticProvenance": {
+        "synthetic/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final": {
+          "session": "synthetic/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.session.json",
+          "recordingSha256": "055b0d2e456aa6703b9dacaeec95c64c71341abd4426922d7ec5bedce561cf6a",
+          "evaluationPath": "challenges/evaluations/baseline-a6e3a17cc-v47.json",
+          "evaluationCommit": "a6e3a17ccec81295850d6e03e10d9a4353b25c54"
+        }
+      },
+      "activeStanding": {
+        "sha": "5f8f3a9e09ac934f9c25f5b3fcc3977f08ba91c6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+          "session": "synthetic/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.session.json",
+          "recordingPath": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.session.json",
+          "recordingSha256": "055b0d2e456aa6703b9dacaeec95c64c71341abd4426922d7ec5bedce561cf6a",
+          "recipe": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.recipe.session.json",
+          "recipeSha256": "7c7e1f77eb5b2072191acdd690fcf7d5de9b40279737ebf2c37af3c4e7e9a969",
+          "replayInputSha256": "7c7c10f06e50785384e44bb2af327a5607f2de8ad0ddec73a73619667d9c88bb",
+          "evaluationPath": "challenges/evaluations/baseline-a6e3a17cc-v47.json",
+          "evaluationCommit": "a6e3a17ccec81295850d6e03e10d9a4353b25c54",
+          "evaluationArtifact": "challenges/evaluations/baseline-a6e3a17cc-v47.json",
+          "evaluationUtc": "2026-10-11T20:47:25.561Z",
+          "remainingScreens": 2,
+          "recordedSteps": 61,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 59,
+              "total": 61
+            },
+            "rng": {
+              "matched": 2759,
+              "total": 2765
+            },
+            "cursors": {
+              "matched": 61,
+              "total": 61
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 59,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 59,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 10,
+              "column": 51,
+              "cCell": {
+                "ch": "!",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "*",
+                "color": 5,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2759,
+              "cEntry": "rn2(250)=156",
+              "cCaller": "wizdeadorgone(wizard.c:820)",
+              "jsEntry": "rn2(6)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 59,
+                "key": "."
+              },
+              "stepIndex": 59
+            },
+            "cursor": null
+          },
+          "step": 59,
+          "kind": "rng",
+          "sourceFile": "wizard.c",
+          "function": "wizdeadorgone",
+          "message": null,
+          "cFile": "wizard.c",
+          "luaFile": null,
+          "line": 820,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.json",
+            "result": {
+              "session": "synthetic/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingPath": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.session.json",
+              "recordingSha256": "055b0d2e456aa6703b9dacaeec95c64c71341abd4426922d7ec5bedce561cf6a",
+              "recipePath": "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.recipe.session.json",
+              "recipeSha256": "7c7e1f77eb5b2072191acdd690fcf7d5de9b40279737ebf2c37af3c4e7e9a969",
+              "evaluationPath": "challenges/evaluations/baseline-a6e3a17cc-v47.json",
+              "evaluationCommit": "a6e3a17ccec81295850d6e03e10d9a4353b25c54",
+              "queueSha256": "2e8b3e804b97958332bd671398c4be5bc87ed1064c8a2f90de33c0b1adf2cd58",
+              "remainingScreens": 2,
+              "recordedSteps": 61,
+              "status": "complete",
+              "mismatch": {
+                "session": "synthetic/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+                "remainingScreens": 2,
+                "step": 59,
+                "boundary": 60,
+                "key": ".",
+                "screen": {
+                  "row": 10,
+                  "column": 51,
+                  "c": {
+                    "ch": "!",
+                    "color": 3,
+                    "attr": 0,
+                    "decgfx": 0
+                  },
+                  "js": {
+                    "ch": "*",
+                    "color": 5,
+                    "attr": 0,
+                    "decgfx": 0
+                  }
+                },
+                "cursor": {
+                  "c": [
+                    70,
+                    0,
+                    1
+                  ],
+                  "js": [
+                    70,
+                    0,
+                    1
+                  ]
+                },
+                "rng": {
+                  "matched": 2759,
+                  "cTotal": 2765,
+                  "jsTotal": 2759
+                },
+                "cursors": {
+                  "matched": 61,
+                  "total": 61
+                }
+              },
+              "summary": "Killing or removing the Wizard of Yendor reaches mon.c:m_detach(), where JavaScript lacks the wizard-specific bookkeeping. C decrements the live Wizard count, marks the hero demigod once, and draws rn1(250,50). The selected #wizkill route exposes the death caller; a separate recorded #wizmakemap route confirms the live-removal caller.",
+              "source": {
+                "file": "wizard.c",
+                "branch": "wizdeadorgone() (812-822) unconditionally decrements svc.context.no_of_wizards; only on the first call before u.uevent.udemigod is set does it set that event flag and assign u.udg_cnt = rn1(250, 50). The function is impure through state writes and the conditional random draw.",
+                "functions": [
+                  "wizdeadorgone"
+                ],
+                "caller": "mon.c:m_detach() (2733-2803), after mon_leaving_level() and mtmp->mhp = 0, invokes wizdeadorgone() whenever mtmp->iswiz, before the due_to_death branch and its relobj()/nemesis/leader effects. mondead() (3080-3177) reaches m_detach(mtmp, mptr, TRUE); mongone() (3267-3283) reaches m_detach(mdef, mdef->data, FALSE). The function therefore handles both death and removal alive.",
+                "productionRoutes": [
+                  "Selected death route: wizard-mode #wizgenesis creates the Wizard of Yendor; #wizkill selects it and invokes wizcmds.c:wiz_kill() -> xkilled() -> mondead() -> m_detach() -> wizdeadorgone(). JavaScript command dispatch is cmd.js -> wizcmds.js:wiz_kill() -> mon.js:xkilled() -> mondead() -> m_detach().",
+                  "Live-removal route requiring independent recorded evidence: #wizgenesis creates the Wizard, then #wizmakemap invokes cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons() -> makemap_unmakemon() -> mongone() -> m_detach() -> wizdeadorgone(). The corresponding JS route exists in cmd.js:makemap_prepost() -> wizcmds.js:makemap_remove_mons()/wiz_makemap() -> mon.js:mongone() -> m_detach()."
+                ],
+                "javascriptAtBase": "js/wizard.js has no wizdeadorgone implementation. js/mon.js:m_detach() currently calls its unsupported handler for iswiz in finishDetach(), which runs after the due-to-death relobj path; this is both missing behavior and the wrong source order. js/mon.js:mongone() has a second obsolete note_unported('end.c wizdeadorgone') shim. Port the C function in js/wizard.js, invoke it at the C source location before death effects, and remove both placeholders.",
+                "dependencies": [
+                  "wizdeadorgone() has no C return-value callees. Its conditional rn1(250, 50) draw is provided by the existing JavaScript RNG implementation.",
+                  "JavaScript command and removal wiring already exists for #wizkill and #wizmakemap; this task only adds the missing wizard bookkeeping and calls it at mon.c:m_detach source order.",
+                  "The existing wizard.js -> mon.js import cycle must remain safe when mon.js imports the new wizard.js function; preserve synchronous source ordering rather than making the state change an unawaited dynamic import."
+                ],
+                "callers": [
+                  "mon.c:m_detach() (2733-2803) is the sole direct call site; it calls wizdeadorgone() when mtmp->iswiz after mon_leaving_level() and setting mhp to zero, independent of due_to_death.",
+                  "mon.c:mondead() (3080-3177) calls m_detach(..., TRUE) for death; mon.c:mongone() (3267-3283) calls m_detach(..., FALSE) for removal while alive.",
+                  "The selected command route is wizcmds.c:wiz_kill() -> xkilled() -> mondead() -> m_detach(). The second active route is wizcmds.c:wiz_makemap() -> cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons() -> makemap_unmakemon() -> mongone() -> m_detach()."
+                ],
+                "runtimeEvidenceRoutes": [
+                  "Selected v47 recording exercises the death route with #wizkill; its first mismatch is after the Wizard is killed.",
+                  "Independent patched-C recording recordings/wizard.c/wizdeadorgone-live-level-replacement-cfirst-c1.session.json exercises live removal through #wizgenesis -> #wizmakemap -> makemap_remove_mons -> mongone -> m_detach; step 50 logs rn2(250)=93 @ wizdeadorgone(wizard.c:820). Its recipe is recipes/wizard.c/wizdeadorgone-live-level-replacement-cfirst-c1.session.json."
+                ]
+              },
+              "goalKind": "file-port",
+              "selectionReason": "Selected from the admitted v47 saved queue at SHA-256 2e8b3e804b97958332bd671398c4be5bc87ed1064c8a2f90de33c0b1adf2cd58 as an unreserved wizard.c mismatch. The annotation is source-correct: the complete missing owner is wizard.c:wizdeadorgone(), with its sole direct caller mon.c:m_detach().",
+              "evidence": [
+                "The v47 baseline evaluation at commit a6e3a17ccec81295850d6e03e10d9a4353b25c54 records this session at 59/61 screens, 2759/2765 RNG calls, and 61/61 cursors. The first mismatching action is step 59, key '.', killing the Wizard of Yendor; C's source trace logs rn2(250)=156 at wizard.c:820, the implementation of rn1(250,50).",
+                "Upstream wizard.c:812-822 defines the whole function. Upstream mon.c:2756-2762 places its only call immediately after mon_leaving_level() and setting mhp to zero, before the death-only branch. mondead and mongone are the production callers of m_detach for death and live removal respectively.",
+                "At the examined C worktree commit, js/mon.js:m_detach() still refuses the iswiz branch and calls it later than the C source order; js/mon.js:mongone() still records note_unported('end.c wizdeadorgone'). js/wizard.js has no implementation. The selected recording exercises the death route; a second independent recording is required to establish the live-removal route through #wizmakemap.",
+                "An independent patched-C live-removal recording was created from a newly chosen seed/date and a distinct character setup. Its #wizmakemap route reaches wizdeadorgone at zero-based step 50 and records rn2(250)=93 at wizard.c:820; the recipe and recording hashes are captured in the task evidence."
+              ],
+              "commit": "7f6e87577c6e389c86653c728553bab68ff16c07"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wizdeadorgone",
+            "implementation": "js/wizard.js",
+            "symbol": "wizdeadorgone",
+            "sourceReview": "Read the complete wizard.c:wizdeadorgone() definition at 812-822. It always decrements svc.context.no_of_wizards; only when u.uevent.udemigod is false does it set that flag and assign u.udg_cnt = rn1(250, 50), so later removals consume no draw. mon.c:m_detach() calls it after mon_leaving_level() and mhp=0, before due_to_death-only nemesis/leader/inventory effects. The JavaScript function preserves that order in both m_detach routes; the old iswiz refusal and mongone note_unported shim are removed. The function has no other C return-value callee.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c:m_detach() at 2756-2762 is the direct guarded caller; it invokes wizdeadorgone() when mtmp->iswiz regardless of due_to_death."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mondead",
+                "source": "mon.c:mondead() at 3175 calls m_detach(mtmp, mptr, TRUE) for a Wizard's death."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mongone",
+                "source": "mon.c:mongone() at 3282 calls m_detach(mdef, mdef->data, FALSE) when a Wizard is removed alive."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_kill",
+                "source": "wizcmds.c:wiz_kill() calls xkilled(), which reaches mon.c:mondead() and m_detach()."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_makemap",
+                "source": "wizcmds.c:wiz_makemap() calls cmd.c:makemap_prepost(TRUE); that path reaches wizcmds.c:makemap_remove_mons(), makemap_unmakemon(), mon.c:mongone(), then m_detach()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard.test.mjs",
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizard.c/wizdeadorgone-live-level-replacement-cfirst-c1.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 59,
+                "source": "wizcmds.c:wiz_kill -> mon.c:xkilled -> mondead -> m_detach -> wizard.c:wizdeadorgone"
+              }
+            ],
+            "checkedAt": "77375605933e205758c6a67b0654e369d13da563"
+          }
+        ],
+        "entryPointReview": "The whole source function has one active direct caller, mon.c:m_detach(), on both its due_to_death values. The death route is #wizkill -> xkilled -> mondead -> m_detach. The separate live-removal route is #wizmakemap -> makemap_prepost(TRUE) -> makemap_remove_mons -> makemap_unmakemon -> mongone -> m_detach. Both active entry points have runtime evidence below; no other C direct caller or inactive build branch exists.",
+        "entryPoints": [
+          {
+            "name": "#wizkill removes the Wizard of Yendor by death",
+            "functions": [
+              "wizdeadorgone"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 59,
+                "source": "wizcmds.c:wiz_kill -> mon.c:xkilled -> mondead -> m_detach -> wizard.c:wizdeadorgone"
+              }
+            ]
+          },
+          {
+            "name": "#wizmakemap removes the Wizard alive while replacing a level",
+            "functions": [
+              "wizdeadorgone"
+            ],
+            "recordings": [
+              "recordings/wizard.c/wizdeadorgone-live-level-replacement-cfirst-c1.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
