@@ -261402,7 +261402,7 @@
                 "source": "zap.c:dobuzz -> zap.c:zap_hit -> zap.c:zhitu -> trap.c:acid_damage -> trap.c:erode_obj"
               }
             ],
-            "checkedAt": "97e07b06df6bd65294b12a2082926bb80c5b74aa"
+            "checkedAt": "2d47a49d1c45a1290c56d3aee161f56f2606f4e7"
           },
           {
             "name": "grease_protect",
@@ -261429,7 +261429,7 @@
               "recordings/potion.c/acid-dip-greased-daggers.session.json"
             ],
             "synthetic": [],
-            "checkedAt": "97e07b06df6bd65294b12a2082926bb80c5b74aa"
+            "checkedAt": "2d47a49d1c45a1290c56d3aee161f56f2606f4e7"
           },
           {
             "name": "acid_damage",
@@ -261455,7 +261455,7 @@
               {
                 "path": "js/mhitm.js",
                 "symbol": "passivemm",
-                "source": "mhitm.c:passivemm() at 1347 calls acid_damage(MON_WEP(magr)) after its rn2(6) gate; the helper is wired, but the selected matching runtime cannot cross the earlier armed mattackm AT_WEAP boundary."
+                "source": "mhitm.c:passivemm() at 1347 calls acid_damage(MON_WEP(magr)) after rn2(6); the matching unarmed giant-ant AT_BITE recording reaches this caller at step 102 with MON_WEP(magr)==NULL. The armed-dwarf AT_WEAP branch remains a documented blocked future path."
               }
             ],
             "pure": false,
@@ -261469,7 +261469,8 @@
             "recordings": [
               "recordings/trap.c/acid-damage-zhitu-dual-wield.session.json",
               "recordings/trap.c/acid-damage-zhitm-monster-weapon.session.json",
-              "recordings/trap.c/acid-damage-passiveum-hero-form.session.json"
+              "recordings/trap.c/acid-damage-passiveum-hero-form.session.json",
+              "recordings/trap.c/acid-damage-passivemm-unarmed-giant-ant.session.json"
             ],
             "synthetic": [
               {
@@ -261481,10 +261482,10 @@
                 "source": "zap.c:dobuzz -> zap.c:zap_hit -> zap.c:zhitu -> trap.c:acid_damage"
               }
             ],
-            "checkedAt": "97e07b06df6bd65294b12a2082926bb80c5b74aa"
+            "checkedAt": "2d47a49d1c45a1290c56d3aee161f56f2606f4e7"
           }
         ],
-        "entryPointReview": "The selected trap.c source units have matching production evidence for the admitted v42 zhitu acid-breath path, fresh zap.c:zhitm and mhitu.c:passiveum callers, and the greased acid-dip path through erode_obj()/grease_protect(). The current source caller inventory also includes mhitm.c:passivemm; js/mhitm.js wires acid_damage() and has source-pinned coverage, but this is not a completed mhitm entry-point claim. The preserved C-first passivemm recipe reaches the corrosion call at C step 135 and visible corrosion at step 137; JavaScript stops at step 132 because the armed monster-vs-monster mattackm AT_WEAP branch is unported and throws before passivemm. weapon.c:possibly_unwield is part of that unported branch and remains outside this task. The separate uhitm.c:mhitm_ad_acid caller remains behind the existing js/uhitm.js unported dispatch and is not included in this task’s source completion claim.",
+        "entryPointReview": "The selected trap.c source units have matching production evidence for the admitted v42 zhitu acid-breath path, fresh zap.c:zhitm, mhitu.c:passiveum, and mhitm.c:passivemm callers, and the greased acid-dip path through erode_obj()/grease_protect(). The unarmed giant-ant natural AT_BITE recording reaches mhitm.c:passivemm at zero-based step 102; rn2(6)=0 calls acid_damage(MON_WEP(magr)) with a null weapon, exercising acid_damage(NULL). The separate armed-dwarf recipe reaches the C corrosion branch but remains blocked in JavaScript at step 132 in mattackm.c:AT_WEAP before passivemm; keep it as a blocked future branch and do not count it as runtime evidence. weapon.c:possibly_unwield remains outside this task. The separate uhitm.c:mhitm_ad_acid caller remains behind the existing js/uhitm.js unported dispatch and is not included in this task’s source completion claim.",
         "entryPoints": [
           {
             "name": "Acid breath corrodes the hero’s wielded weapon through zhitu",
@@ -261538,11 +261539,13 @@
             "synthetic": []
           },
           {
-            "name": "Acid passive corrodes an attacking monster weapon through passivemm (blocked)",
+            "name": "Acid passive reaches acid_damage(NULL) through passivemm during a giant ant natural bite",
             "functions": [
               "acid_damage"
             ],
-            "recordings": [],
+            "recordings": [
+              "recordings/trap.c/acid-damage-passivemm-unarmed-giant-ant.session.json"
+            ],
             "synthetic": []
           }
         ]
