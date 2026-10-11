@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -24,12 +25,17 @@ import {
     target_on,
     you_have,
     which_arti,
+    wizdeadorgone,
 } from '../js/wizard.js';
 import {
     AMULET_OF_YENDOR,
     BELL_OF_OPENING,
 } from '../js/objects.js';
 import { NASTIES } from '../js/nasties_data.js';
+
+const WIZARD_C = readFileSync(
+    new URL('../nethack-c/upstream/src/wizard.c', import.meta.url), 'utf8',
+);
 
 function nastyState(hell = false) {
     const maxNasty = Math.max(...NASTIES);
@@ -225,6 +231,37 @@ test('wizard artifact selectors preserve C object masks and list order', () => {
     assert.equal(on_ground(0, state), quest);
     assert.equal(mon_has_arti({ minvent: quest }, 0, state), true);
     assert.equal(mon_has_arti({ minvent: null }, AMULET_OF_YENDOR, state), false);
+});
+
+test('wizdeadorgone decrements every removal and starts the countdown once', () => {
+    const start = WIZARD_C.indexOf('\nwizdeadorgone(void)');
+    const end = WIZARD_C.indexOf('\nstatic const char *const random_insult[]', start);
+    const source = WIZARD_C.slice(start, end);
+    assert.match(source,
+        /svc\.context\.no_of_wizards--;\s*if \(!u\.uevent\.udemigod\)\s*\{\s*u\.uevent\.udemigod = TRUE;\s*u\.udg_cnt = rn1\(250, 50\);/u);
+
+    const state = {
+        context: { no_of_wizards: 2 },
+        u: { uevent: { udemigod: false }, udg_cnt: 0 },
+    };
+    const draws = [];
+    const random = {
+        rn1(range, base) {
+            draws.push([range, base]);
+            return base + 73;
+        },
+    };
+
+    wizdeadorgone(state, random);
+    assert.equal(state.context.no_of_wizards, 1);
+    assert.equal(state.u.uevent.udemigod, true);
+    assert.equal(state.u.udg_cnt, 123);
+    assert.deepEqual(draws, [[250, 50]]);
+
+    wizdeadorgone(state, random);
+    assert.equal(state.context.no_of_wizards, 0);
+    assert.equal(state.u.udg_cnt, 123);
+    assert.deepEqual(draws, [[250, 50]], 'the countdown roll is once only');
 });
 
 test('other_mon_has_arti scans the linked monster list without the subject', () => {

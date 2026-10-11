@@ -702,6 +702,7 @@ import {
     mon_has_amulet,
     mon_has_special,
     pick_nasty,
+    wizdeadorgone,
 } from './wizard.js';
 import { getlin } from './windows.js';
 import { tt_doppel } from './topten.js';
@@ -4735,7 +4736,6 @@ export function mnearto(
 // The remaining unported branches stop under their source conditions:
 //
 //   2741-2742  m_unleash(), for a leashed pet.
-//   2761-2762  wizdeadorgone(), for the Wizard of Yendor.
 //   2774-2775  leaddead(), for a dying quest leader.
 //   2800-2801  asynchronous DISMOUNT_GENERIC release when the departing
 //              monster was the hero's steed.
@@ -4774,10 +4774,6 @@ export function m_detach(
      * before dropping its former belongings."
      */
     const finishDetach = () => {
-        mtmp.mhp = 0; /* "simplify some tests: force mhp to 0" */
-        /* "death handling for the Wizard needs to take place even if he is
-           leaving the dungeon alive rather than dying" */
-        if (mtmp.iswiz) unsupported("the Wizard of Yendor's death");
         /* "foodead() might give quest feedback for foo having died; skip that
            if we're called for mongone() rather than mondead()" */
         /* gs.stealmid is 0 while no theft is in progress, and makemon() assigns
@@ -4824,6 +4820,11 @@ export function m_detach(
     };
 
     const finishAfterLeaving = () => {
+        mtmp.mhp = 0; /* "simplify some tests: force mhp to 0" */
+        /* mon.c:2758-2762. This bookkeeping also applies when mongone()
+           removes the Wizard alive, and precedes due-to-death effects. */
+        if (mtmp.iswiz) wizdeadorgone(state, env.random);
+
         if (due_to_death) {
             const finishDeathEffects = async () => {
                 if (mtmp.data.msound === MS_NEMESIS) {
@@ -4899,8 +4900,6 @@ export function mongone(monster, env = {}) {
         const unsupported = (branch) => {
             if (branch === 'unhiding a mimic')
                 note_unported('mon.c seemimic');
-            else if (branch === "the Wizard of Yendor's death")
-                note_unported('end.c wizdeadorgone');
             else if (branch === 'the quest leader\'s death')
                 note_unported('questpgr.c leaddead');
             else
