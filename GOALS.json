@@ -291875,7 +291875,7 @@
     {
       "id": "port-polyself-dohide-v51-viper-fatal-hide-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port whole hiding command and fatal corpse transition",
       "cFile": "polyself.c",
       "sessions": [
@@ -291889,8 +291889,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "84d6d7988311f02b029d1638fca8ac822f12043f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dohide",
@@ -292201,6 +292204,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "84d6d7988311f02b029d1638fca8ac822f12043f",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

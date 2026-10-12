@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T17:34:59.945Z",
+  "capturedAt": "2026-10-12T17:45:24.819Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -96290,6 +96290,90 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep21/v57: local gameplay comparisons are running after independent C replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-e55-queue-refresh-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:35:29.914Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v51-purpleworm-rider-digestion-20261012-b4d07f487a8185759a71ddb0ee78ba01eb35ad45",
+        "type": "published",
+        "at": "2026-10-12T17:35:42.775Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "commit": "b4d07f487a8185759a71ddb0ee78ba01eb35ad45"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-full-pack-horn-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:36:49.370Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: recording the planned full-inventory horn action and reviewing first-mismatch overlap."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-dohide-84d6d798-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T17:37:42.332Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
+        "integration": "84d6d7988311f02b029d1638fca8ac822f12043f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-additional-source-actions-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:39:03.377Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: eight additional source actions are recording after C setup inspection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-additional-replays-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:39:52.546Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: independent replay is running after 56 preserved C attempts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-form-source-actions-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:43:06.520Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: seven form and ability actions are recording; source and coverage review continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012-84d6d7988311f02b029d1638fca8ac822f12043f-validated",
+        "type": "validated",
+        "at": "2026-10-12T17:43:53.159Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-form-comparisons-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:44:18.923Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: comparing seven independently replayed form actions after 70 C attempts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012-84d6d7988311f02b029d1638fca8ac822f12043f-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T17:44:39.961Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012"
       }
     ]
   },
@@ -96306,17 +96390,6 @@
         "since": "2026-10-12T09:15:41.430Z",
         "blockedBy": [],
         "unblocks": 1
-      },
-      {
-        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
-        "worker": "B",
-        "goal": "port-polyself-dohide-v51-viper-fatal-hide-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "9b3e234772bf497eaa67f16ab0a753705afab563",
-        "since": "2026-10-12T09:18:20.739Z",
-        "blockedBy": [],
-        "unblocks": 0
       },
       {
         "task": "Prep17",
@@ -96850,8 +96923,8 @@
     ]
   },
   "development": {
-    "executionCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
-    "measuredAt": "2026-10-12T17:33:12.116Z",
+    "executionCommit": "84d6d7988311f02b029d1638fca8ac822f12043f",
+    "measuredAt": "2026-10-12T17:42:30.066Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
