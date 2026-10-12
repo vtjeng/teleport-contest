@@ -287571,6 +287571,49 @@
           "evaluationCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e"
         }
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-halu-v50-20261012",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete black-light monster hallucination damage",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v50/v50-blacklight-monster-combat-action-attempt3"
+      ],
+      "selectionReason": "The v50 black-light explosion first mismatches at step 179 because the AD_HALU dispatcher records an unported mhitm_ad_halu gap. Complete uhitm.c:3897–3921, wire its sole direct dispatcher arm, and bind existing mondead at the explosion caller. Source review and saved focused/runtime checks establish the complete helper body.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_halu",
+          "line": 3897,
+          "endLine": 3923,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3897,
+        "to": 3923
+      },
+      "syntheticProvenance": {
+        "synthetic/v50/v50-blacklight-monster-combat-action-attempt3": {
+          "session": "synthetic/v50/v50-blacklight-monster-combat-action-attempt3",
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-blacklight-monster-combat-action-attempt3",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recordingPath": "challenges/cases/v50/v50-blacklight-monster-combat-action-attempt3.session.json",
+          "recordingSha256": "7b24109e4a4d12177dc09030e2f394a2ef3dd119bf5a73f37b81f2cb4c8b4cb5",
+          "evaluationPath": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v50.json",
+          "evaluationCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e"
+        }
+      }
     }
   ]
 }

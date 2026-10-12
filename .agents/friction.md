@@ -290,3 +290,27 @@ triage decisions or fix references.
   preserved its original report parent, imported that correction unchanged,
   and restored the current diagnoses before retrying preflight. Game code
   stayed identical to the already linted and quality-checked candidate.
+
+### 2026-10-12 — active ledger path and whole-source intake
+
+- Dashboard publication initially used the old `.cache/worker-state.json`
+  instead of the active `.cache/worker-state-loop-20260925.json`. The snapshot
+  writer reported the invalid run identity; Root regenerated and inspected the
+  snapshot with the active ledger before committing or publishing it.
+- Whole-source getpos intake found the earlier terrain-search completion
+  omitted SELF and other input branches. Root queued the complete getpos and
+  getpos_menu follow-up, then invalidated the old getpos evidence while
+  retaining its history. B owns the correction and its expanded reservations.
+- Vrock intake found its whole-monflee evidence listed only movement while
+  several active command callers still omit the cloud owner. Root queued
+  caller/evidence correction after B's current task and selected the next
+  independent ready delivery.
+- Black-light integration had adjacent function additions in uhitm.js. Root
+  retained both the incoming hallucination helper and the existing energy-drain
+  helper, then ran the affected dispatcher tests before hosted validation.
+- Root first attempted to queue the black-light goal after importing its game
+  code; current synthetic evidence correctly became stale. The preserved
+  pre-import commit allowed registration without weakening that guard. The
+  submitted report also lacked the required source object fields; Root rebuilt
+  them from the reviewed C function and current saved queue before registration.
+  The goal remains queued until exact-candidate hosted evidence permits opening.
