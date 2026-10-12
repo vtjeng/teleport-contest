@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T21:49:45.783Z",
+  "capturedAt": "2026-10-12T22:14:39.738Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -98324,6 +98324,64 @@
         "worker": "C",
         "state": "idle",
         "reason": "Accepted saddle Main is merged. The saved queue predates it and has no independent eligible case; waiting for Main refresh and newcham integration. The v48 version-profile case remains held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012-6aae05a59bf25974a0d95aefc1d1e5f3ff288d83",
+        "type": "published",
+        "at": "2026-10-12T21:49:58.608Z",
+        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+        "commit": "6aae05a59bf25974a0d95aefc1d1e5f3ff288d83"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrate-newcham-704273f10edfb0f1a59d6440631956df440d1403",
+        "type": "integrating",
+        "at": "2026-10-12T21:53:06.875Z",
+        "task": "C-investigation-v52-polymorph-newcham-continuation-20261012",
+        "integration": "704273f10edfb0f1a59d6440631956df440d1403"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v52-polymorph-newcham-continuation-20261012-704273f10edfb0f1a59d6440631956df440d1403-validated",
+        "type": "validated",
+        "at": "2026-10-12T22:00:05.014Z",
+        "task": "C-investigation-v52-polymorph-newcham-continuation-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v52-polymorph-newcham-continuation-20261012-704273f10edfb0f1a59d6440631956df440d1403-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T22:00:31.947Z",
+        "task": "C-investigation-v52-polymorph-newcham-continuation-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-idle-after-newcham-accepted-704273f1-20261012",
+        "type": "turn",
+        "at": "2026-10-12T22:01:28.049Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted newcham Main is merged. Waiting for the refreshed queue and v53 baseline before selecting; the v48 version-profile case remains held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-v53-admission-start-704273f1-20261012",
+        "type": "activity",
+        "at": "2026-10-12T22:05:03.001Z",
+        "task": "Prep17",
+        "phase": "admission",
+        "reason": "Ready implementation backlog is accepted; reviewing and admitting the oldest prepared v53 batch, with 15 independently recorded C cases. Its first current-Main baseline will define new work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-v53-baseline-start-d2cfcd4e-20261012",
+        "type": "activity",
+        "at": "2026-10-12T22:09:34.940Z",
+        "task": "Prep17",
+        "phase": "baseline",
+        "reason": "V53 is admitted with 15 unchanged C cases. Hosted checkpoint 38314809018 is measuring its first current-Main baseline before workers select new failures."
       }
     ]
   },
@@ -98404,17 +98462,6 @@
         "unblocks": 0
       },
       {
-        "task": "C-investigation-v52-polymorph-newcham-continuation-20261012",
-        "worker": "C",
-        "goal": "C-v52-use-misc-newcham-caller-binding-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "30e6e3c07c06f039188e465174c1b5a349c1dbc8",
-        "since": "2026-10-12T20:14:08.627Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "Prep23",
         "worker": "Prep",
         "goal": null,
@@ -98433,19 +98480,7 @@
         "unblocks": 0
       }
     ],
-    "preparedBatches": [
-      {
-        "task": "Prep17",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "awaiting-admission",
-        "delivery": "4458b5ccea78f8f2c6e58468a554d04586a84616",
-        "batch": "v53",
-        "since": "2026-10-12T18:56:29.661Z",
-        "blockedBy": []
-      }
-    ],
+    "preparedBatches": [],
     "parkedTasks": [
       {
         "task": "C42",
@@ -98914,8 +98949,8 @@
     ]
   },
   "development": {
-    "executionCommit": "f6d9b6e0dc32799bf0b4bf7173d5357e3cdf4f69",
-    "measuredAt": "2026-10-12T21:45:45.585Z",
+    "executionCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
+    "measuredAt": "2026-10-12T22:12:07.590Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
