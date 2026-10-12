@@ -1,0 +1,77 @@
+{
+  "session": "synthetic/v48/v48-short-version-command-attempt1",
+  "remainingScreens": 1,
+  "recordedSteps": 2,
+  "corpus": "synthetic",
+  "batch": "v48",
+  "caseId": "v48-short-version-command-attempt1",
+  "manifestPath": "challenges/manifests/v48.json",
+  "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+  "recordingSha256": "9e7b91d51430831431fab258a2c212b357a795a546affdcbec72012630731899",
+  "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+  "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+  "status": "complete",
+  "commit": "36b5538f291298898d1cc981f7c94056723f6765",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v48",
+    "caseId": "v48-short-version-command-attempt1",
+    "session": "synthetic/v48/v48-short-version-command-attempt1",
+    "manifestPath": "challenges/manifests/v48.json",
+    "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+    "recording": "challenges/cases/v48/v48-short-version-command-attempt1.session.json",
+    "recordingSha256": "9e7b91d51430831431fab258a2c212b357a795a546affdcbec72012630731899",
+    "recipe": "challenges/cases/v48/v48-short-version-command-attempt1.recipe.session.json",
+    "recipeSha256": "d31b3267d8d8cb349bf6c0f5baf679547e5724eb06d4a945e4612a74818ff403",
+    "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+    "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+    "remainingScreens": 1,
+    "recordedSteps": 2,
+    "metrics": {
+      "screens": {
+        "matched": 1,
+        "total": 2
+      },
+      "rng": {
+        "matched": 2897,
+        "total": 2897
+      },
+      "cursors": {
+        "matched": 1,
+        "total": 2
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+      "step": 1
+    },
+    "step": 1,
+    "kind": "stop",
+    "sourceFile": "version.c",
+    "function": "doversion",
+    "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command"
+  },
+  "summary": "The v48 uppercase V recording selects cmd.c’s versionshort row and stops because JavaScript admits neither that command at rhack’s repeated-command boundary nor a direct versionshort result arm. The whole source unit is version.c:doversion(): with menu_requested clear it prints getversionstring() and returns ECMD_OK; with menu_requested set it returns doextversion(). Existing getversionstring() and doextversion() implementations are source-backed and already serve #version; this task adds doversion() and wires the direct key without claiming whole rhack completion.",
+  "source": {
+    "file": "version.c",
+    "branch": "cmd.c extcmdlist row 1926 binds uppercase V to versionshort/doversion with IFBURIED | GENERALCMD | CMD_M_PREFIX. version.c:doversion() returns doextversion() when iflags.menu_requested is true; otherwise it prints getversionstring() through pline and returns ECMD_OK. The ordinary uppercase V case exercises the no-prefix branch; mV exercises the menu-prefixed branch.",
+    "functions": [
+      "doversion"
+    ],
+    "callers": [
+      "nethack-c/upstream/src/cmd.c:1926-1927 registers V as versionshort with doversion; nethack-c/upstream/src/cmd.c:rhack invokes the row function and applies ECMD result handling.",
+      "js/extcmdlist_data.js already contains the versionshort row; js/cmd.js:rhack has no direct versionshort arm and ADMITTED_COMMANDS does not admit it."
+    ],
+    "dependencies": [
+      "doversion consumes getversionstring() and, for menu_requested, the ECMD result from doextversion(). Both already have source-backed implementations: js/version.js:getversionstring and doextversion; prior closed goal div-cmd-doextversion-seed0106-20260916 verified the #version dispatch path."
+    ]
+  },
+  "evidence": [
+    "The assigned admitted case v48-short-version-command-attempt1 has two recorded steps and first stops at step 1 after one matching screen and 2,897 matching RNG calls. The command byte is uppercase V; source attribution is version.c:doversion, as retained by the queue entry and baseline-b353fb527-v48.json.",
+    "Upstream cmd.c:1923-1927 distinguishes lowercase M(v), which dispatches doextversion, from uppercase V, which dispatches doversion. Upstream version.c:154-165 has two complete branches: menu_requested returns doextversion(); otherwise pline(\"%s\", getversionstring(...)) then ECMD_OK. cmd.c:rhack invokes the bound row function and applies its ECMD_OK reset path at 3810-3825.",
+    "The JavaScript extended-command table already defines versionshort/doversion at js/extcmdlist_data.js:148, but js/cmd.js:ADMITTED_COMMANDS and rhack have no direct uppercase V execution branch. Existing js/version.js:getversionstring and doextversion are reused; the earlier closed goal div-cmd-doextversion-seed0106-20260916 records that existing #version path.",
+    "Recording-environment.md states the recorder was compiled on macOS. nethack-c/build-recorder.sh pins the upstream NetHack-5.0.0_Release source and exports SOURCE_DATE_EPOCH=1777723200. nethack-c/patches/001-deterministic-runtime.patch pins date.c’s build date to May  2 2026 12:00:00; upstream mdlib.c:version_id_string formats PORT_ID, the release version, and that build date. In the released profile version.c omits branch metadata. This confirms js/version.js:RECORDER_VERSION_ID is derived from the shared recording build profile rather than from a session."
+  ],
+  "goalKind": "divergence-fix"
+}
