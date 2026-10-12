@@ -290933,7 +290933,7 @@
           "line": 3924,
           "endLine": 3944,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -291206,7 +291206,47 @@
           "luaFile": null,
           "line": null
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_stone_u",
+            "implementation": "js/uhitm.js",
+            "symbol": "do_stone_u",
+            "sourceReview": "Read the full uhitm.c:do_stone_u() body (3924-3942) and compared expression order and every arm. JavaScript checks existing Stoned, then Stone_resistance, then the conditional poly_when_stoned()/polymon() conversion; on the ordinary arm it preserves Mgender(), G_UNIQ and type_is_pname killer formatting, calls the existing potion.c:make_stoned(5L, NULL, kformat, kname) port, awaits its effects, and returns true. The conversion, existing timeout, and resistance arms return false. Removed the note_unported() substitute; make_stoned's C return is void and its state effects now reach the existing JavaScript implementation.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_ston",
+                "source": "uhitm.c:mhitm_ad_ston() monster-to-hero AD_STON arm calls do_stone_u(magr); the matching v51 trace reaches it from mhitu.c:mattacku() -> hitmu() -> mhitm_adtyping()."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_phys",
+                "source": "uhitm.c:mhitm_ad_phys()'s hero-defender AT_WEAP arm calls do_stone_u(magr) when the attacker wields a cockatrice corpse; this existing caller was read and left unchanged."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+                "segment": 0,
+                "fromStep": 88,
+                "throughStep": 88,
+                "source": "mhitu.c:mattacku() -> hitmu() -> uhitm.c:mhitm_adtyping() -> mhitm_ad_ston() -> do_stone_u() -> potion.c:make_stoned()"
+              }
+            ],
+            "checkedAt": "297c17f7d050e882e5c23c51ed4ffeb3dfc532b3"
+          }
+        ],
+        "entryPointReview": "This is a helper-only range, so entryPoints is empty. Its active source callers are uhitm.c:mhitm_ad_ston() for a cockatrice monster touch and uhitm.c:mhitm_ad_phys() for being struck with a cockatrice corpse as a weapon. The admitted v51 range exercises the first production path through the live monster-turn dispatcher; both callers remain wired to do_stone_u(). The source-owned potion.c:make_stoned() callee is already implemented in js/potion.js and receives the source arguments from do_stone_u().",
+        "entryPoints": []
+      }
     }
   ]
 }
