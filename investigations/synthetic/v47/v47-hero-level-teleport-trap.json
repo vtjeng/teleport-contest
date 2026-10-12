@@ -1,0 +1,129 @@
+{
+  "session": "synthetic/v47/v47-hero-level-teleport-trap",
+  "corpus": "synthetic",
+  "batch": "v47",
+  "caseId": "v47-hero-level-teleport-trap",
+  "manifestPath": "challenges/manifests/v47.json",
+  "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+  "recordingPath": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json",
+  "recordingSha256": "f8ecd42405608bc3a91186f5a85d41eb6ddc7ee068f5474c64aaa85d33fcb673",
+  "recipePath": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.recipe.session.json",
+  "recipeSha256": "a1cc9e7f73f380935122004f3656e756941c4aea5569f1a3840c27b2b6e44a73",
+  "evaluationPath": "challenges/evaluations/accepted-6bb984834630daf42b97272e584c999158fd328e-v47.json",
+  "evaluationCommit": "6bb984834630daf42b97272e584c999158fd328e",
+  "queueSha256": "671c87dd291f31ef8e3c4d789aaedcb98e3a9c5cfc45972da56d26d4e7e20835",
+  "remainingScreens": 2,
+  "recordedSteps": 48,
+  "status": "complete",
+  "commit": "c8339de075b847ac58e6b91364125f654c379005",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v47",
+    "caseId": "v47-hero-level-teleport-trap",
+    "session": "synthetic/v47/v47-hero-level-teleport-trap",
+    "manifestPath": "challenges/manifests/v47.json",
+    "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+    "recording": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json",
+    "recordingPath": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json",
+    "recordingSha256": "f8ecd42405608bc3a91186f5a85d41eb6ddc7ee068f5474c64aaa85d33fcb673",
+    "recipe": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.recipe.session.json",
+    "recipeSha256": "a1cc9e7f73f380935122004f3656e756941c4aea5569f1a3840c27b2b6e44a73",
+    "replayInputSha256": "629e7ad10b7cb856a252470ea52a00bbb155acd2d8a1e6327341e5745e1cf26e",
+    "evaluationPath": "challenges/evaluations/accepted-6bb984834630daf42b97272e584c999158fd328e-v47.json",
+    "evaluationCommit": "6bb984834630daf42b97272e584c999158fd328e",
+    "evaluationArtifact": "challenges/evaluations/accepted-6bb984834630daf42b97272e584c999158fd328e-v47.json",
+    "evaluationUtc": "2026-10-11T23:39:05.423Z",
+    "remainingScreens": 2,
+    "recordedSteps": 48,
+    "previousScreensMatched": 46,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 46,
+        "total": 48
+      },
+      "rng": {
+        "matched": 3418,
+        "total": 3437
+      },
+      "cursors": {
+        "matched": 46,
+        "total": 48
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: trap activation",
+      "step": 46
+    },
+    "step": 46,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero move: trap activation",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The baseline movement preflight and hero LEVEL_TELEP effect were missing, and teleport.c:dotele skipped its accepted level-teleporter helper. The complete C/JavaScript path is now implemented; independent natural-walk and #teleport recordings cover both helper callers.",
+  "source": {
+    "file": "teleport.c",
+    "branch": "When the hero activates a LEVEL_TELEP trap, trap.c:trapeffect_level_telep calls seetrap then teleport.c:level_tele_trap; when the hero invokes dotelecmd on a seen LEVEL_TELEP square, teleport.c:dotele asks for confirmation and calls level_tele_trap with FORCETRAP, spending a turn whether relocation works or not. For natural activation, trap.c:dotrap first handles the known-trap escape roll; a hidden trap or a seen trap whose rn2(5) roll does not escape reaches the effect selector.",
+    "functions": [
+      "dotele",
+      "level_tele_trap"
+    ],
+    "callers": [
+      "hack.c:domove_core -> requireSimpleHeroDestination -> spoteffects -> trap.c:dotrap -> trapeffect_selector -> trap.c:trapeffect_level_telep -> teleport.c:level_tele_trap; JavaScript already wires the preflight and production caller, but preflight_dotrap excludes LEVEL_TELEP and the effect helper refuses the hero arm.",
+      "teleport.c:dotelecmd calls dotele and maps its boolean return to ECMD_TIME or ECMD_OK; cmd.c binds both #teleport and Ctrl-T to dotelecmd, and the JavaScript command dispatcher already reaches that handler.",
+      "trap.c:drown calls dotele(FALSE) from the drowning escape path; this existing caller belongs to A2’s reserved trap.c:drown task and is a read-only caller frontier here.",
+      "dig.c:escape_tomb calls dotele(FALSE), but a repository-wide C caller search finds no active call to escape_tomb()."
+    ],
+    "dependencies": [
+      "trap.c:trapeffect_level_telep is the source caller required for the natural LEVEL_TELEP effect; its monster arm and teleport.c:mlevel_tele_trap dependency are already ported, so preserve them while completing the hero arm.",
+      "teleport.c:level_tele() and display.c:shieldeff() are existing implementations used by level_tele_trap; the new helper consumes no C callee return value."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The accepted v47 evaluation at challenges/evaluations/accepted-6bb984834630daf42b97272e584c999158fd328e-v47.json records 46/48 screens, 3418/3437 RNG values, and 46/48 cursors. The first JS stop is at segment 0 step 46 on the move input: UnsupportedHeroMoveBoundaryError('trap activation'). The recipe/recording identities are challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.recipe.session.json (a1cc9e7f73f380935122004f3656e756941c4aea5569f1a3840c27b2b6e44a73) and challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json (f8ecd42405608bc3a91186f5a85d41eb6ddc7ee068f5474c64aaa85d33fcb673).",
+    "A fresh differential from the worker base with saved-queue identity 671c87dd291f31ef8e3c4d789aaedcb98e3a9c5cfc45972da56d26d4e7e20835 showed the first C-only RNG call at segment 0 step 47 after confirmation: rn2(5)=0 at trap.c:3038. C then prints “You escape a level teleporter.” Because that roll escapes before effect selection, the admitted recording does not execute trapeffect_level_telep or level_tele_trap.",
+    "Upstream hack.c:domove_core checks the destination trap through the hero movement preflight before moving; after movement hack.c:spoteffects calls dotrap for a trap under the hero. trap.c:dotrap:3035-3043 handles the known-trap escape roll, then its final dispatch at 3059 calls trapeffect_selector; selector:2966-2967 dispatches LEVEL_TELEP to trapeffect_level_telep.",
+    "Upstream trap.c:trapeffect_level_telep:2088-2105 calls seetrap() before teleport.c:level_tele_trap() for the hero and returns Trap_Effect_Finished; its nonhero arm delegates to mlevel_tele_trap and maps that return. In js/trap_effects.js the nonhero arm is ported, but the hero arm throws unsupported and preflight_dotrap excludes LEVEL_TELEP at both the type whitelist and seen-trap gate.",
+    "Upstream teleport.c:dotele:1034-1164 first ignores unseen traps; for a seen LEVEL_TELEP it prompts and calls level_tele_trap(trap, FORCETRAP), then returns 1. js/teleport.js:dotele currently records note_unported(teleport.c level_tele_trap) and returns 1. Its production direct caller is dotelecmd; trap.c:drown is a separate active caller owned by A2 and requires no edit here.",
+    "Upstream teleport.c:level_tele_trap:1538-1574 chooses “trigger” and marks the path intentional for VIASITTING/FORCETRAP, otherwise describes locomotion onto the trap; natural antimagic shields and returns with a wrenching message, and In_endgame also returns without deletion. Otherwise it deletes/redraws the trap, calls level_tele(), reports orientation or disorientation, then applies temporary confusion only without Teleport_control. These source-order effects have no return-dependent unported callee.",
+    "Independent runtime evidence is complete. The natural trap recipe uses a debug Valkyrie, moves to ordinary floor before wishing a level teleporter underfoot, steps off and returns, accepts the prompt, selects level 2, and dismisses the arrival pager. Its C recording reaches dotrap()'s seen-trap rn2(5)=4 gate, trapeffect_level_telep(), level_tele_trap(), level_tele(), and the confusion tail; fresh differential run-QOdOgE matched 4,394 RNG calls, 52 screens, and 52 cursors. A separate fresh Wizard #teleport recipe stands on a seen wished trap, accepts the dotele() prompt, selects level 2, and dismisses the pager; run-qB8u1L matched 5,031 RNG calls, 60 screens, and 60 cursors. The natural recording also resolved an input choice: the debug Wizard variant naturally entered the Antimagic wrenching return, so the normal level-travel evidence uses a debug Valkyrie; Antimagic itself is pinned by the focused source-backed branch test."
+  ],
+  "selectionReason": "Selected from combined queue SHA-256 671c87dd291f31ef8e3c4d789aaedcb98e3a9c5cfc45972da56d26d4e7e20835, evaluated against 6bb984834630daf42b97272e584c999158fd328e. The saved stop at step 46 traces to the missing hero arm of trap.c:trapeffect_level_telep and whole teleport.c:dotele/level_tele_trap source family; the existing monster arm remains wired.",
+  "implementation": {
+    "base": "c8339de075b847ac58e6b91364125f654c379005",
+    "sourceUnits": [
+      "teleport.c:dotele",
+      "teleport.c:level_tele_trap",
+      "trap.c:trapeffect_level_telep"
+    ],
+    "changedPaths": [
+      "js/teleport.js",
+      "js/trap_effects.js",
+      "scripts/teleport.test.mjs",
+      "scripts/hero-teleport-trap.test.mjs",
+      "recipes/trap.c/hero-level-teleport-trap-walk-cfirst.session.json",
+      "recordings/trap.c/hero-level-teleport-trap-walk-cfirst.session.json",
+      "recipes/teleport.c/level-teleport-trap-dotele-cfirst.session.json",
+      "recordings/teleport.c/level-teleport-trap-dotele-cfirst.session.json"
+    ],
+    "checks": [
+      "node scripts/run-bounded.mjs focused -- node --test scripts/hero-teleport-trap.test.mjs scripts/teleport.test.mjs: PASS, 59 tests",
+      "npm run lint: PASS",
+      "node scripts/diff-fresh.mjs recipes/trap.c/hero-level-teleport-trap-walk-cfirst.session.json: PASS; 4,394 RNG calls, 52 screens/cursors",
+      "node scripts/diff-fresh.mjs recipes/teleport.c/level-teleport-trap-dotele-cfirst.session.json: PASS; 5,031 RNG calls, 60 screens/cursors"
+    ],
+    "callerFrontiers": [
+      "trap.c:drown remains A2-owned; existing js/trap.js:drown caller is unchanged and source-mapped to dotele.",
+      "dig.c:escape_tomb has a dotele call but no active C caller or JavaScript implementation.",
+      "The existing monster-on-LEVEL_TELEP mlevel_tele_trap path remains a separate helper boundary; this task changes the hero trap arm only."
+    ]
+  }
+}

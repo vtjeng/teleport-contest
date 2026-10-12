@@ -1647,7 +1647,11 @@ export async function monshoot(monster, missile, launcher, rawEnv = {}) {
             onm = obj_is_pname(missile, state) ? the(singleName, state) : an(singleName);
         }
         state.m_shot.s = ammo_and_launcher(missile, launcher, state) ? true : false;
-        const trgbuf = mtarg ? some_mon_nam(mtarg, state) : '';
+        const trgbuf = mtarg
+            ? some_mon_nam(mtarg, state, {
+                displayRandom: env.displayRandom,
+            })
+            : '';
         note_unported('pline.c set_msg_xy'); /* set_msg_xy(mtmp->mx, mtmp->my) */
         const monsterName = requireRangedOperation(env, 'monsterName');
         const message = requireRangedOperation(env, 'message');

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T22:28:39.494Z",
+  "capturedAt": "2026-10-11T22:52:17.587Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -90422,22 +90422,198 @@
         "type": "accepted",
         "at": "2026-10-11T22:27:54.887Z",
         "task": "A2-investigation-v47-earthquake-desecrates-generated-altar-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-cb45fe4ff6b9fbcde1437d8b155329c41c7d8115",
+        "type": "ready",
+        "at": "2026-10-11T22:31:20.798Z",
+        "task": "A2-investigation-v47-gremlin-pool-split-20261011",
+        "delivery": "cb45fe4ff6b9fbcde1437d8b155329c41c7d8115"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-gremlin-cb45fe4-20261011",
+        "type": "received",
+        "at": "2026-10-11T22:31:47.785Z",
+        "task": "A2-investigation-v47-gremlin-pool-split-20261011",
+        "delivery": "cb45fe4ff6b9fbcde1437d8b155329c41c7d8115"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-poly-energy-investigation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T22:33:19.893Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-mimic-investigation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T22:34:00.247Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v47-mimic-investigation-20261011",
+        "type": "assign",
+        "at": "2026-10-11T22:34:16.575Z",
+        "task": "A2-investigation-v47-mimic-hallucination-timeout-eatmupdate-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-dodrop-7cc02025d-20261011",
+        "type": "integrating",
+        "at": "2026-10-11T22:34:33.580Z",
+        "task": "A2-investigation-v47-shop-wished-dagger-sellobj-state-20261011",
+        "integration": "7cc02025d9f19e27d502479f27b5458ca3249a89"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fffa2cf2050e7c8b9e51b5295fb306a7ae347374",
+        "type": "ready",
+        "at": "2026-10-11T22:35:20.509Z",
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011",
+        "delivery": "fffa2cf2050e7c8b9e51b5295fb306a7ae347374"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-pestilence-fffa2cf-20261011",
+        "type": "received",
+        "at": "2026-10-11T22:37:03.084Z",
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011",
+        "delivery": "fffa2cf2050e7c8b9e51b5295fb306a7ae347374"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-pestilence-dependencies-20261011",
+        "type": "feedback",
+        "at": "2026-10-11T22:37:12.648Z",
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011",
+        "delivery": "fffa2cf2050e7c8b9e51b5295fb306a7ae347374"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v47-eatmupdate-20261011",
+        "type": "implement",
+        "at": "2026-10-11T22:38:04.703Z",
+        "task": "A2-investigation-v47-mimic-hallucination-timeout-eatmupdate-20261011",
+        "goal": "port-eatmupdate-v47-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v47-herolevel-implement-scope-20261011",
+        "type": "implement",
+        "at": "2026-10-11T22:38:25.212Z",
+        "task": "C-investigation-v47-hero-level-teleport-trap-cfirst-20261011",
+        "goal": "port-hero-level-teleport-trap-v47-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-v47-herolevel-active-20261011",
+        "type": "turn",
+        "at": "2026-10-11T22:38:34.557Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is completing the v47 hero level-teleport trap path from movement preflight through the trap effect and #teleport command, with separate natural-trigger and command-entry recordings."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-pestilence-provenance-correction-20261011",
+        "type": "resume",
+        "at": "2026-10-11T22:41:44.057Z",
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1a88e274ec5c3fba0ea64ffcd9cbd6bf6b4e9fff",
+        "type": "ready",
+        "at": "2026-10-11T22:41:53.167Z",
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011",
+        "delivery": "1a88e274ec5c3fba0ea64ffcd9cbd6bf6b4e9fff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-pestilence-1a88e274-20261011",
+        "type": "received",
+        "at": "2026-10-11T22:42:23.923Z",
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011",
+        "delivery": "1a88e274ec5c3fba0ea64ffcd9cbd6bf6b4e9fff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-dodrop-7cc02025d-20261011",
+        "type": "validated",
+        "at": "2026-10-11T22:43:54.118Z",
+        "task": "A2-investigation-v47-shop-wished-dagger-sellobj-state-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v47-see-invisible-investigation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T22:44:24.195Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B has resubmitted the Pestilence correction with explicit empty dependencies and begun an independent v47 investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v47-see-invisible-grid-bug-missmu-20261011",
+        "type": "assign",
+        "at": "2026-10-11T22:44:37.743Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-cadeea13d734ddb66f999005bc61156d8d470c53",
+        "type": "ready",
+        "at": "2026-10-11T22:49:53.297Z",
+        "task": "C-investigation-v47-hero-level-teleport-trap-cfirst-20261011",
+        "delivery": "cadeea13d734ddb66f999005bc61156d8d470c53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-level-teleport-cadeea13-20261011",
+        "type": "received",
+        "at": "2026-10-11T22:50:35.639Z",
+        "task": "C-investigation-v47-hero-level-teleport-trap-cfirst-20261011",
+        "delivery": "cadeea13d734ddb66f999005bc61156d8d470c53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-v48-turn-package-20261011",
+        "type": "turn",
+        "at": "2026-10-11T22:50:46.669Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v48 has thirteen approved distinct C-first mismatches; packaging and hash validation are underway."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v47-see-invisible-missmu-20261011",
+        "type": "implement",
+        "at": "2026-10-11T22:51:35.273Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
+        "goal": "fix-mhitu-missmu-see-invisible-v47-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v47-shop-wished-dagger-sellobj-state-20261011-7cc02025d9f19e27d502479f27b5458ca3249a89-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T22:51:52.891Z",
+        "task": "A2-investigation-v47-shop-wished-dagger-sellobj-state-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-investigation-v47-shop-wished-dagger-sellobj-state-20261011",
-        "worker": "A2",
-        "goal": "port-do-dodrop-shop-bracketing-v47-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "a1d584274b591a38eee25079c8af353574adf96b",
-        "since": "2026-10-11T22:06:57.045Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-investigation-v47-hallucinated-monster-missile-name-cfirst-20261011",
         "worker": "C",
@@ -90447,6 +90623,41 @@
         "delivery": "8152f46e6ad4e52097d5405d9ff5d4cd3afcd767",
         "since": "2026-10-11T22:17:52.909Z",
         "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "A2-investigation-v47-gremlin-pool-split-20261011",
+        "worker": "A2",
+        "goal": "divergence-v47-gremlin-pool-split-drown-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "cb45fe4ff6b9fbcde1437d8b155329c41c7d8115",
+        "since": "2026-10-11T22:31:20.798Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011",
+        "worker": "B",
+        "goal": "port-uhitm-mhitm-ad-dise-pest-v47-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "1a88e274ec5c3fba0ea64ffcd9cbd6bf6b4e9fff",
+        "since": "2026-10-11T22:41:53.167Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v47-hero-level-teleport-trap-cfirst-20261011",
+        "worker": "C",
+        "goal": "port-hero-level-teleport-trap-v47-20261011",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "cadeea13d734ddb66f999005bc61156d8d470c53",
+        "since": "2026-10-11T22:49:53.297Z",
+        "blockedBy": [
+          "C-investigation-v47-hallucinated-monster-missile-name-cfirst-20261011"
+        ],
         "unblocks": 0
       }
     ],
@@ -90842,8 +91053,8 @@
     ]
   },
   "development": {
-    "executionCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
-    "measuredAt": "2026-10-11T22:18:59.463Z",
+    "executionCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+    "measuredAt": "2026-10-11T22:43:45.739Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

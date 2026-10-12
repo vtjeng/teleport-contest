@@ -1,0 +1,150 @@
+{
+  "session": "synthetic/v47/v47-gremlin-pool-split",
+  "remainingScreens": 2,
+  "recordedSteps": 39,
+  "corpus": "synthetic",
+  "batch": "v47",
+  "caseId": "v47-gremlin-pool-split",
+  "manifestPath": "challenges/manifests/v47.json",
+  "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+  "recordingSha256": "cec2aac1f4630221ca4cba8708f20db1a2ebe82d18391e4b42c7c782fbaed8cd",
+  "evaluationPath": "challenges/evaluations/accepted-b43246ec1a9272603cd098324ed32ef2d3054292-v47.json",
+  "evaluationCommit": "b43246ec1a9272603cd098324ed32ef2d3054292",
+  "status": "complete",
+  "commit": "d7f8566e8f9b2c74d6221aacdc4c2635c5558fbc",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v47",
+    "caseId": "v47-gremlin-pool-split",
+    "session": "synthetic/v47/v47-gremlin-pool-split",
+    "manifestPath": "challenges/manifests/v47.json",
+    "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+    "recording": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.session.json",
+    "recordingPath": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.session.json",
+    "recordingSha256": "cec2aac1f4630221ca4cba8708f20db1a2ebe82d18391e4b42c7c782fbaed8cd",
+    "recipe": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.recipe.session.json",
+    "recipeSha256": "c4b2c4ac36c228fe2facfaf85e49edeabaf77569209ab1b25a8a2092f663ed74",
+    "replayInputSha256": "a0f1aaf2cd5c1767a7163bd1cbbb7963b7a03d21dbdb5e1ba2c14309705ca224",
+    "evaluationPath": "challenges/evaluations/accepted-b43246ec1a9272603cd098324ed32ef2d3054292-v47.json",
+    "evaluationCommit": "b43246ec1a9272603cd098324ed32ef2d3054292",
+    "evaluationArtifact": "challenges/evaluations/accepted-b43246ec1a9272603cd098324ed32ef2d3054292-v47.json",
+    "evaluationUtc": "2026-10-11T23:12:14.045Z",
+    "remainingScreens": 2,
+    "recordedSteps": 39,
+    "previousScreensMatched": 37,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 37,
+        "total": 39
+      },
+      "rng": {
+        "matched": 2666,
+        "total": 2714
+      },
+      "cursors": {
+        "matched": 38,
+        "total": 39
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 37,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 37,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 5,
+        "column": 29,
+        "cCell": {
+          "ch": "g",
+          "color": 2,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": ".",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2666,
+        "cEntry": "rn2(8)=4",
+        "cCaller": "collect_coords(teleport.c:700)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 37,
+          "key": " "
+        },
+        "stepIndex": 37
+      },
+      "cursor": {
+        "index": 38,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 38,
+          "key": " "
+        },
+        "cCursor": [
+          21,
+          0,
+          1
+        ],
+        "jsCursor": [
+          28,
+          5,
+          1
+        ]
+      }
+    },
+    "step": 37,
+    "kind": "rng",
+    "sourceFile": "teleport.c",
+    "function": "collect_coords",
+    "message": null,
+    "cFile": "teleport.c",
+    "luaFile": null,
+    "line": 700
+  },
+  "summary": "The first mismatch originates before the queue annotation teleport.c:collect_coords. When a gremlin-form hero falls into a pool, trap.c:drown() takes its successful rn2(3) split branch and calls potion.c:split_mon(&gy.youmonst, NULL). JavaScript trap.js:drown() had replaced that call with note_unported(\"mon.c split_mon\"). Restoring the canonical split_mon() call reaches mhitu.c:cloneu() and then the existing makemon.c:makemon() hero-square relocation. A fresh replay exposed a second source-traced guard mismatch: makemon_create.js:preflightCreation() rejected the clone call at its initial POOL square before C-equivalent enexto_core() relocation. The cloneuCall shape now bypasses that generic ACCESSIBLE preflight, and the admitted recording matches completely.",
+  "source": {
+    "file": "trap.c",
+    "branch": "In trap.c:drown(), after hero inventory water_damage_chain(), if u.umonnum == PM_GREMLIN and rn2(3) is nonzero, C calls (void) split_mon(&gy.youmonst, NULL). The helper’s canonical definition is potion.c:split_mon(); its hero branch calls cloneu() when u.mh > 1, divides current and maximum HP between hero and clone, sets disp.botl, and prints \"You multiply!\" only when a clone is returned. C’s mhitu.c:cloneu() invokes makemon() at the hero square with NO_MINVENT|MM_EDOG|MM_NOMSG. C makemon.c:makemon() relocates that runtime hero-square request through enexto_core() before placement checks. The existing JS makemon port recognized cloneuCall for runtime continuation and species admission but omitted it from preflightCreation()’s generic inaccessible-square rejection; this task adds that exact source call shape to the exemption so the C relocation branch runs.",
+    "functions": [
+      "drown"
+    ],
+    "callers": [
+      "The selected production path is ordinary hero movement into a pool: hack.c:pooleffects() calls drown() and consumes its relocation boolean; js/hack.js:pooleffects() awaits js/trap.js:drown().",
+      "Other existing direct JavaScript callers are already wired: trap.c:float_down() consumes drown() and js/trap.js:float_down() awaits it; do_wear.c:Amulet_off(), dothrow.c:hurtle_step(), and dbridge.c:e_died() discard the return. Their existing JS paths include do_wear.js and dothrow.js; dbridge.c:e_died() has no equivalent callsite in js/dbridge.js and is unrelated to the selected route."
+    ],
+    "dependencies": [
+      "The canonical potion.c:split_mon() is implemented as js/potion.js:split_mon(); trap.c:drown() discards its return, so the caller need not consume it.",
+      "mhitu.c:cloneu() is implemented as js/mhitu.js:cloneu() and consumes makemon()’s returned pointer; that callee is already source-mapped in js/makemon_create.js. The scoped makemon correction changes only preflightCreation() admission for cloneuCall and leaves the existing relocation/runtime implementation intact.",
+      "C makemon.c:makemon() computes byyou from the hero coordinates, then calls enexto_core() before the sanity and occupancy checks. Its C source does not reject the requested hero square by ACCESSIBLE terrain before that relocation.",
+      "The selected entry reaches trap.c:drown() through hack.c:pooleffects(); existing water_damage_chain() and terrain-entry wiring precede the gremlin branch."
+    ],
+    "guardCorrection": {
+      "cFile": "makemon.c",
+      "function": "makemon",
+      "sourceRange": "1147-1513",
+      "branch": "else if (byyou && !gi.in_mklev): enexto_core(..., gpflags), then retry without GP_CHECKSCARY if needed; return NULL only when both searches fail.",
+      "javascript": "js/makemon_create.js:preflightCreation() recognizes cloneuCall from mhitu.c:cloneu() arguments. The generic non-mklev ACCESSIBLE guard must exclude that exact call shape so makemon() reaches its existing hero-square relocation.",
+      "evidence": "scripts/makemon-create.test.mjs pins source order and exercises a cloneuCall at POOL with eight adjacent ROOM squares."
+    }
+  },
+  "goalKind": "divergence-fix",
+  "selectionReason": "Selected from combined queue SHA-256 21233e58ccbd14b60e0e374a5189046e5c687cf1f005645d79a6ad2e686e6175, evaluated against b43246ec1a9272603cd098324ed32ef2d3054292. Queue annotation names teleport.c:collect_coords, but source tracing shows that is downstream: the already implemented trap.c:drown() gremlin branch still skips the canonical potion.c:split_mon() call with a stale note_unported marker. Because the correction restores the source call in an otherwise implemented caller rather than adding a new source unit, classify it as a divergence-fix. No other worker reservation overlaps this session or caller.",
+  "evidence": [
+    "The immutable queue entry records batch v47, case v47-gremlin-pool-split, manifest SHA-256 b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608, recording SHA-256 cec2aac1f4630221ca4cba8708f20db1a2ebe82d18391e4b42c7c782fbaed8cd, evaluation challenges/evaluations/accepted-b43246ec1a9272603cd098324ed32ef2d3054292-v47.json from b43246ec1a9272603cd098324ed32ef2d3054292, and a first mismatch at segment 0 step 37 on key space. C reports rn2(8)=4 at collect_coords(teleport.c:700); screen cell row 5 column 29 is a green gremlin in C and floor in JS.",
+    "The recording uses seed 47001012, debug Monk with pettype:none, polymorphs the hero into a gremlin, wishes for a pool, then moves into it while overloaded. Step 37 follows water-damage inventory processing and has C rn2(3)=2 at drown(trap.c:5088), followed by the collect_coords shuffle and later “You multiply!”; the second gremlin appears at row 5, column 29.",
+    "Upstream trap.c:drown() at lines 5059-5200 calls (void) split_mon(&gy.youmonst, NULL) in its PM_GREMLIN branch at line 5089. The helper’s canonical definition is potion.c:split_mon() at lines 2873-2935; its hero branch calls cloneu() and emits the multiplication message only on successful clone creation.",
+    "At the investigated baseline, js/trap.js:drown() at line 1417 substituted note_unported(\"mon.c split_mon\") for the source call. js/potion.js:split_mon() and js/mhitu.js:cloneu() already provided the source helpers. Therefore C entered clone placement and consumed teleport.c:collect_coords RNG while JS never reached that downstream path.",
+    "After the two scoped corrections, `node scripts/diff-fresh.mjs challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.recipe.session.json` passes exactly: 2714/2714 PRNG values, 39/39 screens and 39/39 cursors (bounded run-47NyHt). The C clone request begins at the hero’s pool square, is relocated to accessible terrain by makemon.c:makemon(), and the replay completes through the session’s final boundary."
+  ]
+}

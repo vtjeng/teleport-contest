@@ -277290,7 +277290,7 @@
     {
       "id": "port-do-dodrop-shop-bracketing-v47-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port do.c dodrop shop state bracketing and wire every active command path.",
       "cFile": "do.c",
       "sessions": [
@@ -277304,8 +277304,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dodrop",
@@ -277554,6 +277557,1482 @@
             ],
             "recordings": [
               "recordings/do.c/dodrop-via-itemaction-knight-47111304.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+          "recipe": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "d2da34f57daaaafb38866d452b63d8dbd42ee7fa80471edb5d112ef3dd69aec0",
+          "replayInputSha256": "6bc731e836ab03eb03f780f9eeec2d63994ab35dded835c7ecef5fd3a290d09a",
+          "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+          "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+          "evaluationArtifact": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+          "evaluationUtc": "2026-10-11T22:49:06.037Z",
+          "remainingScreens": 3,
+          "recordedSteps": 51,
+          "previousScreensMatched": 47,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 51
+            },
+            "rng": {
+              "matched": 5396,
+              "total": 5406
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: a costly shop spot",
+            "step": 48
+          },
+          "step": 48,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: a costly shop spot",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.json",
+            "previousRemainingScreens": 4
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "div-monshoot-hallucinated-display-rng-v47-20261011",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Keep hallucinated monster missile naming and projectile glyphs on the injected display RNG in live and planned callers.",
+      "cFile": "mthrowu.c",
+      "sessions": [],
+      "selectionReason": "The current v47 evaluation still first differs at step 106 while gameplay RNG and cursors fully match. The refreshed investigation traces the screen-only mismatch to mthrowu.c:monshoot naming and m_throw projectile glyphs losing the cloned display RNG in the shared JavaScript missile adapter; both thrwmu and thrwmm callers are exercised.",
+      "detail": "Pass the caller-owned display RNG through monshoot target naming, m_throw object glyph selection, and the pet mattackm adapter. This is a bounded divergence correction; m_throw remains incomplete for whole-source completion because its active spitmm caller lacks matching runtime evidence.",
+      "openedAt": "4c479a3cbaa79606869513990133a18758182f6f",
+      "openStanding": {
+        "sha": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "b43246ec1a9272603cd098324ed32ef2d3054292",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "monshoot",
+      "session": "synthetic/v47/v47-hallucinated-monster-missile-name",
+      "step": 106,
+      "syntheticProvenance": {
+        "synthetic/v47/v47-hallucinated-monster-missile-name": {
+          "session": "synthetic/v47/v47-hallucinated-monster-missile-name",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-hallucinated-monster-missile-name",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+          "recordingSha256": "1631f5a7c1ff2e11a7a30fc0a833bf5a75fcbc26d72f77ef189a3af4acb44cf2",
+          "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+          "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89"
+        }
+      },
+      "activeStanding": {
+        "sha": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-hallucinated-monster-missile-name",
+          "session": "synthetic/v47/v47-hallucinated-monster-missile-name",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+          "recordingPath": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+          "recordingSha256": "1631f5a7c1ff2e11a7a30fc0a833bf5a75fcbc26d72f77ef189a3af4acb44cf2",
+          "recipe": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.recipe.session.json",
+          "recipeSha256": "c0ac53348e193efabe631b3236de434743b423994b19f9014b8257c12fe00ff0",
+          "replayInputSha256": "6bc731e836ab03eb03f780f9eeec2d63994ab35dded835c7ecef5fd3a290d09a",
+          "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+          "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+          "evaluationArtifact": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+          "evaluationUtc": "2026-10-11T22:49:06.037Z",
+          "remainingScreens": 15,
+          "recordedSteps": 121,
+          "previousScreensMatched": 106,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 106,
+              "total": 121
+            },
+            "rng": {
+              "matched": 5548,
+              "total": 5548
+            },
+            "cursors": {
+              "matched": 121,
+              "total": 121
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 106,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 106,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "D",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 106,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-hallucinated-monster-missile-name.json",
+            "result": {
+              "session": "synthetic/v47/v47-hallucinated-monster-missile-name",
+              "remainingScreens": 15,
+              "recordedSteps": 121,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-hallucinated-monster-missile-name",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingPath": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+              "recordingSha256": "1631f5a7c1ff2e11a7a30fc0a833bf5a75fcbc26d72f77ef189a3af4acb44cf2",
+              "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+              "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+              "status": "complete",
+              "commit": "005e9b1af7ebb16e47a3d57d7eed0523584fe7df",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-hallucinated-monster-missile-name",
+                "session": "synthetic/v47/v47-hallucinated-monster-missile-name",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+                "recordingPath": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+                "recordingSha256": "1631f5a7c1ff2e11a7a30fc0a833bf5a75fcbc26d72f77ef189a3af4acb44cf2",
+                "recipe": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.recipe.session.json",
+                "recipeSha256": "c0ac53348e193efabe631b3236de434743b423994b19f9014b8257c12fe00ff0",
+                "replayInputSha256": "6bc731e836ab03eb03f780f9eeec2d63994ab35dded835c7ecef5fd3a290d09a",
+                "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+                "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+                "evaluationArtifact": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+                "evaluationUtc": "2026-10-11T22:49:06.037Z",
+                "remainingScreens": 15,
+                "recordedSteps": 121,
+                "previousScreensMatched": 106,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 106,
+                    "total": 121
+                  },
+                  "rng": {
+                    "matched": 5548,
+                    "total": 5548
+                  },
+                  "cursors": {
+                    "matched": 121,
+                    "total": 121
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 106,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 106,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "D",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 106,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the hallucinated attacker name in mthrowu.c:monshoot. C calls Monnam(mtmp), whose x_monnam path uses rndmonnam() and the display RNG. The existing JavaScript monsterMissileEnv adapter calls capitalizedMonsterName() without the displayRandom supplied by the planned monster scan, so it names the same missile action from the live display stream instead of the clone. Both direct monshoot callers are active and independently exercised: thrwmu against the hero in the selected case, and thrwmm against another monster in a fresh C probe.",
+              "source": {
+                "file": "mthrowu.c",
+                "branch": "When canseemon(mtmp) is true, monshoot() prints Monnam(mtmp). Under Hallucination, do_name.c:x_monnam() calls rndmonnam(), which draws from rn2_on_display_rng(). The JavaScript caller adapter must supply the display RNG clone when it names a planned missile action.",
+                "functions": [
+                  "monshoot"
+                ],
+                "callers": [
+                  "mthrowu.c:thrwmu() calls monshoot() for the monster-to-hero missile path; mhitu.c:mattacku() dispatches to thrwmu() at line 886.",
+                  "mthrowu.c:thrwmm() calls monshoot() for a monster-to-monster missile path; mhitm.c:mattackm() dispatches to thrwmm() for an AT_WEAP attack when distmin() is greater than one at line 396.",
+                  "dogmove.c:pet_ranged_attk() calls mattackm() for a selected nonhero target at line 923, establishing the active production route into thrwmm()."
+                ],
+                "dependencies": []
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved v47 evaluation at challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json for v47-hallucinated-monster-missile-name records 106 of 121 matching screens, all 5,548 gameplay RNG calls, and all 121 cursors. The first mismatch is segment 0 step 106 on key l: C prints “Dudley throws a dart!” while JavaScript prints “The imp throws a dart!”. The selected recipe and recording are preserved at challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.recipe.session.json and challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json.",
+                "Upstream mthrowu.c:260-314 implements monshoot(). Its visible arm calls Monnam(mtmp) before announcing the selected projectile. mthrowu.c:1174-1263 shows thrwmu() calling monshoot() at line 1262; the selected C recording reaches this route from mhitu.c:mattacku() at line 886.",
+                "Upstream mthrowu.c:968-1012 shows thrwmm() calling monshoot() at line 1005. mhitm.c:396-404 calls thrwmm() for an AT_WEAP attack when the target is farther than one square. dogmove.c:889-967 reaches that arm through pet_ranged_attk() line 923 when a pet chooses a nonhero target.",
+                "A separate C-only probe at .cache/c47-thrwmm-hallu-probe27.recipe.session.json and .cache/c47-thrwmm-hallu-probe27.session.json (seed 47000754) exercises the pet route under hallucination. At steps 81-85, C announces “The sergeant throws a crude dagger at the lag monster!”; the step records score_targ(dogmove.c:830), m_throw(mthrowu.c:798), and ohitmon(mthrowu.c:350), matching the source route through mattackm(), thrwmm(), and monshoot().",
+                "In js/unported_monster_actions.js:1263-1360, monsterMissileEnv() adapts monshoot() naming with monsterName: subject => capitalizedMonsterName(subject, env.state), which omits env.displayRandom. do_name.c:946-955 establishes that hallucinated x_monnam() consumes rn2_on_display_rng(). js/do_name.js:1396-1401 expects x_monnam() to receive env.displayRandom, and js/unported_monster_actions.js:1964-1970 supplies a cloned displayRandom to planned monster scans. The faulty adapter drops that clone for both missile callers."
+              ],
+              "selectionRefresh": {
+                "queueSha256": "5cff7cc860424ffc8294a2096623d85f0f1698cb425f41772fb0df725d44fb3e",
+                "evaluatedAt": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+                "note": "The same step-106 display mismatch remains actionable after the accepted shop-drop integration."
+              }
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b43246ec1a9272603cd098324ed32ef2d3054292",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "divergence-v47-gremlin-pool-split-drown-20261011",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore the gremlin pool-split call through canonical clone placement.",
+      "cFile": "trap.c",
+      "sessions": [],
+      "selectionReason": "The accepted b43246ec1 v47 queue has two screens left for synthetic/v47/v47-gremlin-pool-split. The checked investigation traces the annotated teleport.c:collect_coords RNG gap upstream to trap.c:drown skipping the existing potion.c:split_mon call; the bounded fix also admits that canonical cloneu hero-square makemon call shape.",
+      "detail": "investigations/synthetic/v47/v47-gremlin-pool-split.json records the immutable v47 case, current evaluation provenance, source branch, active callers, and exact step-37 trace.",
+      "openedAt": "a41378f6e7f46e86d19bf26f55c644784458f640",
+      "openStanding": {
+        "sha": "b43246ec1a9272603cd098324ed32ef2d3054292",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "6bb984834630daf42b97272e584c999158fd328e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "drown",
+      "session": "synthetic/v47/v47-gremlin-pool-split",
+      "step": 37,
+      "syntheticProvenance": {
+        "synthetic/v47/v47-gremlin-pool-split": {
+          "session": "synthetic/v47/v47-gremlin-pool-split",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-gremlin-pool-split",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.session.json",
+          "recordingSha256": "cec2aac1f4630221ca4cba8708f20db1a2ebe82d18391e4b42c7c782fbaed8cd",
+          "evaluationPath": "challenges/evaluations/accepted-b43246ec1a9272603cd098324ed32ef2d3054292-v47.json",
+          "evaluationCommit": "b43246ec1a9272603cd098324ed32ef2d3054292"
+        }
+      },
+      "activeStanding": {
+        "sha": "b43246ec1a9272603cd098324ed32ef2d3054292",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-gremlin-pool-split",
+          "session": "synthetic/v47/v47-gremlin-pool-split",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.session.json",
+          "recordingPath": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.session.json",
+          "recordingSha256": "cec2aac1f4630221ca4cba8708f20db1a2ebe82d18391e4b42c7c782fbaed8cd",
+          "recipe": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.recipe.session.json",
+          "recipeSha256": "c4b2c4ac36c228fe2facfaf85e49edeabaf77569209ab1b25a8a2092f663ed74",
+          "replayInputSha256": "a0f1aaf2cd5c1767a7163bd1cbbb7963b7a03d21dbdb5e1ba2c14309705ca224",
+          "evaluationPath": "challenges/evaluations/accepted-b43246ec1a9272603cd098324ed32ef2d3054292-v47.json",
+          "evaluationCommit": "b43246ec1a9272603cd098324ed32ef2d3054292",
+          "evaluationArtifact": "challenges/evaluations/accepted-b43246ec1a9272603cd098324ed32ef2d3054292-v47.json",
+          "evaluationUtc": "2026-10-11T23:12:14.045Z",
+          "remainingScreens": 2,
+          "recordedSteps": 39,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2666,
+              "total": 2714
+            },
+            "cursors": {
+              "matched": 38,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 37,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 5,
+              "column": 29,
+              "cCell": {
+                "ch": "g",
+                "color": 2,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2666,
+              "cEntry": "rn2(8)=4",
+              "cCaller": "collect_coords(teleport.c:700)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": " "
+              },
+              "stepIndex": 37
+            },
+            "cursor": {
+              "index": 38,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 38,
+                "key": " "
+              },
+              "cCursor": [
+                21,
+                0,
+                1
+              ],
+              "jsCursor": [
+                28,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 37,
+          "kind": "rng",
+          "sourceFile": "teleport.c",
+          "function": "collect_coords",
+          "message": null,
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": 700,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-gremlin-pool-split.json",
+            "result": {
+              "session": "synthetic/v47/v47-gremlin-pool-split",
+              "remainingScreens": 2,
+              "recordedSteps": 39,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-gremlin-pool-split",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingSha256": "cec2aac1f4630221ca4cba8708f20db1a2ebe82d18391e4b42c7c782fbaed8cd",
+              "evaluationPath": "challenges/evaluations/accepted-b43246ec1a9272603cd098324ed32ef2d3054292-v47.json",
+              "evaluationCommit": "b43246ec1a9272603cd098324ed32ef2d3054292",
+              "status": "complete",
+              "commit": "d7f8566e8f9b2c74d6221aacdc4c2635c5558fbc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-gremlin-pool-split",
+                "session": "synthetic/v47/v47-gremlin-pool-split",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.session.json",
+                "recordingPath": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.session.json",
+                "recordingSha256": "cec2aac1f4630221ca4cba8708f20db1a2ebe82d18391e4b42c7c782fbaed8cd",
+                "recipe": "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.recipe.session.json",
+                "recipeSha256": "c4b2c4ac36c228fe2facfaf85e49edeabaf77569209ab1b25a8a2092f663ed74",
+                "replayInputSha256": "a0f1aaf2cd5c1767a7163bd1cbbb7963b7a03d21dbdb5e1ba2c14309705ca224",
+                "evaluationPath": "challenges/evaluations/accepted-b43246ec1a9272603cd098324ed32ef2d3054292-v47.json",
+                "evaluationCommit": "b43246ec1a9272603cd098324ed32ef2d3054292",
+                "evaluationArtifact": "challenges/evaluations/accepted-b43246ec1a9272603cd098324ed32ef2d3054292-v47.json",
+                "evaluationUtc": "2026-10-11T23:12:14.045Z",
+                "remainingScreens": 2,
+                "recordedSteps": 39,
+                "previousScreensMatched": 37,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2666,
+                    "total": 2714
+                  },
+                  "cursors": {
+                    "matched": 38,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 37,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 5,
+                    "column": 29,
+                    "cCell": {
+                      "ch": "g",
+                      "color": 2,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2666,
+                    "cEntry": "rn2(8)=4",
+                    "cCaller": "collect_coords(teleport.c:700)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": " "
+                    },
+                    "stepIndex": 37
+                  },
+                  "cursor": {
+                    "index": 38,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      21,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      28,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 37,
+                "kind": "rng",
+                "sourceFile": "teleport.c",
+                "function": "collect_coords",
+                "message": null,
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "line": 700
+              },
+              "summary": "The first mismatch originates before the queue annotation teleport.c:collect_coords. When a gremlin-form hero falls into a pool, trap.c:drown() takes its successful rn2(3) split branch and calls potion.c:split_mon(&youmonst, NULL). JavaScript trap.js:drown() instead records note_unported(\"mon.c split_mon\"), although the canonical potion.js:split_mon() and its cloneu() dependency are already implemented. C then creates the second gremlin through mhitu.c:cloneu() -> makemon.c:makemon() -> teleport.c:enexto_core() -> collect_coords(); that downstream placement is why collect_coords owns the next C RNG entry, not the source defect.",
+              "source": {
+                "file": "trap.c",
+                "branch": "In drown(), after hero inventory water_damage_chain(), if u.umonnum == PM_GREMLIN and rn2(3) is nonzero, C calls (void) split_mon(&gy.youmonst, NULL). The return is discarded; potion.c:split_mon() clamps current polymorph HP, conditionally calls cloneu() when u.mh > 1, divides current and maximum HP between the hero and clone, sets disp.botl, and prints \"You multiply!\" only when a clone is returned. The selected C record reaches this branch at segment 0 step 37. JavaScript currently skips it with note_unported(\"mon.c split_mon\"), despite an existing complete potion.c:split_mon owner.",
+                "functions": [
+                  "drown"
+                ],
+                "callers": [
+                  "The selected production path is ordinary hero movement into a pool: hack.c:pooleffects() calls drown() and consumes its relocation boolean; js/hack.js:pooleffects() awaits js/trap.js:drown().",
+                  "Other existing direct JavaScript callers are already wired: trap.c:float_down() consumes drown() and js/trap.js:float_down() awaits it; do_wear.c:Amulet_off(), dothrow.c:hurtle_step(), and dbridge.c:e_died() discard the return. Their existing JS paths include do_wear.js and dothrow.js; dbridge.c:e_died() has no equivalent callsite in js/dbridge.js and is unrelated to the selected route."
+                ],
+                "dependencies": [
+                  "The canonical potion.c:split_mon() is already implemented as js/potion.js:split_mon(); its discarded clone return does not need to be read by trap.c:drown().",
+                  "The hero clone path is already implemented by mhitu.c:cloneu() in js/mhitu.js, then makemon.c:makemon() and teleport.c:enexto_core()/collect_coords() in existing owners. The queue teleport.c:collect_coords annotation is the first downstream RNG call after the missing split, not the root cause.",
+                  "The selected entry reaches trap.c:drown() through hack.c:pooleffects(); existing water_damage_chain() and terrain-entry wiring precede the gremlin branch."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "selectionReason": "Selected from combined queue SHA-256 21233e58ccbd14b60e0e374a5189046e5c687cf1f005645d79a6ad2e686e6175, evaluated against b43246ec1a9272603cd098324ed32ef2d3054292. Queue annotation names teleport.c:collect_coords, but source tracing shows that is downstream: the already implemented trap.c:drown() gremlin branch still skips the canonical potion.c:split_mon() call with a stale note_unported marker. Because the correction restores the source call in an otherwise implemented caller rather than adding a new source unit, classify it as a divergence-fix. No other worker reservation overlaps this session or caller.",
+              "evidence": [
+                "The immutable queue entry records batch v47, case v47-gremlin-pool-split, manifest SHA-256 b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608, recording SHA-256 cec2aac1f4630221ca4cba8708f20db1a2ebe82d18391e4b42c7c782fbaed8cd, evaluation challenges/evaluations/accepted-b43246ec1a9272603cd098324ed32ef2d3054292-v47.json from b43246ec1a9272603cd098324ed32ef2d3054292, and a first mismatch at segment 0 step 37 on key space. C reports rn2(8)=4 at collect_coords(teleport.c:700); screen cell row 5 column 29 is a green gremlin in C and floor in JS.",
+                "The recording uses seed 47001012, debug Monk with pettype:none, polymorphs the hero into a gremlin, wishes for a pool, then moves into it while overloaded. Step 37 follows water-damage inventory processing and has C rn2(3)=2 at drown(trap.c:5088), followed by the collect_coords shuffle and later “You multiply!”; the second gremlin appears at row 5, column 29.",
+                "Upstream trap.c:drown() at lines 5059-5200 calls (void) split_mon(&gy.youmonst, NULL) in its PM_GREMLIN branch at line 5089. The helper’s canonical definition is potion.c:split_mon() at lines 2873-2935; its hero branch calls cloneu() and emits the multiplication message only on successful clone creation.",
+                "Current js/trap.js:drown() at line 1417 substitutes note_unported(\"mon.c split_mon\") for the source call. js/potion.js:split_mon() and js/mhitu.js:cloneu() already provide the source helpers. Therefore C enters clone placement and consumes teleport.c:collect_coords RNG while JS never reaches that downstream path."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6bb984834630daf42b97272e584c999158fd328e",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-hero-level-teleport-trap-v47-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port hero level-teleport trap activation and command dispatch.",
+      "cFile": "teleport.c",
+      "sessions": [
+        "synthetic/v47/v47-hero-level-teleport-trap"
+      ],
+      "selectionReason": "The accepted 6bb984834 v47 queue stops at hero movement onto a LEVEL_TELEP trap. The checked investigation traces the complete source scope to teleport.c:dotele, teleport.c:level_tele_trap, and the required trap.c:trapeffect_level_telep caller; independent C recordings cover natural and forced activation.",
+      "detail": "investigations/synthetic/v47/v47-hero-level-teleport-trap.json records current v47 provenance, source branches, callers, and the evidence gap filled by independent recordings.",
+      "openedAt": "c880815d308439e63efe832f8847defedddba27d",
+      "openStanding": {
+        "sha": "6bb984834630daf42b97272e584c999158fd328e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "47b7ce458965199c8f97771a983240cc8d0f0e21",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "dotele",
+          "line": 1034,
+          "endLine": 1164,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1034,
+        "to": 1164
+      },
+      "requiredFunctions": [
+        {
+          "name": "level_tele_trap",
+          "line": 1538,
+          "endLine": 1574,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": true
+        },
+        {
+          "name": "trapeffect_level_telep",
+          "line": 2088,
+          "endLine": 2105,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v47/v47-hero-level-teleport-trap": {
+          "session": "synthetic/v47/v47-hero-level-teleport-trap",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-hero-level-teleport-trap",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json",
+          "recordingSha256": "f8ecd42405608bc3a91186f5a85d41eb6ddc7ee068f5474c64aaa85d33fcb673",
+          "evaluationPath": "challenges/evaluations/accepted-6bb984834630daf42b97272e584c999158fd328e-v47.json",
+          "evaluationCommit": "6bb984834630daf42b97272e584c999158fd328e"
+        }
+      },
+      "activeStanding": {
+        "sha": "6bb984834630daf42b97272e584c999158fd328e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-hero-level-teleport-trap",
+          "session": "synthetic/v47/v47-hero-level-teleport-trap",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json",
+          "recordingPath": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json",
+          "recordingSha256": "f8ecd42405608bc3a91186f5a85d41eb6ddc7ee068f5474c64aaa85d33fcb673",
+          "recipe": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.recipe.session.json",
+          "recipeSha256": "a1cc9e7f73f380935122004f3656e756941c4aea5569f1a3840c27b2b6e44a73",
+          "replayInputSha256": "629e7ad10b7cb856a252470ea52a00bbb155acd2d8a1e6327341e5745e1cf26e",
+          "evaluationPath": "challenges/evaluations/accepted-6bb984834630daf42b97272e584c999158fd328e-v47.json",
+          "evaluationCommit": "6bb984834630daf42b97272e584c999158fd328e",
+          "evaluationArtifact": "challenges/evaluations/accepted-6bb984834630daf42b97272e584c999158fd328e-v47.json",
+          "evaluationUtc": "2026-10-11T23:39:05.423Z",
+          "remainingScreens": 2,
+          "recordedSteps": 48,
+          "previousScreensMatched": 46,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 46,
+              "total": 48
+            },
+            "rng": {
+              "matched": 3418,
+              "total": 3437
+            },
+            "cursors": {
+              "matched": 46,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: trap activation",
+            "step": 46
+          },
+          "step": 46,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: trap activation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-hero-level-teleport-trap.json",
+            "result": {
+              "session": "synthetic/v47/v47-hero-level-teleport-trap",
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-hero-level-teleport-trap",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingPath": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json",
+              "recordingSha256": "f8ecd42405608bc3a91186f5a85d41eb6ddc7ee068f5474c64aaa85d33fcb673",
+              "recipePath": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.recipe.session.json",
+              "recipeSha256": "a1cc9e7f73f380935122004f3656e756941c4aea5569f1a3840c27b2b6e44a73",
+              "evaluationPath": "challenges/evaluations/accepted-6bb984834630daf42b97272e584c999158fd328e-v47.json",
+              "evaluationCommit": "6bb984834630daf42b97272e584c999158fd328e",
+              "queueSha256": "671c87dd291f31ef8e3c4d789aaedcb98e3a9c5cfc45972da56d26d4e7e20835",
+              "remainingScreens": 2,
+              "recordedSteps": 48,
+              "status": "complete",
+              "commit": "c8339de075b847ac58e6b91364125f654c379005",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-hero-level-teleport-trap",
+                "session": "synthetic/v47/v47-hero-level-teleport-trap",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json",
+                "recordingPath": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json",
+                "recordingSha256": "f8ecd42405608bc3a91186f5a85d41eb6ddc7ee068f5474c64aaa85d33fcb673",
+                "recipe": "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.recipe.session.json",
+                "recipeSha256": "a1cc9e7f73f380935122004f3656e756941c4aea5569f1a3840c27b2b6e44a73",
+                "replayInputSha256": "629e7ad10b7cb856a252470ea52a00bbb155acd2d8a1e6327341e5745e1cf26e",
+                "evaluationPath": "challenges/evaluations/accepted-6bb984834630daf42b97272e584c999158fd328e-v47.json",
+                "evaluationCommit": "6bb984834630daf42b97272e584c999158fd328e",
+                "evaluationArtifact": "challenges/evaluations/accepted-6bb984834630daf42b97272e584c999158fd328e-v47.json",
+                "evaluationUtc": "2026-10-11T23:39:05.423Z",
+                "remainingScreens": 2,
+                "recordedSteps": 48,
+                "previousScreensMatched": 46,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 46,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 3418,
+                    "total": 3437
+                  },
+                  "cursors": {
+                    "matched": 46,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: trap activation",
+                  "step": 46
+                },
+                "step": 46,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: trap activation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The JavaScript movement preflight and trap selector omit the hero LEVEL_TELEP arm, and teleport.c:dotele still records level_tele_trap as unported. The selected recording only reaches trap.c:dotrap’s known-trap rn2(5) escape arm (C draws 0), so source completion also requires independent matching evidence for natural unseen-trap activation and the #teleport command on a known trap.",
+              "source": {
+                "file": "teleport.c",
+                "branch": "When the hero activates a LEVEL_TELEP trap, trap.c:trapeffect_level_telep calls seetrap then teleport.c:level_tele_trap; when the hero invokes dotelecmd on a seen LEVEL_TELEP square, teleport.c:dotele asks for confirmation and calls level_tele_trap with FORCETRAP, spending a turn whether relocation works or not. For natural activation, trap.c:dotrap first handles the known-trap escape roll; a hidden trap or a seen trap whose rn2(5) roll does not escape reaches the effect selector.",
+                "functions": [
+                  "dotele",
+                  "level_tele_trap"
+                ],
+                "callers": [
+                  "hack.c:domove_core -> requireSimpleHeroDestination -> spoteffects -> trap.c:dotrap -> trapeffect_selector -> trap.c:trapeffect_level_telep -> teleport.c:level_tele_trap; JavaScript already wires the preflight and production caller, but preflight_dotrap excludes LEVEL_TELEP and the effect helper refuses the hero arm.",
+                  "teleport.c:dotelecmd calls dotele and maps its boolean return to ECMD_TIME or ECMD_OK; cmd.c binds both #teleport and Ctrl-T to dotelecmd, and the JavaScript command dispatcher already reaches that handler.",
+                  "trap.c:drown calls dotele(FALSE) from the drowning escape path; this existing caller belongs to A2’s reserved trap.c:drown task and is a read-only caller frontier here.",
+                  "dig.c:escape_tomb calls dotele(FALSE), but a repository-wide C caller search finds no active call to escape_tomb()."
+                ],
+                "dependencies": [
+                  "trap.c:trapeffect_level_telep is the source caller required for the natural LEVEL_TELEP effect; its monster arm and teleport.c:mlevel_tele_trap dependency are already ported, so preserve them while completing the hero arm.",
+                  "teleport.c:level_tele() and display.c:shieldeff() are existing implementations used by level_tele_trap; the new helper consumes no C callee return value."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The accepted v47 evaluation at challenges/evaluations/accepted-6bb984834630daf42b97272e584c999158fd328e-v47.json records 46/48 screens, 3418/3437 RNG values, and 46/48 cursors. The first JS stop is at segment 0 step 46 on the move input: UnsupportedHeroMoveBoundaryError('trap activation'). The recipe/recording identities are challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.recipe.session.json (a1cc9e7f73f380935122004f3656e756941c4aea5569f1a3840c27b2b6e44a73) and challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json (f8ecd42405608bc3a91186f5a85d41eb6ddc7ee068f5474c64aaa85d33fcb673).",
+                "A fresh differential from the worker base with saved-queue identity 671c87dd291f31ef8e3c4d789aaedcb98e3a9c5cfc45972da56d26d4e7e20835 showed the first C-only RNG call at segment 0 step 47 after confirmation: rn2(5)=0 at trap.c:3038. C then prints “You escape a level teleporter.” Because that roll escapes before effect selection, the admitted recording does not execute trapeffect_level_telep or level_tele_trap.",
+                "Upstream hack.c:domove_core checks the destination trap through the hero movement preflight before moving; after movement hack.c:spoteffects calls dotrap for a trap under the hero. trap.c:dotrap:3035-3043 handles the known-trap escape roll, then its final dispatch at 3059 calls trapeffect_selector; selector:2966-2967 dispatches LEVEL_TELEP to trapeffect_level_telep.",
+                "Upstream trap.c:trapeffect_level_telep:2088-2105 calls seetrap() before teleport.c:level_tele_trap() for the hero and returns Trap_Effect_Finished; its nonhero arm delegates to mlevel_tele_trap and maps that return. In js/trap_effects.js the nonhero arm is ported, but the hero arm throws unsupported and preflight_dotrap excludes LEVEL_TELEP at both the type whitelist and seen-trap gate.",
+                "Upstream teleport.c:dotele:1034-1164 first ignores unseen traps; for a seen LEVEL_TELEP it prompts and calls level_tele_trap(trap, FORCETRAP), then returns 1. js/teleport.js:dotele currently records note_unported(teleport.c level_tele_trap) and returns 1. Its production direct caller is dotelecmd; trap.c:drown is a separate active caller owned by A2 and requires no edit here.",
+                "Upstream teleport.c:level_tele_trap:1538-1574 chooses “trigger” and marks the path intentional for VIASITTING/FORCETRAP, otherwise describes locomotion onto the trap; natural antimagic shields and returns with a wrenching message, and In_endgame also returns without deletion. Otherwise it deletes/redraws the trap, calls level_tele(), reports orientation or disorientation, then applies temporary confusion only without Teleport_control. These source-order effects have no return-dependent unported callee.",
+                "Independent runtime evidence will use a wizard terrain wish for an initially unseen LEVEL_TELEP, step away, and re-enter so the ordinary movement path reaches the natural helper. A separate recording will source-reveal a wished trap, stand on its seen square, and use #teleport to exercise dotelecmd -> dotele -> level_tele_trap(FORCETRAP); neither recipe will reuse the selected challenge inputs."
+              ],
+              "selectionReason": "Selected from combined queue SHA-256 671c87dd291f31ef8e3c4d789aaedcb98e3a9c5cfc45972da56d26d4e7e20835, evaluated against 6bb984834630daf42b97272e584c999158fd328e. The saved stop at step 46 traces to the missing hero arm of trap.c:trapeffect_level_telep and whole teleport.c:dotele/level_tele_trap source family; the existing monster arm remains wired."
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dotele",
+            "implementation": "js/teleport.js",
+            "symbol": "dotele",
+            "sourceReview": "Read nethack-c/upstream/src/teleport.c:dotele() (1034-1162) in full. Preserve the existing seen-trap check, yes/no prompt, one-shot and ordinary teleport-trap paths, movement restriction and spell-energy branches, relocation, hunger loss, and result order. Replace the level-teleporter yes-branch's skipped note_unported() call with await level_tele_trap(trap, FORCETRAP, state, env), still returning 1 so the attempted trigger always consumes a turn. dotelecmd() consumes this result. trap.c:drown() discards the result and has an existing JS caller; dig.c:escape_tomb() contains a dotele() call but no C caller of escape_tomb() was found and js/dig.js has no implementation. The new helper is now implemented, so dotele() has no unported level-trap callee.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "dotelecmd",
+                "source": "teleport.c:dotelecmd() calls dotele() and converts its returned integer to ECMD_TIME or ECMD_OK."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "drown",
+                "source": "trap.c:drown() calls dotele(FALSE) after its drowning escape attempt; this task keeps that existing caller read-only and it reaches the same canonical helper."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [
+              "recordings/teleport.c/level-teleport-trap-dotele-cfirst.session.json",
+              "recordings/teleport.c/dotelecmd-control-t-independent.session.json",
+              "recordings/teleport.c/dotelecmd-extended-independent.session.json",
+              "recordings/teleport.c/drown-teleport-attempt-independent.session.json"
+            ],
+            "checkedAt": "021f10f36c7a91a35ddd44c5d1b73b8cf3d1dd22"
+          },
+          {
+            "name": "level_tele_trap",
+            "implementation": "js/teleport.js",
+            "symbol": "level_tele_trap",
+            "sourceReview": "Read nethack-c/upstream/src/teleport.c:level_tele_trap() (1538-1574) in full. Match the VIASITTING/FORCETRAP intentional test and locomotion wording; natural Antimagic shields before the wrenching return, and endgame returns before trap deletion. Otherwise delete and redraw the trap, call level_tele(), report hallucinated orientation, controlled centering, or confusion-sensitive disorientation, then set HConfusion timeout to (HConfusion & TIMEOUT) + 3 only without Teleport_control. The existing JS owners for shieldeff(), deltrap(), newsym(), level_tele(), make_confused(), u_locomotion(), Antimagic, Confusion, Hallucination, and Teleport_control are used in source order; no return-valued unported callee remains.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_level_telep",
+                "source": "trap.c:trapeffect_level_telep() reveals the hero's trap with seetrap() and calls level_tele_trap(trap, trflags)."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "dotele",
+                "source": "teleport.c:dotele() calls level_tele_trap(trap, FORCETRAP) after the hero accepts a seen level teleporter."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport.test.mjs",
+              "scripts/hero-teleport-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-level-teleport-trap-walk-cfirst.session.json",
+              "recordings/teleport.c/level-teleport-trap-dotele-cfirst.session.json"
+            ],
+            "checkedAt": "021f10f36c7a91a35ddd44c5d1b73b8cf3d1dd22"
+          },
+          {
+            "name": "trapeffect_level_telep",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_level_telep",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c:trapeffect_level_telep() (2088-2105) in full. The hero arm calls seetrap() before the new level_tele_trap() owner and returns Trap_Effect_Finished. The monster arm still computes visibility and FORCETRAP in source order, calls mlevel_tele_trap(), and maps moved/finished to the source trap result. Its existing hole/trapdoor migration path remains evidenced; the helper's separately bounded monster-on-LEVEL_TELEP behavior is not changed here.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c:trapeffect_selector() dispatches LEVEL_TELEP to trapeffect_level_telep()."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "trap.c:dotrap() reaches trapeffect_selector() after the known-trap escape roll and the hero's source effect dispatch."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c:spoteffects() invokes dotrap() after a committed hero movement onto the trap."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_hole",
+                "source": "trap.c:trapeffect_hole() reaches trapeffect_level_telep() for the existing monster hole/trapdoor migration path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-teleport-trap.test.mjs",
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-level-teleport-trap-walk-cfirst.session.json",
+              "recordings/trap.c/monster-trapdoor-migration.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "checkedAt": "021f10f36c7a91a35ddd44c5d1b73b8cf3d1dd22"
+          }
+        ],
+        "entryPointReview": "The selected teleport.c range is dotele() (1034-1162) plus level_tele_trap() (1538-1574), with trap.c:trapeffect_level_telep() (2088-2105) as the natural-effect caller. Natural hero activation runs hack.c:domove_core -> spoteffects -> trap.c:dotrap -> trapeffect_selector -> trapeffect_level_telep -> level_tele_trap; the independent recording exercises the seen-trap rn2(5) gate, accepts the trap, chooses a level, and reaches the post-arrival confusion tail. The command entry runs cmd.c's #teleport registration -> dotelecmd -> dotele; after accepting a seen LEVEL_TELEP, dotele calls the same helper with FORCETRAP. Its independent recording reaches the forced helper path. Existing C(t), #teleport, and trap.c:drown recordings continue to cover dotele's other active callers. dig.c:escape_tomb() contains a result-discarding dotele call but has no active C caller and no JS implementation, so it is not an entry point in this task. trap.c:drown() is an active existing caller owned by A2 and was not edited. The prior monster trapdoor path through trapeffect_level_telep remains evidenced separately; no completion is claimed here for the helper's distinct monster-on-level-teleporter boundary.",
+        "entryPoints": [
+          {
+            "name": "Natural hero LEVEL_TELEP walk-in",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "trapeffect_level_telep"
+              },
+              "level_tele_trap"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-level-teleport-trap-walk-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "Seen LEVEL_TELEP through #teleport",
+            "functions": [
+              "dotele",
+              "level_tele_trap"
+            ],
+            "recordings": [
+              "recordings/teleport.c/level-teleport-trap-dotele-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "Direct C(t) and #teleport command dispatch",
+            "functions": [
+              "dotele"
+            ],
+            "recordings": [
+              "recordings/teleport.c/dotelecmd-control-t-independent.session.json",
+              "recordings/teleport.c/dotelecmd-extended-independent.session.json"
+            ]
+          },
+          {
+            "name": "trap.c:drown result-discarding dotele caller",
+            "functions": [
+              "dotele"
+            ],
+            "recordings": [
+              "recordings/teleport.c/drown-teleport-attempt-independent.session.json"
+            ]
+          },
+          {
+            "name": "Existing monster hole/trapdoor level migration",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "trapeffect_level_telep"
+              }
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-trapdoor-migration.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "47b7ce458965199c8f97771a983240cc8d0f0e21",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-dise-pest-v47-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port Pestilence and disease monster attack branches.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist"
+      ],
+      "selectionReason": "Seed continuation selected synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist. Source trace places the first cause in uhitm.c:mhitm_ad_pest calling mhitm_ad_dise: the disease helper must suppress damage to the S_FUNGUS Red Mold before passive attack handling. Port both whole functions and wire the existing AD_DISE dispatcher arm.",
+      "detail": "",
+      "openedAt": "09a4344088fda2f9553acb8f5c6c997734d9ceb6",
+      "openStanding": {
+        "sha": "47b7ce458965199c8f97771a983240cc8d0f0e21",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_pest",
+          "line": 3808,
+          "endLine": 3836,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3808,
+        "to": 3836
+      },
+      "requiredFunctions": [
+        {
+          "name": "mhitm_ad_dise",
+          "line": 4593,
+          "endLine": 4622,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist": {
+          "session": "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+          "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+          "evaluationPath": "challenges/evaluations/accepted-47b7ce458965199c8f97771a983240cc8d0f0e21-v47.json",
+          "evaluationCommit": "47b7ce458965199c8f97771a983240cc8d0f0e21"
+        }
+      },
+      "activeStanding": {
+        "sha": "47b7ce458965199c8f97771a983240cc8d0f0e21",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+          "session": "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+          "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+          "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+          "recipe": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.recipe.session.json",
+          "recipeSha256": "71d1a4f2d140f88a7a658b3a44ef6b7913e10ecb21ed7dc61f84beb43d3533df",
+          "replayInputSha256": "5f6f8324654388e7d4e9c301e7ba25a0b89e9345315374925087438cb9431e02",
+          "evaluationPath": "challenges/evaluations/accepted-47b7ce458965199c8f97771a983240cc8d0f0e21-v47.json",
+          "evaluationCommit": "47b7ce458965199c8f97771a983240cc8d0f0e21",
+          "evaluationArtifact": "challenges/evaluations/accepted-47b7ce458965199c8f97771a983240cc8d0f0e21-v47.json",
+          "evaluationUtc": "2026-10-12T00:04:42.700Z",
+          "remainingScreens": 12,
+          "recordedSteps": 150,
+          "previousScreensMatched": 138,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 138,
+              "total": 150
+            },
+            "rng": {
+              "matched": 2663,
+              "total": 2669
+            },
+            "cursors": {
+              "matched": 138,
+              "total": 150
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 138,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 138,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "P",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2663,
+              "cEntry": "d(2,4)=2",
+              "cCaller": "passivemm(mhitm.c:1326)",
+              "jsEntry": "rn2(3)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 138,
+                "key": "."
+              },
+              "stepIndex": 138
+            },
+            "cursor": {
+              "index": 138,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 138,
+                "key": "."
+              },
+              "cCursor": [
+                70,
+                0,
+                1
+              ],
+              "jsCursor": [
+                14,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 138,
+          "kind": "rng",
+          "sourceFile": "mhitm.c",
+          "function": "passivemm",
+          "message": null,
+          "cFile": "mhitm.c",
+          "luaFile": null,
+          "line": 1326,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.json",
+            "result": {
+              "session": "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+              "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+              "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+              "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+              "remainingScreens": 12,
+              "recordedSteps": 150,
+              "status": "complete",
+              "commit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "session": "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+                "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+                "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+                "recipe": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.recipe.session.json",
+                "recipeSha256": "71d1a4f2d140f88a7a658b3a44ef6b7913e10ecb21ed7dc61f84beb43d3533df",
+                "replayInputSha256": "13d87b260326cb87a3ad759ed31ce3e2d081c9a02c6302da26841e1cdd214c4e",
+                "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+                "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+                "evaluationArtifact": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+                "evaluationUtc": "2026-10-11T22:24:39.664Z",
+                "remainingScreens": 12,
+                "recordedSteps": 150,
+                "previousScreensMatched": 138,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 138,
+                    "total": 150
+                  },
+                  "rng": {
+                    "matched": 2663,
+                    "total": 2669
+                  },
+                  "cursors": {
+                    "matched": 138,
+                    "total": 150
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 138,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 138,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 34,
+                    "cCell": {
+                      "ch": "P",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2663,
+                    "cEntry": "d(2,4)=2",
+                    "cCaller": "passivemm(mhitm.c:1326)",
+                    "jsEntry": "rn2(3)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 138,
+                      "key": "."
+                    },
+                    "stepIndex": 138
+                  },
+                  "cursor": {
+                    "index": 138,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 138,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      70,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      14,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 138,
+                "kind": "rng",
+                "sourceFile": "mhitm.c",
+                "function": "passivemm",
+                "message": null,
+                "cFile": "mhitm.c",
+                "luaFile": null,
+                "line": 1326
+              },
+              "summary": "The first mismatch was caused by the missing uhitm.c:mhitm_ad_dise effect at the monster-to-monster AD_PEST path. mhitm_ad_pest copies Pestilence’s attack, changes it to AD_DISE, and calls the helper; the helper zeroes damage against S_FUNGUS, Ghouls, and monsters defended against disease. The port now reaches that guard, preserving the Red Mold and restoring the later passive RNG. The later corpse_chance and passivemm differences were downstream consequences, not passivemm defects.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "For a monster-pair hit, mhitm_ad_dise uses the monster defender’s data: S_FUNGUS, PM_GHOUL, or defended(mdef, AD_DISE) sets mhm.damage to zero; all other defenders take normal damage. A hero attacker goes to this same branch, although the source comment says it is unreachable because every AD_DISE species (Juiblex, Demogorgon, and Scorpius) has M2_NOPOLY. The separate monster-attacks-hero arm emits hitmsg and retains normal damage only when diseasemu succeeds. The dispatcher’s active monster-pair and monster-to-hero callers are mdamagem and hitmu; damageum reaches its hero-attacker arm only for a valid polymorph, which the source monster table excludes.",
+                "functions": [
+                  "mhitm_ad_pest",
+                  "mhitm_ad_dise"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_ad_pest: the monster-pair branch copies mattk, sets alt_attk.adtyp=AD_DISE, and calls mhitm_ad_dise; the monster-to-hero branch emits the fever-and-chills message and calls diseasemu.",
+                  "uhitm.c:mhitm_adtyping: the AD_DISE switch case directly calls mhitm_ad_dise and the AD_PEST case calls mhitm_ad_pest.",
+                  "mhitm.c:mdamagem at line 1059 calls uhitm.c:mhitm_adtyping for monster-pair attacks; js/mhitm.js:mdamagem is already wired to the same dispatcher.",
+                  "mhitu.c:hitmu at line 1191 calls uhitm.c:mhitm_adtyping for monster-to-hero attacks; js/mhitu.js:hitmu is already wired to the same dispatcher.",
+                  "uhitm.c:damageum at line 4854 calls uhitm.c:mhitm_adtyping for hero-to-monster attacks; js/uhitm.js:damageum is already wired to the same dispatcher, but no valid hero polymorph can select AD_DISE because all source species with that attack are M2_NOPOLY."
+                ],
+                "dependencies": [
+                  "uhitm.c:mhitm_ad_pest source caller branch must call the JS helper instead of note_unported.",
+                  "uhitm.c:mhitm_adtyping AD_DISE switch arm must call the JS helper instead of unported.",
+                  "Existing JS defended(..., AD_DISE) preserves the C monster-defense predicate.",
+                  "Existing JS diseasemu() and hitmsg() implement the helper’s non-monster-pair source arm."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved v47 queue entry: C and JS first disagree at zero-based step 138, screen index 138. C shows Pestilence touching the Red Mold and the monster remains alive; JS shows the tourist glyph at that map position after the target dies. At that action C next logs d(2,4)=2 in passivemm(mhitm.c:1326), while JS next logs rn2(3)=2 from corpse_chance after the Red Mold was killed. This places the causative difference before passivemm.",
+                "Upstream uhitm.c:4593-4619 defines the entire missing helper. Its monster-pair arm sets mhm.damage=0 for S_FUNGUS, PM_GHOUL, or defended(mdef, AD_DISE), and leaves ordinary damage unchanged otherwise.",
+                "Upstream uhitm.c:3808-3833 shows mhitm_ad_pest’s exact call: it copies mattk, changes adtyp to AD_DISE, then discards the void helper result. JS uhitm.js:mhitm_ad_pest currently substitutes note_unported in this monster-pair arm.",
+                "Upstream uhitm.c:4782-4825 contains the direct AD_DISE caller in mhitm_adtyping. JS uhitm.js currently stops that arm at unported(\"mhitm_ad_dise\"). The complete source task must wire both existing callers.",
+                "The selected v47 recipe places a forced hostile Pestilence and hostile Red Mold under Conflict, then waits for the adjacent monster fight. Its full replay now matches and reaches mhitm_ad_pest -> mhitm_ad_dise before the Red Mold passive attack.",
+                "The admitted v20 pestilence-touches-wizard-v20-more-corrected case is a distinct matching monster-to-hero entry to mhitm_ad_pest; a fresh differential matches its full 48-step segment.",
+                "New independent C-first recordings cover direct AD_DISE dispatcher entries: Scorpius versus a stone golem exercises mdamagem -> mhitm_adtyping -> mhitm_ad_dise through 156 steps, and Scorpius versus the hero exercises hitmu -> mhitm_adtyping -> mhitm_ad_dise through the disease action at step 79 in an 80-step replay. Both fresh differentials match completely.",
+                "The AD_DISE hero-attacker branch is source-tested but has no valid runtime producer: monsters.h defines Juiblex, Demogorgon, and Scorpius as M2_NOPOLY, and uhitm.c explicitly comments that a hero cannot polymorph into a monster with this attack."
+              ],
+              "queueSha256": "46b5891629d3d59e5e62550cd812381e88752c80574406c65acffb4f4fed55cb"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_pest",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_pest",
+            "sourceReview": "Read the whole uhitm.c:mhitm_ad_pest definition (lines 3808-3834). Its source order is preserved: the hero-attacker goto shares AD_DISE monster-target logic; the monster-to-hero branch messages, calls diseasemu and then returns to ordinary damage; the monster-pair branch copies mattk, changes only adtyp to AD_DISE, calls mhitm_ad_dise, and discards its void result. Replaced the prior note_unported placeholder. The C source says no valid hero polymorph has AD_PEST.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping dispatches AD_PEST to mhitm_ad_pest; its existing JavaScript dispatcher now reaches this implementation."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem calls uhitm.c:mhitm_adtyping for monster-pair attacks; this existing caller reaches the AD_PEST branch when the attacker has that attack."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu calls uhitm.c:mhitm_adtyping for monster-to-hero attacks; this existing caller reaches the AD_PEST hero-defender branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-pest.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 149,
+                "source": "Pestilence's AD_PEST attack enters mhitm_adtyping -> mhitm_ad_pest; the copied AD_DISE reaches mhitm_ad_dise and preserves the Red Mold at the former step-138 mismatch, followed by the monster passive attack."
+              },
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "The monster action reaches hitmu -> mhitm_adtyping(AD_PEST) -> mhitm_ad_pest, whose hero-defender branch emits the source message and calls diseasemu. The entire 48-step C replay matches."
+              }
+            ],
+            "checkedAt": "8f5cf7c375796f01323a3bd2b64e3b59c8b85e8a"
+          },
+          {
+            "name": "mhitm_ad_dise",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_dise",
+            "sourceReview": "Read the whole uhitm.c:mhitm_ad_dise definition (lines 4593-4619). For a monster attacking the hero, it calls hitmsg, runs diseasemu and clears mhm.damage only when that helper returns false. For monster defenders, it clears damage for S_FUNGUS, exact PM_GHOUL, or defended(mdef, AD_DISE), preserving ordinary damage otherwise. The hero-attacker goto is retained; C comments that it cannot occur in a valid game because no monster with AD_DISE is a valid polymorph form. Existing JS hitmsg, diseasemu and defended helpers are reused; no unported callee remains in the selected branches.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_pest",
+                "source": "uhitm.c:mhitm_ad_pest copies the attack, changes adtyp to AD_DISE and calls mhitm_ad_dise in the monster-pair arm; its hero-attacker goto also shares that branch."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping directly calls mhitm_ad_dise in its AD_DISE switch arm; the former unported dispatcher case was replaced."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem calls mhitm_adtyping for monster-pair attacks; the direct Scorpius recording reaches the helper from this path."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu calls mhitm_adtyping for monster-to-hero attacks; the direct Scorpius recording reaches the helper's hero-defender branch from this path."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum calls mhitm_adtyping for hero-to-monster attacks. The call is wired, but the AD_DISE arm has no valid runtime producer: Juiblex, Demogorgon and Scorpius are all M2_NOPOLY, and C comments that the hero cannot polymorph into a monster with AD_DISE. The otherwise unreachable source branch is source-pinned by the focused test."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-pest.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-dise-monster-pair-scorpius-stone-golem-v47.session.json",
+              "recordings/uhitm.c/mhitm-ad-dise-monster-to-hero-scorpius-v47.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 149,
+                "source": "The AD_PEST caller changes the copied attack to AD_DISE and reaches the S_FUNGUS guard before the later passive RNG."
+              }
+            ],
+            "checkedAt": "8f5cf7c375796f01323a3bd2b64e3b59c8b85e8a"
+          }
+        ],
+        "entryPointReview": "The active production entry points in the selected functions are monster-pair AD_PEST (including the S_FUNGUS guard), monster-to-hero AD_PEST disease processing, direct monster-pair AD_DISE dispatch, and direct monster-to-hero AD_DISE processing. They are covered respectively by the admitted v47 Pestilence/Red Mold range, admitted v20 Pestilence/Wizard range, and two new C-first Scorpius recordings. The existing JS production callers mhitm.c:mdamagem/js/mhitm.js:mdamagem, mhitu.c:hitmu/js/mhitu.js:hitmu and uhitm.c:damageum/js/uhitm.js:damageum remain wired to mhitm_adtyping. The hero-to-monster AD_DISE branch is not a valid production entry: the only source monster definitions with AD_DISE are Juiblex, Demogorgon and Scorpius, each M2_NOPOLY, and uhitm.c explicitly states that a hero cannot polymorph into one. The focused source-pinned test exercises that source branch without claiming runtime reachability. No other unported callee is hidden in the selected source range.",
+        "entryPoints": [
+          {
+            "name": "Pestilence monster-pair disease effect against fungus",
+            "functions": [
+              "mhitm_ad_pest",
+              "mhitm_ad_dise"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 149,
+                "source": "mhitm.c:mdamagem -> uhitm.c:mhitm_adtyping(AD_PEST) -> mhitm_ad_pest -> mhitm_ad_dise(S_FUNGUS guard) -> mhitm.c:passivemm."
+              }
+            ]
+          },
+          {
+            "name": "Pestilence monster-to-hero disease effect",
+            "functions": [
+              "mhitm_ad_pest"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping(AD_PEST) -> mhitm_ad_pest -> diseasemu."
+              }
+            ]
+          },
+          {
+            "name": "Direct monster-pair AD_DISE dispatch",
+            "functions": [
+              "mhitm_ad_dise"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-dise-monster-pair-scorpius-stone-golem-v47.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Direct monster-to-hero AD_DISE disease processing",
+            "functions": [
+              "mhitm_ad_dise"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-dise-monster-to-hero-scorpius-v47.session.json"
             ],
             "synthetic": []
           }

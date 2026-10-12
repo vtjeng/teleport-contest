@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source runtime evidence for mthrowu.c:monshoot through dogmove.c:pet_ranged_attk -> mattackm -> thrwmm. The hallucinating Wizard creates a tame hobgoblin with a throwable dagger and a distant hostile target, steps off their firing line, and lets the pet throw.",
+  "segments": [
+    {
+      "seed": 47000754,
+      "datetime": "20571123111214",
+      "nethackrc": "OPTIONS=name:C47ThrwmmHalluc,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!acoustics,!autopickup,!safe_wait\n",
+      "moves": "#wizintrinsic\nh\n #wizgenesis\ntame hobgoblin\n #wizgenesis\nsleeping hostile newt\nj....."
+    }
+  ]
+}
