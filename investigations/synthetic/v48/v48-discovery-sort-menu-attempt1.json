@@ -77,19 +77,43 @@
     "This is separate from B’s o_init.c:rename_disco() scope: rename_disco builds a menu of nameable object types, while choose_disco_sort builds the discovery-order menu and changes flags.discosort."
   ],
   "coverageDecision": {
-    "implemented": "Complete choose_disco_sort() and wire its active JavaScript dodiscovered() mode 1 caller. Do not claim whole dodiscovered() completion because sorted output orders still reach unported disco_output_sorted() helpers.",
-    "blockedCallers": [
+    "implemented": "choose_disco_sort() is wired at all three active recorder-build callers. Mode 0 is reached through the full options menu and optfn_sortdiscoveries handler. Mode 2 is reached through #knownclass, including the ordering chooser and class results. dodiscovered() remains partial for its non-default sorted-output branch, which depends on disco_output_sorted() helpers outside this task.",
+    "remainingRelatedGap": "The wizard-only artifact detail branch in doclassdisco() records note_unported(artifact.c dump_artifact_info) and returns without drawing a placeholder. The invalid class guard records note_unported(pline.c impossible); normal menus cannot select an invalid class.",
+    "activeCallers": [
       {
-        "source": "options.c:optfn_sortdiscoveries() mode 0",
-        "blocker": "js/options.js has no OPTION_HANDLERS sortdiscoveries mapping or handler_sortdiscoveries() implementation.",
-        "recipe": "recipes/options.c/sortdiscoveries-handler-blocked.session.json"
+        "source": "o_init.c:dodiscovered()",
+        "mode": 1,
+        "implementation": "js/o_init.js:dodiscovered",
+        "evidence": "admitted v48 case v48-discovery-sort-menu-attempt1, segment 0, steps 0-3"
       },
       {
-        "source": "o_init.c:doclassdisco() mode 2",
-        "blocker": "The JavaScript knownclass command has no doclassdisco() implementation or production dispatcher.",
-        "recipe": "recipes/o_init.c/knownclass-sort-blocked.session.json"
+        "source": "options.c:optfn_sortdiscoveries()",
+        "mode": 0,
+        "implementation": "js/options.js:handler_sortdiscoveries via OPTION_HANDLERS",
+        "recording": "recordings/options.c/sortdiscoveries-handler-menu-correction.session.json",
+        "steps": "segment 0, steps 14-22"
+      },
+      {
+        "source": "o_init.c:doclassdisco()",
+        "mode": 2,
+        "implementation": "js/cmd.js:runKnownClassCommand -> js/o_init.js:doclassdisco",
+        "recordings": [
+          {
+            "path": "recordings/o_init.c/knownclass-menu-sort-correction.session.json",
+            "steps": "segment 0, steps 14-16; alphabetical-within-class order"
+          },
+          {
+            "path": "recordings/o_init.c/knownclass-sortloot-correction.session.json",
+            "steps": "segment 0, steps 14-16; sortloot order"
+          }
+        ]
       }
-    ]
+    ],
+    "originalBlockedRecipesPreserved": [
+      "recipes/options.c/sortdiscoveries-handler-blocked.session.json",
+      "recipes/o_init.c/knownclass-sort-blocked.session.json"
+    ],
+    "sourceCommit": "2d2c460f4f1969fb0227866c4ac1202b31251ab9"
   },
   "postChangeReplay": {
     "path": "/tmp/c-v48-discovery-sort-after.json",
@@ -100,5 +124,37 @@
     "commandRefusal": false,
     "unported": [],
     "inputBoundaryMatched": true
+  },
+  "correction": {
+    "status": "implemented-and-differentially-verified",
+    "commit": "2d2c460f4f1969fb0227866c4ac1202b31251ab9",
+    "freshDifferentials": [
+      {
+        "recipe": "recipes/options.c/sortdiscoveries-handler-menu-correction.session.json",
+        "run": "run-nIGGV8",
+        "result": "PASS",
+        "rng": "2535/2535",
+        "screens": "23/23",
+        "cursors": "23/23"
+      },
+      {
+        "recipe": "recipes/o_init.c/knownclass-menu-sort-correction.session.json",
+        "run": "run-hON9iD",
+        "result": "PASS",
+        "rng": "2175/2175",
+        "screens": "17/17",
+        "cursors": "17/17"
+      },
+      {
+        "recipe": "recipes/o_init.c/knownclass-sortloot-correction.session.json",
+        "run": "run-MBzKG3",
+        "result": "PASS",
+        "rng": "5923/5923",
+        "screens": "17/17",
+        "cursors": "17/17"
+      }
+    ],
+    "focusedTests": "bounded run-ZReNCF; 61 passing across o_init-discoveries, options-menu, and extended-command-prompt tests",
+    "lint": "npm run lint passed"
   }
 }
