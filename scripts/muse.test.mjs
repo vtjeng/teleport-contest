@@ -1526,7 +1526,10 @@ test('use_offensive keeps wand beam draws on the caller random stream',
     async () => {
     const state = await offensiveHero();
     state.nhDisplay.onEmptyQueue = () => 13;
+    state.context.mon_moving = true;
     const wand = carried(state, WAN_STRIKING, { spe: 2 });
+    const floorPotion = carried(state, POT_SLEEPING);
+    place_object(floorPotion, state.u.ux, state.u.uy, state);
     const gnome = offensiveMonster(state, PM_GNOME, wand, {
         mwandexp: true,
     });
@@ -1556,6 +1559,7 @@ test('use_offensive keeps wand beam draws on the caller random stream',
     const env = {
         state,
         random,
+        message: async () => {},
         unsupported: (reason) => {
             throw new UnsupportedSimpleMonsterActionError(reason);
         },
@@ -1570,6 +1574,11 @@ test('use_offensive keeps wand beam draws on the caller random stream',
         ['rnd', 20],
         ['d', 2, 12],
     ]);
+    // muse.c:mbhit() reaches fhito_loc() after the hero hit. The awaited
+    // bhito callback breaks this floor potion through dothrow.c:breaktest(),
+    // whose zap.c:obj_resists() draw must stay on this action's RNG stream.
+    assert.ok(draws.some(([kind, bound]) => kind === 'rn2' && bound === 100));
+    assert.equal(floorPotion.where, OBJ_FLOOR);
 });
 
 test('mbhitm forwards discarded cancellation result through its C caller',
