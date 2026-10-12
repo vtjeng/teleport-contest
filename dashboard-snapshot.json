@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T16:39:03.240Z",
+  "capturedAt": "2026-10-12T16:53:17.454Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -96026,22 +96026,95 @@
         "at": "2026-10-12T16:38:30.906Z",
         "task": "Prep20",
         "delivery": "2d7c71ffbd3ec47af45b3bfab78c10301d28ca57"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-710b9ba-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:39:41.808Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep21-v57-cases-20261012",
+        "type": "assign",
+        "at": "2026-10-12T16:40:12.180Z",
+        "task": "Prep21",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v57"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-710b-queue-refresh-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:40:54.430Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v50-selftouch-monster-transition-20261012-8e64157cdd5f73ed52464d07d5b3f74e388365db",
+        "type": "published",
+        "at": "2026-10-12T16:42:10.454Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "commit": "8e64157cdd5f73ed52464d07d5b3f74e388365db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "sink-bounded-integration-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T16:42:47.216Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
+        "phase": "review",
+        "reason": "Integrate the oldest remaining dependency-ready source fix: drinksink case 10 invokes the existing polyself implementation. No new whole-function completion credit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "sink-integrating-4d88907b-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T16:46:06.303Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
+        "integration": "4d88907bfea84e07466d7b3231c1b8c4c481e83e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-initial-c-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:46:43.730Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v57: twelve source missions planned; recording independent C setups."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-source-actions-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:49:04.887Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v57: C setups complete; checking source actions and required state."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v51-fireelemental-sink-metamorphosis-20261012-4d88907bfea84e07466d7b3231c1b8c4c481e83e-validated",
+        "type": "validated",
+        "at": "2026-10-12T16:52:11.314Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v51-fireelemental-sink-metamorphosis-20261012-4d88907bfea84e07466d7b3231c1b8c4c481e83e-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T16:52:46.109Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
-        "worker": "B",
-        "goal": "div-fountain-drinksink-polyself-v51-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "8c1a3cc766f01aae3b3c901ec4c7fe3f6bd5579e",
-        "since": "2026-10-12T08:52:05.064Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
         "worker": "C",
@@ -96630,8 +96703,8 @@
     ]
   },
   "development": {
-    "executionCommit": "710b9ba8695a51a07d975b237876da6a5a22f112",
-    "measuredAt": "2026-10-12T16:36:07.514Z",
+    "executionCommit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+    "measuredAt": "2026-10-12T16:50:42.251Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

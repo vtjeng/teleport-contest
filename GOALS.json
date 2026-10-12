@@ -290316,7 +290316,7 @@
     {
       "id": "div-fountain-drinksink-polyself-v51-20261012",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Invoke polymorph after drinking toxic sink waste",
       "cFile": "fountain.c",
       "sessions": [],
@@ -290328,8 +290328,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "drinksink",
       "session": "synthetic/v51/v51-fireelemental-sink-metamorphosis-action-attempt3",
       "step": 79,
@@ -290597,7 +290600,13 @@
           "luaFile": null,
           "line": 490
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
