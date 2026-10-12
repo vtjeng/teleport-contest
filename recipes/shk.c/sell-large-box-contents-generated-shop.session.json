@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700006,
+      "datetime": "20390927141723",
+      "nethackrc": "OPTIONS=name:ShopContainerProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00165\n  #wizwish\nunlocked large box\n do y",
+      "_comment": "Independent generated bookstore probe. Dropping a wished large box runs do.c:dropz -> shk.c:sellobj and sells the box's contained stock, exercising dropped_container."
+    }
+  ]
+}

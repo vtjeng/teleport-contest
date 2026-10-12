@@ -348,7 +348,7 @@ import { newsym, bot, shieldeff } from './display.js';
 import { m_next2u } from './mhitu.js';
 import { linedup } from './mthrowu.js';
 import { destroy_items } from './zap_destroy_items.js';
-import { costly_spot, shop_keeper, shk_your, shopdig } from './shk.js';
+import { costly_spot, sellobj, shop_keeper, shk_your, shopdig } from './shk.js';
 import { quest_info } from './questpgr.js';
 import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
@@ -2478,8 +2478,8 @@ export async function cnv_trap_obj(otyp, cnt, ttmp, bury_it, state = game, rawEn
     } else {
         /* Sell your own traps only... */
         if (ttmp.madeby_u) {
-            // C: sellobj(otmp, ttmp->tx, ttmp->ty). shk.c, not ported.
-            note_unported('shk.c sellobj');
+            // C: sellobj(otmp, ttmp->tx, ttmp->ty).
+            await sellobj(otmp, ttmp.tx, ttmp.ty, state, env);
         }
         stackobj(otmp, env);
     }

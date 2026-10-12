@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700006,
+      "datetime": "20390927141723",
+      "nethackrc": "OPTIONS=name:ThrowShopObject,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00165\n  #wizwish\ndagger\ntoh",
+      "_comment": "Independent generated bookstore setup to reach dothrow.c:throwit and its shop landing helper through an ordinary object throw."
+    }
+  ]
+}

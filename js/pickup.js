@@ -239,7 +239,7 @@ import {
 } from './objnam.js';
 import { body_part, polymon } from './polyself.js';
 import {
-    addtobill, costly_spot, pick_pick, remote_burglary,
+    addtobill, costly_spot, pick_pick, remote_burglary, sellobj,
     sellobj_state, shop_keeper, shk_your, stolen_value, subfrombill,
 } from './shk.js';
 import { menuTitleStyle } from './tty_menu.js';
@@ -3001,7 +3001,7 @@ async function in_container(obj, state) {
                 );
                 state.gs.sellobj_first = false;
             }
-            note_unported('shk.c sellobj');
+            await sellobj(obj, state.u.ux, state.u.uy, state);
         }
     }
 
@@ -3099,7 +3099,8 @@ async function in_container(obj, state) {
     if (floor_container && obj.oclass === COIN_CLASS) {
         // C discards sellobj()'s result and handles shop gold after the put-in
         // message; retain the source position while its billing body is open.
-        note_unported('shk.c sellobj');
+        await sellobj(obj, state.gc.current_container.ox,
+            state.gc.current_container.oy, state);
     }
     add_to_container(state.gc.current_container, obj, {
         state,

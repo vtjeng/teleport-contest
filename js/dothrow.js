@@ -462,8 +462,11 @@ import { in_out_region, m_in_out_region } from './region.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import {
     costly_spot,
+    donate_gold,
     inside_shop,
+    is_unpaid,
     shop_keeper,
+    sellobj,
     stolen_value,
 } from './shk.js';
 import { erode_obj } from './trap_erode_obj.js';
@@ -1606,6 +1609,36 @@ export async function breaks(obj, x, y, rawEnv = {}) {
     return await breakobj(obj, x, y, false, false, { ...rawEnv, state });
 }
 
+// C ref: dothrow.c check_shop_obj() (1181-1214). Projectile landings either
+// charge theft at the source shop, transfer unpaid property, or offer a
+// costly-shop object for sale after it reaches the floor.
+async function check_shop_obj(obj, x, y, broken, state = game, rawEnv = {}) {
+    const room = state.u?.ushops?.[0] ?? 0;
+    const shkp = shop_keeper(room, state);
+    if (!shkp) return;
+
+    const costly = costly_spot(x, y, state);
+    if (broken || !costly || (in_rooms(x, y, SHOPBASE, state)[0] ?? 0) !== room) {
+        if (is_unpaid(obj)) {
+            await stolen_value(obj, state.u.ux, state.u.uy,
+                Boolean(shkp.mpeaceful), false, state);
+        }
+        if (broken) obj.no_charge = 1;
+    } else if (costly) {
+        const otherShop = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+        if (otherShop === room || otherShop === state.u.ushops0?.[0]) {
+            if (is_unpaid(obj)) {
+                const gold = Has_contents(obj) ? contained_gold(obj, true) : 0;
+                subfrombill(obj, shkp, state, rawEnv);
+                if (gold > 0)
+                    await donate_gold(gold, shkp, true, state, rawEnv);
+            } else if (x !== shkp.mx || y !== shkp.my) {
+                await sellobj(obj, x, y, state, rawEnv);
+            }
+        }
+    }
+}
+
 // C ref: dothrow.c release_camera_demon() (2457-2470). The release
 // gate precedes species selection and creation; feedback precedes peacefulness.
 export async function release_camera_demon(obj, x, y, env = {}) {
@@ -1730,7 +1763,7 @@ export async function breakobj(
 
     if (heroCaused && (fromInventory || obj.unpaid)) {
         if (state.u?.ushops?.[0] || obj.unpaid)
-            note_unported('dothrow.c check_shop_obj');
+            await check_shop_obj(obj, x, y, true, state, rawEnv);
     } else if (heroCaused && !obj.no_charge) {
         if (costly_spot(x, y, state)) {
             const room = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
@@ -2534,7 +2567,7 @@ async function gem_accept(mon, obj, state = game, rawEnv = {}) {
     if (accepted) {
         text += ' accepts your gift.';
         if (state.u.ushops?.[0] || obj.unpaid)
-            note_unported('dothrow.c check_shop_obj');
+            await check_shop_obj(obj, mon.mx, mon.my, true, state, env);
         mpickobj(mon, obj, {
             ...env,
             canSeeMonster: (target) => canseemon(target, state),
@@ -2857,7 +2890,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
             );
         }
         if (state.u.ushops?.[0] || obj.unpaid)
-            note_unported('dothrow.c check_shop_obj');
+            await check_shop_obj(obj, bx, by, false, state);
         mpickobj(mon, obj, {
             state,
             canSeeMonster: (target) => canseemon(target, state),
@@ -2878,7 +2911,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         impact_disturbs_zombies(obj, true, state);
     }
     if ((state.u.ushops?.[0] || obj.unpaid) && obj !== state.uball)
-        note_unported('dothrow.c check_shop_obj');
+        await check_shop_obj(obj, bx, by, false, state);
     stackobj(obj, { state, hooks: { extractExternalObject: remove_object } });
     if (obj === state.uball)
         await drop_ball(bx, by, state);
@@ -3023,7 +3056,8 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
                     );
                 }
                 if (state.u.ushops?.[0] || obj.unpaid)
-                    note_unported('dothrow.c check_shop_obj');
+                    await check_shop_obj(obj, mon.mx, mon.my, false, state,
+                        operationEnv);
                 mpickobj(mon, obj, operationEnv);
             } else {
                 await finish_quest(obj, operationEnv);
@@ -3103,7 +3137,8 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
             if (wasThrown && !thrownObject(state)) return 1;
             if (should_mulch_missile(obj, state, operationEnv)) {
                 if (state.u.ushops?.[0] || obj.unpaid)
-                    note_unported('dothrow.c check_shop_obj');
+                    await check_shop_obj(obj, state.gb.bhitpos.x,
+                        state.gb.bhitpos.y, true, state, operationEnv);
                 obfree(obj, null, operationEnv);
                 return 1;
             }
@@ -3385,10 +3420,10 @@ async function throw_gold(obj, state = game) {
         );
     }
     place_object(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, { state });
-    /* `*u.ushops` is the first entry of the room list naming the shops the
-       hero stands in, as js/do.js dropx() reads it. */
+    /* `*u.ushops` is the first entry of the room list naming shops the hero
+       stands in; sellobj() owns all further shop checks. */
     if (u.ushops?.[0])
-        throw new UnsupportedThrowError('sellobj()');
+        await sellobj(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, state);
     /* stackobj() merges the landing gold into a compatible floor pile, which
        extracts the object it merged with; invent.c obj_extract_self() takes
        that operation from its caller, as throwit() above does. */

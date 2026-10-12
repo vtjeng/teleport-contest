@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700006,
+      "datetime": "20390927141723",
+      "nethackrc": "OPTIONS=name:ThrowGoldProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00165\n  #wizwish\n100 gold pieces\nt$h",
+      "_comment": "Independent generated bookstore probe for dothrow.c throw_gold: wish an inventory gold stack and open the throw command."
+    }
+  ]
+}

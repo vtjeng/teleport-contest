@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700006,
+      "datetime": "20390927141723",
+      "nethackrc": "OPTIONS=name:ThrowWorthlessObject,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00165\n  #wizwish\nworthless piece of white glass\ntoh",
+      "_comment": "Independent C-first generated bookstore case: throw a worthless glass piece onto the costly square to exercise sellobj.c special_stock no-sale path through dothrow.c:throwit."
+    }
+  ]
+}

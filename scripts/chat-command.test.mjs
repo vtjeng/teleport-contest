@@ -34,7 +34,7 @@ import { COIN_CLASS } from '../js/objects.js';
 import { getRngLog } from '../js/rng.js';
 import { in_rooms } from '../js/rooms.js';
 import { shop_keeper, shop_object } from '../js/shk.js';
-import { UnsupportedChatError, dotalk } from '../js/sounds.js';
+import { dotalk } from '../js/sounds.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     RIDE_COMMAND,
@@ -295,7 +295,7 @@ test('a silent form cannot speak at all', async () => {
     assert.equal(toplines(state), 'As an acid blob, you cannot speak.');
 });
 
-test('chatting on a shop square asks for price_quote()', async () => {
+test('chatting on a shop square quotes its floor merchandise', async () => {
     // The shop matrix walks a wizard onto one stock potion of a D:5 potion
     // shop; scripts/run-shop-floor-pricing.mjs compares that walk with C.
     const [segment] = loadShopFloorPricingRecipe().segments;
@@ -309,13 +309,25 @@ test('chatting on a shop square asks for price_quote()', async () => {
     assert.ok(stock, 'the hero is not standing on shop merchandise');
     assert.equal(stock, vobj_at(state.u.ux, state.u.uy, state));
 
-    // sounds.c:1279-1290 hands that object to price_quote(), which this goal
-    // leaves unported, so the command stops instead of quoting.
-    await assert.rejects(
-        () => dotalk(state),
-        (error) => error instanceof UnsupportedChatError
-            && /price_quote/u.test(error.message),
-    );
+    // sounds.c:1279-1290 hands that object to shk.c price_quote(); with one
+    // charged potion the shopkeeper speaks the single-item quote directly.
+    await dotalk(state);
+    assert.match(toplines(state), /clear potion, price 7 zorkmids/u);
+});
+
+test('chatting over no-charge shop goods speaks the source quote', async () => {
+    // The generated potion shop recipe reaches price_quote(); marking its stock
+    // no-charge selects shk.c:5443-5448's single-item verbalize(buf) branch.
+    const [segment] = loadShopFloorPricingRecipe().segments;
+    await runSegment(segment);
+    const state = game;
+    quiet(state);
+    const stock = shop_object(state.u.ux, state.u.uy, state);
+    assert.ok(stock);
+    stock.no_charge = 1;
+
+    await dotalk(state);
+    assert.equal(toplines(state), '"A clear potion, no charge!"');
 });
 
 test('shop_object skips gold and needs a willing shopkeeper', async () => {
