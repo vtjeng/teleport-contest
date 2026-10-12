@@ -1,14 +1,17 @@
 // Monster-versus-monster attacks.
 // C ref: mhitm.c -- noises(), pre_mm_attack(), missmm(), mattackm(),
-// failed_grab(), hitmm(), mdamagem() and passivemm(). The unported neighbours
-// are named where the arm that needs them refuses.
+// failed_grab(), hitmm(), mdamagem() and passivemm(). Unported neighbours
+// remain named at their source boundaries while supported arms continue.
 
 import {
     ACID_RES,
     ANTIMAGIC,
     ARTICLE_A,
+    ARTICLE_NONE,
+    ARTICLE_THE,
     NO_NC_FLAGS,
     POLY_NOFLAGS,
+    PLNMSG_HIDE_UNDER,
     RLOC_MSG,
     SUPPRESS_NAME,
     SUPPRESS_IT,
@@ -64,6 +67,8 @@ import {
     Monnam,
     mon_nam,
     mon_nam_too,
+    noname_monnam,
+    a_monnam,
     monsterPossessive,
     some_mon_nam,
     x_monnam,
@@ -76,7 +81,12 @@ import {
     truncateByteString,
 } from './hacklib.js';
 import { grow_up } from './makemon.js';
-import { could_seduce, getmattk, mtrapped_in_pit } from './mhitu.js';
+import {
+    could_seduce,
+    getmattk,
+    mswings_verb,
+    mtrapped_in_pit,
+} from './mhitu.js';
 import {
     golemeffects,
     healmon,
@@ -113,6 +123,8 @@ import {
     touch_petrifies,
     unsolid,
     Resists_Elem,
+    amorphous,
+    noncorporeal,
     poly_when_stoned,
     defended,
     haseyes,
@@ -165,13 +177,15 @@ import {
     PM_MEDUSA,
     PM_NURSE,
     PM_WRAITH,
+    G_UNIQ,
     S_MIMIC,
     S_TROLL,
 } from './monsters.js';
-import { ART_TROLLSBANE } from './artifacts.js';
+import { ART_SNICKERSNEE, ART_TROLLSBANE } from './artifacts.js';
 import { objectType } from './obj.js';
 import { SILVER, WAND_CLASS } from './objects.js';
 import { makeplural } from './fruit.js';
+import { heroUnaware, pline_mon } from './pline.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 
 import {
@@ -183,11 +197,18 @@ import {
 } from './uhitm.js';
 import { cansee, unblock_point } from './vision.js';
 import { breamm, spitmm, thrwmm } from './mthrowu.js';
-import { possibly_unwield } from './weapon.js';
-import { find_mac, which_armor } from './worn.js';
+import { hitval, possibly_unwield } from './weapon.js';
+import { find_mac, is_pole, which_armor } from './worn.js';
 import { finish_meating } from './dogmove.js';
 import { place_worm_tail_randomly, remove_worm } from './worm.js';
-import { newsym, flush_screen, shieldeff } from './display.js';
+import {
+    map_invisible,
+    mon_visible,
+    sensemon,
+    newsym,
+    flush_screen,
+    shieldeff,
+} from './display.js';
 import { mon_explodes } from './explode.js';
 import { drain_item, resist } from './zap.js';
 import { snuff_lit } from './apply_splash_lit.js';
@@ -202,6 +223,9 @@ import { goodpos, rloc, tele, tele_restrict } from './teleport.js';
 import { t_at } from './trap.js';
 import { mintrap } from './trap_effects.js';
 import { acid_damage } from './trap_erode_obj.js';
+import { simpleonames, xnameFresh } from './objnam.js';
+import { strsubst } from './hacklib.js';
+import { heroIsBlind } from './startup_a11y.js';
 
 // C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
 // that protects a target from the attack type. This is a pure source helper;
@@ -381,14 +405,7 @@ async function noises(magr, mattk, env) {
 // even if hero can't see it because the formerly concealed monster is now in
 // action".
 //
-// Two arms refuse. A mimic on either side needs mon.c seemimic(), which writes
-// to the map and prints nothing, so the stop sits exactly where C's branch
-// begins.
-//
-// Both mundetected clears are ported, and only the aggressor's runs. A hidden
-// defender stops mattackm() at its own :337-359 block, well above the call
-// that arrives here, so `mdef.mundetected` is 0 on every path that reaches
-// this function. The clear is written because C writes it.
+// Reveal either mimic before the visibility-dependent map updates, as C does.
 //
 // The marker write goes through the `markInvisible` seam for the same reason
 // `redraw` does. Both write the live map: newsym() paints the module-global
@@ -402,19 +419,24 @@ async function noises(magr, mattk, env) {
 // The scan binds both seams to no-ops and replays the turn live afterwards.
 function pre_mm_attack(magr, mdef, env) {
     const { state } = env;
-    const unsupported = requireAttackOperation(env, 'unsupported');
-    const redraw = requireAttackOperation(env, 'redraw');
-    const markInvisible = requireAttackOperation(env, 'markInvisible');
+    const redraw = env.redraw ?? (env.planning
+        ? () => {}
+        : (x, y) => newsym(x, y));
+    const markInvisible = env.markInvisible ?? (env.planning
+        ? () => {}
+        : (x, y) => map_invisible(x, y, state));
     let showit = false;
 
     if (M_AP_TYPE(mdef)) {
-        unsupported('a disguised monster being attacked');
+        seemimic(mdef, state, { ...env, newsym: redraw });
+        showit ||= state.gv.vis;
     } else if (mdef.mundetected) {
         mdef.mundetected = 0;
         showit ||= state.gv.vis;
     }
     if (M_AP_TYPE(magr)) {
-        unsupported('a disguised monster attacking');
+        seemimic(magr, state, { ...env, newsym: redraw });
+        showit ||= state.gv.vis;
     } else if (magr.mundetected) {
         magr.mundetected = 0;
         showit ||= state.gv.vis;
@@ -681,15 +703,9 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
 // `default` arm, which is where an empty AT_NONE slot lands and where C
 // clears `attk` so passivemm() is skipped.
 //
-// The remaining unsupported arms stop at the `case` label so the boundary
-// sits where C's unported branch begins:
-//
-//   AT_WEAP  the adjacent empty-handed arm ports mon_wield_item()'s zero-result
-//            path and possibly_unwield()'s null-MON_WEP return before falling
-//            through to the physical group below it. The distant half still
-//            needs mthrowu.c thrwmm(), and a selected/current weapon still
-//            needs mswingsm() and hitval().
-// The gaze, explosion, engulf, breath and spit arms use their source owners.
+// The adjacent AT_WEAP arm selects its weapon, applies source visibility and
+// to-hit behavior, then falls through to the physical strike group. Distant
+// attacks remain delegated to mthrowu.c:thrwmm().
 //
 // `strike` is C's, declared once above the loop and never re-initialized
 // inside it, and every arm that reaches passivemm() assigns it in the same
@@ -700,7 +716,6 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
 export async function mattackm(magr, mdef, rawEnv = {}) {
     const env = attackEnv(rawEnv);
     const { state, random } = env;
-    const unsupported = requireAttackOperation(env, 'unsupported');
     let strike = 0; /* hit this attack */
     let struck = 0; /* hit at least once */
     const res = new Array(NATTK).fill(M_ATTK_MISS);
@@ -725,11 +740,40 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
 
     /* mundetected monsters become un-hidden if they are attacked */
     if (mdef.mundetected) {
-        // C clears the flag, repaints and may print one of four lines through
-        // noname_monnam(), makeplural(), a_monnam() or mon_nam(). Every one
-        // needs display.c sensemon(), which has no port, and the fourth also
-        // needs gl.last_hider, which nothing here writes.
-        unsupported('a hidden monster noticed as it is attacked');
+        mdef.mundetected = 0;
+        (env.redraw ?? (env.planning
+            ? () => {}
+            : (x, y) => newsym(x, y)))(mdef.mx, mdef.my);
+        if (canseemon(mdef, state) && !sensemon(mdef, state)) {
+            const message = requireAttackOperation(env, 'message');
+            if (heroUnaware(state)) {
+                const justone = Boolean(mdef.data.geno & G_UNIQ);
+                let montype = noname_monnam(
+                    mdef,
+                    justone ? ARTICLE_THE : ARTICLE_NONE,
+                    state,
+                    env,
+                );
+                if (!justone) montype = makeplural(montype);
+                await message(`You dream of ${montype}.`, state, env);
+            } else if (state.iflags?.last_msg === PLNMSG_HIDE_UNDER
+                && mdef.m_id === state.gv?.last_hider) {
+                await pline_mon(
+                    mdef,
+                    `${Monnam(mdef, state, env)} emerges from hiding.`,
+                    state,
+                    env,
+                );
+            } else if (mdef.m_id === state.gv?.last_hider) {
+                await message(`You notice ${mon_nam(mdef, state, env)}.`,
+                    state, env);
+            } else {
+                await message(`Suddenly, you notice ${a_monnam(mdef, {
+                    ...env,
+                    state,
+                })}.`, state, env);
+            }
+        }
     }
 
     /* Elves hate orcs. */
@@ -792,11 +836,14 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
             // inventory after setting NEED_WEAPON. C then calls
             // possibly_unwield() even though MON_WEP() is null; that is an
             // intentional no-op and the AT_WEAP arm falls through.
-            possibly_unwield(magr, false, env);
+            await possibly_unwield(magr, false, env);
             mwep = magr.mw ?? null;
-            if (mwep)
-                unsupported('an armed monster attacking another monster');
-            /* FALLTHRU: C's empty-handed AT_WEAP arm joins the physical group. */
+            if (mwep) {
+                if (state.gv.vis)
+                    await mswingsm(magr, mdef, mwep, env);
+                tmp += hitval(mwep, mdef, state, env);
+            }
+            /* FALLTHRU: the AT_WEAP arm joins the physical group. */
 
         case AT_CLAW:
         case AT_KICK:
@@ -814,10 +861,6 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
             /* Monsters won't attack cockatrices physically if they
              * have a weapon instead. This instinct doesn't work for
              * players, or under conflict or confusion. */
-            // `mwep` is null on every path this arm admits, so the whole
-            // condition is FALSE and no test can separate its operators. It
-            // is translated rather than dropped because the AT_WEAP arm that
-            // supplies a weapon is a refusal rather than a gap.
             if (!magr.mconf && !Conflict(state) && mwep
                 && mattk.aatyp !== AT_WEAP && touch_petrifies(mdef.data)) {
                 strike = 0;
@@ -826,9 +869,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
             dieroll = random.rnd(20 + i);
             strike = (tmp > dieroll) ? 1 : 0;
             /* KMH -- don't accumulate to-hit bonuses */
-            /* C's `if (mwep) tmp -= hitval(mwep, mdef);` needs a weapon this
-               arm cannot have: only AT_WEAP sets mwep, and that case refuses
-               above. */
+            if (mwep) tmp -= hitval(mwep, mdef, state, env);
             if (strike) {
                 /* for eel AT_TUCH+AD_WRAP attack: can't grab an unsolid
                    target; the unsolid test is redundant since failed_grab
@@ -840,10 +881,6 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
                     break;
                 }
                 res[i] = await hitmm(magr, mdef, mattk, mwep, dieroll, env);
-                /* C's pudding-splitting block at 447-464 asks next whether
-                   `mwep` is iron or metal. That conjunct is FALSE for every
-                   attack this arm admits, because only the refused AT_WEAP
-                   case can set a weapon, so clone_mon() is unreachable. */
             } else {
                 await missmm(magr, mdef, mattk, env);
             }
@@ -1194,17 +1231,11 @@ export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
 
 // C ref: mhitm.c hitmm() (642-731). "Returns the result of mdamagem()."
 //
-// `weaponhit` and `silverhit` are C's, and both need a weapon: an AT_WEAP
-// attack, which mattackm() refuses, or an AT_CLAW attacker holding one, which
-// only that refused arm can set. They stay because the "%s hits" default arm
-// reads `weaponhit` and would print nothing for an artifact.
+// `weaponhit` and `silverhit` follow C's weapon and claw arms; `weaponhit`
+// keeps the default hit line from hiding artifact names.
 async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
     const { state } = env;
-    const unsupported = requireAttackOperation(env, 'unsupported');
     const message = requireAttackOperation(env, 'message');
-    // Both need a weapon, which only the refused AT_WEAP arm can supply, so
-    // both are constantly FALSE here: `weaponhit` selects the "%s hits"
-    // default arm below and `silverhit` keeps the searing line out of reach.
     const weaponhit = mattk.aatyp === AT_WEAP
         || (mattk.aatyp === AT_CLAW && mwep);
     const silverhit = weaponhit && mwep
@@ -1258,10 +1289,23 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
             }
 
             if (mon_hates_silver(mdef) && silverhit) {
-                // C's "%s %s sears %s!" needs objnam.c simpleonames() and the
-                // "its own flesh" substitutions. Only a silver weapon reaches
-                // it, and the AT_WEAP arm refuses ahead of that.
-                unsupported('a silver weapon searing another monster');
+                let mdefName = mon_nam_too(mdef, magr, state, env);
+                const attackerName = s_suffix(magr_name);
+                if (!noncorporeal(mdef.data) && !amorphous(mdef.data)) {
+                    if (mdef !== magr) {
+                        mdefName = s_suffix(mdefName);
+                    } else {
+                        mdefName = strsubst(mdefName, 'himself', 'his own');
+                        mdefName = strsubst(mdefName, 'herself', 'her own');
+                        mdefName = strsubst(mdefName, 'itself', 'its own');
+                    }
+                    mdefName += ' flesh';
+                }
+                await message(
+                    `${attackerName} ${simpleonames(mwep, state)} sears `
+                        + `${mdefName}!`,
+                    state,
+                );
             }
         }
     } else {
@@ -1269,6 +1313,27 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
     }
 
     return mdamagem(magr, mdef, mattk, mwep, dieroll, env);
+}
+
+// C ref: mhitm.c mswingsm() (1283-1301). Announce a visible adjacent weapon
+// attack when verbose output is enabled; mswings_verb() owns its source RNG.
+async function mswingsm(magr, mdef, otemp, env) {
+    const { state, random } = env;
+    if (!state.flags.verbose || heroIsBlind(state)
+        || !mon_visible(magr, state)) return;
+
+    const bash = is_pole(otemp, state)
+        && otemp.oartifact !== ART_SNICKERSNEE
+        && dist2(magr.mx, magr.my, mdef.mx, mdef.my) <= 2;
+    const message = requireAttackOperation(env, 'message');
+    await message(
+        `${Monnam(magr, state, env)} `
+            + `${mswings_verb(otemp, bash, { ...env, state, random })} `
+            + `${otemp.quan > 1 ? 'one of ' : ''}${mhis(magr, env)} `
+            + `${xnameFresh(otemp, state)} at ${mon_nam(mdef, state, env)}.`,
+        state,
+        env,
+    );
 }
 
 // C ref: mhitm.c gazemm() (736-805). The gaze dispatch returns its own result,
@@ -1432,9 +1497,7 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
             mdef.mhp = 0;
         }
         if (mattk.aatyp === AT_WEAP || mattk.aatyp === AT_CLAW) {
-            /* monst.h troll_baned() (246-247): only Trollsbane sets the
-               flag, and the AT_WEAP arm of mattackm() refuses before an
-               armed attacker can arrive here. */
+            /* monst.h troll_baned() (246-247): only Trollsbane sets the flag. */
             state.gm ??= {};
             state.gm.mkcorpstat_norevive = mdef.data.mlet === S_TROLL && mwep
                 && mwep.oartifact === ART_TROLLSBANE;

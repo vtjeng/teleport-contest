@@ -626,7 +626,7 @@ import { explode } from './explode.js';
 import { heroUnaware, pline_mon, verbalize } from './pline.js';
 import { note_unported } from './unported.js';
 import {
-    dbon, dry_a_towel, setmnotwielded, uwep_skill_type,
+    dbon, dry_a_towel, possibly_unwield, setmnotwielded, uwep_skill_type,
 } from './weapon.js';
 import { mwelded } from './wield.js';
 import { u_wipe_engr } from './engrave.js';
@@ -773,9 +773,9 @@ export function snickersnee_used_dist_attk(obj, state = game) {
         && state.context?.snickersnee_turn === state.moves);
 }
 
-// C ref: apply.c use_whip() (2954-3271). The source's possibly_unwield() and
-// instapetrify() calls remain explicit gaps where their results are discarded;
-// kick_steed() and fire_damage() are wired for their effects.
+// C ref: apply.c use_whip() (2954-3271). The source's instapetrify() call
+// remains an explicit gap; kick_steed() and fire_damage() are wired for their
+// effects.
 export async function use_whip(obj, state = game, env = {}) {
     let monster;
     let rx;
@@ -953,7 +953,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
             }
             if (pullFree) {
                 obj_extract_self(object, { state });
-                if (monster.mw === object) note_unported('weapon.c possibly_unwield');
+                await possibly_unwield(monster, false, { state });
                 await setmnotwielded(monster, object, { state });
                 switch (rn2(proficient + 1)) {
                 case 2:

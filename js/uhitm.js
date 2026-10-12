@@ -4048,7 +4048,7 @@ async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
         if (!otmp || otmp.where !== OBJ_INVENT) continue;
         if (await theft_petrifies(otmp, state, env)) break;
         if (unwornmask & W_WEP) {
-            possibly_unwield(mdef, false, env);
+            await possibly_unwield(mdef, false, env);
         } else if (unwornmask & W_ARMG) {
             // trap.c:mselftouch() is a void callee with an unfinished
             // minstapetrify() path; record and skip that source boundary.
@@ -4247,7 +4247,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
         // Both calls are void source callees. Existing partial ports are
         // safe no-ops when extraction cleared the weapon; retain their source
         // order and leave their still-unported effect paths explicit.
-        possibly_unwield(mdef, false, env);
+        await possibly_unwield(mdef, false, env);
         mdef.mstrategy &= ~STRAT_WAITFORU;
         mselftouch(mdef, null, false, { ...env, state });
 
