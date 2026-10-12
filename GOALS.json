@@ -281226,7 +281226,7 @@
     {
       "id": "port-o-init-rename-disco-v48-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the discovered-object type naming menu and its caller",
       "cFile": "o_init.c",
       "sessions": [
@@ -281240,8 +281240,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1cefd15ca83512eb920105c96202699a1b04a8e0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "rename_disco",
@@ -281551,6 +281554,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1cefd15ca83512eb920105c96202699a1b04a8e0",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
