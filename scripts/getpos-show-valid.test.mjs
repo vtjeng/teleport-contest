@@ -93,6 +93,53 @@ test('getpos menu key toggles menu mode in both directions and stays in target i
     assert.ok(branch.indexOf('pline(') < branch.indexOf('goto nxtc;'));
 });
 
+test('getpos SELF key returns to the hero and keeps the targeting input boundary', async () => {
+    await runSegment({ ...PROBE, moves: ' \u0014  $' });
+    game.flags.verbose = false;
+    game.flags.tips = false;
+    game.iflags.autodescribe = false;
+    const hero = { x: game.u.ux, y: game.u.uy };
+    const message = game._ttyToplines;
+    const beforeInputs = [];
+    game._preNhgetchHook = async () => {
+        beforeInputs.push({
+            target: { x: game.gg.getposx, y: game.gg.getposy },
+            cursor: [
+                game.nhDisplay.cursorCol,
+                game.nhDisplay.cursorRow,
+                game.nhDisplay.cursorVisible,
+            ],
+            message: game._ttyToplines,
+        });
+    };
+    game.nhDisplay.pushKey('@'.charCodeAt(0));
+    game.nhDisplay.pushKey(0x1B);
+    try {
+        assert.equal(
+            await getpos(
+                { x: hero.x + 2, y: hero.y }, false, 'desired location', game,
+            ),
+            -1,
+        );
+    } finally {
+        delete game._preNhgetchHook;
+    }
+
+    assert.deepEqual(beforeInputs[1], {
+        target: hero,
+        cursor: [hero.x - 1, hero.y + 1, 1],
+        message,
+    });
+
+    const marker = '} else if (c == gc.Cmd.spkeys[NHKF_GETPOS_SELF])';
+    const start = C_SOURCE.indexOf(marker);
+    assert.notEqual(start, -1);
+    const end = C_SOURCE.indexOf('} else if', start + marker.length);
+    const branch = C_SOURCE.slice(start, end);
+    assert.match(branch, /gidx\[i\] = 0/u);
+    assert.match(branch, /cx = u\.ux;\s*cy = u\.uy;\s*goto nxtc;/u);
+});
+
 test('getpos SHOWVALID retains the optional highlight callback', async () => {
     await runSegment({
         ...PROBE,

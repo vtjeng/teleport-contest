@@ -1046,6 +1046,21 @@ export async function getpos(ccp, force, goal, state = game) {
                 await flush_screen(0);
                 continue;
             }
+            // C ref: getpos.c:getpos(), NHKF_GETPOS_SELF. @ resets the
+            // location-cycle indices and returns the targeting cursor to the
+            // hero. It keeps the current message and remains at the next
+            // getpos input boundary.
+            const selfKey = state.commandBindings.specialKeys?.['getpos.self'];
+            if (key === selfKey) {
+                gidx.fill(0);
+                cx = state.u.ux;
+                cy = state.u.uy;
+                state.gg.getposx = cx;
+                state.gg.getposy = cy;
+                cursorAt(cx, cy, state);
+                await flush_screen(0);
+                continue;
+            }
             if (key === '#') {
                 state.iflags.autodescribe = !state.iflags.autodescribe;
                 await ttyPline(
