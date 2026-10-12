@@ -5321,7 +5321,7 @@ export async function dotypeinv(state = game, hooks = {}) {
             | INVORDER_SORT | INCLUDE_VENOM,
         (obj) => this_type_only(obj, state),
         state,
-        state.gt.this_title ?? undefined,
+        state.gt.this_title ?? null,
     );
     if (result.n > 0) {
         const object = result.pick_list[0]?.obj;

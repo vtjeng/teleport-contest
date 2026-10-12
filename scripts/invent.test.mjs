@@ -56,6 +56,18 @@ test('dotypeinv includes billed categories only when a shopping bill exists', ()
     assert.match(jsMenu, /let qflags = UNPAID_TYPES \| INCLUDE_VENOM;\s*if \(billx\) qflags \|= BILLED_TYPES;/u);
 });
 
+test('dotypeinv preserves the null query title used by invent.c', () => {
+    const cStart = INVENT_C.indexOf('dotypeinv(void)');
+    const cCall = INVENT_C.indexOf('query_objlist((char *) 0, &gi.invent', cStart);
+    const jsStart = INVENT_JS.indexOf('export async function dotypeinv(');
+    const jsCall = INVENT_JS.indexOf('await query_objlist(', jsStart);
+    const jsEnd = INVENT_JS.indexOf(');', jsCall);
+    assert.ok(cStart >= 0 && cCall > cStart);
+    assert.ok(jsStart >= 0 && jsCall > jsStart && jsEnd > jsCall);
+    assert.match(INVENT_C.slice(cCall, cCall + 70), /query_objlist\(\(char \*\) 0,/u);
+    assert.match(INVENT_JS.slice(jsCall, jsEnd), /state\.gt\.this_title \?\? null/u);
+});
+
 test('dotypeinv matches the recorded inventory category menu', async () => {
     // This independent inventory-by-type recording reaches the menu without
     // a shopping bill; a billed category would add an incorrect menu row.
