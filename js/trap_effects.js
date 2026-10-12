@@ -78,6 +78,7 @@ import {
     NOWEBMSG,
     M_SEEN_FIRE,
     PIT,
+    CXN_PFX_THE,
     PASSES_WALLS,
     POLY_NOFLAGS,
     POLY_TRAP,
@@ -89,6 +90,7 @@ import {
     ROLLING_BOULDER_TRAP,
     RUST_TRAP,
     SLEEP_RES,
+    STONE_RES,
     SEE_INVIS,
     M_SEEN_SLEEP,
     SLP_GAS_TRAP,
@@ -321,6 +323,7 @@ import {
 import {
     an,
     cloak_simple_name,
+    corpse_xname,
     donameFresh,
     gloves_simple_name,
     helm_simple_name,
@@ -350,6 +353,7 @@ import {
     t_at,
     trapname,
     activate_statue_trap,
+    minstapetrify,
 } from './trap.js';
 import {
     level_tele_trap,
@@ -372,7 +376,7 @@ import {
     split_mon,
 } from './potion.js';
 import { note_unported } from './unported.js';
-import { dmgval } from './weapon.js';
+import { dmgval, mwepgone } from './weapon.js';
 import {
     block_point,
     cansee,
@@ -1348,23 +1352,38 @@ async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
     return Trap_Effect_Finished;
 }
 
-// C ref: trap.c mselftouch() (3912-3933). A monster that has just been thrown
-// about touches its own wielded corpse; trapeffect_pit()'s monster arm below
-// is the caller this port was written for.
-//
-// Only the guard is ported. The body needs minstapetrify() and corpse_xname(),
-// neither of which is ported, so it stops the scan. The stop is one conjunct
-// wider than C's condition: monst.h:279 resists_ston() expands to
-// mondata.c Resists_Elem() (129-231), which is not ported either, so the port
-// also stops for a stone-resistant monster, which C would let walk away.
-export function mselftouch(mon, _arg, _byplayer, env) {
+// C ref: trap.c mselftouch() (3913-3936). Losing stone resistance while
+// wielding a petrifying corpse invokes minstapetrify(), then releases the
+// corpse if lifesaving leaves the monster alive and still bare-handed.
+export async function mselftouch(mon, arg, byplayer, env = {}) {
     const { state } = env;
-    const unsupported = requireTrapOperation(env, 'unsupported');
     const mwep = mon.mw; /* MON_WEP() */
 
     if (mwep && mwep.otyp === CORPSE
-        && touch_petrifies(state.mons?.[mwep.corpsenm]))
-        unsupported('a monster touching its wielded corpse');
+        && touch_petrifies(state.mons?.[mwep.corpsenm])
+        && !Resists_Elem(mon, STONE_RES, state)) {
+        if (cansee(mon.mx, mon.my, state)) {
+            const subject = arg !== null && arg !== undefined
+                ? `${arg}${mon_nam(mon, state, env)}`
+                : Monnam(mon, state, env);
+            await (env.message ?? ttyPline)(
+                messageAt(
+                    `${subject} touches ${corpse_xname(
+                        mwep, null, CXN_PFX_THE, state,
+                    )}.`,
+                    mon.mx,
+                    mon.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        }
+        await minstapetrify(mon, byplayer, state, env);
+        if (mon.mhp >= 1 && !which_armor(mon, W_ARMG, state)
+            && !Resists_Elem(mon, STONE_RES, state))
+            await mwepgone(mon, env);
+    }
 }
 
 // C ref: trap.c steedintrap() (3102-3159). The helper is shared by the hero
@@ -1686,7 +1705,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
             await message("How pitiful.  Isn't that the pits?", state, env);
         seetrap(trap, env);
     }
-    mselftouch(mtmp, 'Falling, ', false, env);
+    await mselftouch(mtmp, 'Falling, ', false, env);
     let relevantSpikes = trap.ttyp === SPIKED_PIT;
     if (wearing_iron_shoes(mtmp, state))
         relevantSpikes = false;
