@@ -139,8 +139,9 @@ test('AD_DREN caller preserves branch order, negation, and damage reset', async 
     assert.equal(mhm.damage, 0);
     assert.deepEqual(e.events, ['rn2:10', 'rn2:4', 'd:2d2']);
 
-    // The source's hero-defender arm is shared by the dispatcher even though
-    // current monster data reaches the energy-vortex drain through engulfing.
+    // This direct call pins the complete source helper's hero-defender arm.
+    // The production monster-to-hero engulf path is mhitu.c:gulpmu(), which
+    // handles AD_DREN with drain_en() and does not call xdrainenergym().
     const heroAttack = { aatyp: AT_BITE, adtyp: AD_DREN };
     game.u.uen = 10;
     game.u.uenmax = 10;
