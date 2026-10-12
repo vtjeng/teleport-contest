@@ -11,7 +11,7 @@
   "recipeSha256": "e1b61fa46efe85245c0d71fd68d09f47c09f4293b5e56cc371b02797897f4381",
   "evaluationPath": "challenges/evaluations/baseline-1462b295f-v49.json",
   "evaluationCommit": "1462b295f3bf6514ca24014016052b1e475bffda",
-  "status": "verified",
+  "status": "resolved",
   "baseCommit": "dfd2b6f5efe0e9f45f857f0483c6c2a0ca04e46a",
   "mismatch": {
     "segmentIndex": 0,
@@ -33,7 +33,7 @@
     "rngMatched": 2737,
     "rngTotal": 2737
   },
-  "summary": "The admitted recording reaches apply.c:doapply -> invent.c:getobj, opens the suggested inventory menu with ?, then sends Escape. Upstream invent.c:getobj distinguishes display_pickinv returning Escape from returning no selection: Escape prints Never_mind and returns null; a non-committing cancellation returns to the object prompt. In JS, display_pickinv's default select_menu cancelValue is null for Escape, so getobj treats Escape as an ordinary no-selection and redraws its prompt over the map. The complete getobj and display_pickinv ports are recorded complete in GOALS.json under port-invent-seed4500; this is a bounded implemented-behavior divergence.",
+  "summary": "The admitted recording’s Escape mismatch is fixed. getobj now preserves the menu Escape result through display_pickinv, so apply.c:doapply receives null after the source-matching Never_mind message.",
   "source": {
     "cFile": "invent.c",
     "functions": [
@@ -67,7 +67,9 @@
     "Saved admitted baseline challenges/evaluations/baseline-1462b295f-v49.json measures v49-apply-book-attempt2 at 9/10 screens and cursors and 2737/2737 RNG; its first mismatch is step 9, Escape, with C row 0 beginning N and JS row 0 beginning W.",
     "Fresh isolated replay from accepted worker base dfd2b6f5efe0e9f45f857f0483c6c2a0ca04e46a used the exact coordinator recording: node frozen/ps_test_runner.mjs /home/vtjeng/development/vtjeng/teleport-contest/challenges/cases/v49/v49-apply-book-attempt2.session.json. It reproduced 9/10 screens and 2737/2737 RNG with no runner error.",
     "The recipe independently runs #apply, chooses ?, then Escape with a Wizard inventory containing three suggested items. The two earlier screens match; the Escape screen shows the differing post-menu behavior.",
-    "Upstream invent.c:getobj lines 1979-1992 branches on display_pickinv's returned char. Its no-selection branch continues the prompt loop; its Escape branch prints Never_mind and returns null. The JS getobj currently calls display_pickinv with cancelValue null and checks falsiness before checking the Escape branch, so Escape is lost at the menu API boundary."
+    "Upstream invent.c:getobj lines 1979-1992 branches on display_pickinv's returned char. Its no-selection branch continues the prompt loop; its Escape branch prints Never_mind and returns null. The JS getobj currently calls display_pickinv with cancelValue null and checks falsiness before checking the Escape branch, so Escape is lost at the menu API boundary.",
+    "Committed fix 7f0b8994c returns the original Escape key from display_pickinv via a caller-specific cancelValue, preserving getobj’s existing C-aligned Escape branch without changing other menu callers.",
+    "Fresh replay after commit 7f0b8994c against the exact admitted v49 recording passes all 10 screens and cursors and all 2737 RNG calls."
   ],
   "proposedScope": {
     "kind": "divergence-fix",
@@ -78,5 +80,17 @@
     "callerScope": "Verify apply.c:doapply and js/apply.js doapply wiring; no caller behavior change planned.",
     "goalSummary": "Preserve Escape from the suggested inventory menu in getobj",
     "entryPoint": "#apply -> apply.c:doapply -> getobj suggested inventory menu"
+  },
+  "resolution": {
+    "commit": "7f0b8994c",
+    "freshReplay": {
+      "command": "node frozen/ps_test_runner.mjs /home/vtjeng/development/vtjeng/teleport-contest/challenges/cases/v49/v49-apply-book-attempt2.session.json",
+      "screens": "10/10",
+      "cursors": "10/10",
+      "rng": "2737/2737",
+      "error": null
+    },
+    "focusedTest": "scripts/getobj-menu-escape.test.mjs passed",
+    "lint": "npm run lint passed"
   }
 }
