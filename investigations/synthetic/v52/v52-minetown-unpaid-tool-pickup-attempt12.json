@@ -58,7 +58,7 @@
     },
     "replayCommit": "3b34371d46a47005b16613508fb9e4ce78e70b5a"
   },
-  "summary": "Partial: the earlier step-312 nested-shop exception is cleared by room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9. Hot-pursuit delivery 20763e5c8c468f81294b4648414e6ed942b786b0 matches every screen, cursor, and RNG boundary through zero-based step 583. The next mismatch originates at shk.c:shk_move: C tests distu(gtx,gty)>8, but JS compares the squared distance with >64. At this replay the squared distance is 64, so C avoids a NOTONL candidate while JS admits it, adding an rn2(5) before C's m_move selection call. The screen consequence appears at step 606. This report retains the original investigation and each corrected replay frontier.",
+  "summary": "The step-312 nested-shop mismatch was cleared by room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9, and hot-pursuit delivery 20763e5c8c468f81294b4648414e6ed942b786b0 matched through step 583. Follow-up source tracing found shk.c:shk_move compared squared distance with >64 instead of C's distu()>8, admitting a NOTONL candidate and adding an rn2(5). Commit d07983bb131e56f3c28023417a05f1ab8bee26a4 corrects the threshold; the exact fresh recipe and immutable v52 recording now match all 627 screens, cursors, and RNG boundaries.",
   "source": {
     "file": "shk.c",
     "branch": "When theft makes an angry shopkeeper pursue the hero, stolen_value calls hot_pursuit. The helper calls rile_shk, copies the player name into customer, sets following, clears floor no_charge flags, and clears pet-carried no_charge flags before the monster turn.",
@@ -72,7 +72,7 @@
       "The following monster turn reaches muse.c:use_offensive after hot_pursuit changes the shopkeeper from peaceful to angry."
     ],
     "dependencies": [
-      "pending room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9"
+      "room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9"
     ]
   },
   "evidence": [
@@ -83,7 +83,8 @@
     "C shk.c:hot_pursuit calls rile_shk, copies svp.plname into customer, sets following, clears no_charge on fobj, and calls clear_no_charge_pets. JS shk.js:stolen_value now invokes the new hot_pursuit implementation at the matching source position. Existing JS helpers rile_shk, clear_no_charge, and clear_no_charge_pets implement the dependencies; clear_no_charge_pets was previously closed under port-shk-clear-no-charge-pets.",
     "The implementation scope of delivery 20763e5c8c468f81294b4648414e6ed942b786b0 is shk.c:hot_pursuit and its active shk.c:stolen_value caller, reached from pickup.c:mbag_item_gone on this admitted path. Other hot_pursuit gaps at unrelated caller sites remain outside that task. The corrected exact replay matches through zero-based segment 0 step 583; its next C RNG site is monmove.c:m_move at step 584, with the source cause traced separately to shk.c:shk_move's avoid threshold.",
     "After implementation commit c78575762, the exact admitted recording matches every screen, cursor, and RNG call through zero-based segment 0 step 583. The first later RNG mismatch is step 584 in the immutable recording / segment 1 step 585 in the fresh-recipe report: C rn2(20)=2 at monmove.c:m_move:1971 while JS emits rn2(5)=2. A disposable JS replay trace identifies that extra call at priest.c:move_special:612 -> shk.c:shk_move:3413. The trace's keeper is at (55,14), hero at (55,6), and JS has squared distance 64, hero.ushops nonempty, appr 0, and avoid false. C shk.c:shk_move uses distu(gtx,gty)>8; hack.h:1531 defines distu as dist2, so C sets avoid true at this distance. priest.c:move_special:83-87 then skips the (55,15) candidate marked NOTONL (0x00200000) in C, while JS admits it and makes one extra rn2(5) draw. The next C draw is rn2(20) in m_move. The first screen difference is at zero-based boundary 606. The matching prefix was verified by node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json.",
-    "Focused checks pass: node --test scripts/shk.test.mjs; node --test scripts/shop-billing.test.mjs scripts/dokick-shipping.test.mjs; npm run lint. The latter two tests retain their source-gap assertions for distinct out-of-scope hot_pursuit call sites."
+    "Focused checks pass: node --test scripts/shk.test.mjs; node --test scripts/shop-billing.test.mjs scripts/dokick-shipping.test.mjs; npm run lint. The latter two tests retain their source-gap assertions for distinct out-of-scope hot_pursuit call sites.",
+    "Movement correction commit d07983bb131e56f3c28023417a05f1ab8bee26a4 changes only shk.c:shk_move's distance threshold and adds a C-pinned check. Its fresh recipe replay passes all PRNG calls, screens, cursors, and animation frames; the immutable admitted recording also matches through step 626."
   ],
   "correctionReplay": {
     "commit": "c78575762",
@@ -91,5 +92,13 @@
     "result": "Fresh C and JavaScript output match through the theft/More/wand boundary. The next RNG mismatch is at segment 1 step 585 in diff-fresh output: C rn2(20)=2 from monmove.c:m_move, JS rn2(5)=2. A direct comparison with the immutable admitted recording maps this to zero-based segment 0 step 584; its next screen mismatch is step 606.",
     "prefixCommand": "node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json",
     "prefixResult": "Exit 0: v52/v52-minetown-unpaid-tool-pickup-attempt12 segment 0 through step 583 matched."
+  },
+  "movementCorrectionReplay": {
+    "commit": "d07983bb131e56f3c28023417a05f1ab8bee26a4",
+    "command": "node scripts/diff-fresh.mjs challenges/cases/v52/v52-minetown-unpaid-tool-pickup-attempt12.recipe.session.json",
+    "receipt": "/tmp/teleport-validation-1000/run-Q1Dv13/receipt.json",
+    "result": "Exit 0: C and JavaScript match all 7,364 PRNG calls, 627 screens, 627 cursors, and 21 animation frames.",
+    "prefixCommand": "node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json",
+    "prefixResult": "Exit 0: v52/v52-minetown-unpaid-tool-pickup-attempt12 segment 0 through step 626 matched."
   }
 }
