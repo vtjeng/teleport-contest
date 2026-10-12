@@ -291283,7 +291283,7 @@
           "line": 4958,
           "endLine": 5197,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -291792,7 +291792,76 @@
           "luaFile": null,
           "line": null
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "gulpum",
+            "implementation": "js/uhitm.js",
+            "symbol": "gulpum",
+            "sourceReview": "Read and compared the complete uhitm.c:gulpum definition (4958-5195) against js/uhitm.js in source order. Checked the initial damage roll before engulf_target; target eligibility; snuff_lit order; vampire-shifter early return; fatal_gulp predicate and eating_conducts condition; both fatal_gulp branches; every AD_DGST, AD_PHYS, AD_ACID, AD_BLND, AD_ELEC, AD_COLD, AD_FIRE, and AD_DREN switch branch; end_engulf, damage/death checks, expulsion, and final M_ATTK_MISS result. The Rider branch now calls the existing end.c:done implementation after end_engulf and killer writes, passing DIED and discarding its void return as C does. The non-Rider fatal-petrification branch now constructs the same an()/pmname()-based killer string and calls the existing trap.c:instapetrify implementation in source order; that caller also discards its void result. Removed both stale note_unported placeholders. hmonas remains wired to gulpum for AT_ENGL and consumes its return. No other unported call remains inside the selected gulpum definition.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas dispatches AT_ENGL to gulpum and stores its return in the attack result; js/uhitm.js:hmonas awaits gulpum in the corresponding switch arm. The production path reaches hmonas from do_attack when the hero is polymorphed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 171,
+                "source": "uhitm.c:do_attack polymorphed hero -> uhitm.c:hmonas AT_ENGL/AD_DGST -> uhitm.c:gulpum Rider branch -> end.c:done(DIED); JS do_attack -> hmonas -> awaited gulpum -> done(DIED)"
+              },
+              {
+                "batch": "v51",
+                "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 151,
+                "source": "uhitm.c:do_attack polymorphed hero -> uhitm.c:hmonas AT_ENGL -> uhitm.c:gulpum fatal_gulp branch -> trap.c:instapetrify; JS do_attack -> hmonas -> awaited gulpum -> instapetrify. Later step 152 enters the separate uhitm.c:do_stone_u continuation and is outside this task."
+              }
+            ],
+            "checkedAt": "78beeb4e4a3e4ddca34ae686825505d28556d27f"
+          }
+        ],
+        "entryPointReview": "The selected source unit is the complete uhitm.c:gulpum function. Its active production entry point is a polymorphed hero's melee attack against an engulfable target: uhitm.c:do_attack calls hmonas when Upolyd, and hmonas dispatches AT_ENGL to gulpum. js/uhitm.js has the corresponding do_attack -> hmonas -> awaited gulpum route, and hmonas consumes the returned attack result. The admitted Rider session reaches the AD_DGST fatal-digestion branch and fully matches through its input boundary. The admitted Trapper session reaches the fatal cockatrice branch, passes through instapetrify and the player's refusal to die, and matches through step 151; its later step 152 divergence is in the separate do_stone_u function, owned by another task. The focused test source-pins both death-handler call positions and their order.",
+        "entryPoints": [
+          {
+            "name": "Polymorphed hero melee engulf attack",
+            "functions": [
+              "gulpum"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 171,
+                "source": "uhitm.c:do_attack -> uhitm.c:hmonas AT_ENGL -> uhitm.c:gulpum AD_DGST Rider death route"
+              },
+              {
+                "batch": "v51",
+                "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 151,
+                "source": "uhitm.c:do_attack -> uhitm.c:hmonas AT_ENGL -> uhitm.c:gulpum fatal_gulp -> trap.c:instapetrify"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
