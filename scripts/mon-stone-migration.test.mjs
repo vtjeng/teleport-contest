@@ -102,6 +102,8 @@ test('mon_to_stone changes a golem into a stone golem', async () => {
 
 test('mon_to_stone reports the visible replacement species with C punctuation',
     async () => {
+        // Independent seed for mon.c:mon_to_stone's visible wood-golem
+        // transformation, where newcham succeeds.
         await hero(7710046);
         const messages = [];
         const golem = placeFixture(fixture(PM_WOOD_GOLEM));
@@ -109,6 +111,7 @@ test('mon_to_stone reports the visible replacement species with C punctuation',
         await mon_to_stone(golem, game, env(messages));
 
         assert.equal(golem.data, game.mons[PM_STONE_GOLEM]);
+        // C formats "Now it's %s." with an(pmname(...)) after newcham.
         assert.equal(messages.at(-1), "Now it's a stone golem.");
     });
 

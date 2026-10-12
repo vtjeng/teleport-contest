@@ -138,3 +138,10 @@ triage decisions or fix references.
 - Context: C pyrolisk callback delivery `ba6dad22346f0b8b7cba2fbfe509abe87ad3141f`.
 - Friction: `scopeEvidence()` reuses the port-evidence schema for divergence fixes, which led the worker to treat function entries as new whole-function completion claims and stop packaging a completed repair.
 - Outcome: the packet identifies each affected function and explicitly limits its source review to the callback repair. It retains `kind: divergence-fix`; the coordinator records no new whole-source completion for it. No blocked recipe was fabricated and no validation rule changed.
+
+### 2026-10-12 — bounded delivery carried unrelated branch ancestors
+
+- Context: B message repair `0e0d1aa16d7b2de793f249201cf3ed73ed6a02e7`, before hosted validation.
+- Friction: the coordinator inspected the delivery's base-to-head diff, then merged its full branch without inspecting all commits missing from Main. The staged list contained 17 paths, including unrelated pending fixes, but the combined shell command committed before the coordinator reviewed that list.
+- Outcome: the unpushed merge is preserved at `recovery/mon-to-stone-merge-20261012`. Main returned to the prior commit; only the explicitly named accidental-merge paths were restored. Cherry-picking the submitted source commit produced the intended two-file repair. No validation or public push used the accidental merge.
+- Follow-up: inspect both missing ancestry and the actual staged paths before committing a worker integration. Keep the stage inspection and commit as separate operations.
