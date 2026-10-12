@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T22:23:03.170Z",
+  "capturedAt": "2026-10-12T23:22:11.644Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -98490,6 +98490,605 @@
         "type": "accepted",
         "at": "2026-10-12T22:22:42.311Z",
         "task": "Prep18"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-v53-priest-active-20261012-2222",
+        "type": "turn",
+        "at": "2026-10-12T22:23:02.839Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep18-9a7caa77eed523afa0ec8d29f6a4d2ccf75e2769",
+        "type": "published",
+        "at": "2026-10-12T22:23:07.652Z",
+        "task": "Prep18",
+        "commit": "9a7caa77eed523afa0ec8d29f6a4d2ccf75e2769"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c566a7a04203eb81c3bdedf6dabd991188998093",
+        "type": "ready",
+        "at": "2026-10-12T22:23:19.646Z",
+        "task": "B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "delivery": "c566a7a04203eb81c3bdedf6dabd991188998093"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-v53-monstone-c566a7a0-20261012",
+        "type": "received",
+        "at": "2026-10-12T22:23:38.733Z",
+        "task": "B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "delivery": "c566a7a04203eb81c3bdedf6dabd991188998093"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-monstone-integrating-0ddbafd22-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T22:24:02.589Z",
+        "task": "B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "integration": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v53-quest-nemesis-investigation-20261012",
+        "type": "assign",
+        "at": "2026-10-12T22:25:33.672Z",
+        "task": "B-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v53-wiz-goal-20261012",
+        "type": "implement",
+        "at": "2026-10-12T22:27:47.903Z",
+        "task": "B-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "goal": "port-wiz-goal-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-wiz-goal-implementation-20261012",
+        "type": "turn",
+        "at": "2026-10-12T22:28:33.574Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Porting the Wizard Quest goal level and checking its generated layout and runtime load."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7ee52fc942253e1d17d5143e8e94ffbbd2f13e33",
+        "type": "ready",
+        "at": "2026-10-12T22:28:48.512Z",
+        "task": "A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012",
+        "delivery": "7ee52fc942253e1d17d5143e8e94ffbbd2f13e33"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-v53-priest-7ee52fc9-20261012",
+        "type": "received",
+        "at": "2026-10-12T22:29:20.353Z",
+        "task": "A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012",
+        "delivery": "7ee52fc942253e1d17d5143e8e94ffbbd2f13e33"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-v53-priest-submitted-select-dig-20261012",
+        "type": "turn",
+        "at": "2026-10-12T22:29:57.077Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v53-dig-magic-trap-20261012",
+        "type": "assign",
+        "at": "2026-10-12T22:30:00.445Z",
+        "task": "A2-investigation-v53-dig-magic-trap-explosion-action2-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-validated",
+        "type": "validated",
+        "at": "2026-10-12T22:30:42.454Z",
+        "task": "B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T22:31:09.560Z",
+        "task": "B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6c334890a6c3527b34167bd1aa20aac6caf6058a",
+        "type": "ready",
+        "at": "2026-10-12T22:31:24.467Z",
+        "task": "C-investigation-v53-knight-excalibur-fountain-action2-20261012",
+        "delivery": "6c334890a6c3527b34167bd1aa20aac6caf6058a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-v53-excalibur-6c334890-20261012",
+        "type": "received",
+        "at": "2026-10-12T22:31:57.140Z",
+        "task": "C-investigation-v53-knight-excalibur-fountain-action2-20261012",
+        "delivery": "6c334890a6c3527b34167bd1aa20aac6caf6058a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012-d87d8a0b7924552d8b880a7f5b6ba6ad2d4a5b71",
+        "type": "published",
+        "at": "2026-10-12T22:32:28.884Z",
+        "task": "B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "commit": "d87d8a0b7924552d8b880a7f5b6ba6ad2d4a5b71"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-priest53-integrating-27121df96-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T22:33:03.893Z",
+        "task": "A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012",
+        "integration": "27121df96ceb22f30703b42264d03ecb3d439095"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v53-dig-magic-trap-20261012",
+        "type": "implement",
+        "at": "2026-10-12T22:33:20.636Z",
+        "task": "A2-investigation-v53-dig-magic-trap-explosion-action2-20261012",
+        "goal": "fix-dighole-magical-trap-explosion-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0e69089682403caa9489fdcc9d71a333991ca98b",
+        "type": "ready",
+        "at": "2026-10-12T22:33:32.107Z",
+        "task": "B-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "delivery": "0e69089682403caa9489fdcc9d71a333991ca98b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v53-mounted-dragon-engulf-20261012",
+        "type": "assign",
+        "at": "2026-10-12T22:34:03.277Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-v53-wiz-goal-0e690896-20261012",
+        "type": "received",
+        "at": "2026-10-12T22:34:19.019Z",
+        "task": "B-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "delivery": "0e69089682403caa9489fdcc9d71a333991ca98b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v53-earth-remote-blessed-pick-cave-action10-20261012-r1",
+        "type": "assign",
+        "at": "2026-10-12T22:35:19.854Z",
+        "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-v53-dig-explosion-implementing-20261012",
+        "type": "turn",
+        "at": "2026-10-12T22:36:00.215Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v53-engulf-dismount-implement-20261012",
+        "type": "implement",
+        "at": "2026-10-12T22:36:51.081Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "goal": "C-fix-mounted-engulf-steed-dismount-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-earth-blessed-pick-cave-v53-20261012",
+        "type": "implement",
+        "at": "2026-10-12T22:38:10.872Z",
+        "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012",
+        "goal": "fix-dig-earth-blessed-pick-cave-area-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012-27121df96ceb22f30703b42264d03ecb3d439095-validated",
+        "type": "validated",
+        "at": "2026-10-12T22:39:05.426Z",
+        "task": "A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012-27121df96ceb22f30703b42264d03ecb3d439095-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T22:39:35.877Z",
+        "task": "A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012-f3d22157d38769a398adfd292536c87ada92dfcb",
+        "type": "published",
+        "at": "2026-10-12T22:40:46.527Z",
+        "task": "A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012",
+        "commit": "f3d22157d38769a398adfd292536c87ada92dfcb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-excalibur53-integrating-26748832b-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T22:41:52.704Z",
+        "task": "C-investigation-v53-knight-excalibur-fountain-action2-20261012",
+        "integration": "26748832bec4c8d55150cd96f4f870355f5d2bbd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-cfcadd8f02a6681c38ea41a6540bb077597dc2b0",
+        "type": "ready",
+        "at": "2026-10-12T22:44:25.109Z",
+        "task": "A2-investigation-v53-dig-magic-trap-explosion-action2-20261012",
+        "delivery": "cfcadd8f02a6681c38ea41a6540bb077597dc2b0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-v53-magical-trap-cfcadd8f-20261012",
+        "type": "received",
+        "at": "2026-10-12T22:45:07.108Z",
+        "task": "A2-investigation-v53-dig-magic-trap-explosion-action2-20261012",
+        "delivery": "cfcadd8f02a6681c38ea41a6540bb077597dc2b0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v53-barefoot-kick-corpse-20261012",
+        "type": "assign",
+        "at": "2026-10-12T22:46:02.488Z",
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v53-knight-excalibur-fountain-action2-20261012-26748832bec4c8d55150cd96f4f870355f5d2bbd-validated",
+        "type": "validated",
+        "at": "2026-10-12T22:47:59.091Z",
+        "task": "C-investigation-v53-knight-excalibur-fountain-action2-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v53-knight-excalibur-fountain-action2-20261012-26748832bec4c8d55150cd96f4f870355f5d2bbd-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T22:48:21.455Z",
+        "task": "C-investigation-v53-knight-excalibur-fountain-action2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v53-knight-excalibur-fountain-action2-20261012-ee612bad768ab0cb6fdde037fe983d912778fa3c",
+        "type": "published",
+        "at": "2026-10-12T22:49:42.226Z",
+        "task": "C-investigation-v53-knight-excalibur-fountain-action2-20261012",
+        "commit": "ee612bad768ab0cb6fdde037fe983d912778fa3c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v53-barefoot-kick-instapetrify-20261012",
+        "type": "implement",
+        "at": "2026-10-12T22:52:07.653Z",
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
+        "goal": "fix-dokick-barefoot-corpse-instapetrify-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-v53-barefoot-kick-implement-20261012",
+        "type": "turn",
+        "at": "2026-10-12T22:52:17.536Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Porting the barefoot corpse petrification call in really_kick_object; the baseline and source trace are saved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-wizgoal53-integrating-3fd1185f7-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T22:52:39.769Z",
+        "task": "B-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "integration": "3fd1185f744ed2b8ef8226d6eb23b8a13d330395"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9e437c17b4c2c95f8e485d3b2494d0d0f98b6c02",
+        "type": "ready",
+        "at": "2026-10-12T22:53:33.710Z",
+        "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012",
+        "delivery": "9e437c17b4c2c95f8e485d3b2494d0d0f98b6c02"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-aaa45a54a70b8381fa43faffe2035e538c8b7f5d",
+        "type": "ready",
+        "at": "2026-10-12T22:54:36.503Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "delivery": "aaa45a54a70b8381fa43faffe2035e538c8b7f5d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-v53-cave-area-9e437c17-20261012",
+        "type": "received",
+        "at": "2026-10-12T22:55:23.974Z",
+        "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012",
+        "delivery": "9e437c17b4c2c95f8e485d3b2494d0d0f98b6c02"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+        "type": "assign",
+        "at": "2026-10-12T22:56:48.625Z",
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-mounted-aaa45a54-20261012",
+        "type": "received",
+        "at": "2026-10-12T22:58:15.431Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "delivery": "aaa45a54a70b8381fa43faffe2035e538c8b7f5d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-c-mounted-replay-digest-aaa45a54-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T22:58:18.793Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "delivery": "aaa45a54a70b8381fa43faffe2035e538c8b7f5d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-resume-c-mounted-replay-digest-aaa45a54-20261012",
+        "type": "resume",
+        "at": "2026-10-12T22:58:22.311Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-25292491b77cbda07c2827be91c7c1ef4ebe87c7",
+        "type": "ready",
+        "at": "2026-10-12T22:59:01.202Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "delivery": "25292491b77cbda07c2827be91c7c1ef4ebe87c7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ec477816056fdc8d518fa4cbc07feb48013b0462",
+        "type": "ready",
+        "at": "2026-10-12T22:59:10.440Z",
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
+        "delivery": "ec477816056fdc8d518fa4cbc07feb48013b0462"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-mounted-25292491-20261012",
+        "type": "received",
+        "at": "2026-10-12T23:00:12.729Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "delivery": "25292491b77cbda07c2827be91c7c1ef4ebe87c7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-barefoot-ec477816-20261012",
+        "type": "received",
+        "at": "2026-10-12T23:00:15.461Z",
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
+        "delivery": "ec477816056fdc8d518fa4cbc07feb48013b0462"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v53-water-snakes-20261012",
+        "type": "assign",
+        "at": "2026-10-12T23:00:27.243Z",
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v53-water-nymph-20261012",
+        "type": "implement",
+        "at": "2026-10-12T23:00:35.108Z",
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+        "goal": "port-fountain-dowaternymph-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-quest-nemesis-nearby-action5-20261012-3fd1185f744ed2b8ef8226d6eb23b8a13d330395-validated",
+        "type": "validated",
+        "at": "2026-10-12T23:02:33.679Z",
+        "task": "B-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "type": "assign",
+        "at": "2026-10-12T23:02:57.834Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-quest-nemesis-nearby-action5-20261012-3fd1185f744ed2b8ef8226d6eb23b8a13d330395-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T23:03:03.600Z",
+        "task": "B-investigation-v53-quest-nemesis-nearby-action5-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v53-water-snakes-20261012",
+        "type": "implement",
+        "at": "2026-10-12T23:03:20.707Z",
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+        "goal": "fix-insight-blindfolded-only-status-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v53-quest-nemesis-nearby-action5-20261012-7e056cceac646179d19eca33bf507e8f175d71e6",
+        "type": "published",
+        "at": "2026-10-12T23:04:55.693Z",
+        "task": "B-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "commit": "7e056cceac646179d19eca33bf507e8f175d71e6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "type": "implement",
+        "at": "2026-10-12T23:05:13.656Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "goal": "do-engulfer-corpse-timer-cleanup-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5db9063c8a9da92ee1fa01b6b2555eaf9a07eae3",
+        "type": "ready",
+        "at": "2026-10-12T23:07:32.606Z",
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+        "delivery": "5db9063c8a9da92ee1fa01b6b2555eaf9a07eae3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v53-next-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T23:08:27.002Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v53-quest-underlevel-leader-20261012",
+        "type": "assign",
+        "at": "2026-10-12T23:08:31.103Z",
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-magictrap53-integrating-10bacc751-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T23:10:45.837Z",
+        "task": "A2-investigation-v53-dig-magic-trap-explosion-action2-20261012",
+        "integration": "10bacc75116b05788ed935aa7f24fc20fb324927"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v53-underlevel-20261012",
+        "type": "implement",
+        "at": "2026-10-12T23:12:03.364Z",
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
+        "goal": "fix-quest-underlevel-leader-expulsion-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fdd8724c8966eb89395f91c794fc604ba59d5867",
+        "type": "ready",
+        "at": "2026-10-12T23:14:02.088Z",
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+        "delivery": "fdd8724c8966eb89395f91c794fc604ba59d5867"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-nymph-fdd8724c-20261012",
+        "type": "received",
+        "at": "2026-10-12T23:14:57.902Z",
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+        "delivery": "fdd8724c8966eb89395f91c794fc604ba59d5867"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bb6370184cf3613c0760edc01f5bfecf7c85668c",
+        "type": "ready",
+        "at": "2026-10-12T23:15:39.443Z",
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
+        "delivery": "bb6370184cf3613c0760edc01f5bfecf7c85668c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v53-quest-nemesis-nearby-20261012",
+        "type": "assign",
+        "at": "2026-10-12T23:16:49.111Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-v53-queue-all-owned-20261012",
+        "type": "turn",
+        "at": "2026-10-12T23:17:03.991Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Idle while all current v53 cases are owned, held, accepted, or in B deliveries."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-blindfold-5db9063c-20261012",
+        "type": "received",
+        "at": "2026-10-12T23:18:22.127Z",
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+        "delivery": "5db9063c8a9da92ee1fa01b6b2555eaf9a07eae3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-leader-bb637018-20261012",
+        "type": "received",
+        "at": "2026-10-12T23:18:26.135Z",
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
+        "delivery": "bb6370184cf3613c0760edc01f5bfecf7c85668c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-dig-magic-trap-explosion-action2-20261012-10bacc75116b05788ed935aa7f24fc20fb324927-validated",
+        "type": "validated",
+        "at": "2026-10-12T23:20:56.318Z",
+        "task": "A2-investigation-v53-dig-magic-trap-explosion-action2-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6ab2a02d0a0321a65e1bbfed31730eabd94051df",
+        "type": "ready",
+        "at": "2026-10-12T23:21:01.368Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "delivery": "6ab2a02d0a0321a65e1bbfed31730eabd94051df"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-timer-owner-6ab2a02d-20261012",
+        "type": "received",
+        "at": "2026-10-12T23:21:24.070Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "delivery": "6ab2a02d0a0321a65e1bbfed31730eabd94051df"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-dig-magic-trap-explosion-action2-20261012-10bacc75116b05788ed935aa7f24fc20fb324927-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T23:21:31.036Z",
+        "task": "A2-investigation-v53-dig-magic-trap-explosion-action2-20261012"
       }
     ]
   },
@@ -98567,6 +99166,83 @@
           "Prep21",
           "Prep22"
         ],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012",
+        "worker": "B",
+        "goal": "fix-dig-earth-blessed-pick-cave-area-v53-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "9e437c17b4c2c95f8e485d3b2494d0d0f98b6c02",
+        "since": "2026-10-12T22:53:33.710Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "worker": "C",
+        "goal": "C-fix-mounted-engulf-steed-dismount-v53-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "25292491b77cbda07c2827be91c7c1ef4ebe87c7",
+        "since": "2026-10-12T22:59:01.202Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
+        "worker": "A2",
+        "goal": "fix-dokick-barefoot-corpse-instapetrify-v53-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "ec477816056fdc8d518fa4cbc07feb48013b0462",
+        "since": "2026-10-12T22:59:10.440Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+        "worker": "A2",
+        "goal": "fix-insight-blindfolded-only-status-v53-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "5db9063c8a9da92ee1fa01b6b2555eaf9a07eae3",
+        "since": "2026-10-12T23:07:32.606Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+        "worker": "B",
+        "goal": "port-fountain-dowaternymph-v53-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "fdd8724c8966eb89395f91c794fc604ba59d5867",
+        "since": "2026-10-12T23:14:02.088Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
+        "worker": "A2",
+        "goal": "fix-quest-underlevel-leader-expulsion-v53-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "bb6370184cf3613c0760edc01f5bfecf7c85668c",
+        "since": "2026-10-12T23:15:39.443Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "worker": "C",
+        "goal": "do-engulfer-corpse-timer-cleanup-v53-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "6ab2a02d0a0321a65e1bbfed31730eabd94051df",
+        "since": "2026-10-12T23:21:01.368Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -99051,8 +99727,8 @@
     ]
   },
   "development": {
-    "executionCommit": "27c23fb69c1e28dd0552d4d77e78bb9a01944b06",
-    "measuredAt": "2026-10-12T22:20:47.417Z",
+    "executionCommit": "10bacc75116b05788ed935aa7f24fc20fb324927",
+    "measuredAt": "2026-10-12T23:15:56.919Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

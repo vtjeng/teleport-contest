@@ -13,7 +13,8 @@
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
-//         dat/tower1.lua, dat/tower2.lua, dat/tower3.lua, dat/Val-strt.lua.
+//         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/tower1.lua, dat/tower2.lua,
+//         dat/tower3.lua, dat/Val-strt.lua.
 
 import {
     COLNO, FEMALE, G_GENOD, ROOM, ROWNO,
@@ -111,6 +112,10 @@ import { SAM_LOCA_LEVEL_MAP, SAM_LOCA_LEVEL_DOORS,
 import {
     TOU_GOAL_LEVEL_DOORS, TOU_GOAL_LEVEL_MAP, TOU_GOAL_LEVEL_MONSTERS,
 } from './tou_goal_level_data.js';
+import {
+    WIZ_GOAL_LEVEL_DOORS, WIZ_GOAL_LEVEL_MAP, WIZ_GOAL_LEVEL_MONSTERS,
+    WIZ_GOAL_LEVEL_OBJECTS, WIZ_GOAL_RANDOM_TRAP_COUNT,
+} from './wiz_goal_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -2175,6 +2180,41 @@ async function wizFilb(des) {
     await des.random_corridors();
 }
 
+// C ref: dat/Wiz-goal.lua, the Wizard quest goal level and Dark One lair.
+async function wizGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(WIZ_GOAL_LEVEL_MAP);
+
+    await des.region({ region: [13, 10, 18, 12], lit: 0,
+        type: 'temple', filled: 2 });
+    await des.region(selection_area(13, 6, 18, 8), 'lit');
+    await des.region(selection_area(20, 4, 30, 14), 'unlit');
+    await des.region(selection_area(32, 6, 33, 7), 'unlit');
+    await des.region(selection_area(35, 6, 36, 7), 'unlit');
+    await des.region(selection_area(38, 6, 39, 7), 'unlit');
+    await des.region(selection_area(41, 6, 42, 7), 'unlit');
+    await des.region(selection_area(44, 6, 45, 7), 'unlit');
+    await des.region(selection_area(47, 6, 48, 7), 'unlit');
+    await des.region(selection_area(32, 9, 48, 9), 'unlit');
+    await des.region(selection_area(32, 11, 33, 12), 'unlit');
+    await des.region(selection_area(35, 11, 36, 12), 'unlit');
+    await des.region(selection_area(38, 11, 39, 12), 'unlit');
+    await des.region(selection_area(41, 11, 42, 12), 'unlit');
+    await des.region(selection_area(44, 11, 45, 12), 'unlit');
+    await des.region(selection_area(47, 11, 48, 12), 'unlit');
+    await des.region(selection_area(50, 4, 60, 14), 'lit');
+
+    for (const door of WIZ_GOAL_LEVEL_DOORS) await des.door(...door);
+    await des.stair('up', 55, 5);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    await des.altar({ coord: [16, 11], aligned: 'noncoaligned', type: 'altar' });
+
+    for (const object of WIZ_GOAL_LEVEL_OBJECTS) await des.object(...object);
+    for (let i = 0; i < WIZ_GOAL_RANDOM_TRAP_COUNT; ++i) await des.trap();
+    for (const monster of WIZ_GOAL_LEVEL_MONSTERS) await des.monster(...monster);
+}
+
 // C ref: dat/Cav-goal.lua. The lit cavern contains the Sceptre of Might,
 // a sleeping Chromatic Dragon and three fixed shriekers.
 async function cavGoal(des) {
@@ -2990,6 +3030,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Wiz-loca': wizLoca,
     'Wiz-fila': wizFila,
     'Wiz-filb': wizFilb,
+    'Wiz-goal': wizGoal,
     oracle,
     tower1,
     tower2,

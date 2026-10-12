@@ -105,7 +105,7 @@ import { a_gname_at, halu_gname } from './pray.js';
 import { linedup } from './mthrowu.js';
 import { is_ok_location } from './room_coordinates.js';
 import { in_rooms } from './rooms.js';
-import { d, rn1, rn2 } from './rng.js';
+import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { exercise, adjalign } from './attrib.js';
 import { currency, money_cnt } from './invent.js';
 import { incr_itimeout } from './potion.js';
@@ -907,8 +907,21 @@ export async function intemple(roomno, env = {}) {
         break;
     }
     if (!random.rn2(5)) {
-        const mtmp = makemon(
-            state.mons[PM_GHOST], u.ux, u.uy, MM_NOMSG, env,
+        // C uses the shared game RNG for makemon() as well as intemple's
+        // local rn2() checks. The room-entry caller supplies only rn2, so
+        // complete that provider with the same game-stream operations before
+        // handing runtime creation to its async tail adapter.
+        const creationRandom = {
+            d,
+            rn1,
+            rn2,
+            rnd,
+            rne,
+            ...random,
+        };
+        const mtmp = await makemon_runtime(
+            state.mons[PM_GHOST], u.ux, u.uy, MM_NOMSG,
+            { ...env, state, message, random: creationRandom },
         );
         if (mtmp) {
             const ngen = state.mvitals[PM_GHOST].born;

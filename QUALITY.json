@@ -198,6 +198,7 @@
         "js/val_strt_level_data.js",
         "js/valley_levels.js",
         "js/water_levels.js",
+        "js/wiz_goal_level_data.js",
         "js/wizard1_levels.js",
         "js/wizard3_levels.js"
       ],

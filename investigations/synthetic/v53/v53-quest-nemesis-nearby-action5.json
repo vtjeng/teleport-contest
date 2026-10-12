@@ -1,0 +1,85 @@
+{
+  "session": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+  "corpus": "synthetic",
+  "batch": "v53",
+  "caseId": "v53-quest-nemesis-nearby-action5",
+  "manifestPath": "challenges/manifests/v53.json",
+  "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+  "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
+  "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
+  "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
+  "remainingScreens": 162,
+  "recordedSteps": 246,
+  "status": "complete",
+  "commit": "c566a7a04203eb81c3bdedf6dabd991188998093",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v53",
+    "caseId": "v53-quest-nemesis-nearby-action5",
+    "session": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+    "manifestPath": "challenges/manifests/v53.json",
+    "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+    "recording": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.session.json",
+    "recordingPath": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.session.json",
+    "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
+    "recipe": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.recipe.session.json",
+    "recipeSha256": "33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d",
+    "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
+    "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
+    "remainingScreens": 162,
+    "recordedSteps": 246,
+    "previousScreensMatched": 84,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 84,
+        "total": 246
+      },
+      "rng": {
+        "matched": 2392,
+        "total": 3829
+      },
+      "cursors": {
+        "matched": 84,
+        "total": 246
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "makelevel: load_special() has no loader for special level \"Wiz-goal\"",
+      "step": 85
+    },
+    "step": 85,
+    "kind": "stop",
+    "sourceFile": "Wiz-goal.lua",
+    "function": null,
+    "message": "makelevel: load_special() has no loader for special level \"Wiz-goal\"",
+    "cFile": null,
+    "luaFile": "Wiz-goal.lua",
+    "line": null
+  },
+  "goalKind": "lua-port",
+  "summary": "Wiz-goal has no registered loader. Port the whole Wizard Quest goal program and wire it into the existing special-level registry.",
+  "source": {
+    "file": "Wiz-goal.lua",
+    "branch": "Wizard Quest goal-level generation through makelevel -> makemaz -> load_special -> dat/Wiz-goal.lua.",
+    "functions": [
+      "Wiz-goal.lua"
+    ],
+    "callers": [
+      "C mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> nhlua.c:load_lua executes dat/Wiz-goal.lua. JavaScript js/mklev.js:makelevel -> makemaz -> load_special looks up the proto in SPECIAL_LEVEL_LOADERS; no Wiz-goal key is registered.",
+      "C wizcmds.c:wiz_load_splua -> sp_lev.c:load_special -> nhlua.c:load_lua. JavaScript js/wizcmds.js:wiz_load_splua routes through the same special-level loader registry."
+    ],
+    "dependencies": [
+      "The first observed gap is the missing whole dat/Wiz-goal.lua program/registry entry, before its level descriptors execute. The current implementation uses the existing shared special-level API and registered QUEST_LEVEL_LOADERS; source review will verify every descriptor helper and production caller before implementation scope is claimed."
+    ]
+  },
+  "evidence": [
+    "The admitted v53 evaluation challenges/evaluations/hosted-38314809018-1-v53.json at d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85 records 84/246 screens, 2392/3829 RNG calls, and 84/246 cursors, leaving 162 screens. Its canonical manifest digest is fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39; recording SHA-256 is f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26; recipe SHA-256 is 33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d.",
+    "A fresh strict C/JS differential using the admitted independent recipe reproduced the same stop at segment 1, zero-based step 85, key A. C begins nhlib.lua shuffle alignment with rn2(3) and presents the next level screen; JavaScript has no output after its previous 84 screens.",
+    "C mkmaze.c:1184-1193 selects the resolved special-level proto then calls sp_lev.c:load_special; load_special invokes nhlua.c:load_lua to execute the named dat program. JavaScript js/mklev.js:makemaz and load_special use SPECIAL_LEVEL_LOADERS. The registered quest programs are collected from js/quest_levels.js:QUEST_LEVEL_LOADERS, but that registry has no Wiz-goal entry. The world-generation caller refuses at js/mklev.js:723 before any Wiz-goal body runs.",
+    "Read dat/Wiz-goal.lua as the actual source owner. The missing behavior includes its level initialization, maze flags and map, regions, locked doors and stairs, non-diggable boundary, altar and fixed/random object placement, random traps, Dark One and hostile monster classes, and captive-monster setup. This is a missing whole program, not a Dark One dialogue defect. The named full Lua program and its loader registration are the implementation target; later descriptor/helper gaps, if any, must be enumerated before edits."
+  ]
+}

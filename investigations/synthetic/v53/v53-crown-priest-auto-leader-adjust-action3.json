@@ -1,0 +1,86 @@
+{
+  "session": "synthetic/v53/v53-crown-priest-auto-leader-adjust-action3",
+  "corpus": "synthetic",
+  "batch": "v53",
+  "caseId": "v53-crown-priest-auto-leader-adjust-action3",
+  "manifestPath": "challenges/manifests/v53.json",
+  "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+  "recordingSha256": "a16eb2e2ab8c444ab709fba54ba5aed57c41f5f1585fa8705b70d0a50d4b96e9",
+  "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
+  "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
+  "remainingScreens": 222,
+  "recordedSteps": 222,
+  "status": "complete",
+  "commit": "7464a91f0c8e8716a344e18a46f9a18fda29eceb",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v53",
+    "caseId": "v53-crown-priest-auto-leader-adjust-action3",
+    "session": "synthetic/v53/v53-crown-priest-auto-leader-adjust-action3",
+    "manifestPath": "challenges/manifests/v53.json",
+    "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+    "recording": "challenges/cases/v53/v53-crown-priest-auto-leader-adjust-action3.session.json",
+    "recordingPath": "challenges/cases/v53/v53-crown-priest-auto-leader-adjust-action3.session.json",
+    "recordingSha256": "a16eb2e2ab8c444ab709fba54ba5aed57c41f5f1585fa8705b70d0a50d4b96e9",
+    "recipe": "challenges/cases/v53/v53-crown-priest-auto-leader-adjust-action3.recipe.session.json",
+    "recipeSha256": "f0ffad74ef2d1ac957d13c8a8b357df80553a803ec84d3e0605851b67e1c8501",
+    "replayInputSha256": "6b503ce89bc2ca9038f2c7e0fbc47cbd55ade2ca8401f664aaef7214b91b1214",
+    "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
+    "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
+    "evaluationArtifact": "challenges/evaluations/hosted-38314809018-1-v53.json",
+    "evaluationUtc": "2026-10-12T22:11:55.963Z",
+    "remainingScreens": 222,
+    "recordedSteps": 222,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "monster creation random injection requires d, rn1, rn2, rnd, rne",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 222
+      },
+      "rng": {
+        "matched": 0,
+        "total": 4052
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 222
+      }
+    },
+    "firstMismatch": null,
+    "step": null,
+    "kind": "rng",
+    "sourceFile": null,
+    "function": null,
+    "message": "monster creation random injection requires d, rn1, rn2, rnd, rne"
+  },
+  "summary": "In the untended temple branch, C runs the ghost creation path after its rn2(5) success. The JavaScript room caller passes only rn2 through priest.js:intemple, which forwards that partial RNG object to makemon; creationEnv rejects it because makemon requires d, rn1, rn2, rnd, and rne. The source path also uses makemon_runtime for this ordinary-play MM_NOMSG creation so the asynchronous runtime tail completes before intemple consumes the returned monster. Repair intemple’s creation adapter while preserving supplied RNG overrides and defaulting the remaining source RNG operations to the game stream.",
+  "source": {
+    "file": "priest.c",
+    "branch": "intemple untended-temple branch: no priest is found, the rn2(5) gate succeeds, and makemon is called for PM_GHOST at the hero coordinates with MM_NOMSG during ordinary play.",
+    "functions": [
+      "intemple"
+    ],
+    "callers": [
+      "hack.c:check_special_room case TEMPLE calls intemple(roomno + ROOMOFFSET)",
+      "do.c:goto_level calls check_special_room(FALSE) after level arrival",
+      "js/rooms.js:check_special_room case TEMPLE calls js/priest.js:intemple"
+    ],
+    "dependencies": [
+      "makemon.c:makemon explicit hero-square MM_NOMSG branch",
+      "js/makemon_create.js:makemon_runtime async runtime-tail adapter",
+      "teleport.c:enexto_core hero-square relocation"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved queue entry at evaluation d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85: 222 remaining screens, 222 recorded steps, recording SHA a16eb2e2ab8c444ab709fba54ba5aed57c41f5f1585fa8705b70d0a50d4b96e9; hosted baseline reports the exact TypeError from creationEnv before runtime reaches the recorded temple ghost branch.",
+    "Upstream priest.c:intemple lines 501-535 selects the untended branch, consumes rn2(4) and rn2(5), calls makemon(PM_GHOST,u.ux,u.uy,MM_NOMSG), then uses the returned monster and updates fear/occupation state.",
+    "Upstream hack.c:check_special_room lines 3725-3731 invokes intemple for TEMPLE and then falls through to temple discovery; do.c:goto_level reaches check_special_room after arrival.",
+    "Production JavaScript path is rooms.js:325-330 -> priest.js:intemple. rooms.js passes random:{rn2:random}; intemple forwards env unchanged to makemon at priest.js:909-912. makemon_create.js:730-739 requires d, rn1, rn2, rnd, and rne in its RNG provider.",
+    "For this explicit-coordinate MM_NOMSG runtime shape, makemon_create.js preflight recognizes explicitCoordinateRuntimeCall and requires a runtimeContinuation; makemon_runtime owns that asynchronous tail. intemple currently calls synchronous makemon without the continuation.",
+    "No code was edited during diagnosis. Planned implementation is limited to priest.js:intemple and source-pinned/runtime test coverage through the existing rooms.js production caller; makemon.c:makemon and teleport.c:enexto_core are existing dependencies, not claimed edits."
+  ]
+}

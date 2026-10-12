@@ -293832,7 +293832,7 @@
     {
       "id": "fix-monstone-object-rng-environment-v53-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Fix monstone's default object-generation random environment so statue creation uses the complete source-compatible random provider.",
       "cFile": "mon.c",
       "sessions": [
@@ -293842,10 +293842,424 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
       "delivered": null,
       "function": "monstone",
-      "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6"
+      "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
+      "closeStanding": {
+        "sha": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "27c23fb69c1e28dd0552d4d77e78bb9a01944b06",
+        "target": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/0ddbafd22e56dbc0365fbc0355c9dac9352cba43/run-hosted-ZsIOMe/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "monstone",
+            "implementation": "js/mon.js",
+            "symbol": "monstone",
+            "sourceReview": "Compared the complete C mon.c:monstone (3287-3374) with js/mon.js:monstone. C uses process-global random functions for monstone's branch and calls mkcorpstat without carrying a partial provider. JavaScript used an rn2-only fallback for its own branch, then passed that object into mkcorpstat, mksobj_at, and other object-generation helpers. obj.js:sourceRandom requires rn2, rnd, rn1, and rne for an injected provider, which caused the production path to throw. The fix keeps the local rn2 fallback for the monstone branch and constructs one objectGenerationEnv from the original caller env and state, preserving complete explicit providers and leaving defaults to obj.js. Read and verified the existing mkobj.c:mkcorpstat/mksobj_at contract; neither callee is edited or claimed. Other monstone branches and callers remain covered by their existing evidence.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "xkilled",
+                "source": "mon.c:xkilled calls monstone when the stoned state is set; js/mon.js:xkilled takes that branch after the corpse's minstapetrify call."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "dropz",
+                "source": "do.c:dropz calls engulfer_digests_food while the hero is swallowed; its cockatrice branch reaches monstone through trap.c:minstapetrify and mon.c:xkilled."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-stone-migration.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 262,
+                "source": "do.c:dropz -> engulfer_digests_food -> trap.c:minstapetrify -> mon.c:xkilled -> monstone"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected production entry point is a swallowed purple worm digesting a dropped cockatrice corpse. C do.c:dropz calls engulfer_digests_food, whose petrifying branch calls trap.c:minstapetrify with byplayer true; mon.c:xkilled then calls monstone after setting the stoned state. The bounded fix supplies mkcorpstat's object-generation helpers with the complete default RNG provider while preserving any explicit provider. The baseline evaluator lost all segment output when JS threw, so its 0/290 totals do not establish the location of the first matching prefix. After the fix, a fresh strict differential directly established matching output through boundary 262; it then diverges at boundary 264 on the separate monmove.c:distfleeck path. This evidence covers monstone's exercised stoning/statue path and does not claim that the full recording matches.",
+        "entryPoints": [
+          {
+            "name": "swallowed purple worm digests a dropped cockatrice corpse",
+            "functions": [
+              "monstone"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 262,
+                "source": "do.c:dropz -> engulfer_digests_food -> trap.c:minstapetrify -> mon.c:xkilled -> monstone -> mkobj.c:mkcorpstat"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fix-v53-untended-temple-ghost-creation-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement intemple from priest.c",
+      "cFile": "priest.c",
+      "sessions": [
+        "synthetic/v53/v53-crown-priest-auto-leader-adjust-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "27121df96ceb22f30703b42264d03ecb3d439095",
+      "delivered": null,
+      "function": "intemple",
+      "session": "synthetic/v53/v53-crown-priest-auto-leader-adjust-action3",
+      "closeStanding": {
+        "sha": "27121df96ceb22f30703b42264d03ecb3d439095",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
+        "target": "synthetic/v53/v53-crown-priest-auto-leader-adjust-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/27121df96ceb22f30703b42264d03ecb3d439095/run-hosted-zjF1Vn/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "intemple",
+            "sourceFile": "priest.c",
+            "implementation": "js/priest.js",
+            "symbol": "intemple",
+            "pure": false,
+            "sourceReview": "Bounded untended-temple ghost-creation correction. C calls makemon for PM_GHOST with MM_NOMSG after rn2(5) succeeds, then consumes the returned monster. JavaScript now supplies the complete game RNG provider and awaits makemon_runtime so its explicit-coordinate runtime continuation finishes before intemple consumes the result. Other intemple branches are outside this correction; no whole-function completion is claimed.",
+            "callers": [
+              {
+                "path": "js/rooms.js",
+                "symbol": "check_special_room",
+                "source": "C do.c:goto_level reaches hack.c:check_special_room after level arrival, and the TEMPLE branch calls priest.c:intemple. JavaScript rooms.js:check_special_room calls priest.js:intemple for the same room entry."
+              }
+            ],
+            "tests": [
+              "scripts/priest.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-crown-priest-auto-leader-adjust-action3",
+                "segment": 0,
+                "fromStep": 86,
+                "throughStep": 86,
+                "source": "do.c:goto_level -> hack.c:check_special_room TEMPLE -> priest.c:intemple untended branch; C step 86 consumes ghost-generation RNG and prints the ghost appearance."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This bounded correction addresses the ordinary temple-entry path where the untended intemple branch creates a ghost. The admitted v53 case reaches the branch at segment 0 step 86 and now matches the full 222-step recording. Tended-temple behavior and other intemple branches are unchanged and are not claimed complete.",
+        "entryPoints": [
+          {
+            "name": "Untended temple ghost creation on level arrival",
+            "functions": [
+              "intemple"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-crown-priest-auto-leader-adjust-action3",
+                "segment": 0,
+                "fromStep": 86,
+                "throughStep": 86,
+                "source": "do.c:goto_level -> hack.c:check_special_room -> priest.c:intemple."
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": []
+      }
+    },
+    {
+      "id": "C-file-port-fountain-dipfountain-excalibur-v53-20261012",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Implement dipfountain from fountain.c",
+      "cFile": "fountain.c",
+      "sessions": [
+        "synthetic/v53/v53-knight-excalibur-fountain-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v53-knight-excalibur-fountain-action2-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dipfountain",
+          "line": 394,
+          "endLine": 557,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 394,
+        "to": 557
+      },
+      "closeStanding": {
+        "sha": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "27121df96ceb22f30703b42264d03ecb3d439095",
+        "target": "synthetic/v53/v53-knight-excalibur-fountain-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/26748832bec4c8d55150cd96f4f870355f5d2bbd/run-hosted-MaSYjJ/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dipfountain",
+            "symbol": "dipfountain",
+            "implementation": "js/fountain.js",
+            "pure": false,
+            "sourceReview": "Complete fountain.c:dipfountain() lines 394-554. The implementation preserves source order: levitation exit; role-dependent rn2 Excalibur eligibility; lawful oname/discover/bless/erosion/Wisdom/livelog branch or nonlawful curse/decrement/erosion/Wisdom/livelog branch; water damage early return; fate cases 16-29; inventory update; dryup. It reuses existing source-backed callees and removes the Excalibur refusal. The same replay later reaches fountain.c:dowaterdemon’s wish message (screen 159); its existing JS owner now calls mhis then mhe with state, RNG and explicit-or-canonical canspotmon. This is a bounded caller wiring repair, not a whole-function completion claim for dowaterdemon.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip calls dipfountain(obj) after selecting the dipped object; the JS caller passes the object, game state and environment to fountain.js."
+              }
+            ],
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-knight-excalibur-fountain-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 299,
+                "source": "potion.c:dodip -> fountain.c:dipfountain; selected recording reaches lawful Knight Excalibur success at step 121 and later fountain.c:dowaterdemon wish message at step 159; the final candidate matches the full recorded segment."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected whole source unit is fountain.c:dipfountain. Its production entry is potion.c:dodip, preserved in JS through potion.js:dodip. The selected session reaches the lawful Excalibur arm at step 121 and later the water-demon wish message at step 159; the final candidate matches all 300 recorded steps without runner error. The delivery also repairs a separately reserved environment handoff in the existing dowaterdemon wish-message caller, with focused coverage; it does not assert new whole-function completion for dowaterdemon.",
+        "entryPoints": [
+          {
+            "name": "Dipping a qualifying lawful Knight long sword into a fountain creates Excalibur",
+            "functions": [
+              "dipfountain"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-knight-excalibur-fountain-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 299,
+                "source": "potion.c:dodip -> fountain.c:dipfountain; lawful Excalibur success at step 121 and full segment match"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "port-wiz-goal-v53-20261012",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Wizard Quest goal level program and register its production loader.",
+      "luaFile": "Wiz-goal.lua",
+      "sessions": [
+        "synthetic/v53/v53-quest-nemesis-nearby-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v53-quest-nemesis-nearby-action5-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "3fd1185f744ed2b8ef8226d6eb23b8a13d330395",
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Wiz-goal.lua",
+          "line": 1,
+          "endLine": 132
+        }
+      ],
+      "closeStanding": {
+        "sha": "3fd1185f744ed2b8ef8226d6eb23b8a13d330395",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
+        "target": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/3fd1185f744ed2b8ef8226d6eb23b8a13d330395/run-hosted-oYZrzl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "Wiz-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "wizGoal",
+            "sourceReview": "Read and translated the whole upstream dat/Wiz-goal.lua program, lines 1-132, in order. It sets solid-fill/mazelevel, the 20x76 map, one filled temple and 16 area light regions, 16 locked doors, the up stair, non-diggable boundary, noncoaligned altar, 15 object calls (the named blessed Eye followed by 14 random objects), six random traps, and all 36 monster calls. The fixed map, doors, objects, monsters, and trap count are generated deterministically from source by scripts/generate-wiz-goal-level.mjs. The seven random class-B monsters, eight random class-i monsters, eight fixed vampire bats and Dark One precede the eight captive descriptors exactly as C. Existing lspo_* descriptor implementations provide every source operation; no unported helper is called or claimed. The existing mklev.js load_special initializes nhlib alignment shuffle before invoking the loader and runs the source post-processing after it.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "C mklev.c:makelevel selects the special-level prototype and calls mkmaze.c:makemaz, which calls sp_lev.c:load_special and nhlua.c:load_lua on dat/Wiz-goal.lua. JavaScript makelevel dispatches through makemaz/load_special to the new Wiz-goal entry in QUEST_LEVEL_LOADERS."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "C wizcmds.c:wiz_load_splua calls load_special; JavaScript wiz_load_splua uses the same shared loader registry."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-goal-level.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 206,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> nhlua.c:load_lua -> dat/Wiz-goal.lua"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The complete dat/Wiz-goal.lua program executes through the production special-level registry. The replay now matches screens, cursors, and RNG through zero-based step 206; it next diverges on the separate quest pager path when C initializes questpgr.c:com_pager_core and JS does not reproduce that pager Lua state initialization. That later dialogue difference is outside the Wiz-goal program port.",
+        "entryPoints": [
+          {
+            "name": "Wizard Quest goal-level generation",
+            "functions": [
+              "Wiz-goal.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 206,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> nhlua.c:load_lua -> dat/Wiz-goal.lua"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fix-dighole-magical-trap-explosion-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement dighole from dig.c",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v53/v53-dig-magic-trap-explosion-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v53-dig-magic-trap-explosion-action2-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "10bacc75116b05788ed935aa7f24fc20fb324927",
+      "delivered": null,
+      "function": "dighole",
+      "session": "synthetic/v53/v53-dig-magic-trap-explosion-action2",
+      "closeStanding": {
+        "sha": "10bacc75116b05788ed935aa7f24fc20fb324927",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "3fd1185f744ed2b8ef8226d6eb23b8a13d330395",
+        "target": "synthetic/v53/v53-dig-magic-trap-explosion-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/10bacc75116b05788ed935aa7f24fc20fb324927/run-hosted-amdXVH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dighole",
+            "implementation": "js/dig.js",
+            "symbol": "dighole",
+            "sourceReview": "Read the complete dig.c:dighole body at 885-1023 and the JavaScript implementation. This bounded fix ports only the magical-trap branch at C lines 919-922: C evaluates d(3,6), passes 20+damage to explode with TRAP_EXPLODE and EXPL_MAGICAL, then deletes the trap and redraws. The JS branch forwards the active state, random provider, and message owner to the existing explode helper and awaits it before deltrap/newsym. No whole-function dighole or explode.c completion is claimed; all other dighole arms remain outside this task.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_dig",
+                "source": "C zap.c:weffects dispatches WAN_DIGGING/SPE_DIG to zap_dig; zap.c:zap_dig calls dighole(FALSE, TRUE, NULL) for a downward zap without stairs. The matching existing JS caller reaches dighole with the current state and random provider."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-dig-magic-trap-explosion-action2",
+                "segment": 0,
+                "fromStep": 177,
+                "throughStep": 178,
+                "source": "zap.c:weffects -> zap_dig -> dig.c:dighole magical-trap arm -> explode(TRAP_EXPLODE, EXPL_MAGICAL)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected entry point is a downward digging zap when the hero stands on a magical trap and no stairs divert the zap. C zap.c:weffects -> zap_dig -> dig.c:dighole enters the magical trap branch. js/zap.js already has matching caller wiring; this task changes only dighole. The admitted v53 recording exercises the branch at step 177 and the blast output at step 178, then matches the remainder of the full 206-step session. Other dighole branches and the general explode.c source unit are not claimed.",
+        "entryPoints": [
+          {
+            "name": "Downward digging zap into a magical trap",
+            "functions": [
+              "dighole"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-dig-magic-trap-explosion-action2",
+                "segment": 0,
+                "fromStep": 177,
+                "throughStep": 178,
+                "source": "zap.c:weffects -> zap_dig -> dig.c:dighole magical-trap arm -> explode(TRAP_EXPLODE, EXPL_MAGICAL)"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
