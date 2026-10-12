@@ -4541,15 +4541,9 @@ export async function mhitm_ad_cold(
     }
 }
 
-// C ref: uhitm.c mhitm_ad_elec() (2683-2739), the `mdef == &gy.youmonst` arm.
-// A shock attack landing on the hero: the attack's own message, the magic
-// cancellation test, and the item destruction a high-level attacker adds.
-//
-// C's other two arms refuse. The hero's own shock attack (uhitm) has no caller
-// here, because js/uhitm.js damageum() is unported. One monster shocking
-// another (mhitm) does: js/mhitm.js mdamagem() reaches mhitm_adtyping(), which
-// dispatches AD_ELEC here, so a pet that fights a shocking monster stops at
-// that arm.
+// C ref: uhitm.c mhitm_ad_elec() (2683-2739), all three combat directions.
+// The attack's entry damage is the amount passed to zap.c:destroy_items even
+// when resistance resets the direct hit to zero.
 export async function mhitm_ad_elec(
     magr,
     mattk,
@@ -4560,41 +4554,68 @@ export async function mhitm_ad_elec(
 ) {
     const random = env.random ?? { rn2 };
     const message = requireAttackOperation(env, 'message');
-    const unsupported = requireAttackOperation(env, 'unsupported');
-    // C's `orig_dmg` is the damage as it stood on entry, which only the three
-    // destroy_items() calls read. All three refuse below, so nothing here
-    // outlives mhm.damage.
+    const effectEnv = { ...env, state, random };
+    const orig_dmg = mhm.damage;
 
     if (magr === state.youmonst) {
         /* uhitm */
-        unsupported("the hero's own shock attack");
+        if (await mhitm_mgc_atk_negated(magr, mdef, true, state, env)) {
+            mhm.damage = 0;
+            return;
+        }
+        if (!heroIsBlind(state))
+            await message(`${Monnam(mdef, state, env)} is zapped!`, state, env);
+        if (Resists_Elem(mdef, SHOCK_RES, state)
+            || defended(mdef, AD_ELEC, state)) {
+            if (!heroIsBlind(state))
+                await message(`The zap doesn't shock ${mon_nam(mdef, state, env)}!`,
+                    state, env);
+            await golemeffects(mdef, AD_ELEC, mhm.damage, effectEnv);
+            await shieldeff(mdef.mx, mdef.my, state);
+            mhm.damage = 0;
+        }
+        mhm.damage += await destroy_items(mdef, AD_ELEC, orig_dmg, effectEnv);
     } else if (mdef === state.youmonst) {
         /* mhitu */
         await hitmsg(magr, mattk, state, env);
         if (!await mhitm_mgc_atk_negated(magr, mdef, true, state, env)) {
             await message('You get zapped!', state);
             if (propertyPresent(state.u, SHOCK_RES)) {
-                // youprop.h:44 Shock_resistance. The arm prints "The zap
-                // doesn't shock you!" and then records the resistance through
-                // mondata.c monstseesu(), which is unported -- js/mondata.js
-                // carries monstunseesu() alone -- so the whole arm stops
-                // before its first line rather than printing and forgetting.
-                unsupported('a shock-resistant hero shrugging off an attack');
+                await message("The zap doesn't shock you!", state);
+                monstseesu(M_SEEN_ELEC, state);
+                mhm.damage = 0;
             } else {
                 monstunseesu(M_SEEN_ELEC, state);
             }
-            if (magr.m_lev > random.rn2(20)) {
-                // zap.c destroy_items() for the hero's own pack. Only the
-                // monster half is ported (js/zap_destroy_items.js), and it
-                // covers fire alone.
-                unsupported("electricity destroying the hero's items");
-            }
+            if (magr.m_lev > random.rn2(20))
+                await destroy_items(state.youmonst, AD_ELEC, orig_dmg,
+                    effectEnv);
         } else {
             mhm.damage = 0;
         }
     } else {
         /* mhitm */
-        unsupported('one monster shocking another');
+        if (await mhitm_mgc_atk_negated(magr, mdef, true, state, env)) {
+            mhm.damage = 0;
+            return;
+        }
+        if (state.gv?.vis && canseemon(mdef, state))
+            await message(messageAt(
+                `${Monnam(mdef, state, env)} gets zapped!`,
+                mdef.mx,
+                mdef.my,
+                state,
+            ), state, env);
+        if (Resists_Elem(mdef, SHOCK_RES, state)
+            || defended(mdef, AD_ELEC, state)) {
+            if (state.gv?.vis && canseemon(mdef, state))
+                await message(`The zap doesn't shock ${mon_nam(mdef, state, env)}!`,
+                    state, env);
+            await shieldeff(mdef.mx, mdef.my, state);
+            await golemeffects(mdef, AD_ELEC, mhm.damage, effectEnv);
+            mhm.damage = 0;
+        }
+        mhm.damage += await destroy_items(mdef, AD_ELEC, orig_dmg, effectEnv);
     }
 }
 

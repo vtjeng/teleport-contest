@@ -75,15 +75,7 @@ import { Ring_gone } from './do_wear.js';
 import { bypass_objlist, nxt_unbypassed_obj, setnotworn } from './worn.js';
 import { recharge } from './read.js';
 import { canseemon } from './display.js';
-
-// Thrown where the destruction path reaches an arm this port has not ported.
-export class UnsupportedItemDestructionError extends Error {
-    constructor(branch) {
-        super(`destroying a carried item requires ${branch}`);
-        this.name = 'UnsupportedItemDestructionError';
-        this.branch = branch;
-    }
-}
+import { note_unported } from './unported.js';
 
 function withoutObjectArticle(name) {
     return name.replace(/^(?:an?|the) /u, '').replace(/^\d+ /u, '');
@@ -326,12 +318,10 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
         }
         break;
     default:
-        /* C's `default:` sets skip and calls impossible(); no caller can
-           reach it, because destroy_items() is the only one and its three
-           damage types are the three above. */
-        throw new UnsupportedItemDestructionError(
-            `maybe_destroy_item with unexpected dmgtyp ${dmgtyp}`,
-        );
+        /* zap.c calls discarded-void pline.c impossible() and continues. */
+        skip = 1;
+        note_unported('pline.c impossible');
+        break;
     }
 
     if (chargeIt) {
@@ -489,7 +479,7 @@ export async function destroy_items(mon, dmgtyp, dmg_in, env) {
         if (where === NOBJ_STATES)
             where = obj.where;
         else if (where !== obj.where)
-            throw new Error('destroy_item: items in multiple chains');
+            note_unported('pline.c impossible');
 
         /* if loss of this item might dump us onto a trap, hold off
            until later because potential recursive destroy_items() will
