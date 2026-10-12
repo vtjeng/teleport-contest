@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v48.json",
   "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
   "recordingSha256": "55482760aacfd3149cf5c2df77a5486e16c35f543448ed91314513fd475d7145",
-  "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
-  "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+  "evaluationPath": "challenges/evaluations/hosted-38239257165-1-v48.json",
+  "evaluationCommit": "566101b4d0986208811a9ace557ff6aab76f3cff",
   "status": "complete",
-  "commit": "36b5538f291298898d1cc981f7c94056723f6765",
+  "commit": "566101b4d0986208811a9ace557ff6aab76f3cff",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v48",
@@ -20,13 +20,21 @@
     "manifestPath": "challenges/manifests/v48.json",
     "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
     "recording": "challenges/cases/v48/v48-discovery-sort-menu-attempt1.session.json",
+    "recordingPath": "challenges/cases/v48/v48-discovery-sort-menu-attempt1.session.json",
     "recordingSha256": "55482760aacfd3149cf5c2df77a5486e16c35f543448ed91314513fd475d7145",
     "recipe": "challenges/cases/v48/v48-discovery-sort-menu-attempt1.recipe.session.json",
     "recipeSha256": "83b1d0aca74b7f0a27968597d993854f6d639c43ca5ce3a84c5969ad41631f21",
-    "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
-    "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+    "replayInputSha256": "cc90b5ae9721b093080eabcdb0beb5526022cd4da7f8ee4c2d25d136b249f2f4",
+    "evaluationPath": "challenges/evaluations/hosted-38239257165-1-v48.json",
+    "evaluationCommit": "566101b4d0986208811a9ace557ff6aab76f3cff",
+    "evaluationArtifact": "challenges/evaluations/hosted-38239257165-1-v48.json",
+    "evaluationUtc": "2026-10-12T10:58:37.381Z",
     "remainingScreens": 2,
     "recordedSteps": 4,
+    "previousScreensMatched": 2,
+    "regression": false,
+    "passed": false,
+    "error": null,
     "metrics": {
       "screens": {
         "matched": 2,
@@ -50,7 +58,14 @@
     "kind": "stop",
     "sourceFile": "o_init.c",
     "function": "choose_disco_sort",
-    "message": "unsupported hero command: an unported branch of this command: discovery display requires choose_disco_sort()"
+    "message": "unsupported hero command: an unported branch of this command: discovery display requires choose_disco_sort()",
+    "cFile": "o_init.c",
+    "luaFile": null,
+    "line": null,
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v48/v48-discovery-sort-menu-attempt1.json"
+    }
   },
   "summary": "The menu-prefixed known command reaches the existing dodiscovered caller, which stops at its explicit choose_disco_sort() refusal before drawing the ordering menu. Upstream o_init.c:choose_disco_sort owns this menu and updates flags.discosort after selection; this source helper is the first owner. The same-file rename_disco() function owned by B builds a separate menu of nameable object types.",
   "source": {
