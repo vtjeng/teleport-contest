@@ -2017,8 +2017,9 @@ function isSokoPrize(obj, state) {
 
 // C ref: monmove.c monflee(). fleeMessage owns the exact naming and terminal
 // calls for the five source kinds below. release_hero() is now ported above;
-// createGasCloud owns create_gas_cloud(). Required downstream operations are
-// checked before release or flee-state mutation.
+// createGasCloud uses an injected adapter or this file's production region
+// adapter for the source create_gas_cloud() call. Required downstream
+// operations are checked before release or flee-state mutation.
 // Source monflee's pline_mon/verbalize output, shared with instrument fear.
 // The decision and its random draws remain in monflee below.
 export async function monfleeMessage(monster, detail, env = {}) {
@@ -2084,7 +2085,12 @@ export async function monflee(
         ? requireFleeOperation(env, 'fleeMessage')
         : null;
     const createGasCloud = createsGas
-        ? requireFleeOperation(env, 'createGasCloud')
+        ? (env.createGasCloud === undefined
+            ? ((x, y, size, damage, cloudEnv) => create_gas_cloud(
+                x, y, size, damage,
+                postmoveRegionEnv(cloudEnv, state),
+            ))
+            : requireFleeOperation(env, 'createGasCloud'))
         : null;
     if (checksMessage) {
         if (typeof checksFleeingLight !== 'function'

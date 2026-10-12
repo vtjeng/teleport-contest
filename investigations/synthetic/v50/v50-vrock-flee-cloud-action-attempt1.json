@@ -113,7 +113,7 @@
     "luaFile": null,
     "line": 1255
   },
-  "summary": "At synthetic/v50/v50-vrock-flee-cloud-action-attempt1 step 102, monster fear reaches monmove.c:monflee() for a Vrock with mflee clear and mspec_used zero. C sets mspec_used to 75 + rn2(25), calls create_gas_cloud(mx,my,5,8), then sets mflee and clears tracking. The JavaScript monflee() has the branch, but the production adapter in js/unported_monster_actions.js still supplies createGasCloud: () => note_unported(\"region.c create_gas_cloud\"). This skips the existing js/region.js:create_gas_cloud() implementation, its cloud-placement RNG, region/display state, and gas message. The C first unmatched draw is rn2(4)=3 from create_gas_cloud at global RNG index 2946; JavaScript has already advanced to distfleeck’s next rn2(5)=2. GOALS.json contains no whole-source evidence.functions entry for monflee; the earlier v33 adapter task explicitly retained create_gas_cloud as a gap and took no whole-function credit. Implement the complete monmove.c:monflee() source unit and wire its existing production adapter to region.create_gas_cloud, preserving planning/live state, cloud RNG and message order.",
+  "summary": "The admitted v50 case first diverged at step 102 when monmove.c:monflee reached the Vrock cloud branch. The correction routes monflee through the existing region.c:create_gas_cloud port by default and removes the note_unported stand-in from the uhitm.c:known_hitum caller. The full movement recording now matches all 120 steps.",
   "source": {
     "file": "monmove.c",
     "branch": "A live, newly established flight branch (!first || !mtmp->mflee) for PM_VROCK with mspec_used == 0; after the source fear message and before mflee is set, assign 75 + rn2(25), create the radius-5 damage-8 cloud, then set mflee and clear recent-space tracking.",
@@ -136,5 +136,172 @@
     "js/unported_monster_actions.js:1593-1603: the production monFlee adapter replaces the cloud operation with note_unported(\"region.c create_gas_cloud\").",
     "js/region.js:1012-1086 implements create_gas_cloud(), including breadth-first cloud coordinates, source-order shuffles and lifetime, and region/display effects; connect this existing function through the action adapter.",
     "GOALS.json has only a historical monmove.c declaration for monflee, without verified evidence.functions. The closed v33 caller task records create_gas_cloud as a retained gap and expressly takes no whole-function credit, so complete and attest monmove.c:monflee rather than reporting a bounded caller-only divergence."
-  ]
+  ],
+  "resolutionCorrection": {
+    "status": "resolved-in-worker-correction",
+    "summary": "monmove.c:monflee now calls the existing region.c:create_gas_cloud port through its production region adapter when callers do not inject a test or specialized provider. Explicit createGasCloud providers remain honored. The bounded uhitm.c:known_hitum caller no longer installs note_unported as a fake cloud provider.",
+    "sourceScope": {
+      "primary": "monmove.c:monflee (462-532), whole function",
+      "related": "region.c:m_in_out_region callback-free membership path, already ported and retained from the original delivery",
+      "boundedCaller": {
+        "source": "uhitm.c:known_hitum (585-646)",
+        "javascript": "js/uhitm.js:known_hitum",
+        "claim": "caller wiring only; no whole-known_hitum completion credit"
+      }
+    },
+    "directCallers": [
+      {
+        "sourceFile": "monmove.c",
+        "javascriptFile": "js/unported_monster_actions.js",
+        "javascriptLocations": [
+          "1590-1598"
+        ],
+        "note": "dochug/distfleeck dispatches through runSimpleMonsterAction.monFlee; adapter keeps its explicit createMonsterGasCloud owner."
+      },
+      {
+        "sourceFile": "eat.c",
+        "javascriptFile": "js/eat.js",
+        "javascriptLocations": [
+          "3281"
+        ]
+      },
+      {
+        "sourceFile": "spell.c",
+        "javascriptFile": "js/spell.js",
+        "javascriptLocations": [
+          "586"
+        ]
+      },
+      {
+        "sourceFile": "mon.c",
+        "javascriptFile": "js/mon.js",
+        "javascriptLocations": [
+          "2449",
+          "3088",
+          "3831",
+          "3871"
+        ]
+      },
+      {
+        "sourceFile": "were.c",
+        "javascriptFile": "js/mon.js",
+        "javascriptLocations": [
+          "3088"
+        ]
+      },
+      {
+        "sourceFile": "pray.c",
+        "javascriptFile": "js/pray.js",
+        "javascriptLocations": [
+          "2059"
+        ]
+      },
+      {
+        "sourceFile": "muse.c",
+        "javascriptFile": "js/muse.js",
+        "javascriptLocations": [
+          "754"
+        ]
+      },
+      {
+        "sourceFile": "artifact.c",
+        "javascriptFile": "js/artifacts.js",
+        "javascriptLocations": [
+          "1897"
+        ]
+      },
+      {
+        "sourceFile": "zap.c",
+        "javascriptFile": "js/zap.js",
+        "javascriptLocations": [
+          "3419"
+        ]
+      },
+      {
+        "sourceFile": "music.c",
+        "javascriptFile": "js/music.js",
+        "javascriptLocations": [
+          "85-97"
+        ],
+        "note": "Explicit region adapter retained."
+      },
+      {
+        "sourceFile": "dokick.c",
+        "javascriptFile": "js/dokick.js",
+        "javascriptLocations": [
+          "355"
+        ]
+      },
+      {
+        "sourceFile": "fountain.c",
+        "javascriptFile": "js/fountain.js",
+        "javascriptLocations": [
+          "854-870"
+        ],
+        "note": "Explicit region adapter retained."
+      },
+      {
+        "sourceFile": "read.c",
+        "javascriptFile": "js/read.js",
+        "javascriptLocations": [
+          "1009-1025"
+        ],
+        "note": "Explicit region adapter retained."
+      },
+      {
+        "sourceFile": "apply.c",
+        "javascriptFile": "js/apply.js",
+        "javascriptLocations": [
+          "4318",
+          "4350"
+        ]
+      },
+      {
+        "sourceFile": "steal.c",
+        "javascriptFile": "js/steal.js",
+        "javascriptLocations": [
+          "466"
+        ]
+      },
+      {
+        "sourceFile": "uhitm.c",
+        "javascriptFile": "js/uhitm.js",
+        "javascriptLocations": [
+          "880",
+          "2433",
+          "2830",
+          "3120",
+          "3532",
+          "4181",
+          "6880"
+        ],
+        "note": "The line 2433 known_hitum hunk is the bounded placeholder-removal caller repair."
+      }
+    ],
+    "operationRouting": "Calls without an explicit provider now use create_gas_cloud with postmoveRegionEnv callbacks, including the caller-provided random stream, map/vision callbacks, display updates, and live/planning behavior. Existing explicit providers in movement planning, music, fountain, and read paths remain intact.",
+    "runtimeEvidence": {
+      "batch": "v50",
+      "caseId": "v50-vrock-flee-cloud-action-attempt1",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 119,
+      "source": "mon.c:dochugw -> monmove.c:distfleeck -> monmove.c:monflee -> region.c:create_gas_cloud; same-turn movement -> region.c:m_in_out_region",
+      "inputIdentity": {
+        "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+        "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f"
+      },
+      "observed": {
+        "screensEmitted": 120,
+        "recordedSteps": 120,
+        "divergence": null,
+        "inputBoundaryMatched": true
+      },
+      "limitations": "The recorder runtime input reaches ordinary movement fear. known_hitum caller forwarding is covered by a source-pinned focused test; the Vrock-cloud source function itself is covered by the admitted movement replay."
+    },
+    "focusedChecks": [
+      "node --test scripts/monmove.test.mjs scripts/uhitm-hmon.test.mjs scripts/region.test.mjs scripts/unported-monster-actions.test.mjs",
+      "npm run lint"
+    ]
+  },
+  "entryPointReview": "The active v50 runtime entry point is monster fear during movement: mon.c:dochugw reaches monmove.c:distfleeck, then monflee and region.c:create_gas_cloud. The fixed caller survey in resolutionCorrection.directCallers covers every current source call site that reaches monflee, including independent command, monster-action, combat, and level-transition routes. Calls without an explicit specialized gas owner now reach the same region implementation through monflee’s default adapter; movement planning, music, fountain, and read retain their explicit providers. The v50 recording verifies the movement entry through all 120 inputs. The bounded uhitm.c:known_hitum caller is separately source-pinned and its Vrock cloud path is covered by focused runtime tests; no whole-known_hitum completion claim is made."
 }
