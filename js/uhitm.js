@@ -94,6 +94,7 @@ import {
     NATTK,
     NOTELL,
     NEED_WEAPON,
+    NO_MM_FLAGS,
     NO_KILLER_PREFIX,
     NO_NC_FLAGS,
     P_BARE_HANDED_COMBAT,
@@ -276,7 +277,7 @@ import {
     u_slow_down,
     u_slip_free,
 } from './mhitu.js';
-import { abuse_dog } from './dog.js';
+import { abuse_dog, tamedog } from './dog.js';
 import { dog_nutrition } from './dogmove.js';
 import { losexp } from './exper.js';
 import {
@@ -542,6 +543,8 @@ import {
     hold_another_object, obfree, obj_extract_self, update_inventory, useup, useupall,
 } from './invent.js';
 import { clone_mon, grow_up } from './makemon.js';
+import { makemon_runtime } from './makemon_create.js';
+import { ndemon } from './minion.js';
 import {
     an,
     bare_artifactname,
@@ -7604,8 +7607,7 @@ export async function damageum(
         && !state.uwep
         && state.u.umonnum !== PM_AMOROUS_DEMON
         && state.u.umonnum !== PM_BALROG) {
-        // demonpet() has no return value used by damageum().
-        note_unported('demon.c demonpet');
+        await demonpet(state, { ...env, random, message });
         return M_ATTK_MISS;
     }
 
@@ -7647,6 +7649,31 @@ export async function damageum(
         return M_ATTK_DEF_DIED;
     }
     return M_ATTK_HIT;
+}
+
+// C ref: uhitm.c:demonpet() (2131-2145). An eligible unarmed demon form
+// calls this from damageum(); preserve its summon, taming, and Wisdom order.
+async function demonpet(state, rawEnv = {}) {
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd };
+    const message = rawEnv.message ?? ttyPline;
+
+    await message('Some hell-p has arrived!', state);
+    const demon = !random.rn2(6)
+        ? ndemon(state.u.ualign.type, state, random)
+        : NON_PM;
+    const species = demon !== NON_PM
+        ? state.mons[demon]
+        : state.youmonst.data;
+    const monster = await makemon_runtime(
+        species,
+        state.u.ux,
+        state.u.uy,
+        NO_MM_FLAGS,
+        { ...rawEnv, state, random, message },
+    );
+    if (monster)
+        await tamedog(monster, null, false, { ...rawEnv, state, random, message });
+    await exercise(A_WIS, true, state, random);
 }
 
 // C ref: uhitm.c missum() (5198-5215). Reports a swing that did not land and
