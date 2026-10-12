@@ -27,6 +27,8 @@
   --goal-boundary: #e0762a;
   --goal-in-progress: #1baf7a;
   --goal-paused: #c99000;
+  --integration-blue: #2a78d6;
+  --integration-orange: #b45309;
 
   /* Matched screens use ink; totals use a quieter dashed line. Reserve
      colours for work kinds and states elsewhere on the page. */
@@ -55,6 +57,8 @@
     --goal-boundary: #d97025;
     --goal-in-progress: #199e70;
     --goal-paused: #d4a012;
+    --integration-blue: #69aaff;
+    --integration-orange: #f6a45a;
 
     --progress-fill: #e6e4df;
     --progress-area: rgba(230,228,223,0.08);
@@ -80,6 +84,8 @@
   --goal-boundary: #d97025;
   --goal-in-progress: #199e70;
   --goal-paused: #d4a012;
+  --integration-blue: #69aaff;
+  --integration-orange: #f6a45a;
 
   --progress-fill: #e6e4df;
   --progress-area: rgba(230,228,223,0.08);
@@ -488,9 +494,17 @@ canvas {
 .activity-utilization-help { margin: 0 0 12px; color: var(--ink-muted); font-size: 11px; }
 .activity-note { margin: 0 0 14px; font-size: 11px; color: var(--ink-muted); }
 .integration-duration { margin: 18px 0; }
-.integration-duration-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; min-height: 40px; }
+.integration-duration-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; min-height: 20px; }
 .integration-duration-heading h3 { font-size: 12px; font-weight: 600; }
-.integration-duration-heading p { font-size: 12px; color: var(--ink-secondary); font-variant-numeric: tabular-nums; }
+.integration-duration-summary { height: 64px; font-size: 12px; line-height: 16px; color: var(--ink-secondary);
+  font-variant-numeric: tabular-nums; overflow-y: auto; scrollbar-gutter: stable; }
+.integration-duration-series { min-height: 32px; padding-left: 26px; position: relative; }
+.integration-duration-key { position: absolute; left: 0; top: 7px; width: 18px; border-top: 2px solid var(--integration-blue); }
+.integration-duration-key::after { content: ''; position: absolute; left: 6px; top: -4px; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--integration-blue); }
+.integration-duration-key.prep { border-top: 2px dashed var(--integration-orange); }
+.integration-duration-key.prep::after { border-radius: 0; background: var(--integration-orange); }
+.worker-timeline-heading { font-size: 12px; font-weight: 600; margin-top: 18px; }
 .integration-duration canvas { display: block; width: 100%; height: 180px; }
 .integration-duration canvas:focus-visible { outline: 2px solid var(--goal-file-port); outline-offset: 2px; }
 .integration-duration-readout { height: 64px; overflow-y: auto; scrollbar-gutter: stable;
@@ -951,17 +965,16 @@ canvas {
     <div id="activityMetrics" aria-label="Recorded worker utilization in the visible time window"></div>
     <p class="activity-utilization-help">Rounded shares of plotted worker-time in this window. Work means assigned or running stages, not CPU use. Unknown means unrecorded; it is not counted as idle.</p>
     <div class="integration-duration">
-      <div class="integration-duration-heading"><h3>Implementation integration time</h3><p id="integrationDurationSummary"></p></div>
-      <p class="activity-note">Main’s elapsed integration and checks, including CI wait; excludes acceptance and publication. Dots: completed attempts, including retries. Line: mean of the last 10 implementation attempts. Open stages are excluded.</p>
-      <canvas id="integrationDurationChart" tabindex="0" aria-label="Implementation integration duration. Select a dot to pin task details; arrow keys move between attempts, Home and End jump, Escape clears the selection."></canvas>
+      <div class="integration-duration-heading"><h3>Main integration time</h3></div>
+      <div class="integration-duration-summary">
+        <p class="integration-duration-series"><span class="integration-duration-key" aria-hidden="true"></span>Implementation: <span id="integrationDurationSummary"></span></p>
+        <p class="integration-duration-series"><span class="integration-duration-key prep" aria-hidden="true"></span>Prep: <span id="prepIntegrationDurationSummary"></span></p>
+      </div>
+      <p class="activity-note">Main’s elapsed integration and checks, including CI wait; excludes acceptance, publication and Prep’s case generation. Marks show completed attempts, including retries. Each line averages its series’ last 10 attempts. Open stages are excluded; summaries show window means.</p>
+      <canvas id="integrationDurationChart" tabindex="0" aria-label="Main integration duration. Blue circles: implementation; orange squares: Prep. Select a point to pin task details; arrow keys move between attempts, Home and End jump, Escape clears the selection."></canvas>
       <div class="integration-duration-readout" id="integrationDurationReadout" aria-live="polite"></div>
     </div>
-    <div class="integration-duration">
-      <div class="integration-duration-heading"><h3>Prep integration time</h3><p id="prepIntegrationDurationSummary"></p></div>
-      <p class="activity-note">Main’s elapsed integration and checks for prepared batches, not Prep’s case-generation time. Dots: completed attempts, including retries. Line: mean of the last 10 Prep attempts. Uses the same time window; open stages are excluded.</p>
-      <canvas id="prepIntegrationDurationChart" tabindex="0" aria-label="Prep integration duration. Select a dot to pin task details; arrow keys move between attempts, Home and End jump, Escape clears the selection."></canvas>
-      <div class="integration-duration-readout" id="prepIntegrationDurationReadout" aria-live="polite"></div>
-    </div>
+    <h3 class="worker-timeline-heading">Worker timeline</h3>
     <p class="activity-note">One row per agent. Blocks and parked tasks show recorded reasons; pending deliveries stay in task history, not worker rows. Idle and unrecorded time are distinct from blocks. Assigned work does not prove continuous activity. Hover to inspect; select to pin details. Arrow edges mark stages continuing outside the window. Stage details scroll.</p>
     <div class="legend" id="timelineLegend"></div>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
@@ -1713,20 +1726,20 @@ document.getElementById('stats').innerHTML = [
   const container = document.getElementById('timeline');
   const readout = document.getElementById('timelineReadout');
   const metrics = document.getElementById('activityMetrics');
+  const durationChart = document.getElementById('integrationDurationChart');
+  const durationReadout = document.getElementById('integrationDurationReadout');
   const windowLabel = document.getElementById('activityWindowLabel');
   const windowSelect = document.getElementById('activityWindow');
   const latestButton = document.getElementById('activityLatest');
   const activity = DATA.activity || { segments: [], tasks: [] };
   const history = activity.segments || [];
   const durationPoints = mainIntegrationDurations(activity);
-  const durationPlots = [['implementation', 'integrationDuration', 'Implementation'],
-    ['preparation', 'prepIntegrationDuration', 'Prep']].map(([group, prefix, label]) => ({
-    points: durationPoints[group], label,
-    chart: document.getElementById(prefix + 'Chart'),
-    readout: document.getElementById(prefix + 'Readout'),
-    summary: document.getElementById(prefix + 'Summary'), plotted: [],
+  const durationSeries = [['implementation', 'integrationDuration', 'Implementation', '--integration-blue'],
+    ['preparation', 'prepIntegrationDuration', 'Prep', '--integration-orange']].map(([group, prefix, label, color]) => ({
+    points: durationPoints[group], label, color, prep: group === 'preparation',
+    summary: document.getElementById(prefix + 'Summary'),
   }));
-  let pinnedDuration = null;
+  let plottedDurations = [], pinnedDuration = null;
   const segments = activity.stages || history.filter(row => row.phase !== 'queued');
   const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -1763,10 +1776,8 @@ document.getElementById('stats').innerHTML = [
   }
   if (!history.length) {
     utilization(0, 0);
-    for (const plot of durationPlots) {
-      plot.summary.textContent = 'No completed attempts';
-      plot.readout.textContent = 'Integration time is unavailable until completed stages are recorded.';
-    }
+    for (const series of durationSeries) series.summary.textContent = 'No completed attempts';
+    durationReadout.textContent = 'Integration time is unavailable until completed stages are recorded.';
     container.textContent = 'No worker activity snapshot is available.';
     return;
   }
@@ -1793,7 +1804,7 @@ document.getElementById('stats').innerHTML = [
     });
     describe(index, source);
     const historyIndex = source === history ? index : source[index]?.sourceIndex ?? history.indexOf(source[index]);
-    pinnedDuration = durationPlots.flatMap(plot => plot.points)
+    pinnedDuration = durationSeries.flatMap(series => series.points)
       .find(point => point.sourceIndex === historyIndex) ?? null;
     drawDurations(viewEnd - hours * hourMs, viewEnd);
   }
@@ -1806,8 +1817,7 @@ document.getElementById('stats').innerHTML = [
   const duration = segment => (Date.parse(segment.end) - Date.parse(segment.start)) / 60000;
   const name = segment => taskById.get(segment.task)?.label
     || (segment.label ? displayLane(segment.label) : segment.task);
-  function describeDuration(plot, point) {
-    const durationReadout = plot.readout;
+  function describeDuration(point) {
     if (!point) {
       durationReadout.textContent = 'Hover to inspect; select to pin. Arrow keys move between completed attempts.';
       return;
@@ -1821,14 +1831,14 @@ document.getElementById('stats').innerHTML = [
       + (point.sampleSize === 1 ? ' attempt)' : ' attempts)');
   }
   function drawDurations(start, end) {
-    for (const plot of durationPlots) drawDurationPlot(plot, start, end);
-  }
-  function drawDurationPlot(plot, start, end) {
-    const { chart: durationChart, summary: durationSummary } = plot;
-    const visible = plot.points.filter(point => Date.parse(point.end) >= start && Date.parse(point.end) <= end);
-    const average = visible.reduce((sum, point) => sum + point.durationMs, 0) / visible.length;
-    durationSummary.textContent = visible.length ? 'Window mean ' + (average / 60000).toFixed(1)
-      + ' min · ' + visible.length + (visible.length === 1 ? ' attempt' : ' attempts') : 'No completed attempts in this window';
+    const series = durationSeries.map(row => ({ ...row,
+      visible: row.points.filter(point => Date.parse(point.end) >= start && Date.parse(point.end) <= end) }));
+    for (const row of series) {
+      const average = row.visible.reduce((sum, point) => sum + point.durationMs, 0) / row.visible.length;
+      row.summary.textContent = row.visible.length ? 'Window mean ' + (average / 60000).toFixed(1)
+        + ' min · ' + row.visible.length + (row.visible.length === 1 ? ' attempt' : ' attempts') : 'No completed attempts in this window';
+    }
+    const visible = series.flatMap(row => row.visible);
     const width = durationChart.getBoundingClientRect().width || 1000, height = 180;
     const dpr = window.devicePixelRatio || 1;
     durationChart.width = width * dpr; durationChart.height = height * dpr;
@@ -1858,30 +1868,42 @@ document.getElementById('stats').innerHTML = [
       ctx.fillText(hours === 168 ? new Date(at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
         : shortStamp(at), x(new Date(at).toISOString()), height - 6);
     }
-    ctx.strokeStyle = color('--ink-primary'); ctx.lineWidth = 2;
-    ctx.beginPath();
-    visible.forEach((point, index) => {
-      if (index === 0) ctx.moveTo(x(point.end), y(point.rollingMeanMs));
-      else ctx.lineTo(x(point.end), y(point.rollingMeanMs));
-    });
-    ctx.stroke();
-    plot.plotted = visible.map(point => ({ point, x: x(point.end), y: y(point.durationMs) }));
-    for (const dot of plot.plotted) {
-      ctx.strokeStyle = color('--goal-divergence'); ctx.fillStyle = color('--goal-divergence');
-      ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(dot.x, dot.y, 3.5, 0, Math.PI * 2); ctx.fill();
-      if (dot.point.sourceIndex === pinnedDuration?.sourceIndex) {
-        ctx.strokeStyle = color('--ink-primary');
-        ctx.beginPath(); ctx.arc(dot.x, dot.y, 6, 0, Math.PI * 2); ctx.stroke();
+    plottedDurations = [];
+    for (const row of series) {
+      ctx.strokeStyle = color(row.color); ctx.lineWidth = 2;
+      ctx.setLineDash(row.prep ? [6, 4] : []);
+      ctx.beginPath();
+      row.visible.forEach((point, index) => {
+        if (index === 0) ctx.moveTo(x(point.end), y(point.rollingMeanMs));
+        else ctx.lineTo(x(point.end), y(point.rollingMeanMs));
+      });
+      // A single visible sample still needs a mark for its rolling mean.
+      if (row.visible.length === 1) {
+        const point = row.visible[0];
+        ctx.moveTo(x(point.end) - 4, y(point.rollingMeanMs));
+        ctx.lineTo(x(point.end) + 4, y(point.rollingMeanMs));
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+      for (const point of row.visible) {
+        const dot = { point, x: x(point.end), y: y(point.durationMs) };
+        plottedDurations.push(dot);
+        ctx.fillStyle = color(row.color);
+        if (row.prep) ctx.fillRect(dot.x - 4, dot.y - 4, 8, 8);
+        else { ctx.beginPath(); ctx.arc(dot.x, dot.y, 3.5, 0, Math.PI * 2); ctx.fill(); }
+        if (point.sourceIndex === pinnedDuration?.sourceIndex) {
+          ctx.strokeStyle = color('--ink-primary'); ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.arc(dot.x, dot.y, 7, 0, Math.PI * 2); ctx.stroke();
+        }
       }
     }
-    durationChart.setAttribute('aria-label', plot.label + ' integration time. ' + durationSummary.textContent
-      + '. Dots are completed attempts; line is the last-ten-attempt mean for this plot. Arrow keys select attempts.');
-    describeDuration(plot, plot.points.includes(pinnedDuration) ? pinnedDuration : null);
+    plottedDurations.sort((a, b) => Date.parse(a.point.end) - Date.parse(b.point.end) || a.point.sourceIndex - b.point.sourceIndex);
+    durationChart.setAttribute('aria-label', 'Main integration time. ' + series.map(row => row.label + ': ' + row.summary.textContent).join('. ')
+      + '. Blue circles and solid line: implementation. Orange squares and dashed line: Prep. Each line is its own last-ten-attempt mean. Arrow keys select attempts.');
+    describeDuration(pinnedDuration);
   }
-  function nearestDuration(plot, event) {
-    const rect = plot.chart.getBoundingClientRect();
-    const distances = plot.plotted.map(dot => ({ ...dot,
+  function nearestDuration(event) {
+    const rect = durationChart.getBoundingClientRect();
+    const distances = plottedDurations.map(dot => ({ ...dot,
       distance: Math.hypot(event.clientX - rect.left - dot.x, event.clientY - rect.top - dot.y) }));
     const nearest = distances.sort((a, b) => a.distance - b.distance)[0];
     return nearest?.distance <= 16 ? nearest.point : null;
@@ -1890,22 +1912,18 @@ document.getElementById('stats').innerHTML = [
     if (!point) return;
     pin(point.sourceIndex, history);
   }
-  for (const plot of durationPlots) {
-    plot.chart.addEventListener('pointermove', event => {
-      if (!pinnedDuration) describeDuration(plot, nearestDuration(plot, event));
-    });
-    plot.chart.addEventListener('pointerleave', () => { if (!pinnedDuration) describeDuration(plot, null); });
-    plot.chart.addEventListener('click', event => selectDuration(nearestDuration(plot, event)));
-    plot.chart.addEventListener('keydown', event => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End', 'Escape', 'Enter', ' '].includes(event.key)) return;
-      event.preventDefault();
-      if (event.key === 'Escape') { pinnedDuration = null; drawDurations(viewEnd - hours * hourMs, viewEnd); return; }
-      const index = plot.plotted.findIndex(dot => dot.point.sourceIndex === pinnedDuration?.sourceIndex);
-      const next = event.key === 'Home' ? 0 : event.key === 'End' ? plot.plotted.length - 1
-        : event.key === 'ArrowLeft' ? Math.max(0, index - 1) : Math.min(plot.plotted.length - 1, index + 1);
-      selectDuration(plot.plotted[next]?.point);
-    });
-  }
+  durationChart.addEventListener('pointermove', event => { if (!pinnedDuration) describeDuration(nearestDuration(event)); });
+  durationChart.addEventListener('pointerleave', () => { if (!pinnedDuration) describeDuration(null); });
+  durationChart.addEventListener('click', event => selectDuration(nearestDuration(event)));
+  durationChart.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End', 'Escape', 'Enter', ' '].includes(event.key)) return;
+    event.preventDefault();
+    if (event.key === 'Escape') { pinnedDuration = null; drawDurations(viewEnd - hours * hourMs, viewEnd); return; }
+    const index = plottedDurations.findIndex(dot => dot.point.sourceIndex === pinnedDuration?.sourceIndex);
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? plottedDurations.length - 1
+      : event.key === 'ArrowLeft' ? Math.max(0, index - 1) : Math.min(plottedDurations.length - 1, index + 1);
+    selectDuration(plottedDurations[next]?.point);
+  });
   const isBlock = segment => ['blocked', 'parked'].includes(segment.phase);
   const isWait = segment => isBlock(segment) || ['idle', 'unrecorded'].includes(segment.phase);
   const batch = segment => taskById.get(segment.task)?.batch || segment.batch;
