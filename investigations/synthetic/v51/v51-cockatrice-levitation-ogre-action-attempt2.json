@@ -1,0 +1,86 @@
+{
+  "session": "synthetic/v51/v51-cockatrice-levitation-ogre-action-attempt2",
+  "corpus": "synthetic",
+  "batch": "v51",
+  "caseId": "v51-cockatrice-levitation-ogre-action-attempt2",
+  "manifestPath": "challenges/manifests/v51.json",
+  "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+  "recordingPath": "challenges/cases/v51/v51-cockatrice-levitation-ogre-action-attempt2.session.json",
+  "recordingSha256": "4874705d61bde1fc48d7afeabc42809ec38e208c8370d629d256e9a2de0b09a6",
+  "recipePath": "challenges/cases/v51/v51-cockatrice-levitation-ogre-action-attempt2.recipe.session.json",
+  "recipeSha256": "64c8ffb370b41a939175b762ac464192296fad93c6da7f1cefc7f9f97a006535",
+  "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v51.json",
+  "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+  "remainingScreens": 95,
+  "recordedSteps": 241,
+  "status": "complete",
+  "commit": "ff0a8c3ff5c2205a68e2e3add3f52b0e0c7e97d8",
+  "mismatch": {
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "line": null,
+    "step": 146,
+    "message": null,
+    "firstMismatch": {
+      "screen": {
+        "index": 146,
+        "location": { "segmentIndex": 0, "stepIndex": 146, "key": "l" },
+        "kind": "ch",
+        "row": 0,
+        "column": 50,
+        "cCell": { "ch": "i", "color": 8, "attr": 0, "decgfx": 0 },
+        "jsCell": { "ch": "w", "color": 8, "attr": 0, "decgfx": 0 }
+      },
+      "rng": {
+        "index": 2653,
+        "cEntry": "rn2(100)=91",
+        "cCaller": "obj_resists(zap.c:1469)",
+        "jsEntry": "rn2(3)=0",
+        "location": { "segmentIndex": 0, "stepIndex": 147, "key": " " },
+        "stepIndex": 147
+      },
+      "cursor": {
+        "index": 146,
+        "location": { "segmentIndex": 0, "stepIndex": 146, "key": "l" },
+        "cCursor": [74, 0, 1],
+        "jsCursor": [19, 15, 1]
+      }
+    }
+  },
+  "summary": "Hero cockatrice touch reaches the missing trap.c:minstapetrify helper through uhitm.c:mhitm_ad_ston after munstone returns false. C emits the monster slowing-down and stone-transition output; JS records note_unported('trap.c minstapetrify') and the monster remains in play. The same missing helper causes the v51 stone-golem nymph corpse-theft case at step 230 through steal.c:steal. The complete source task is trap.c:minstapetrify plus wiring every active JS caller that corresponds to its C call sites. One dothrow.c:thitmonst caller is currently reserved by A2, so implementation scope requires ownership resolution before edits.",
+  "source": {
+    "file": "trap.c",
+    "functions": ["minstapetrify"],
+    "branch": "For a monster target, return when resists_ston is true; convert forms that can become stone golems with mon_to_stone; otherwise continue only when vamp_stone permits petrification, then remove intrinsic speed, emit the visible stone message, and either credit the hero with xkilled or apply monstone. The selected ogre and nymph theft cases reach this helper after their respective touch-petrification checks.",
+    "callers": [
+      "uhitm.c:hmon_hitmon_misc_obj -> minstapetrify(mon, TRUE) for petrifying corpses and eggs",
+      "uhitm.c:mhitm_ad_ston -> minstapetrify(mdef, TRUE) after munstone returns false",
+      "trap.c:mselftouch -> minstapetrify(mon, byplayer)",
+      "mhitu.c:gulpmu -> minstapetrify(mtmp, TRUE)",
+      "do.c:engulfer_digests_food -> minstapetrify(u.ustuck, TRUE)",
+      "mthrowu.c monster-hit path -> minstapetrify(mtmp, FALSE)",
+      "steal.c:steal -> minstapetrify(mtmp, TRUE) after stealing a corpse without gloves",
+      "dothrow.c:thitmonst and mhurtle_step -> minstapetrify after monster collision or petrifying thrown eggs"
+    ],
+    "dependencies": [
+      "monst.h:resists_ston",
+      "mondata.c:poly_when_stoned",
+      "mon.c:mon_to_stone (state-changing callee; currently reserved by B)",
+      "mon.c:vamp_stone",
+      "mon.c:mon_adjust_speed",
+      "vision.c:cansee",
+      "pline.c:pline_mon",
+      "mon.c:xkilled",
+      "mon.c:monstone"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The admitted v51 baseline first diverges at segment 0 step 146: C writes the monster-stoning screen and places the cursor at [74,0,1], while JS shows the live ogre at [19,15,1]. The first RNG divergence follows at step 147, so the screen/state transition is already missing before obj_resists is reached.",
+    "challenges/manifests/v51.json identifies the path as uhitm.c:mhitm_ad_ston -> trap.c:minstapetrify. The recipe says hero cockatrice touch converts a nonresistant ogre into stone; C's slowing-down message is followed by stone death. js/uhitm.js:mhitm_ad_ston currently calls munstone and then records note_unported('trap.c minstapetrify') when munstone returns false.",
+    "nethack-c/upstream/src/trap.c:3858-3878 defines the complete helper, including resists_ston, poly_when_stoned/mon_to_stone, vamp_stone, speed removal, visible message, and byplayer-dependent xkilled/monstone. The caller at uhitm.c:4210 confirms this is a void effect after the consumed munstone result.",
+    "The admitted v51 stone-golem nymph corpse-theft case first diverges at segment 0 step 230 after the thief steals the cockatrice corpse. Its recipe and source pointers identify steal.c:steal:610 -> trap.c:minstapetrify(mtmp, TRUE); js/steal.js:846 currently skips that same helper and returns -1. Group this case with the ogre case because both are the same missing source function, not independent implementation work.",
+    "Search `rg -n \"minstapetrify\\(\" nethack-c/upstream/src --glob '*.c'` found active callers in uhitm.c, trap.c, mhitu.c, do.c, mthrowu.c, steal.c, and dothrow.c. Matching note_unported sites remain in corresponding JavaScript modules. The dothrow.c:thitmonst source owner is currently reserved by A2, so this complete caller family has a concrete ownership dependency to resolve before edits."
+  ]
+}
