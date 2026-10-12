@@ -287891,7 +287891,7 @@
           "line": 771,
           "endLine": 1170,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -287905,7 +287905,7 @@
           "endLine": 728,
           "declared": true,
           "sourceFile": "getpos.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -288115,7 +288115,198 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "getpos",
+            "implementation": "js/getpos.js",
+            "symbol": "getpos",
+            "sourceReview": "Compared the full getpos.c:getpos definition (771-1167) in source order. Ported the initial command-queue direction path and invalid-type cleanup; prompt/cursor setup; key-queue and readchar_poskey input paths including remember_getpos; Escape and run/rush-prefixed input; mouse coordinate handling; pick-key results; walk and fast movement with same-glyph skip; help and redraw; show-valid highlighting; automatic description, filter, menu, self, and moveskip toggles; monster/object/door/unexplored cycling through menu or cached gathered coordinates; terrain-symbol scan across visible glyph, remembered glyph, vibrating square, and seen terrain; force-mode diagnostics and non-force exit; cursor/message cleanup, highlighting teardown, and restoration of u.dx/u.dy/u.dz. The port calls cmdq_pop for the return-valued queue dependency and uses existing readchar_poskey, cmdq_add_key, cmdq_clear, lock_mouse_buttons, help, gather_locs, display, and highlight implementations. C's platform-only lock_mouse_cursor(MACOS9) has no JavaScript implementation; the terminal cursor is handled by the existing display layer. No placeholder or Unsupported refusal remains for getpos branches. The current production caller cmd.c:getdir NHKF_GETDIR_MOUSE branch is also wired in js/cmd.js:getdir as a bounded caller correction; no whole-getdir completion credit is claimed. The pointer adapters tx, ty, and sidx now live for the entire invocation, matching getpos.c locals initialized before the input loop; invalid mouse events and queued key nodes preserve outputs when the C reader does not write them. The terrain-symbol scan also reuses tx/ty and leaves its found coordinate or final failed-scan increments in those same out-parameters. Space/Enter return the source result coordinate (-1,0) through the finally cleanup. Character-symbol checks use numeric bytes for ^ and ~, including trap-family matching independent of the active displayed byte and the hidden known vibrating-square fallback. Goal fallback now tests nullish input, preserving an explicitly empty goal pointer value.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "getdir",
+                "source": "cmd.c:getdir NHKF_GETDIR_MOUSE branch (4021-4090) calls getpos for a simulated click; the full getdir function remains outside this completion claim."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "dotravel",
+                "source": "cmd.c:dotravel calls getpos for a travel destination (5334)."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "do_look",
+                "source": "pager.c:do_look calls getpos for location selection (1910)."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "do_mgivenname",
+                "source": "do_name.c:do_mgivenname calls getpos to select a monster (213)."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "namefloorobj",
+                "source": "do_name.c:namefloorobj calls getpos to select a floor object (694)."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "browse_map",
+                "source": "detect.c:do_vicinity_map calls getpos for terrain autodescription (115)."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "do_stinking_cloud",
+                "source": "read.c:do_stinking_cloud calls getpos for cloud targeting (3091)."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_fire",
+                "source": "read.c:seffects calls getpos for blessed scroll-of-fire targeting (1900)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "throwspell",
+                "source": "spell.c:spelleffects calls getpos for spell targeting (1673)."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "jump",
+                "source": "apply.c:jump calls getpos for jump targeting (2063)."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_pole",
+                "source": "apply.c:use_pole calls getpos for polearm targeting (3466)."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grapple",
+                "source": "apply.c:use_grapple calls getpos for grappling targeting (3758)."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_smell",
+                "source": "wizcmds.c:wiz_smell calls getpos to choose a monster (903)."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_kill",
+                "source": "wizcmds.c:wiz_kill calls getpos to choose a monster (261)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/getpos.test.mjs",
+              "scripts/getpos-show-valid.test.mjs",
+              "scripts/getpos-cycle.test.mjs",
+              "scripts/ride-direction.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/getpos-input-controls-independent-20261012.session.json",
+              "recordings/getpos.c/getpos-show-valid-independent-b20.session.json",
+              "recordings/getpos.c/help-popup-seed7319.session.json",
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json",
+              "recordings/getpos.c/location-cycle-doors-independent.session.json",
+              "recordings/getpos.c/location-cycle-menu-select-independent.session.json",
+              "recordings/getpos.c/location-cycle-menu-cancel-variation.session.json",
+              "recordings/getpos.c/terrain-symbol-search-seed22032.session.json",
+              "recordings/cmd.c/getdir-mouse-target-independent-20261012.session.json",
+              "recordings/cmd.c/getdir-mouse-target-quick-variation-20261012.session.json",
+              "recordings/cmd.c/getdir-mouse-reject-variation-20261012.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v48",
+                "caseId": "v48-name-floor-object-attempt5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 50,
+                "source": "cmd.c:main command dispatch -> do_name.c:namefloorobj -> getpos.c:getpos"
+              }
+            ],
+            "checkedAt": "39e250982459c5e9b4a1b39a37b8b834094e63ed"
+          },
+          {
+            "name": "getpos_menu",
+            "implementation": "js/getpos.js",
+            "symbol": "getpos_menu",
+            "sourceReview": "Compared the complete getpos.c:getpos_menu definition (665-725) in source order. The port gathers locations, handles the fewer-than-two-location message and false return, builds menu entries from source-ordered screen descriptions and coordinate descriptions, formats the title from target type/filter/travel mode, performs PICK_ONE selection, writes the selected coordinate only for a positive pick count, destroys the window, and frees the gathered and selected arrays. It calls return-valued gather_locs, do_screen_description, coord_desc, and an; each implementation and source-completion record was reviewed. It is called from getpos.c:getpos only when getloc_usemenu is enabled for the supported location-cycle keys.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c:getpos calls getpos_menu in the NHKF_GETPOS_MENU location-cycle branch (665-725 caller at 990-1007)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs",
+              "scripts/getpos-show-valid.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-menu-select-independent.session.json",
+              "recordings/getpos.c/location-cycle-menu-cancel-variation.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "39e250982459c5e9b4a1b39a37b8b834094e63ed"
+          }
+        ],
+        "entryPointReview": "The complete source units are getpos.c:getpos and its required return-valued menu dependency getpos.c:getpos_menu. Direct JavaScript callers were traced and are listed above. The bounded caller correction also wires the existing cmd.c:getdir NHKF_GETDIR_MOUSE branch into getpos; it does not claim whole-getdir completion. Matching entry evidence covers do_name.c:namefloorobj through v48-name-floor-object-attempt5 steps 0-50, independently recorded input controls through wizard teleport targeting, and simulated-mouse click/rejection paths through cmd.c:dotherecmdmenu -> getdir -> getpos. Existing recordings cover terrain-symbol search, help, show-valid, filter, and location cycling. The terminal recorder supplies key input but not a physical mouse poskey or internal canned command queue; those getpos paths are pinned by scripts/getpos.test.mjs rather than labeled inactive. Upstream call sites without a current JavaScript caller remain owned by their not-yet-ported caller paths and are not claimed as wired by this task. Correction checks source-pin the output-pointer lifetime and null-only goal default, exercise invalid-mouse and queued-key preservation, both terrain-scan exit values, the ^ trap family after changing the displayed symbol, and the hidden known Invocation square reached through ~.",
+        "entryPoints": [
+          {
+            "name": "Select the floor object to name through #name and namefloorobj",
+            "functions": [
+              "getpos"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v48",
+                "caseId": "v48-name-floor-object-attempt5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 50,
+                "source": "cmd.c command dispatch -> do_name.c:namefloorobj -> getpos.c:getpos"
+              }
+            ]
+          },
+          {
+            "name": "Wizard teleport cursor input controls",
+            "functions": [
+              "getpos"
+            ],
+            "recordings": [
+              "recordings/getpos.c/getpos-input-controls-independent-20261012.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Choose or reject a simulated click through #therecmdmenu",
+            "functions": [
+              "getpos"
+            ],
+            "recordings": [
+              "recordings/cmd.c/getdir-mouse-target-independent-20261012.session.json",
+              "recordings/cmd.c/getdir-mouse-target-quick-variation-20261012.session.json",
+              "recordings/cmd.c/getdir-mouse-reject-variation-20261012.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Choose and cancel a menu target during cursor location cycling",
+            "functions": [
+              "getpos",
+              "getpos_menu"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-menu-select-independent.session.json",
+              "recordings/getpos.c/location-cycle-menu-cancel-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     },
     {
       "id": "port-uhitm-mhitm-ad-halu-v50-20261012",
