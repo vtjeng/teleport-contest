@@ -294447,6 +294447,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "C-fix-mounted-engulf-steed-dismount-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dismount_steed from steed.c",
+      "cFile": "steed.c",
+      "sessions": [
+        "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dismount_steed",
+      "session": "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4"
     }
   ]
 }
