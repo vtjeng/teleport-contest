@@ -71,7 +71,7 @@
     "jsDefect": "JS dropz passed only state into engulfer_digests_food. The helper then called delobj without the operation hooks required by invent.c:delobj to stop the corpse timer. The C path calls delobj after minstapetrify, and its return is not consumed.",
     "repair": "Forward dropz’s normalized state/operation environment through engulfer digestion and its source callees. Preserve an injected stopObjectTimers owner; otherwise supply the existing timeout.c:obj_stop_timers implementation."
   },
-  "status": "resolved",
+  "status": "complete",
   "summary": "The accepted 0ddb v53 baseline matches 263 of 290 screens, 2678 of 2694 RNG calls, and 263 of 290 cursors, with no runner error. A separate local replay reaches the statue screen, then stops because corpse deletion lacks the timer owner. The repair forwards the normalized timer owner through swallowed digestion and delobj while preserving injected hooks and C call order. The final saved replay matches all 290 steps.",
   "history": [
     {
@@ -137,5 +137,45 @@
     "divergence": null,
     "boundary": null,
     "commandRefusal": false
+  },
+  "remainingScreens": 27,
+  "recordedSteps": 290,
+  "commit": "562c606e07538025a0aa57f463523619595e61cb",
+  "goalKind": "divergence-fix",
+  "mismatch": {
+    "kind": "screens",
+    "corpus": "synthetic",
+    "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
+    "sourceFile": "do.c",
+    "cFile": "do.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6"
+    ],
+    "remainingScreens": 27,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 263,
+    "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+    "batch": "v53",
+    "recordingPath": "challenges/cases/v53/v53-worm-dropped-cockatrice-stoning-action6.session.json",
+    "error": null
+  },
+  "evidence": [
+    "The accepted evaluation challenges/evaluations/accepted-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-v53.json at 0ddbafd22e56dbc0365fbc0355c9dac9352cba43 reports 263/290 screens, 2678/2694 RNG calls, and 263/290 cursors, with error null and 27 screens remaining.",
+    "A separate local replay at 57db3186aeb0cd6cef9072e4c29c56af541fb298 emitted 263 screens, then stopped with UnsupportedDropError because stopObjectTimers was unavailable for corpse otyp 265. This is diagnostic evidence, not the admitted evaluation runner error.",
+    "The matching replay at 562c606e07538025a0aa57f463523619595e61cb emitted all 290 screens and steps with no divergence, boundary, or command refusal; its replay input digest is 05fda928c04c6287b9d47faa0501d0f511b5b17e7d2f0eddb7301f6d38f90c32."
+  ],
+  "source": {
+    "file": "do.c",
+    "functions": [
+      "dropz",
+      "engulfer_digests_food"
+    ],
+    "branch": "When the hero drops a cockatrice corpse while swallowed by a digesting purple worm, dropz calls engulfer_digests_food; the helper petrifies the swallower, then calls delobj, whose object-free path must stop the corpse timer. The bounded repair forwards the operation hook environment so delobj reaches timeout.c:obj_stop_timers.",
+    "callers": [
+      "C do.c:dropx -> dropy -> dropz; JS js/do.js:dropx -> the dropz tail.",
+      "C do.c:dropz calls engulfer_digests_food at line 823; JS js/do.js:dropz passes the normalized operation environment to engulfer_digests_food."
+    ],
+    "dependencies": []
   }
 }
