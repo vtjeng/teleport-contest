@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T18:25:18.115Z",
+  "capturedAt": "2026-10-12T18:43:11.099Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -96551,6 +96551,59 @@
         "type": "accepted",
         "at": "2026-10-12T18:23:11.366Z",
         "task": "Prep16"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep16-4e5599e4f65645aee865338da76bc84394ec196a",
+        "type": "published",
+        "at": "2026-10-12T18:27:42.228Z",
+        "task": "Prep16",
+        "commit": "4e5599e4f65645aee865338da76bc84394ec196a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep16-v52-admission-20261012",
+        "type": "activity",
+        "at": "2026-10-12T18:30:07.716Z",
+        "task": "Prep16",
+        "phase": "admission",
+        "reason": "Open the oldest prepared batch because A, B, and C have no independent unheld case; ready implementation deliveries are complete."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep16-v52-admission-gate-wait-20261012",
+        "type": "activity",
+        "at": "2026-10-12T18:30:54.141Z",
+        "task": "Prep16",
+        "phase": "waiting",
+        "reason": "Waiting for the exact-HEAD hosted checkpoint required by v52 admission; the dashboard snapshot is the only change since the passing preparation checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep16-v52-baseline-ci-acceptance-20261012",
+        "type": "activity",
+        "at": "2026-10-12T18:37:07.091Z",
+        "task": "Prep16",
+        "phase": "baseline",
+        "reason": "v52 is admitted; one combined hosted gate now validates its first baseline and the user-approved CI acceptance workflow changes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-runtime-route-scouts-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:38:09.013Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58: checking runtime timer options and completing strength/trap route corrections in C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-runtime-option-and-trap-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:41:50.989Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is recording runtime-option and held-trap gameplay continuations; prior 49 attempts remain preserved."
       }
     ]
   },
@@ -96631,19 +96684,7 @@
         "unblocks": 0
       }
     ],
-    "preparedBatches": [
-      {
-        "task": "Prep16",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "awaiting-admission",
-        "delivery": "0b36bf522006ac959a2cbf73d23dd90367e46591",
-        "batch": "v52",
-        "since": "2026-10-12T18:23:11.366Z",
-        "blockedBy": []
-      }
-    ],
+    "preparedBatches": [],
     "parkedTasks": [
       {
         "task": "C42",
@@ -97101,8 +97142,8 @@
     ]
   },
   "development": {
-    "executionCommit": "178b12c2e54e5bca4c8744d0398aef371e9815e8",
-    "measuredAt": "2026-10-12T18:16:30.275Z",
+    "executionCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+    "measuredAt": "2026-10-12T18:41:35.674Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
