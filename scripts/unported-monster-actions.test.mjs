@@ -126,6 +126,7 @@ import {
     PM_WATER_MOCCASIN,
     PM_WATER_NYMPH,
     PM_WOOD_NYMPH,
+    PM_VROCK,
     PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
     M1_TPORT,
@@ -158,6 +159,7 @@ import {
     ROCK,
     RUNESWORD,
     SHIELD_OF_REFLECTION,
+    SCR_SCARE_MONSTER,
     SPE_BOOK_OF_THE_DEAD,
     WAX_CANDLE,
     STATUE,
@@ -519,6 +521,79 @@ for (const planning of [false, true]) {
         assert.ok(MONMOVE_SOURCE.includes('monflee(mtmp, rnd(rn2(7) ? 10 : 100), TRUE, TRUE);'));
     });
 }
+
+test('Vrock fear creates its gas cloud through the monster action adapter', async () => {
+    for (const planning of [false, true]) {
+        const target = await prepareSelectedAction({
+            adjacentHero: true,
+            pmidx: PM_VROCK,
+        });
+        // Empty attacks keep the case on monmove.c:distfleeck() and
+        // monflee() after the cloud instead of opening combat input.
+        target.monster.data = {
+            ...target.monster.data,
+            mattk: sourceInertAttacks(),
+        };
+        const heroX = target.monsterX + 1;
+        // The C scare predicate sees this scroll under the hero; its object id
+        // is arbitrary because only otyp and coordinates select the branch.
+        installObject(target, floorObject(
+            heroX,
+            target.heroY,
+            9101,
+            SCR_SCARE_MONSTER,
+        ));
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+
+        const state = planning ? planningState(game) : game;
+        const monster = state.level.monlist;
+        const draws = [];
+        const messages = [];
+        const random = {
+            // These choices take distfleeck's non-brave, 10-turn flight path;
+            // rn2(25) then selects the source Vrock cloud-cooldown value.
+            rn2(bound) {
+                draws.push(['rn2', bound]);
+                return Math.min(1, bound - 1);
+            },
+            rnd(bound) {
+                draws.push(['rnd', bound]);
+                return 5;
+            },
+            d(number) {
+                return number;
+            },
+        };
+        await runSimpleMonsterAction(monster, {
+            state,
+            random,
+            planning,
+            message: async text => { messages.push(text); },
+        });
+
+        assert.deepEqual(draws.slice(0, 5), [
+            ['rn2', 5],
+            ['rn2', 7],
+            ['rnd', 10],
+            ['rn2', 25],
+            ['rn2', 4],
+        ]);
+        assert.equal(monster.mspec_used, 76);
+        assert.equal(monster.mflee, true);
+        const gasCloud = state.level.regions.find(region => region.arg === 8);
+        assert.ok(gasCloud, 'the source damage-8 cloud enters the level region list');
+        assert.ok(gasCloud.rects.some(rect => (
+            heroX >= rect.lx && heroX <= rect.hx
+            && target.heroY >= rect.ly && target.heroY <= rect.hy
+        )), 'the adjacent hero square is included in the cloud');
+        if (planning) {
+            assert.deepEqual(messages, []);
+        } else {
+            assert.ok(messages.some(text => /turns to flee/u.test(text)));
+            assert.ok(messages.some(text => /enveloped in a cloud of noxious gas/u.test(text)));
+        }
+    }
+});
 
 async function prepareStartingPetAction(pmidx) {
     const target = await prepareSelectedAction({ pmidx });
@@ -1763,7 +1838,7 @@ test('Hezrou postmove gas creates a region at its pre-move square', async () => 
     );
 });
 
-test('fog movement still refuses harmful gas transitions', async () => {
+test('fog movement admits callback-free harmful gas transitions', async () => {
     for (const enters of [true, false]) {
         const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
         target.monster.movement = NORMAL_SPEED;
@@ -1774,8 +1849,9 @@ test('fog movement still refuses harmful gas transitions', async () => {
             hy: target.heroY,
         }]);
         Object.assign(vapor, {
-            // Positive damage selects inside_gas_cloud()'s unsupported
-            // harmful branch in region.c, for either transition direction.
+            // inside_gas_cloud() runs during region upkeep; m_in_out_region()
+            // only changes membership because all four transition callbacks
+            // are unset.
             arg: 1,
             inside_f: 'inside_gas_cloud',
             monsters: enters ? [] : [target.monster.m_id],
@@ -1784,12 +1860,7 @@ test('fog movement still refuses harmful gas transitions', async () => {
         game.level.regions = [vapor];
         const before = completeSecondTurnSnapshot(game, target.replay);
 
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'a region transition',
-            enters ? 'entry' : 'exit',
-        );
+        await preflightSimpleMonsterActions(game);
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
             before,
@@ -3012,16 +3083,20 @@ test('simple preflight rejects each remaining excluded action atomically',
     async () => {
         const cases = [
             {
-                name: 'region transition',
+                name: 'callback-bearing region transition',
                 reason: 'a region transition',
                 prepare: async () => {
                     const target = await prepareSelectedAction();
-                    game.level.regions.push(create_region([{
+                    const region = create_region([{
                         lx: target.destinationX,
                         ly: target.heroY,
                         hx: target.destinationX,
                         hy: target.heroY,
-                    }]));
+                    }]);
+                    // m_in_out_region() must refuse this still-unported
+                    // enter callback before changing cached membership.
+                    region.enter_f = 'unported_enter_callback';
+                    game.level.regions.push(region);
                     return target;
                 },
             },

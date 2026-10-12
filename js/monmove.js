@@ -2017,8 +2017,9 @@ function isSokoPrize(obj, state) {
 
 // C ref: monmove.c monflee(). fleeMessage owns the exact naming and terminal
 // calls for the five source kinds below. release_hero() is now ported above;
-// createGasCloud owns create_gas_cloud(). Required downstream operations are
-// checked before release or flee-state mutation.
+// createGasCloud uses an injected adapter or this file's production region
+// adapter for the source create_gas_cloud() call. Required downstream
+// operations are checked before release or flee-state mutation.
 // Source monflee's pline_mon/verbalize output, shared with instrument fear.
 // The decision and its random draws remain in monflee below.
 export async function monfleeMessage(monster, detail, env = {}) {
@@ -2077,14 +2078,24 @@ export async function monflee(
     const releaseHero = monster === state.u?.ustuck
         ? (env.releaseHero ?? ((mon, e) => release_hero(mon, e)))
         : null;
+    // monmove.c:monflee() calls canseemon() and pline_mon() directly. Keep
+    // injected operations for tests and higher-level callers, while making
+    // those source-owned defaults available to production callers that pass
+    // only the shared state/random environment.
     const canSeeMonster = checksMessage
-        ? requireFleeOperation(env, 'canSeeMonster')
+        ? (env.canSeeMonster ?? ((mon, e) => canseemon(mon, e.state)))
         : null;
     const fleeMessage = checksMessage
-        ? requireFleeOperation(env, 'fleeMessage')
+        ? (env.fleeMessage
+            ?? ((mon, detail, e) => monfleeMessage(mon, detail, e)))
         : null;
     const createGasCloud = createsGas
-        ? requireFleeOperation(env, 'createGasCloud')
+        ? (env.createGasCloud === undefined
+            ? ((x, y, size, damage, cloudEnv) => create_gas_cloud(
+                x, y, size, damage,
+                postmoveRegionEnv(cloudEnv, state),
+            ))
+            : requireFleeOperation(env, 'createGasCloud'))
         : null;
     if (checksMessage) {
         if (typeof checksFleeingLight !== 'function'

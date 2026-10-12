@@ -12,6 +12,8 @@ import { validInvestigation } from './investigation-cache.mjs';
 import { corpusDigest, validateEvaluation } from './challenge-results.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 
+const INVESTIGATION_PATH = /^investigations\/((?:synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*|(?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*))\.json$/u;
+
 function check(value, message) {
     if (!value) throw new Error(message);
 }
@@ -202,6 +204,14 @@ export function submitDelivery({ root, file, state, taskId, contextPath, evidenc
         'submission requires a working task or an exact ready retry');
     check(isAncestor(root, task.base, source.base), 'delivery base precedes or diverges from assignment base');
     checkScope(task, source.paths);
+    const reports = new Set(source.paths.filter(path => path.startsWith('investigations/')));
+    const selectedReport = `investigations/${task.seed}.json`;
+    if (task.seed && task.allowedPaths.includes(selectedReport)) reports.add(selectedReport);
+    for (const path of reports) {
+        const match = INVESTIGATION_PATH.exec(path);
+        check(match, `invalid investigation path: ${path}`);
+        verifyInvestigationReport(root, source.head, source.head, path, match[1]);
+    }
     // A retry keeps the dependency decision made at first submission, even
     // when the coordinator has since accepted one of those dependencies.
     dependencies = dependencies ? dependencies.map(sha => resolveCommit(root, sha))
@@ -340,6 +350,34 @@ export function validateHistoricalEvaluation(root, report, tested) {
     return report;
 }
 
+function verifyInvestigationReport(root, tested, reportCommit, path, session) {
+    check(git(root, 'ls-tree', '-z', reportCommit, '--', path).startsWith('100644 blob '),
+        `investigation report must be a regular non-executable file: ${path}`);
+    const report = json(root, reportCommit, path);
+    check(validInvestigation(report, session), `invalid investigation report: ${path}`);
+    check(isAncestor(root, report.commit, tested), `investigation source commit is outside tested history: ${path}`);
+    if (session.startsWith('synthetic/')) {
+        const [, batch, caseId] = session.split('/');
+        const manifestPath = batch === 'v1' ? 'challenges/manifest.json' : `challenges/manifests/${batch}.json`;
+        const manifest = json(root, tested, manifestPath);
+        const entry = manifest.cases.find(entry => entry.id === caseId);
+        check(report.manifestPath === manifestPath
+            && report.manifestSha256 === corpusDigest(manifest.cases)
+            && entry && report.recordingSha256 === entry.recordingSha256,
+        `synthetic investigation differs from the tested manifest: ${path}`);
+        const evidence = validateEvaluation(json(root, reportCommit, report.evaluationPath));
+        const measured = evidence.cases.find(item => item.id === caseId);
+        check(evidence.status === 'complete' && evidence.sha === report.evaluationCommit
+            && isAncestor(root, evidence.sha, tested)
+            && (evidence.batch ?? 'v1') === batch
+            && evidence.manifestSha256 === report.manifestSha256
+            && measured?.recordingSha256 === report.recordingSha256
+            && measured.metrics.screens.total === report.recordedSteps
+            && measured.metrics.screens.total - measured.metrics.screens.matched === report.remainingScreens,
+        `synthetic investigation differs from its saved evaluation: ${path}`);
+    }
+}
+
 export function verifyPublicationChanges(root, tested, published) {
     // Keep checkpoint reuse conservative. Publication alone permits checked
     // reports written after closure; the original tested commit stays intact.
@@ -348,38 +386,15 @@ export function verifyPublicationChanges(root, tested, published) {
         .split('\0').filter(Boolean);
     for (const path of paths) {
         if (BOOKKEEPING_FILES.includes(path)) continue; // executionTree already checked modes.
-        const investigation = /^investigations\/((?:synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*|(?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*))\.json$/u.exec(path);
+        const investigation = INVESTIGATION_PATH.exec(path);
         const evaluation = /^challenges\/evaluations\/[a-z0-9][a-z0-9.-]*\.json$/u.test(path);
         check(investigation || evaluation, `published commit has unvalidated changes: ${path}`);
-        const entry = git(root, 'ls-tree', '-z', published, '--', path);
-        check(entry.startsWith('100644 blob '), `publication report must be a regular non-executable file: ${path}`);
-        const report = json(root, published, path);
         if (investigation) {
-            check(validInvestigation(report, investigation[1]), `invalid investigation report: ${path}`);
-            check(isAncestor(root, report.commit, tested), `investigation source commit is outside tested history: ${path}`);
-            if (investigation[1].startsWith('synthetic/')) {
-                const [, batch, caseId] = investigation[1].split('/');
-                const manifestPath = batch === 'v1' ? 'challenges/manifest.json' : `challenges/manifests/${batch}.json`;
-                const manifest = json(root, tested, manifestPath);
-                const entry = manifest.cases.find(entry => entry.id === caseId);
-                check(report.manifestPath === manifestPath
-                    && report.manifestSha256 === corpusDigest(manifest.cases)
-                    && entry && report.recordingSha256 === entry.recordingSha256,
-                `synthetic investigation differs from the tested manifest: ${path}`);
-                check(/^challenges\/evaluations\/[a-z0-9][a-z0-9.-]*\.json$/u.test(report.evaluationPath),
-                    `synthetic investigation needs saved evaluation evidence: ${path}`);
-                const evidence = validateEvaluation(json(root, published, report.evaluationPath));
-                const measured = evidence.cases.find(item => item.id === caseId);
-                check(evidence.status === 'complete' && evidence.sha === report.evaluationCommit
-                    && isAncestor(root, evidence.sha, tested)
-                    && (evidence.batch ?? 'v1') === batch
-                    && evidence.manifestSha256 === report.manifestSha256
-                    && measured?.recordingSha256 === report.recordingSha256
-                    && measured.metrics.screens.total === report.recordedSteps
-                    && measured.metrics.screens.total - measured.metrics.screens.matched === report.remainingScreens,
-                `synthetic investigation differs from its saved evaluation: ${path}`);
-            }
+            verifyInvestigationReport(root, tested, published, path, investigation[1]);
         } else {
+            const entry = git(root, 'ls-tree', '-z', published, '--', path);
+            check(entry.startsWith('100644 blob '), `publication report must be a regular non-executable file: ${path}`);
+            const report = json(root, published, path);
             check(!git(root, 'ls-tree', '-z', tested, '--', path), `challenge evaluations are immutable: ${path}`);
             // A report may describe an intermediate candidate, not the final one.
             // Publication preserves that history; acceptance separately requires

@@ -287869,25 +287869,32 @@
     {
       "id": "divergence-fix-getpos-self-key-floor-name-v48-20261012",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete getpos position selection and its menu dependency",
       "cFile": "getpos.c",
       "sessions": [
         "synthetic/v48/v48-name-floor-object-attempt5"
       ],
-      "selectionReason": "The v48 floor-object naming mismatch at step 50 exposes the omitted NHKF_GETPOS_SELF branch in getpos.c:997–1004. The earlier terrain-symbol-search whole-function evidence was partial. Complete getpos 771–1167 and its return-valued getpos_menu dependency 665–725, including queue, position, filter, movement, exit and caller behavior.",
+      "selectionReason": "Complete the source-traced cursor-selection dependency before the waiting polymorph self-touch delivery; retain both whole getpos units and the bounded mouse caller.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "ae05251395ebd1439c8efd25e9f3c839755834ba",
+      "openStanding": {
+        "sha": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "getpos",
           "line": 771,
           "endLine": 1170,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -287901,7 +287908,7 @@
           "endLine": 728,
           "declared": true,
           "sourceFile": "getpos.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -287917,6 +287924,397 @@
           "evaluationPath": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v48.json",
           "evaluationCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e"
         }
+      },
+      "activeStanding": {
+        "sha": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-name-floor-object-attempt5",
+          "session": "synthetic/v48/v48-name-floor-object-attempt5",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recording": "challenges/cases/v48/v48-name-floor-object-attempt5.session.json",
+          "recordingPath": "challenges/cases/v48/v48-name-floor-object-attempt5.session.json",
+          "recordingSha256": "fb830b3492fdd58e79203b5251c03d34ca1dd7baadf26bafaac607030a16ba57",
+          "recipe": "challenges/cases/v48/v48-name-floor-object-attempt5.recipe.session.json",
+          "recipeSha256": "fc6e6fb7ec82e8a19d2972d1c5a7d09c55a4a06f21b325c036b6fdc84ad54f8b",
+          "replayInputSha256": "b7d864f26bfec677fa1875b1e8b5796b5d40c40c25bb22f46cc47be49cffd3bc",
+          "evaluationPath": "challenges/evaluations/accepted-b126627c379b87b95d86d7b9a070973eabc9f24c-v48.json",
+          "evaluationCommit": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+          "evaluationArtifact": "challenges/evaluations/accepted-b126627c379b87b95d86d7b9a070973eabc9f24c-v48.json",
+          "evaluationUtc": "2026-10-12T15:54:57.868Z",
+          "remainingScreens": 1,
+          "recordedSteps": 60,
+          "previousScreensMatched": 59,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 59,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2587,
+              "total": 2587
+            },
+            "cursors": {
+              "matched": 60,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "@"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "h",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 50,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v48/v48-name-floor-object-attempt5.json",
+            "result": {
+              "session": "synthetic/v48/v48-name-floor-object-attempt5",
+              "remainingScreens": 1,
+              "recordedSteps": 60,
+              "corpus": "synthetic",
+              "batch": "v48",
+              "caseId": "v48-name-floor-object-attempt5",
+              "manifestPath": "challenges/manifests/v48.json",
+              "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+              "recordingSha256": "fb830b3492fdd58e79203b5251c03d34ca1dd7baadf26bafaac607030a16ba57",
+              "evaluationPath": "challenges/evaluations/accepted-b126627c379b87b95d86d7b9a070973eabc9f24c-v48.json",
+              "evaluationCommit": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+              "status": "complete",
+              "commit": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v48",
+                "caseId": "v48-name-floor-object-attempt5",
+                "session": "synthetic/v48/v48-name-floor-object-attempt5",
+                "manifestPath": "challenges/manifests/v48.json",
+                "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+                "recording": "challenges/cases/v48/v48-name-floor-object-attempt5.session.json",
+                "recordingPath": "challenges/cases/v48/v48-name-floor-object-attempt5.session.json",
+                "recordingSha256": "fb830b3492fdd58e79203b5251c03d34ca1dd7baadf26bafaac607030a16ba57",
+                "recipe": "challenges/cases/v48/v48-name-floor-object-attempt5.recipe.session.json",
+                "recipeSha256": "fc6e6fb7ec82e8a19d2972d1c5a7d09c55a4a06f21b325c036b6fdc84ad54f8b",
+                "replayInputSha256": "b7d864f26bfec677fa1875b1e8b5796b5d40c40c25bb22f46cc47be49cffd3bc",
+                "evaluationPath": "challenges/evaluations/accepted-b126627c379b87b95d86d7b9a070973eabc9f24c-v48.json",
+                "evaluationCommit": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+                "evaluationArtifact": "challenges/evaluations/accepted-b126627c379b87b95d86d7b9a070973eabc9f24c-v48.json",
+                "evaluationUtc": "2026-10-12T15:54:57.868Z",
+                "remainingScreens": 1,
+                "recordedSteps": 60,
+                "previousScreensMatched": 59,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 59,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2587,
+                    "total": 2587
+                  },
+                  "cursors": {
+                    "matched": 60,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 50,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "@"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "h",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 50,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The original failure is the SELF-key cursor branch. This delivery completes getpos and its required getpos_menu function, preserving queued input, cursor state, movement, selection, help, filters, terrain search and cleanup. It also wires the simulated-mouse branch of getdir without claiming the whole getdir function.",
+              "source": {
+                "file": "getpos.c",
+                "branch": "Complete getpos and getpos_menu definitions; bounded cmd.c:getdir NHKF_GETDIR_MOUSE caller.",
+                "functions": [
+                  "getpos",
+                  "getpos_menu"
+                ],
+                "callers": [
+                  "do_name.c:namefloorobj() calls getpos(&cc, FALSE, buf) before resolving the selected floor object; js/do_name.js:namefloorobj() calls js/getpos.js:getpos() on the same path."
+                ],
+                "dependencies": [
+                  "Existing command queue, terminal input, gathered locations, descriptions and menu implementations. The bounded mouse caller is included in this delivery."
+                ]
+              },
+              "evidence": [
+                "The saved admitted v48 evaluation at challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json reports this case at 59/60 screens, 2587/2587 RNG calls, and 60/60 cursors; its first mismatch is segment 0 step 50 on @, screen row 0 column 0 (C h, JS C). The recording is challenges/cases/v48/v48-name-floor-object-attempt5.session.json.",
+                "nethack-c/upstream/src/getpos.c:getpos() lines 997-1004 implement NHKF_GETPOS_SELF: zero all gidx entries, set cx=u.ux and cy=u.uy, then goto nxtc. The shared nxtc path updates gg.getposx/getposy, calls curs(WIN_MAP,cx,cy), and flushes the screen. It emits no message and does not leave the targeting loop.",
+                "The production caller is nethack-c/upstream/src/do_name.c:namefloorobj() lines 679-771, which initializes cc to the hero and calls getpos(&cc,FALSE,buf). js/do_name.js:namefloorobj() already wires that route into js/getpos.js:getpos(). At the mismatch, the recipe has selected an offset cursor before @; the missing JS special-key arm instead falls through to the non-force unknown-direction exit path.",
+                "The omitted SELF branch proves the previous whole-getpos completion evidence was partial. The follow-up covers getpos.c:getpos 771–1167 and its return-valued getpos_menu dependency 665–725, including queued input, mouse selection, movement prefixes, filtering, message state and exits."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "getpos",
+            "implementation": "js/getpos.js",
+            "symbol": "getpos",
+            "sourceReview": "Compared the full getpos.c:getpos definition (771-1167) in source order. Ported the initial command-queue direction path and invalid-type cleanup; prompt/cursor setup; key-queue and readchar_poskey input paths including remember_getpos; Escape and run/rush-prefixed input; mouse coordinate handling; pick-key results; walk and fast movement with same-glyph skip; help and redraw; show-valid highlighting; automatic description, filter, menu, self, and moveskip toggles; monster/object/door/unexplored cycling through menu or cached gathered coordinates; terrain-symbol scan across visible glyph, remembered glyph, vibrating square, and seen terrain; force-mode diagnostics and non-force exit; cursor/message cleanup, highlighting teardown, and restoration of u.dx/u.dy/u.dz. The port calls cmdq_pop for the return-valued queue dependency and uses existing readchar_poskey, cmdq_add_key, cmdq_clear, lock_mouse_buttons, help, gather_locs, display, and highlight implementations. C's platform-only lock_mouse_cursor(MACOS9) has no JavaScript implementation; the terminal cursor is handled by the existing display layer. No placeholder or Unsupported refusal remains for getpos branches. The current production caller cmd.c:getdir NHKF_GETDIR_MOUSE branch is also wired in js/cmd.js:getdir as a bounded caller correction; no whole-getdir completion credit is claimed. The pointer adapters tx, ty, and sidx now live for the entire invocation, matching getpos.c locals initialized before the input loop; invalid mouse events and queued key nodes preserve outputs when the C reader does not write them. The terrain-symbol scan also reuses tx/ty and leaves its found coordinate or final failed-scan increments in those same out-parameters. Space/Enter return the source result coordinate (-1,0) through the finally cleanup. Character-symbol checks use numeric bytes for ^ and ~, including trap-family matching independent of the active displayed byte and the hidden known vibrating-square fallback. Goal fallback now tests nullish input, preserving an explicitly empty goal pointer value.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "getdir",
+                "source": "cmd.c:getdir NHKF_GETDIR_MOUSE branch (4021-4090) calls getpos for a simulated click; the full getdir function remains outside this completion claim."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "dotravel",
+                "source": "cmd.c:dotravel calls getpos for a travel destination (5334)."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "do_look",
+                "source": "pager.c:do_look calls getpos for location selection (1910)."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "do_mgivenname",
+                "source": "do_name.c:do_mgivenname calls getpos to select a monster (213)."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "namefloorobj",
+                "source": "do_name.c:namefloorobj calls getpos to select a floor object (694)."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "browse_map",
+                "source": "detect.c:do_vicinity_map calls getpos for terrain autodescription (115)."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "do_stinking_cloud",
+                "source": "read.c:do_stinking_cloud calls getpos for cloud targeting (3091)."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_fire",
+                "source": "read.c:seffects calls getpos for blessed scroll-of-fire targeting (1900)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "throwspell",
+                "source": "spell.c:spelleffects calls getpos for spell targeting (1673)."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "jump",
+                "source": "apply.c:jump calls getpos for jump targeting (2063)."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_pole",
+                "source": "apply.c:use_pole calls getpos for polearm targeting (3466)."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grapple",
+                "source": "apply.c:use_grapple calls getpos for grappling targeting (3758)."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_smell",
+                "source": "wizcmds.c:wiz_smell calls getpos to choose a monster (903)."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_kill",
+                "source": "wizcmds.c:wiz_kill calls getpos to choose a monster (261)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/getpos.test.mjs",
+              "scripts/getpos-show-valid.test.mjs",
+              "scripts/getpos-cycle.test.mjs",
+              "scripts/ride-direction.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/getpos-input-controls-independent-20261012.session.json",
+              "recordings/getpos.c/getpos-show-valid-independent-b20.session.json",
+              "recordings/getpos.c/help-popup-seed7319.session.json",
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json",
+              "recordings/getpos.c/location-cycle-doors-independent.session.json",
+              "recordings/getpos.c/location-cycle-menu-select-independent.session.json",
+              "recordings/getpos.c/location-cycle-menu-cancel-variation.session.json",
+              "recordings/getpos.c/terrain-symbol-search-seed22032.session.json",
+              "recordings/cmd.c/getdir-mouse-target-independent-20261012.session.json",
+              "recordings/cmd.c/getdir-mouse-target-quick-variation-20261012.session.json",
+              "recordings/cmd.c/getdir-mouse-reject-variation-20261012.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v48",
+                "caseId": "v48-name-floor-object-attempt5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 50,
+                "source": "cmd.c:main command dispatch -> do_name.c:namefloorobj -> getpos.c:getpos"
+              }
+            ],
+            "checkedAt": "39e250982459c5e9b4a1b39a37b8b834094e63ed"
+          },
+          {
+            "name": "getpos_menu",
+            "implementation": "js/getpos.js",
+            "symbol": "getpos_menu",
+            "sourceReview": "Compared the complete getpos.c:getpos_menu definition (665-725) in source order. The port gathers locations, handles the fewer-than-two-location message and false return, builds menu entries from source-ordered screen descriptions and coordinate descriptions, formats the title from target type/filter/travel mode, performs PICK_ONE selection, writes the selected coordinate only for a positive pick count, destroys the window, and frees the gathered and selected arrays. It calls return-valued gather_locs, do_screen_description, coord_desc, and an; each implementation and source-completion record was reviewed. It is called from getpos.c:getpos only when getloc_usemenu is enabled for the supported location-cycle keys.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c:getpos calls getpos_menu in the NHKF_GETPOS_MENU location-cycle branch (665-725 caller at 990-1007)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs",
+              "scripts/getpos-show-valid.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-menu-select-independent.session.json",
+              "recordings/getpos.c/location-cycle-menu-cancel-variation.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "39e250982459c5e9b4a1b39a37b8b834094e63ed"
+          }
+        ],
+        "entryPointReview": "The complete source units are getpos.c:getpos and its required return-valued menu dependency getpos.c:getpos_menu. Direct JavaScript callers were traced and are listed above. The bounded caller correction also wires the existing cmd.c:getdir NHKF_GETDIR_MOUSE branch into getpos; it does not claim whole-getdir completion. Matching entry evidence covers do_name.c:namefloorobj through v48-name-floor-object-attempt5 steps 0-50, independently recorded input controls through wizard teleport targeting, and simulated-mouse click/rejection paths through cmd.c:dotherecmdmenu -> getdir -> getpos. Existing recordings cover terrain-symbol search, help, show-valid, filter, and location cycling. The terminal recorder supplies key input but not a physical mouse poskey or internal canned command queue; those getpos paths are pinned by scripts/getpos.test.mjs rather than labeled inactive. Upstream call sites without a current JavaScript caller remain owned by their not-yet-ported caller paths and are not claimed as wired by this task. Correction checks source-pin the output-pointer lifetime and null-only goal default, exercise invalid-mouse and queued-key preservation, both terrain-scan exit values, the ^ trap family after changing the displayed symbol, and the hidden known Invocation square reached through ~.",
+        "entryPoints": [
+          {
+            "name": "Select the floor object to name through #name and namefloorobj",
+            "functions": [
+              "getpos"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v48",
+                "caseId": "v48-name-floor-object-attempt5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 50,
+                "source": "cmd.c command dispatch -> do_name.c:namefloorobj -> getpos.c:getpos"
+              }
+            ]
+          },
+          {
+            "name": "Wizard teleport cursor input controls",
+            "functions": [
+              "getpos"
+            ],
+            "recordings": [
+              "recordings/getpos.c/getpos-input-controls-independent-20261012.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Choose or reject a simulated click through #therecmdmenu",
+            "functions": [
+              "getpos"
+            ],
+            "recordings": [
+              "recordings/cmd.c/getdir-mouse-target-independent-20261012.session.json",
+              "recordings/cmd.c/getdir-mouse-target-quick-variation-20261012.session.json",
+              "recordings/cmd.c/getdir-mouse-reject-variation-20261012.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Choose and cancel a menu target during cursor location cycling",
+            "functions": [
+              "getpos",
+              "getpos_menu"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-menu-select-independent.session.json",
+              "recordings/getpos.c/location-cycle-menu-cancel-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -288038,7 +288436,7 @@
     {
       "id": "port-mhitm-rustm-v51-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete weapon erosion from defender attack types",
       "cFile": "mhitm.c",
       "sessions": [
@@ -288052,8 +288450,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "rustm",
@@ -288412,7 +288813,13 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "Hosted38266346302 failed only the new independent monster-pair recording: it stops at step148 on the unaccepted armed mattackm branch before rustm step155. Preserve source and evidence; resume after C whole-combat dependency is accepted."
+      "parkedReason": "Hosted38266346302 failed only the new independent monster-pair recording: it stops at step148 on the unaccepted armed mattackm branch before rustm step155. Preserve source and evidence; resume after C whole-combat dependency is accepted.",
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "div-getobj-menu-escape-v49-20261012",
@@ -289251,6 +289658,1246 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "file-port-monmove-monflee-v50-gas-cloud-20261012",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete monster fleeing and its gas-cloud caller routes",
+      "cFile": "monmove.c",
+      "sessions": [
+        "synthetic/v50/v50-vrock-flee-cloud-action-attempt1"
+      ],
+      "selectionReason": "The Vrock movement-fear case exposes missing production defaults for monflee gas cloud, visibility and messages. Complete the whole source helper and its caller environments before the waiting polymorph self-touch task.",
+      "detail": "",
+      "openedAt": "7ade973acaf50d973f4678da71980c76a24da393",
+      "openStanding": {
+        "sha": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "monflee",
+          "line": 462,
+          "endLine": 532,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 462,
+        "to": 532
+      },
+      "syntheticProvenance": {
+        "synthetic/v50/v50-vrock-flee-cloud-action-attempt1": {
+          "session": "synthetic/v50/v50-vrock-flee-cloud-action-attempt1",
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-vrock-flee-cloud-action-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recordingPath": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.session.json",
+          "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
+          "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+          "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec"
+        }
+      },
+      "activeStanding": {
+        "sha": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-vrock-flee-cloud-action-attempt1",
+          "session": "synthetic/v50/v50-vrock-flee-cloud-action-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recording": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.session.json",
+          "recordingPath": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.session.json",
+          "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
+          "recipe": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.recipe.session.json",
+          "recipeSha256": "450c5a05696172d8a8c8c721174077e368d70b8a2eedaf57b18370351f8ba102",
+          "replayInputSha256": "b987c8c4ded0a327e8db5d6cd9cfcbde2ed520d74430d05d7a1d5e5644a2f913",
+          "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+          "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+          "evaluationArtifact": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+          "evaluationUtc": "2026-10-12T16:06:42.167Z",
+          "remainingScreens": 18,
+          "recordedSteps": 120,
+          "previousScreensMatched": 102,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 102,
+              "total": 120
+            },
+            "rng": {
+              "matched": 2946,
+              "total": 2989
+            },
+            "cursors": {
+              "matched": 117,
+              "total": 120
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 102,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 102,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 26,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2946,
+              "cEntry": "rn2(4)=3",
+              "cCaller": "create_gas_cloud(region.c:1255)",
+              "jsEntry": "rn2(5)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 102,
+                "key": "."
+              },
+              "stepIndex": 102
+            },
+            "cursor": {
+              "index": 102,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 102,
+                "key": "."
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                70,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 102,
+          "kind": "rng",
+          "sourceFile": "region.c",
+          "function": "create_gas_cloud",
+          "message": null,
+          "cFile": "region.c",
+          "luaFile": null,
+          "line": 1255,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v50/v50-vrock-flee-cloud-action-attempt1.json",
+            "result": {
+              "session": "synthetic/v50/v50-vrock-flee-cloud-action-attempt1",
+              "corpus": "synthetic",
+              "batch": "v50",
+              "caseId": "v50-vrock-flee-cloud-action-attempt1",
+              "manifestPath": "challenges/manifests/v50.json",
+              "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+              "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
+              "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+              "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+              "remainingScreens": 18,
+              "recordedSteps": 120,
+              "status": "complete",
+              "commit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v50",
+                "caseId": "v50-vrock-flee-cloud-action-attempt1",
+                "session": "synthetic/v50/v50-vrock-flee-cloud-action-attempt1",
+                "manifestPath": "challenges/manifests/v50.json",
+                "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+                "recording": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.session.json",
+                "recordingPath": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.session.json",
+                "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
+                "recipe": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.recipe.session.json",
+                "recipeSha256": "450c5a05696172d8a8c8c721174077e368d70b8a2eedaf57b18370351f8ba102",
+                "replayInputSha256": "b987c8c4ded0a327e8db5d6cd9cfcbde2ed520d74430d05d7a1d5e5644a2f913",
+                "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+                "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+                "evaluationArtifact": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+                "evaluationUtc": "2026-10-12T16:06:42.167Z",
+                "remainingScreens": 18,
+                "recordedSteps": 120,
+                "previousScreensMatched": 102,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 102,
+                    "total": 120
+                  },
+                  "rng": {
+                    "matched": 2946,
+                    "total": 2989
+                  },
+                  "cursors": {
+                    "matched": 117,
+                    "total": 120
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 102,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 102,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 26,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2946,
+                    "cEntry": "rn2(4)=3",
+                    "cCaller": "create_gas_cloud(region.c:1255)",
+                    "jsEntry": "rn2(5)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 102,
+                      "key": "."
+                    },
+                    "stepIndex": 102
+                  },
+                  "cursor": {
+                    "index": 102,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 102,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      78,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      70,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 102,
+                "kind": "rng",
+                "sourceFile": "region.c",
+                "function": "create_gas_cloud",
+                "message": null,
+                "cFile": "region.c",
+                "luaFile": null,
+                "line": 1255
+              },
+              "summary": "The original monster-turn failure omitted the Vrock gas cloud environment and subsequent region transition. This delivery completes the whole monflee function with canonical gas-cloud, visibility and message defaults and preserves existing production caller environments.",
+              "source": {
+                "file": "monmove.c",
+                "branch": "Whole monmove.c:monflee (462–532), including fear timers/messages, Vrock cooldown and cloud, and tracking reset; production callers delegate region transitions to the existing region.c owner.",
+                "functions": [
+                  "monflee"
+                ],
+                "callers": [
+                  "monmove.c:distfleeck -> monflee at lines 564-568; production JavaScript action adapter in js/unported_monster_actions.js supplies monFlee to the ordinary monster action path."
+                ],
+                "dependencies": [
+                  "region.c:create_gas_cloud is already implemented in js/region.js; its discarded C return does not make its RNG, region, vision, or message side effects optional."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved queue entry: challenges/manifests/v50.json, manifest SHA-256 55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5; recording SHA-256 9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f; evaluation challenges/evaluations/baseline-e4c7bc56e-v50.json at e4c7bc56eb850377811e089788227269b277950d.",
+                "Baseline identifies first mismatch at segment 0, step 102, key \".\": C calls rn2(4)=3 from region.c:create_gas_cloud at global RNG index 2946; JavaScript calls the later rn2(5)=2 from monmove.c:distfleeck. C screen shows the Vrock flee and noxious gas cloud; JavaScript has no cloud and a different cursor.",
+                "nethack-c/upstream/src/monmove.c:462-532: read the complete monflee() body; its Vrock arm sets cooldown, calls create_gas_cloud(5,8), sets mflee, then clears tracking.",
+                "js/monmove.js:2054-2162: monflee() contains the source branch and awaits env.createGasCloud after assigning mspec_used.",
+                "js/unported_monster_actions.js:1593-1603: the production monFlee adapter replaces the cloud operation with note_unported(\"region.c create_gas_cloud\").",
+                "js/region.js:1012-1086 implements create_gas_cloud(), including breadth-first cloud coordinates, source-order shuffles and lifetime, and region/display effects; connect this existing function through the action adapter.",
+                "GOALS.json has only a historical monmove.c declaration for monflee, without verified evidence.functions. The closed v33 caller task records create_gas_cloud as a retained gap and expressly takes no whole-function credit, so complete and attest monmove.c:monflee rather than reporting a bounded caller-only divergence."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "monflee",
+            "implementation": "js/monmove.js",
+            "symbol": "monflee",
+            "sourceReview": "Compared complete monmove.c:monflee 462–532 in source order: dead-monster return, held hero release, first/flee gates, untimed fear preservation, duration accumulation and clamp, visible undisguised message gate, immobile and light/unaware/deaf branches with rn2 ordering, Vrock cooldown 75+rn2(25), cloud creation before mflee, and tracking clear even when first skips refresh. JS supplies the existing gas-cloud/region state owner and now defaults canseemon and monfleeMessage for ordinary callers. Explicit injected operations remain authoritative. Read release_hero and message formatting helpers; no concrete discrepancy found. The minimal C build has no integrated sound backend, so its SetVoice macro is empty under sndprocs.h. Required cloud return is discarded in C; current region behavior remains delegated to the existing implementation.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "distfleeck",
+                "source": "monmove.c:distfleeck calls monflee after the source-ordered rnd/rn2 fear duration. JS distfleeck awaits its monFlee operation, supplied by the production monster action adapter and bound to canonical monflee with shared state/random."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_weapon_melee",
+                "source": "uhitm.c:hmon_hitmon_weapon_melee (1010) calls monflee(mon,d(2,3),TRUE,TRUE); JS passes {...env,state,random} and leaves canSeeMonster/fleeMessage to monflee."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_misc_obj",
+                "source": "uhitm.c:hmon_hitmon_misc_obj (1261) calls monflee(mon,d(2,4),FALSE,TRUE); JS passes lifeEnv with shared state/random and no dedicated adapters."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "Mb_hit",
+                "source": "artifact.c:arti_hit (1371) calls monflee(mdef,3,FALSE,mdef->mhp > *dmgptr); JS passes state/random through env without dedicated visibility/message adapters."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "garlic_breath",
+                "source": "eat.c:garlic_breath (2088) calls monflee(mtmp,0,FALSE,FALSE); showMessage is false, so the C function skips the message branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monmove.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-vrock-flee-cloud-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 119,
+                "source": "mon.c:dochugw -> monmove.c:distfleeck -> monmove.c:monflee -> region.c:create_gas_cloud; same-turn movement -> region.c:m_in_out_region"
+              }
+            ],
+            "checkedAt": "fac888c90d5e02ca4f17f8f399d24a1e62d1379c"
+          }
+        ],
+        "entryPointReview": "Read whole monmove.c:monflee and its active caller routes: hero release, flee timers, visibility-dependent messages and RNG, Vrock gas cloud, flee flag, and tracking reset. The admitted v50 movement-fear case verifies the helper through the complete recording. The source-backed region, visibility, and message defaults also serve ordinary command callers; focused tests pin those omitted-provider contracts and preserve explicit injected operations. Separate C combat correction owns the seduction caller environment forwarding.",
+        "entryPoints": [
+          {
+            "name": "Monster fear response during movement",
+            "functions": [
+              "monflee"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-vrock-flee-cloud-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 119,
+                "source": "mon.c:dochugw -> monmove.c:distfleeck -> monmove.c:monflee -> region.c:create_gas_cloud; same-turn movement -> region.c:m_in_out_region"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "B-v50-selftouch-monster-transition",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Call selftouch after an ungloved monster-form transition",
+      "cFile": "polyself.c",
+      "sessions": [],
+      "selectionReason": "The accepted getpos, getobj and Vrock dependencies release this bounded polymon caller fix. Match C1022–1028 by invoking existing selftouch after retouch_equipment when gloves are absent; no new whole-polymon credit.",
+      "detail": "v50 segment 0 step 80: missing corpse-contact and petrification/lifesaving output after stone golem to ogre transition. C polyself.c:polymon invokes trap.c:selftouch; JS currently records a discarded-void gap. Existing selftouch and instapetrify own the resulting state and input sequence.",
+      "openedAt": "b24601fa1bfed5882087ec6d013eadc8a5eb0aff",
+      "openStanding": {
+        "sha": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "710b9ba8695a51a07d975b237876da6a5a22f112",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "polymon",
+      "session": "synthetic/v50/v50-selftouch-monster-transition-probe-attempt1",
+      "step": 80,
+      "syntheticProvenance": {
+        "synthetic/v50/v50-selftouch-monster-transition-probe-attempt1": {
+          "session": "synthetic/v50/v50-selftouch-monster-transition-probe-attempt1",
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-selftouch-monster-transition-probe-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recordingPath": "challenges/cases/v50/v50-selftouch-monster-transition-probe-attempt1.session.json",
+          "recordingSha256": "e1221d710099ba03a9b6c87f34fb826bd81f082aba1d0bd589ca5b4c57feffca",
+          "evaluationPath": "challenges/evaluations/accepted-4f9fcbb1903b2104135c30a9ea19209c765c80b9-v50.json",
+          "evaluationCommit": "4f9fcbb1903b2104135c30a9ea19209c765c80b9"
+        }
+      },
+      "activeStanding": {
+        "sha": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-selftouch-monster-transition-probe-attempt1",
+          "session": "synthetic/v50/v50-selftouch-monster-transition-probe-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recording": "challenges/cases/v50/v50-selftouch-monster-transition-probe-attempt1.session.json",
+          "recordingPath": "challenges/cases/v50/v50-selftouch-monster-transition-probe-attempt1.session.json",
+          "recordingSha256": "e1221d710099ba03a9b6c87f34fb826bd81f082aba1d0bd589ca5b4c57feffca",
+          "recipe": "challenges/cases/v50/v50-selftouch-monster-transition-probe-attempt1.recipe.session.json",
+          "recipeSha256": "f05c5296970ce50d564a579c48dd9b7f0c86386d256c785d3a8ed9cde12900d6",
+          "replayInputSha256": "ae7e641262aecb80be1de5f1039bf89777edc30d17da3312fbe2c3a6e921735b",
+          "evaluationPath": "challenges/evaluations/accepted-4f9fcbb1903b2104135c30a9ea19209c765c80b9-v50.json",
+          "evaluationCommit": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+          "evaluationArtifact": "challenges/evaluations/accepted-4f9fcbb1903b2104135c30a9ea19209c765c80b9-v50.json",
+          "evaluationUtc": "2026-10-12T16:19:47.380Z",
+          "remainingScreens": 5,
+          "recordedSteps": 101,
+          "previousScreensMatched": 96,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 96,
+              "total": 101
+            },
+            "rng": {
+              "matched": 2586,
+              "total": 2586
+            },
+            "cursors": {
+              "matched": 97,
+              "total": 101
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v50/v50-selftouch-monster-transition-probe-attempt1.json",
+            "result": {
+              "session": "synthetic/v50/v50-selftouch-monster-transition-probe-attempt1",
+              "corpus": "synthetic",
+              "batch": "v50",
+              "caseId": "v50-selftouch-monster-transition-probe-attempt1",
+              "manifestPath": "challenges/manifests/v50.json",
+              "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+              "recordingSha256": "e1221d710099ba03a9b6c87f34fb826bd81f082aba1d0bd589ca5b4c57feffca",
+              "evaluationPath": "challenges/evaluations/accepted-4f9fcbb1903b2104135c30a9ea19209c765c80b9-v50.json",
+              "evaluationCommit": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+              "remainingScreens": 5,
+              "recordedSteps": 101,
+              "status": "complete",
+              "commit": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v50",
+                "caseId": "v50-selftouch-monster-transition-probe-attempt1",
+                "session": "synthetic/v50/v50-selftouch-monster-transition-probe-attempt1",
+                "manifestPath": "challenges/manifests/v50.json",
+                "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+                "recording": "challenges/cases/v50/v50-selftouch-monster-transition-probe-attempt1.session.json",
+                "recordingPath": "challenges/cases/v50/v50-selftouch-monster-transition-probe-attempt1.session.json",
+                "recordingSha256": "e1221d710099ba03a9b6c87f34fb826bd81f082aba1d0bd589ca5b4c57feffca",
+                "recipe": "challenges/cases/v50/v50-selftouch-monster-transition-probe-attempt1.recipe.session.json",
+                "recipeSha256": "f05c5296970ce50d564a579c48dd9b7f0c86386d256c785d3a8ed9cde12900d6",
+                "replayInputSha256": "ae7e641262aecb80be1de5f1039bf89777edc30d17da3312fbe2c3a6e921735b",
+                "evaluationPath": "challenges/evaluations/accepted-4f9fcbb1903b2104135c30a9ea19209c765c80b9-v50.json",
+                "evaluationCommit": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+                "evaluationArtifact": "challenges/evaluations/accepted-4f9fcbb1903b2104135c30a9ea19209c765c80b9-v50.json",
+                "evaluationUtc": "2026-10-12T16:19:47.380Z",
+                "remainingScreens": 5,
+                "recordedSteps": 101,
+                "previousScreensMatched": 96,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 96,
+                    "total": 101
+                  },
+                  "rng": {
+                    "matched": 2586,
+                    "total": 2586
+                  },
+                  "cursors": {
+                    "matched": 97,
+                    "total": 101
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 80,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 80,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 22,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 80,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 80,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      30,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      59,
+                      18,
+                      1
+                    ]
+                  }
+                },
+                "step": 80,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 80 after polymon changes the hero from a stone golem to an ogre, C polyself.c:polymon calls trap.c:selftouch because the hero has no gloves. The existing JavaScript polymon instead records note_unported('trap.c selftouch'), omitting the corpse-contact message, instapetrify, and subsequent wizard death/lifesaving prompts. trap.c:selftouch is already implemented and evidenced; the bounded repair is to wire that existing function at the polymon call site in source order.",
+              "source": {
+                "file": "polyself.c",
+                "functions": [
+                  "polymon"
+                ],
+                "branch": "After retouch_equipment(2), when uarmg is null, call selftouch(no_longer_petrify_resistant) before the verbose form hints.",
+                "callers": [
+                  "polyself.c:polyself selects PM_STONE_GOLEM and later PM_OGRE from the controlled #polyself commands; js/polyself.js:polyself reaches js/polyself.js:polymon through the existing dispatcher."
+                ],
+                "dependencies": [
+                  "trap.c:selftouch is already implemented in js/trap.js and has accepted source completion/runtime evidence from v39; it checks wielded cockatrice corpses, calls instapetrify, and unwields after lifesaving when appropriate.",
+                  "trap.c:instapetrify is already implemented and handles the stone-golem transformation or lethal stoning path."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved accepted v50 evaluation challenges/evaluations/accepted-ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3-v50.json reports this case at 96/101 screens, 97/101 cursors, 2586/2586 RNG, with the earliest unmatched session step 80 and five screens remaining.",
+                "The v50 recording first transforms the hero into a stone golem, wields a cockatrice corpse, and then transforms to an ogre. Its C output at the mismatch boundary says ‘No longer petrify-resistant, you touch the cockatrice corpse.’, followed by ‘You turn to stone...’, ‘Die? [yn] (n)’, and the wizard's lifesaving continuation. RNG remains matched through the mismatch, consistent with the missing void caller effects.",
+                "nethack-c/upstream/src/polyself.c:1022-1028 calls selftouch(no_longer_petrify_resistant) after retouch_equipment(2) when !uarmg and before verbose hints; js/polyself.js:1332-1334 instead records note_unported('trap.c selftouch').",
+                "GOALS.json source completion evidence for polyself.c:polymon reviews the full function and records selftouch among its C-discarded void gaps. Existing GOALS.json evidence for trap.c:selftouch confirms js/trap.js implements the full source function and its newman production caller, with matching v39 runtime range at segment 0 steps 59-63. This task repairs only polymon's distinct existing caller."
+              ],
+              "recordingPath": "challenges/cases/v50/v50-selftouch-monster-transition-probe-attempt1.session.json"
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 80,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 80,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 22,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 80,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 80,
+                "key": "\n"
+              },
+              "cCursor": [
+                30,
+                0,
+                1
+              ],
+              "jsCursor": [
+                59,
+                18,
+                1
+              ]
+            }
+          },
+          "step": 80,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "710b9ba8695a51a07d975b237876da6a5a22f112",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "div-fountain-drinksink-polyself-v51-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Invoke polymorph after drinking toxic sink waste",
+      "cFile": "fountain.c",
+      "sessions": [],
+      "selectionReason": "Oldest dependency-ready source delivery after closing the getpos, monflee and self-touch chain. Match the existing drinksink case-10 C caller by awaiting polyself(POLY_NOFLAGS) after both messages when Unchanging is false; no new whole-drinksink completion claim.",
+      "detail": "v51 segment 0 step 79: C fountain.c:drinksink 680–685 calls polyself after toxic-waste and metamorphosis messages; the existing JS path records a discarded-void gap. potion.c:dodrink supplies the reachable-sink entry.",
+      "openedAt": "72edbd66705943a85f270c230cb4017553d8d485",
+      "openStanding": {
+        "sha": "710b9ba8695a51a07d975b237876da6a5a22f112",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "drinksink",
+      "session": "synthetic/v51/v51-fireelemental-sink-metamorphosis-action-attempt3",
+      "step": 79,
+      "syntheticProvenance": {
+        "synthetic/v51/v51-fireelemental-sink-metamorphosis-action-attempt3": {
+          "session": "synthetic/v51/v51-fireelemental-sink-metamorphosis-action-attempt3",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-fireelemental-sink-metamorphosis-action-attempt3",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.session.json",
+          "recordingSha256": "1c17eee8a819cab8a36a0417ff16c54b4eab6275a0c7a61a06faf567a8f5d98e",
+          "evaluationPath": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v51.json",
+          "evaluationCommit": "710b9ba8695a51a07d975b237876da6a5a22f112"
+        }
+      },
+      "activeStanding": {
+        "sha": "710b9ba8695a51a07d975b237876da6a5a22f112",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-fireelemental-sink-metamorphosis-action-attempt3",
+          "session": "synthetic/v51/v51-fireelemental-sink-metamorphosis-action-attempt3",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.session.json",
+          "recordingPath": "challenges/cases/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.session.json",
+          "recordingSha256": "1c17eee8a819cab8a36a0417ff16c54b4eab6275a0c7a61a06faf567a8f5d98e",
+          "recipe": "challenges/cases/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.recipe.session.json",
+          "recipeSha256": "d7909d856153d3b4dab6564f6b0d89c55baaf59fe01c2a94acb7e37b17f3107b",
+          "replayInputSha256": "74e89317a214b5c4a4449baec7d89878da54bbb6d1b49bc1114f7c28dab0a9a9",
+          "evaluationPath": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v51.json",
+          "evaluationCommit": "710b9ba8695a51a07d975b237876da6a5a22f112",
+          "evaluationArtifact": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v51.json",
+          "evaluationUtc": "2026-10-12T16:35:41.992Z",
+          "remainingScreens": 244,
+          "recordedSteps": 323,
+          "previousScreensMatched": 79,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 79,
+              "total": 323
+            },
+            "rng": {
+              "matched": 2231,
+              "total": 2619
+            },
+            "cursors": {
+              "matched": 303,
+              "total": 323
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.json",
+            "result": {
+              "session": "synthetic/v51/v51-fireelemental-sink-metamorphosis-action-attempt3",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-fireelemental-sink-metamorphosis-action-attempt3",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingSha256": "1c17eee8a819cab8a36a0417ff16c54b4eab6275a0c7a61a06faf567a8f5d98e",
+              "evaluationPath": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v51.json",
+              "evaluationCommit": "710b9ba8695a51a07d975b237876da6a5a22f112",
+              "remainingScreens": 244,
+              "recordedSteps": 323,
+              "status": "complete",
+              "summary": "The fresh admitted replay first diverges at segment 0, step 79. In fountain.c:drinksink case 10, toxic waste followed by the freakish metamorphosis message calls polyself(POLY_NOFLAGS) unless Unchanging is active. JS fountain.js:drinksink instead records note_unported('polyself.c polyself') and skips the state transition and its RNG. The saved source completion evidence marks drinksink complete and retained that gap while polyself was unported; GOALS now records polyself.c:polyself as complete. This is a bounded caller divergence: wire the existing polyself implementation at the stale gap, preserving the source message and call order.",
+              "commit": "710b9ba8695a51a07d975b237876da6a5a22f112",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "fountain.c",
+                "functions": [
+                  "drinksink"
+                ],
+                "branch": "The rn2(20) switch selects case 10, and Unchanging is false. C prints the toxic-waste message, prints the freakish-metamorphosis message, calls polyself(POLY_NOFLAGS), and discards its return. The JavaScript branch currently records note_unported('polyself.c polyself') instead of calling the now-implemented function.",
+                "callers": [
+                  "potion.c:dodrink -> fountain.c:drinksink (reachable sink, can_reach_floor succeeds, and the hero accepts the drink prompt)"
+                ],
+                "dependencies": [
+                  "polyself.c:polyself"
+                ]
+              },
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-fireelemental-sink-metamorphosis-action-attempt3",
+                "session": "synthetic/v51/v51-fireelemental-sink-metamorphosis-action-attempt3",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.session.json",
+                "recordingPath": "challenges/cases/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.session.json",
+                "recordingSha256": "1c17eee8a819cab8a36a0417ff16c54b4eab6275a0c7a61a06faf567a8f5d98e",
+                "recipe": "challenges/cases/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.recipe.session.json",
+                "recipeSha256": "d7909d856153d3b4dab6564f6b0d89c55baaf59fe01c2a94acb7e37b17f3107b",
+                "replayInputSha256": "74e89317a214b5c4a4449baec7d89878da54bbb6d1b49bc1114f7c28dab0a9a9",
+                "evaluationPath": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v51.json",
+                "evaluationCommit": "710b9ba8695a51a07d975b237876da6a5a22f112",
+                "evaluationArtifact": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v51.json",
+                "evaluationUtc": "2026-10-12T16:35:41.992Z",
+                "remainingScreens": 244,
+                "recordedSteps": 323,
+                "previousScreensMatched": 79,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 79,
+                    "total": 323
+                  },
+                  "rng": {
+                    "matched": 2231,
+                    "total": 2619
+                  },
+                  "cursors": {
+                    "matched": 303,
+                    "total": 323
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 79,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 79,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 39,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2208,
+                    "cEntry": "rn2(20)=2",
+                    "cCaller": "polyself(polyself.c:490)",
+                    "jsEntry": "rn2(12)=6",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 79,
+                      "key": " "
+                    },
+                    "stepIndex": 79
+                  },
+                  "cursor": {
+                    "index": 79,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 79,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      71,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      43,
+                      15,
+                      1
+                    ]
+                  }
+                },
+                "step": 79,
+                "kind": "rng",
+                "sourceFile": "polyself.c",
+                "function": "polyself",
+                "message": null,
+                "cFile": "polyself.c",
+                "luaFile": null,
+                "line": 490
+              },
+              "evidence": [
+                "Fresh replay: node scripts/scan-sessions.mjs --json --synthetic v51/v51-fireelemental-sink-metamorphosis-action-attempt3; first screen, cursor, and RNG mismatch is segment 0 step 79, with C rn2(20)=2 at polyself.c:490 and JS rn2(12)=6.",
+                "C source nethack-c/upstream/src/fountain.c:595-712 selects rn2(20), then case 10 prints the toxic-waste line, checks !Unchanging, prints the metamorphosis line and calls polyself(POLY_NOFLAGS). C discards the void result.",
+                "JS source js/fountain.js:1254-1411 preserves the same sink switch; case 10 at line 1371 prints both messages and then records note_unported('polyself.c polyself') instead of invoking polyself.",
+                "GOALS.json records fountain.c:drinksink as complete in goals 406 and 1076; its source evidence explicitly documents the old case-10 gap while polyself was unported. GOALS.json goal polyself-c marks polyself.c:polyself complete, and js/polyself.js exports the implementation.",
+                "The existing production route remains potion.c:dodrink -> fountain.c:drinksink; js/potion.js already imports and awaits drinksink for the accepted sink prompt. No new dodrink wiring is needed."
+              ],
+              "recordingPath": "challenges/cases/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.session.json"
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 79,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 79,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 39,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2208,
+              "cEntry": "rn2(20)=2",
+              "cCaller": "polyself(polyself.c:490)",
+              "jsEntry": "rn2(12)=6",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 79,
+                "key": " "
+              },
+              "stepIndex": 79
+            },
+            "cursor": {
+              "index": 79,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 79,
+                "key": " "
+              },
+              "cCursor": [
+                71,
+                0,
+                1
+              ],
+              "jsCursor": [
+                43,
+                15,
+                1
+              ]
+            }
+          },
+          "step": 79,
+          "kind": "rng",
+          "sourceFile": "polyself.c",
+          "function": "polyself",
+          "message": null,
+          "cFile": "polyself.c",
+          "luaFile": null,
+          "line": 490
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "div-use-offensive-bhito-callback-v51-20261012",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Await the monster wand floor-object callback",
+      "cFile": "muse.c",
+      "sessions": [],
+      "selectionReason": "Oldest remaining dependency-ready delivery. Repair the grouped offensive-wand callback bridge through mbhit and fhito_loc to existing bhito, preserving object order, awaited effects, shared state and action random. No new whole-function completion credit.",
+      "detail": "v51 segment 0 step 139: the shared teleportation/undead-turning/striking wand arm must bind the existing zap.c:bhito callback. Save next_obj before awaiting each object callback, await fhito_loc before range changes, and forward the complete raw environment. Existing outer mbhit callers already await it.",
+      "openedAt": "cf1ed4f77b6e02470fd3354968387fb7c3fc07fe",
+      "openStanding": {
+        "sha": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_offensive",
+      "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+      "step": 139,
+      "syntheticProvenance": {
+        "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4": {
+          "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+          "recordingSha256": "3f020a9440e49ec648f85299b1df65d1d23a678291d1271adbf0f826596320f3",
+          "evaluationPath": "challenges/evaluations/accepted-4d88907bfea84e07466d7b3231c1b8c4c481e83e-v51.json",
+          "evaluationCommit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e"
+        }
+      },
+      "activeStanding": {
+        "sha": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+          "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+          "recordingPath": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+          "recordingSha256": "3f020a9440e49ec648f85299b1df65d1d23a678291d1271adbf0f826596320f3",
+          "recipe": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.recipe.session.json",
+          "recipeSha256": "b842a4e3d785041ca632e7a10d5c70fbdf99540f1e78aa91049086436f30a9d7",
+          "replayInputSha256": "bb4bfa97bb6d17d239a6b99281acb90b1b961f8ab1b6969b229cb31db8cdc506",
+          "evaluationPath": "challenges/evaluations/accepted-4d88907bfea84e07466d7b3231c1b8c4c481e83e-v51.json",
+          "evaluationCommit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+          "evaluationArtifact": "challenges/evaluations/accepted-4d88907bfea84e07466d7b3231c1b8c4c481e83e-v51.json",
+          "evaluationUtc": "2026-10-12T16:50:16.690Z",
+          "remainingScreens": 9,
+          "recordedSteps": 149,
+          "previousScreensMatched": 140,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 140,
+              "total": 149
+            },
+            "rng": {
+              "matched": 2553,
+              "total": 2605
+            },
+            "cursors": {
+              "matched": 147,
+              "total": 149
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.json",
+            "result": {
+              "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingPath": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+              "recordingSha256": "3f020a9440e49ec648f85299b1df65d1d23a678291d1271adbf0f826596320f3",
+              "recipePath": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.recipe.session.json",
+              "recipeSha256": "b842a4e3d785041ca632e7a10d5c70fbdf99540f1e78aa91086436f30a9d7",
+              "evaluationPath": "challenges/evaluations/accepted-4d88907bfea84e07466d7b3231c1b8c4c481e83e-v51.json",
+              "evaluationCommit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+              "remainingScreens": 9,
+              "recordedSteps": 149,
+              "status": "complete",
+              "commit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+                "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+                "recordingPath": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+                "recordingSha256": "3f020a9440e49ec648f85299b1df65d1d23a678291d1271adbf0f826596320f3",
+                "recipe": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.recipe.session.json",
+                "recipeSha256": "b842a4e3d785041ca632e7a10d5c70fbdf99540f1e78aa91049086436f30a9d7",
+                "replayInputSha256": "bb4bfa97bb6d17d239a6b99281acb90b1b961f8ab1b6969b229cb31db8cdc506",
+                "evaluationPath": "challenges/evaluations/accepted-4d88907bfea84e07466d7b3231c1b8c4c481e83e-v51.json",
+                "evaluationCommit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+                "evaluationArtifact": "challenges/evaluations/accepted-4d88907bfea84e07466d7b3231c1b8c4c481e83e-v51.json",
+                "evaluationUtc": "2026-10-12T16:50:16.690Z",
+                "remainingScreens": 9,
+                "recordedSteps": 149,
+                "previousScreensMatched": 140,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 140,
+                    "total": 149
+                  },
+                  "rng": {
+                    "matched": 2553,
+                    "total": 2605
+                  },
+                  "cursors": {
+                    "matched": 147,
+                    "total": 149
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 140,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 140,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 44,
+                    "cCell": {
+                      "ch": "m",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "h",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2542,
+                    "cEntry": "rn2(100)=52",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(5)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 139,
+                      "key": " "
+                    },
+                    "stepIndex": 139
+                  },
+                  "cursor": {
+                    "index": 140,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 140,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      63,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      61,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 139,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469
+              },
+              "summary": "The pyrolisk's AD_FIRE gaze at step 138 completes first. On step 139 the shopkeeper selects MUSE_WAN_STRIKING. C muse.c:use_offensive() passes zap.c:bhito as mbhit's floor-object callback; the source path reaches dothrow.c:breaks()/breaktest() and zap.c:obj_resists(), consuming two rn2(100) draws on floor objects. The existing JS js/muse.js:use_offensive() passes null for that callback and records note_unported('zap.c bhito'), so both object-resistance draws are skipped; the next JS draw is rn2(5)=2 from distfleeck(). This is a bounded callback-wiring divergence fix in the existing offensive wand arm, not a claim that use_offensive() or bhito() is newly ported in full.",
+              "source": {
+                "file": "muse.c",
+                "functions": [
+                  "use_offensive"
+                ],
+                "branch": "The shared MUSE_WAN_TELEPORTATION, MUSE_WAN_UNDEAD_TURNING, and MUSE_WAN_STRIKING wand arm calls mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp). For the admitted case's MUSE_WAN_STRIKING selection, JS currently passes null in the bhito callback slot and records zap.c bhito as unported. Restore the existing bhito callback at this source-aligned mbhit call; keep use_offensive and bhito completion credit unchanged.",
+                "callers": [
+                  "monmove.c:dochug -> muse.c:find_offensive/use_offensive",
+                  "muse.c:use_offensive -> mbhit -> fhito_loc -> zap.c:bhito(WAN_STRIKING) -> dothrow.c:breaks/breaktest -> zap.c:obj_resists"
+                ],
+                "dependencies": [
+                  "zap.c:bhito (existing JS implementation js/zap.js; callback-compatible mbhit input)",
+                  "zap.c:obj_resists (existing JS implementation js/bury.js; source helper used by floor-object resistance checks)",
+                  "dothrow.c:breaks",
+                  "dothrow.c:breaktest"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The admitted baseline reports the first mismatch at segment 0 step 139: C rn2(100)=52 @ obj_resists(zap.c:1469), JS rn2(5)=2; screen and cursor diverge at step 140.",
+                "C nethack-c/upstream/src/muse.c:1844-1889 routes the MUSE_WAN_STRIKING wand through mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp). C zap.c:2119-2427 defines bhito's WAN_STRIKING floor-object path, which calls the existing dothrow break checks; that path reaches obj_resists at zap.c:1469.",
+                "JS js/muse.js:2694-2705 groups the same three wand types but calls mbhit(..., mbhitm, null, ...), preceded by note_unported('zap.c bhito'). The complete existing js/zap.js:bhito implementation accepts the callback signature expected by js/zap.js:mbhit and already owns the floor-object branches.",
+                "The immutable admitted recipe identifies the case as polyself.c:dogaze followed by muse.c:use_offensive1884 -> mbhit1734 -> fhito_loc -> zap.c:bhito WAN_STRIKING -> dothrow.c:breaks/breaktest -> obj_resists. The step-138 gaze is not the source of the first mismatch; the first missing draws occur on the following shopkeeper wand action."
+              ]
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 140,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 140,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 44,
+              "cCell": {
+                "ch": "m",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "h",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2542,
+              "cEntry": "rn2(100)=52",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(5)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 139,
+                "key": " "
+              },
+              "stepIndex": 139
+            },
+            "cursor": {
+              "index": 140,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 140,
+                "key": " "
+              },
+              "cCursor": [
+                63,
+                0,
+                1
+              ],
+              "jsCursor": [
+                61,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 139,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469
+        }
+      ]
     }
   ]
 }

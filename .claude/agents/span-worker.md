@@ -137,6 +137,8 @@ a shared contract. Update your allowed paths and reservations with a `scope`
 event before expanding your edits.
 
 After the completion conditions below are met, run `worker-state.mjs submit`.
+Submission checks committed investigation reports before saving the delivery.
+Fix a rejected report and submit a new commit.
 Preserve each delivery's context and evidence separately. Include exact base
 and delivery commits, dependencies, changed scope, check results, source
 evidence, recordings and entry points, and unfinished work. Then send

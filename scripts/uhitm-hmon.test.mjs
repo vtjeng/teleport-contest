@@ -159,6 +159,10 @@ const UHITM_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url),
     'utf8',
 );
+const UHITM_JS = readFileSync(
+    new URL('../js/uhitm.js', import.meta.url),
+    'utf8',
+);
 const WEAPON_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/weapon.c', import.meta.url),
     'utf8',
@@ -176,6 +180,19 @@ const MONDATA_HEADER = readFileSync(
 const YOU_PROP_HEADER = readFileSync(
     new URL('../nethack-c/upstream/include/youprop.h', import.meta.url), 'utf8',
 );
+
+test('known_hitum delegates its Vrock cloud to monflee', () => {
+    const start = UHITM_SOURCE.indexOf('\nknown_hitum(\n');
+    const end = UHITM_SOURCE.indexOf('\n/* hit the monster next to you', start);
+    const cFunction = UHITM_SOURCE.slice(start, end);
+    assert.match(cFunction,
+        /monflee\(mon, !rn2\(3\) \? rnd\(100\) : 0, FALSE, TRUE\);/u);
+
+    assert.match(UHITM_JS,
+        /await monflee\(mon, fleeTime, false, true, \{[\s\S]*?\n\s*\}\);/u);
+    assert.doesNotMatch(UHITM_JS,
+        /note_unported\('region\.c create_gas_cloud'\)/u);
+});
 
 const DATETIME = '20260214031500';
 // u_init.c ini_inv() wields a TIN_OPENER, and a Tourist's undefined tool slot
@@ -1226,11 +1243,10 @@ test('known_hitum uses source-ordered survivor morale and flight state', async (
     assert.equal(even.mhp, 10);
 });
 
-// monmove.c:521-524. A Vrock's monflee() call asks region.c for a positive-
-// damage gas cloud, whose return is discarded by C. The region owner has not
-// ported that harmful-cloud callback yet, so the attack records the gap while
-// preserving the source flight state and random order.
-test('known_hitum records the discarded Vrock gas callback gap', async () => {
+// uhitm.c:known_hitum() reaches monmove.c:monflee(), which owns the source
+// create_gas_cloud() call. The caller supplies the shared random stream, and
+// monflee supplies its production region and display adapters.
+test('known_hitum reaches the Vrock cloud owner without recording a gap', async () => {
     await hero();
     const vrock = target(PM_VROCK, {
         mhp: 10,
@@ -1240,6 +1256,7 @@ test('known_hitum records the discarded Vrock gas callback gap', async () => {
     const before = new Set(game.unported ?? []);
     const env = hitEnv({
         rolls: [3, 1, 1, 0, 0, 37],
+        fallback: 0,
         canSeeMonster: () => false,
     });
     setKnownHitPosition(vrock);
@@ -1249,12 +1266,17 @@ test('known_hitum records the discarded Vrock gas callback gap', async () => {
     );
     assert.equal(vrock.mflee, true);
     assert.equal(vrock.mfleetim, 37);
-    assert.deepEqual(env.bounds.slice(-4), [
-        'rn2(25)', 'rn2(3)', 'rnd(100)', 'rn2(25)',
+    assert.ok(env.bounds.indexOf('rnd(100)')
+        < env.bounds.lastIndexOf('rn2(25)'),
+    'cloud cooldown follows the caller duration draw');
+    assert.deepEqual(env.bounds.slice(-5), [
+        'rn2(4)', 'rn2(3)', 'rn2(2)', 'rn2(1)', 'rn2(3)',
     ]);
+    assert.equal(game.level.regions.length, 1);
+    assert.equal(game.level.regions[0].arg, 8);
     assert.equal(
         game.unported.has('region.c create_gas_cloud'),
-        true,
+        false,
     );
     for (const gap of before) assert.ok(game.unported.has(gap));
 });

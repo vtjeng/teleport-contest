@@ -2422,12 +2422,10 @@ export async function known_hitum(
             if (!random.rn2(25) && mon.mhp < Math.trunc(mon.mhpmax / 2)
                 && !engulfing_u(mon, state)) {
                 const fleeTime = !random.rn2(3) ? random.rnd(100) : 0;
-                // monmove.c monflee() discards create_gas_cloud()'s return.
-                // Positive-damage gas remains an unported region callback, so
-                // preserve the source gap without replacing the flight owner.
-                const createGasCloud = env.createGasCloud ?? (() => {
-                    note_unported('region.c create_gas_cloud');
-                });
+                // C monmove.c:monflee() owns the source call to
+                // create_gas_cloud(); keep the caller's injected operation
+                // when present, otherwise monflee supplies its production
+                // region adapter.
                 await monflee(mon, fleeTime, false, true, {
                     ...env,
                     state,
@@ -2438,7 +2436,8 @@ export async function known_hitum(
                     message: env.message ?? (env.planning
                         ? async () => {}
                         : undefined),
-                    createGasCloud,
+                    ...(env.createGasCloud === undefined ? {}
+                        : { createGasCloud: env.createGasCloud }),
                 });
 
                 if (state.u.ustuck === mon && !state.u.uswallow

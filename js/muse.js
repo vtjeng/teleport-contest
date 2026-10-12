@@ -238,8 +238,8 @@ import {
 import { mwelded, welded } from './wield.js';
 import { mon_has_amulet, mon_has_special } from './wizard.js';
 import {
-    cancel_monst, dobuzz, exclam, hit, miss, resist, unturn_dead, unturn_you,
-    zhitm,
+    bhito, cancel_monst, dobuzz, exclam, hit, miss, resist, unturn_dead,
+    unturn_you, zhitm,
 } from './zap.js';
 import { which_armor } from './worn.js';
 import { hard_helmet } from './do_wear.js';
@@ -2334,7 +2334,7 @@ export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
 
 // C ref: muse.c fhito_loc() (1707-1727). Hit all objects at x,y with the
 // fhito function. Returns true if any object was affected.
-function fhito_loc(obj, tx, ty, fhito, state) {
+async function fhito_loc(obj, tx, ty, fhito, state, rawEnv = {}) {
     if (!fhito || !OBJ_AT(tx, ty, state))
         return false;
 
@@ -2348,7 +2348,7 @@ function fhito_loc(obj, tx, ty, fhito, state) {
             otmp = next_obj;
             continue;
         }
-        hitanything += fhito(otmp, obj);
+        hitanything += await fhito(otmp, obj, state, rawEnv);
         otmp = next_obj;
     }
 
@@ -2392,8 +2392,8 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
                 range -= 3;
             }
         }
-        if (fhito_loc(obj, state.gb.bhitpos.x, state.gb.bhitpos.y,
-                       fhito_fn, state))
+        if (await fhito_loc(obj, state.gb.bhitpos.x, state.gb.bhitpos.y,
+            fhito_fn, state, rawEnv))
             range--;
         const lev = state.level.at(state.gb.bhitpos.x, state.gb.bhitpos.y);
         const ltyp = lev.typ;
@@ -2699,9 +2699,17 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         state.m_using = true;
         state.gb ??= {};
         state.gb.buzzer = mtmp;
-        // bhito (zap.c) is unported; pass null so fhito_loc skips objects.
-        note_unported('zap.c bhito');
-        await mbhit(mtmp, random.rn1(8, 6), mbhitm, null, otmp, state, env);
+        await mbhit(
+            mtmp,
+            random.rn1(8, 6),
+            mbhitm,
+            (obj, wand, callbackState, callbackEnv) => bhito(
+                obj, wand, callbackState, random, callbackEnv,
+            ),
+            otmp,
+            state,
+            env,
+        );
         state.gb.buzzer = 0;
         /* note: 'otmp' might have been destroyed (drawbridge destruction) */
         state.m_using = false;

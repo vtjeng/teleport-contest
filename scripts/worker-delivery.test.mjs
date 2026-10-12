@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -101,6 +101,46 @@ function fixture(t) {
         '--evidence', '.cache/evidence.json', '--checks', '.cache/checks.json'];
     return { parent, root, workers, file, base, git, run, success, event, assign, artifacts, commit, submitArgs };
 }
+
+test('submission rejects malformed committed investigation before saving a ready delivery', t => {
+    const f = fixture(t); const assigned = f.assign(); f.artifacts(); f.commit();
+    const worker = f.workers.A, path = 'investigations/fixed.json';
+    f.event({ type: 'scope', task: 'A-1', reservations: assigned.tasks['A-1'].reservations,
+        allowedPaths: [...assigned.tasks['A-1'].allowedPaths, path] }, worker);
+    const report = { session: 'fixed', commit: f.base, status: 'complete',
+        remainingScreensUpperBound: 2, summary: 'A two-screen source defect.',
+        goalKind: 'file-port', source: { file: 'sample.c', functions: ['sample'],
+            branch: 'Return value.', callers: ['caller'], dependencies: [] },
+        evidence: ['Read sample.c.'], mismatch: {} }; // Reproduce the omitted canonical mismatch fields.
+    mkdirSync(join(worker, 'investigations'));
+    const save = () => {
+        writeFileSync(join(worker, path), JSON.stringify(report));
+        f.git(worker, 'add', path); f.git(worker, 'commit', '-qm', 'investigation fixture');
+    };
+    save();
+    const ledgerBefore = readFileSync(f.file, 'utf8');
+    const rejected = f.run(f.submitArgs, worker);
+    assert.match(rejected.stderr, /invalid investigation report/);
+    assert.equal(readFileSync(f.file, 'utf8'), ledgerBefore);
+    assert.equal(existsSync(`${f.file}.deliveries`), false, 'no malformed packet is saved');
+    // A valid uncommitted repair cannot conceal the invalid submitted blob.
+    report.mismatch = { session: 'fixed', remainingScreensUpperBound: 2 };
+    writeFileSync(join(worker, path), JSON.stringify(report));
+    assert.match(f.run(f.submitArgs, worker).stderr, /invalid investigation report/);
+    save();
+    const state = f.success(f.submitArgs, worker);
+    assert.equal(state.tasks['A-1'].status, 'ready');
+});
+
+test('submission requires the assigned session report even when no report path changed', t => {
+    const f = fixture(t), worker = f.workers.A;
+    f.event({ type: 'assign', task: 'A-1', worker: 'A', goal: 'sample-port', seed: 'fixed', base: f.base,
+        reservations: ['source:sample.c:sample'], allowedPaths: ['js/sample.js', 'investigations/fixed.json'] }, worker);
+    f.artifacts(); f.commit();
+    const before = readFileSync(f.file, 'utf8');
+    assert.match(f.run(f.submitArgs, worker).stderr, /investigation report must be a regular/);
+    assert.equal(readFileSync(f.file, 'utf8'), before);
+});
 
 test('worker submits durably and starts another task before receipt; snapshots survive changed evidence', (t) => {
     const f = fixture(t); const assigned = f.assign(); f.artifacts(); f.commit();

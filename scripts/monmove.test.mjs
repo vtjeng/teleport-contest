@@ -5845,7 +5845,7 @@ test('monflee gives a newly fleeing Vrock its gas cooldown before the cloud', as
     assert.deepEqual(monster.mtrack, [{ x: 0, y: 0 }]);
 });
 
-test('monflee preflights downstream ownership and ignores dead monsters', async () => {
+test('monflee supplies its production gas owner and ignores dead monsters', async () => {
     const { state } = makeState();
     const dead = ordinaryMonster(state, {
         mhp: 0,
@@ -5878,28 +5878,88 @@ test('monflee preflights downstream ownership and ignores dead monsters', async 
         'release_hero should print "You get released!"');
 
     state.u.ustuck = null;
-    const visible = ordinaryMonster(state, { mhp: 5, mfleetim: 6 });
-    await assert.rejects(
-        monflee(visible, 5, true, true, { state }),
-        /canSeeMonster/,
-    );
-    assert.equal(visible.mfleetim, 6);
+    const visible = ordinaryMonster(state, {
+        mhp: 5,
+        mcanmove: true,
+        mfleetim: 6,
+    });
+    seeSquare(state, visible.mx, visible.my);
+    const messageCalls = [];
+    const random = { rn2: () => assert.fail('ordinary flight must not draw') };
+    await monflee(visible, 5, true, true, {
+        state,
+        random,
+        message: async (text, messageState, env) => {
+            messageCalls.push(text);
+            assert.equal(messageState, state);
+            assert.equal(env.state, state);
+            assert.equal(env.random, random);
+        },
+    });
+    assert.deepEqual(messageCalls, ['The giant rat turns to flee.']);
+    assert.equal(visible.mflee, true);
+
+    // Production monmove.c supplies canseemon() itself; without a visible
+    // square the same caller environment must suppress pline_mon().
+    const unseen = ordinaryMonster(state, { mhp: 5, mx: 5, my: 4 });
+    const unseenMessages = [];
+    await monflee(unseen, 0, true, true, {
+        state,
+        random: { rn2: () => assert.fail('ordinary flight must not draw') },
+        message: async text => unseenMessages.push(text),
+    });
+    assert.deepEqual(unseenMessages, []);
+
+    // Explicit operation injection remains authoritative over both defaults.
+    const injected = ordinaryMonster(state, {
+        mhp: 5,
+        mcanmove: true,
+        mx: 6,
+        my: 4,
+    });
+    const injectedCalls = [];
+    await monflee(injected, 0, true, true, {
+        state,
+        random: { rn2: () => assert.fail('explicit visibility is ordinary flight') },
+        canSeeMonster(candidate, env) {
+            injectedCalls.push(['visible', candidate, env.state]);
+            return true;
+        },
+        fleeMessage(candidate, detail, env) {
+            injectedCalls.push(['message', candidate, detail.kind, env.state]);
+        },
+    });
+    assert.deepEqual(injectedCalls, [
+        ['visible', injected, state],
+        ['message', injected, 'turns-to-flee', state],
+    ]);
+    assert.match(MONMOVE_C,
+        /!mtmp->mflee && fleemsg && canseemon\(mtmp\)[\s\S]*?pline_mon\(mtmp, "%s turns to flee\./u);
 
     const vrock = newMonster({
         data: state.mons[PM_VROCK],
         mnum: PM_VROCK,
         mhp: 5,
         mfleetim: 6,
+        mx: 6,
+        my: 7,
     });
-    await assert.rejects(
-        monflee(vrock, 5, true, false, {
-            state,
-            random: { rn2: () => assert.fail('missing gas owner preflights') },
-        }),
-        /createGasCloud/,
-    );
-    assert.equal(vrock.mfleetim, 6);
-    assert.equal(vrock.mspec_used, 0);
+    const calls = [];
+    await monflee(vrock, 5, true, false, {
+        state,
+        random: {
+            rn2(bound) {
+                calls.push(bound);
+                return 0;
+            },
+        },
+    });
+    assert.equal(calls[0], 25, 'Vrock cooldown is set before cloud draws');
+    assert.equal(vrock.mfleetim, 11);
+    assert.equal(vrock.mspec_used, 75);
+    assert.equal(vrock.mflee, true);
+    assert.equal(state.level.regions.length, 1);
+    assert.equal(state.level.regions[0].arg, 8);
 });
 
 test('distfleeck always draws brave-gremlin before checking a far monster', async () => {

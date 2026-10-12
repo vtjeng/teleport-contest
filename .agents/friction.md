@@ -376,3 +376,20 @@ triage decisions or fix references.
   A direct Git redirect and Python byte comparison verified the52 appended
   rows without printing the historical score file. Use saved-file comparisons
   for this publication check.
+
+### 2026-10-12 — self-touch report identity
+
+- Opening the bounded polymon self-touch goal failed because its delivered
+  investigation retained an older v50 manifest digest. Root initially refreshed
+  the accepted evaluation and debt but omitted the manifest fields. The
+  recording hash and five-screen debt were unchanged. Root refreshed every
+  identity field from the accepted queue, preserved the original delivery,
+  and retried selection before importing the game change.
+
+### 2026-10-12 — publication ledger collision
+
+- The validated self-touch/tooling report commit reached public main, but its
+  publication event collided with a shared-ledger writer during worker updates.
+  The helper exited after the push. Root confirmed the transient lock had gone
+  and retried the same helper at the same report commit. It reused the saved
+  packet and checkpoint; no live lock was removed or validation repeated.

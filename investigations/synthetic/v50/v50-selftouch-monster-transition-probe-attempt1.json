@@ -1,0 +1,105 @@
+{
+  "session": "synthetic/v50/v50-selftouch-monster-transition-probe-attempt1",
+  "corpus": "synthetic",
+  "batch": "v50",
+  "caseId": "v50-selftouch-monster-transition-probe-attempt1",
+  "manifestPath": "challenges/manifests/v50.json",
+  "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+  "recordingSha256": "e1221d710099ba03a9b6c87f34fb826bd81f082aba1d0bd589ca5b4c57feffca",
+  "evaluationPath": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v50.json",
+  "evaluationCommit": "710b9ba8695a51a07d975b237876da6a5a22f112",
+  "remainingScreens": 0,
+  "recordedSteps": 101,
+  "status": "complete",
+  "commit": "710b9ba8695a51a07d975b237876da6a5a22f112",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v50",
+    "caseId": "v50-selftouch-monster-transition-probe-attempt1",
+    "session": "synthetic/v50/v50-selftouch-monster-transition-probe-attempt1",
+    "manifestPath": "challenges/manifests/v50.json",
+    "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+    "recording": "challenges/cases/v50/v50-selftouch-monster-transition-probe-attempt1.session.json",
+    "recordingPath": "challenges/cases/v50/v50-selftouch-monster-transition-probe-attempt1.session.json",
+    "recordingSha256": "e1221d710099ba03a9b6c87f34fb826bd81f082aba1d0bd589ca5b4c57feffca",
+    "recipe": "challenges/cases/v50/v50-selftouch-monster-transition-probe-attempt1.recipe.session.json",
+    "recipeSha256": "f05c5296970ce50d564a579c48dd9b7f0c86386d256c785d3a8ed9cde12900d6",
+    "replayInputSha256": "ae7e641262aecb80be1de5f1039bf89777edc30d17da3312fbe2c3a6e921735b",
+    "evaluationPath": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v50.json",
+    "evaluationCommit": "710b9ba8695a51a07d975b237876da6a5a22f112",
+    "evaluationArtifact": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v50.json",
+    "evaluationUtc": "2026-10-12T16:35:41.992Z",
+    "remainingScreens": 0,
+    "recordedSteps": 101,
+    "previousScreensMatched": 101,
+    "regression": false,
+    "passed": true,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 101,
+        "total": 101
+      },
+      "rng": {
+        "matched": 2586,
+        "total": 2586
+      },
+      "cursors": {
+        "matched": 101,
+        "total": 101
+      }
+    },
+    "firstMismatch": null,
+    "step": null,
+    "kind": null,
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The original failure was the missing selftouch call after an ungloved monster-form transition. The bounded polymon caller now invokes the existing selftouch implementation after retouch_equipment, and the accepted replay matches all 101 steps, including corpse contact, petrification and lifesaving prompts. This task grants no new whole-polymon completion credit.",
+  "source": {
+    "file": "polyself.c",
+    "functions": [
+      "polymon"
+    ],
+    "branch": "After retouch_equipment(2), when uarmg is null, call selftouch(no_longer_petrify_resistant) before the verbose form hints.",
+    "callers": [
+      "polyself.c:polyself selects PM_STONE_GOLEM and later PM_OGRE from the controlled #polyself commands; js/polyself.js:polyself reaches js/polyself.js:polymon through the existing dispatcher."
+    ],
+    "dependencies": [
+      "trap.c:selftouch is already implemented in js/trap.js and has accepted source completion/runtime evidence from v39; it checks wielded cockatrice corpses, calls instapetrify, and unwields after lifesaving when appropriate.",
+      "trap.c:instapetrify is already implemented and handles the stone-golem transformation or lethal stoning path."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved accepted v50 evaluation challenges/evaluations/accepted-ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3-v50.json reports this case at 96/101 screens, 97/101 cursors, 2586/2586 RNG, with the earliest unmatched session step 80 and five screens remaining.",
+    "The v50 recording first transforms the hero into a stone golem, wields a cockatrice corpse, and then transforms to an ogre. Its C output at the mismatch boundary says ‘No longer petrify-resistant, you touch the cockatrice corpse.’, followed by ‘You turn to stone...’, ‘Die? [yn] (n)’, and the wizard's lifesaving continuation. RNG remains matched through the mismatch, consistent with the missing void caller effects.",
+    "nethack-c/upstream/src/polyself.c:1022-1028 calls selftouch(no_longer_petrify_resistant) after retouch_equipment(2) when !uarmg and before verbose hints; js/polyself.js:1332-1334 instead records note_unported('trap.c selftouch').",
+    "GOALS.json source completion evidence for polyself.c:polymon reviews the full function and records selftouch among its C-discarded void gaps. Existing GOALS.json evidence for trap.c:selftouch confirms js/trap.js implements the full source function and its newman production caller, with matching v39 runtime range at segment 0 steps 59-63. This task repairs only polymon's distinct existing caller."
+  ],
+  "recordingPath": "challenges/cases/v50/v50-selftouch-monster-transition-probe-attempt1.session.json",
+  "runtimeVerification": {
+    "commit": "710b9ba8695a51a07d975b237876da6a5a22f112",
+    "casePassed": true,
+    "metrics": {
+      "screens": {
+        "matched": 101,
+        "total": 101
+      },
+      "rng": {
+        "matched": 2586,
+        "total": 2586
+      },
+      "cursors": {
+        "matched": 101,
+        "total": 101
+      }
+    },
+    "evidence": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v50.json",
+    "completionGoal": "B-v50-selftouch-monster-transition"
+  }
+}

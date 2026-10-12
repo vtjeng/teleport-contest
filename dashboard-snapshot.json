@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T15:37:48.863Z",
+  "capturedAt": "2026-10-12T16:53:17.454Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -95712,36 +95712,409 @@
         "at": "2026-10-12T15:37:23.064Z",
         "worker": "C",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v50-dragon-egg-carried-hatch-action-20261012-de58f2f789e272b3cfedf2a3af785581967e2b99",
+        "type": "published",
+        "at": "2026-10-12T15:38:52.991Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "commit": "de58f2f789e272b3cfedf2a3af785581967e2b99"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-840417ac41adce16c263425bf3c6e713711f8c67",
+        "type": "ready",
+        "at": "2026-10-12T15:40:20.354Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "delivery": "840417ac41adce16c263425bf3c6e713711f8c67"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-idle-C-rustm-delivery-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:40:38.105Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Rustm restoration submitted; waiting for integration and hosted validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "rustm-840417ac-received-20261012",
+        "type": "received",
+        "at": "2026-10-12T15:41:53.300Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "delivery": "840417ac41adce16c263425bf3c6e713711f8c67"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "gulpum-caller-preview-20261012",
+        "type": "activity",
+        "at": "2026-10-12T15:45:03.311Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "phase": "review",
+        "reason": "Read-only preview of the queued engulf port: verify the consumed hmonas return and fatal-path state cleanup while the current Rustm candidate is prepared. No Main source changes for this later task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-gulpum-contract-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:45:23.764Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-gulpum-contract-idle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:46:21.359Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-three-owners-pet-web-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:47:06.804Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: three provisional first defects; checking pet traps and swallowed web behavior."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "rustm-corrected-integrating-b126627c-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T15:50:57.799Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "integration": "b126627c379b87b95d86d7b9a070973eabc9f24c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "gulpum-caller-preview-done-20261012",
+        "type": "activity",
+        "at": "2026-10-12T15:52:03.707Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "phase": "done",
+        "reason": "Reviewed the whole gulpum source and production caller, confirmed death-handler order and return behavior, and verified all four saved check hashes. Combined candidate validation remains required when this delivery is integrated."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "dohide-intake-preview-done-20261012",
+        "type": "activity",
+        "at": "2026-10-12T15:54:06.432Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
+        "phase": "done",
+        "reason": "Compared the complete dohide source, command caller, and existing death handler; verified all three saved check hashes. Matching range and combined validation remain to be checked during integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v51-rustmonster-passive-weapon-erosion-20261012-b126627c379b87b95d86d7b9a070973eabc9f24c-validated",
+        "type": "validated",
+        "at": "2026-10-12T15:56:58.905Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v51-rustmonster-passive-weapon-erosion-20261012-b126627c379b87b95d86d7b9a070973eabc9f24c-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T15:58:22.285Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v51-rustmonster-passive-weapon-erosion-20261012-ae05251395ebd1439c8efd25e9f3c839755834ba",
+        "type": "published",
+        "at": "2026-10-12T15:59:41.862Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "commit": "ae05251395ebd1439c8efd25e9f3c839755834ba"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getpos-integration-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T15:59:46.820Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "phase": "review",
+        "reason": "Integrate the whole getpos and getpos_menu delivery with its bounded mouse caller. This dependency precedes the waiting polymorph self-touch fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-idle-C-post-rustm-queue-review-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:00:23.142Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent unreserved case is visible; the saved queue still lists an accepted Rustm case as mismatched. Waiting for the refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-active-C-refreshed-queue-recheck-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:00:55.719Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Checking refreshed queue ownership before selecting the next independent case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-idle-C-refreshed-queue-reservations-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:01:03.475Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent queue case is unreserved; C is preserving its ready pyrolisk and bluejelly deliveries while other workers own the remaining cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getpos-integrating-924c1707-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T16:02:29.766Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "integration": "924c170713a549fbc179010bf25a7b9bab6a56ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v48-name-floor-object-self-20261012-924c170713a549fbc179010bf25a7b9bab6a56ec-validated",
+        "type": "validated",
+        "at": "2026-10-12T16:08:54.351Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-four-owners-pickup-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:09:09.137Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: four provisional first defects; checking partial pickup and full inventory branches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v48-name-floor-object-self-20261012-924c170713a549fbc179010bf25a7b9bab6a56ec-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T16:10:32.181Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "vrock-dependency-integration-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T16:11:40.653Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "phase": "review",
+        "reason": "Integrate the reviewed whole monflee source and production gas-cloud defaults before the waiting polymorph self-touch delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v48-name-floor-object-self-20261012-dded337d55db2cef5277f1d6fbb525d28c1dfadb",
+        "type": "published",
+        "at": "2026-10-12T16:11:48.137Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "commit": "dded337d55db2cef5277f1d6fbb525d28c1dfadb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-924-getpos-queue-review-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:12:18.547Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "vrock-integrating-4f9fcbb1-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T16:15:31.684Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "integration": "4f9fcbb1903b2104135c30a9ea19209c765c80b9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-accepted924-recheck-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:18:21.783Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: rechecking candidate defects against newly accepted game behavior."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-seven-owners-mounted-web-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:19:29.111Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: seven provisional first defects; investigating mounted web and dismount behavior."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012-4f9fcbb1903b2104135c30a9ea19209c765c80b9-validated",
+        "type": "validated",
+        "at": "2026-10-12T16:22:03.369Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012-4f9fcbb1903b2104135c30a9ea19209c765c80b9-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T16:24:22.587Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012-a5fd3cc0d0395d147848ab7bbd2f9972b77a20f4",
+        "type": "published",
+        "at": "2026-10-12T16:25:47.605Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "commit": "a5fd3cc0d0395d147848ab7bbd2f9972b77a20f4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "polymon-selftouch-integration-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T16:25:54.290Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "phase": "review",
+        "reason": "The full dependency list is accepted. Integrate the bounded polymon self-touch caller next, with approved acceptance-tooling changes covered by the same exact combined checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-4f9fc-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:26:25.972Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "polymon-tooling-integrating-710b9ba8-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T16:31:28.164Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "integration": "710b9ba8695a51a07d975b237876da6a5a22f112"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v50-selftouch-monster-transition-20261012-710b9ba8695a51a07d975b237876da6a5a22f112-validated",
+        "type": "validated",
+        "at": "2026-10-12T16:37:26.395Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2d7c71ffbd3ec47af45b3bfab78c10301d28ca57",
+        "type": "ready",
+        "at": "2026-10-12T16:37:35.940Z",
+        "task": "Prep20",
+        "delivery": "2d7c71ffbd3ec47af45b3bfab78c10301d28ca57"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v50-selftouch-monster-transition-20261012-710b9ba8695a51a07d975b237876da6a5a22f112-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T16:38:09.909Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep20-v56-received-2d7c71ff-20261012",
+        "type": "received",
+        "at": "2026-10-12T16:38:30.906Z",
+        "task": "Prep20",
+        "delivery": "2d7c71ffbd3ec47af45b3bfab78c10301d28ca57"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-710b9ba-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:39:41.808Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep21-v57-cases-20261012",
+        "type": "assign",
+        "at": "2026-10-12T16:40:12.180Z",
+        "task": "Prep21",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v57"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-710b-queue-refresh-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:40:54.430Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v50-selftouch-monster-transition-20261012-8e64157cdd5f73ed52464d07d5b3f74e388365db",
+        "type": "published",
+        "at": "2026-10-12T16:42:10.454Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "commit": "8e64157cdd5f73ed52464d07d5b3f74e388365db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "sink-bounded-integration-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T16:42:47.216Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
+        "phase": "review",
+        "reason": "Integrate the oldest remaining dependency-ready source fix: drinksink case 10 invokes the existing polyself implementation. No new whole-function completion credit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "sink-integrating-4d88907b-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T16:46:06.303Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
+        "integration": "4d88907bfea84e07466d7b3231c1b8c4c481e83e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-initial-c-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:46:43.730Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v57: twelve source missions planned; recording independent C setups."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-source-actions-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:49:04.887Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v57: C setups complete; checking source actions and required state."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v51-fireelemental-sink-metamorphosis-20261012-4d88907bfea84e07466d7b3231c1b8c4c481e83e-validated",
+        "type": "validated",
+        "at": "2026-10-12T16:52:11.314Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v51-fireelemental-sink-metamorphosis-20261012-4d88907bfea84e07466d7b3231c1b8c4c481e83e-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T16:52:46.109Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
-        "worker": "B",
-        "goal": "B-v50-selftouch-monster-transition",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "07d6ac95bd1f0702693a4e4e26f5639bcdd25796",
-        "since": "2026-10-12T07:36:15.001Z",
-        "blockedBy": [
-          "B-investigation-v48-name-floor-object-self-20261012",
-          "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
-        ],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
-        "worker": "B",
-        "goal": "div-fountain-drinksink-polyself-v51-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "8c1a3cc766f01aae3b3c901ec4c7fe3f6bd5579e",
-        "since": "2026-10-12T08:52:05.064Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
         "worker": "C",
@@ -95839,17 +96212,6 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v48-name-floor-object-self-20261012",
-        "worker": "B",
-        "goal": "divergence-fix-getpos-self-key-floor-name-v48-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "9c6b57c616fed75b62b4e67ec128932773cc8124",
-        "since": "2026-10-12T14:39:14.952Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "Prep19",
         "worker": "Prep",
         "goal": null,
@@ -95866,14 +96228,20 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
-        "worker": "B",
-        "goal": "file-port-monmove-monflee-v50-gas-cloud-20261012",
-        "kind": "implementation",
+        "task": "Prep20",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
         "status": "ready",
-        "delivery": "13de69eeb69c8ba8c401afccb03f1778437a6096",
-        "since": "2026-10-12T15:04:24.193Z",
-        "blockedBy": [],
+        "delivery": "2d7c71ffbd3ec47af45b3bfab78c10301d28ca57",
+        "batch": "v56",
+        "since": "2026-10-12T16:37:35.940Z",
+        "blockedBy": [
+          "Prep16",
+          "Prep17",
+          "Prep18",
+          "Prep19"
+        ],
         "unblocks": 0
       }
     ],
@@ -96335,8 +96703,8 @@
     ]
   },
   "development": {
-    "executionCommit": "760f1a9820a68a5a7265e8192e4ebf2263990329",
-    "measuredAt": "2026-10-12T15:31:46.210Z",
+    "executionCommit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+    "measuredAt": "2026-10-12T16:50:42.251Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

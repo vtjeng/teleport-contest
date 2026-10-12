@@ -12,7 +12,7 @@ import { appendRow, COLUMNS } from './score-log.mjs';
 import { recordEvaluation } from './score-challenges.mjs';
 import { writeDashboardSnapshot } from './dashboard-snapshot.mjs';
 
-function fixture(t) {
+function fixture(t, { preparation = false } = {}) {
     const parent = mkdtempSync(join(tmpdir(), 'task-handoff-'));
     t.after(() => rmSync(parent, { recursive: true, force: true }));
     const root = join(parent, 'main');
@@ -42,8 +42,9 @@ function fixture(t) {
     git('add', '.gitignore', 'js/fixture.js', 'SCORE.tsv', entry.recipe, entry.recording, 'challenges/manifest.json');
     git('commit', '-qm', 'Fixture baseline');
     const baseline = git('rev-parse', 'HEAD');
-    write('js/fixture.js', 'export const fixture = false;\n');
-    git('add', 'js/fixture.js'); git('commit', '-qm', 'Fixture candidate');
+    const candidatePath = preparation ? 'challenges/cases/v2/pending.recipe.json' : 'js/fixture.js';
+    write(candidatePath, preparation ? recipe : 'export const fixture = false;\n');
+    git('add', candidatePath); git('commit', '-qm', 'Fixture candidate');
     const candidate = git('rev-parse', 'HEAD');
     git('init', '--bare', '-q', join(parent, 'remote.git'));
     git('remote', 'add', 'origin', join(parent, 'remote.git'));
@@ -79,9 +80,12 @@ function fixture(t) {
     };
     send({ type: 'register', worker: 'A', worktree: join(parent, 'worker'), branch: 'worker/a', base: baseline, handle: 'existing-A' });
     for (const [task, commit, summary] of [['A0', baseline, baselineCheckpoint], ['A1', candidate, candidateCheckpoint]]) {
-        send({ type: 'assign', task, worker: 'A', goal: task, seed: null, base: baseline,
-            reservations: [`source:fixture.c:${task}`], allowedPaths: ['js/fixture.js'] });
-        send({ type: 'ready', task, base: baseline, delivery: commit, commits: [commit], paths: ['js/fixture.js'],
+        const prep = preparation && task === 'A1';
+        send({ type: 'assign', task, worker: 'A', ...(prep ? { kind: 'challenge-preparation' } : { goal: task }),
+            seed: null, base: baseline, reservations: [prep ? 'challenge-batch:v2' : `source:fixture.c:${task}`],
+            allowedPaths: [prep ? 'challenges/cases/v2/' : 'js/fixture.js'] });
+        send({ type: 'ready', task, base: baseline, delivery: commit, commits: [commit],
+            paths: [task === 'A1' ? candidatePath : 'js/fixture.js'],
             evidence: join(root, '.cache/evidence.json'), dependencies: [] });
         send({ type: 'integrating', task, integration: commit });
         if (task === 'A0') {
@@ -116,6 +120,11 @@ test('saved comparison selects an accepted baseline and exposes per-case loss wi
     assert.equal(report.baseline, f.baseline);
     assert.equal(report.candidate, f.candidate);
     assert.equal(report.reviewRequired, false);
+    assert.deepEqual(report.next.command, ['node', 'scripts/task-handoff.mjs', 'accept',
+        '--task', 'A1', '--ledger', '.cache/ledger.json']);
+    const evaluations = join(dirname(f.candidateCheckpoint), 'synthetic');
+    assert.deepEqual(reviewTask({ ...f.options, evaluations }, f.root).next.command,
+        [...report.next.command, '--evaluations', evaluations], 'acceptance keeps the reviewed artifact directory');
     assert.equal(report.aggregateDelta.screens, 1, 'the candidate gains the second screen');
     assert.equal(f.git('status', '--porcelain'), before);
     const evaluationPath = join(dirname(f.candidateCheckpoint), 'synthetic/v1.json');
@@ -126,9 +135,25 @@ test('saved comparison selects an accepted baseline and exposes per-case loss wi
     writeFileSync(evaluationPath, JSON.stringify(value));
     const loss = reviewTask(f.options, f.root);
     assert.equal(loss.reviewRequired, true);
+    assert.equal(loss.next.command, null, 'a regression does not suggest immediate acceptance');
     assert.equal(loss.regressions[0].id, 'case');
     assert.throws(() => reviewTask({ ...f.options, baseline: f.candidateCheckpoint }, f.root), /accepted checkpoint/);
     assert.equal(f.state().tasks.A1.status, 'integrating', 'comparison never accepts a task');
+});
+
+test('preparation handoff requests its saved C review without implementation synthetic comparison', t => {
+    const f = fixture(t, { preparation: true });
+    // Keep the exact integration and passing checkpoint, but model a prep task
+    // whose cases have not been admitted and therefore have no synthetic score.
+    rmSync(join(dirname(f.candidateCheckpoint), 'synthetic'), { recursive: true });
+    const before = f.git('status', '--porcelain');
+    const report = reviewTask(f.options, f.root);
+    assert.equal(report.preparation, true);
+    assert.match(report.next.review, /saved C mission and replay evidence/);
+    assert.deepEqual(report.next.command, ['node', 'scripts/task-handoff.mjs', 'accept',
+        '--task', 'A1', '--ledger', '.cache/ledger.json']);
+    assert.equal(f.git('status', '--porcelain'), before);
+    assert.equal(f.state().tasks.A1.status, 'integrating', 'review cannot accept preparation automatically');
 });
 
 test('new admissions use their first recorded baseline, but missing accepted artifacts stay missing', t => {

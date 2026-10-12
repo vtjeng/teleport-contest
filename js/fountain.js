@@ -32,6 +32,7 @@ import {
     KILLED_BY_AN,
     LEVITATION,
     MM_NOMSG,
+    POLY_NOFLAGS,
     M_SEEN_FIRE,
     MAGICENLIGHTENMENT,
     POISON_RES,
@@ -80,7 +81,7 @@ import {
 } from './monsters.js';
 import { curse, mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class } from './obj.js';
 import { observe_object } from './o_init.js';
-import { body_part, mbodypart } from './polyself.js';
+import { body_part, mbodypart, polyself } from './polyself.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { set_levltyp } from './terrain.js';
 import { rloc } from './teleport.js';
@@ -1366,9 +1367,9 @@ export async function drinksink(state = game, env = {}) {
         if (!(state.u.uprops[UNCHANGING]?.intrinsic
             || state.u.uprops[UNCHANGING]?.extrinsic)) {
             await message('You undergo a freakish metamorphosis!', state);
-            // The existing polyself implementation covers controlled changes;
-            // this source call uses POLY_NOFLAGS and discards its result.
-            note_unported('polyself.c polyself');
+            // fountain.c discards polyself()'s return; its state and RNG
+            // effects still happen here in the original call order.
+            await polyself(POLY_NOFLAGS, state, env);
         }
         break;
     case 11:

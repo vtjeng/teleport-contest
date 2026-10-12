@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 281641,
+      "datetime": "20371125153218",
+      "nethackrc": "OPTIONS=name:MouseTargetProbe,role:Wizard,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": "#therecmdmenu\n_,\u001b"
+    }
+  ],
+  "comment": "Cheap pick variation for cmd.c:dotherecmdmenu/getdir: use the alternate quick click key to choose the hero square, then cancel the opened target menu."
+}
