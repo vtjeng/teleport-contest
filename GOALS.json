@@ -294613,7 +294613,7 @@
     {
       "id": "fix-insight-blindfolded-only-status-v53-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement status_enlightenment from insight.c",
       "cFile": "insight.c",
       "sessions": [
@@ -294623,10 +294623,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "45acbc4dcb4b43e3172bf00f80e584e81001fd81",
       "delivered": null,
       "function": "status_enlightenment",
-      "session": "synthetic/v53/v53-blind-fountain-water-snakes-action2"
+      "session": "synthetic/v53/v53-blind-fountain-water-snakes-action2",
+      "closeStanding": {
+        "sha": "45acbc4dcb4b43e3172bf00f80e584e81001fd81",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "a09ed76e70057094ef1a3e0202eed78b6814c58f",
+        "target": "synthetic/v53/v53-blind-fountain-water-snakes-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/45acbc4dcb4b43e3172bf00f80e584e81001fd81/run-hosted-W820pN/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "status_enlightenment",
+            "implementation": "js/insight.js",
+            "symbol": "status_enlightenment",
+            "sourceReview": "This is a branch-level correction, not whole-function certification. Compare insight.c:status_enlightenment lines 1060-1071 with js/insight.js:status_enlightenment. C chooses \"deliberately\" under Blindfolded_only (youprop.h:97), defined as EBlinded && !Blinded; Blinded is HBlinded && !BBlinded (youprop.h:92), while Blind includes HBlinded or EBlinded (youprop.h:103). The JS branch now computes blindfoldedOnly from E(BLINDED) and the intrinsic-only Blinded predicate H(BLINDED) && !B(BLINDED), then consumes it only after the permanent and innate causes. Other status_enlightenment branches are outside this task.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "enlightenment",
+                "source": "C fountain.c:drinkfountain fate 19 calls insight.c:enlightenment, which calls status_enlightenment at insight.c:417; JavaScript fountain.js:drinkfountain imports insight.js:enlightenment, whose body calls status_enlightenment at js/insight.js:2047."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-blind-fountain-water-snakes-action2",
+                "segment": 0,
+                "fromStep": 96,
+                "throughStep": 97,
+                "source": "fountain.c:drinkfountain fate 19 -> insight.c:enlightenment -> insight.c:status_enlightenment Blindfolded_only branch; self-knowledge step 96 opens the status menu at step 97."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The verified active entry for this branch is fountain self-knowledge fate 19. The C caller reaches enlightenment and status_enlightenment; the JavaScript fountain caller already wires the same path. The case title mentions water snakes, but the recording diverges on self-knowledge before any water-snake fountain fate. This task does not certify the full status_enlightenment function or the fountain water-snake branch.",
+        "entryPoints": [
+          {
+            "name": "Fountain self-knowledge status display while wearing a blindfold",
+            "functions": [
+              "status_enlightenment"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-blind-fountain-water-snakes-action2",
+                "segment": 0,
+                "fromStep": 96,
+                "throughStep": 97,
+                "source": "fountain.c:drinkfountain -> insight.c:enlightenment -> status_enlightenment; C displays the deliberate-blindness explanation."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

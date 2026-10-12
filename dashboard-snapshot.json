@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T23:46:56.091Z",
+  "capturedAt": "2026-10-12T23:54:54.616Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -99283,6 +99283,37 @@
         "type": "accepted",
         "at": "2026-10-12T23:46:06.742Z",
         "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012-7b896634e6e99d5c325fbb535810ae65af3b1404",
+        "type": "published",
+        "at": "2026-10-12T23:47:10.516Z",
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
+        "commit": "7b896634e6e99d5c325fbb535810ae65af3b1404"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-blindfold53-45acbc4dc-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T23:47:48.124Z",
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+        "integration": "45acbc4dcb4b43e3172bf00f80e584e81001fd81"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-blind-fountain-water-snakes-action2-20261012-45acbc4dcb4b43e3172bf00f80e584e81001fd81-validated",
+        "type": "validated",
+        "at": "2026-10-12T23:53:40.741Z",
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-blind-fountain-water-snakes-action2-20261012-45acbc4dcb4b43e3172bf00f80e584e81001fd81-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T23:54:11.561Z",
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012"
       }
     ]
   },
@@ -99360,17 +99391,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
-        "worker": "A2",
-        "goal": "fix-insight-blindfolded-only-status-v53-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "5db9063c8a9da92ee1fa01b6b2555eaf9a07eae3",
-        "since": "2026-10-12T23:07:32.606Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -99899,8 +99919,8 @@
     ]
   },
   "development": {
-    "executionCommit": "a09ed76e70057094ef1a3e0202eed78b6814c58f",
-    "measuredAt": "2026-10-12T23:44:42.444Z",
+    "executionCommit": "45acbc4dcb4b43e3172bf00f80e584e81001fd81",
+    "measuredAt": "2026-10-12T23:52:39.737Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
