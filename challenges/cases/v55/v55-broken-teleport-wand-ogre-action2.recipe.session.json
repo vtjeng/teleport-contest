@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first new source behavior apply.c:do_break_wand4096 -> zap.c:bhitm WAN_TELEPORTATION -> rloc on adjacent live ogre. One charge bounds explosion damage; level20 Healer has sufficient HP and strength10, single scalpel leaves free hand. Scout actual wand slot and NPC location, then break owned wand and observe monster relocation. Existing helper is implemented; generic caller gaps differ from v53 shop-payment mnexto and v54 newcham apparent-position. C-first actions from observed inventory/map. Crystal ball uses unrecognized symbol1. Broken owned teleport wand l confirmation y.",
+  "segments": [
+    {
+      "seed": 55011301,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                                        \u0017uncursed wand of teleportation (0:1)\n                    #wizgenesis\npeaceful ogre\n                    i                    #wizmap\nal  y                              #wizmap\n"
+    }
+  ]
+}

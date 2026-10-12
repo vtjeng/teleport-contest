@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wish locked trapped chest, wield blunt weapon, force lock on floor through bounded occupation. C-only action chosen from observed setup inventory, before JS comparison.",
+  "segments": [
+    {
+      "seed": 55010109,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Barbarian,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017locked trapped chest\n                    i                    #wizmap\nde                    #force\ny                    m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          #loot\ny                    "
+    }
+  ]
+}

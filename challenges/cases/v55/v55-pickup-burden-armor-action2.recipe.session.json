@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pickup.c:lift_object1756-1794 burden confirmation. Rogue wishes two distinct heavy body armors, then drops both to ordinary floor and manually retrieves while pickup_burden is unencumbered. Scout inventory letters before pickup; C source shows capacity increase requires ynq Continue, not weight refusal. No JS comparison yet. C inventory establishes held crystal armor g; wish hold_another_object drops plate mail because its added burden increases. Therefore single plate mail already on floor is target. Manually pick it up and decline n after observing source Continue prompt.",
+  "segments": [
+    {
+      "seed": 55011801,
+      "datetime": "20601007111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pickup_burden:unencumbered,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed crystal plate mail\n                    \u0017uncursed plate mail\n                    i                    ,n                    i                    "
+    }
+  ]
+}

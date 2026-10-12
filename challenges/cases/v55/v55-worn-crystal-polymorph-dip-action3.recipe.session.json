@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only correction after observed armor refusal: remove Monk robe b, wear crystal plate j, then dip worn j into potion k. Source zap.c:poly_obj1930 remove_worn_item and1948 set_wear for worn-body transformation. Original invalid-wear/unworn-polymorph probe preserved; no JS comparison has run.",
+  "segments": [
+    {
+      "seed": 55010101,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Monk,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed crystal plate mail\n                    \u0017uncursed potion of polymorph\n                    i                    #wizmap\nTb                    Wj                         #dip\njk                         i                    "
+    }
+  ]
+}

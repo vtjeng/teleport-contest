@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first terminal inventory source mission. menustyle traditional, manual pickup, no pet/autopickup. Rogue drops starting daggers b and sickness potion d on ordinary floor after one east move, then picks up to reach mixed weapon/potion class query. C source pickup.c:query_classes141-246 permits colon to inspect floor via simple_look and i to view inventory while remaining in query. Scout actual prompt before choosing either separate branch. Observed automatic floor-description More precedes query; acknowledge with Space then line : and newline. This route exercises simple_look multi-class floor chain; then cancel.",
+  "segments": [
+    {
+      "seed": 55011701,
+      "datetime": "20600902171618",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,menustyle:traditional,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     l        db        dd        , :\n               \u001b            "
+    }
+  ]
+}

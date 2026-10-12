@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wish crystal ball and apply with valid independent symbols including unknown symbol; inspect intelligence and charge state. C-only prompt correction: apply i first produces More after may-look text; acknowledge with Space then choose symbol1 at actual query.",
+  "segments": [
+    {
+      "seed": 55010112,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017blessed crystal ball (0:3)\n                    i                    #wizmap\nai 1                         i                    "
+    }
+  ]
+}

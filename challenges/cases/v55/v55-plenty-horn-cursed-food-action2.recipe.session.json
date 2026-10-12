@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wish charged cursed horn of plenty; apply and inspect produced consumable then inventory naming/BUC. C apply.c:doapply4386 calls mkobj.c:hornoplenty2847; source owner corrected before any comparison. C-only action chosen from observed setup inventory, before JS comparison.",
+  "segments": [
+    {
+      "seed": 55010107,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Barbarian,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed horn of plenty (0:5)\n                    i                    #wizmap\nae                    ae                    ae                    ae                    i                    "
+    }
+  ]
+}

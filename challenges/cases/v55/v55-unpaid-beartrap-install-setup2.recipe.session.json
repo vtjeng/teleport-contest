@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Locate ordinary shop, sell owned beartrap then pick back up as unpaid and install after billing evidence. C-first actions from observed inventory/map. Crystal ball uses unrecognized symbol1. Broken owned teleport wand l confirmation y.",
+  "segments": [
+    {
+      "seed": 55010111,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed beartrap\n                    i                    #wizmap\n#wizlevelport\n2\n                    #wizmap\n#wizlevelport\n3\n                    #wizmap\n#wizlevelport\n4\n                    #wizmap\n"
+    }
+  ]
+}

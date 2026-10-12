@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first do_name.c:oname 372 artifact-name restriction/creation on eligible weapon. Wish ordinary runesword, name Stormbringer under chaotic alignment; compare inventory/wield state.",
+  "segments": [
+    {
+      "seed": 55010108,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed runesword\n                    i                    #wizmap\n"
+    }
+  ]
+}

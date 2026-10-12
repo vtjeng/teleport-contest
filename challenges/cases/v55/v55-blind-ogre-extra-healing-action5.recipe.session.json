@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wish blindness potion, create peaceful ogre, blind it by thrown potion, cast extra healing along observed direction. Observed throw has two More messages then Call prompt; acknowledge each and submit blank name, then apply own stethoscope c west h to observe target blindness before healing. C confirmed ogre blind at HP30(31); cast known extra-healing spell b west h, then stethoscope west again to verify vision cure.",
+  "segments": [
+    {
+      "seed": 55010102,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of blindness\n                    i                    #wizmap\n#levelchange\n20\n                                        #wizgenesis\npeaceful ogre\n                    i                    #wizmap\ntmh  \nach                    #wizmap\nZbh                    ach                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first detect.c:use_crystal_ball 1206 unknown detection symbol / clairvoyance branch. Wish crystal ball and apply with valid independent symbols including unknown symbol; inspect intelligence and charge state.",
+  "segments": [
+    {
+      "seed": 55010112,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017blessed crystal ball (0:3)\n                    i                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c:use_figurine 2544 placement restrictions and familiar creation. Wish aquatic creature figurine and compare chosen ordinary-floor versus water placement at adjacent target.",
+  "segments": [
+    {
+      "seed": 55010106,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Monk,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed giant eel figurine\n                    i                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-pinned collector replacement: include/monsters.h gnome lord difficulty4 (baselevel3), hands, M2_COLLECT and no AT_MAGC. Unlike gnome king difficulty6, satisfies strict <6 muse polymorph guard. Two wizard provision histories missed pickup/use; this cheap route follows C collection and difficulty conditions, no seed search. Scout wand slot and lord position before nonviolent floor provisioning. C map shows lord immediately west. Drop owned wand g, move east l from pile;32bounded forced rests allow ordinary collection and self-use without angering the NPC.",
+  "segments": [
+    {
+      "seed": 55011604,
+      "datetime": "20600719121314",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                                        \u0017uncursed wand of polymorph (0:3)\n                    #wizgenesis\npeaceful gnome lord\n                    i                    #wizmap\ndg                    l                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    #wizmap\n"
+    }
+  ]
+}

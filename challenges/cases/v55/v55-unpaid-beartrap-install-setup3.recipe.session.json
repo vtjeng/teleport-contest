@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Locate ordinary shop, sell owned beartrap then pick back up as unpaid and install after billing evidence. Observed D3 general store; return directly from D2 to D3, drop own trap g to observe sale prompt and current shop location before billing/install.",
+  "segments": [
+    {
+      "seed": 55010111,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed beartrap\n                    i                    #wizmap\n#wizlevelport\n2\n                    #wizmap\n#wizlevelport\n3\n                    #wizmap\ndg                    #wizmap\n"
+    }
+  ]
+}

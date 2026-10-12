@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first shk.c:use_unpaid_trapobj 6101 installing a billed trap object. Locate ordinary shop, sell owned beartrap then pick back up as unpaid and install after billing evidence.",
+  "segments": [
+    {
+      "seed": 55010111,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed beartrap\n                    i                    #wizmap\n#wizlevelport\n2\n                    #wizmap\n"
+    }
+  ]
+}

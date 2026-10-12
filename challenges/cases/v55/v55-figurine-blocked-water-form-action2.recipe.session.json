@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wish aquatic creature figurine and compare chosen ordinary-floor versus water placement at adjacent target. C-only action chosen from observed setup inventory, before JS comparison.",
+  "segments": [
+    {
+      "seed": 55010106,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Monk,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed giant eel figurine\n                    i                    #wizmap\nak.                    #wizmap\n"
+    }
+  ]
+}

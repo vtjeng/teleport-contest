@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dothrow.c:breakobj2518-2526 EGG PM_PYROLISK branch sets explosion TRUE, removes egg then explode2572 d(3,6) fiery. Wish pyrolisk egg and inspect actual inventory slot, then throw downward on ordinary hard floor. Distinct caller/object branch from potion explode_oil, wand break, and monster gaze inventory burning. No JS comparison yet.",
+  "segments": [
+    {
+      "seed": 55011901,
+      "datetime": "20601119111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed pyrolisk egg\n                    i                    "
+    }
+  ]
+}

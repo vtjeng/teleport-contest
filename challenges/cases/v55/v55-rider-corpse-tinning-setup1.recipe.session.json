@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c:use_tinning_kit 2177 Rider corpse revive before tin creation. Wish tinning kit and Rider corpse on ordinary floor, apply kit to floor corpse with hand/tool state.",
+  "segments": [
+    {
+      "seed": 55010105,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Valkyrie,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed tinning kit\n                    \u0017Pestilence corpse\n                    i                    #wizmap\n"
+    }
+  ]
+}

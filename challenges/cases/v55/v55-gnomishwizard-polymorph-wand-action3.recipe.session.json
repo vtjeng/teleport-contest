@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first monster self-polymorph wand target. Low-difficulty hand-bearing gnomish wizard can seek/pick magical wand and find_misc selects polymorph when difficulty<6 and not already shapechanger. Provision owned wand by drop/throw according to observed C position, then bounded turns for pick/use. Source monmove.c:mon_would_take_item -> mpickstuff and muse.c:use_misc2503 -> existing mon.c:newcham. Different caller from pending deliberate polytrap first seetrap; existing newcham apparent-position later gap need overlap recheck if actually first. Materially different C-only provision: drop wand g on original hero square, move west h, remain nonviolent so wizard stays peaceful and can collect magical floor wand. Source mon_would_take_item/searches_for_item supports desired wand. Prior throw missed and angered caster, reaching stun instead of pickup. Bounded36forced rests; unchanged seed, genuinely changed action history and hostility state.",
+  "segments": [
+    {
+      "seed": 55011601,
+      "datetime": "20600719121314",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                                        \u0017uncursed wand of polymorph (0:3)\n                    #wizgenesis\npeaceful gnomish wizard\n                    i                    #wizmap\ndg                    h                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-source cheap replacement after violent throw and peaceful magic-wizard drop missed use: gnome king difficulty5 has hands and M2_COLLECT, lacks AT_MAGC, while searches_for_item considers useful polymorph wand. Original source goal muse.c:use_misc2503 -> muse_newcham_mon -> newcham unchanged. C ordinary collection/usage route avoids the wizard spell-action schedule, a real NPC behavior distinction; independent seed chosen once, no scan. Scout inventory and king position before provisioning.",
+  "segments": [
+    {
+      "seed": 55011603,
+      "datetime": "20600719121314",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                                        \u0017uncursed wand of polymorph (0:3)\n                    #wizgenesis\npeaceful gnome king\n                    i                    #wizmap\n"
+    }
+  ]
+}

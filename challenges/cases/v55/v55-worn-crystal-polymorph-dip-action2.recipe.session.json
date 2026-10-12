@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-source variation zap.c:poly_obj1930/1948: worn crystal body armor dipped into wished potion of polymorph. Original Monk wears cloak robe b and has plate j/potion k. Wear j under cloak then dip worn j into k; C worn-item transformation can require remove_worn_item/set_wear. This direct potion route is planned before JS comparison, alongside the initial stone-to-flesh idea.",
+  "segments": [
+    {
+      "seed": 55010101,
+      "datetime": "20600118111213",
+      "nethackrc": "OPTIONS=name:V55Prep,role:Monk,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed crystal plate mail\n                    \u0017uncursed potion of polymorph\n                    i                    #wizmap\nWj                         #dip\njk                         i                    "
+    }
+  ]
+}
