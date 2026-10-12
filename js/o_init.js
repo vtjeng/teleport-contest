@@ -1,7 +1,7 @@
 // Object initialization and unidentified-description shuffling.
 // C ref: src/o_init.c setgemprobs through oinit.
 
-import { disp_artifact_discoveries } from './artifacts.js';
+import { disp_artifact_discoveries, NROFARTIFACTS } from './artifacts.js';
 import { exercise_nonphysical } from './attrib.js';
 import { game } from './gstate.js';
 import {
@@ -21,10 +21,9 @@ import {
     A_WIS, BUFSZ, ECMD_OK, HALLUC, HALLUC_RES, MENU_COMBINATION,
     MENU_PARTIAL, MENU_TRADITIONAL, PICK_ONE,
 } from './const.js';
-import { select_menu } from './windows.js';
-import { ttyPline } from './tty_message.js';
+import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 import { menuTitleStyle } from './tty_menu.js';
-import { add_menu_heading } from './windows.js';
+import { add_menu_heading, select_menu } from './windows.js';
 import { def_char_to_objclass } from './drawing.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
 import {
@@ -647,7 +646,7 @@ function classSymbol(oclass) {
     return String.fromCharCode(DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass]);
 }
 
-// C ref: o_init.c doclassdisco() (891-1115), the #knownclass command.
+// C ref: o_init.c doclassdisco() (891-1128), the #knownclass command.
 // The command owns menu and text-window creation in this port.
 export async function doclassdisco(state = game, {
     message = ttyPline,
@@ -713,6 +712,8 @@ export async function doclassdisco(state = game, {
             'View discoveries for which sort of objects?',
             [...discoveredSymbols, ...additional].join(''), '\0', true, state,
         );
+        if (!selectedClass || selectedClass === '\0')
+            clearTtyMessageWindow(state);
     } else if (discoveredSymbols.length === 1
         && state.flags.menu_style === MENU_PARTIAL) {
         [selectedClass] = discoveredSymbols;
@@ -763,12 +764,13 @@ export async function doclassdisco(state = game, {
         break;
     case 'a':
         if (state.wizard && await yesNo(
-            'Dump information about all artifacts?', 'yn', 'n', false, state,
+            'Dump information about all artifacts?', 'yn', 'n', true, state,
         ) === 'y') {
             // The C dump helper has a void return; doclassdisco only tests a
             // local nonzero count after it returns.
             note_unported('artifact.c dump_artifact_info');
-            return ECMD_OK;
+            count = NROFARTIFACTS;
+            break;
         }
         count = disp_artifact_discoveries(state, (heading, text) =>
             putstr(text, heading));
@@ -900,8 +902,8 @@ export async function dodiscovered(
         && await choose_disco_sort(1, state) < 0)
         return false;
     // The three remaining orders all buffer their lines for
-    // disco_output_sorted(), which needs discovered_cmp() and, for 's',
-    // sortloot_descr(); none of the three is ported.
+    // disco_output_sorted() remains unported. Its comparison and sortloot
+    // helpers are available to the class-discovery command above.
     if (state.flags.discosort !== 'o')
         throw new UnsupportedDiscoveryDisplayError('disco_output_sorted()');
     const sortindx = DISCO_ORDER_LET.indexOf(state.flags.discosort);

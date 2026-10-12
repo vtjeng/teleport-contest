@@ -284545,8 +284545,8 @@
           "name": "choose_disco_sort",
           "line": 611,
           "endLine": 660,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -284558,33 +284558,33 @@
           "name": "discovered_cmp",
           "line": 553,
           "endLine": 566,
-          "declared": false,
+          "declared": true,
           "sourceFile": "o_init.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "sortloot_descr",
           "line": 567,
           "endLine": 610,
-          "declared": false,
+          "declared": true,
           "sourceFile": "o_init.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "oclass_to_name",
           "line": 877,
           "endLine": 890,
-          "declared": false,
+          "declared": true,
           "sourceFile": "o_init.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "doclassdisco",
           "line": 891,
           "endLine": 1130,
-          "declared": false,
+          "declared": true,
           "sourceFile": "o_init.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "optfn_sortdiscoveries",
@@ -284592,7 +284592,7 @@
           "endLine": 3913,
           "declared": true,
           "sourceFile": "options.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -284845,7 +284845,162 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "choose_disco_sort",
+            "implementation": "js/o_init.js",
+            "symbol": "choose_disco_sort",
+            "sourceReview": "Read the complete o_init.c:611-655 helper. It constructs four menu rows in disco_order_let order, preselects flags.discosort, appends the mode-2 explanatory rows, opens PICK_ONE, returns -1 on cancellation, skips the preselected first row only when multiple rows are returned, stores the selected order, and returns the selection count. JavaScript follows the same order and consumed return contract; the menu and state update make it impure.",
+            "callers": [
+              {
+                "path": "js/o_init.js",
+                "symbol": "dodiscovered",
+                "source": "o_init.c:dodiscovered() calls choose_disco_sort(1) for menu_requested and consumes the negative result to decide whether discovery output continues; cmd.c known command dispatch reaches dodiscovered."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "handler_sortdiscoveries",
+                "source": "options.c:optfn_sortdiscoveries() do_handler arm calls choose_disco_sort(0) and discards its return; applyOptionMenuPick dispatches the generated option row through OPTION_HANDLERS."
+              },
+              {
+                "path": "js/o_init.js",
+                "symbol": "doclassdisco",
+                "source": "o_init.c:doclassdisco() calls choose_disco_sort(2) for menu_requested and consumes the negative result to decide whether class discovery proceeds; cmd.c #knownclass dispatch reaches doclassdisco."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/options.c/sortdiscoveries-handler-menu-correction.session.json",
+              "recordings/o_init.c/knownclass-menu-sort-correction.session.json",
+              "recordings/o_init.c/knownclass-sortloot-correction.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v48",
+                "caseId": "v48-discovery-sort-menu-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 3,
+                "source": "menu-prefixed backslash known command -> dodiscovered -> choose_disco_sort(1) -> discovery output"
+              }
+            ],
+            "checkedAt": "4bd1310678a770b54fb40f165bffe40c913de5bb"
+          },
+          {
+            "name": "optfn_sortdiscoveries",
+            "implementation": "js/options.js",
+            "symbol": "handler_sortdiscoveries",
+            "sourceReview": "Read options.c:3863-3910. JavaScript already handles do_init defaults, do_set aliases and invalid values, and value/config-value responses. This correction adds the missing do_handler path: choose_disco_sort(0) is awaited, its result is discarded like C, and optn_ok is returned through OPTION_HANDLERS.sortdiscoveries. The optionsfull PICK_ANY caller reaches this handler when the sortdiscoveries row is selected.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "handler_sortdiscoveries",
+                "source": "options.c:optfn_sortdiscoveries() do_handler invokes choose_disco_sort(0); options.c:doset() invokes the option handler after the user selects the allopt[] row."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/sortdiscoveries-handler-menu-correction.session.json"
+            ],
+            "sourceFile": "options.c",
+            "synthetic": [],
+            "checkedAt": "4bd1310678a770b54fb40f165bffe40c913de5bb"
+          },
+          {
+            "name": "doclassdisco",
+            "implementation": "js/o_init.js",
+            "symbol": "doclassdisco",
+            "sourceReview": "Read o_init.c:891-1115 in full. JavaScript handles invalid discosort fallback, mode-2 sort selection and cancellation, unique/artifact/class discovery-symbol collection, traditional yn_function and nontraditional class selection (including MENU_PARTIAL), unique/artifact/class output, alphabetical comparison, and sortloot ordering. It reuses the existing disp_artifact_discoveries(), interesting_to_discover(), disco_append_typename(), def_char_to_objclass(), let_to_name(), and invent.c:loot_classify() ports. The void wizard helper artifact.c:dump_artifact_info() and invalid-class reporter pline.c:impossible() are recorded with note_unported() and skipped without placeholder screen effects; normal class menus cannot produce the invalid symbol. Root checked the full body through line1128 and corrected traditional cancellation message clearing, the y_n repeat-queue flag, and the nonzero count/window-display branch after skipped dump_artifact_info.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runKnownClassCommand",
+                "source": "cmd.c extcmdlist #knownclass selects doclassdisco; the #reqmenu prefix preserves iflags.menu_requested so mode 2 opens choose_disco_sort."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/o_init.c/knownclass-menu-sort-correction.session.json",
+              "recordings/o_init.c/knownclass-sortloot-correction.session.json"
+            ],
+            "sourceFile": "o_init.c",
+            "synthetic": [],
+            "checkedAt": "4bd1310678a770b54fb40f165bffe40c913de5bb"
+          },
+          {
+            "name": "discovered_cmp",
+            "implementation": "js/o_init.js",
+            "symbol": "discovered_cmp",
+            "sourceReview": "Read o_init.c:553-565. It compares each string after the two-byte \"* \" or \"  \" prefix with case-insensitive strcmpi and has no state, output, or RNG effects.",
+            "callers": [
+              {
+                "path": "js/o_init.js",
+                "symbol": "doclassdisco",
+                "source": "o_init.c:doclassdisco() qsorts buffered class lines with discovered_cmp when alphabetized."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/o_init-discoveries.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "o_init.c",
+            "synthetic": [],
+            "checkedAt": "4bd1310678a770b54fb40f165bffe40c913de5bb"
+          },
+          {
+            "name": "sortloot_descr",
+            "implementation": "js/o_init.js",
+            "symbol": "sortloot_descr",
+            "sourceReview": "Read o_init.c:567-593. It makes a dummy object with the source identification fields, invokes existing invent.c:loot_classify(), and formats orderclass, subclass, and discovery as %02d%02d%1d followed by a space. loot_classify may observe the dummy object, so the helper is not classified pure.",
+            "callers": [
+              {
+                "path": "js/o_init.js",
+                "symbol": "doclassdisco",
+                "source": "o_init.c:doclassdisco() calls sortloot_descr(dis, &buf[2]) only in sortloot order before sorting class lines."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/o_init-discoveries.test.mjs"
+            ],
+            "recordings": [
+              "recordings/o_init.c/knownclass-sortloot-correction.session.json"
+            ],
+            "sourceFile": "o_init.c",
+            "synthetic": [],
+            "checkedAt": "4bd1310678a770b54fb40f165bffe40c913de5bb"
+          },
+          {
+            "name": "oclass_to_name",
+            "implementation": "js/o_init.js",
+            "symbol": "oclass_to_name",
+            "sourceReview": "Read o_init.c:877-885. It copies let_to_name(oclass,FALSE,FALSE) to a local buffer and lowercases every byte; it has no state, output, or RNG effects.",
+            "callers": [
+              {
+                "path": "js/o_init.js",
+                "symbol": "doclassdisco",
+                "source": "o_init.c:doclassdisco() calls oclass_to_name() for class-menu labels and the no-discoveries message."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/o_init-discoveries.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "o_init.c",
+            "synthetic": [],
+            "checkedAt": "4bd1310678a770b54fb40f165bffe40c913de5bb"
+          }
+        ]
+      }
     }
   ]
 }

@@ -175,3 +175,22 @@ triage decisions or fix references.
   to the C declarations. Independent blank-book and valuable-book projectile
   recordings match completely. Validate this separate correction with a
   supplemental hosted checkpoint before publishing the acceptance reports.
+
+### 2026-10-12 — report import and delivery patch identity
+
+- Context: discovery-sort delivery `2f6c53965` and correction `ff4afe979`.
+- Friction: the first source commit also added its diagnosis, and later
+  accepted work already supplied two of its imports. Delivery verification
+  requires each original patch in history; importing only its remaining edits
+  would lose that proof.
+- Outcome: imported the diagnosis and exact report correction first, refreshed
+  its current evaluation, then temporarily restored the original report and
+  import parents before applying the exact source edits. Restored the current
+  diagnosis and accepted menu owners in the combined candidate. Intermediate
+  commits were neither checkpointed nor published.
+- Context: supplemental shop score import before publication.
+- Friction: the bounded runner does not forward heredoc stdin to its service;
+  the first invocation exited successfully without importing evidence.
+- Outcome: checked the missing output receipt, saved the same import code as
+  an ignored temporary script, and ran that script under the bounded runner.
+  All 51 saved evaluations were recorded before the public push.

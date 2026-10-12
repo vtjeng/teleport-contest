@@ -4,12 +4,14 @@ import test from 'node:test';
 import { NROFARTIFACTS } from '../js/artifacts.js';
 import {
     discovered_cmp,
+    doclassdisco,
     dodiscovered,
     init_objects,
     oclass_to_name,
     sortloot_descr,
     UnsupportedDiscoveryDisplayError,
 } from '../js/o_init.js';
+import { ECMD_OK, MENU_TRADITIONAL, TOPLINE_NON_EMPTY } from '../js/const.js';
 import {
     objects_globals_init,
     POT_WATER,
@@ -155,4 +157,47 @@ test('sortloot_descr formats invent.c loot_classify ordering fields', () => {
     state.flags = { inv_order: '$")[%?+!=/(*`0_', sortpack: false };
     state.svc = { context: { current_fruit: 0 } };
     assert.equal(sortloot_descr(POT_WATER, state), '05012 ');
+});
+
+test('doclassdisco keeps the artifact dump caller after the skipped void helper', async () => {
+    const state = discoveryState();
+    discover(state, POT_WATER); // Give the class chooser a discovered class.
+    state.flags.menu_style = MENU_TRADITIONAL;
+    state.wizard = true;
+    const answers = ['a', 'y']; // Select artifacts, then the C wizard dump arm.
+    const windows = [];
+    const result = await doclassdisco(state, {
+        message: async () => {},
+        yesNo: async (_prompt, _choices, _default, addcmdq) => {
+            // doclassdisco uses yn_function(..., TRUE); y_n also records
+            // its answer in the repeat queue through that same TRUE flag.
+            assert.equal(addcmdq, true);
+            return answers.shift();
+        },
+        textWindow: async (lines) => windows.push(lines),
+    });
+    // o_init.c sets ct=NROFARTIFACTS and reaches display_nhwindow even
+    // when the unported void dump helper contributes no output.
+    assert.equal(result, ECMD_OK);
+    assert.deepEqual(windows, [[]]);
+});
+
+test('doclassdisco clears the message window on traditional cancellation', async () => {
+    const state = discoveryState();
+    discover(state, POT_WATER); // Ensure C prompts rather than taking the empty arm.
+    state.flags.menu_style = MENU_TRADITIONAL;
+    state._pending_message = 'View discoveries for which sort of objects?';
+    const cleared = [];
+    state.nhDisplay = {
+        toplin: TOPLINE_NON_EMPTY,
+        clearRow: (row) => cleared.push(row),
+        setCursor: () => {},
+    };
+    assert.equal(await doclassdisco(state, {
+        message: async () => {},
+        yesNo: async () => '\0', // C's cancelled class choice is the zero byte.
+        textWindow: async () => assert.fail('cancelled choice has no text window'),
+    }), ECMD_OK);
+    assert.deepEqual(cleared, [0]); // WIN_MESSAGE occupies the terminal's top row.
+    assert.equal(state._pending_message, '');
 });
