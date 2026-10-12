@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v50/v50-blacklight-monster-combat-action-attempt3",
+  "remainingScreens": 39,
+  "recordedSteps": 218,
+  "corpus": "synthetic",
+  "batch": "v50",
+  "caseId": "v50-blacklight-monster-combat-action-attempt3",
+  "manifestPath": "challenges/manifests/v50.json",
+  "manifestSha256": "8033e81f20119b05c772e33cdeb1079027f7e032da436b16e9f5131eaa0a6f00",
+  "recordingPath": "challenges/cases/v50/v50-blacklight-monster-combat-action-attempt3.session.json",
+  "recordingSha256": "7b24109e4a4d12177dc09030e2f394a2ef3dd119bf5a73f37b81f2cb4c8b4cb5",
+  "evaluationPath": "challenges/evaluations/accepted-ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3-v50.json",
+  "evaluationCommit": "ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3",
+  "evaluationSha256": "f841741eccb3be25b153dc1fb5edf7fb61fae3bd7492d94fbf81a5a39946cb41",
+  "status": "runtime-matched",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "batch": "v50",
+    "caseId": "v50-blacklight-monster-combat-action-attempt3",
+    "session": "synthetic/v50/v50-blacklight-monster-combat-action-attempt3",
+    "manifestPath": "challenges/manifests/v50.json",
+    "manifestSha256": "8033e81f20119b05c772e33cdeb1079027f7e032da436b16e9f5131eaa0a6f00",
+    "recordingPath": "challenges/cases/v50/v50-blacklight-monster-combat-action-attempt3.session.json",
+    "recordingSha256": "7b24109e4a4d12177dc09030e2f394a2ef3dd119bf5a73f37b81f2cb4c8b4cb5",
+    "evaluationPath": "challenges/evaluations/accepted-ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3-v50.json",
+    "evaluationCommit": "ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3",
+    "remainingScreens": 39,
+    "recordedSteps": 218,
+    "previousScreensMatched": 179,
+    "regression": false,
+    "passed": false,
+    "metrics": {
+      "screens": {
+        "matched": 179,
+        "total": 218
+      },
+      "rng": {
+        "matched": 2727,
+        "total": 2782
+      },
+      "cursors": {
+        "matched": 179,
+        "total": 218
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 179,
+      "message": "simple monster action requires uhitm.c mhitm_ad_halu()"
+    }
+  },
+  "summary": "Porting uhitm.c:mhitm_ad_halu and wiring its existing dispatcher arm removed the step-179 stop. The replay then exposed an unbound source-ordered mondead call in the existing mhitm.c:explmm path; importing the already ported mon.c:mondead restored the caller. The admitted 218-step segment now matches completely.",
+  "source": {
+    "function": "uhitm.c:mhitm_ad_halu",
+    "lineRange": "3897-3921",
+    "caller": "uhitm.c:mhitm_adtyping",
+    "runtimeCallPath": "mhitm.c:mattackm -> explmm -> mdamagem -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_halu",
+    "jsCallPath": "js/mhitm.js:mdamagem -> js/uhitm.js:mhitm_adtyping"
+  },
+  "evidence": [
+    "The admitted v50 manifest gives source trace mhitm.c:explmm -> mdamagem -> uhitm.c:mhitm_ad_halu; its baseline has 179/218 screens, 2727/2782 RNG calls, and 179/218 cursors matched.",
+    "The recorded step 179 has key '.', with the C screen reporting the black light explosion; its RNG ends at d(10,12)=66 @ mdamagem(mhitm.c:1025), immediately before the unsupported AD_HALU handler.",
+    "C source uhitm.c:mhitm_ad_halu() has three actor cases: hero aggressor and hero defender both set damage to zero; monster-versus-monster confusion requires an uncancelled aggressor, eyed defender, and defender able to see. A visible defender receives the source message before mconf is set; all monster-pair cases clear STRAT_WAITFORU and set damage to zero.",
+    "The source grep finds one active C call site, the AD_HALU arm in uhitm.c:mhitm_adtyping(). js/uhitm.js already dispatches that arm to an unported boundary. This task will port only mhitm_ad_halu and wire that existing arm; it will not claim the whole dispatcher or mhitm.c callers.",
+    "C callees haseyes(), canseemon(), and Monnam()/pline_mon() have existing JavaScript implementations; no return-valued unported dependency was found."
+  ],
+  "nextAction": "Submit the scoped mhitm_ad_halu implementation and its dispatcher/explmm caller repairs with explicit actual dependencies.",
+  "callerRepair": {
+    "source": "mhitm.c:explmm",
+    "change": "Imported the already ported mon.c:mondead called after mdamagem, matching the C void call and preserving its order.",
+    "scope": "Caller binding only; no whole-explmm completion claim."
+  },
+  "runtimeValidation": {
+    "command": "node scripts/scan-sessions.mjs --json --synthetic v50/v50-blacklight-monster-combat-action-attempt3",
+    "log": "/tmp/teleport-c-v50-blacklight-scan2.log",
+    "replayCommit": "617f2c92ad6446c31c1094b7c4064a876b0934d8",
+    "screensEmitted": 218,
+    "recordedSteps": 218,
+    "divergence": null,
+    "boundary": null,
+    "recordingMatched": true,
+    "inputBoundaryMatched": true,
+    "remainingUnported": [
+      "sounds.c SoundAchievement",
+      "display.c set_mimic_blocking"
+    ]
+  }
+}
