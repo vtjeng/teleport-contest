@@ -285,3 +285,8 @@ triage decisions or fix references.
 - Dispatch friction: twice Root triggered B's correction turn while its ledger
   feedback command was still running. The worker correctly waited for the
   required state. Finish feedback before sending future correction turns.
+- Dispatcher preflight also found that the older canonical report import did
+  not preserve final report correction `e55adc240` as an exact patch. Root
+  preserved its original report parent, imported that correction unchanged,
+  and restored the current diagnoses before retrying preflight. Game code
+  stayed identical to the already linted and quality-checked candidate.
