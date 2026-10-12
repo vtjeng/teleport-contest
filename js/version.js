@@ -102,6 +102,19 @@ export function getversionstring() {
     return RECORDER_VERSION_ID;
 }
 
+// C ref: version.c doversion(). The direct V key prints the short version,
+// while the menu prefix routes the same command to the full #version window.
+export async function doversion(
+    state,
+    { pline, displayTextWindow, random },
+) {
+    if (state.iflags?.menu_requested)
+        return doextversion(state, { displayTextWindow, random });
+
+    await pline(getversionstring(), state);
+    return 0; // C: ECMD_OK.
+}
+
 function get_lua_version(state, random) {
     state.context ??= {};
     if (!state.context.versionLuaInitialized) {

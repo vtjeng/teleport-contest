@@ -295,7 +295,7 @@ import {
     doturn,
     UnsupportedPrayerError,
 } from './pray.js';
-import { doextversion } from './version.js';
+import { doextversion, doversion } from './version.js';
 import { kill_genocided_monsters } from './mon.js';
 import { dosave, dosave0, savelev } from './save.js';
 import {
@@ -1878,6 +1878,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
     'seeall', 'seetools', 'teleport',
     'overview', 'chronicle', 'conduct', 'vanquished', 'genocided',
+    'versionshort',
     'inventtype', 'adjust', 'altadjust',
     'terrain', 'redraw', 'travel', 'dip', 'invoke', 'untrap', 'herecmdmenu', 'therecmdmenu',
 ]);
@@ -6533,6 +6534,22 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // puts context.move back to TRUE.
             resetCommandVars(state);
             if (elapsed) commandTookTime(state);
+            return;
+        }
+        if (command === 'versionshort') {
+            // C ref: cmd.c's direct V binding calls version.c doversion().
+            // Its menu-prefix branch returns doextversion(); the ordinary
+            // branch prints getversionstring() and returns ECMD_OK. Both are
+            // no-time results, so rhack() applies its normal reset.
+            const res = await doversion(state, {
+                pline: ttyPline,
+                displayTextWindow: displayTtyTextWindow,
+                random: rn2,
+            });
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
         if (command === 'showgold') {

@@ -3316,6 +3316,40 @@ test('the direct #version command dispatches the portable text window',
         assert.equal(game.context.pendingCommand, undefined);
     });
 
+test('the direct V command prints the short version without spending a turn',
+    async () => {
+        const replay = await runSegment({
+            seed: 48070031,
+            datetime: '20571018120741',
+            nethackrc: 'OPTIONS=name:V48Version,role:Valkyrie,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,!autopickup,!acoustics\n',
+            moves: 'V',
+        });
+        assert.match(replay.getScreens().at(-1), /MacOS NetHack Version 5\.0\.0/u);
+        assert.equal(game.moves, 1);
+        assert.equal(game.iflags.menu_requested, false);
+    });
+
+test('the mV prefix selects doversion’s full version window', async () => {
+    const replay = await runSegment({
+        seed: 617205,
+        datetime: '20351117080910',
+        nethackrc: 'OPTIONS=name:VersionPrefix,role:Priest,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,!autopickup,pettype:none,!acoustics\n',
+        moves: 'mV  ',
+    });
+    assert.equal(replay.getScreens().length > 1, true);
+    assert.equal(
+        replay.getScreens().some((screen) =>
+            screen.includes('MacOS NetHack Version 5.0.0')),
+        true,
+    );
+    assert.equal(game.moves, 1);
+    assert.equal(game.iflags.menu_requested, false);
+});
+
 test('a user-bound wizcast row dispatches directly through rhack', async () => {
     await runSegment({
         seed: 22092624,

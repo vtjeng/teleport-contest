@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 617205,
+      "datetime": "20351117080910",
+      "nethackrc": "OPTIONS=name:VersionPrefix,role:Priest,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,!acoustics\n",
+      "moves": "mV  "
+    }
+  ]
+}
