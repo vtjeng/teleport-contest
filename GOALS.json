@@ -291871,6 +291871,284 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-polyself-dohide-v51-viper-fatal-hide-20261012",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port whole hiding command and fatal corpse transition",
+      "cFile": "polyself.c",
+      "sessions": [
+        "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3"
+      ],
+      "selectionReason": "Oldest dependency-ready implementation delivery; whole dohide owns the current hiding mismatch",
+      "detail": "",
+      "openedAt": "01ad5008e0b8e654a4eadffe9e0b07f88e5423ab",
+      "openStanding": {
+        "sha": "e55e82d8d3672e473005346e152386e6f78f4753",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dohide",
+          "line": 1777,
+          "endLine": 1876,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1777,
+        "to": 1876
+      },
+      "syntheticProvenance": {
+        "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3": {
+          "session": "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+          "recordingSha256": "c36d2e67d8675e21a499b0c742854a6bae2f095a3e70620f3f3e46c7d0467811",
+          "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+          "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753"
+        }
+      },
+      "activeStanding": {
+        "sha": "e55e82d8d3672e473005346e152386e6f78f4753",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+          "session": "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+          "recordingPath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+          "recordingSha256": "c36d2e67d8675e21a499b0c742854a6bae2f095a3e70620f3f3e46c7d0467811",
+          "recipe": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.recipe.session.json",
+          "recipeSha256": "e03bf582d49f407c77d5f8bede498c25a3f5940565f8ce8a95f84d19c797ac64",
+          "replayInputSha256": "48043e7839df3aff0262f756e7e81bb670fac212254ad4cc8e7a6ec534be6b27",
+          "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+          "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
+          "evaluationArtifact": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+          "evaluationUtc": "2026-10-12T17:29:23.594Z",
+          "remainingScreens": 5,
+          "recordedSteps": 157,
+          "previousScreensMatched": 152,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 152,
+              "total": 157
+            },
+            "rng": {
+              "matched": 2907,
+              "total": 2907
+            },
+            "cursors": {
+              "matched": 153,
+              "total": 157
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.json",
+            "result": {
+              "session": "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingSha256": "c36d2e67d8675e21a499b0c742854a6bae2f095a3e70620f3f3e46c7d0467811",
+              "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+              "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
+              "remainingScreens": 5,
+              "recordedSteps": 157,
+              "status": "complete",
+              "summary": "A fresh admitted replay first diverges at segment 0 step 148 after #monster dispatch reaches polyself.c:dohide. The viper is hiding under the square's only floor object, an unresisted cockatrice corpse. C prints the fatal-mistake message, builds 'hiding under <corpse name>' and calls trap.c:instapetrify, which prints the stone message and enters the death sequence. JavaScript prints the fatal-mistake message but records note_unported('trap.c instapetrify'), so the next pager and cursor differ while RNG stays aligned. GOALS lists dohide as a historical declaration but the source roadmap has no verified completion evidence for it. Implement the complete polyself.c:dohide function and wire the existing instapetrify implementation at the missing source call.",
+              "commit": "e55e82d8d3672e473005346e152386e6f78f4753",
+              "goalKind": "file-port",
+              "source": {
+                "file": "polyself.c",
+                "functions": [
+                  "dohide"
+                ],
+                "branch": "Read the complete polyself.c:dohide definition at 1777-1876. In this case hides_under is true, the floor pile contains only petrifying corpses, Stone_resistance is false, and ct is one. C uses cxname on the top corpse, applies an() only for ct==1, appends plur(ct), prints the fatal-mistake message, builds kbuf as 'hiding under <corpse name><plural suffix>', and calls instapetrify(kbuf). JavaScript preserves the same pile test, name and first message, but records note_unported('trap.c instapetrify') instead of calling the existing implementation. C discards the void result; after return from a lifesaving outcome, both paths clear uundetected and return ECMD_TIME.",
+                "callers": [
+                  "cmd.c:domonability (890-914) dispatches the #monster command to dohide for a hider; js/cmd.js:domonability calls js/polyself.js:dohide(state)."
+                ],
+                "dependencies": [
+                  "trap.c:instapetrify"
+                ]
+              },
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+                "session": "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+                "recordingPath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+                "recordingSha256": "c36d2e67d8675e21a499b0c742854a6bae2f095a3e70620f3f3e46c7d0467811",
+                "recipe": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.recipe.session.json",
+                "recipeSha256": "e03bf582d49f407c77d5f8bede498c25a3f5940565f8ce8a95f84d19c797ac64",
+                "replayInputSha256": "48043e7839df3aff0262f756e7e81bb670fac212254ad4cc8e7a6ec534be6b27",
+                "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+                "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
+                "evaluationArtifact": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+                "evaluationUtc": "2026-10-12T17:29:23.594Z",
+                "remainingScreens": 5,
+                "recordedSteps": 157,
+                "previousScreensMatched": 152,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 152,
+                    "total": 157
+                  },
+                  "rng": {
+                    "matched": 2907,
+                    "total": 2907
+                  },
+                  "cursors": {
+                    "matched": 153,
+                    "total": 157
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 148,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 148,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 54,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 148,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 148,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      62,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      4,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 148,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "evidence": [
+                "Fresh replay: node scripts/scan-sessions.mjs --json --synthetic v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3. The first screen and cursor mismatch is segment 0 step 148; RNG is still matched. JS records trap.c instapetrify as unported.",
+                "Admitted v51 manifest sourceTrace: step 148 is the fatal-mistake pager and stone/death sequence at steps 149-150. The recipe's leftward movement separates starting equipment from the only floor corpse, so the fatal test is the all-petrifying-corpse pile branch.",
+                "C source nethack-c/upstream/src/polyself.c:1777-1876 counts the petrifying corpse pile, constructs the exact killer text and calls instapetrify(kbuf); the call result is discarded.",
+                "JS source js/polyself.js:dohide preserves the source pile traversal and fatal-mistake message, then records note_unported('trap.c instapetrify') before clearing uundetected and returning ECMD_TIME.",
+                "The source roadmap at the selected base reports polyself.c with 9 verified of 34 declarations and has no verified dohide source evidence. The historical GOALS declaration marked dohide ported is inventory, not completion evidence. js/trap.js already implements trap.c:instapetrify and its call to done(STONING)."
+              ],
+              "recordingPath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+              "recipeSha256": "e03bf582d49f407c77d5f8bede498c25a3f5940565f8ce8a95f84d19c797ac64",
+              "recipePath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.recipe.session.json"
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 148,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 148,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 54,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 148,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 148,
+                "key": "\n"
+              },
+              "cCursor": [
+                62,
+                0,
+                1
+              ],
+              "jsCursor": [
+                4,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 148,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null
+        }
+      ]
     }
   ]
 }
