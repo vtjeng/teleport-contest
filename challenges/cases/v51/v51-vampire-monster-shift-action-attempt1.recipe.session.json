@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source mission polyself.c:dopoly -> polyself: Vampire ability chooses wolf/fog cloud/bat form through POLY_MONSTER; form/light/movement state changes.",
+  "segments": [
+    {
+      "seed": 51000203,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V51Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #polyself\nvampire\n                    #monster\n                    "
+    }
+  ]
+}

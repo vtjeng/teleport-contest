@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c:use_candle -> use_candelabrum Attach carried candles to empty candelabrum then light away from invocation, reducing age.",
+  "segments": [
+    {
+      "seed": 51000108,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V51Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017Candelabrum of Invocation\ni"
+    }
+  ]
+}

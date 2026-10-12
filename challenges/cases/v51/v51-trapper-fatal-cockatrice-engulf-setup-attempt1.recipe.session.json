@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first uhitm.c:gulpum Fatal-gulp early branch for non-stone-resistant Trapper engulfing cockatrice calls instapetrify5031; Trapper has only engulf attacks, avoiding worm bite-before-engulf. Blessed monster detection persists through eyeless form so coordinates can be observed.",
+  "segments": [
+    {
+      "seed": 51000701,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V51Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          \u0017blessed potion of monster detection\ni"
+    }
+  ]
+}

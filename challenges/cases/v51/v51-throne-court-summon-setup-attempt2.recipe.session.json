@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first sit.c:throne_sit_effect Ordinary throne effect7 loops rnd(10) makemon(courtmon()) at hero coordinate.; date source-derived phase1 avoids invalid startup input consumption.",
+  "segments": [
+    {
+      "seed": 51000103,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          l\u0017throne\n#sit\n"
+    }
+  ]
+}

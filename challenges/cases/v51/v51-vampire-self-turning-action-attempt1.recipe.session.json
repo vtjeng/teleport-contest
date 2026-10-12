@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first zap.c:zapyourself -> unturn_you Self-directed undead turning calls unturn_you: carried corpses/eggs unturned; undead hero frightened and rnd(30) stunned, living hero shudders.",
+  "segments": [
+    {
+      "seed": 51000111,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V51Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017wand of undead turning (4)\n#polyself\nvampire\n                    zp.          "
+    }
+  ]
+}
