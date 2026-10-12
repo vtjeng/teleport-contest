@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T15:58:57.523Z",
+  "capturedAt": "2026-10-12T16:11:06.138Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -95820,6 +95820,82 @@
         "type": "accepted",
         "at": "2026-10-12T15:58:22.285Z",
         "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v51-rustmonster-passive-weapon-erosion-20261012-ae05251395ebd1439c8efd25e9f3c839755834ba",
+        "type": "published",
+        "at": "2026-10-12T15:59:41.862Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "commit": "ae05251395ebd1439c8efd25e9f3c839755834ba"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getpos-integration-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T15:59:46.820Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "phase": "review",
+        "reason": "Integrate the whole getpos and getpos_menu delivery with its bounded mouse caller. This dependency precedes the waiting polymorph self-touch fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-idle-C-post-rustm-queue-review-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:00:23.142Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent unreserved case is visible; the saved queue still lists an accepted Rustm case as mismatched. Waiting for the refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-active-C-refreshed-queue-recheck-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:00:55.719Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Checking refreshed queue ownership before selecting the next independent case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-idle-C-refreshed-queue-reservations-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:01:03.475Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent queue case is unreserved; C is preserving its ready pyrolisk and bluejelly deliveries while other workers own the remaining cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getpos-integrating-924c1707-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T16:02:29.766Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "integration": "924c170713a549fbc179010bf25a7b9bab6a56ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v48-name-floor-object-self-20261012-924c170713a549fbc179010bf25a7b9bab6a56ec-validated",
+        "type": "validated",
+        "at": "2026-10-12T16:08:54.351Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-four-owners-pickup-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:09:09.137Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: four provisional first defects; checking partial pickup and full inventory branches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v48-name-floor-object-self-20261012-924c170713a549fbc179010bf25a7b9bab6a56ec-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T16:10:32.181Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012"
       }
     ]
   },
@@ -95834,7 +95910,6 @@
         "delivery": "07d6ac95bd1f0702693a4e4e26f5639bcdd25796",
         "since": "2026-10-12T07:36:15.001Z",
         "blockedBy": [
-          "B-investigation-v48-name-floor-object-self-20261012",
           "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
         ],
         "unblocks": 0
@@ -95947,17 +96022,6 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v48-name-floor-object-self-20261012",
-        "worker": "B",
-        "goal": "divergence-fix-getpos-self-key-floor-name-v48-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "9c6b57c616fed75b62b4e67ec128932773cc8124",
-        "since": "2026-10-12T14:39:14.952Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "Prep19",
         "worker": "Prep",
         "goal": null,
@@ -95982,7 +96046,7 @@
         "delivery": "13de69eeb69c8ba8c401afccb03f1778437a6096",
         "since": "2026-10-12T15:04:24.193Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       }
     ],
     "preparedBatches": [],
@@ -96443,8 +96507,8 @@
     ]
   },
   "development": {
-    "executionCommit": "b126627c379b87b95d86d7b9a070973eabc9f24c",
-    "measuredAt": "2026-10-12T15:55:53.259Z",
+    "executionCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+    "measuredAt": "2026-10-12T16:07:23.423Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

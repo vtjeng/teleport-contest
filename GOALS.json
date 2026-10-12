@@ -287869,7 +287869,7 @@
     {
       "id": "divergence-fix-getpos-self-key-floor-name-v48-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete getpos position selection and its menu dependency",
       "cFile": "getpos.c",
       "sessions": [
@@ -287883,8 +287883,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "getpos",
@@ -288306,6 +288309,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {

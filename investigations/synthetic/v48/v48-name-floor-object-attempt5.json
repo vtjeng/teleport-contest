@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v48/v48-name-floor-object-attempt5",
-  "remainingScreens": 1,
+  "remainingScreens": 0,
   "recordedSteps": 60,
   "corpus": "synthetic",
   "batch": "v48",
@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v48.json",
   "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
   "recordingSha256": "fb830b3492fdd58e79203b5251c03d34ca1dd7baadf26bafaac607030a16ba57",
-  "evaluationPath": "challenges/evaluations/accepted-b126627c379b87b95d86d7b9a070973eabc9f24c-v48.json",
-  "evaluationCommit": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+  "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v48.json",
+  "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
   "status": "complete",
-  "commit": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+  "commit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v48",
@@ -25,19 +25,19 @@
     "recipe": "challenges/cases/v48/v48-name-floor-object-attempt5.recipe.session.json",
     "recipeSha256": "fc6e6fb7ec82e8a19d2972d1c5a7d09c55a4a06f21b325c036b6fdc84ad54f8b",
     "replayInputSha256": "b7d864f26bfec677fa1875b1e8b5796b5d40c40c25bb22f46cc47be49cffd3bc",
-    "evaluationPath": "challenges/evaluations/accepted-b126627c379b87b95d86d7b9a070973eabc9f24c-v48.json",
-    "evaluationCommit": "b126627c379b87b95d86d7b9a070973eabc9f24c",
-    "evaluationArtifact": "challenges/evaluations/accepted-b126627c379b87b95d86d7b9a070973eabc9f24c-v48.json",
-    "evaluationUtc": "2026-10-12T15:54:57.868Z",
-    "remainingScreens": 1,
+    "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v48.json",
+    "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+    "evaluationArtifact": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v48.json",
+    "evaluationUtc": "2026-10-12T16:06:41.835Z",
+    "remainingScreens": 0,
     "recordedSteps": 60,
-    "previousScreensMatched": 59,
+    "previousScreensMatched": 60,
     "regression": false,
-    "passed": false,
+    "passed": true,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 59,
+        "matched": 60,
         "total": 60
       },
       "rng": {
@@ -49,35 +49,9 @@
         "total": 60
       }
     },
-    "firstMismatch": {
-      "screen": {
-        "index": 50,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 50,
-          "key": "@"
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 0,
-        "cCell": {
-          "ch": "h",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": "C",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": null,
-      "cursor": null
-    },
-    "step": 50,
-    "kind": "screen",
+    "firstMismatch": null,
+    "step": null,
+    "kind": null,
     "sourceFile": null,
     "function": null,
     "message": null,
@@ -85,7 +59,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The original failure is the SELF-key cursor branch. This delivery completes getpos and its required getpos_menu function, preserving queued input, cursor state, movement, selection, help, filters, terrain search and cleanup. It also wires the simulated-mouse branch of getdir without claiming the whole getdir function.",
+  "summary": "The original failure was the SELF-key cursor branch. The complete getpos and getpos_menu port now matches all 60 steps of the floor-object naming case. Independent cursor-input and simulated-mouse recordings pass in the combined checkpoint; the bounded getdir caller has no whole-function completion claim.",
   "source": {
     "file": "getpos.c",
     "branch": "Complete getpos and getpos_menu definitions; bounded cmd.c:getdir NHKF_GETDIR_MOUSE caller.",
@@ -106,5 +80,25 @@
     "The production caller is nethack-c/upstream/src/do_name.c:namefloorobj() lines 679-771, which initializes cc to the hero and calls getpos(&cc,FALSE,buf). js/do_name.js:namefloorobj() already wires that route into js/getpos.js:getpos(). At the mismatch, the recipe has selected an offset cursor before @; the missing JS special-key arm instead falls through to the non-force unknown-direction exit path.",
     "The omitted SELF branch proves the previous whole-getpos completion evidence was partial. The follow-up covers getpos.c:getpos 771–1167 and its return-valued getpos_menu dependency 665–725, including queued input, mouse selection, movement prefixes, filtering, message state and exits."
   ],
-  "goalKind": "file-port"
+  "goalKind": "file-port",
+  "runtimeVerification": {
+    "commit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+    "casePassed": true,
+    "metrics": {
+      "screens": {
+        "matched": 60,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2587,
+        "total": 2587
+      },
+      "cursors": {
+        "matched": 60,
+        "total": 60
+      }
+    },
+    "evidence": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v48.json",
+    "completionGoal": "divergence-fix-getpos-self-key-floor-name-v48-20261012"
+  }
 }
