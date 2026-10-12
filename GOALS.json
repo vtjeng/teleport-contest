@@ -292491,7 +292491,7 @@
     {
       "id": "port-zap-backfire-v52-cursed-wand-20261012",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement backfire from zap.c",
       "cFile": "zap.c",
       "sessions": [
@@ -292501,7 +292501,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "4cd4881552c06e139c24162766546ede1f17aeea",
       "delivered": null,
       "functions": [
         {
@@ -292514,6 +292514,74 @@
       "range": {
         "from": 2605,
         "to": 2617
+      },
+      "closeStanding": {
+        "sha": "4cd4881552c06e139c24162766546ede1f17aeea",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "5814725469a04a5cc2b68a4fd19de47137c4f7b1",
+        "target": "synthetic/v52/v52-cursed-wand-nothing-backfire-action-attempt2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/4cd4881552c06e139c24162766546ede1f17aeea/run-hosted-avrsYc/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "backfire",
+            "implementation": "js/zap.js",
+            "symbol": "backfire",
+            "sourceReview": "Read zap.c:backfire (2605-2614) and its dozap caller (2648-2653). Preserve the source order: set otmp->in_use, print The(xname(otmp)) suddenly explodes, roll d(otmp->spe + 2, 6), apply Maybe_Half_Phys, call losehp with \"exploding wand\" and KILLED_BY_AN, then useupall. dozap then calls exercise(A_STR,FALSE) and returns ECMD_TIME before the ordinary inventory tail. All consumed return values are implemented by existing d, losehp, and useupall owners; no callee gap remains in this branch. The neighboring weffects refusal remains outside the selected function.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "dozap",
+                "source": "zap.c:dozap calls backfire(obj) after zappable(obj) and the cursed-wand rn2 gate; it then exercises strength and returns ECMD_TIME."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runZapCommand",
+                "source": "cmd.c command dispatch reaches zap.c:dozap for key 0x7a, the z command."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-cursed-wand-nothing-backfire-action-attempt2",
+                "segment": 0,
+                "fromStep": 207,
+                "throughStep": 1102,
+                "source": "cmd.c key 0x7a dispatches dozap(); zap.c:dozap calls backfire() after zappable() and the cursed-wand rn2 gate"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is the z command. js/extcmdlist_data.js maps key 0x7a to dozap; js/cmd.js dispatches it to js/zap.js:dozap. zap.c:dozap reaches backfire only after zappable() succeeds and the cursed-wand backfire roll is zero. The cited v52 recording exercises this command route repeatedly and matches through the complete segment. The later weffects() branch remains an independent refusal outside this function scope.",
+        "entryPoints": [
+          {
+            "name": "cursed-wand backfire from the z command",
+            "functions": [
+              "backfire"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-cursed-wand-nothing-backfire-action-attempt2",
+                "segment": 0,
+                "fromStep": 207,
+                "throughStep": 1102,
+                "source": "cmd.c key 0x7a dispatches dozap(); zap.c:dozap calls backfire() after zappable() and the cursed-wand rn2 gate"
+              }
+            ]
+          }
+        ]
       }
     }
   ]
