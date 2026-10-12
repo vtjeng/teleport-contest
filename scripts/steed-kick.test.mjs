@@ -5,6 +5,7 @@ import {game} from '../js/gstate.js';
 import {runSegment} from '../js/jsmain.js';
 import {newMonster} from '../js/monst.js';
 import {PM_PONY} from '../js/monsters.js';
+import {FLYING, FROMOUTSIDE} from '../js/const.js';
 import {kick_steed} from '../js/steed.js';
 import {clearTtyMessageWindow} from '../js/tty_message.js';
 import {enableRngLog, getRngLog, initRng} from '../js/rng.js';
@@ -17,7 +18,7 @@ const body=js.slice(js.indexOf('export async function kick_steed'),js.indexOf('/
 test('kick_steed follows C helpless, tameness, resistance and gallop order',()=>{
     assert.match(source,/helpless\(u\.usteed\)[\s\S]*mcanmove \|\| u\.usteed->mfrozen\) && !rn2\(2\)/u);
     assert.match(source,/mtame--[\s\S]*m_unleash[\s\S]*rnd\(MAXULEV \/ 2 \+ 5\)[\s\S]*newsym[\s\S]*dismount_steed\(DISMOUNT_THROWN\)[\s\S]*ugallop \+= rn1\(20, 30\)/u);
-    assert.match(body,/--steed\.mtame[\s\S]*await m_unleash\(steed, true[\s\S]*rnd\(MAXULEV \/ 2 \+ 5\)[\s\S]*newsym[\s\S]*note_unported\('steed.c dismount_steed'\)[\s\S]*ugallop \+= rn1\(20, 30\)/u);
+    assert.match(body,/--steed\.mtame[\s\S]*await m_unleash\(steed, true[\s\S]*rnd\(MAXULEV \/ 2 \+ 5\)[\s\S]*newsym[\s\S]*await dismount_steed\(DISMOUNT_THROWN, state\)[\s\S]*ugallop \+= rn1\(20, 30\)/u);
     const apply=readFileSync(new URL('../js/apply.js',import.meta.url),'utf8');
     assert.match(apply,/You whip \$\{mon_nam\(u\.usteed, state\)\}![\s\S]*await kick_steed\(state\);/u);
     assert.doesNotMatch(apply,/note_unported\('steed.c kick_steed'\)/u);
@@ -68,14 +69,20 @@ test('helpless random refusal preserves state; permanent immobility skips RNG',a
         assert.match(game._ttyToplines,/does not respond\.$/u);
     }
 });
-test('tameness zero skips resistance RNG, releases the leash, and keeps the dismount gap',async()=>{
+test('tameness zero skips resistance RNG, releases the leash, and throws the rider',async()=>{
     const steed=await steedState({mtame:1,mleashed:1});
+    // Flying skips unrelated riding-accident damage rolls in this caller test.
+    game.u.uprops[FLYING].intrinsic=FROMOUTSIDE;
     game.unported=new Set();
     await kick_steed(game);
     assert.equal(steed.mtame,0);
     assert.equal(steed.mleashed,0);
-    assert.deepEqual(getRngLog(),[]);
-    assert.ok(game.unported.has('steed.c dismount_steed'));
+    assert.equal(game.u.usteed,null);
+    // The fixture uses PM_PONY and C's DISMOUNT_THROWN verb is "are thrown".
+    assert.match(game._ttyToplines,/You are thrown off of the pony!/u);
+    assert.equal(game.unported.has('steed.c dismount_steed'),false);
+    assert.equal(getRngLog().some(call=>call.startsWith('rnd(')),false,
+        'zero tameness short-circuits the source resistance roll');
 });
 test('level20 guarantees galloping but still consumes resistance then range RNG',async()=>{
     const steed=await steedState({mtame:10});
