@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700006,
+      "datetime": "20390927141723",
+      "nethackrc": "OPTIONS=name:FirstOwnedBookSale,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00165\n  #wizwish\nspellbook of blank paper\ntoh",
+      "_comment": "Independent generated-bookstore variation: an owned blank-paper book is eligible stock but has zero sale value. throwit -> check_shop_obj -> sellobj reaches the no-offer branch without a sale confirmation."
+    }
+  ]
+}

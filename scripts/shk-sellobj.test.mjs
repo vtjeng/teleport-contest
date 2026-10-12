@@ -2,12 +2,32 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { donate_gold } from '../js/shk.js';
+import { SELL_DONTSELL, SELL_NORMAL } from '../js/const.js';
+import { donate_gold, shk_globals_init } from '../js/shk.js';
 
 const C_SHK = readFileSync('nethack-c/upstream/src/shk.c', 'utf8');
 const C_DOTHROW = readFileSync('nethack-c/upstream/src/dothrow.c', 'utf8');
+const C_DECL = readFileSync('nethack-c/upstream/src/decl.c', 'utf8');
 const JS_SHK = readFileSync('js/shk.js', 'utf8');
 const JS_DOTHROW = readFileSync('js/dothrow.js', 'utf8');
+
+test('shop startup installs the C automatic sale defaults before the first sale', () => {
+    // decl.c initializes the response to 'a' and the mode to SELL_NORMAL,
+    // so an owned projectile can sell before any drop or container command.
+    assert.match(C_DECL,
+        /'a',\s*\/\* sell_response \*\/\s*SELL_NORMAL,\s*\/\* sell_how \*\//u);
+    const state = {};
+    shk_globals_init(state);
+    assert.equal(state.gs.sell_response, 'a');
+    assert.equal(state.gs.sell_how, SELL_NORMAL);
+
+    // A previous game's rejected sale must not carry into the next startup.
+    state.gs.sell_response = 'n';
+    state.gs.sell_how = SELL_DONTSELL;
+    shk_globals_init(state);
+    assert.equal(state.gs.sell_response, 'a');
+    assert.equal(state.gs.sell_how, SELL_NORMAL);
+});
 
 test('donate_gold reduces the loan and debt before reporting partial payment', async () => {
     // C ref: shk.c donate_gold() (3877-3910). A 5 zorkmid drop pays part of a

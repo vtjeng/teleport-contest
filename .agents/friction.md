@@ -164,3 +164,14 @@ triage decisions or fix references.
   restored only its 43 named changed paths to the accepted game plus the
   approved priority, and requeued history without accepted completion credit.
   A owns the correction; Root is integrating shop to release C's caller.
+
+### 2026-10-12 — shop startup defaults found after acceptance
+
+- Context: accepted shop candidate `8ae7e7de`, before publication.
+- Friction: the source review found that `decl.c` initializes `sell_response`
+  and `sell_how`, but JavaScript assigned them only after a drop or container
+  command. An owned projectile can reach selling before either command.
+- Outcome: initialize both values in the existing startup reset and pin them
+  to the C declarations. Independent blank-book and valuable-book projectile
+  recordings match completely. Validate this separate correction with a
+  supplemental hosted checkpoint before publishing the acceptance reports.

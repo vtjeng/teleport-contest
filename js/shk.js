@@ -248,9 +248,15 @@ import { setnotworn } from './worn.js';
 const emptyShops = new Array(5).fill(0);
 
 // Reset the C process statics before startup or saved-game restoration.
-export function shk_globals_init() {
+export function shk_globals_init(state = game) {
     emptyShops.fill(0);
     pickmovetime = 0;
+    // decl.c:720-721 initializes these shk.c globals before any sale. The
+    // startup caller runs this once for each new game; sellobj_state() then
+    // changes them together for deliberate sales and container operations.
+    state.gs ??= {};
+    state.gs.sell_response = 'a';
+    state.gs.sell_how = SELL_NORMAL;
 }
 
 // C ref: shk.c money2mon() (157-184). Transfer an exact gold stack from the
