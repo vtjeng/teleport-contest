@@ -63,25 +63,52 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The v47 shop drop now passes the earlier dodrop() boundary and stops at the next source gap. On a costly shop square, js/do.js:preflight_dropx() rejects before the ordinary drop reaches do.c:dropz() and its active shk.c:sellobj() call. The recorder shows the dagger drop, then the pager and sale query; accepting the query reaches the missing seller behavior. The current JS drop tail records shk.c:sellobj only in its with-impact branch, while ordinary drops need the same shop-sale call after placement and before stacking.",
+  "summary": "The v47 shop drop now reaches the unported shop-sale behavior. Full source-scope review shows that implementing shk.c:sellobj() requires wiring seven active call sites across do.c, dothrow.c, pickup.c, and trap.c, including dothrow.c:check_shop_obj() and throw_gold(); the C paths are currently refused or recorded as gaps in JS. The used-return callee shk.c:special_stock() is also absent from JS and depends on shknam.c:is_izchak(), which has a second caller in shk.c. This is a cross-file shop-accounting port, not a drop-only divergence; keep the investigation parked until the complete caller/evidence scope can be claimed atomically.",
   "source": {
     "file": "src/shk.c",
     "functions": [
-      "sellobj"
+      "sellobj",
+      "special_stock",
+      "is_izchak",
+      "check_shop_obj"
     ],
     "branch": "When an ordinary non-swallowed object is dropped on a costly spot in a shop whose keeper is present, C sellobj() computes its offer and handles the sale response; this recipe reaches the deliberate-sale query for a wished +5 dagger.",
     "callers": [
-      "src/do.c:dropz -> sellobj at the ordinary placed-object branch"
+      "src/do.c:dropz -> sellobj",
+      "src/dothrow.c:check_shop_obj -> sellobj",
+      "src/dothrow.c:throw_gold -> sellobj",
+      "src/pickup.c:in_container -> sellobj (two branches)",
+      "src/trap.c:cnv_trap_obj -> sellobj",
+      "src/shk.c:sellobj -> special_stock -> is_izchak",
+      "src/shk.c:shk_chat -> is_izchak (upstream caller only; shk_chat is not currently ported or wired in JS)"
     ],
     "dependencies": [
-      "src/do.c:dropx and dropz ordinary drop order; current JS preflight/drop admission; C sellobj direct callees and their existing JavaScript owners remain to be audited before implementation scope is claimed."
-    ]
+      "src/shk.c:special_stock is a return-valued dependency of sellobj and will be ported whole",
+      "src/shknam.c:is_izchak is a return-valued dependency of special_stock and will be ported whole with a source-pinned pure test",
+      "src/dothrow.c:check_shop_obj is the only sellobj call in the projectile path and will be ported whole, then called at all six existing JS callsites",
+      "shk.c:shk_chat calls is_izchak at :5594 but has no JavaScript implementation/dispatch path in the accepted tree; preserve this as an explicitly excluded unported source caller"
+    ],
+    "callerAudit": {
+      "sellobjDirectCallers": [
+        "src/do.c:dropz (ordinary drop placement, line 836; JS dropzAdmitted has only an impact-branch gap and preflight currently refuses costly spots)",
+        "src/dothrow.c:check_shop_obj (sellobj call at line 1210; check_shop_obj has six projectile callers at 1813, 1836, 2131, 2222, 2372, 2545; JS call paths contain note_unported markers)",
+        "src/dothrow.c:throw_gold (line 2727; JS throw_gold throws UnsupportedThrowError)",
+        "src/pickup.c:in_container (lines 2641 and 2702; JS has two note_unported markers)",
+        "src/trap.c:cnv_trap_obj (line 5362; JS has note_unported marker)"
+      ],
+      "returnValuedCallees": [
+        "src/shk.c:special_stock (called by sellobj; return gates the uninterested message; JS implementation absent)",
+        "src/shknam.c:is_izchak (return used by special_stock and independently by src/shk.c:shk_names_obj; JS implementation absent; requires a source-pinned pure test)"
+      ],
+      "sourceScopeDecision": "Claim the complete active shop-sale family as one implementation task: port the full sellobj() and special_stock() functions, include the return-valued pure is_izchak() helper, port check_shop_obj(), and wire every existing direct sellobj caller in drop, projectile, thrown-gold, container, and trap-object paths. is_izchak() has a second upstream caller in shk.c:shk_chat(), but no JS shk_chat implementation or production caller exists; document that unported upstream branch as excluded while testing the complete pure helper and wiring its active special_stock caller."
+    }
   },
   "evidence": [
     "Saved queue entry at challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json identifies the stop at segment 0, step 48, with 3 remaining screens; step 48 key `o` displays “You drop a dagger.--More--”, step 49 space displays the shopkeeper offer, and step 50 `y` records the sale.",
     "The immutable recipe challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json independently sets up a wizard, creates a shop, wishes a +5 dagger, then drops it and accepts the sale.",
     "C source src/do.c:dropx (786-797) extracts inventory, checks shipping and altar effects, then calls dropy(); dropz (806-843) places the object and calls sellobj(obj, u.ux, u.uy) for shop levels before stackobj(). The JavaScript preflight_dropx() at js/do.js:1897-2100 rejects costly_spot() at :1956 before ordinary placement; dropzAdmitted() records the shk.c:sellobj gap only inside its withImpact branch at :2205-2209.",
-    "C source src/shk.c:sellobj() (3927-4128) is a void shop-sale function with ordinary costly-spot eligibility, sale pricing, shopkeeper state, offer and confirmation branches, and payment/billing effects. The current js/shk.js has no sellobj() declaration; rg confirmed existing related helpers including costly_spot(), saleable(), set_cost(), record_price_quote(), and sellobj_state().",
-    "Investigation is partial because the safe reload pause arrived before full direct-callee and entry-point analysis, source reservation, or edits; no game code was changed and no tests, recordings, or fresh differentials were started."
+    "C source src/shk.c:sellobj() (3927-4194) is a void shop-sale function with ordinary costly-spot eligibility, sale pricing, shopkeeper state, offer and confirmation branches, and payment/billing effects. The current js/shk.js has no sellobj() declaration; rg confirmed existing related helpers including costly_spot(), saleable(), set_cost(), record_price_quote(), and sellobj_state().",
+    "Investigation is partial because the safe reload pause arrived before full direct-callee and entry-point analysis, source reservation, or edits; no game code was changed and no tests, recordings, or fresh differentials were started.",
+    "Complete source/caller audit: sellobj() spans shk.c:3927-4194 and has six direct C callsites across do.c:dropz, dothrow.c:check_shop_obj/throw_gold, pickup.c:in_container (two branches), and trap.c:cnv_trap_obj. check_shop_obj() at dothrow.c:1181-1218 has six callsites at :1813, :1836, :2131, :2222, :2372, and :2545. Its gaps are present at six JavaScript callsites; throw_gold currently refuses with UnsupportedThrowError. special_stock() at shk.c:3103-3136 is an active used-return dependency, and is_izchak() at shknam.c:908-923 is a pure used-return helper. The only other C is_izchak caller is shk.c:shk_chat at :5594; shk_chat has no JS implementation/caller in the accepted tree and is excluded from this task. Reservation status was checked via the shared worker ledger: none of these shop source functions/caller scopes is reserved by another worker."
   ]
 }
