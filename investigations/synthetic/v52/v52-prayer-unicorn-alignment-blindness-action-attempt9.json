@@ -6,8 +6,8 @@
   "manifestPath": "challenges/manifests/v52.json",
   "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
   "recordingSha256": "a6f042ad154fdac17e22e0cf94137834e9aeb8f1a06b1d959a09a540c1e4092e",
-  "evaluationPath": "challenges/evaluations/accepted-4cd4881552c06e139c24162766546ede1f17aeea-v52.json",
-  "evaluationCommit": "4cd4881552c06e139c24162766546ede1f17aeea",
+  "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+  "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
   "remainingScreens": 102,
   "recordedSteps": 338,
   "status": "complete",
@@ -59,7 +59,7 @@
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "Saved v52 queue provenance: canonical manifest challenges/manifests/v52.json SHA-256 38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e; recording SHA-256 a6f042ad154fdac17e22e0cf94137834e9aeb8f1a06b1d959a09a540c1e4092e; evaluation challenges/evaluations/accepted-4cd4881552c06e139c24162766546ede1f17aeea-v52.json at 4cd4881552c06e139c24162766546ede1f17aeea.",
+    "Saved v52 baseline provenance: canonical manifest challenges/manifests/v52.json SHA-256 38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e; recording SHA-256 a6f042ad154fdac17e22e0cf94137834e9aeb8f1a06b1d959a09a540c1e4092e; evaluation challenges/evaluations/hosted-38292091033-1-v52.json at fcfb7afe71226851b75665b753b0c2c73ceb7af4. The later accepted 4cd488155 v52 evaluation reports the same 236/338 screens, 2446/2446 RNG, and 337/338 cursors for this case."
     "Selected fresh scan reports 2446/2446 RNG matches and first screen divergence at zero-based segment 0 step 236: C row 23 column 41 is blank while JS shows B; first cursor divergence is at step 291.",
     "C pray.c:fix_worst_trouble TROUBLE_BLIND branch (555-575) calls make_blinded(0L,FALSE) at line 566. JS pray.js:fix_worst_trouble (around 1620-1640) clears ucreamed then substitutes note_unported('potion.c make_blinded'), although the existing make_blinded implementation is imported."
   ]
