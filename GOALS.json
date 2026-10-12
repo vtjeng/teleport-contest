@@ -280865,7 +280865,7 @@
     {
       "id": "port-cpostfx-blocking-mimic-display-v47-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete cpostfx blocking mimic display and verify its production callers",
       "cFile": "eat.c",
       "sessions": [
@@ -280879,8 +280879,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bcec557f6844ad95efb413b7662c31a6304f69d7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "cpostfx",
@@ -281212,6 +281215,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "bcec557f6844ad95efb413b7662c31a6304f69d7",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
