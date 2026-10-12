@@ -293664,6 +293664,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "C-v52-steed-use-saddle-stoning-caller-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore petrification when saddling a cockatrice",
+      "cFile": "steed.c",
+      "sessions": [
+        "synthetic/v52/v52-saddle-cockatrice-touch-action-attempt2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_saddle",
+      "session": "synthetic/v52/v52-saddle-cockatrice-touch-action-attempt2"
     }
   ]
 }
