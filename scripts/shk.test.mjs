@@ -202,6 +202,11 @@ test('nested shop identity reaches keeper and deserted-shop handling', async () 
     keeper.mpeaceful = true;
     subroom.resident = keeper;
 
+    assert.match(C_SHK, /#define IS_SHOP\(x\) \(svr\.rooms\[x\]\.rtype >= SHOPBASE\)/u);
+    assert.match(
+        sourceBody(C_SHK, 'inside_shop(coordxy x, coordxy y)'),
+        /rno = levl\[x\]\[y\]\.roomno;\s*if \(\(rno < ROOMOFFSET\)\s*\|\| levl\[x\]\[y\]\.edge \|\| !IS_SHOP\(rno - ROOMOFFSET\)\)/u,
+    );
     assert.equal(inside_shop(12, 6, state), roomno);
     assert.equal(shop_keeper(roomno, state), keeper);
 
