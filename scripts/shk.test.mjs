@@ -55,6 +55,7 @@ import {
     gem_learned,
     inside_shop,
     find_objowner,
+    hot_pursuit,
     inhishop,
     is_unpaid,
     oid_price_adjustment,
@@ -164,6 +165,80 @@ test('shop_keeper applies the anger surcharge once to active bill entries', () =
     assert.deepEqual(bill.map((entry) => entry.price), [2, 4, 6, 9]);
     assert.equal(shop_keeper(ROOMOFFSET, state), keeper);
     assert.deepEqual(bill.map((entry) => entry.price), [2, 4, 6, 9]);
+});
+
+test('hot_pursuit angers the keeper and clears floor and pet no-charge flags', () => {
+    const cBody = C_SHK.match(
+        /void\s+hot_pursuit\(struct monst \*shkp\)\s*\{([\s\S]*?)\n\}/u,
+    )?.[1];
+    assert.ok(cBody, 'the whole C hot_pursuit definition is present');
+    assert.match(cBody, /if \(!shkp->isshk\)\s*return;/u);
+    assert.match(
+        cBody,
+        /rile_shk\(shkp\);\s*\(void\) strncpy\(ESHK\(shkp\)->customer,\s*svp\.plname, PL_NSIZ\);\s*ESHK\(shkp\)->following = 1;/u,
+    );
+    assert.match(
+        cBody,
+        /clear_no_charge\(\(struct monst \*\) NULL, fobj\);\s*clear_no_charge_pets\(shkp\);/u,
+    );
+    const jsCaller = JS_SHK.slice(
+        JS_SHK.indexOf('export async function stolen_value('),
+        JS_SHK.indexOf('// C ref: shk.c onshopbill()'),
+    );
+    assert.match(
+        jsCaller,
+        /hot_pursuit\(shkp, state\);\s*await angry_guards\(false, \{ state \}\);/u,
+    );
+    assert.doesNotMatch(jsCaller, /note_unported\('shk\.c hot_pursuit'\)/u);
+
+    // These active bill prices exercise C's one-time rounded-up-third surcharge.
+    const bill = [{ price: 1 }, { price: 3 }, { price: 4 }];
+    const keeper = billShopkeeper(ROOMOFFSET, bill);
+    keeper.mextra.eshk.surcharge = false;
+    keeper.mextra.eshk.customer = '';
+    keeper.mextra.eshk.following = false;
+
+    // This nested floor object verifies that hot_pursuit clears the whole fobj tree.
+    const contained = {
+        where: OBJ_CONTAINED,
+        no_charge: true,
+        cobj: null,
+        nobj: null,
+    };
+    const floorItem = {
+        where: OBJ_FLOOR,
+        no_charge: true,
+        cobj: contained,
+        nobj: null,
+    };
+    // C clears pet inventories only for tame monsters in fmon.
+    const petItem = { where: OBJ_MINVENT, no_charge: true, cobj: null, nobj: null };
+    const pet = { mtame: true, minvent: petItem, nmon: null };
+    const wildItem = { where: OBJ_MINVENT, no_charge: true, cobj: null, nobj: null };
+    const wild = { mtame: false, minvent: wildItem, nmon: null };
+    pet.nmon = wild;
+    // The short name stays within C's PL_NSIZ buffer and copies without truncation.
+    const state = {
+        plname: 'Aster',
+        level: { objlist: floorItem, monlist: pet },
+    };
+
+    hot_pursuit(keeper, state);
+
+    assert.equal(keeper.mpeaceful, false);
+    assert.equal(keeper.mextra.eshk.surcharge, true);
+    assert.deepEqual(bill.map((entry) => entry.price), [2, 4, 6]);
+    assert.equal(keeper.mextra.eshk.customer, 'Aster');
+    assert.equal(keeper.mextra.eshk.following, true);
+    assert.equal(floorItem.no_charge, false);
+    assert.equal(contained.no_charge, false);
+    assert.equal(petItem.no_charge, false);
+    assert.equal(wildItem.no_charge, true);
+
+    // C returns before any pursuit state changes for a non-shopkeeper.
+    const nonKeeper = { isshk: false, mpeaceful: true };
+    hot_pursuit(nonKeeper, state);
+    assert.equal(nonKeeper.mpeaceful, true);
 });
 
 test('nested shop identity reaches keeper and deserted-shop handling', async () => {
