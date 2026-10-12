@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T06:28:13.721Z",
+  "capturedAt": "2026-10-12T07:11:54.222Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -92919,6 +92919,183 @@
         "at": "2026-10-12T06:28:06.984Z",
         "task": "C-investigation-v48-short-version-command-20261012",
         "reason": "C reports committed implementation and V/mV normalized host-string replay, but strict evidence gate rejects submission: local C emits Unix while official profile emits MacOS. Preserve commits 4f13891af and15e869a33, recipes and private check evidence; no raw mismatching recording is in the regression corpus. Source completion remains unproven pending a permitted host-profile evidence route or matching recorder."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v48-extended-fire-empty-attempt1-20261012-2e42872b09fe67c2a359a4495f3dbb1ee74e6888",
+        "type": "published",
+        "at": "2026-10-12T06:28:23.678Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
+        "commit": "2e42872b09fe67c2a359a4495f3dbb1ee74e6888"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v48-ctrlp-accepted-dispatch-20261012",
+        "type": "resume",
+        "at": "2026-10-12T06:29:04.249Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-ctrlp-investigation-20261012",
+        "type": "turn",
+        "at": "2026-10-12T06:29:06.506Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-version-evidence-wait-20261012",
+        "type": "turn",
+        "at": "2026-10-12T06:34:15.433Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Version fix is preserved; source evidence awaits a recorder-profile decision from Root. New work will follow batch admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep14-corrected-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T06:36:10.960Z",
+        "task": "Prep14",
+        "phase": "review",
+        "reason": "Verify corrected twelve-case manifest, documented added coverage, unchanged C recordings and recipe metadata before integrating work for idle workers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep14-corrected-8fa603d54-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T06:37:14.223Z",
+        "task": "Prep14",
+        "integration": "8fa603d54ec3574dadb9a1b09e3c18384e0c2a97"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B-getobj-for-A-history-caller-20261012",
+        "type": "park",
+        "at": "2026-10-12T06:41:40.234Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "reason": "B is command-free and its immutable getobj Escape delivery92449c294 is preserved. Transfer getobj caller-edit ownership to A for the required force_invmenu history-writer hook so the complete TTY family can proceed. A must preserve the pending Escape repair; resume this unchanged B delivery after A releases the caller scope. No behavioral dependency from A to B is introduced."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-topl-message-history-v48-20261012",
+        "type": "implement",
+        "at": "2026-10-12T06:42:01.958Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "goal": "file-port-topl-message-history-v48-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep15-eight-causal-candidates-20261012",
+        "type": "turn",
+        "at": "2026-10-12T06:48:56.189Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep is continuing v51 source searches; C replay verified new corpse-pile hiding and cockatrice engulf paths."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-Prep14-8fa603d54-20261012",
+        "type": "validated",
+        "at": "2026-10-12T06:59:49.347Z",
+        "task": "Prep14",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep14-8fa603d54ec3574dadb9a1b09e3c18384e0c2a97-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T07:03:54.671Z",
+        "task": "Prep14"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-v50-baseline-20261012",
+        "type": "activity",
+        "at": "2026-10-12T07:04:58.615Z",
+        "task": "Prep14",
+        "phase": "baseline",
+        "reason": "Accepted preparation and admitted twelve-case v50 manifest; recording first baseline before waking idle implementation workers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-v50-20261012",
+        "type": "turn",
+        "at": "2026-10-12T07:07:19.180Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Synced accepted Main; waiting for the refreshed v50 mismatch queue before selecting independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v50-vrock-flee-cloud-investigation-20261012",
+        "type": "assign",
+        "at": "2026-10-12T07:08:05.625Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-v50-checkpoint-wait-20261012",
+        "type": "activity",
+        "at": "2026-10-12T07:08:36.396Z",
+        "task": "Prep14",
+        "phase": "waiting",
+        "reason": "First v50 baseline committed; B and C resumed independent admitted-case investigations. Waiting on exact-commit hosted checkpoint before publishing admission and dashboard."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-04090e5d4d10ec3cd49565ed5439fa8469ffb20e",
+        "type": "ready",
+        "at": "2026-10-12T07:08:47.370Z",
+        "task": "Prep15",
+        "delivery": "04090e5d4d10ec3cd49565ed5439fa8469ffb20e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v50-dragon-egg-carried-hatch-action-attempt1",
+        "type": "assign",
+        "at": "2026-10-12T07:09:17.523Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep15-04090e5d4-20261012",
+        "type": "received",
+        "at": "2026-10-12T07:09:27.829Z",
+        "task": "Prep15",
+        "delivery": "04090e5d4d10ec3cd49565ed5439fa8469ffb20e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-v50-dragon-investigation-20261012",
+        "type": "turn",
+        "at": "2026-10-12T07:10:10.612Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep16-v52-20261012",
+        "type": "assign",
+        "at": "2026-10-12T07:10:33.487Z",
+        "task": "Prep16",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v52"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep16-active-v52-20261012",
+        "type": "turn",
+        "at": "2026-10-12T07:10:36.796Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep is planning v52 after submitting v51 with twelve provisional distinct failures and four added-coverage controls."
       }
     ]
   },
@@ -92960,20 +93137,6 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v49-apply-book-attempt2-20261012",
-        "worker": "B",
-        "goal": "div-getobj-menu-escape-v49-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "92449c294641f2004c63c94a6eb5f95c721c7e85",
-        "since": "2026-10-12T05:22:46.446Z",
-        "blockedBy": [
-          "B-investigation-v48-getpos-monster-menu-20261012",
-          "B-investigation-v48-inventtype-weapons-20261012"
-        ],
-        "unblocks": 0
-      },
-      {
         "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
         "worker": "C",
         "goal": "divergence-fix-cmd-doextcmd-quaff-remove-swap-v49-20261012",
@@ -93011,18 +93174,6 @@
         "unblocks": 0
       },
       {
-        "task": "Prep14",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "087526e2d600261cf45bdb172c7119b85b7b0f7d",
-        "batch": "v50",
-        "since": "2026-10-12T06:08:43.891Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "C-investigation-v48-discovery-sort-menu-20261012",
         "worker": "C",
         "goal": "port-o-init-choose-disco-sort-v48-20261012",
@@ -93030,6 +93181,18 @@
         "status": "ready",
         "delivery": "ff4afe97965f6d71faa65c9b37763d4b31514460",
         "since": "2026-10-12T06:10:32.228Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep15",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "04090e5d4d10ec3cd49565ed5439fa8469ffb20e",
+        "batch": "v51",
+        "since": "2026-10-12T07:08:47.370Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -93424,17 +93587,6 @@
         "reason": "Parked after committing corrected source findings e546f3c39. The current queue boundary at step 48 is behind the do.c:dropz costly-shop preflight refusal. A whole shk.c:sellobj port is not independently bounded: direct dothrow.c:check_shop_obj ownership and its six throwit callers must be included, and return-valued special_stock -> shknam.c:is_izchak must be ported with its active shk_chat caller. No game code was edited."
       },
       {
-        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-12T03:02:25.958Z",
-        "blockedBy": [],
-        "reason": "Partial source investigation saved at investigations/synthetic/v48/v48-previous-message-history-ctrlp.json. The first mismatch is rejected in cmd.js:rhack admission (source:cmd.c:rhack), which is reserved by C; the actual missing TTY callback is win/tty/topl.c:tty_doprev_message with absent WIN_MESSAGE history state. Resume after the command-admission owner resolves or releases the scope so the full callback path can be verified without conflicting edits."
-      },
-      {
         "task": "B-investigation-v48-knownclass-attempt3-20261012",
         "worker": "B",
         "goal": null,
@@ -93477,12 +93629,26 @@
         "since": "2026-10-12T06:28:06.984Z",
         "blockedBy": [],
         "reason": "C reports committed implementation and V/mV normalized host-string replay, but strict evidence gate rejects submission: local C emits Unix while official profile emits MacOS. Preserve commits 4f13891af and15e869a33, recipes and private check evidence; no raw mismatching recording is in the regression corpus. Source completion remains unproven pending a permitted host-profile evidence route or matching recorder."
+      },
+      {
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "worker": "B",
+        "goal": "div-getobj-menu-escape-v49-20261012",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": "92449c294641f2004c63c94a6eb5f95c721c7e85",
+        "since": "2026-10-12T06:41:40.234Z",
+        "blockedBy": [
+          "B-investigation-v48-getpos-monster-menu-20261012",
+          "B-investigation-v48-inventtype-weapons-20261012"
+        ],
+        "reason": "B is command-free and its immutable getobj Escape delivery92449c294 is preserved. Transfer getobj caller-edit ownership to A for the required force_invmenu history-writer hook so the complete TTY family can proceed. A must preserve the pending Escape repair; resume this unchanged B delivery after A releases the caller scope. No behavioral dependency from A to B is introduced."
       }
     ]
   },
   "development": {
-    "executionCommit": "02f2d3c93e6d30843cc91ad3087f3f9c55829690",
-    "measuredAt": "2026-10-12T06:19:13.633Z",
+    "executionCommit": "610a619df60bd1a377dbefd2a1f38f7f94074854",
+    "measuredAt": "2026-10-12T07:10:05.008Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
