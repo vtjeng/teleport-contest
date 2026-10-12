@@ -292830,7 +292830,7 @@
     {
       "id": "port-mplayer-talk-v52-endgame-chat-20261012",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mplayer_talk from mplayer.c",
       "cFile": "mplayer.c",
       "sessions": [
@@ -292840,7 +292840,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f",
       "delivered": null,
       "functions": [
         {
@@ -292853,6 +292853,74 @@
       "range": {
         "from": 356,
         "to": 380
+      },
+      "closeStanding": {
+        "sha": "ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "67776b9593bfb9e0bc90bc2ead6934245f045b8b",
+        "target": "synthetic/v52/v52-endgame-mplayer-chat-action-attempt6",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f/run-hosted-V1f77u/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mplayer_talk",
+            "implementation": "js/mplayer.js",
+            "symbol": "mplayer_talk",
+            "sourceReview": "Read the complete mplayer.c:mplayer_talk definition at 356-375. The function returns before side effects for peaceful monsters; otherwise it calls SetVoice (empty in this recorder build), compares mtmp->data by species pointer with mons[gu.urole.mnum], consumes exactly one rn2(3) from the matching three-message array, and passes the selected formatted line to verbalize. The bounded sounds.c:domonnoise branch at 1025-1030 is wired with the same state, random owner, and message sink, replacing its note_unported placeholder. No return-valued callee is unported.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:domonnoise:1025-1030"
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "dochat",
+                "source": "sounds.c:dochat -> domonnoise"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mplayer-talk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-endgame-mplayer-chat-action-attempt6",
+                "segment": 0,
+                "fromStep": 104,
+                "throughStep": 114,
+                "source": "sounds.c:dochat -> sounds.c:domonnoise:1025-1030 -> mplayer.c:mplayer_talk:356-375"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "C has one active caller for mplayer_talk: sounds.c:domonnoise calls it only from the hostile MS_HUMANOID branch when In_endgame and is_mplayer are both true. The production route is #chat through sounds.c:dochat and the command registry, then js/sounds.js:domonnoise. The recorder build defines SetVoice as empty in sndprocs.h:276, so there is no additional observable voice operation to port. The peaceful early return is source-pinned by the focused test; the admitted synthetic range exercises the hostile production entry point.",
+        "entryPoints": [
+          {
+            "name": "Hostile endgame monster-player through #chat",
+            "functions": [
+              "mplayer_talk"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-endgame-mplayer-chat-action-attempt6",
+                "segment": 0,
+                "fromStep": 104,
+                "throughStep": 114,
+                "source": "sounds.c:dochat -> sounds.c:domonnoise:1025-1030 -> mplayer.c:mplayer_talk:356-375"
+              }
+            ]
+          }
+        ]
       }
     }
   ]

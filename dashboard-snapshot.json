@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T19:51:42.986Z",
+  "capturedAt": "2026-10-12T20:01:54.322Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -97496,6 +97496,132 @@
         "type": "accepted",
         "at": "2026-10-12T19:50:48.597Z",
         "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012-fcc756c121bde46f1742960bfc686a2872211724",
+        "type": "published",
+        "at": "2026-10-12T19:51:59.730Z",
+        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+        "commit": "fcc756c121bde46f1742960bfc686a2872211724"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-final-review-no-live-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:52:33.727Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Finalizing twelve distinct game behavior failures and seven matching controls; all independent C attempts are preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-mplayer-ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f",
+        "type": "integrating",
+        "at": "2026-10-12T19:53:33.704Z",
+        "task": "B-investigation-v52-endgame-mplayer-chat-attempt6-20261012",
+        "integration": "ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b02faa4f089627c4e01057453683eec7518bdbc0",
+        "type": "ready",
+        "at": "2026-10-12T19:55:18.218Z",
+        "task": "Prep22",
+        "delivery": "b02faa4f089627c4e01057453683eec7518bdbc0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b02faa4f089627c4e01057453683eec7518bdbc0",
+        "type": "received",
+        "at": "2026-10-12T19:55:43.179Z",
+        "task": "Prep22",
+        "delivery": "b02faa4f089627c4e01057453683eec7518bdbc0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep23-v59-20261012",
+        "type": "assign",
+        "at": "2026-10-12T19:55:59.125Z",
+        "task": "Prep23",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v59"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-source-plan-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:56:02.006Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing the next independent C game batch from source after preserving the prior delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-shk-move-distance-20261012",
+        "type": "implement",
+        "at": "2026-10-12T19:57:45.256Z",
+        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
+        "goal": "A2-fix-shk-move-avoid-distance-v52-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-initial-C-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:58:40.219Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Recording twelve new C game setups before JavaScript comparison."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-endgame-mplayer-chat-attempt6-20261012-ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f-validated",
+        "type": "validated",
+        "at": "2026-10-12T19:59:53.202Z",
+        "task": "B-investigation-v52-endgame-mplayer-chat-attempt6-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-action-scout-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:00:04.326Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Following the twelve C setups with source-directed game actions and prompt scouts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-endgame-mplayer-chat-attempt6-20261012-ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T20:00:15.618Z",
+        "task": "B-investigation-v52-endgame-mplayer-chat-attempt6-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ed46996e9a3d80d5c70c1d98c1849d8cf264b339",
+        "type": "ready",
+        "at": "2026-10-12T20:00:28.141Z",
+        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
+        "delivery": "ed46996e9a3d80d5c70c1d98c1849d8cf264b339"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-ed46996e9a3d80d5c70c1d98c1849d8cf264b339",
+        "type": "received",
+        "at": "2026-10-12T20:01:07.444Z",
+        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
+        "delivery": "ed46996e9a3d80d5c70c1d98c1849d8cf264b339"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-await-mplayer-queue-refresh-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:01:34.564Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B merged accepted Main and found no independent unreserved case. Waiting for the post-import queue refresh; the v48 short-version case remains held."
       }
     ]
   },
@@ -97556,17 +97682,6 @@
           "Prep19",
           "Prep20"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v52-endgame-mplayer-chat-attempt6-20261012",
-        "worker": "B",
-        "goal": "port-mplayer-talk-v52-endgame-chat-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "0f0345aecbe0ffe68217b1b558818389c9e83edb",
-        "since": "2026-10-12T19:05:33.799Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -97644,7 +97759,7 @@
         "delivery": "20763e5c8c468f81294b4648414e6ed942b786b0",
         "since": "2026-10-12T19:48:34.290Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
@@ -97655,6 +97770,36 @@
         "delivery": "2ac40434589f38f5e67dfcdde02ef0ec03f37db0",
         "since": "2026-10-12T19:49:08.131Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep22",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "b02faa4f089627c4e01057453683eec7518bdbc0",
+        "batch": "v58",
+        "since": "2026-10-12T19:55:18.218Z",
+        "blockedBy": [
+          "Prep18",
+          "Prep19",
+          "Prep20",
+          "Prep21"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
+        "worker": "A2",
+        "goal": "A2-fix-shk-move-avoid-distance-v52-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "ed46996e9a3d80d5c70c1d98c1849d8cf264b339",
+        "since": "2026-10-12T20:00:28.141Z",
+        "blockedBy": [
+          "A2-investigation-v52-minetown-muse-continuation-20261012"
+        ],
         "unblocks": 0
       }
     ],
@@ -98128,8 +98273,8 @@
     ]
   },
   "development": {
-    "executionCommit": "67776b9593bfb9e0bc90bc2ead6934245f045b8b",
-    "measuredAt": "2026-10-12T19:48:54.346Z",
+    "executionCommit": "ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f",
+    "measuredAt": "2026-10-12T19:58:58.424Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
