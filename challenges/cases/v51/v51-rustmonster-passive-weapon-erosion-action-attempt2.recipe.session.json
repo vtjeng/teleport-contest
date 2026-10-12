@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mhitm.c:rustm1260-1279 passive weapon erosion through uhitm.c:mhitm_ad_phys monster-to-hero caller.",
+  "segments": [
+    {
+      "seed": 51000301,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V51Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #polyself\nrust monster\n                    #wizgenesis\nhostile dwarf\n    m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          "
+    }
+  ]
+}

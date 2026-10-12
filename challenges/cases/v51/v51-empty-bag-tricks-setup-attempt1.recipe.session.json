@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first makemon.c:bagotricks Empty charged item reveals bag and either says empty or permits container selection.",
+  "segments": [
+    {
+      "seed": 51000109,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V51Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017bag of tricks (0)\ni"
+    }
+  ]
+}
