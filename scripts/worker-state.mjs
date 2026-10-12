@@ -111,7 +111,7 @@ wakeups lists idle/blocked workers whose last report predates a new admitted
 baseline. Refresh the saved queue when queueReady is false, then ask those
 workers to recheck. Their next turn or assignment clears the reminder; do not
 replace a current task or interrupt a running process. Ready preparation gets
-integration priority when independent worker work is short; existing preparation
+integration priority when idle or blocked workers lack independent work; existing preparation
 is listed instead of requesting another batch.
 Feed actual completion observations into turn events; saved state is not proof of
 liveness. Feedback waits for a safe task boundary. resume refuses to mix two
@@ -508,14 +508,15 @@ export function nextActions(state, admittedBatches = [], queue = null) {
         .sort((a, b) => b.unblocks - a.unblocks || a.since.localeCompare(b.since));
     const available = workerWork(state, queue);
     const reserve = pending.preparedBatches[0];
-    const short = available.candidateGroups !== null && available.candidateGroups < available.implementationWorkers;
+    const short = available.candidateGroups !== null && available.candidateGroups < available.workersNeedingWork;
     const readyPrep = ready.filter(row => row.kind === 'challenge-preparation')
         .sort((a, b) => a.batch.localeCompare(b.batch, 'en', { numeric: true }))[0];
     const preparing = tasks.find(task => task.kind === 'challenge-preparation' && task.status !== 'accepted');
     const prepAction = readyPrep ? { action: 'integrate-prepared-batch-next', task: readyPrep.task, batch: readyPrep.batch }
         : preparing ? { action: 'finish-preparation', task: preparing.id,
             batch: preparing.reservations[0].split(':')[1] } : { action: 'prepare-more-work' };
-    const preferred = short && !reserve && readyPrep ? readyPrep : ready[0];
+    const readyImplementation = ready.find(row => row.kind !== 'challenge-preparation');
+    const preferred = short && !reserve && readyPrep ? readyPrep : readyImplementation ?? ready[0];
     available.admission = available.candidateGroups === null ? { action: 'reassess-worker-work' }
         : short
             ? reserve ? { action: 'admit-at-next-safe-boundary', batch: reserve.batch, task: reserve.task }

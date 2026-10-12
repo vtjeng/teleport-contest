@@ -224,9 +224,10 @@ the mismatch queue, or the dashboard's scored batch charts. The dashboard lists
 ready batches awaiting admission separately.
 
 Admit prepared batches in order at safe integration boundaries. Give admission
-priority over queued deliveries when too few independent next tasks are
-available for the implementation workers. Count only unreserved work,
-not submitted deliveries.
+priority when idle or blocked implementation workers lack independent work.
+An active, unblocked task already gives its worker work. For the other workers,
+count only unreserved work, not submitted deliveries. When every implementation
+worker has active work, prefer ready implementation deliveries.
 
 After saving a new batch's baseline, ask idle or blocked implementation workers
 to reassess the updated queue at a clean task boundary. Do not wait for their
