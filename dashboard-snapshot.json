@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T14:06:39.985Z",
+  "capturedAt": "2026-10-12T14:42:29.445Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -95177,22 +95177,237 @@
         "worker": "A2",
         "state": "active",
         "reason": "Tracing C combat callers and checking the pending dragon-egg evidence packet."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-8bd-queue-reserved-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:07:11.570Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-readonly-combat-caller-support-idle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:07:24.062Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Read-only caller survey is complete; A2 remains available with the delayed-stoning delivery preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-320cb8708c0730993bfd9e45a791cec8cbed13e5",
+        "type": "ready",
+        "at": "2026-10-12T14:07:37.867Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "320cb8708c0730993bfd9e45a791cec8cbed13e5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v50-blacklight-monster-combat-action-20261012-98a15b2009e020a0216cd15144973cb53769332f",
+        "type": "published",
+        "at": "2026-10-12T14:07:43.802Z",
+        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012",
+        "commit": "98a15b2009e020a0216cd15144973cb53769332f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-vrock-whole-monflee-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T14:08:06.261Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-seven-first-owners-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:08:55.440Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: seven provisional first defects; checking monster self-polymorph behavior."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getpos-whole-correction-received-320cb8708-20261012",
+        "type": "received",
+        "at": "2026-10-12T14:09:08.627Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "320cb8708c0730993bfd9e45a791cec8cbed13e5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "combat-caller-range-evidence-feedback-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T14:09:10.803Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "f4f12a8713cdac19fdf47771e6e41af662317ded"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v50-combat-caller-range-evidence-20261012",
+        "type": "resume",
+        "at": "2026-10-12T14:11:23.450Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-combat-correction-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:11:26.055Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0b4403cfbf72917def3d942b83071609c08954a7",
+        "type": "ready",
+        "at": "2026-10-12T14:19:09.328Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "0b4403cfbf72917def3d942b83071609c08954a7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-combat-correction-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:20:08.286Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Combat correction is ready for Root review: caller attribution is fixed and the complete cited v50 segment matches on the combined tree."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-48e65d7f6c24375bbc9785d87bc92fd2a60d0f74",
+        "type": "ready",
+        "at": "2026-10-12T14:21:17.855Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "delivery": "48e65d7f6c24375bbc9785d87bc92fd2a60d0f74"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-readonly-getpos-interface-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:21:43.269Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Comparing delivered getpos queue and mouse input handling with the C interface."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-vrock-ready-all-queue-owned-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:22:38.384Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "combat-range-correction-received-0b4403cfb-20261012",
+        "type": "received",
+        "at": "2026-10-12T14:23:21.796Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "0b4403cfbf72917def3d942b83071609c08954a7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "vrock-caller-correction-received-48e65d7f6-20261012",
+        "type": "received",
+        "at": "2026-10-12T14:23:24.284Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "delivery": "48e65d7f6c24375bbc9785d87bc92fd2a60d0f74"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-getpos-support-idle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:23:36.420Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "demonpet-integrating-2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+        "type": "integrating",
+        "at": "2026-10-12T14:24:40.755Z",
+        "task": "B-investigation-v50-demonpet-melee-action-20261012",
+        "integration": "2f7bd8532267d282d4c34e9509a805c8decd3eaf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getpos-pointer-lifetime-feedback-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T14:26:43.450Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "320cb8708c0730993bfd9e45a791cec8cbed13e5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-ten-first-owners-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:34:16.743Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: ten provisional first defects; preparing further independent source behaviors."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v50-demonpet-melee-action-20261012-2f7bd8532267d282d4c34e9509a805c8decd3eaf-validated",
+        "type": "validated",
+        "at": "2026-10-12T14:37:22.395Z",
+        "task": "B-investigation-v50-demonpet-melee-action-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v50-demonpet-melee-action-20261012-2f7bd8532267d282d4c34e9509a805c8decd3eaf-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T14:39:04.373Z",
+        "task": "B-investigation-v50-demonpet-melee-action-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-getpos-pointer-lifetime-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T14:39:07.578Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9c6b57c616fed75b62b4e67ec128932773cc8124",
+        "type": "ready",
+        "at": "2026-10-12T14:39:14.952Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "9c6b57c616fed75b62b4e67ec128932773cc8124"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-getpos-pointer-lifetime-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:39:32.855Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-final-recheck-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:40:18.854Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: twelve provisional first defects; checking accepted code and final evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getpos-final-correction-received-9c6b57c61-20261012",
+        "type": "received",
+        "at": "2026-10-12T14:40:35.859Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "9c6b57c616fed75b62b4e67ec128932773cc8124"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
-        "worker": "B",
-        "goal": "file-port-monmove-monflee-v50-gas-cloud-20261012",
-        "kind": "implementation",
-        "status": "changes-required",
-        "delivery": "8255f7b092517a83dc6faeec5e78330a99ef7537",
-        "since": "2026-10-12T07:29:20.763Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B-investigation-v50-selftouch-monster-transition-20261012",
         "worker": "B",
@@ -95206,17 +95421,6 @@
           "B-investigation-v48-name-floor-object-self-20261012",
           "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v50-demonpet-melee-action-20261012",
-        "worker": "B",
-        "goal": "B-v50-demonpet-melee-action",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "0dde6059611f7df9519f67d1b299279033b819e6",
-        "since": "2026-10-12T07:58:38.393Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -95312,17 +95516,6 @@
         "unblocks": 0
       },
       {
-        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
-        "worker": "C",
-        "goal": "port-mhitm-mattackm-v50-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "f4f12a8713cdac19fdf47771e6e41af662317ded",
-        "since": "2026-10-12T12:38:30.815Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
         "worker": "C",
         "goal": "fix-mhitu-gulpmu-blind-engulfer-name-v51-20261012",
@@ -95357,6 +95550,39 @@
           "Prep16",
           "Prep17"
         ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "worker": "C",
+        "goal": "port-mhitm-mattackm-v50-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "0b4403cfbf72917def3d942b83071609c08954a7",
+        "since": "2026-10-12T14:19:09.328Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "worker": "B",
+        "goal": "file-port-monmove-monflee-v50-gas-cloud-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "48e65d7f6c24375bbc9785d87bc92fd2a60d0f74",
+        "since": "2026-10-12T14:21:17.855Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "worker": "B",
+        "goal": "divergence-fix-getpos-self-key-floor-name-v48-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "9c6b57c616fed75b62b4e67ec128932773cc8124",
+        "since": "2026-10-12T14:39:14.952Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -95818,8 +96044,8 @@
     ]
   },
   "development": {
-    "executionCommit": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
-    "measuredAt": "2026-10-12T13:57:31.770Z",
+    "executionCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+    "measuredAt": "2026-10-12T14:29:34.101Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

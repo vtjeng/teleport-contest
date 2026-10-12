@@ -283500,7 +283500,7 @@
     {
       "id": "B-v50-demonpet-melee-action",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port demon-pet creation and wire the hero attack caller",
       "cFile": "uhitm.c",
       "sessions": [
@@ -283514,8 +283514,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "demonpet",
@@ -283811,6 +283814,69 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-demonpet-melee-action-attempt1",
+          "session": "synthetic/v50/v50-demonpet-melee-action-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recording": "challenges/cases/v50/v50-demonpet-melee-action-attempt1.session.json",
+          "recordingPath": "challenges/cases/v50/v50-demonpet-melee-action-attempt1.session.json",
+          "recordingSha256": "064cea947f1259f065488cc0c8c6f81bb1127ce7d2ddb71f3b726e0ce7202fc2",
+          "recipe": "challenges/cases/v50/v50-demonpet-melee-action-attempt1.recipe.session.json",
+          "recipeSha256": "ce1ff267e2d339f4d521dfb1840b87ee0bb9a666792e8ddc17c9e421f37112bc",
+          "replayInputSha256": "136639e500e2044868bd2b105491b227a181e3d17f9fff98af33b1e61273c7f0",
+          "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v50.json",
+          "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+          "evaluationArtifact": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v50.json",
+          "evaluationUtc": "2026-10-12T14:28:46.786Z",
+          "remainingScreens": 22,
+          "recordedSteps": 180,
+          "previousScreensMatched": 134,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 158,
+              "total": 180
+            },
+            "rng": {
+              "matched": 3100,
+              "total": 3308
+            },
+            "cursors": {
+              "matched": 158,
+              "total": 180
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires an armed monster attacking another monster",
+            "step": 158
+          },
+          "step": 158,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires an armed monster attacking another monster",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v50/v50-demonpet-melee-action-attempt1.json",
+            "previousRemainingScreens": 46
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
