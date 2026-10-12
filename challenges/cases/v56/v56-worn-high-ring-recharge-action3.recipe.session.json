@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v56 mission read.c:recharge 798-815 worn charged ring destruction -> Ring_gone/useup/losehp. Wear high-charge protection ring and recharge with blessed scroll. Required observation: C current ring spe exceeds rn2(7), ring explodes, worn slot clears, damage occurs. Initial source plan fixed before any JavaScript comparison. Scout actual C inventory/prompt/state; actions follow C evidence only. C-only prompt/action correction: One Space acknowledges charging-scroll More before ring l.",
+  "segments": [
+    {
+      "seed": 56010105,
+      "datetime": "20620318111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Monk,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed +7 ring of protection\n                    \u0017blessed scroll of charging\n                    i                    #wizmap\nPlr                    rm l                    i                    "
+    }
+  ]
+}

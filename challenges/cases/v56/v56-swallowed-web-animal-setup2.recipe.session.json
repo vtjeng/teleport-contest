@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v56 mission polyself.c:dospinweb 1513-1518 swallowed animal -> expels. Become giant spider, provision hostile purple worm and wait for animal swallow; use #monster while swallowed. Required observation: C releases web fluid and expels hero from live animal; compare first prefix owner before counting. Initial source plan fixed before any JavaScript comparison. Scout actual C inventory/prompt/state; actions follow C evidence only. C-only source correction/action: Csource gulpmu only autoexpels at MZ_HUGE; giantspider isLarge and eligible. Slowdigestion wouldautospit duringdigest, so wishedringg remainsunworn. Become giantspider, createhostilepurpleworm and scout oneforcedturn beforeweb; furtherinputs followactualCswallowedstate.",
+  "segments": [
+    {
+      "seed": 56010102,
+      "datetime": "20620318111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed ring of slow digestion\n                    i                    #wizmap\n#levelchange\n20\n                                                                                #polyself\ngiant spider\n                    #wizgenesis\nhostile purple worm\n                    m.                    "
+    }
+  ]
+}

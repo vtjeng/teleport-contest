@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v56 mission dothrow.c:release_camera_demon 2457-2470 camera fracture -> rn2(3)/makemon/mpeaceful. Throw camera downward against hard floor; cheap curse/blessing variation if no release. Required observation: C camera breaks and either release branch creates imp/homunculus with curse-dependent peace or records no-release roll. Initial source plan fixed before any JavaScript comparison. Scout actual C inventory/prompt/state; actions follow C evidence only. C-only action correction: Throw observed camera g down against stairs/hard floor.",
+  "segments": [
+    {
+      "seed": 56010103,
+      "datetime": "20620318111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed expensive camera\n                    i                    #wizmap\ntg>                    i                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Become fire elemental with sufficient form HP, generate an armed hostile soldier, and allow bounded actual weapon hits. C rustm sees defender AD_FIRE and samples rn2(6), unlike the older rust-monster defender AD_RUST unconditional erosion arm. This is monster-versus-hero weapon-hit continuation, not hero attacking a rust monster. Planned before this candidate JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 56010502,
+      "datetime": "20621024111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                                        #polyself\nfire elemental\n                                        #wizgenesis\nhostile soldier\n    m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v56 mission dothrow.c:throw_obj bare-handed petrifying corpse instapetrify caller. Wear gloves before wishing cockatrice corpse; remove gloves without wielding corpse then throw from observed inventory slot. Required observation: C barehand throw petrifies through this caller, independently from saddle/drop/eat/engulf callers. Initial source plan fixed before any JavaScript comparison. Scout actual C inventory/prompt/state; actions follow C evidence only. C-only prompt/action correction: Monk original gloves a protect wish. Explicit yes word confirms paranoid removal; corpse m then thrown down bare-handed.",
+  "segments": [
+    {
+      "seed": 56010104,
+      "datetime": "20620318111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Monk,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed leather gloves\n                    i                    #wizmap\n\u0017uncursed cockatrice corpse\n                    Tayes\n                    tm>                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v56 mission apply.c:use_bell 1260 cursed charged Bell -> mkundead/wake_nearby. Ring charged cursed artifact Bell on ordinary floor. Required observation: C summons undead from cursed bell caller and wakes neighbors; object charge decrements. Initial source plan fixed before any JavaScript comparison. Scout actual C inventory/prompt/state; actions follow C evidence only.",
+  "segments": [
+    {
+      "seed": 56010108,
+      "datetime": "20620318111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Priest,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed Bell of Opening\n                    i                    #wizmap\n"
+    }
+  ]
+}

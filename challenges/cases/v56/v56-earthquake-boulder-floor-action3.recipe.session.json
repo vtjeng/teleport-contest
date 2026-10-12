@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v56 mission music.c:do_earthquake floor pit generation -> do.c:flooreffects boulder and selftouch. Use drum at raised XP in ordinary room with independently placed boulder; inspect actual pit and boulder outcome before choosing actions. Required observation: C quake creates pits and source floor-object consequences, or bounded varied room history records missed target. Initial source plan fixed before any JavaScript comparison. Scout actual C inventory/prompt/state; actions follow C evidence only. C target correction: original dropped boulder lies on entrance stairs, excluded from quake pit terrain. C map shows west ordinary floor. Move west before boulder wish, raiseXP30 force10, apply at most3 charges; no JS result guides this placement.",
+  "segments": [
+    {
+      "seed": 56010107,
+      "datetime": "20620318111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed drum of earthquake\n                    h        \u0017boulder\n                    #levelchange\n30\n                    ae                                        ae                                        ae                                        #wizmap\n"
+    }
+  ]
+}

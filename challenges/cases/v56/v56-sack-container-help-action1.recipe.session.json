@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Acquire an ordinary uncursed sack in starting Wizard inventory and apply it. At the real container action prompt choose question mark to explain take/put actions. This is help dispatch before item-class selection, distinct from pending v55 query_classes : or i after choosing traditional take-out. Planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 56010506,
+      "datetime": "20621024111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed sack\n                    ao?"
+    }
+  ]
+}

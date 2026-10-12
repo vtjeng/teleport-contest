@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source mission uses this batch’s C-established giant spider swallowed by purple worm, then requests the standard whatis menu rather than web ability. C do_look has no uswallow prohibition on constructing the menu; swallowed state changes available list choices. Existing v51 web control exercises expulsion, not whatis menu admission. Planned before JavaScript comparison of this menu path.",
+  "segments": [
+    {
+      "seed": 56010102,
+      "datetime": "20620318111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed ring of slow digestion\n                    i                    #wizmap\n#levelchange\n20\n                                                                                #polyself\ngiant spider\n                    #wizgenesis\nhostile purple worm\n                    m.                    m.                    /"
+    }
+  ]
+}

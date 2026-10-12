@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear leather gloves before acquiring cockatrice corpse, drop corpse to floor, then wish and drop an ordinary chest on the same tile. Wear blindfold and remove gloves while no corpse is carried or wielded. Invoke loot without any movement; C must inspect all floor corpses before asking to manipulate chest. Distinct from walking look_here, floor hide, deliberate throw and automatic trip callers. C setup confirms dropped corpse and chest at current hero tile, worn blindfold and successfully removed gloves. Invoke loot without changing position.",
+  "segments": [
+    {
+      "seed": 56010507,
+      "datetime": "20621024111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed leather gloves\n                    Wo                    \u0017uncursed cockatrice corpse\n                    dp                    \u0017uncursed chest\n                    dq                    \u0017uncursed blindfold\n                    Pr                    To                    i                    #loot\n                    "
+    }
+  ]
+}
