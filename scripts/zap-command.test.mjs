@@ -13,6 +13,7 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     M_SEEN_SLEEP,
+    OBJ_DELETED,
     OBJ_FREE,
     OBJ_FLOOR,
     OBJ_INVENT,
@@ -884,13 +885,22 @@ test('a cursed wand spends the backfire draw before the direction prompt',
 
     const wand = await heroCarryingWand({ cursed: true, spe: 4 });
     typeAtPrompts(HEALER_WAND);
+    // Keep this replay nonlethal so it pins the damage and inventory work
+    // without entering the separate end-of-game prompt path.
+    game.u.uhp = game.u.uhpmax = 100;
+    const hp = game.u.uhp;
     initRng(167);
     enableRngLog();
-    await assert.rejects(
-        () => dozap(game), /backfire\(\) for a cursed wand/u,
-    );
-    assert.deepEqual(getRngLog(), ['rn2(100)=0']);
+    assert.equal(await dozap(game), ECMD_TIME);
+    const rolls = getRngLog();
+    assert.equal(rolls[0], 'rn2(100)=0');
+    assert.ok(rolls.some((roll) => roll.startsWith('d(5,6)=')));
     assert.equal(wand.spe, 3);
+    assert.equal(wand.in_use, true);
+    assert.equal(wand.where, OBJ_DELETED);
+    assert.equal(carriedWand(), null);
+    assert.ok(game.u.uhp < hp, 'backfire damage reaches losehp()');
+    assert.equal(pendingTopLine(), 'The wand of sleep suddenly explodes!');
 });
 
 test('a self-zap of sleep puts the hero under for rnd(50) turns', async () => {
@@ -1267,8 +1277,8 @@ test('every remaining zap refusal names an unported zap.c function',
     // discarded helper calls use note_unported() and its default impossible()
     // arm records a gap without throwing, so neither appears here.
     //
-    // backfire() is still refused. weffects() dispatches its source spell
-    // and wand ray bands but retains an unexpected-object diagnostic refusal.
+    // weffects() dispatches its source spell and wand ray bands but retains
+    // an unexpected-object diagnostic refusal.
     //
     // The rest are the ray's, in source order. Ported branches have no
     // refusal inventory entry; calls whose result is discarded remain
@@ -1278,8 +1288,6 @@ test('every remaining zap refusal names an unported zap.c function',
             /new UnsupportedZapError\(\s*['"`]([^'"`]*)/gu,
         )].map(([, text]) => text.split('(')[0]),
         [
-            // dozap()'s remaining backfire boundary.
-            'backfire',
             // bhito() now handles the whole floor-object callback. Void
             // callee gaps are source-named and do not reject the ray.
             // zapnodir() now covers its whole NODIR switch, including the
