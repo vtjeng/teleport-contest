@@ -50,7 +50,7 @@
     "branch": "The TROUBLE_BLIND arm of fix_worst_trouble, reached by prayer's fix_worst_trouble loop. After composing the eye-comfort message and clearing ucreamed, C calls make_blinded(0L, FALSE), then optionally clears deafness and prints the composed message.",
     "functions": ["fix_worst_trouble"],
     "callers": [
-      "pray.c:prayer calls fix_worst_trouble while resolving prayer action cases 1-5 (1139-1156); js/pray.js:prayer calls fix_worst_trouble at 2267-2283.",
+      "pray.c:pleased calls fix_worst_trouble while resolving prayer action cases 1-5 (1139-1156); js/pray.js:pleased calls fix_worst_trouble at 2267-2283.",
       "The existing js/potion.js:make_blinded implementation clears the timeout and updates blindness/vision state; it is already imported by js/pray.js."
     ],
     "dependencies": [
