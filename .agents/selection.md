@@ -158,14 +158,25 @@ session toward the batch target when it has a local mismatch and the C
 behavior responsible for its first mismatch is source-traced and distinct
 from the first mismatching behavior of every other counted session. Later mismatches in that session are allowed. Record the
 first mismatch step, source behavior, and owner for each counted session.
-Keep every distinct, valid, reproducible case in the prepared manifest,
-including cases that miss their intended behavior or already match JavaScript.
+Keep distinct, valid, reproducible mismatching cases in the prepared manifest.
 A missed mission can count if its first mismatch meets the criterion above.
 Matching cases and cases with duplicate or unresolved first mismatch behaviors
 do not count toward the 12. Retain valid overlap probes outside that manifest
 with their C evidence and the earlier case they duplicate. Reject invalid setup
 or recorder failures with recorded C evidence. Resolve recorder-environment
 differences before treating them as game defects.
+
+For matching controls, search saved coverage in the fixed workload, regression
+recordings, admitted batches, earlier submitted batches, and other included
+cases. Include a control only when its observed C/Lua behavior has a clear,
+documented difference in branch, state condition, or action history. Cite the
+closest existing coverage and the difference in its selection rationale.
+A different seed, session name, or intended target is not enough.
+If no useful difference is readily established, save the recipe, C recording
+and search notes as preparation evidence, but leave the case out of the
+batch's test list (manifest). CI will not replay it as a batch test.
+Do not start a separate coverage investigation or replay the archive for this
+check. This rule also applies to matching cases that missed their intended target.
 
 After two materially different C setups fail to reach a difficult target,
 defer it with the observed reason and try another; a cheap source-proven route
@@ -191,31 +202,32 @@ outside `challenges/manifests/`, with an independent C replay result in each
 case's `reproducibility` field. The orchestrator checks the cases, merges the
 recipes and recordings into `main`, runs the combined checkpoint, and accepts
 the delivery. Keep those files and their hashes unchanged. Compare each
-candidate's reached C behavior, relevant state, and action history with
+mismatching candidate's reached C behavior, relevant state, and action history with
 unresolved admitted cases, earlier submitted unadmitted batches, and other cases in the
 new batch. Use the latest complete saved evaluations for admitted cases and
 immutable delivery packets for unadmitted cases. A merged task does not imply
 that its cases match. Fully matching admitted cases do not disqualify a new
-case for overlap, even in the immediately preceding batch. Use saved C evidence
-for this comparison; do not replay the archive just to check overlap. Full
+mismatching case for overlap, even in the immediately preceding batch. Use saved
+C evidence for this comparison; do not replay the archive just to check overlap. Full
 regression validation still covers every admitted case.
 Shared startup and command setup do not by themselves constitute overlap; the
 substantive behavior exercised must differ. Cite comparable cases from that set
-and the causal distinction for every included candidate, including candidates
-that already match JavaScript or miss their intended target. Keep valid
+and the causal distinction for each mismatching candidate, including target
+misses. Check matching controls against the saved-coverage rule above. Keep valid
 overlapping C probes outside the prepared manifest with their C observation
 and the earlier case they duplicate. They do not need independent replay unless
-needed to establish a blocker. Do not omit a distinct valid case because
-JavaScript passes it. Recheck overlap against current saved evaluations before
-admission; require a corrected delivery if a submitted manifest includes
-an overlapping case. Until admission, the cases do not enter synthetic scoring,
+needed to establish a blocker. During the existing pre-admission review,
+recheck overlap and matching-control rationales against current saved evidence;
+require a corrected delivery for overlapping cases or controls without a clear
+coverage difference. Until admission, the cases do not enter synthetic scoring,
 the mismatch queue, or the dashboard's scored batch charts. The dashboard lists
 ready batches awaiting admission separately.
 
 Admit prepared batches in order at safe integration boundaries. Give admission
-priority over queued deliveries when too few independent next tasks are
-available for the implementation workers. Count only unreserved work,
-not submitted deliveries.
+priority when idle or blocked implementation workers lack independent work.
+An active, unblocked task already gives its worker work. For the other workers,
+count only unreserved work, not submitted deliveries. When every implementation
+worker has active work, prefer ready implementation deliveries.
 
 After saving a new batch's baseline, ask idle or blocked implementation workers
 to reassess the updated queue at a clean task boundary. Do not wait for their

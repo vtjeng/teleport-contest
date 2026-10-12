@@ -281561,6 +281561,824 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-cmd-doextcmd-fire-dispatch-v48-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Wire five implemented extended-command handlers and preserve selected command flags",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v48/v48-extended-fire-empty-attempt1",
+        "synthetic/v48/v48-extended-throw-rock-attempt2",
+        "synthetic/v48/v48-extended-close-command-attempt1",
+        "synthetic/v48/v48-extended-wield-long-sword-attempt6",
+        "synthetic/v48/v48-extended-fight-command-attempt1"
+      ],
+      "selectionReason": "Ready dispatcher repair unblocks pending command work; v50 requires corrected control-coverage rationale.",
+      "detail": "Segment0 step6 reaches C cmd.c doextcmd493-519 ef_funct dispatch to existing dothrow.c dofire. JS rejects the command because five implemented handler mappings are missing. Preserve ge.ext_tlist semantics in rhack3744-3797 for PREFIXCMD and repeat handling. Bounded binding repair grants no whole doextcmd/rhack completion credit.",
+      "openedAt": "6d0f3920fe0e0d153de6a24c13cc1a598afb1adb",
+      "openStanding": {
+        "sha": "8e3e7c6d12940b179f4b92fd0981987d2b118cea",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "02f2d3c93e6d30843cc91ad3087f3f9c55829690",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "doextcmd",
+      "session": "synthetic/v48/v48-extended-fire-empty-attempt1",
+      "step": 6,
+      "syntheticProvenance": {
+        "synthetic/v48/v48-extended-fire-empty-attempt1": {
+          "session": "synthetic/v48/v48-extended-fire-empty-attempt1",
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-extended-fire-empty-attempt1",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recordingPath": "challenges/cases/v48/v48-extended-fire-empty-attempt1.session.json",
+          "recordingSha256": "5542d8fab11af05ce105fb665f46bda32f0d1193a7d5c848763686625ceaeff8",
+          "evaluationPath": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0"
+        },
+        "synthetic/v48/v48-extended-throw-rock-attempt2": {
+          "session": "synthetic/v48/v48-extended-throw-rock-attempt2",
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-extended-throw-rock-attempt2",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recordingPath": "challenges/cases/v48/v48-extended-throw-rock-attempt2.session.json",
+          "recordingSha256": "a2eef1e4acfde71a6c81201651aa50be8462221b4b1fae978b8902480fa3113f",
+          "evaluationPath": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0"
+        },
+        "synthetic/v48/v48-extended-close-command-attempt1": {
+          "session": "synthetic/v48/v48-extended-close-command-attempt1",
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-extended-close-command-attempt1",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recordingPath": "challenges/cases/v48/v48-extended-close-command-attempt1.session.json",
+          "recordingSha256": "c941fd73aa8b43b62c0dcbdf52c30ca9a7aa83e324a8a9d09e82dfcc79ddcd6a",
+          "evaluationPath": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0"
+        },
+        "synthetic/v48/v48-extended-wield-long-sword-attempt6": {
+          "session": "synthetic/v48/v48-extended-wield-long-sword-attempt6",
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-extended-wield-long-sword-attempt6",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recordingPath": "challenges/cases/v48/v48-extended-wield-long-sword-attempt6.session.json",
+          "recordingSha256": "9afee83d65300092c90621cd61e58b43e67b7a46834d14abb2af6eac6d6df9f1",
+          "evaluationPath": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0"
+        },
+        "synthetic/v48/v48-extended-fight-command-attempt1": {
+          "session": "synthetic/v48/v48-extended-fight-command-attempt1",
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-extended-fight-command-attempt1",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recordingPath": "challenges/cases/v48/v48-extended-fight-command-attempt1.session.json",
+          "recordingSha256": "a47f71e8e3da9ce2bc640364ccfbb15052e1a237ce4b1d1d3a4775dbc024313b",
+          "evaluationPath": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0"
+        }
+      },
+      "activeStanding": {
+        "sha": "8e3e7c6d12940b179f4b92fd0981987d2b118cea",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-extended-throw-rock-attempt2",
+          "session": "synthetic/v48/v48-extended-throw-rock-attempt2",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recording": "challenges/cases/v48/v48-extended-throw-rock-attempt2.session.json",
+          "recordingPath": "challenges/cases/v48/v48-extended-throw-rock-attempt2.session.json",
+          "recordingSha256": "a2eef1e4acfde71a6c81201651aa50be8462221b4b1fae978b8902480fa3113f",
+          "recipe": "challenges/cases/v48/v48-extended-throw-rock-attempt2.recipe.session.json",
+          "recipeSha256": "7693b7ddfbf1fac6284e1cf8703e6d869e7fa8aa65cec3eb1755f4b6910ed608",
+          "replayInputSha256": "6bc1637724558a2511d9843818b9334b1a2927313a87e74be349a4dc4f075945",
+          "evaluationPath": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0",
+          "evaluationArtifact": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationUtc": "2026-10-12T03:03:42.952Z",
+          "remainingScreens": 3,
+          "recordedSteps": 24,
+          "previousScreensMatched": 21,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 21,
+              "total": 24
+            },
+            "rng": {
+              "matched": 3503,
+              "total": 3510
+            },
+            "cursors": {
+              "matched": 21,
+              "total": 24
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: dothrow() for the extended command 'throw' is not ported",
+            "step": 21
+          },
+          "step": 21,
+          "kind": "stop",
+          "sourceFile": "dothrow.c",
+          "function": "dothrow",
+          "message": "unsupported hero command: dothrow() for the extended command 'throw' is not ported",
+          "cFile": "dothrow.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v48/v48-extended-throw-rock-attempt2.json",
+            "result": {
+              "session": "synthetic/v48/v48-extended-throw-rock-attempt2",
+              "remainingScreens": 3,
+              "recordedSteps": 24,
+              "corpus": "synthetic",
+              "batch": "v48",
+              "caseId": "v48-extended-throw-rock-attempt2",
+              "manifestPath": "challenges/manifests/v48.json",
+              "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+              "recordingSha256": "a2eef1e4acfde71a6c81201651aa50be8462221b4b1fae978b8902480fa3113f",
+              "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+              "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+              "status": "complete",
+              "commit": "287e9b4b37171ec7c5ac250ffef6e24f36e51a57",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v48",
+                "caseId": "v48-extended-throw-rock-attempt2",
+                "session": "synthetic/v48/v48-extended-throw-rock-attempt2",
+                "manifestPath": "challenges/manifests/v48.json",
+                "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+                "recording": "challenges/cases/v48/v48-extended-throw-rock-attempt2.session.json",
+                "recordingPath": "challenges/cases/v48/v48-extended-throw-rock-attempt2.session.json",
+                "recordingSha256": "a2eef1e4acfde71a6c81201651aa50be8462221b4b1fae978b8902480fa3113f",
+                "recipe": "challenges/cases/v48/v48-extended-throw-rock-attempt2.recipe.session.json",
+                "recipeSha256": "7693b7ddfbf1fac6284e1cf8703e6d869e7fa8aa65cec3eb1755f4b6910ed608",
+                "replayInputSha256": "6acb7d6362e2ad6534f53d5ba74f7ebf8bd4ffe5c65489b7ea0e3e2ee16e6352",
+                "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+                "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+                "evaluationArtifact": "challenges/evaluations/baseline-b353fb527-v48.json",
+                "evaluationUtc": "2026-10-12T02:22:10.552Z",
+                "remainingScreens": 3,
+                "recordedSteps": 24,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 21,
+                    "total": 24
+                  },
+                  "rng": {
+                    "matched": 3503,
+                    "total": 3510
+                  },
+                  "cursors": {
+                    "matched": 21,
+                    "total": 24
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: dothrow() for the extended command 'throw' is not ported",
+                  "step": 21
+                },
+                "step": 21,
+                "kind": "stop",
+                "sourceFile": "dothrow.c",
+                "function": "dothrow",
+                "message": "unsupported hero command: dothrow() for the extended command 'throw' is not ported",
+                "cFile": "dothrow.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This extended-command case reaches the same missing function-name dispatch in js/cmd.js:doextcmd() as the other four v48 extended-command failures. C's cmd.c:doextcmd() invokes the selected extcmdlist function pointer; this row maps to dothrow(), but the JS switch falls through to its generic unsupported-command refusal. The command handler itself is already implemented.",
+              "source": {
+                "file": "cmd.c",
+                "branch": "The player selects the #throw rock extended command. Upstream cmd.c resolves the extcmdlist row, accepts it, and invokes its ef_funct pointer. The JS doextcmd() maps ef_funct names through a switch, but the dothrow arm is absent and the generic default refuses before the existing handler runs.",
+                "functions": [
+                  "doextcmd"
+                ],
+                "callers": [
+                  "cmd.c:rhack dispatches '#' to doextcmd(); the selected extcmdlist row maps to dothrow(), and doextcmd() invokes its function pointer (cmd.c:493-519).",
+                  "js/cmd.js:rhack dispatches '#' to doextcmd(); js/cmd.js:doextcmd routes the selected ef_funct through its switch; the dothrow handler already exists in the JavaScript command modules."
+                ],
+                "dependencies": [
+                  "This is the same general missing extended-command handler mapping as the other four selected v48 rows; no handler implementation or shared-state change is needed."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The v48 baseline evaluation identifies synthetic/v48/v48-extended-throw-rock-attempt2, with 3 unmatched screen(s), at step 21: unsupported hero command: dothrow() for the extended command 'throw' is not ported",
+                "Upstream cmd.c:doextcmd() invokes the ef_funct pointer selected by the extended-command row. The JavaScript dispatcher falls through to its generic unsupported-command branch because dothrow is not mapped there.",
+                "js/cmd.js imports or defines the existing dothrow handler, and the matching key-command path already dispatches that same function. This row therefore shares the general dispatch-wiring defect rather than missing handler behavior."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-extended-close-command-attempt1",
+          "session": "synthetic/v48/v48-extended-close-command-attempt1",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recording": "challenges/cases/v48/v48-extended-close-command-attempt1.session.json",
+          "recordingPath": "challenges/cases/v48/v48-extended-close-command-attempt1.session.json",
+          "recordingSha256": "c941fd73aa8b43b62c0dcbdf52c30ca9a7aa83e324a8a9d09e82dfcc79ddcd6a",
+          "recipe": "challenges/cases/v48/v48-extended-close-command-attempt1.recipe.session.json",
+          "recipeSha256": "68431a73b46b260c68f53386beb9aa3a28ea5f8307c542742279524e57f97abb",
+          "replayInputSha256": "6bc1637724558a2511d9843818b9334b1a2927313a87e74be349a4dc4f075945",
+          "evaluationPath": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0",
+          "evaluationArtifact": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationUtc": "2026-10-12T03:03:42.952Z",
+          "remainingScreens": 2,
+          "recordedSteps": 9,
+          "previousScreensMatched": 7,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 7,
+              "total": 9
+            },
+            "rng": {
+              "matched": 2382,
+              "total": 2382
+            },
+            "cursors": {
+              "matched": 7,
+              "total": 9
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: doclose() for the extended command 'close' is not ported",
+            "step": 7
+          },
+          "step": 7,
+          "kind": "stop",
+          "sourceFile": "lock.c",
+          "function": "doclose",
+          "message": "unsupported hero command: doclose() for the extended command 'close' is not ported",
+          "cFile": "lock.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v48/v48-extended-close-command-attempt1.json",
+            "result": {
+              "session": "synthetic/v48/v48-extended-close-command-attempt1",
+              "remainingScreens": 2,
+              "recordedSteps": 9,
+              "corpus": "synthetic",
+              "batch": "v48",
+              "caseId": "v48-extended-close-command-attempt1",
+              "manifestPath": "challenges/manifests/v48.json",
+              "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+              "recordingSha256": "c941fd73aa8b43b62c0dcbdf52c30ca9a7aa83e324a8a9d09e82dfcc79ddcd6a",
+              "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+              "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+              "status": "complete",
+              "commit": "287e9b4b37171ec7c5ac250ffef6e24f36e51a57",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v48",
+                "caseId": "v48-extended-close-command-attempt1",
+                "session": "synthetic/v48/v48-extended-close-command-attempt1",
+                "manifestPath": "challenges/manifests/v48.json",
+                "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+                "recording": "challenges/cases/v48/v48-extended-close-command-attempt1.session.json",
+                "recordingPath": "challenges/cases/v48/v48-extended-close-command-attempt1.session.json",
+                "recordingSha256": "c941fd73aa8b43b62c0dcbdf52c30ca9a7aa83e324a8a9d09e82dfcc79ddcd6a",
+                "recipe": "challenges/cases/v48/v48-extended-close-command-attempt1.recipe.session.json",
+                "recipeSha256": "68431a73b46b260c68f53386beb9aa3a28ea5f8307c542742279524e57f97abb",
+                "replayInputSha256": "6acb7d6362e2ad6534f53d5ba74f7ebf8bd4ffe5c65489b7ea0e3e2ee16e6352",
+                "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+                "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+                "evaluationArtifact": "challenges/evaluations/baseline-b353fb527-v48.json",
+                "evaluationUtc": "2026-10-12T02:22:10.552Z",
+                "remainingScreens": 2,
+                "recordedSteps": 9,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 7,
+                    "total": 9
+                  },
+                  "rng": {
+                    "matched": 2382,
+                    "total": 2382
+                  },
+                  "cursors": {
+                    "matched": 7,
+                    "total": 9
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: doclose() for the extended command 'close' is not ported",
+                  "step": 7
+                },
+                "step": 7,
+                "kind": "stop",
+                "sourceFile": "lock.c",
+                "function": "doclose",
+                "message": "unsupported hero command: doclose() for the extended command 'close' is not ported",
+                "cFile": "lock.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This extended-command case reaches the same missing function-name dispatch in js/cmd.js:doextcmd() as the other four v48 extended-command failures. C's cmd.c:doextcmd() invokes the selected extcmdlist function pointer; this row maps to doclose(), but the JS switch falls through to its generic unsupported-command refusal. The command handler itself is already implemented.",
+              "source": {
+                "file": "cmd.c",
+                "branch": "The player selects the #close command extended command. Upstream cmd.c resolves the extcmdlist row, accepts it, and invokes its ef_funct pointer. The JS doextcmd() maps ef_funct names through a switch, but the doclose arm is absent and the generic default refuses before the existing handler runs.",
+                "functions": [
+                  "doextcmd"
+                ],
+                "callers": [
+                  "cmd.c:rhack dispatches '#' to doextcmd(); the selected extcmdlist row maps to doclose(), and doextcmd() invokes its function pointer (cmd.c:493-519).",
+                  "js/cmd.js:rhack dispatches '#' to doextcmd(); js/cmd.js:doextcmd routes the selected ef_funct through its switch; the doclose handler already exists in the JavaScript command modules."
+                ],
+                "dependencies": [
+                  "This is the same general missing extended-command handler mapping as the other four selected v48 rows; no handler implementation or shared-state change is needed."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The v48 baseline evaluation identifies synthetic/v48/v48-extended-close-command-attempt1, with 2 unmatched screen(s), at step 7: unsupported hero command: doclose() for the extended command 'close' is not ported",
+                "Upstream cmd.c:doextcmd() invokes the ef_funct pointer selected by the extended-command row. The JavaScript dispatcher falls through to its generic unsupported-command branch because doclose is not mapped there.",
+                "js/cmd.js imports or defines the existing doclose handler, and the matching key-command path already dispatches that same function. This row therefore shares the general dispatch-wiring defect rather than missing handler behavior."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-extended-wield-long-sword-attempt6",
+          "session": "synthetic/v48/v48-extended-wield-long-sword-attempt6",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recording": "challenges/cases/v48/v48-extended-wield-long-sword-attempt6.session.json",
+          "recordingPath": "challenges/cases/v48/v48-extended-wield-long-sword-attempt6.session.json",
+          "recordingSha256": "9afee83d65300092c90621cd61e58b43e67b7a46834d14abb2af6eac6d6df9f1",
+          "recipe": "challenges/cases/v48/v48-extended-wield-long-sword-attempt6.recipe.session.json",
+          "recipeSha256": "4e82a2261843d0ccd39b681c1ec293880ccbf06253a26357997d865301abbabf",
+          "replayInputSha256": "6bc1637724558a2511d9843818b9334b1a2927313a87e74be349a4dc4f075945",
+          "evaluationPath": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0",
+          "evaluationArtifact": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationUtc": "2026-10-12T03:03:42.952Z",
+          "remainingScreens": 2,
+          "recordedSteps": 29,
+          "previousScreensMatched": 27,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 27,
+              "total": 29
+            },
+            "rng": {
+              "matched": 3336,
+              "total": 3344
+            },
+            "cursors": {
+              "matched": 27,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: dowield() for the extended command 'wield' is not ported",
+            "step": 27
+          },
+          "step": 27,
+          "kind": "stop",
+          "sourceFile": "wield.c",
+          "function": "dowield",
+          "message": "unsupported hero command: dowield() for the extended command 'wield' is not ported",
+          "cFile": "wield.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v48/v48-extended-wield-long-sword-attempt6.json",
+            "result": {
+              "session": "synthetic/v48/v48-extended-wield-long-sword-attempt6",
+              "remainingScreens": 2,
+              "recordedSteps": 29,
+              "corpus": "synthetic",
+              "batch": "v48",
+              "caseId": "v48-extended-wield-long-sword-attempt6",
+              "manifestPath": "challenges/manifests/v48.json",
+              "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+              "recordingSha256": "9afee83d65300092c90621cd61e58b43e67b7a46834d14abb2af6eac6d6df9f1",
+              "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+              "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+              "status": "complete",
+              "commit": "287e9b4b37171ec7c5ac250ffef6e24f36e51a57",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v48",
+                "caseId": "v48-extended-wield-long-sword-attempt6",
+                "session": "synthetic/v48/v48-extended-wield-long-sword-attempt6",
+                "manifestPath": "challenges/manifests/v48.json",
+                "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+                "recording": "challenges/cases/v48/v48-extended-wield-long-sword-attempt6.session.json",
+                "recordingPath": "challenges/cases/v48/v48-extended-wield-long-sword-attempt6.session.json",
+                "recordingSha256": "9afee83d65300092c90621cd61e58b43e67b7a46834d14abb2af6eac6d6df9f1",
+                "recipe": "challenges/cases/v48/v48-extended-wield-long-sword-attempt6.recipe.session.json",
+                "recipeSha256": "4e82a2261843d0ccd39b681c1ec293880ccbf06253a26357997d865301abbabf",
+                "replayInputSha256": "6acb7d6362e2ad6534f53d5ba74f7ebf8bd4ffe5c65489b7ea0e3e2ee16e6352",
+                "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+                "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+                "evaluationArtifact": "challenges/evaluations/baseline-b353fb527-v48.json",
+                "evaluationUtc": "2026-10-12T02:22:10.552Z",
+                "remainingScreens": 2,
+                "recordedSteps": 29,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 27,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 3336,
+                    "total": 3344
+                  },
+                  "cursors": {
+                    "matched": 27,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: dowield() for the extended command 'wield' is not ported",
+                  "step": 27
+                },
+                "step": 27,
+                "kind": "stop",
+                "sourceFile": "wield.c",
+                "function": "dowield",
+                "message": "unsupported hero command: dowield() for the extended command 'wield' is not ported",
+                "cFile": "wield.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This extended-command case reaches the same missing function-name dispatch in js/cmd.js:doextcmd() as the other four v48 extended-command failures. C's cmd.c:doextcmd() invokes the selected extcmdlist function pointer; this row maps to dowield(), but the JS switch falls through to its generic unsupported-command refusal. The command handler itself is already implemented.",
+              "source": {
+                "file": "cmd.c",
+                "branch": "The player selects the #wield long sword extended command. Upstream cmd.c resolves the extcmdlist row, accepts it, and invokes its ef_funct pointer. The JS doextcmd() maps ef_funct names through a switch, but the dowield arm is absent and the generic default refuses before the existing handler runs.",
+                "functions": [
+                  "doextcmd"
+                ],
+                "callers": [
+                  "cmd.c:rhack dispatches '#' to doextcmd(); the selected extcmdlist row maps to dowield(), and doextcmd() invokes its function pointer (cmd.c:493-519).",
+                  "js/cmd.js:rhack dispatches '#' to doextcmd(); js/cmd.js:doextcmd routes the selected ef_funct through its switch; the dowield handler already exists in the JavaScript command modules."
+                ],
+                "dependencies": [
+                  "This is the same general missing extended-command handler mapping as the other four selected v48 rows; no handler implementation or shared-state change is needed."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The v48 baseline evaluation identifies synthetic/v48/v48-extended-wield-long-sword-attempt6, with 2 unmatched screen(s), at step 27: unsupported hero command: dowield() for the extended command 'wield' is not ported",
+                "Upstream cmd.c:doextcmd() invokes the ef_funct pointer selected by the extended-command row. The JavaScript dispatcher falls through to its generic unsupported-command branch because dowield is not mapped there.",
+                "js/cmd.js imports or defines the existing dowield handler, and the matching key-command path already dispatches that same function. This row therefore shares the general dispatch-wiring defect rather than missing handler behavior."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-extended-fight-command-attempt1",
+          "session": "synthetic/v48/v48-extended-fight-command-attempt1",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recording": "challenges/cases/v48/v48-extended-fight-command-attempt1.session.json",
+          "recordingPath": "challenges/cases/v48/v48-extended-fight-command-attempt1.session.json",
+          "recordingSha256": "a47f71e8e3da9ce2bc640364ccfbb15052e1a237ce4b1d1d3a4775dbc024313b",
+          "recipe": "challenges/cases/v48/v48-extended-fight-command-attempt1.recipe.session.json",
+          "recipeSha256": "c969682fa3c958d14ec346e3f9ab76ee9fa330de93d246a41ffcb85f91ddfd27",
+          "replayInputSha256": "6bc1637724558a2511d9843818b9334b1a2927313a87e74be349a4dc4f075945",
+          "evaluationPath": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0",
+          "evaluationArtifact": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationUtc": "2026-10-12T03:03:42.952Z",
+          "remainingScreens": 2,
+          "recordedSteps": 35,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2054,
+              "total": 2062
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: do_fight() for the extended command 'fight' is not ported",
+            "step": 33
+          },
+          "step": 33,
+          "kind": "stop",
+          "sourceFile": "cmd.c",
+          "function": "do_fight",
+          "message": "unsupported hero command: do_fight() for the extended command 'fight' is not ported",
+          "cFile": "cmd.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v48/v48-extended-fight-command-attempt1.json",
+            "result": {
+              "session": "synthetic/v48/v48-extended-fight-command-attempt1",
+              "remainingScreens": 2,
+              "recordedSteps": 35,
+              "corpus": "synthetic",
+              "batch": "v48",
+              "caseId": "v48-extended-fight-command-attempt1",
+              "manifestPath": "challenges/manifests/v48.json",
+              "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+              "recordingSha256": "a47f71e8e3da9ce2bc640364ccfbb15052e1a237ce4b1d1d3a4775dbc024313b",
+              "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+              "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+              "status": "complete",
+              "commit": "287e9b4b37171ec7c5ac250ffef6e24f36e51a57",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v48",
+                "caseId": "v48-extended-fight-command-attempt1",
+                "session": "synthetic/v48/v48-extended-fight-command-attempt1",
+                "manifestPath": "challenges/manifests/v48.json",
+                "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+                "recording": "challenges/cases/v48/v48-extended-fight-command-attempt1.session.json",
+                "recordingPath": "challenges/cases/v48/v48-extended-fight-command-attempt1.session.json",
+                "recordingSha256": "a47f71e8e3da9ce2bc640364ccfbb15052e1a237ce4b1d1d3a4775dbc024313b",
+                "recipe": "challenges/cases/v48/v48-extended-fight-command-attempt1.recipe.session.json",
+                "recipeSha256": "c969682fa3c958d14ec346e3f9ab76ee9fa330de93d246a41ffcb85f91ddfd27",
+                "replayInputSha256": "6acb7d6362e2ad6534f53d5ba74f7ebf8bd4ffe5c65489b7ea0e3e2ee16e6352",
+                "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+                "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+                "evaluationArtifact": "challenges/evaluations/baseline-b353fb527-v48.json",
+                "evaluationUtc": "2026-10-12T02:22:10.552Z",
+                "remainingScreens": 2,
+                "recordedSteps": 35,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2054,
+                    "total": 2062
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: do_fight() for the extended command 'fight' is not ported",
+                  "step": 33
+                },
+                "step": 33,
+                "kind": "stop",
+                "sourceFile": "cmd.c",
+                "function": "do_fight",
+                "message": "unsupported hero command: do_fight() for the extended command 'fight' is not ported",
+                "cFile": "cmd.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This extended-command case reaches the same missing function-name dispatch in js/cmd.js:doextcmd() as the other four v48 extended-command failures. C's cmd.c:doextcmd() invokes the selected extcmdlist function pointer; this row maps to do_fight(), but the JS switch falls through to its generic unsupported-command refusal. The handler exists. The selected #fight row also carries PREFIXCMD, so cmd.c:rhack() consumes the following movement command after do_fight() returns.",
+              "source": {
+                "file": "cmd.c",
+                "branch": "The player selects the #fight extended command. Upstream cmd.c:doextcmd() invokes the selected extcmdlist function pointer and publishes that row through ge.ext_tlist. This row maps to do_fight() and carries PREFIXCMD; cmd.c:rhack() reads ge.ext_tlist after the handler returns, records the selected command, and then consumes the next command as the force-fight prefix. The JS switch had no do_fight arm, while its caller had no selected-row handoff.",
+                "functions": [
+                  "doextcmd",
+                  "rhack"
+                ],
+                "callers": [
+                  "cmd.c:rhack dispatches '#' to doextcmd(); cmd.c:doextcmd invokes the selected do_fight function pointer and publishes the row through ge.ext_tlist (493-519). cmd.c:rhack consumes the published row, honors PREFIXCMD, and reads the next command (3748-3777).",
+                  "js/cmd.js:rhack dispatches '#' to doextcmd(); js/cmd.js:doextcmd maps the selected ef_funct and returns its row through the callback; rhack uses the row flags for the prefix handoff."
+                ],
+                "dependencies": [
+                  "This row shares the missing doextcmd ef_funct mapping with #fire/dofire, #throw/dothrow, #close/doclose, and #wield/dowield; all five existing handlers are wired in one dispatcher repair.",
+                  "Because #fight carries PREFIXCMD, the selected-row handoff through rhack is required to consume its following command. The repair does not claim that all doextcmd or rhack branches are ported."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The v48 baseline evaluation identifies synthetic/v48/v48-extended-fight-command-attempt1, with 2 unmatched screen(s), at step 33: unsupported hero command: do_fight() for the extended command 'fight' is not ported",
+                "Upstream cmd.c:doextcmd() invokes the selected ef_funct and stores its row in ge.ext_tlist; the #fight extcmdlist row has PREFIXCMD, which cmd.c:rhack() consumes at 3748-3777.",
+                "The JavaScript command module already implements do_fight and its ordinary key path handles fight prefixes. The missing behavior is the extended-command mapping and selected-row handoff, not a new do_fight implementation."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-extended-fire-empty-attempt1",
+          "session": "synthetic/v48/v48-extended-fire-empty-attempt1",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recording": "challenges/cases/v48/v48-extended-fire-empty-attempt1.session.json",
+          "recordingPath": "challenges/cases/v48/v48-extended-fire-empty-attempt1.session.json",
+          "recordingSha256": "5542d8fab11af05ce105fb665f46bda32f0d1193a7d5c848763686625ceaeff8",
+          "recipe": "challenges/cases/v48/v48-extended-fire-empty-attempt1.recipe.session.json",
+          "recipeSha256": "43a28bd2f31174f5bcee49fd301a1f3480ea54e9c29311a2d9490aaa4e7578f8",
+          "replayInputSha256": "6bc1637724558a2511d9843818b9334b1a2927313a87e74be349a4dc4f075945",
+          "evaluationPath": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0",
+          "evaluationArtifact": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
+          "evaluationUtc": "2026-10-12T03:03:42.952Z",
+          "remainingScreens": 1,
+          "recordedSteps": 7,
+          "previousScreensMatched": 6,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 6,
+              "total": 7
+            },
+            "rng": {
+              "matched": 2960,
+              "total": 2960
+            },
+            "cursors": {
+              "matched": 6,
+              "total": 7
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: dofire() for the extended command 'fire' is not ported",
+            "step": 6
+          },
+          "step": 6,
+          "kind": "stop",
+          "sourceFile": "dothrow.c",
+          "function": "dofire",
+          "message": "unsupported hero command: dofire() for the extended command 'fire' is not ported",
+          "cFile": "dothrow.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v48/v48-extended-fire-empty-attempt1.json",
+            "result": {
+              "session": "synthetic/v48/v48-extended-fire-empty-attempt1",
+              "remainingScreens": 1,
+              "recordedSteps": 7,
+              "corpus": "synthetic",
+              "batch": "v48",
+              "caseId": "v48-extended-fire-empty-attempt1",
+              "manifestPath": "challenges/manifests/v48.json",
+              "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+              "recordingSha256": "5542d8fab11af05ce105fb665f46bda32f0d1193a7d5c848763686625ceaeff8",
+              "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+              "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+              "status": "complete",
+              "commit": "287e9b4b37171ec7c5ac250ffef6e24f36e51a57",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v48",
+                "caseId": "v48-extended-fire-empty-attempt1",
+                "session": "synthetic/v48/v48-extended-fire-empty-attempt1",
+                "manifestPath": "challenges/manifests/v48.json",
+                "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+                "recording": "challenges/cases/v48/v48-extended-fire-empty-attempt1.session.json",
+                "recordingPath": "challenges/cases/v48/v48-extended-fire-empty-attempt1.session.json",
+                "recordingSha256": "5542d8fab11af05ce105fb665f46bda32f0d1193a7d5c848763686625ceaeff8",
+                "recipe": "challenges/cases/v48/v48-extended-fire-empty-attempt1.recipe.session.json",
+                "recipeSha256": "43a28bd2f31174f5bcee49fd301a1f3480ea54e9c29311a2d9490aaa4e7578f8",
+                "replayInputSha256": "6acb7d6362e2ad6534f53d5ba74f7ebf8bd4ffe5c65489b7ea0e3e2ee16e6352",
+                "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+                "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+                "evaluationArtifact": "challenges/evaluations/baseline-b353fb527-v48.json",
+                "evaluationUtc": "2026-10-12T02:22:10.552Z",
+                "remainingScreens": 1,
+                "recordedSteps": 7,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 6,
+                    "total": 7
+                  },
+                  "rng": {
+                    "matched": 2960,
+                    "total": 2960
+                  },
+                  "cursors": {
+                    "matched": 6,
+                    "total": 7
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: dofire() for the extended command 'fire' is not ported",
+                  "step": 6
+                },
+                "step": 6,
+                "kind": "stop",
+                "sourceFile": "dothrow.c",
+                "function": "dofire",
+                "message": "unsupported hero command: dofire() for the extended command 'fire' is not ported",
+                "cFile": "dothrow.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This extended-command case reaches the same missing function-name dispatch in js/cmd.js:doextcmd() as the other four v48 extended-command failures. C's cmd.c:doextcmd() invokes the selected extcmdlist function pointer; this row maps to dofire(), but the JS switch falls through to its generic unsupported-command refusal. The command handler itself is already implemented. The same generic default affects four other admitted v48 cases: #throw/dothrow, #close/doclose, #wield/dowield, and #fight/do_fight. Each selected handler exists, and each named arm is absent from this dispatcher; the scoped fix can wire all five as one general mapping repair.",
+              "source": {
+                "file": "cmd.c",
+                "branch": "The player selects the #fire empty extended command. Upstream cmd.c resolves the extcmdlist row, accepts it, and invokes its ef_funct pointer. The JS doextcmd() maps ef_funct names through a switch, but the dofire arm is absent and the generic default refuses before the existing handler runs.",
+                "functions": [
+                  "doextcmd"
+                ],
+                "callers": [
+                  "cmd.c:rhack dispatches '#' to doextcmd(); the selected extcmdlist row maps to dofire(), and doextcmd() invokes its function pointer (cmd.c:493-519).",
+                  "js/cmd.js:rhack dispatches '#' to doextcmd(); js/cmd.js:doextcmd routes the selected ef_funct through its switch; the dofire handler already exists in the JavaScript command modules."
+                ],
+                "dependencies": [
+                  "This is the same general missing extended-command handler mapping as the other four selected v48 rows; no handler implementation or shared-state change is needed."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The v48 baseline evaluation identifies synthetic/v48/v48-extended-fire-empty-attempt1, with 1 unmatched screen(s), at step 6: unsupported hero command: dofire() for the extended command 'fire' is not ported",
+                "Upstream cmd.c:doextcmd() invokes the ef_funct pointer selected by the extended-command row. The JavaScript dispatcher falls through to its generic unsupported-command branch because dofire is not mapped there.",
+                "js/cmd.js imports or defines the existing dofire handler, and the matching key-command path already dispatches that same function. This row therefore shares the general dispatch-wiring defect rather than missing handler behavior.",
+                "The remaining v48 extended-command rows share the exact same default-refusal template for #throw, #close, #wield, and #fight. Their JS handler declarations exist, and source cmd.c extcmdlist rows select those functions through the same doextcmd function-pointer call. The JS doextcmd switch has no cases for any of these five names."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "02f2d3c93e6d30843cc91ad3087f3f9c55829690",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

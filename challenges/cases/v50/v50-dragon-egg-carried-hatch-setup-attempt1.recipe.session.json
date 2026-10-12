@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "New independent C-first mission: timeout.c:hatch_egg, carried three red-dragon eggs hatch and are tamed even though not hero-laid. C inventory hatch messages, child generation, tamedog, quantity/timer updates. Seeds50000401-50000404 are a declared source-exploration range; hatch continuations will wait210 turns, just beyond source MAX_EGG_HATCH_TIME200, after C verifies setup and input boundaries.",
+  "segments": [
+    {
+      "seed": 50000401,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                              \u00173 uncursed red dragon eggs\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent v50 C-first dospinweb: Move off stairs, create floor web, then repeat on existing web.",
+  "segments": [
+    {
+      "seed": 50000503,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #polyself\ngiant spider\n                    l#monster\n    #monster\n    "
+    }
+  ]
+}

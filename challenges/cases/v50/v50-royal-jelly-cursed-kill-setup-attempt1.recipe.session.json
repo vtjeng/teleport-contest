@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "New independent C-first mission: apply.c:use_royal_jelly -> timeout.c:kill_egg, cursed royal jelly stops viable bee-egg hatch timer; differs from uncursed v49 queen-bee conversion. C egg quivers feebly and its hatch timer is removed. Seeds50000401-50000404 are a declared source-exploration range; hatch continuations will wait210 turns, just beyond source MAX_EGG_HATCH_TIME200, after C verifies setup and input boundaries.",
+  "segments": [
+    {
+      "seed": 50000403,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed lump of royal jelly\n\u0017killer bee egg\ni"
+    }
+  ]
+}

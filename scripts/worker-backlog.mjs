@@ -71,7 +71,10 @@ export function batchWakeups(state, admittedBatches, queue) {
 export function workerWork(state, queue = null) {
     const tasks = Object.values(state.tasks);
     const workers = Object.values(state.workers ?? {}).filter(w => w.handle && w.worker !== 'Prep');
+    const workingWorkers = workers.filter(w => w.turn === 'active'
+        && tasks.some(t => t.worker === w.worker && t.status === 'working'));
     const work = { status: 'unknown', implementationWorkers: workers.length,
+        workersNeedingWork: workers.length - workingWorkers.length,
         idleWorkers: workers.filter(w => w.turn === 'idle'
             && !tasks.some(t => t.worker === w.worker && t.status === 'working')).map(w => w.worker),
         mismatchingSessions: null, candidateGroups: null, investigations: [], sourceTasks: [], unavailable: [] };

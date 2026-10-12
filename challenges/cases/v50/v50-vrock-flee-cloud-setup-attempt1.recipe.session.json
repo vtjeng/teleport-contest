@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-directed mission: monmove.c:onscary -> distfleeck -> monflee -> region.c:create_gas_cloud. Level-7 Wizard obtains a scare scroll; C inventory determines drop slot. A dropped scare scroll under the hero forces a nearby visible Vrock to flee without a read-resistance check.. Expected observation: Vrock monflee sets mspec_used and creates radius-5, damage-8 gas cloud; C displays and processes cloud around hero.. Seed 50000303 chosen before C exploration or JavaScript comparison, by ordinal in a new source-mission range.",
+  "segments": [
+    {
+      "seed": 50000303,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          \u0017blessed scroll of scare monster\ni"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v50 mission: dat/minend-1.lua:minend-1.lua, shuffled gem niches, four stone-appearance mimics, designated arrival room and luckstone achievement. C observation: C loads minend-1.lua, then wizmap shows shuffled gem niches, four stone-appearance mimics, designated arrival room and luckstone achievement; source RNG annotations identify program execution.. Seed 50000111 is chosen by ordinal in the predeclared 50000101/50000201 source exploration ranges, before JavaScript comparisons.",
+  "segments": [
+    {
+      "seed": 50000111,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nminend-1.lua\n          #wizmap\n"
+    }
+  ]
+}

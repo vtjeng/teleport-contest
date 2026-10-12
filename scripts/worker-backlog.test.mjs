@@ -216,6 +216,36 @@ test('worker starvation prioritizes the existing ready preparation rather than r
     assert.equal(nextActions(state, ['v47']).workerWork.admission.action, 'reassess-worker-work');
 });
 
+test('active tasks count as worker work and ready implementation precedes preparation', () => {
+    const state = availabilityFixture();
+    add(state, 'prep-first');
+    state.tasks['prep-first'].kind = 'challenge-preparation';
+    state.tasks['prep-first'].worker = 'Prep';
+    state.tasks['prep-first'].reservations = ['challenge-batch:v48'];
+    const implementation = add(state, 'fix');
+    state.deliveries[implementation].readyAt = at(3); // Prep is older; worker availability decides priority.
+    for (const worker of ['A', 'B', 'C']) {
+        add(state, 'active-' + worker, 'working');
+        state.tasks['active-' + worker].worker = worker;
+        state.workers[worker].turn = 'active';
+    }
+    const next = nextActions(state, ['v47'], queue([]));
+    assert.equal(next.workerWork.workersNeedingWork, 0, 'each implementation worker has an active task');
+    assert.equal(next.integration.task, 'fix', 'an older prepared batch does not displace ready fixes');
+    state.workers.C.turn = 'blocked';
+    assert.equal(nextActions(state, ['v47'], queue([])).integration.task, 'prep-first',
+        'a blocked worker needs new work even when its task still says working');
+    assert.equal(nextActions(state, ['v47'], queue([{ session: 'independent' }])).integration.task, 'fix',
+        'one unreserved case supplies the single blocked worker');
+    state.workers.C.turn = 'idle';
+    assert.equal(nextActions(state, ['v47'], queue([])).workerWork.workersNeedingWork, 1,
+        'an idle worker is not supplied by an old working task');
+    state.workers.C.turn = 'active';
+    state.tasks['active-C'].status = 'ready';
+    assert.equal(nextActions(state, ['v47'], queue([])).workerWork.workersNeedingWork, 1,
+        'submitted work supplies Main, not its worker');
+});
+
 test('existing preparation is acknowledged and unmet dependencies never receive integration priority', () => {
     const state = availabilityFixture();
     const dependency = add(state, 'dependency');

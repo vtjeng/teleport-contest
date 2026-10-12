@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent v50 C-first domindblast: Energy-paid psychic blast against hostile telepathic target; repeated calls expose lock-on choices.",
+  "segments": [
+    {
+      "seed": 50000501,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #polyself\nmind flayer\n                    #wizgenesis\nhostile mind flayer\n    #monster\n          #monster\n          #monster\n          "
+    }
+  ]
+}

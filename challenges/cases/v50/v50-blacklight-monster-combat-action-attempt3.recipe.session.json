@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-directed mission: mhitm.c:explmm -> mdamagem -> uhitm.c:mhitm_ad_halu. Level-7 Wizard gets see-invisible potion and conflict ring; C inventory selects slots before pet black light and hostile ogre are created.. Expected observation: Visible black-light monster explosion reaches C mhitm_ad_halu and confuses the eyed defender with zero damage, then aggressor dies.. Seed 50000304 chosen before C exploration or JavaScript comparison, by ordinal in a new source-mission range. Follow-up inputs derive from C-observed slots/positions: horned devil (&) to wood golem (apostrophe) is southeast (n); cockatrice corpse slot o; scare scroll slot o; see-invisible potion o and conflict ring p. No JS comparison has selected these inputs. C-only corrected setup uses a worn ring for see-invisible instead of a potion with no visible identification; doputon asks left/right only for first ring and automatically puts the second ring on the remaining finger. C-only wait correction: m-prefix is the documented source route through donull that forces a rest despite safe_wait; plain waits were refused while the nearby foes could hit.",
+  "segments": [
+    {
+      "seed": 50000304,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          \u0017uncursed ring of see invisible\n\u0017uncursed ring of conflict\nPol    Pp    #wizgenesis\ntame black light\n    #wizgenesis\nhostile ogre\n    #wizmap\nm.        m.        m.        m.        m.        "
+    }
+  ]
+}

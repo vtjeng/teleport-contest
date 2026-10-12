@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dospit -> dthrow.c:throwit: Self-directed spit creates owned blinding venom and throws it with zero direction.",
+  "segments": [
+    {
+      "seed": 50000602,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #polyself\ncobra\n                    #monster\n.          "
+    }
+  ]
+}
