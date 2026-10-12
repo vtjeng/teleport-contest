@@ -314,3 +314,65 @@ triage decisions or fix references.
   submitted report also lacked the required source object fields; Root rebuilt
   them from the reviewed C function and current saved queue before registration.
   The goal remains queued until exact-candidate hosted evidence permits opening.
+
+### 2026-10-12 — saved-score ordering and pending source trees
+
+- Black-light registration finished at the preserved pre-import code boundary.
+  Goal opening then required current synthetic score records, while the
+  acceptance helper required an open goal. After reviewing all 51 imported
+  evaluations, Root recorded those saved results first, opened the goal, verified
+  its source evidence, and used normal acceptance. No corpus was rerun.
+- The later demon-pet goal was opened from the accepted saved fixed scan before
+  importing its source patch, avoiding that ordering problem.
+- A bounded caller survey found that combat evidence attributed pre_mm_attack
+  directly to mattackm instead of missmm/hitmm and claimed a longer runtime
+  range than its correction logs verified. C is correcting the attribution
+  and checking the complete correction tree.
+- The earlier petrification ancestry bridge retained pending combat commits
+  while deliberately using Main's tree. Ancestry alone therefore does not
+  prove those unaccepted source bodies are present. Preserve and combine the
+  intact delivery tree with accepted Main before recording new evidence.
+
+### 2026-10-12 — verified prefixes and Rustm conflict
+
+- Automatic approval review initially rejected demon-pet acceptance because
+  its synthetic case diverges after the cited helper range. Root verified the
+  exact candidate through step 157, cited the existing rule that later
+  divergences do not invalidate matching ranges, and retried the same normal
+  acceptance command. Approval succeeded; the later combat mismatch remains
+  visible in the saved evaluation.
+- Rustm's patch conflicted with older combat context on Main. Root imported
+  only the submitted helper and erosion import, retained Main's existing
+  message import, and excluded unchanged worker-parent mswingsm context.
+  The combined mhitm and uhitm focused checks passed.
+
+### 2026-10-12 — Rustm runtime dependency
+
+- Rustm's hosted checkpoint passed the fixed 44-session workload and every
+  older recording, but its new monster-pair recording stopped at step 148,
+  before the cited Rustm call at 155. The worker's passing recording used its
+  pending whole-combat parent; the submitted dependency list did not identify
+  that requirement. Root preserved the failed artifacts and focused diagnosis,
+  parked Rustm, and restored accepted executable inputs before selecting
+  another delivery. Resume after C's full combat task is accepted.
+- Whole mattackm intake found the newly reachable pudding-split branch absent.
+  C owns that correction. Whole monflee caller intake found ordinary command
+  paths still requiring injected visibility/message functions; B owns the
+  source-backed defaults. The getpos correction preserves C's pointer lifetime,
+  terrain scan outputs, numeric input bytes, and empty goal string.
+
+### 2026-10-12 — whole-combat completion and imports
+
+- Root retired the old hitmm completion claim because it retained the
+  silver-weapon message refusal. The new whole-combat task implements that
+  reachable branch and preserves the earlier seduction evidence as history.
+- The combat patch duplicated Main's existing pline_mon import and overlapped
+  the accepted mselftouch caller correction. Root prepared the canonical import
+  in a separate parent commit, preserved the exact worker patch, and kept the
+  accepted awaited mselftouch call. Three affected focused suites passed, and
+  all six source units verified against the matching v50 prefix through1754.
+- An inline Node check of the growing SCORE.tsv exceeded its default child
+  output buffer, then encountered the existing sandbox subprocess restriction.
+  A direct Git redirect and Python byte comparison verified the52 appended
+  rows without printing the historical score file. Use saved-file comparisons
+  for this publication check.

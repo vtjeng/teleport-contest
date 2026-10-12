@@ -1,0 +1,185 @@
+{
+  "session": "synthetic/v49/v49-apply-book-attempt2",
+  "corpus": "synthetic",
+  "batch": "v49",
+  "caseId": "v49-apply-book-attempt2",
+  "manifestPath": "challenges/manifests/v49.json",
+  "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+  "recordingPath": "challenges/cases/v49/v49-apply-book-attempt2.session.json",
+  "recordingSha256": "c20b4bab04de8e63e798f0d8b6f06f7b00852b4bf1e9260c29a50f9d40a5fc72",
+  "recipePath": "challenges/cases/v49/v49-apply-book-attempt2.recipe.session.json",
+  "recipeSha256": "e1b61fa46efe85245c0d71fd68d09f47c09f4293b5e56cc371b02797897f4381",
+  "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v49.json",
+  "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+  "status": "complete",
+  "baseCommit": "dfd2b6f5efe0e9f45f857f0483c6c2a0ca04e46a",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v49",
+    "caseId": "v49-apply-book-attempt2",
+    "session": "synthetic/v49/v49-apply-book-attempt2",
+    "manifestPath": "challenges/manifests/v49.json",
+    "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+    "recording": "challenges/cases/v49/v49-apply-book-attempt2.session.json",
+    "recordingPath": "challenges/cases/v49/v49-apply-book-attempt2.session.json",
+    "recordingSha256": "c20b4bab04de8e63e798f0d8b6f06f7b00852b4bf1e9260c29a50f9d40a5fc72",
+    "recipe": "challenges/cases/v49/v49-apply-book-attempt2.recipe.session.json",
+    "recipeSha256": "e1b61fa46efe85245c0d71fd68d09f47c09f4293b5e56cc371b02797897f4381",
+    "replayInputSha256": "6aa1f555b81c3cd2deced0110e515fe1e32362703bd844a996120945a0f7d4ed",
+    "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v49.json",
+    "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+    "evaluationArtifact": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v49.json",
+    "evaluationUtc": "2026-10-12T15:12:36.544Z",
+    "remainingScreens": 0,
+    "recordedSteps": 10,
+    "previousScreensMatched": 9,
+    "regression": false,
+    "passed": true,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 10,
+        "total": 10
+      },
+      "rng": {
+        "matched": 2737,
+        "total": 2737
+      },
+      "cursors": {
+        "matched": 10,
+        "total": 10
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 9,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 9,
+          "key": "\u001b"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "N",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "W",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 9,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 9,
+          "key": "\u001b"
+        },
+        "cCursor": [
+          9,
+          3,
+          1
+        ],
+        "jsCursor": [
+          47,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 9,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null,
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v49/v49-apply-book-attempt2.json"
+    }
+  },
+  "summary": "The apply command opens getobj’s suggested inventory menu. C display_pickinv distinguishes Escape from empty Enter: Escape prints Never mind and returns; empty Enter retries the object question. Forward a distinct Escape result and an explicit null empty result through the existing selector API.",
+  "source": {
+    "cFile": "invent.c",
+    "functions": [
+      "getobj",
+      "display_pickinv"
+    ],
+    "lineRanges": [
+      [
+        1752,
+        2088
+      ],
+      [
+        3057,
+        3418
+      ]
+    ],
+    "divergenceBranch": "invent.c:getobj 1979-1992: display_pickinv returns zero for ordinary cancellation, causing another prompt iteration, or '\\033' for Escape, causing Never_mind and a null return.",
+    "jsFile": "js/invent.js",
+    "jsFunctions": [
+      "getobj",
+      "display_pickinv"
+    ],
+    "callers": [
+      "apply.c:doapply 4226-4228 calls getobj(\"use or apply\", apply_ok, GETOBJ_NOFLAGS) and returns ECMD_CANCEL for null.",
+      "js/apply.js:doapply reaches js/invent.js:getobj for the #apply route."
+    ],
+    "menuOwner": "js/invent.js:display_pickinv delegates to js/windows.js:select_menu and js/tty_menu.js:selectTtyMenu; select_menu already accepts a caller-provided cancelValue.",
+    "file": "invent.c",
+    "branch": "invent.c:getobj 1979-1992: display_pickinv returns zero for ordinary cancellation, causing another prompt iteration, or '\\033' for Escape, causing Never_mind and a null return.",
+    "dependencies": [
+      "Existing windows.js select_menu and tty_menu.js selectTtyMenu caller-provided cancelValue/emptyValue; no new source function."
+    ]
+  },
+  "evidence": [
+    "The complete recorded GOALS.json file-port span g_at..ggetobj lists getobj as complete, and the separate display_pickinv..this_type_only span lists display_pickinv as complete. This mismatch is a defect in an existing branch, not absent source behavior.",
+    "Saved admitted baseline challenges/evaluations/baseline-1462b295f-v49.json measures v49-apply-book-attempt2 at 9/10 screens and cursors and 2737/2737 RNG; its first mismatch is step 9, Escape, with C row 0 beginning N and JS row 0 beginning W.",
+    "Fresh isolated replay from accepted worker base dfd2b6f5efe0e9f45f857f0483c6c2a0ca04e46a used the exact coordinator recording: node frozen/ps_test_runner.mjs /home/vtjeng/development/vtjeng/teleport-contest/challenges/cases/v49/v49-apply-book-attempt2.session.json. It reproduced 9/10 screens and 2737/2737 RNG with no runner error.",
+    "The recipe independently runs #apply, chooses ?, then Escape with a Wizard inventory containing three suggested items. The two earlier screens match; the Escape screen shows the differing post-menu behavior.",
+    "Upstream invent.c:getobj lines 1979-1992 branches on display_pickinv's returned char. Its no-selection branch continues the prompt loop; its Escape branch prints Never_mind and returns null. The JS getobj currently calls display_pickinv with cancelValue null and checks falsiness before checking the Escape branch, so Escape is lost at the menu API boundary."
+  ],
+  "proposedScope": {
+    "kind": "divergence-fix",
+    "completeSourceFunctions": [
+      "invent.c:getobj"
+    ],
+    "boundedSupportingFunction": "invent.c:display_pickinv menu return routing; preserve Escape as a distinct answer only for getobj's selectable menu invocation.",
+    "callerScope": "Verify apply.c:doapply and js/apply.js doapply wiring; no caller behavior change planned.",
+    "goalSummary": "Preserve Escape from the suggested inventory menu in getobj",
+    "entryPoint": "#apply -> apply.c:doapply -> getobj suggested inventory menu"
+  },
+  "goalKind": "divergence-fix",
+  "commit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+  "remainingScreens": 0,
+  "recordedSteps": 10,
+  "runtimeVerification": {
+    "commit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+    "casePassed": true,
+    "metrics": {
+      "screens": {
+        "matched": 10,
+        "total": 10
+      },
+      "rng": {
+        "matched": 2737,
+        "total": 2737
+      },
+      "cursors": {
+        "matched": 10,
+        "total": 10
+      }
+    },
+    "source": "apply.c:doapply -> invent.c:getobj suggested inventory Escape boundary",
+    "evidence": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v49.json"
+  }
+}

@@ -28238,7 +28238,15 @@
         "sha": "dc943f99c7689b99199d9f940806421350bef538",
         "screens": 6981,
         "rng": 509322
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "hitmm",
+          "reason": "The claimed complete hitmm retained an Unsupported silver-weapon searing branch at mhitm.c700–725 because mattackm previously rejected armed attacks. The new whole-combat task makes that branch reachable and implements it in full; preserve the older seduction evidence as history.",
+          "followupGoal": "port-mhitm-mattackm-v50-20261012",
+          "at": "d87eac3475e14580287de739146198176739c990"
+        }
+      ]
     },
     {
       "id": "port-uhitm-mhitm-ad-sedu",
@@ -283500,7 +283508,7 @@
     {
       "id": "B-v50-demonpet-melee-action",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port demon-pet creation and wire the hero attack caller",
       "cFile": "uhitm.c",
       "sessions": [
@@ -283508,17 +283516,24 @@
       ],
       "selectionReason": "The admitted v50 hero attack reaches the missing whole demonpet function; preserve its RNG choice, monster creation, taming, and wisdom exercise in C order.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "98a15b2009e020a0216cd15144973cb53769332f",
+      "openStanding": {
+        "sha": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "demonpet",
           "line": 2133,
           "endLine": 2147,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -283538,6 +283553,338 @@
           "evaluationPath": "challenges/evaluations/accepted-50a39b94d0ec3785717011e652bd75a1ed47941a-v50.json",
           "evaluationCommit": "50a39b94d0ec3785717011e652bd75a1ed47941a"
         }
+      },
+      "activeStanding": {
+        "sha": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-demonpet-melee-action-attempt1",
+          "session": "synthetic/v50/v50-demonpet-melee-action-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recording": "challenges/cases/v50/v50-demonpet-melee-action-attempt1.session.json",
+          "recordingPath": "challenges/cases/v50/v50-demonpet-melee-action-attempt1.session.json",
+          "recordingSha256": "064cea947f1259f065488cc0c8c6f81bb1127ce7d2ddb71f3b726e0ce7202fc2",
+          "recipe": "challenges/cases/v50/v50-demonpet-melee-action-attempt1.recipe.session.json",
+          "recipeSha256": "ce1ff267e2d339f4d521dfb1840b87ee0bb9a666792e8ddc17c9e421f37112bc",
+          "replayInputSha256": "f1329a916e33dcd152496f727c26e264bf3acd45f6b9477e83ff04eb205ec571",
+          "evaluationPath": "challenges/evaluations/accepted-8bd6dfafae1c66e19642bc3c49301daf5a90c816-v50.json",
+          "evaluationCommit": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+          "evaluationArtifact": "challenges/evaluations/accepted-8bd6dfafae1c66e19642bc3c49301daf5a90c816-v50.json",
+          "evaluationUtc": "2026-10-12T13:56:57.447Z",
+          "remainingScreens": 46,
+          "recordedSteps": 180,
+          "previousScreensMatched": 134,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 134,
+              "total": 180
+            },
+            "rng": {
+              "matched": 2847,
+              "total": 3308
+            },
+            "cursors": {
+              "matched": 150,
+              "total": 180
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 134,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 134,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 26,
+              "cCell": {
+                "ch": "S",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2830,
+              "cEntry": "rn2(6)=3",
+              "cCaller": "demonpet(uhitm.c:2140)",
+              "jsEntry": "rn2(3)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 134,
+                "key": " "
+              },
+              "stepIndex": 134
+            },
+            "cursor": {
+              "index": 134,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 134,
+                "key": " "
+              },
+              "cCursor": [
+                58,
+                0,
+                1
+              ],
+              "jsCursor": [
+                34,
+                7,
+                1
+              ]
+            }
+          },
+          "step": 134,
+          "kind": "rng",
+          "sourceFile": "uhitm.c",
+          "function": "demonpet",
+          "message": null,
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": 2140,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v50/v50-demonpet-melee-action-attempt1.json",
+            "result": {
+              "session": "synthetic/v50/v50-demonpet-melee-action-attempt1",
+              "corpus": "synthetic",
+              "batch": "v50",
+              "caseId": "v50-demonpet-melee-action-attempt1",
+              "manifestPath": "challenges/manifests/v50.json",
+              "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+              "recordingSha256": "064cea947f1259f065488cc0c8c6f81bb1127ce7d2ddb71f3b726e0ce7202fc2",
+              "evaluationPath": "challenges/evaluations/accepted-50a39b94d0ec3785717011e652bd75a1ed47941a-v50.json",
+              "evaluationCommit": "50a39b94d0ec3785717011e652bd75a1ed47941a",
+              "remainingScreens": 46,
+              "recordedSteps": 180,
+              "status": "complete",
+              "commit": "07d6ac95bd1f0702693a4e4e26f5639bcdd25796",
+              "mismatch": {
+                "session": "synthetic/v50/v50-demonpet-melee-action-attempt1",
+                "remainingScreens": 46
+              },
+              "summary": "At step 134, the polymorphed hero's unarmed demon attack enters uhitm.c:damageum's demonpet branch when !rn2(13). C prints the arrival line, chooses the current demon form because rn2(6)=3, creates and tames a horned devil at the hero, and exercises Wisdom. The baseline JavaScript records note_unported('demon.c demonpet') and returns M_ATTK_MISS, skipping those effects. The implementation now ports demonpet and wires it through damageum.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "demonpet"
+                ],
+                "branch": "Complete demonpet(): print the message; choose ndemon(u.ualign.type) only when rn2(6)==0, otherwise use the current form; call makemon at the hero with NO_MM_FLAGS; if creation succeeds, call tamedog with a null object and FALSE; then exercise A_WIS in C order.",
+                "callers": [
+                  "uhitm.c:damageum lines 4835-4854 calls demonpet after the initial damage roll when the hero form is a demon, rn2(13)==0, no weapon is wielded, and the form is neither amorous demon nor Balrog; uhitm.c:hmonas reaches damageum from the polymorphed hero attack. js/uhitm.js:damageum now calls the complete demonpet implementation under the matching guard."
+                ],
+                "dependencies": [
+                  "minion.c:ndemon is already implemented in js/minion.js and source-pinned by scripts/minion.test.mjs; it supplies the selected aligned demon species only on the rare rn2(6)==0 branch. No completion claim for ndemon is included in this task.",
+                  "makemon.c:makemon and its asynchronous runtime tail already support explicit monster creation at the hero square with NO_MM_FLAGS; its returned monster is checked before the source-discarded tamedog result.",
+                  "dog.c:tamedog is implemented in js/dog.js; C discards its result at this call.",
+                  "attrib.c:exercise is implemented in js/attrib.js; C discards its result at this call."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved accepted v50 evaluation challenges/evaluations/accepted-ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3-v50.json reports 134/180 screens, 150/180 cursors, 2847/3308 RNG calls, and 46 remaining screens for this case.",
+                "The admitted manifest source trace identifies uhitm.c:damageum -> demonpet and hmonas -> damageum -> demonpet. At zero-based step 134, the C RNG log shows the selected damageum call followed by rn2(6)=3 at demonpet; C emits ‘You bite the wood golem. Some hell-p has arrived!’ then the horned devil's appearance and equipment messages. This is the first baseline mismatch because JavaScript skipped the helper call.",
+                "nethack-c/upstream/src/uhitm.c:2131-2145 defines the whole static demonpet function. The implementation preserves message -> rn2(6)/optional ndemon -> species selection -> makemon -> conditional tamedog -> Wisdom exercise order. ndemon, makemon, tamedog, and exercise already have JavaScript implementations; only makemon's and ndemon's return values control source branches here.",
+                "nethack-c/upstream/src/uhitm.c:4835-4854 shows damageum initializes attack data, applies the demon/unarmed/rn2(13) guard, calls demonpet, and returns M_ATTK_MISS. js/uhitm.js:7517-7524 now calls demonpet under the same guard.",
+                "After the change, replaying the admitted case matches through zero-based step 157, including the demonpet summon and taming path. The scanner then stops at step 158 on the separate behavior boundary 'simple monster action requires an armed monster attacking another monster'; this later mismatch is outside demonpet. The source owner is uhitm.c:demonpet, not demon.c, and GOALS.json has no earlier verified evidence for that function."
+              ],
+              "currentEvaluationReview": {
+                "reviewedAt": "2026-10-12T07:54:13.611Z",
+                "firstMismatch": {
+                  "screen": {
+                    "index": 134,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 134,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 26,
+                    "cCell": {
+                      "ch": "S",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2830,
+                    "cEntry": "rn2(6)=3",
+                    "cCaller": "demonpet(uhitm.c:2140)",
+                    "jsEntry": "rn2(3)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 134,
+                      "key": " "
+                    },
+                    "stepIndex": 134
+                  },
+                  "cursor": {
+                    "index": 134,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 134,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      58,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      34,
+                      7,
+                      1
+                    ]
+                  }
+                },
+                "remainingScreens": 46,
+                "sourceDiagnosisUnchanged": true
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "demonpet",
+            "implementation": "js/uhitm.js",
+            "symbol": "demonpet",
+            "sourceReview": "Read the complete static uhitm.c:demonpet function (2131-2145), its full damageum guard/call/return (4835-4854), and hmonas call sites (5546-5757). Ported message output, the !rn2(6) ndemon selection, current-form fallback, makemon at (ux,uy) with NO_MM_FLAGS, conditional tamedog with null object/FALSE, and exercise(A_WIS,TRUE) in C order. The makemon return is used to gate taming and the ndemon return selects species; both callees already have JavaScript implementations. C discards the tamedog and exercise returns. Removed the obsolete note_unported('demon.c demonpet') branch and wired the production damageum caller. No unported callee remains in demonpet.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum (4835-4854) calls demonpet after the demon/unarmed/rn2(13) guard; uhitm.c:hmonas calls damageum from the polymorphed hero attack path (5546-5757)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-demonpet-melee-action-attempt1",
+                "segment": 0,
+                "fromStep": 134,
+                "throughStep": 157,
+                "source": "uhitm.c:hmonas -> damageum -> demonpet"
+              }
+            ],
+            "checkedAt": "84cb2cab031969e485aaa9568b4e81a16953afc0"
+          }
+        ],
+        "entryPointReview": "The active runtime entry point is an unarmed melee attack by a polymorphed hero in an eligible demon form. In uhitm.c:hmonas (5546-5757), the attack calls damageum; damageum calls demonpet only after its opening damage roll when the form is a demon, rn2(13) is zero, no weapon is wielded, and the form is neither AMOROUS_DEMON nor BALROG. The admitted v50 case reaches this call through normal game input. The rarer rn2(6)==0 species-selection branch calls the existing minion.c:ndemon implementation. No caller branch is excluded from the recorder build.",
+        "entryPoints": [
+          {
+            "name": "unarmed polymorphed demon attack",
+            "functions": [
+              "demonpet"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-demonpet-melee-action-attempt1",
+                "segment": 0,
+                "fromStep": 134,
+                "throughStep": 157,
+                "source": "uhitm.c:hmonas -> damageum -> demonpet"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-demonpet-melee-action-attempt1",
+          "session": "synthetic/v50/v50-demonpet-melee-action-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recording": "challenges/cases/v50/v50-demonpet-melee-action-attempt1.session.json",
+          "recordingPath": "challenges/cases/v50/v50-demonpet-melee-action-attempt1.session.json",
+          "recordingSha256": "064cea947f1259f065488cc0c8c6f81bb1127ce7d2ddb71f3b726e0ce7202fc2",
+          "recipe": "challenges/cases/v50/v50-demonpet-melee-action-attempt1.recipe.session.json",
+          "recipeSha256": "ce1ff267e2d339f4d521dfb1840b87ee0bb9a666792e8ddc17c9e421f37112bc",
+          "replayInputSha256": "136639e500e2044868bd2b105491b227a181e3d17f9fff98af33b1e61273c7f0",
+          "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v50.json",
+          "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+          "evaluationArtifact": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v50.json",
+          "evaluationUtc": "2026-10-12T14:28:46.786Z",
+          "remainingScreens": 22,
+          "recordedSteps": 180,
+          "previousScreensMatched": 134,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 158,
+              "total": 180
+            },
+            "rng": {
+              "matched": 3100,
+              "total": 3308
+            },
+            "cursors": {
+              "matched": 158,
+              "total": 180
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires an armed monster attacking another monster",
+            "step": 158
+          },
+          "step": 158,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires an armed monster attacking another monster",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v50/v50-demonpet-melee-action-attempt1.json",
+            "previousRemainingScreens": 46
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -287575,7 +287922,7 @@
     {
       "id": "port-uhitm-mhitm-ad-halu-v50-20261012",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete black-light monster hallucination damage",
       "cFile": "uhitm.c",
       "sessions": [
@@ -287583,17 +287930,24 @@
       ],
       "selectionReason": "The v50 black-light explosion first mismatches at step 179 because the AD_HALU dispatcher records an unported mhitm_ad_halu gap. Complete uhitm.c:3897–3921, wire its sole direct dispatcher arm, and bind existing mondead at the explosion caller. Source review and saved focused/runtime checks establish the complete helper body.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+      "openStanding": {
+        "sha": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_halu",
           "line": 3897,
           "endLine": 3923,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -287613,6 +287967,1280 @@
           "evaluationPath": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v50.json",
           "evaluationCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e"
         }
+      },
+      "activeStanding": {
+        "sha": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_halu",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_halu",
+            "sourceReview": "Ported uhitm.c:3897-3921 in full. Hero aggressor and defender branches set damage to zero. The monster-pair branch requires an uncancelled aggressor, an eyed defender, and mcansee; it emits the visible source message before setting mconf and clearing STRAT_WAITFORU, then sets damage to zero. mattk is unused in C. Existing haseyes, canseemon, Monnam, messageAt, and message operations preserve the consumed source behavior.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping() has the sole direct C call at case AD_HALU; all hero, hero-defender, and monster-pair callers route through this dispatcher."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-halu.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-blacklight-monster-combat-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 217,
+                "source": "mhitm.c:explmm -> mdamagem -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_halu"
+              }
+            ],
+            "checkedAt": "8bd6dfafae1c66e19642bc3c49301daf5a90c816"
+          }
+        ],
+        "entryPointReview": "The admitted blacklight monster-combat case reaches uhitm.c:mhitm_ad_halu through the existing uhitm.c:mhitm_adtyping AD_HALU arm at step 179 and matches the complete 218-step segment. The source unit implemented here is only mhitm_ad_halu; the dispatcher arm is caller wiring. The same replay reaches the existing mhitm.c:explmm caller, whose source-ordered mondead(magr) binding was repaired by importing the already ported mon.c:mondead; no whole-explmm completion is claimed. Source intake also verified the dispatcher routes at C mhitu.c:hitmu (1191), mhitm.c:mdamagem (1059), and uhitm.c:damageum (4854); the selected range is an attack helper with no new command entry point. Hero-direction branches suppress damage and are pinned by the focused dispatcher tests.",
+        "entryPoints": [
+          {
+            "name": "black-light monster explosion against a seeing monster",
+            "functions": [
+              "mhitm_ad_halu"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-blacklight-monster-combat-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 217,
+                "source": "mhitm.c:explmm -> mdamagem -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_halu"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-mhitm-rustm-v51-20261012",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Complete weapon erosion from defender attack types",
+      "cFile": "mhitm.c",
+      "sessions": [
+        "synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2"
+      ],
+      "selectionReason": "The v51 rust-monster case first diverges at step220 because mhitm.c:rustm is skipped by its two physical weapon callers. Complete the whole21-line function and wire both monster-versus-hero and monster-versus-monster callers in uhitm.c:mhitm_ad_phys. Preserve corrosion/rust/fire priority and mandatory rn2(1) draw; saved independent recording covers the second caller.",
+      "detail": "",
+      "openedAt": "751096388c0941d09c9780aee1bf81c62537d16e",
+      "openStanding": {
+        "sha": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rustm",
+          "line": 1260,
+          "endLine": 1282,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1260,
+        "to": 1282
+      },
+      "syntheticProvenance": {
+        "synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2": {
+          "session": "synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json",
+          "recordingSha256": "178a6bcf2464a2f34a44275f63eb3c99c84d2be019ca978f4252b5836cc9b30c",
+          "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v51.json",
+          "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf"
+        }
+      },
+      "activeStanding": {
+        "sha": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
+          "session": "synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json",
+          "recordingPath": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json",
+          "recordingSha256": "178a6bcf2464a2f34a44275f63eb3c99c84d2be019ca978f4252b5836cc9b30c",
+          "recipe": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.recipe.session.json",
+          "recipeSha256": "a836d1175351d74ca1463edace069be457dd22207263543b02f7a57ac576c725",
+          "replayInputSha256": "b69d0d20092b6fdf91187ab6a3ad24eda3959beaeab190fd5685e2f90069f9d7",
+          "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v51.json",
+          "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+          "evaluationArtifact": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v51.json",
+          "evaluationUtc": "2026-10-12T14:28:46.786Z",
+          "remainingScreens": 61,
+          "recordedSteps": 291,
+          "previousScreensMatched": 230,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 230,
+              "total": 291
+            },
+            "rng": {
+              "matched": 3002,
+              "total": 3174
+            },
+            "cursors": {
+              "matched": 289,
+              "total": 291
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 220,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 220,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 47,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2999,
+              "cEntry": "rn2(1)=0",
+              "cCaller": "rustm(mhitm.c:1278)",
+              "jsEntry": "rn2(3)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 220,
+                "key": "."
+              },
+              "stepIndex": 220
+            },
+            "cursor": {
+              "index": 220,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 220,
+                "key": "."
+              },
+              "cCursor": [
+                55,
+                0,
+                1
+              ],
+              "jsCursor": [
+                30,
+                10,
+                1
+              ]
+            }
+          },
+          "step": 220,
+          "kind": "rng",
+          "sourceFile": "mhitm.c",
+          "function": "rustm",
+          "message": null,
+          "cFile": "mhitm.c",
+          "luaFile": null,
+          "line": 1278,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.json",
+            "result": {
+              "session": "synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2",
+              "remainingScreens": 61,
+              "recordedSteps": 291,
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingPath": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json",
+              "recordingSha256": "178a6bcf2464a2f34a44275f63eb3c99c84d2be019ca978f4252b5836cc9b30c",
+              "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v51.json",
+              "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+              "status": "complete",
+              "commit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
+                "session": "synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json",
+                "recordingPath": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json",
+                "recordingSha256": "178a6bcf2464a2f34a44275f63eb3c99c84d2be019ca978f4252b5836cc9b30c",
+                "recipe": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.recipe.session.json",
+                "recipeSha256": "a836d1175351d74ca1463edace069be457dd22207263543b02f7a57ac576c725",
+                "replayInputSha256": "b69d0d20092b6fdf91187ab6a3ad24eda3959beaeab190fd5685e2f90069f9d7",
+                "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v51.json",
+                "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+                "evaluationArtifact": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v51.json",
+                "evaluationUtc": "2026-10-12T14:28:46.786Z",
+                "remainingScreens": 61,
+                "recordedSteps": 291,
+                "previousScreensMatched": 230,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 230,
+                    "total": 291
+                  },
+                  "rng": {
+                    "matched": 3002,
+                    "total": 3174
+                  },
+                  "cursors": {
+                    "matched": 289,
+                    "total": 291
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 220,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 220,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 47,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2999,
+                    "cEntry": "rn2(1)=0",
+                    "cCaller": "rustm(mhitm.c:1278)",
+                    "jsEntry": "rn2(3)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 220,
+                      "key": "."
+                    },
+                    "stepIndex": 220
+                  },
+                  "cursor": {
+                    "index": 220,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 220,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      55,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      30,
+                      10,
+                      1
+                    ]
+                  }
+                },
+                "step": 220,
+                "kind": "rng",
+                "sourceFile": "mhitm.c",
+                "function": "rustm",
+                "message": null,
+                "cFile": "mhitm.c",
+                "luaFile": null,
+                "line": 1278
+              },
+              "summary": "The Rust Monster defender’s weapon-corrosion helper is missing from JavaScript. C mhitm.c:rustm() selects corrosion, rust, or fire erosion from the defender’s attack types; when an erosion type applies it always calls rn2(chance), including rn2(1) for guaranteed corrosion/rust. The existing uhitm.c:mhitm_ad_phys() JavaScript port skips the helper at two source call sites by recording note_unported('mhitm.c rustm'), so its next draw is used for unrelated monster movement and the recorded weapon erosion screen is missed.",
+              "source": {
+                "file": "mhitm.c",
+                "branch": "With non-null defender and object, choose ERODE_CORRODE before ERODE_RUST before ERODE_BURN, excluding steam vortices from fire erosion; if an erosion type is selected, call rn2(1) for corrosion/rust or rn2(6) for fire and invoke erode_obj only when the result is zero.",
+                "functions": [
+                  "rustm"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_ad_phys() call for a monster weapon striking the polymorphed hero (4106)",
+                  "uhitm.c:mhitm_ad_phys() call for a monster weapon striking another monster (4182-4183)"
+                ],
+                "dependencies": [
+                  "trap.c:erode_obj() (existing whole-function JavaScript implementation in js/trap_erode_obj.js)"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "At challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json, segment 0 step 220, the admitted baseline first diverges on RNG: C logs rn2(1)=0 at mhitm.c:rustm:1278 while JS next logs rn2(3)=2. This identifies the skipped helper draw before the next monster movement.",
+                "Upstream nethack-c/upstream/src/mhitm.c:1260-1280 defines the complete helper: null inputs return; attack types choose corrosion, rust, or fire erosion; steam vortex is excluded; fire uses chance 6; and the selected branch calls rn2(chance) before erode_obj(obj, NULL, dmgtyp, EF_GREASE | EF_VERBOSE).",
+                "Upstream nethack-c/upstream/src/uhitm.c:4106 and 4182-4183 call rustm from the existing mhitm_ad_phys() source unit. Its JavaScript counterpart js/uhitm.js:4962-4964 and 5043-5044 currently records note_unported('mhitm.c rustm') at both corresponding sites; the task wires the helper at both sites without claiming mhitm_ad_phys() as a newly completed source unit.",
+                "The canonical erosion callee already exists at js/trap_erode_obj.js:171 as erode_obj(); rustm discards its C return value, so no additional source function is required for this scope."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rustm",
+            "implementation": "js/mhitm.js",
+            "symbol": "rustm",
+            "sourceReview": "Read the complete mhitm.c:1260-1280 definition. With non-null defender and object it selects ERODE_CORRODE before ERODE_RUST before ERODE_BURN; excludes steam vortices from fire erosion; always consumes rn2(chance) for a selected type, including rn2(1); and calls erode_obj(obj, NULL, dmgtyp, EF_GREASE | EF_VERBOSE) only when the draw is zero. The JS implementation preserves the source order, uses chance 6 for fire, and passes the shared state/random environment to the existing erode_obj implementation. C discards erode_obj's return value. Both prior note_unported('mhitm.c rustm') caller gaps were removed.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_phys",
+                "source": "uhitm.c:mhitm_ad_phys() at 4106 calls rustm(&gy.youmonst, otmp) after a monster weapon hits a polymorphed hero; the JS binding passes state.youmonst and otmp."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_phys",
+                "source": "uhitm.c:mhitm_ad_phys() at 4183 calls rustm(mdef, mwep) after monster-versus-monster physical damage; the JS binding passes mdef and mwep."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/rustm-monster-to-monster-caller-variation-20261012.session.json"
+            ],
+            "sourceFile": "mhitm.c",
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
+                "segment": 0,
+                "fromStep": 220,
+                "throughStep": 220,
+                "source": "monster attack on polymorphed hero -> uhitm.c:mhitm_ad_phys() -> rustm(&gy.youmonst, otmp)"
+              }
+            ],
+            "checkedAt": "82f3cdc17fa9c9f7807117fb5bd6e8cc6f64bdcb"
+          }
+        ],
+        "entryPointReview": "The patched recorder has two active production entry points. In monster-versus-polymorphed-hero combat, uhitm.c:mhitm_ad_phys() calls rustm(&gy.youmonst, otmp); admitted v51 case v51-rustmonster-passive-weapon-erosion-action-attempt2 strictly matches 291/291 steps and reaches this path at segment 0 step 220. In monster-versus-monster combat, the same C function calls rustm(mdef, mwep); the independent recording rustm-monster-to-monster-caller-variation-20261012 strictly matches 157/157 steps and contains rn2(1)=0 @ rustm(mhitm.c:1278) at segment 0 step 155. Its !verbose option avoids the unrelated mswingsm visible-message dependency. trap.c:erode_obj() is already implemented in js/trap_erode_obj.js and its return value is discarded here.",
+        "entryPoints": [
+          {
+            "name": "monster weapon strikes polymorphed hero",
+            "functions": [
+              "rustm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
+                "segment": 0,
+                "fromStep": 220,
+                "throughStep": 220,
+                "source": "monster attack -> uhitm.c:mhitm_ad_phys() -> rustm(&gy.youmonst, otmp)"
+              }
+            ]
+          },
+          {
+            "name": "monster weapon strikes another monster",
+            "functions": [
+              "rustm"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/rustm-monster-to-monster-caller-variation-20261012.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "1b66655a6bf141bca61c3df6d0fbde6493699a48",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Hosted38266346302 failed only the new independent monster-pair recording: it stops at step148 on the unaccepted armed mattackm branch before rustm step155. Preserve source and evidence; resume after C whole-combat dependency is accepted."
+    },
+    {
+      "id": "div-getobj-menu-escape-v49-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Preserve Escape and empty Enter from inventory menus",
+      "cFile": "invent.c",
+      "sessions": [],
+      "selectionReason": "Ready inventory menu dependency for the queued B polymorph/self-touch delivery; bounded getobj/display_pickinv return routing from the source-reviewed v49 investigation, before independent work under the approved priority.",
+      "detail": "v49 apply-book segment0 step9: C invent.c:getobj1979–1992 prints Never mind on Escape; display_pickinv3390–3418 returns NUL on empty Enter. JavaScript loses Escape in selector cancellation; explicit Escape and null empty completion repair the existing branch.",
+      "openedAt": "0c60ed3c0e29896350ce6c1975c4b8f17deb266b",
+      "openStanding": {
+        "sha": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "getobj",
+      "session": "synthetic/v49/v49-apply-book-attempt2",
+      "step": 9,
+      "syntheticProvenance": {
+        "synthetic/v49/v49-apply-book-attempt2": {
+          "session": "synthetic/v49/v49-apply-book-attempt2",
+          "corpus": "synthetic",
+          "batch": "v49",
+          "caseId": "v49-apply-book-attempt2",
+          "manifestPath": "challenges/manifests/v49.json",
+          "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+          "recordingPath": "challenges/cases/v49/v49-apply-book-attempt2.session.json",
+          "recordingSha256": "c20b4bab04de8e63e798f0d8b6f06f7b00852b4bf1e9260c29a50f9d40a5fc72",
+          "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v49.json",
+          "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf"
+        }
+      },
+      "activeStanding": {
+        "sha": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v49",
+          "caseId": "v49-apply-book-attempt2",
+          "session": "synthetic/v49/v49-apply-book-attempt2",
+          "manifestPath": "challenges/manifests/v49.json",
+          "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+          "recording": "challenges/cases/v49/v49-apply-book-attempt2.session.json",
+          "recordingPath": "challenges/cases/v49/v49-apply-book-attempt2.session.json",
+          "recordingSha256": "c20b4bab04de8e63e798f0d8b6f06f7b00852b4bf1e9260c29a50f9d40a5fc72",
+          "recipe": "challenges/cases/v49/v49-apply-book-attempt2.recipe.session.json",
+          "recipeSha256": "e1b61fa46efe85245c0d71fd68d09f47c09f4293b5e56cc371b02797897f4381",
+          "replayInputSha256": "6aa1f555b81c3cd2deced0110e515fe1e32362703bd844a996120945a0f7d4ed",
+          "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v49.json",
+          "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+          "evaluationArtifact": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v49.json",
+          "evaluationUtc": "2026-10-12T14:28:48.585Z",
+          "remainingScreens": 1,
+          "recordedSteps": 10,
+          "previousScreensMatched": 9,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 9,
+              "total": 10
+            },
+            "rng": {
+              "matched": 2737,
+              "total": 2737
+            },
+            "cursors": {
+              "matched": 9,
+              "total": 10
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 9,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 9,
+                "key": "\u001b"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "N",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 9,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 9,
+                "key": "\u001b"
+              },
+              "cCursor": [
+                9,
+                3,
+                1
+              ],
+              "jsCursor": [
+                47,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 9,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v49/v49-apply-book-attempt2.json",
+            "result": {
+              "session": "synthetic/v49/v49-apply-book-attempt2",
+              "corpus": "synthetic",
+              "batch": "v49",
+              "caseId": "v49-apply-book-attempt2",
+              "manifestPath": "challenges/manifests/v49.json",
+              "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+              "recordingPath": "challenges/cases/v49/v49-apply-book-attempt2.session.json",
+              "recordingSha256": "c20b4bab04de8e63e798f0d8b6f06f7b00852b4bf1e9260c29a50f9d40a5fc72",
+              "recipePath": "challenges/cases/v49/v49-apply-book-attempt2.recipe.session.json",
+              "recipeSha256": "e1b61fa46efe85245c0d71fd68d09f47c09f4293b5e56cc371b02797897f4381",
+              "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v49.json",
+              "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+              "status": "complete",
+              "baseCommit": "dfd2b6f5efe0e9f45f857f0483c6c2a0ca04e46a",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v49",
+                "caseId": "v49-apply-book-attempt2",
+                "session": "synthetic/v49/v49-apply-book-attempt2",
+                "manifestPath": "challenges/manifests/v49.json",
+                "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+                "recording": "challenges/cases/v49/v49-apply-book-attempt2.session.json",
+                "recordingPath": "challenges/cases/v49/v49-apply-book-attempt2.session.json",
+                "recordingSha256": "c20b4bab04de8e63e798f0d8b6f06f7b00852b4bf1e9260c29a50f9d40a5fc72",
+                "recipe": "challenges/cases/v49/v49-apply-book-attempt2.recipe.session.json",
+                "recipeSha256": "e1b61fa46efe85245c0d71fd68d09f47c09f4293b5e56cc371b02797897f4381",
+                "replayInputSha256": "6aa1f555b81c3cd2deced0110e515fe1e32362703bd844a996120945a0f7d4ed",
+                "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v49.json",
+                "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+                "evaluationArtifact": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v49.json",
+                "evaluationUtc": "2026-10-12T14:28:48.585Z",
+                "remainingScreens": 1,
+                "recordedSteps": 10,
+                "previousScreensMatched": 9,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 9,
+                    "total": 10
+                  },
+                  "rng": {
+                    "matched": 2737,
+                    "total": 2737
+                  },
+                  "cursors": {
+                    "matched": 9,
+                    "total": 10
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 9,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 9,
+                      "key": "\u001b"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "N",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 9,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 9,
+                      "key": "\u001b"
+                    },
+                    "cCursor": [
+                      9,
+                      3,
+                      1
+                    ],
+                    "jsCursor": [
+                      47,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 9,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v49/v49-apply-book-attempt2.json"
+                }
+              },
+              "summary": "The apply command opens getobj’s suggested inventory menu. C display_pickinv distinguishes Escape from empty Enter: Escape prints Never mind and returns; empty Enter retries the object question. Forward a distinct Escape result and an explicit null empty result through the existing selector API.",
+              "source": {
+                "cFile": "invent.c",
+                "functions": [
+                  "getobj",
+                  "display_pickinv"
+                ],
+                "lineRanges": [
+                  [
+                    1752,
+                    2088
+                  ],
+                  [
+                    3057,
+                    3418
+                  ]
+                ],
+                "divergenceBranch": "invent.c:getobj 1979-1992: display_pickinv returns zero for ordinary cancellation, causing another prompt iteration, or '\\033' for Escape, causing Never_mind and a null return.",
+                "jsFile": "js/invent.js",
+                "jsFunctions": [
+                  "getobj",
+                  "display_pickinv"
+                ],
+                "callers": [
+                  "apply.c:doapply 4226-4228 calls getobj(\"use or apply\", apply_ok, GETOBJ_NOFLAGS) and returns ECMD_CANCEL for null.",
+                  "js/apply.js:doapply reaches js/invent.js:getobj for the #apply route."
+                ],
+                "menuOwner": "js/invent.js:display_pickinv delegates to js/windows.js:select_menu and js/tty_menu.js:selectTtyMenu; select_menu already accepts a caller-provided cancelValue.",
+                "file": "invent.c",
+                "branch": "invent.c:getobj 1979-1992: display_pickinv returns zero for ordinary cancellation, causing another prompt iteration, or '\\033' for Escape, causing Never_mind and a null return.",
+                "dependencies": [
+                  "Existing windows.js select_menu and tty_menu.js selectTtyMenu caller-provided cancelValue/emptyValue; no new source function."
+                ]
+              },
+              "evidence": [
+                "The complete recorded GOALS.json file-port span g_at..ggetobj lists getobj as complete, and the separate display_pickinv..this_type_only span lists display_pickinv as complete. This mismatch is a defect in an existing branch, not absent source behavior.",
+                "Saved admitted baseline challenges/evaluations/baseline-1462b295f-v49.json measures v49-apply-book-attempt2 at 9/10 screens and cursors and 2737/2737 RNG; its first mismatch is step 9, Escape, with C row 0 beginning N and JS row 0 beginning W.",
+                "Fresh isolated replay from accepted worker base dfd2b6f5efe0e9f45f857f0483c6c2a0ca04e46a used the exact coordinator recording: node frozen/ps_test_runner.mjs /home/vtjeng/development/vtjeng/teleport-contest/challenges/cases/v49/v49-apply-book-attempt2.session.json. It reproduced 9/10 screens and 2737/2737 RNG with no runner error.",
+                "The recipe independently runs #apply, chooses ?, then Escape with a Wizard inventory containing three suggested items. The two earlier screens match; the Escape screen shows the differing post-menu behavior.",
+                "Upstream invent.c:getobj lines 1979-1992 branches on display_pickinv's returned char. Its no-selection branch continues the prompt loop; its Escape branch prints Never_mind and returns null. The JS getobj currently calls display_pickinv with cancelValue null and checks falsiness before checking the Escape branch, so Escape is lost at the menu API boundary."
+              ],
+              "proposedScope": {
+                "kind": "divergence-fix",
+                "completeSourceFunctions": [
+                  "invent.c:getobj"
+                ],
+                "boundedSupportingFunction": "invent.c:display_pickinv menu return routing; preserve Escape as a distinct answer only for getobj's selectable menu invocation.",
+                "callerScope": "Verify apply.c:doapply and js/apply.js doapply wiring; no caller behavior change planned.",
+                "goalSummary": "Preserve Escape from the suggested inventory menu in getobj",
+                "entryPoint": "#apply -> apply.c:doapply -> getobj suggested inventory menu"
+              },
+              "goalKind": "divergence-fix",
+              "commit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+              "remainingScreens": 1,
+              "recordedSteps": 10
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-mhitm-mattackm-v50-20261012",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete monster weapon attacks and combat helpers",
+      "cFile": "mhitm.c",
+      "sessions": [
+        "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1"
+      ],
+      "selectionReason": "Ready whole monster-combat delivery removes the armed attack refusal at v50 step1452 and directly unblocks parked Rustm recording step148. Complete the selected source function and required reveal/message/passive/weapon helpers; existing caller modules receive only source-ordered wiring.",
+      "detail": "",
+      "openedAt": "d87eac3475e14580287de739146198176739c990",
+      "openStanding": {
+        "sha": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mattackm",
+          "line": 293,
+          "endLine": 596,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 293,
+        "to": 596
+      },
+      "requiredFunctions": [
+        {
+          "name": "pre_mm_attack",
+          "line": 41,
+          "endLine": 75,
+          "declared": true,
+          "sourceFile": "mhitm.c",
+          "complete": true
+        },
+        {
+          "name": "hitmm",
+          "line": 644,
+          "endLine": 735,
+          "declared": true,
+          "sourceFile": "mhitm.c",
+          "complete": true
+        },
+        {
+          "name": "mswingsm",
+          "line": 1283,
+          "endLine": 1303,
+          "declared": true,
+          "sourceFile": "mhitm.c",
+          "complete": true
+        },
+        {
+          "name": "passivemm",
+          "line": 1304,
+          "endLine": 1460,
+          "declared": true,
+          "sourceFile": "mhitm.c",
+          "complete": true
+        },
+        {
+          "name": "possibly_unwield",
+          "line": 747,
+          "endLine": 800,
+          "declared": true,
+          "sourceFile": "weapon.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1": {
+          "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+          "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
+          "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+          "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4"
+        }
+      },
+      "activeStanding": {
+        "sha": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+          "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recording": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+          "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+          "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
+          "recipe": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.recipe.session.json",
+          "recipeSha256": "4d6edba497a07c6ee550413811cf168d0c90fd358b1f6d72428759417e445d99",
+          "replayInputSha256": "118313fa7a6adf8442fa37c8bebfee4cbc61b06986458e15dd81143fe68a3a58",
+          "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+          "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+          "evaluationArtifact": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+          "evaluationUtc": "2026-10-12T15:12:36.544Z",
+          "remainingScreens": 303,
+          "recordedSteps": 1755,
+          "previousScreensMatched": 1452,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 1452,
+              "total": 1755
+            },
+            "rng": {
+              "matched": 7573,
+              "total": 10005
+            },
+            "cursors": {
+              "matched": 1452,
+              "total": 1755
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires an armed monster attacking another monster",
+            "step": 1452
+          },
+          "step": 1452,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires an armed monster attacking another monster",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1.json",
+            "result": {
+              "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
+              "remainingScreens": 303,
+              "recordedSteps": 1755,
+              "corpus": "synthetic",
+              "batch": "v50",
+              "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+              "manifestPath": "challenges/manifests/v50.json",
+              "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+              "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+              "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
+              "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+              "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+              "status": "complete",
+              "commit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
+                "manifestPath": "challenges/manifests/v50.json",
+                "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+                "recording": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+                "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+                "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
+                "recipe": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.recipe.session.json",
+                "recipeSha256": "4d6edba497a07c6ee550413811cf168d0c90fd358b1f6d72428759417e445d99",
+                "replayInputSha256": "118313fa7a6adf8442fa37c8bebfee4cbc61b06986458e15dd81143fe68a3a58",
+                "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+                "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+                "evaluationArtifact": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+                "evaluationUtc": "2026-10-12T15:12:36.544Z",
+                "remainingScreens": 303,
+                "recordedSteps": 1755,
+                "previousScreensMatched": 1452,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 1452,
+                    "total": 1755
+                  },
+                  "rng": {
+                    "matched": 7573,
+                    "total": 10005
+                  },
+                  "cursors": {
+                    "matched": 1452,
+                    "total": 1755
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires an armed monster attacking another monster",
+                  "step": 1452
+                },
+                "step": 1452,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires an armed monster attacking another monster",
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1.json"
+                }
+              },
+              "summary": "The egg hatches successfully. The first mismatch is the later adjacent armed monster attack at step1452. Complete mattackm and its reveal, hit-message, weapon-swing, passive-result, and weapon-state helpers. The missing weapon route also blocks the parked Rustm monster-pair recording.",
+              "source": {
+                "file": "mhitm.c",
+                "branch": "Adjacent armed AT_WEAP attack in whole mattackm, including hidden defender reveal, source hit/passive results, silver-weapon messages, and post-hit pudding splitting; required weapon.c:possibly_unwield and its existing callers.",
+                "functions": [
+                  "mattackm",
+                  "pre_mm_attack",
+                  "hitmm",
+                  "mswingsm",
+                  "passivemm"
+                ],
+                "callers": [
+                  "dogmove.c:dog_move() -> mattackm(mtmp, mtmp2) at 1151 and return attack at 1165; current v50 replay exercises the direct ordinary pet-versus-monster action.",
+                  "dogmove.c:pet_ranged_attk() -> mattackm(mtmp, mtarg) at 923 and retaliatory mattackm(mtarg, mtmp) at 946.",
+                  "mhitm.c:fightm() -> mattackm(mtmp, mon) at 143 and return attack at 164.",
+                  "monmove.c:covetous attack -> mattackm(mtmp, intruder) at 1794; monmove.c:m_move() monster-versus-monster attack at 2097 and return attack at 2111.",
+                  "mhitu.c:steed attack/retaliation -> mattackm(mtmp, u.usteed) at 537 and mattackm(u.usteed, mtmp) at 547."
+                ],
+                "dependencies": [
+                  "mattackm() consumes hitmm(), passivemm(), gazemm(), explmm(), gulpmm(), breamm()/spitmm(), and thrwmm() results; verify their returned contracts against C, and include any incomplete consumed callee in the task scope.",
+                  "hitmm() consumes mdamagem() and calls pre_mm_attack() for its map/visibility state changes.",
+                  "mattackm() consumes failed_grab() and helper results from mhitu.c, weapon.c, mon.c, and mthrowu.c; preserve their existing source-aligned implementations and expand scope if a consumed callee is incomplete.",
+                  "The v50 case reaches the existing dogmove.c:dog_move() caller; no new caller adapter or session-specific mapping is needed."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Admitted v50 case challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json has 1755 recorded steps; its manifest sourceTrace identifies carried egg hatching at steps 1328 and 1376, then the first mismatch at step 1452 in the later armed attack.",
+                "The saved v50 baseline challenges/evaluations/baseline-e4c7bc56e-v50.json records 1452/1755 screens, 7573/10005 RNG calls, and 1452/1755 cursors matched; its source commit is e4c7bc56eb850377811e089788227269b277950d.",
+                "Focused diagnostic `/tmp/teleport-v50-dragon-egg-scan.json`, run from admitted Main 03b0395d562daf356bb7984e49324eb3fedc9236, stops at step 1452 on `UnsupportedSimpleMonsterActionError` for an armed monster attacking another monster.",
+                "C source `nethack-c/upstream/src/mhitm.c:mattackm()` sets up visibility, attacker turn state, and the attack loop; its adjacent AT_WEAP branch (406-417) selects/preserves MON_WEP, calls `mswingsm()` and `hitval()`, then falls through to the physical attack case which rolls `rnd(20 + i)` at line 441 and consumes `hitmm()` result. The recording’s next step has `rnd(20)=14 @ mattackm(mhitm.c:441)` and the runed-broadsword attack message.",
+                "JavaScript `js/mhitm.js:mattackm()` has explicit unported boundaries at lines 732 (`mundetected` defender) and 798 (armed AT_WEAP). The separate earlier starting-pet scope implemented only empty-handed fall-through and explicitly excluded actual wielded weapons; it does not cover this branch.",
+                "The whole-function selection also includes its consumed incomplete `hitmm()`/`passivemm()` results and `pre_mm_attack()` side effects, so the task must cover the functions named in `source.functions` and any incomplete consumed return dependency found during source review.",
+                "The closest v50 case, `v50-own-dragon-egg-floor-hatch-action-attempt1`, uses a floor egg laid through `lay_an_egg`; this selected case uses a carried wished three-egg stack that hatches and reschedules siblings. Its first mismatch is a subsequent armed monster attack, distinct from the floor-egg path."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pre_mm_attack",
+            "implementation": "js/mhitm.js",
+            "symbol": "pre_mm_attack",
+            "sourceReview": "Read complete mhitm.c:41–72. Reveal defender and attacker mimics in source order, clear either undetected participant, preserve the accumulated showit flag, then mark invisible or redraw each participant according to canspotmon and visibility.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "missmm",
+                "source": "mhitm.c:missmm() directly calls pre_mm_attack() at line 81; mattackm() routes missed strikes through missmm() at lines 473 and 534."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "hitmm",
+                "source": "mhitm.c:hitmm() directly calls pre_mm_attack() at line 657; mattackm() routes successful strikes through hitmm() at lines 455 and 488."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "dogmove.c:dog_move -> mhitm.c:mattackm -> missmm or hitmm -> pre_mm_attack; segment 0 contains both an armed-strike miss and successful strikes."
+              }
+            ],
+            "checkedAt": "971516086056e12f257f2e71912dea9812e5bf2c"
+          },
+          {
+            "name": "mattackm",
+            "implementation": "js/mhitm.js",
+            "symbol": "mattackm",
+            "sourceReview": "Read mhitm.c:293-592 in full and traced the consumed returns. JavaScript preserves setup and attack-slot order, hidden-defender discovery, visibility and movement state, adjacent weapon selection and to-hit bonus, the physical strike fallthrough, damage/passive results, retaliation flags, and the remaining named delegated attack paths. AT_WEAP now reaches mswingsm, hitmm, and passivemm rather than refusing after weapon selection. The final correction also implements mhitm.c:455-471 after hitmm returns: eligible black/brown puddings struck by iron/metal weapons are cloned; the visible split message precedes mintrap, and the aggressor-death flag is added if mintrap leaves it dead. The clone_mon and mintrap return behavior is consumed in source order.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c:m_move() calls mattackm() for the covetous intruder and movement aggression paths."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move_aggress",
+                "source": "monmove.c:m_move_aggress() calls mattackm() for the initiating and return attacks."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c:dog_move() calls mattackm() for pet melee and retaliation."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "fightm",
+                "source": "mhitm.c:fightm() calls mattackm() for Conflict-driven monster combat."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku() calls mattackm() when monsters attack the steed and for the steed's return attack."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "pet_ranged_attk",
+                "source": "dogmove.c:pet_ranged_attk calls mattackm at923 and946 for attack/response; JS selects env.mattackm ?? mattackm. Production unported_monster_actions.js:runPetRangedAttack supplies the canonical mattackm operation and missile/weapon state."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "dogmove.c dog_move -> mhitm.c mattackm; hatchling melee and return attack"
+              }
+            ],
+            "checkedAt": "971516086056e12f257f2e71912dea9812e5bf2c"
+          },
+          {
+            "name": "hitmm",
+            "implementation": "js/mhitm.js",
+            "symbol": "hitmm",
+            "sourceReview": "Read mhitm.c:644-732 in full. JavaScript preserves hit and silver weapon messages, possessive tentacle naming, pre-hit reveal, damage dispatch and consumed return flags, and the source message branches for artifact and ordinary weapons.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm() calls hitmm() from its weapon and physical strike arms."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "dogmove.c dog_move -> mhitm.c mattackm -> hitmm"
+              }
+            ],
+            "checkedAt": "971516086056e12f257f2e71912dea9812e5bf2c"
+          },
+          {
+            "name": "mswingsm",
+            "implementation": "js/mhitm.js",
+            "symbol": "mswingsm",
+            "sourceReview": "Read mhitm.c:1283-1301 in full. JavaScript preserves the can-see/can-spot and blind gates, pole-arm bash behavior, source verb selection, and the message timing before the weapon strike. Correction review: C uses the global canspotmon owner in mhis(magr). JavaScript now supplies env.canSpotMonster ?? canspotmon while preserving the injected state and random source. The matching verbose armed M2M v50 replay was rechecked through segment 0 step 1754 on the merged final tree; the focused fixture separately exercises the non-hallucinating pronoun branch and confirms no extra random calls.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm() calls mswingsm() for a visible adjacent AT_WEAP attack with a wielded weapon."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "dogmove.c dog_move -> mhitm.c mattackm -> mswingsm"
+              }
+            ],
+            "checkedAt": "971516086056e12f257f2e71912dea9812e5bf2c"
+          },
+          {
+            "name": "passivemm",
+            "implementation": "js/mhitm.js",
+            "symbol": "passivemm",
+            "sourceReview": "Read mhitm.c:1304-1457 in full. JavaScript preserves passive-slot selection, defender and attacker death checks, attack/passive damage order, random bounds, and the returned flags consumed by mattackm; still-unported void effects are named and skipped at their source sites.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm() calls passivemm() after each source arm that reaches the loop tail."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "dogmove.c dog_move -> mhitm.c mattackm -> passivemm"
+              }
+            ],
+            "checkedAt": "971516086056e12f257f2e71912dea9812e5bf2c"
+          },
+          {
+            "name": "possibly_unwield",
+            "implementation": "js/weapon.js",
+            "symbol": "possibly_unwield",
+            "sourceReview": "Read weapon.c:747-795 in full. JavaScript preserves all C state, visibility, artifact-light, messaging, drop, and floor-effect order. The C function is void and returns synchronously for no MON_WEP, a weapon missing from minvent, and retained usable weapons. The JS function now has the same synchronous contract for those branches; only the retained weapon drop path returns a Promise while output, setmnotwielded cleanup, and flooreffects complete. Every C caller discards the return, so existing await/yield callers accept both the immediate void result and the active drop completion.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm() calls possibly_unwield() after the wield-selection attempt and before the adjacent weapon strike."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham",
+                "source": "mon.c:newcham() calls possibly_unwield(mtmp, polyspot) before mon_break_armor()."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "new_were",
+                "source": "were.c:new_were() calls possibly_unwield() after mon_break_armor()."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_whip",
+                "source": "apply.c:use_whip() calls possibly_unwield() after extracting a pulled weapon and before setmnotwielded()."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "steal_it",
+                "source": "uhitm.c:steal_it() calls possibly_unwield() after successful theft of a wielded item."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_sedu",
+                "source": "uhitm.c:mhitm_ad_sedu() calls possibly_unwield() after extracting and transferring a wielded item."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/weapon.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "weapon.c",
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "dogmove.c dog_move -> mhitm.c mattackm -> weapon.c possibly_unwield"
+              }
+            ],
+            "checkedAt": "971516086056e12f257f2e71912dea9812e5bf2c"
+          }
+        ],
+        "entryPointReview": "The selected mhitm.c range has one shared production entry, mattackm(), reached by dogmove.c:dog_move, monmove.c:m_move and m_move_aggress, mhitm.c:fightm, and mhitu.c:mattacku for steed combat. The v50 dragon-egg recording exercises the dog_move route through the adjacent armed attack and matches through segment 0 step 1754 on the merged final tree. pre_mm_attack is called directly by missmm() at C line 81 and hitmm() at line 657; mattackm() reaches it through its missmm() and hitmm() dispatches (lines 455, 473, 488, and 534), not through a direct call. The replay contains both missed and successful armed strikes. hitmm, mswingsm, and passivemm are reached from the same attack loop. The required weapon.c helper is wired at all five active C sites (mhitm.c, mon.c, were.c, apply.c, and uhitm.c); monmove.c has no possibly_unwield call. The caller modules are wiring-only changes and are not claimed as whole-function source ports. The scoped mswingsm correction passes scripts/mhitm.test.mjs for both the canonical fallback and an explicitly injected visibility owner; the blunt-weapon fixture preserves the source roll sequence rnd(20), rn2(3). The weapon.c helper contract test asserts no Promise on absent, stolen, retained, and weapon-check paths and a Promise only on actual drops; source callers accept both the immediate void result and active drop completion. Final correction tests source-pin mhitm.c:455-471 and exercise both the split and the non-metal, one-HP, and cancelled gates. A separate source-pinned uhitm.c caller check verifies the animal seduction path forwards its state and random object to monflee without claiming B’s monflee implementation.",
+        "entryPoints": [
+          {
+            "name": "pet melee and armed monster retaliation after the dragon-egg hatch",
+            "functions": [
+              "mattackm",
+              "pre_mm_attack",
+              "hitmm",
+              "mswingsm",
+              "passivemm",
+              {
+                "sourceFile": "weapon.c",
+                "name": "possibly_unwield"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "allmain.c moveloop_core -> monmove.c movemon -> dogmove.c dog_move -> mhitm.c mattackm -> missmm/hitmm -> pre_mm_attack; armed weapon route also exercises mswingsm, hitmm, passivemm and weapon.c possibly_unwield through the complete matching segment."
+              }
+            ]
+          }
+        ]
       }
     }
   ]

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T13:39:31.317Z",
+  "capturedAt": "2026-10-12T15:18:06.813Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -95111,22 +95111,540 @@
         "at": "2026-10-12T13:39:15.664Z",
         "worker": "C",
         "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v49-extended-quaff-remove-swap-20261012-76feae41365718757f39d1b5b769c632f4353d01",
+        "type": "published",
+        "at": "2026-10-12T13:40:06.510Z",
+        "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
+        "commit": "76feae41365718757f39d1b5b769c632f4353d01"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "vrock-whole-caller-evidence-feedback-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T13:42:42.099Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "delivery": "8255f7b092517a83dc6faeec5e78330a99ef7537"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "blacklight-intake-activity-20261012",
+        "type": "activity",
+        "at": "2026-10-12T13:44:35.105Z",
+        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012",
+        "phase": "review",
+        "reason": "Reviewing the whole hallucination damage function, dispatcher wiring, death caller and saved matching replay before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "blacklight-integrating-8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+        "type": "integrating",
+        "at": "2026-10-12T13:52:41.768Z",
+        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012",
+        "integration": "8bd6dfafae1c66e19642bc3c49301daf5a90c816"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-six-first-owners-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:56:53.045Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: six provisional first defects; recording a lantern save/restore mission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v50-blacklight-monster-combat-action-20261012-8bd6dfafae1c66e19642bc3c49301daf5a90c816-validated",
+        "type": "validated",
+        "at": "2026-10-12T14:02:31.501Z",
+        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v50-blacklight-monster-combat-action-20261012-8bd6dfafae1c66e19642bc3c49301daf5a90c816-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T14:02:51.055Z",
+        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-readonly-combat-caller-support-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:04:03.453Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing C combat callers and checking the pending dragon-egg evidence packet."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-8bd-queue-reserved-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:07:11.570Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-readonly-combat-caller-support-idle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:07:24.062Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Read-only caller survey is complete; A2 remains available with the delayed-stoning delivery preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-320cb8708c0730993bfd9e45a791cec8cbed13e5",
+        "type": "ready",
+        "at": "2026-10-12T14:07:37.867Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "320cb8708c0730993bfd9e45a791cec8cbed13e5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v50-blacklight-monster-combat-action-20261012-98a15b2009e020a0216cd15144973cb53769332f",
+        "type": "published",
+        "at": "2026-10-12T14:07:43.802Z",
+        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012",
+        "commit": "98a15b2009e020a0216cd15144973cb53769332f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-vrock-whole-monflee-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T14:08:06.261Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-seven-first-owners-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:08:55.440Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: seven provisional first defects; checking monster self-polymorph behavior."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getpos-whole-correction-received-320cb8708-20261012",
+        "type": "received",
+        "at": "2026-10-12T14:09:08.627Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "320cb8708c0730993bfd9e45a791cec8cbed13e5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "combat-caller-range-evidence-feedback-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T14:09:10.803Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "f4f12a8713cdac19fdf47771e6e41af662317ded"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v50-combat-caller-range-evidence-20261012",
+        "type": "resume",
+        "at": "2026-10-12T14:11:23.450Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-combat-correction-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:11:26.055Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0b4403cfbf72917def3d942b83071609c08954a7",
+        "type": "ready",
+        "at": "2026-10-12T14:19:09.328Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "0b4403cfbf72917def3d942b83071609c08954a7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-combat-correction-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:20:08.286Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Combat correction is ready for Root review: caller attribution is fixed and the complete cited v50 segment matches on the combined tree."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-48e65d7f6c24375bbc9785d87bc92fd2a60d0f74",
+        "type": "ready",
+        "at": "2026-10-12T14:21:17.855Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "delivery": "48e65d7f6c24375bbc9785d87bc92fd2a60d0f74"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-readonly-getpos-interface-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:21:43.269Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Comparing delivered getpos queue and mouse input handling with the C interface."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-vrock-ready-all-queue-owned-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:22:38.384Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "combat-range-correction-received-0b4403cfb-20261012",
+        "type": "received",
+        "at": "2026-10-12T14:23:21.796Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "0b4403cfbf72917def3d942b83071609c08954a7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "vrock-caller-correction-received-48e65d7f6-20261012",
+        "type": "received",
+        "at": "2026-10-12T14:23:24.284Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "delivery": "48e65d7f6c24375bbc9785d87bc92fd2a60d0f74"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-getpos-support-idle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:23:36.420Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "demonpet-integrating-2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+        "type": "integrating",
+        "at": "2026-10-12T14:24:40.755Z",
+        "task": "B-investigation-v50-demonpet-melee-action-20261012",
+        "integration": "2f7bd8532267d282d4c34e9509a805c8decd3eaf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getpos-pointer-lifetime-feedback-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T14:26:43.450Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "320cb8708c0730993bfd9e45a791cec8cbed13e5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-ten-first-owners-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:34:16.743Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: ten provisional first defects; preparing further independent source behaviors."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v50-demonpet-melee-action-20261012-2f7bd8532267d282d4c34e9509a805c8decd3eaf-validated",
+        "type": "validated",
+        "at": "2026-10-12T14:37:22.395Z",
+        "task": "B-investigation-v50-demonpet-melee-action-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v50-demonpet-melee-action-20261012-2f7bd8532267d282d4c34e9509a805c8decd3eaf-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T14:39:04.373Z",
+        "task": "B-investigation-v50-demonpet-melee-action-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-getpos-pointer-lifetime-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T14:39:07.578Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9c6b57c616fed75b62b4e67ec128932773cc8124",
+        "type": "ready",
+        "at": "2026-10-12T14:39:14.952Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "9c6b57c616fed75b62b4e67ec128932773cc8124"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-getpos-pointer-lifetime-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:39:32.855Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-final-recheck-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:40:18.854Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: twelve provisional first defects; checking accepted code and final evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getpos-final-correction-received-9c6b57c61-20261012",
+        "type": "received",
+        "at": "2026-10-12T14:40:35.859Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "9c6b57c616fed75b62b4e67ec128932773cc8124"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v50-demonpet-melee-action-20261012-fd1506bb07e452dfc663898b6ba6debdbbca4422",
+        "type": "published",
+        "at": "2026-10-12T14:43:12.368Z",
+        "task": "B-investigation-v50-demonpet-melee-action-20261012",
+        "commit": "fd1506bb07e452dfc663898b6ba6debdbbca4422"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-20261012-after-2f7bd853-queue-review",
+        "type": "turn",
+        "at": "2026-10-12T14:43:31.059Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-959008b1baea6371dc337459798c056e13d4a86a",
+        "type": "ready",
+        "at": "2026-10-12T14:44:34.053Z",
+        "task": "Prep19",
+        "delivery": "959008b1baea6371dc337459798c056e13d4a86a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep20-v56-20261012",
+        "type": "assign",
+        "at": "2026-10-12T14:45:51.122Z",
+        "task": "Prep20",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v56"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep19-v55-received-959008b1b-20261012",
+        "type": "received",
+        "at": "2026-10-12T14:46:40.999Z",
+        "task": "Prep19",
+        "delivery": "959008b1baea6371dc337459798c056e13d4a86a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-source-plan-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:49:37.514Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: twelve independent source missions planned; recording C setups."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-first-actions-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:51:40.154Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: twelve C setups complete; recording source actions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "rustm-integrating-1b66655a6-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T14:54:32.026Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "integration": "1b66655a6bf141bca61c3df6d0fbde6493699a48"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getobj-intermediate-644a80ff-received-20261012",
+        "type": "received",
+        "at": "2026-10-12T14:55:34.941Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "delivery": "644a80ff05847c399b8edc6781eb9ec90bfcae78"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-c-source-corrections-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:56:06.431Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: C actions reached petrification and ring explosion; checking trap and floor-object routes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "combat-pudding-whole-source-feedback-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T14:57:12.938Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "0b4403cfbf72917def3d942b83071609c08954a7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-combat-pudding-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T14:58:21.926Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-active-combat-pudding-correction-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:58:25.512Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "vrock-caller-defaults-feedback-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T14:58:35.808Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "delivery": "48e65d7f6c24375bbc9785d87bc92fd2a60d0f74"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-vrock-correction-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:59:39.366Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-first-paired-comparisons-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:00:12.796Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: replaying C actions independently and comparing game output."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "rustm-validation-failed-38266346302-20261012",
+        "type": "validated",
+        "at": "2026-10-12T15:00:59.965Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "rustm-parked-combat-dependency-20261012",
+        "type": "park",
+        "at": "2026-10-12T15:02:41.615Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "reason": "Hosted38266346302 failed only the new independent M2M recording,148/157steps; armed mattackm refuses at148 before rustm155. C full-combat delivery owns the blocker and is correcting its missing pudding-split branch. Preserve Rustm commits/recording; resume after full combat acceptance. Fixed44 and all older1967 recordings still pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-vrock-defaults-20261012",
+        "type": "resume",
+        "at": "2026-10-12T15:03:19.489Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getobj-review-dependency-priority-20261012",
+        "type": "activity",
+        "at": "2026-10-12T15:04:05.349Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "phase": "review",
+        "reason": "Inventory menu correction is one of the three required accepted dependencies for the queued polymorph/self-touch task. Integrate this ready dependency before independent sink/pyrolisk tasks under the approved priority; C combat and B fear-caller corrections continue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-13de69eeb69c8ba8c401afccb03f1778437a6096",
+        "type": "ready",
+        "at": "2026-10-12T15:04:24.193Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "delivery": "13de69eeb69c8ba8c401afccb03f1778437a6096"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-vrock-defaults-submitted-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:04:44.688Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "vrock-13de69ee-received-20261012",
+        "type": "received",
+        "at": "2026-10-12T15:05:14.020Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "delivery": "13de69eeb69c8ba8c401afccb03f1778437a6096"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7881760a25253c587faf0552ad78ff1e9d26859e",
+        "type": "ready",
+        "at": "2026-10-12T15:05:23.824Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "7881760a25253c587faf0552ad78ff1e9d26859e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-idle-combat-pudding-submitted-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:05:37.593Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Combat correction submitted: pudding split, seduction caller context, and corrected pre_mm_attack evidence; focused checks and v50 range pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "combat-7881760a-received-20261012",
+        "type": "received",
+        "at": "2026-10-12T15:06:12.501Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "7881760a25253c587faf0552ad78ff1e9d26859e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getobj-integrating-66954e250-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T15:08:18.571Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "integration": "66954e250e2a887e38507347fa2f683cc3d70dd4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v49-apply-book-attempt2-20261012-66954e250e2a887e38507347fa2f683cc3d70dd4-validated",
+        "type": "validated",
+        "at": "2026-10-12T15:14:28.746Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v49-apply-book-attempt2-20261012-66954e250e2a887e38507347fa2f683cc3d70dd4-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T15:16:25.084Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
-        "worker": "B",
-        "goal": "file-port-monmove-monflee-v50-gas-cloud-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "8255f7b092517a83dc6faeec5e78330a99ef7537",
-        "since": "2026-10-12T07:29:20.763Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B-investigation-v50-selftouch-monster-transition-20261012",
         "worker": "B",
@@ -95136,43 +95654,9 @@
         "delivery": "07d6ac95bd1f0702693a4e4e26f5639bcdd25796",
         "since": "2026-10-12T07:36:15.001Z",
         "blockedBy": [
-          "B-investigation-v49-apply-book-attempt2-20261012",
           "B-investigation-v48-name-floor-object-self-20261012",
           "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012",
-        "worker": "C",
-        "goal": "port-uhitm-mhitm-ad-halu-v50-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "97a59976b9a9433075997927024fc0954209d1fb",
-        "since": "2026-10-12T07:51:10.317Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v50-demonpet-melee-action-20261012",
-        "worker": "B",
-        "goal": "B-v50-demonpet-melee-action",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "0dde6059611f7df9519f67d1b299279033b819e6",
-        "since": "2026-10-12T07:58:38.393Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
-        "worker": "C",
-        "goal": "port-mhitm-rustm-v51-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "74ffc7380822a138acbeb651e419255c8bdd1b40",
-        "since": "2026-10-12T08:37:17.831Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -95257,17 +95741,6 @@
         "unblocks": 0
       },
       {
-        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
-        "worker": "C",
-        "goal": "port-mhitm-mattackm-v50-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "f4f12a8713cdac19fdf47771e6e41af662317ded",
-        "since": "2026-10-12T12:38:30.815Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
         "worker": "C",
         "goal": "fix-mhitu-gulpmu-blind-engulfer-name-v51-20261012",
@@ -95275,17 +95748,6 @@
         "status": "ready",
         "delivery": "64457b3398d812828fdb1fbe7e0767b946c7a8d8",
         "since": "2026-10-12T13:00:07.020Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v49-apply-book-attempt2-20261012",
-        "worker": "B",
-        "goal": "div-getobj-menu-escape-v49-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "33d261d01c61d32a5a560e20d217a75855595d76",
-        "since": "2026-10-12T13:10:06.022Z",
         "blockedBy": [],
         "unblocks": 0
       },
@@ -95302,6 +95764,55 @@
           "Prep16",
           "Prep17"
         ],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "worker": "B",
+        "goal": "divergence-fix-getpos-self-key-floor-name-v48-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "9c6b57c616fed75b62b4e67ec128932773cc8124",
+        "since": "2026-10-12T14:39:14.952Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep19",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "959008b1baea6371dc337459798c056e13d4a86a",
+        "batch": "v55",
+        "since": "2026-10-12T14:44:34.053Z",
+        "blockedBy": [
+          "Prep16",
+          "Prep17",
+          "Prep18"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "worker": "B",
+        "goal": "file-port-monmove-monflee-v50-gas-cloud-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "13de69eeb69c8ba8c401afccb03f1778437a6096",
+        "since": "2026-10-12T15:04:24.193Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "worker": "C",
+        "goal": "port-mhitm-mattackm-v50-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "7881760a25253c587faf0552ad78ff1e9d26859e",
+        "since": "2026-10-12T15:05:23.824Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -95759,12 +96270,23 @@
         "since": "2026-10-12T11:30:34.791Z",
         "blockedBy": [],
         "reason": "Resolved by C-investigation-v48-discovery-sort-menu-20261012 accepted at 583ca5765128db23e1d43883d8faad7b0dbcdef6. Fresh bounded replay on B accepted Main 24cd67df72e04946883c4dad0b7185ebbbd77449 matched all 14 screens, RNG, and input boundaries; #knownclass reached with unported=[] and no refusal. Do not create duplicate implementation completion evidence."
+      },
+      {
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "worker": "C",
+        "goal": "port-mhitm-rustm-v51-20261012",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": "74ffc7380822a138acbeb651e419255c8bdd1b40",
+        "since": "2026-10-12T15:02:41.615Z",
+        "blockedBy": [],
+        "reason": "Hosted38266346302 failed only the new independent M2M recording,148/157steps; armed mattackm refuses at148 before rustm155. C full-combat delivery owns the blocker and is correcting its missing pudding-split branch. Preserve Rustm commits/recording; resume after full combat acceptance. Fixed44 and all older1967 recordings still pass."
       }
     ]
   },
   "development": {
-    "executionCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e",
-    "measuredAt": "2026-10-12T13:22:28.510Z",
+    "executionCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+    "measuredAt": "2026-10-12T15:13:19.049Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

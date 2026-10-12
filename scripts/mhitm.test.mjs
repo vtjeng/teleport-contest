@@ -92,13 +92,14 @@ import {
     PM_SEWER_RAT,
     PM_WATER_NYMPH,
     PM_WOODLAND_ELF,
+    PM_BROWN_PUDDING,
 } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj, objectType } from '../js/obj.js';
 import { cansee } from '../js/vision.js';
 import { mon_wield_item } from '../js/weapon.js';
 import { find_mac } from '../js/worn.js';
-import { APPLE, SHORT_SWORD } from '../js/objects.js';
+import { APPLE, CLUB, SHORT_SWORD, IRON, METAL } from '../js/objects.js';
 import { S_hcdoor } from '../js/symbols.js';
 import {
     loadUnseenPetFightRecipe,
@@ -114,6 +115,9 @@ import {
 
 const MHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitm.c', import.meta.url), 'utf8',
+);
+const MHITM_JS = readFileSync(
+    new URL('../js/mhitm.js', import.meta.url), 'utf8',
 );
 const MHITU_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8',
@@ -953,10 +957,8 @@ test('a sleeping defender wakes and is easier to hit', async () => {
 // against a non-orc, with the roll that sits exactly on the unbonused
 // differential.
 //
-// Every elf carries AT_WEAP, which mattackm() refuses, so slot zero is
-// replaced with a bite. mondata.h is_elf() and is_orc() read the species
-// flags rather than the attack list, so the substitution leaves the branch
-// under test alone.
+// Slot zero is replaced with a bite to keep this accuracy test independent
+// of the separate armed-melee path.
 test("an elf's blow against an orc gains one point of accuracy", async () => {
     await hero();
     const { ax, dx, y } = battlefield(1);
@@ -1264,7 +1266,116 @@ test('mattackm falls through an adjacent empty-handed weapon attack',
         goblin.data = ordinary;
     });
 
-test('mattackm keeps every continuation past the wield turn closed',
+// mhitm.c mattackm():455-471 runs after hitmm(): an iron or metal weapon
+// divides a living, uncancelled pudding, then messages before mintrap().
+test('a metal weapon splits a pudding after hitmm and before mintrap',
+    async () => {
+        const cBranch = MHITM_C.slice(
+            MHITM_C.indexOf('res[i] = hitmm(magr, mdef, mattk, mwep, dieroll);'),
+            MHITM_C.indexOf('\n            } else\n                missmm(magr, mdef, mattk);'),
+        );
+        assert.match(cBranch,
+            /res\[i\] = hitmm\([\s\S]*?clone_mon\(mdef, 0, 0\)[\s\S]*?gv\.vis && canspotmon\(mdef\)[\s\S]*?mintrap\(mclone, NO_TRAP_FLAGS\)[\s\S]*?DEADMONSTER\(magr\)[\s\S]*?M_ATTK_AGR_DIED/u);
+        const jsBranch = MHITM_JS.slice(
+            MHITM_JS.indexOf('const mclone = await clone_mon(mdef, 0, 0, state, {'),
+            MHITM_JS.indexOf('\n                }\n            } else {\n                await missmm',
+                MHITM_JS.indexOf('const mclone = await clone_mon(mdef, 0, 0, state, {')),
+        );
+        assert.match(jsBranch,
+            /clone_mon\([\s\S]*?requireAttackOperation\(env, 'message'\)[\s\S]*?await mintrap\(mclone, NO_TRAP_FLAGS[\s\S]*?magr\.mhp < 1[\s\S]*?M_ATTK_AGR_DIED/u);
+
+        await hero();
+        const { ax, dx, y } = battlefield(1);
+        // Level 20 guarantees the armed strike lands; 12 HP survives it and
+        // exercises clone_mon()'s source half-current-HP split.
+        const attacker = fixture(PM_KITTEN, ax, y, { mtame: 10, m_lev: 20 });
+        const pudding = fixture(PM_BROWN_PUDDING, dx, y, {
+            mhp: 12,
+            mhpmax: 12,
+        });
+        aim(pudding);
+        const ordinary = attacker.data;
+        attacker.data = {
+            ...ordinary,
+            mattk: [
+                { aatyp: AT_WEAP, adtyp: AD_PHYS, damn: 0, damd: 0 },
+                ...ordinary.mattk.slice(1),
+            ],
+        };
+        const weapon = mksobj(SHORT_SWORD, false, false, { state: game });
+        add_to_minv(attacker, weapon, { state: game });
+        attacker.mw = weapon;
+        assert.ok([IRON, METAL].includes(objectType(weapon, game).oc_material));
+
+        const beforeIds = new Set();
+        for (let mon = game.level.monlist; mon; mon = mon.nmon)
+            beforeIds.add(mon.m_id);
+        const env = attackEnv([1], 1);
+        const result = await mattackm(attacker, pudding, env);
+        const newMonsters = [];
+        for (let mon = game.level.monlist; mon; mon = mon.nmon) {
+            if (!beforeIds.has(mon.m_id)) newMonsters.push(mon);
+        }
+
+        assert.equal(result, M_ATTK_HIT);
+        assert.equal(newMonsters.length, 1);
+        assert.equal(newMonsters[0].mhp, Math.trunc(pudding.mhp));
+        const hit = env.lines.findIndex(line => line.includes('hits the brown pudding'));
+        const divided = env.lines.findIndex(line => line.includes('divides as'));
+        assert.ok(hit >= 0, 'hitmm reports the strike');
+        assert.ok(divided > hit, 'the split message follows the hit message');
+        attacker.data = ordinary;
+    });
+
+test('mattackm does not split a non-metal hit, a last-HP pudding, or a canceled pudding',
+    async () => {
+        const cases = [
+            { name: 'wooden weapon', weaponType: CLUB },
+            { name: 'one hit point', weaponType: SHORT_SWORD, hp: 1 },
+            { name: 'canceled pudding', weaponType: SHORT_SWORD, mcan: 1 },
+        ];
+        let seed = 7710100; // Independent clean starts for each source gate.
+        for (const scenario of cases) {
+            await hero(seed++);
+            const { ax, dx, y } = battlefield(1);
+            const attacker = fixture(PM_KITTEN, ax, y, {
+                mtame: 10,
+                m_lev: 20,
+            });
+            const pudding = fixture(PM_BROWN_PUDDING, dx, y, {
+                mhp: scenario.hp ?? 12,
+                mhpmax: scenario.hp ?? 12,
+                mcan: scenario.mcan ?? 0,
+            });
+            aim(pudding);
+            const ordinary = attacker.data;
+            attacker.data = {
+                ...ordinary,
+                mattk: [
+                    { aatyp: AT_WEAP, adtyp: AD_PHYS, damn: 0, damd: 0 },
+                    ...ordinary.mattk.slice(1),
+                ],
+            };
+            const weapon = mksobj(scenario.weaponType, false, false, {
+                state: game,
+            });
+            add_to_minv(attacker, weapon, { state: game });
+            attacker.mw = weapon;
+            const beforeIds = new Set();
+            for (let mon = game.level.monlist; mon; mon = mon.nmon)
+                beforeIds.add(mon.m_id);
+
+            await mattackm(attacker, pudding, attackEnv([1], 1));
+
+            const afterIds = new Set();
+            for (let mon = game.level.monlist; mon; mon = mon.nmon)
+                afterIds.add(mon.m_id);
+            assert.equal(afterIds.size, beforeIds.size, scenario.name);
+            attacker.data = ordinary;
+        }
+    });
+
+test('mattackm continues past weapon selection for supported arms',
     async () => {
         const cases = [
             // Distant attack: thrwmm is now ported; with no ranged weapon the
@@ -1276,7 +1387,6 @@ test('mattackm keeps every continuation past the wield turn closed',
                 mw: { otyp: 1, owornmask: 0 },
                 weaponCheck: NEED_HTH_WEAPON,
                 result: 1, calls: 0,
-                rejects: true,
             },
             { name: 'empty selection and damage', gap: 1, mw: null,
                 result: 0, calls: 1, rejects: false },
@@ -1310,26 +1420,72 @@ test('mattackm keeps every continuation past the wield turn closed',
                 assert.equal(await mattackm(goblin, kitten, env), M_ATTK_HIT,
                              row.name);
                 assert.equal(goblin.mw, null, row.name);
-            } else if (row.rejects) {
-                await assert.rejects(
-                    mattackm(goblin, kitten, env),
-                    /an armed monster attacking another monster/u,
-                    row.name,
-                );
             } else {
                 // Distant: thrwmm returns M_ATTK_MISS, mattackm continues.
                 const result = await mattackm(goblin, kitten, env);
                 assert.equal(typeof result, 'number', row.name);
             }
             assert.equal(calls, row.calls, row.name);
-            if (row.rejects)
-                assert.deepEqual(env.bounds, [], row.name);
             goblin.data = ordinary;
         }
     });
 
 // mhitm.c mattackm() gates automatic HUGS by earlier successful slots and
 // prevents point-blank breath/spit. The fabricated slots isolate each gate.
+test('mswingsm supplies the canonical pronoun visibility owner', async () => {
+    const cStart = MHITM_C.indexOf('\nstaticfn void\nmswingsm(');
+    const cEnd = MHITM_C.indexOf('\n/*\n * Passive responses', cStart);
+    assert.notEqual(cStart, -1, 'mhitm.c must contain mswingsm');
+    assert.notEqual(cEnd, -1, 'mswingsm must end before passive responses');
+    const cFunction = MHITM_C.slice(cStart + 1, cEnd);
+    assert.match(cFunction,
+        /if \(flags\.verbose && !Blind && mon_visible\(magr\)\)[\s\S]*?mhis\(magr\)/u);
+
+    for (const injectedOwner of [undefined, () => true]) {
+        await hero();
+        game.flags.verbose = true;
+        const { ax, dx, y } = battlefield(1);
+        const club = mksobj(CLUB, false, false, { state: game });
+        const goblin = fixture(PM_HILL_ORC, ax, y, {
+            m_lev: 0,
+            weapon_check: NEED_HTH_WEAPON,
+            mw: club,
+        });
+        add_to_minv(goblin, club, { state: game });
+        const kitten = fixture(PM_KITTEN, dx, y);
+        aim(kitten);
+        const ordinary = goblin.data;
+        goblin.data = {
+            ...ordinary,
+            mattk: [
+                { aatyp: AT_WEAP, adtyp: AD_PHYS, damn: 1, damd: 4 },
+                ...ordinary.mattk.slice(1),
+            ],
+        };
+
+        // A blunt club skips mswings_verb's optional rn2(2); 20 then makes
+        // this low-level attack miss after the visible weapon message.
+        const env = attackEnv([20]);
+        const ownerSubjects = [];
+        if (injectedOwner) {
+            env.canSpotMonster = (monster, state) => {
+                ownerSubjects.push(monster);
+                assert.equal(state, game);
+                return injectedOwner(monster, state);
+            };
+        }
+
+        assert.equal(await mattackm(goblin, kitten, env), M_ATTK_MISS);
+        assert.equal(game.gv.vis, true);
+        assert.equal(game.flags.verbose, true);
+        assert.ok(goblin.mw);
+        assert.match(env.lines.join('\n'), /hill orc swings his club at the kitten/u);
+        assert.deepEqual(env.bounds, ['rnd(20)', 'rn2(3)']);
+        if (injectedOwner) assert.ok(ownerSubjects.includes(goblin));
+        goblin.data = ordinary;
+    }
+});
+
 test('mattackm gates HUGS by prior hits and ranged attacks by distance',
     async () => {
         await hero();
@@ -1462,8 +1618,8 @@ test('mattackm dispatches Pyrolisk gaze damage before floating-eye passive',
 
 // mhitm.c mattackm():337-359. A defender that was hiding is noticed as it is
 // attacked, through display.c newsym() and one of four lines that need
-// sensemon(). The stop sits above the whole block.
-test('a hidden defender stops the attack before it starts', async () => {
+// sensemon(), then combat continues.
+test('a hidden defender is noticed before the attack continues', async () => {
     await hero();
     const { ax, dx, y } = battlefield(1);
     const pet = fixture(PM_LITTLE_DOG, ax, y, { mtame: 10, mlstmv: 0 });
@@ -1471,13 +1627,10 @@ test('a hidden defender stops the attack before it starts', async () => {
     aim(ant);
     const env = attackEnv();
 
-    await assert.rejects(
-        mattackm(pet, ant, env),
-        /a hidden monster noticed as it is attacked/u,
-    );
-    assert.deepEqual(env.bounds, []);
-    // The stop precedes the visibility and move-tracking writes.
-    assert.equal(pet.mlstmv, 0);
+    const result = await mattackm(pet, ant, env);
+    assert.equal(typeof result, 'number');
+    assert.notEqual(pet.mlstmv, 0);
+    assert.ok(env.lines.some((line) => line.includes('notice')));
 });
 
 // mhitm.c missmm():90-91 and noises():26-38. When neither combatant can be
@@ -1659,8 +1812,8 @@ test('a tentacle attack names its owner in the possessive', async () => {
     const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
     const ant = fixture(PM_GIANT_ANT, dx, y);
     aim(ant);
-    // No pet carries AT_TENT, so the slot is fabricated the way the refusal
-    // rows above are.
+    // No pet carries AT_TENT, so this fabricated slot isolates hitmm's
+    // source-derived possessive naming.
     const ordinary = pet.data;
     pet.data = {
         ...ordinary,
@@ -1703,9 +1856,8 @@ test('mattackm answers a miss for a combatant that is not there', async () => {
     assert.equal(pet.mlstmv, 0);
 });
 
-// mhitm.c pre_mm_attack():44-59. `showit` starts FALSE and only a mimic or a
-// hidden monster raises it, and both of those refuse, so no ported blow
-// repaints either combatant.
+// mhitm.c pre_mm_attack():44-59. Ordinary blows do not change either
+// combatant's remembered map glyph.
 test('an ordinary blow repaints neither combatant', async () => {
     await hero();
     const { ax, dx, y } = battlefield(1);

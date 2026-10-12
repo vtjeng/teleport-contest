@@ -1,0 +1,191 @@
+{
+  "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
+  "remainingScreens": 303,
+  "recordedSteps": 1755,
+  "corpus": "synthetic",
+  "batch": "v50",
+  "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+  "manifestPath": "challenges/manifests/v50.json",
+  "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+  "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+  "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
+  "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+  "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+  "status": "complete",
+  "commit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v50",
+    "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+    "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
+    "manifestPath": "challenges/manifests/v50.json",
+    "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+    "recording": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+    "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+    "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
+    "recipe": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.recipe.session.json",
+    "recipeSha256": "4d6edba497a07c6ee550413811cf168d0c90fd358b1f6d72428759417e445d99",
+    "replayInputSha256": "118313fa7a6adf8442fa37c8bebfee4cbc61b06986458e15dd81143fe68a3a58",
+    "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+    "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+    "evaluationArtifact": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+    "evaluationUtc": "2026-10-12T15:12:36.544Z",
+    "remainingScreens": 303,
+    "recordedSteps": 1755,
+    "previousScreensMatched": 1452,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 1452,
+        "total": 1755
+      },
+      "rng": {
+        "matched": 7573,
+        "total": 10005
+      },
+      "cursors": {
+        "matched": 1452,
+        "total": 1755
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires an armed monster attacking another monster",
+      "step": 1452
+    },
+    "step": 1452,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "simple monster action requires an armed monster attacking another monster",
+    "cFile": null,
+    "luaFile": null,
+    "line": null,
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1.json"
+    }
+  },
+  "summary": "The egg hatches successfully. The first mismatch is the later adjacent armed monster attack at step1452. Complete mattackm and its reveal, hit-message, weapon-swing, passive-result, and weapon-state helpers. The missing weapon route also blocks the parked Rustm monster-pair recording.",
+  "source": {
+    "file": "mhitm.c",
+    "branch": "Adjacent armed AT_WEAP attack in whole mattackm, including hidden defender reveal, source hit/passive results, silver-weapon messages, and post-hit pudding splitting; required weapon.c:possibly_unwield and its existing callers.",
+    "functions": [
+      "mattackm",
+      "pre_mm_attack",
+      "hitmm",
+      "mswingsm",
+      "passivemm"
+    ],
+    "callers": [
+      "dogmove.c:dog_move() -> mattackm(mtmp, mtmp2) at 1151 and return attack at 1165; current v50 replay exercises the direct ordinary pet-versus-monster action.",
+      "dogmove.c:pet_ranged_attk() -> mattackm(mtmp, mtarg) at 923 and retaliatory mattackm(mtarg, mtmp) at 946.",
+      "mhitm.c:fightm() -> mattackm(mtmp, mon) at 143 and return attack at 164.",
+      "monmove.c:covetous attack -> mattackm(mtmp, intruder) at 1794; monmove.c:m_move() monster-versus-monster attack at 2097 and return attack at 2111.",
+      "mhitu.c:steed attack/retaliation -> mattackm(mtmp, u.usteed) at 537 and mattackm(u.usteed, mtmp) at 547."
+    ],
+    "dependencies": [
+      "mattackm() consumes hitmm(), passivemm(), gazemm(), explmm(), gulpmm(), breamm()/spitmm(), and thrwmm() results; verify their returned contracts against C, and include any incomplete consumed callee in the task scope.",
+      "hitmm() consumes mdamagem() and calls pre_mm_attack() for its map/visibility state changes.",
+      "mattackm() consumes failed_grab() and helper results from mhitu.c, weapon.c, mon.c, and mthrowu.c; preserve their existing source-aligned implementations and expand scope if a consumed callee is incomplete.",
+      "The v50 case reaches the existing dogmove.c:dog_move() caller; no new caller adapter or session-specific mapping is needed."
+    ],
+    "requiredFunctions": [
+      "weapon.c:possibly_unwield"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Admitted v50 case challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json has 1755 recorded steps; its manifest sourceTrace identifies carried egg hatching at steps 1328 and 1376, then the first mismatch at step 1452 in the later armed attack.",
+    "The saved v50 baseline challenges/evaluations/baseline-e4c7bc56e-v50.json records 1452/1755 screens, 7573/10005 RNG calls, and 1452/1755 cursors matched; its source commit is e4c7bc56eb850377811e089788227269b277950d.",
+    "Focused diagnostic `/tmp/teleport-v50-dragon-egg-scan.json`, run from admitted Main 03b0395d562daf356bb7984e49324eb3fedc9236, stops at step 1452 on `UnsupportedSimpleMonsterActionError` for an armed monster attacking another monster.",
+    "C source `nethack-c/upstream/src/mhitm.c:mattackm()` sets up visibility, attacker turn state, and the attack loop; its adjacent AT_WEAP branch (406-417) selects/preserves MON_WEP, calls `mswingsm()` and `hitval()`, then falls through to the physical attack case which rolls `rnd(20 + i)` at line 441 and consumes `hitmm()` result. The recording’s next step has `rnd(20)=14 @ mattackm(mhitm.c:441)` and the runed-broadsword attack message.",
+    "JavaScript `js/mhitm.js:mattackm()` has explicit unported boundaries at lines 732 (`mundetected` defender) and 798 (armed AT_WEAP). The separate earlier starting-pet scope implemented only empty-handed fall-through and explicitly excluded actual wielded weapons; it does not cover this branch.",
+    "The whole-function selection also includes its consumed incomplete `hitmm()`/`passivemm()` results and `pre_mm_attack()` side effects, so the task must cover the functions named in `source.functions` and any incomplete consumed return dependency found during source review.",
+    "The closest v50 case, `v50-own-dragon-egg-floor-hatch-action-attempt1`, uses a floor egg laid through `lay_an_egg`; this selected case uses a carried wished three-egg stack that hatches and reschedules siblings. Its first mismatch is a subsequent armed monster attack, distinct from the floor-egg path."
+  ],
+  "callerRangeCorrection": {
+    "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+    "correctionBase": "605633b974feadd91dd904a08a41e30f30298293",
+    "preservesDeliveries": [
+      "1eca93cb1068ff481271b35f49de5497934ef095",
+      "2f28012992fbf8e03c8d8caaed756bcb7fef76f7",
+      "f4f12a8713cdac19fdf47771e6e41af662317ded"
+    ],
+    "pre_mm_attack": {
+      "directCallers": [
+        {
+          "function": "missmm",
+          "cLine": 81,
+          "jsSymbol": "missmm"
+        },
+        {
+          "function": "hitmm",
+          "cLine": 657,
+          "jsSymbol": "hitmm"
+        }
+      ],
+      "indirectDispatch": "mattackm routes missed strikes through missmm and successful strikes through hitmm; it does not directly call pre_mm_attack.",
+      "sourceReview": "Read mhitm.c:41–72: reveal either mimicking combatant, clear either undetected participant, then mark invisible or redraw each according to visibility, canspotmon, and showit."
+    },
+    "runtimeEvidence": {
+      "candidateTree": "3472fbed94f0dfbcde63b0f591a3a693bf92bfc9",
+      "check": "node scripts/synthetic-range-evidence.mjs /tmp/c-combat-final-range-1754.json",
+      "case": "v50/v50-dragon-egg-carried-hatch-action-attempt1",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 1754,
+      "result": "matched",
+      "log": "/tmp/c-combat-pudding-range.log",
+      "logSha256": "237c6eb33dd981925d3b858f33e640b5d7ba0e59d109db17f3f0f25fc58ebab4"
+    }
+  },
+  "puddingWholeSourceCorrection": {
+    "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+    "source": "mhitm.c:mattackm, lines 455-471",
+    "behavior": "After hitmm, a black or brown pudding with more than one HP and not cancelled splits when struck with an iron or metal wielded weapon. clone_mon return is consumed; if a clone exists, the visible message is emitted before mintrap(clone, NO_TRAP_FLAGS), then the aggressor-death bit is set if the aggressor died.",
+    "implementation": "js/mhitm.js:mattackm uses the existing makemon.js:clone_mon and trap_effects.js:mintrap production implementations with the active state/random/display environment.",
+    "tests": [
+      "scripts/mhitm.test.mjs"
+    ],
+    "focusedCoverage": [
+      "metal weapon split after hitmm",
+      "no split for wooden weapon",
+      "no split at one hit point",
+      "no split when the pudding is cancelled"
+    ],
+    "runtimeEvidence": {
+      "candidateTree": "3472fbed94f0dfbcde63b0f591a3a693bf92bfc9",
+      "check": "node --test scripts/mhitm.test.mjs scripts/uhitm.test.mjs scripts/weapon.test.mjs",
+      "result": "passed",
+      "testLog": "/tmp/c-combat-pudding-focused.log",
+      "testLogSha256": "a6bb08e8e51e5ba5a118030bc26fa82d7e7b568dc2fec2f72271d3d49ff8b1c9",
+      "lint": "npm run lint passed",
+      "lintLog": "/tmp/c-combat-pudding-lint.log",
+      "lintLogSha256": "f8b045212c87825355f5fd99462819427f5f9af4ecbc9ca4ca0e824521bebe6c",
+      "syntheticRange": {
+        "case": "v50/v50-dragon-egg-carried-hatch-action-attempt1",
+        "segment": 0,
+        "fromStep": 0,
+        "throughStep": 1754,
+        "result": "matched",
+        "log": "/tmp/c-combat-pudding-range.log",
+        "logSha256": "237c6eb33dd981925d3b858f33e640b5d7ba0e59d109db17f3f0f25fc58ebab4"
+      }
+    }
+  },
+  "monfleeCallerCorrection": {
+    "source": "uhitm.c:mhitm_ad_sedu, line 4689",
+    "implementation": "js/uhitm.js:mhitm_ad_sedu now passes {...env, state, random} as monflee’s fifth argument, preserving caller-owned state and RNG.",
+    "test": "scripts/uhitm.test.mjs source-pins the C call and JS environment forwarding; B’s monmove.js:monflee implementation is not included.",
+    "validation": {
+      "candidateTree": "3472fbed94f0dfbcde63b0f591a3a693bf92bfc9",
+      "check": "node --test scripts/uhitm.test.mjs",
+      "result": "passed",
+      "testLog": "/tmp/c-combat-pudding-focused.log",
+      "testLogSha256": "a6bb08e8e51e5ba5a118030bc26fa82d7e7b568dc2fec2f72271d3d49ff8b1c9"
+    }
+  }
+}

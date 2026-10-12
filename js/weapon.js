@@ -72,7 +72,9 @@ import {
 } from './const.js';
 import { game } from './gstate.js';
 import { dist2, s_suffix } from './hacklib.js';
-import { hands_obj, update_inventory } from './invent.js';
+import {
+    hands_obj, obj_extract_self, stackobj, update_inventory,
+} from './invent.js';
 import { adj_lev } from './makemon.js';
 import { m_carrying } from './mon.js';
 import { Monnam, mon_nam } from './do_name.js';
@@ -90,6 +92,7 @@ import {
     mon_hates_blessings,
     mon_hates_silver,
     mhis,
+    attacktype,
     passes_walls,
     strongmonst,
     thick_skinned,
@@ -102,6 +105,7 @@ import {
     PM_MONK,
     PM_SAMURAI,
     PM_SHADE,
+    AT_WEAP,
     S_DRAGON,
     S_EEL,
     S_GIANT,
@@ -121,6 +125,7 @@ import {
     is_weptool,
     is_wet_towel,
     carried,
+    place_object,
     objectType,
 } from './obj.js';
 import {
@@ -243,7 +248,7 @@ import { cansee, couldsee } from './vision.js';
 import { mwelded } from './wield.js';
 import {
     The, Tobjnam, Yname2, Yobjnam2, donameFresh, is_plural, otense, the,
-    vtense, xnameFresh,
+    distant_name, vtense, xnameFresh,
 } from './objnam.js';
 import { mbodypart } from './polyself.js';
 import { bimanual, which_armor } from './worn.js';
@@ -251,7 +256,9 @@ import { messageAt } from './startup_a11y.js';
 import { arti_light_description } from './light.js';
 import { begin_burn } from './timeout.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { canseemon, canspotmon } from './display.js';
+import { canseemon, canspotmon, newsym } from './display.js';
+import { bypass_obj } from './worn.js';
+import { pline_mon } from './pline.js';
 
 const MR_STONE = 0x80;
 
@@ -1262,19 +1269,60 @@ export async function mon_wield_item(monster, env = {}) {
     return 0;
 }
 
-// C ref: weapon.c possibly_unwield() (747-795). The empty-handed
-// mattackm() path calls this after mon_wield_item() even when MON_WEP(mon) is
-// null; C returns immediately, with no state change, message, or RNG call.
-// The remaining current-weapon and polymorph branches belong to the excluded
-// armed AT_WEAP continuation, so keep that boundary fail-closed.
+// C ref: weapon.c possibly_unwield() (747-795). This is called after a
+// monster's form or inventory changes; it either schedules a weapon check or
+// drops a still-owned weapon when the new form cannot use weapons.
 export function possibly_unwield(monster, polyspot = false, env = {}) {
     if (!monster.mw) return;
-    const unsupported = env.unsupported;
-    if (typeof unsupported === 'function')
-        unsupported('an armed monster attacking another monster');
-    throw new RangeError(
-        'possibly_unwield requires an unported armed-monster operation',
-    );
+    const weapon = monster.mw;
+    const state = env.state ?? game;
+    const canSee = env.canSee ?? cansee;
+    const message = env.message;
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (obj !== weapon) continue;
+        if (!attacktype(monster.data, AT_WEAP)) {
+            // The C helper is synchronous for its no-change and weapon-check
+            // branches. Only dropping a weapon needs to wait for output,
+            // artifact-light cleanup, and floor effects.
+            return (async () => {
+                await setmnotwielded(monster, weapon, { ...env, state });
+                monster.weapon_check = NO_WEAPON_WANTED;
+                if (canSee(monster.mx, monster.my, state)) {
+                    const monsterName = Monnam(monster, state, env);
+                    const name = distant_name(weapon, donameFresh, state);
+                    await pline_mon(
+                        monster,
+                        `${monsterName} drops ${name}.`,
+                        state,
+                        { ...env, message },
+                    );
+                    (env.newsym ?? newsym)(monster.mx, monster.my, state);
+                }
+                obj_extract_self(weapon, { ...env, state });
+                const { flooreffects } = await import('./do.js');
+                if (!await flooreffects(
+                    weapon,
+                    monster.mx,
+                    monster.my,
+                    'drop',
+                    { ...env, state },
+                )) {
+                    if (polyspot) bypass_obj(weapon, state);
+                    place_object(weapon, monster.mx, monster.my, { ...env, state });
+                    stackobj(weapon, { ...env, state });
+                }
+            })();
+        }
+        if (!(mwelded(weapon, env.state ?? game)
+            && monster.weapon_check === NO_WEAPON_WANTED)) {
+            monster.weapon_check = NEED_WEAPON;
+        }
+        return;
+    }
+    // C's MON_NOWEP only clears the monster's pointer; the stolen/destroyed
+    // object is no longer in its inventory and must not be touched here.
+    monster.mw = null;
+    monster.weapon_check = NEED_WEAPON;
 }
 
 // C ref: weapon.c's PN_* pseudo-indices. skill_names_indices[] stores an

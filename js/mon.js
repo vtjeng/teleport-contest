@@ -708,7 +708,7 @@ import {
 } from './wizard.js';
 import { getlin } from './windows.js';
 import { tt_doppel } from './topten.js';
-import { mwepgone } from './weapon.js';
+import { mwepgone, possibly_unwield } from './weapon.js';
 import { cansee, couldsee, does_block, is_lightblocker_mappear, m_canseeu, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
 import { bypass_obj, mon_break_armor, which_armor } from './worn.js';
 import { body_part } from './polyself.js';
@@ -3016,9 +3016,9 @@ function* apply_newcham_steps(
         monster.cham = pm_to_cham(monsndx(target), state);
     }
 
-    // C discards possibly_unwield()'s result. Its complete weapon state change
-    // is still source-blocked, but armor breakage follows it in source order.
-    if (monster.mw) note_unported('weapon.c possibly_unwield');
+    // C mon.c:newcham() discards possibly_unwield()'s result and completes it
+    // before armor breakage.
+    yield possibly_unwield(monster, polyspot, { ...normalized, state });
     yield mon_break_armor(monster, polyspot, {
         ...normalized,
         state,
@@ -3619,9 +3619,8 @@ export async function new_were(monster, rawEnv = {}) {
         state,
         random: normalized.random,
     });
-    // C discards possibly_unwield()'s result. Preserve its caller position
-    // after mon_break_armor until weapon.c owns that state transition.
-    if (monster.mw) note_unported('weapon.c possibly_unwield');
+    // C were.c:new_were() discards this result after armor breakage.
+    await possibly_unwield(monster, false, { ...normalized, state });
 
     const onScary = normalized.onScary ?? onscary;
     const nearMonster = normalized.monNear ?? monnear;

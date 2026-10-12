@@ -159,6 +159,63 @@ const POTION_C = readFileSync(
 const EAT_C = readFileSync(
     new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
 );
+
+test('demonpet preserves its C summon and Wisdom order through damageum', () => {
+    const c = UHITM_C.match(
+        /staticfn void\s+demonpet\(void\)\s*\{[\s\S]*?\n\}/u,
+    )?.[0];
+    const js = UHITM_JS.match(
+        /async function demonpet\(state, rawEnv = \{\}\) \{[\s\S]*?\n\}/u,
+    )?.[0];
+    assert.ok(c, 'uhitm.c defines the complete demonpet function');
+    assert.ok(js, 'uhitm.js defines the demonpet source implementation');
+
+    const sourceOrder = [
+        'pline("Some hell-p has arrived!")',
+        '!rn2(6) ? ndemon(u.ualign.type) : NON_PM',
+        'makemon(pm, u.ux, u.uy, NO_MM_FLAGS)',
+        'tamedog(dtmp, (struct obj *) 0, FALSE)',
+        'exercise(A_WIS, TRUE)',
+    ];
+    let previous = -1;
+    for (const token of sourceOrder) {
+        const position = c.indexOf(token);
+        assert.ok(position > previous, `${token} remains in C source order`);
+        previous = position;
+    }
+    const jsOrder = [
+        "await message('Some hell-p has arrived!', state)",
+        'const demon = !random.rn2(6)',
+        'await makemon_runtime(',
+        'await tamedog(monster, null, false',
+        'await exercise(A_WIS, true, state, random)',
+    ];
+    previous = -1;
+    for (const token of jsOrder) {
+        const position = js.indexOf(token);
+        assert.ok(position > previous, `${token} remains in JS source order`);
+        previous = position;
+    }
+    assert.match(UHITM_C,
+        /if \(is_demon\(gy\.youmonst\.data\) && !rn2\(13\) && !uwep[\s\S]*?demonpet\(\);\s*return M_ATTK_MISS;/u);
+    assert.match(UHITM_JS,
+        /if \(is_demon\(state\.youmonst\?\.data\)[\s\S]*?await demonpet\(state, \{ \.\.\.env, random, message \}\);\s*return M_ATTK_MISS;/u);
+    assert.doesNotMatch(UHITM_JS, /note_unported\('demon\.c demonpet'\)/u);
+});
+
+test('monster seduction forwards the active state and RNG to monflee', () => {
+    const source = UHITM_JS.match(
+        /async function mhitm_ad_sedu\([\s\S]*?\n\}/u,
+    )?.[0];
+    assert.ok(source, 'uhitm.js defines the complete mhitm_ad_sedu helper');
+    assert.match(UHITM_C,
+        /monflee\(magr, 0, FALSE, FALSE\);/u);
+    assert.match(source,
+        /await monflee\(magr, 0, false, false, \{ \.\.\.env, state, random \}\);/u);
+    assert.doesNotMatch(source,
+        /await monflee\(magr, 0, false, false, state, env\)/u);
+});
+
 function petRc({
     role = 'Tourist',
     gender = 'male',
