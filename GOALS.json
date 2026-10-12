@@ -293746,6 +293746,24 @@
         ],
         "incompleteFunctions": []
       }
+    },
+    {
+      "id": "C-v52-use-misc-newcham-caller-binding-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire monster polymorph item and trap actions",
+      "cFile": "muse.c",
+      "sessions": [
+        "synthetic/v52/v52-monster-deliberate-polymorph-trap-action-attempt3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v52-polymorph-newcham-continuation-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_misc",
+      "session": "synthetic/v52/v52-monster-deliberate-polymorph-trap-action-attempt3"
     }
   ]
 }
