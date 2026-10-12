@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent attempt to reach o_init.c:doclassdisco() and its choose_disco_sort(2) call through the menu-prefixed knownclass command. The JavaScript command dispatcher has no doclassdisco implementation or runKnownClassCommand caller, so mode 2 remains blocked before the sorting menu; mode 1 evidence does not establish it.",
+  "segments": [
+    {
+      "seed": 76142083,
+      "datetime": "20581104121900",
+      "nethackrc": "OPTIONS=name:KnownClassProbe,role:Wizard,race:human,gender=male,align=neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "m#knownclass"
+    }
+  ]
+}

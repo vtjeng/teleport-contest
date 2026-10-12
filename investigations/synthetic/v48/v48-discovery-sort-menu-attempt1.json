@@ -1,0 +1,104 @@
+{
+  "session": "synthetic/v48/v48-discovery-sort-menu-attempt1",
+  "remainingScreens": 2,
+  "recordedSteps": 4,
+  "corpus": "synthetic",
+  "batch": "v48",
+  "caseId": "v48-discovery-sort-menu-attempt1",
+  "manifestPath": "challenges/manifests/v48.json",
+  "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+  "recordingSha256": "55482760aacfd3149cf5c2df77a5486e16c35f543448ed91314513fd475d7145",
+  "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+  "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+  "status": "complete",
+  "commit": "36b5538f291298898d1cc981f7c94056723f6765",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v48",
+    "caseId": "v48-discovery-sort-menu-attempt1",
+    "session": "synthetic/v48/v48-discovery-sort-menu-attempt1",
+    "manifestPath": "challenges/manifests/v48.json",
+    "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+    "recording": "challenges/cases/v48/v48-discovery-sort-menu-attempt1.session.json",
+    "recordingSha256": "55482760aacfd3149cf5c2df77a5486e16c35f543448ed91314513fd475d7145",
+    "recipe": "challenges/cases/v48/v48-discovery-sort-menu-attempt1.recipe.session.json",
+    "recipeSha256": "83b1d0aca74b7f0a27968597d993854f6d639c43ca5ce3a84c5969ad41631f21",
+    "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+    "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+    "remainingScreens": 2,
+    "recordedSteps": 4,
+    "metrics": {
+      "screens": {
+        "matched": 2,
+        "total": 4
+      },
+      "rng": {
+        "matched": 2621,
+        "total": 2621
+      },
+      "cursors": {
+        "matched": 2,
+        "total": 4
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: discovery display requires choose_disco_sort()",
+      "step": 2
+    },
+    "step": 2,
+    "kind": "stop",
+    "sourceFile": "o_init.c",
+    "function": "choose_disco_sort",
+    "message": "unsupported hero command: an unported branch of this command: discovery display requires choose_disco_sort()"
+  },
+  "summary": "The menu-prefixed known command reaches the existing dodiscovered caller, which stops at its explicit choose_disco_sort() refusal before drawing the ordering menu. Upstream o_init.c:choose_disco_sort owns this menu and updates flags.discosort after selection; this source helper is the first owner. The same-file rename_disco() function owned by B builds a separate menu of nameable object types.",
+  "source": {
+    "file": "o_init.c",
+    "branch": "For the menu-prefixed backslash known command, dodiscovered() calls choose_disco_sort(1) when iflags.menu_requested is true. choose_disco_sort displays the four ordering choices, preserves the currently selected flags.discosort entry, updates flags.discosort from a selection, and returns the number of selected menu items; dodiscovered() returns ECMD_OK when the result is negative and otherwise continues discovery display.",
+    "functions": [
+      "choose_disco_sort"
+    ],
+    "callers": [
+      "o_init.c:dodiscovered() calls choose_disco_sort(1) at lines 777-780; JavaScript already wires the known key through js/cmd.js:runKnownCommand() to js/o_init.js:dodiscovered().",
+      "o_init.c:doclassdisco() calls choose_disco_sort(2) at lines 912-914; this C-only caller remains blocked because JavaScript has no doclassdisco() implementation or runKnownClassCommand() dispatcher.",
+      "options.c:optfn_sortdiscoveries() calls choose_disco_sort(0) at lines 3890-3892 and discards the return; the JavaScript option inventory marks sortdiscoveries as having a handler, but js/options.js has no sortdiscoveries entry in OPTION_HANDLERS."
+    ],
+    "dependencies": [
+      "windows.c:add_menu(), end_menu(), select_menu(), and destroy_nhwindow() are represented by js/windows.js:select_menu() and js/tty_menu.js.",
+      "Only mode 1 is verified by the admitted v48 recording. The independent mode 0 and mode 2 recipes are retained as blockers, not runtime evidence."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Fresh scan /tmp/c-v48-discovery-sort-before.json at source baseline 36b5538f291298898d1cc981f7c94056723f6765 reproduces the UnsupportedDiscoveryDisplayError at step 2 after 2 of 4 screens; all 2,621 RNG calls match.",
+    "nethack-c/upstream/src/o_init.c:611-655 contains choose_disco_sort(); lines 777-780 call it in dodiscovered() when iflags.menu_requested is set and consume the return value. The user selects the ordering menu item before the command continues.",
+    "js/o_init.js:dodiscovered() currently throws UnsupportedDiscoveryDisplayError(\"choose_disco_sort()\") when menu_requested is true. js/cmd.js:runKnownCommand() already routes the direct known command to this existing function.",
+    "This is separate from B’s o_init.c:rename_disco() scope: rename_disco builds a menu of nameable object types, while choose_disco_sort builds the discovery-order menu and changes flags.discosort."
+  ],
+  "coverageDecision": {
+    "implemented": "Complete choose_disco_sort() and wire its active JavaScript dodiscovered() mode 1 caller. Do not claim whole dodiscovered() completion because sorted output orders still reach unported disco_output_sorted() helpers.",
+    "blockedCallers": [
+      {
+        "source": "options.c:optfn_sortdiscoveries() mode 0",
+        "blocker": "js/options.js has no OPTION_HANDLERS sortdiscoveries mapping or handler_sortdiscoveries() implementation.",
+        "recipe": "recipes/options.c/sortdiscoveries-handler-blocked.session.json"
+      },
+      {
+        "source": "o_init.c:doclassdisco() mode 2",
+        "blocker": "The JavaScript knownclass command has no doclassdisco() implementation or production dispatcher.",
+        "recipe": "recipes/o_init.c/knownclass-sort-blocked.session.json"
+      }
+    ]
+  },
+  "postChangeReplay": {
+    "path": "/tmp/c-v48-discovery-sort-after.json",
+    "screensEmitted": 4,
+    "recordedSteps": 4,
+    "divergence": null,
+    "boundary": null,
+    "commandRefusal": false,
+    "unported": [],
+    "inputBoundaryMatched": true
+  }
+}

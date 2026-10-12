@@ -13,7 +13,8 @@ import { obj_typename } from './objnam.js';
 import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
 import { rn2 } from './rng.js';
 import { append_price_quote } from './shk.js';
-import { A_WIS, BUFSZ, HALLUC, HALLUC_RES } from './const.js';
+import { A_WIS, BUFSZ, HALLUC, HALLUC_RES, PICK_ONE } from './const.js';
+import { select_menu } from './windows.js';
 import {
     AMULET_CLASS,
     AMULET_OF_YENDOR,
@@ -564,6 +565,44 @@ const DISCO_ORDERS_DESCR = Object.freeze([
     'alphabetical across all classes',
 ]);
 
+// C ref: o_init.c choose_disco_sort() (611-655). The same menu is used by
+// dodiscovered(), doclassdisco(), and options.c optfn_sortdiscoveries().
+export async function choose_disco_sort(mode, state = game) {
+    const items = DISCO_ORDER_LET.split('').map((order, index) => ({
+        value: order,
+        selector: order,
+        label: DISCO_ORDERS_DESCR[index],
+        selected: order === state.flags.discosort,
+    }));
+    if (mode === 2) {
+        items.push(
+            { text: '' },
+            { text: 'Note: full alphabetical and alphabetical within class' },
+            { text: '      are equivalent for single class discovery, but' },
+            { text: '      will matter for future use of total discoveries.' },
+        );
+    }
+
+    const selected = await select_menu(state, {
+        title: 'Ordering of discoveries',
+        items,
+        how: PICK_ONE,
+        cancelValue: -1,
+        returnSelections: true,
+    });
+    if (selected === -1) return -1;
+
+    const count = selected.length;
+    if (count > 0) {
+        let choice = selected[0].value;
+        // C skips the preselected row when select_menu reports several rows.
+        if (count > 1 && choice === state.flags.discosort)
+            choice = selected[1].value;
+        state.flags.discosort = choice;
+    }
+    return count;
+}
+
 // C ref: o_init.c disco_typename():661–689. Explain Japanese names before
 // the user's alias or the appearance, in that order.
 export function disco_typename(otyp, state) {
@@ -644,8 +683,9 @@ export async function dodiscovered(
         || !DISCO_ORDER_LET.includes(state.flags.discosort))
         state.flags.discosort = 'o';
 
-    if (state.iflags.menu_requested)
-        throw new UnsupportedDiscoveryDisplayError('choose_disco_sort()');
+    if (state.iflags.menu_requested
+        && await choose_disco_sort(1, state) < 0)
+        return false;
     // The three remaining orders all buffer their lines for
     // disco_output_sorted(), which needs discovered_cmp() and, for 's',
     // sortloot_descr(); none of the three is ported.
