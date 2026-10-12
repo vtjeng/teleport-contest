@@ -18,6 +18,39 @@ const OBJ_H = readFileSync(
     new URL('../nethack-c/upstream/include/obj.h', import.meta.url),
     'utf8',
 );
+const DO_C = readFileSync(
+    new URL('../nethack-c/upstream/src/do.c', import.meta.url),
+    'utf8',
+);
+const DO_JS = readFileSync(
+    new URL('../js/do.js', import.meta.url),
+    'utf8',
+);
+
+test('swallowed corpse digestion keeps C deletion timer ownership', () => {
+    const cDropz = DO_C.match(
+        /dropz\(struct obj \*obj, boolean with_impact\)[\s\S]*?\n\}/u,
+    )?.[0];
+    const cDigest = DO_C.match(
+        /engulfer_digests_food\(struct obj \*obj\)[\s\S]*?\n\}/u,
+    )?.[0];
+    assert.ok(cDropz);
+    assert.ok(cDigest);
+    assert.match(cDropz, /engulfer_digests_food\(obj\)/u);
+    assert.match(cDigest, /minstapetrify\(u\.ustuck, TRUE\)/u);
+    assert.match(cDigest, /delobj\(obj\)/u);
+
+    assert.match(
+        DO_JS,
+        /engulfer_digests_food\(obj, state, digestionEnv\)/u,
+    );
+    assert.match(
+        DO_JS,
+        /stopObjectTimers: normalized\.hooks\.stopObjectTimers\s*\?\?\s*\(\(item, hookEnv\) => obj_stop_timers\(/u,
+    );
+    assert.match(DO_JS, /await minstapetrify\(swallower, true, state, env\)/u);
+    assert.match(DO_JS, /delobj\(obj, \{ \.\.\.env, state \}\)/u);
+});
 
 test('engulfer corpse polymorph matches the source polyfood predicate', () => {
     // do.c:867 calls polyfood() only in its CORPSE arm. The macro itself
