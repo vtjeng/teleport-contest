@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mcastu.c:castmu AD_MAGM adjacent AT_MAGC branch (282-299), real Angel attack include/monsters.h1230-1233. Wizard cloak supplies Antimagic, while dust engraving permits zap.c:mon_spell_hits_spot AD_MAGM scuff after protected missiles. Adjacent elemental/magic attack is valid C behavior, distinct from fumbled caster rank naming; repairing names alone does not implement this branch. Scout NPC/engraving before bounded turns. C-only continuation/correction from recorded observations and source: Angel generation asks explicit force confirmation; ki-rin is AD_SPEL, not AD_CLRC; longer bounded casts seek spell outcomes; long Blind state makes blindness useless and suppresses visible fumbled-name branch for cleric summon observation.",
+  "segments": [
+    {
+      "seed": 54010701,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n30\n                                                  E- dust\n                    #wizgenesis\nhostile Angel\ny                    i                    #wizmap\n"
+    }
+  ]
+}

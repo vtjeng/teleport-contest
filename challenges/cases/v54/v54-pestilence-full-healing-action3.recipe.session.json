@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first potion.c:potionhit; 1731-1785 healing potion reverses to do_illness for Pestilence. Required state/action history: Throw blessed full-healing potion at live Pestilence after observing inventory and adjacent location. Intended C observation: C Pestilence illness/HP-max reduction rather than ordinary healing; live potion attack differs from Rider corpse digestion. Initial inventory/map/menu scout precedes action selection. Independent C-only continuation/correction from observed prompts; original probe preserved. C-only continuation selected from recorded state.",
+  "segments": [
+    {
+      "seed": 54010112,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                                                  \u0017blessed potion of full healing\n                    #wizgenesis\nhostile Pestilence\ny                    i                    #wizmap\ntoj                    #wizmap\n"
+    }
+  ]
+}

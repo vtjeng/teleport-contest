@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C source variant mcastu.c:mcast_stun_you504-521 non-Antimagic branch: Rogue high Dexterity, hostile apprentice with greater spell level than the prior orc shaman. Scout caster/wand then speed NPC to suppress haste-self; bounded casting. Compare first reached branch against v53 protected Wizard stun and earlier apprentice haste probe; no overlap exemption.",
+  "segments": [
+    {
+      "seed": 54011002,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n30\n                                                  \u0017uncursed wand of speed monster\n                    #wizgenesis\nhostile apprentice\n                    i                    #wizmap\n"
+    }
+  ]
+}

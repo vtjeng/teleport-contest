@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dig.c:dighole; 927-938 drawbridge platform -> destroy_drawbridge. Scout Castle menu then reach lowered bridge and use digging downward. Intended C observation: C drawbridge destruction, moat and creatures affected; distinct from store-wall damage and Earth cave.",
+  "segments": [
+    {
+      "seed": 54010203,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                                                  #wizlevelport\n?\n"
+    }
+  ]
+}

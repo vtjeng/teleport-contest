@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first clerical caster mission. include/monsters.h:3398 defines role-monster cleric AT_MAGC/AD_CLRC without aligned-cleric epri extension. mcastu.c mon_cleric_spells24-30 selects mcast_blind_you and mcast_insects among paralysis/confusion/lightning effects. Non-Antimagic Healer has materially different armor/HP/innate conditions. Scout actual position, then permit bounded casts; attribute only first defect. Earlier ki-rin is AD_SPEL (include/monsters.h:1247), so it did not test the clerical pool. C created a curate (role cleric, no shrine/epri dependency). Allow 24 forced rests at observed adjacent position, preserving any clerical spell, death recovery or setup miss; inspect armor/attributes afterward.",
+  "segments": [
+    {
+      "seed": 54010501,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n30\n                                                  #wizgenesis\nhostile cleric\n                    i                    #wizmap\nm.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    i                    #attributes\n                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first trap.c:lava_effects; 6794-6960 unresisted lava inventory burn -> remove_worn_item. Required state/action history: Wear leather armor while keeping no fire resistance; create lava on observed non-stair floor and decline debug death recovery. Wizard branch survives after organic gear destruction. Fire-resistance would skip the intended general burn loop. Intended C observation: C organic worn body armor removed/destroyed before recovery, AC/equipment updates and lava continuation. Initial inventory/map/menu scout precedes action selection. C action continuation selected from the recorded inventory and map; preserved initial setup separately.",
+  "segments": [
+    {
+      "seed": 54010111,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                                                  \u0017uncursed leather armor\n                    i                    #wizmap\nWp                    \u0017lava\n                    n                    #wizmap\n"
+    }
+  ]
+}

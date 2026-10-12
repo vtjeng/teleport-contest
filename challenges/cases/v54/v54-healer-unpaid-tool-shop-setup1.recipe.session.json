@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first shk.c:check_unpaid_usage variation: Healer starting wealth/charisma/inventory and independent source mission seed alter shop creation. Scout ordinary D2 stock; prefer charged tools or general-store sell/pickup route. Natural Tourist D2-D7 found armor shops and no charged stock; preserve them as bounded misses.",
+  "segments": [
+    {
+      "seed": 54010301,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n2\n                    #wizmap\n\u0017blessed potion of object detection\n                    i                    "
+    }
+  ]
+}

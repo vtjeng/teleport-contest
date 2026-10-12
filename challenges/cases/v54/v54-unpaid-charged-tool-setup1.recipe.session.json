@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first shk.c:check_unpaid_usage; 5695-5732 unpaid charged-tool usage fee in ordinary main-room shop. Required state/action history: Inspect bounded D2 stock; choose a charged tool, pick it up and use it inside the store. Earlier ring/weapon-only shops missed this target. Intended C observation: C unpaid charged stock and use-fee/debit message; avoid known Minetown subroom lookup and store-wall billing. Initial inventory/map/menu scout precedes action selection.",
+  "segments": [
+    {
+      "seed": 54010101,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n2\n                    #wizmap\n\u0017blessed potion of object detection\n                    i                    "
+    }
+  ]
+}

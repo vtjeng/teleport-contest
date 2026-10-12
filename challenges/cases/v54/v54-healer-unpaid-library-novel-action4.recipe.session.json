@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first shk.c:check_unpaid_usage variation: Healer starting wealth/charisma/inventory and independent source mission seed alter shop creation. Scout ordinary D2 stock; prefer charged tools or general-store sell/pickup route. Natural Tourist D2-D7 found armor shops and no charged stock; preserve them as bounded misses. C-only continuation from observed inventory/source: wear flying amulet before xorn physical route, use Healer object detection to inspect hidden stock, or retain further high-Luck Knight prayer outcomes. Source-backed reachable fee variation: detection revealed two spellbooks in ordinary D2 scroll/book store; spell.c calls check_unpaid for studying library stock. Charged tool target remains missed; preserve that distinction. Source-confirmed novel branch spell.c:study_book515-525 calls check_unpaid before experience credit; C inventory identifies l unpaid novel priced18. This is the bookstore-fee variation, not a claim that charged tool stock was reached.",
+  "segments": [
+    {
+      "seed": 54010301,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n2\n                    #wizmap\n\u0017blessed potion of object detection\n                    i                    qk                    #wizmap\n#levelchange\n20\n                                                  \u0014  hhkkkkkkkkkkk.                    ,                    i                    rl                                                  #attributes\n                    "
+    }
+  ]
+}
