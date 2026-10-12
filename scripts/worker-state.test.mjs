@@ -340,6 +340,18 @@ test('prepared batch identities stay unique while accepted batches wait for admi
         commits: [FIRST], paths: ['challenges/cases/v2/one.json'],
         evidence: `${ROOT}/batch-v2.json`, dependencies: [] });
     f.accept('batch-v2');
+    const baselined = f.send({ type: 'activity', task: 'batch-v2', phase: 'baseline',
+        reason: 'The saved batch baseline is complete.' });
+    const firstBaseline = baselined.tasks['batch-v2'].baselineAt;
+    assert.equal(firstBaseline, f.ledger().events.at(-1).at,
+        'baseline readiness is rebuilt from the existing timestamped event');
+    f.send({ type: 'activity', task: 'batch-v2', phase: 'done', reason: 'Baseline saved.' });
+    const published = f.send({ type: 'published', task: 'batch-v2', commit: INTEGRATION });
+    assert.equal(published.tasks['batch-v2'].baselineAt, firstBaseline,
+        'publication must not remove missed-wakeup evidence');
+    f.send({ type: 'activity', task: 'batch-v2', phase: 'baseline', reason: 'Inspect the same saved baseline again.' });
+    assert.equal(summarizeLedger(f.ledger()).tasks['batch-v2'].baselineAt, firstBaseline,
+        'a repeat inspection does not create another notification generation');
     assert.deepEqual(nextActions(summarizeLedger(f.ledger())).pendingMainWork.preparedBatches
         .map(row => row.batch), ['v2'], 'accepted preparation is still awaiting admission');
     assert.equal(nextActions(summarizeLedger(f.ledger()), ['v2'])
