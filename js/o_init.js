@@ -13,7 +13,10 @@ import { obj_typename } from './objnam.js';
 import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
 import { rn2 } from './rng.js';
 import { append_price_quote } from './shk.js';
-import { A_WIS, BUFSZ, HALLUC, HALLUC_RES } from './const.js';
+import { A_WIS, BUFSZ, HALLUC, HALLUC_RES, PICK_ONE } from './const.js';
+import { ttyPline } from './tty_message.js';
+import { menuTitleStyle } from './tty_menu.js';
+import { add_menu_heading, select_menu } from './windows.js';
 import {
     AMULET_CLASS,
     AMULET_OF_YENDOR,
@@ -48,6 +51,7 @@ import {
     SPBOOK_CLASS,
     SPEED_BOOTS,
     SPE_BOOK_OF_THE_DEAD,
+    STRANGE_OBJECT,
     TURQUOISE,
     VENOM_CLASS,
     WAN_NOTHING,
@@ -704,4 +708,65 @@ export async function dodiscovered(
         await textWindow(lines, state);
     }
     return false;
+}
+
+// C ref: o_init.c rename_disco() (1131-1206). C builds a temporary menu
+// window; the JavaScript window owner receives the same class-grouped rows
+// directly through select_menu().
+export async function rename_disco(state = game) {
+    const { objtyp_is_callable, docall } = await import('./do_name.js');
+    let ct = 0;
+    let mn = 0;
+    const items = [];
+
+    for (const oclass of state.flags.inv_order) {
+        let prevClass = oclass + 1; /* force a heading before the first row */
+        for (let i = state.svb.bases[oclass];
+            i < NUM_OBJECTS && state.objects[i].oc_class === oclass; ++i) {
+            const dis = state.svd.disco[i];
+            if (!dis || !interesting_to_discover(dis, state)) continue;
+            ++ct;
+            if (!objtyp_is_callable(dis, state)) continue;
+            ++mn;
+
+            if (oclass !== prevClass) {
+                items.push(add_menu_heading(
+                    let_to_name(oclass, false, false), state,
+                ));
+                prevClass = oclass;
+            }
+            items.push({
+                label: disco_append_typename('', dis, state),
+                value: dis,
+            });
+        }
+    }
+
+    if (ct === 0) {
+        await ttyPline("You haven't discovered anything yet...", state);
+    } else if (mn === 0) {
+        await ttyPline('None of your discoveries can be assigned names...', state);
+    } else {
+        const selected = await select_menu(state, {
+            title: 'Pick an object type to name',
+            ...menuTitleStyle(state),
+            items,
+            how: PICK_ONE,
+            cancelValue: null,
+            overlay: state.iflags?.menu_overlay !== false,
+        });
+        const dis = selected ?? STRANGE_OBJECT;
+        if (dis !== STRANGE_OBJECT) {
+            const { newObject } = await import('./obj.js');
+            const odummy = newObject({
+                otyp: dis,
+                oclass: state.objects[dis].oc_class,
+                quan: 1,
+                known: !state.objects[dis].oc_uses_known,
+                dknown: true,
+            });
+            await docall(odummy, state);
+        }
+    }
+    return undefined;
 }

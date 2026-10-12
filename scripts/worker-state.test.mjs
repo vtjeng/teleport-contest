@@ -340,6 +340,18 @@ test('prepared batch identities stay unique while accepted batches wait for admi
         commits: [FIRST], paths: ['challenges/cases/v2/one.json'],
         evidence: `${ROOT}/batch-v2.json`, dependencies: [] });
     f.accept('batch-v2');
+    const baselined = f.send({ type: 'activity', task: 'batch-v2', phase: 'baseline',
+        reason: 'The saved batch baseline is complete.' });
+    const firstBaseline = baselined.tasks['batch-v2'].baselineAt;
+    assert.equal(firstBaseline, f.ledger().events.at(-1).at,
+        'baseline readiness is rebuilt from the existing timestamped event');
+    f.send({ type: 'activity', task: 'batch-v2', phase: 'done', reason: 'Baseline saved.' });
+    const published = f.send({ type: 'published', task: 'batch-v2', commit: INTEGRATION });
+    assert.equal(published.tasks['batch-v2'].baselineAt, firstBaseline,
+        'publication must not remove missed-wakeup evidence');
+    f.send({ type: 'activity', task: 'batch-v2', phase: 'baseline', reason: 'Inspect the same saved baseline again.' });
+    assert.equal(summarizeLedger(f.ledger()).tasks['batch-v2'].baselineAt, firstBaseline,
+        'a repeat inspection does not create another notification generation');
     assert.deepEqual(nextActions(summarizeLedger(f.ledger())).pendingMainWork.preparedBatches
         .map(row => row.batch), ['v2'], 'accepted preparation is still awaiting admission');
     assert.equal(nextActions(summarizeLedger(f.ledger()), ['v2'])
@@ -358,6 +370,53 @@ test('a parked preparation task keeps its version until resumed and accepted', (
         kind: 'challenge-preparation', seed: null, base: BASE,
         reservations: ['challenge-batch:v3'], allowedPaths: ['challenges/cases/v3/'] }), /still pending/);
     assert.equal(f.send({ type: 'resume', task: 'batch-v2' }).tasks['batch-v2'].status, 'working');
+});
+
+test('Prep continues across submitted batches without acceptance or admission', () => {
+    const f = fixture();
+    const prepare = (batch) => f.send({ type: 'assign', task: `prep-${batch}`, worker: 'A',
+        kind: 'challenge-preparation', seed: null, base: BASE,
+        reservations: [`challenge-batch:${batch}`], allowedPaths: [`challenges/cases/${batch}/`] });
+    const submit = (batch, delivery) => f.send({ type: 'ready', task: `prep-${batch}`,
+        delivery, base: BASE, commits: [delivery], paths: [`challenges/cases/${batch}/one.json`],
+        evidence: `${ROOT}/${batch}.json`, dependencies: [] });
+    prepare('v2');
+    submit('v2', FIRST);
+    prepare('v3');
+    submit('v3', SECOND);
+    // Three consecutive versions exercise more than a one-submitted-batch cap.
+    const state = prepare('v4');
+    assert.equal(state.tasks['prep-v2'].status, 'ready');
+    assert.equal(state.tasks['prep-v3'].status, 'ready');
+    assert.equal(state.tasks['prep-v4'].status, 'working');
+    assert.deepEqual(nextActions(state).pendingMainWork.deliveries.map(row => row.batch), ['v2', 'v3']);
+    assert.throws(() => prepare('v5'), /already working/,
+        'continuous preparation still has only one in-progress batch');
+    assert.throws(() => f.send({ type: 'assign', task: 'parallel-prep', worker: 'B',
+        kind: 'challenge-preparation', seed: null, base: BASE,
+        reservations: ['challenge-batch:v5'], allowedPaths: ['challenges/cases/v5/'] }), /still pending/,
+    'another worker cannot prepare a second batch in parallel');
+});
+
+test('Prep handles corrections before another batch, without dropping a newer submitted batch', () => {
+    const f = fixture();
+    const prepare = (batch) => f.send({ type: 'assign', task: `prep-${batch}`, worker: 'A',
+        kind: 'challenge-preparation', seed: null, base: BASE,
+        reservations: [`challenge-batch:${batch}`], allowedPaths: [`challenges/cases/${batch}/`] });
+    const submit = (batch, delivery) => f.send({ type: 'ready', task: `prep-${batch}`,
+        delivery, base: BASE, commits: [delivery], paths: [`challenges/cases/${batch}/one.json`],
+        evidence: `${ROOT}/${batch}.json`, dependencies: [] });
+    prepare('v2'); submit('v2', FIRST);
+    prepare('v3');
+    f.send({ type: 'feedback', task: 'prep-v2', delivery: FIRST, reason: 'Fix overlapping case.' });
+    assert.throws(() => f.send({ type: 'resume', task: 'prep-v2' }), /already working/,
+        'feedback does not interrupt the current preparation');
+    submit('v3', SECOND);
+    assert.throws(() => prepare('v4'), /still pending/,
+        'a known correction is handled before starting another version');
+    const resumed = f.send({ type: 'resume', task: 'prep-v2' });
+    assert.equal(resumed.tasks['prep-v2'].status, 'working');
+    assert.equal(resumed.tasks['prep-v3'].status, 'ready');
 });
 
 test('recovery cannot reactivate a fifth owner or inherit another handle’s connection', () => {

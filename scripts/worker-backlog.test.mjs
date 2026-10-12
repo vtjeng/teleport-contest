@@ -192,3 +192,72 @@ test('next lists batch admission priority separately from an active integration'
     const unknown = nextActions(state, ['v1']);
     assert.equal(unknown.workerWork.admission.action, 'reassess-worker-work');
 });
+
+test('worker starvation prioritizes the existing ready preparation rather than requesting another batch', () => {
+    const state = availabilityFixture();
+    const prep = add(state, 'prep-v48');
+    state.tasks['prep-v48'].kind = 'challenge-preparation';
+    state.tasks['prep-v48'].worker = 'Prep';
+    state.tasks['prep-v48'].reservations = ['challenge-batch:v48'];
+    state.deliveries[prep].readyAt = at(3); // Newer than source work that unlocks another delivery.
+    const source = add(state, 'dependency');
+    add(state, 'dependent', 'ready', [source]);
+    const next = nextActions(state, ['v47'], queue([]));
+    assert.equal(next.integration.task, 'prep-v48');
+    assert.deepEqual(next.workerWork.admission, { action: 'integrate-prepared-batch-next',
+        task: 'prep-v48', batch: 'v48' });
+    state.tasks.dependency.status = 'integrating';
+    assert.equal(nextActions(state, ['v47'], queue([])).integration.task, 'dependency',
+        'a live checkpoint is not interrupted to integrate preparation');
+    const enough = queue(['first', 'second', 'third'].map(session => ({ session })));
+    state.tasks.dependency.status = 'ready';
+    assert.equal(nextActions(state, ['v47'], enough).integration.task, 'dependency',
+        'normal dependency priority remains when three independent candidates exist');
+    assert.equal(nextActions(state, ['v47']).workerWork.admission.action, 'reassess-worker-work');
+});
+
+test('existing preparation is acknowledged and unmet dependencies never receive integration priority', () => {
+    const state = availabilityFixture();
+    const dependency = add(state, 'dependency');
+    add(state, 'prep', 'ready', [dependency]);
+    state.tasks.prep.kind = 'challenge-preparation';
+    state.tasks.prep.worker = 'Prep';
+    state.tasks.prep.reservations = ['challenge-batch:v2'];
+    assert.equal(nextActions(state, ['v1'], queue([])).integration.task, 'dependency');
+    assert.equal(nextActions(state, ['v1'], queue([])).workerWork.admission.action, 'finish-preparation');
+    state.tasks.prep.status = 'working';
+    assert.equal(nextActions(state, ['v1'], queue([])).workerWork.admission.task, 'prep');
+});
+
+test('missed batch wakeups survive publication and disappear after a worker rechecks', () => {
+    const state = availabilityFixture();
+    const prep = add(state, 'prep-v40', 'accepted');
+    state.tasks['prep-v40'].kind = 'challenge-preparation';
+    state.tasks['prep-v40'].worker = 'Prep';
+    state.tasks['prep-v40'].reservations = ['challenge-batch:v40'];
+    state.tasks['prep-v40'].baselineAt = at(4);
+    state.deliveries[prep].acceptedAt = at(2);
+    state.deliveries[prep].publishedAt = at(5);
+    Object.assign(state.workers.A, { turn: 'blocked', turnAt: at(1) });
+    Object.assign(state.workers.C, { turn: 'idle', turnAt: at(3) });
+    // The helper asks for a current queue before waking workers; a missing
+    // queue is not falsely treated as new selectable work or zero work.
+    assert.deepEqual(nextActions(state, ['v40']).wakeups.map(row => [row.worker, row.queueReady]),
+        [['A', false], ['C', false]]);
+    const current = { ...queue([{ session: 'unreserved' }]), synthetic: { batches: [{ batch: 'v40', status: 'complete' }] } };
+    const next = nextActions(state, ['v40'], current);
+    assert.deepEqual(next.wakeups.map(({ worker, batch, since, queueReady }) => ({ worker, batch, since, queueReady })),
+        ['A', 'C'].map(worker => ({ worker, batch: 'v40', since: at(4), queueReady: true })));
+    assert.deepEqual(nextActions(state, [], current).wakeups, [],
+        'a baseline event does not substitute for actual batch admission');
+    state.workers.C.handle = null;
+    assert.deepEqual(nextActions(state, ['v40'], current).wakeups.map(row => row.worker), ['A'],
+        'an inactive worker has no live owner to wake');
+    state.workers.C.handle = 'C-owner';
+    state.workers.A.turnAt = at(6); // An explicit recheck closes this worker's missed wakeup.
+    assert.deepEqual(nextActions(state, ['v40'], current).wakeups.map(row => row.worker), ['C']);
+    add(state, 'new-C-task', 'working');
+    Object.assign(state.tasks['new-C-task'], { worker: 'C', assignedAt: at(7) });
+    assert.deepEqual(nextActions(state, ['v40'], current).wakeups, [],
+        'a newer assignment does not get replaced because its turn observation is stale');
+});

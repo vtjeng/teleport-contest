@@ -105,19 +105,15 @@ recipes, C recordings, and prepared manifest in delivery evidence. Apply
 workers' proposed `QUALITY.json` changes yourself. Do not merge worker copies
 of central records.
 
-Keep one unaccepted preparation task at a time. Resume a parked batch before
-starting a later version. Reserve each batch-qualified identity in the ledger
-so no other worker creates the same batch. After a
-preparation delivery is admitted, its worker checks the preparation trigger
-in `.agents/selection.md` before starting the next batch. Do not accumulate
-unadmitted reserve batches.
-Keep each prepared manifest with its immutable delivery evidence. Merge
-accepted main at the clean task boundary before the next task so its delivery
-does not include pending work.
+Keep Prep working continuously on one batch at a time under
+`.agents/selection.md`. It starts the next batch after submission without
+waiting for acceptance or admission. Reserve each batch identity in the
+ledger and retain each prepared manifest in immutable delivery evidence.
+Handle corrections and parked preparation before starting a later batch.
+At a clean task boundary, merge accepted main without changing submitted
+commits. Claim the next batch at that HEAD so its delivery contains only the
+new case paths; submission records dependencies on pending ancestor deliveries.
 
-At each evaluation and handoff, apply `.agents/selection.md`'s preparation
-trigger: at most 12 unmatched sessions across admitted batches, or too few
-selectable investigations and source tasks for the implementation workers.
 Apply the admission priority in `.agents/selection.md` at each safe integration
 boundary. Preserve validation and baseline requirements. Continue assigning
 fixes from older batches.
@@ -130,7 +126,9 @@ the worker toward other targets. Keep missed and deferred targets in the
 handoff; the orchestrator owns the scheduling decision.
 
 Before waiting and after a completion, run `worker-state.mjs next`. Handle
-unread deliveries and finished worker turns first. Record a finished turn
+unread deliveries, batch wakeups, and finished worker turns first. Refresh the
+saved queue when a wakeup has `queueReady: false`, then ask the listed workers
+to recheck without replacing current tasks or processes. Record a finished turn
 with `turn`, then use `followup_task` on the same worker if work remains. Do
 not create routine nested implementation workers.
 
@@ -268,8 +266,8 @@ separately from other goals.
    Run the same acceptance helper; preparation tasks skip goal closure and
    synthetic import.
    When the batch-admission gate in `.agents/selection.md` later passes, recheck
-   every included case against the immediately preceding batch and unresolved
-   older cases using current evaluations and the packet's C behavior, state,
+   every included case against unresolved admitted cases and earlier submitted
+   unadmitted batches using current evaluations and the packet's C behavior, state,
    and action-history comparisons. Require a corrected delivery for overlap.
    Then admit the oldest prepared manifest with the next version number, commit
    it, and save its first evaluation at that committed implementation before
