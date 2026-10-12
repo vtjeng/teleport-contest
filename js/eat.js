@@ -213,7 +213,7 @@ import { outrumor } from './random_text.js';
 import { fall_asleep, obj_stop_timers } from './timeout.js';
 import {
     Flying, Levitation, b_trapped, deltrap, float_up, reset_utrap, t_at, unconscious } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { remove_worn_item } from './steal.js';
 import { costly_spot, sellobj_state } from './shk.js';
 import { explode } from './explode.js';
@@ -2761,7 +2761,7 @@ async function cpostfx(pm, state, env = {}) {
             state.youmonst.mappearance = hallucinating ? ORANGE : GOLD_PIECE;
             newsym(state.u.ux, state.u.uy);
             await curs_on_u(state);
-            note_unported('windows.c display_nhwindow');
+            await displayPendingTtyMessageWindow(state);
         }
         break;
     case PM_QUANTUM_MECHANIC: {
