@@ -1,0 +1,65 @@
+{
+  "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
+  "corpus": "synthetic",
+  "batch": "v53",
+  "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+  "manifestPath": "challenges/manifests/v53.json",
+  "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+  "recordingPath": "challenges/cases/v53/v53-worm-dropped-cockatrice-stoning-action6.session.json",
+  "recordingSha256": "7d5478eeb058306ce8137558c77749734899fe1905b5c494291a11e6e66a5622",
+  "recipePath": "challenges/cases/v53/v53-worm-dropped-cockatrice-stoning-action6.recipe.session.json",
+  "recipeSha256": "cb951520a83186af5b4db62474fad541b08b2e4da7ed563125f85b33baf1434b",
+  "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
+  "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
+  "before": {
+    "admittedFirstMismatch": {
+      "step": 262,
+      "owner": "do.c:engulfer_digests_food",
+      "cRng": "rnd(2)=2 @ next_ident(mkobj.c:521)",
+      "jsRng": "rn2(100)=71",
+      "screensMatched": 262,
+      "screensTotal": 290
+    },
+    "workerReplayAtAcceptedSource": {
+      "commit": "57db3186aeb0cd6cef9072e4c29c56af541fb298",
+      "replayInputSha256": "87b3cc1f69818e82e5d7df5b669ef2eb34caa265843ebaaf4f9e4b3a8d165cc2",
+      "screensEmitted": 263,
+      "recordedSteps": 290,
+      "divergence": null,
+      "boundary": "unsupported hero command: an unported branch of this command: stopObjectTimers is not available for otyp 265",
+      "message": "You jump through an opening in the new statue of a purple worm."
+    }
+  },
+  "sourceReview": {
+    "functions": [
+      {
+        "file": "do.c",
+        "name": "dropz",
+        "range": "806-842",
+        "behavior": "The swallowed branch calls engulfer_digests_food; when it returns true, dropz returns after encumber_msg and does not transfer the corpse to the engulfer inventory."
+      },
+      {
+        "file": "do.c",
+        "name": "engulfer_digests_food",
+        "range": "849-881",
+        "behavior": "A digesting purple worm immediately consumes a cockatrice corpse, calls minstapetrify on u.ustuck, then delobj on the consumed corpse before returning true."
+      },
+      {
+        "file": "invent.c",
+        "name": "delobj",
+        "range": "1428-1462",
+        "behavior": "Deleting the consumed corpse reaches obfree; its ROT_CORPSE timer must be stopped before deallocation."
+      },
+      {
+        "file": "timeout.c",
+        "name": "obj_stop_timers",
+        "range": "1946-1954",
+        "behavior": "The existing timer owner removes object timers and runs their cleanup in timer-list order."
+      }
+    ],
+    "jsDefect": "The JS engulfer_digests_food path used only state when calling minstapetrify and delobj. invent.c delobj therefore lacked the existing timeout.c obj_stop_timers hook and refused on the timed corpse after the worm had already petrified.",
+    "repair": "Forward dropz's normalized state/operation environment through engulfer digestion and its source callees. Preserve any injected stopObjectTimers owner, supplying the existing obj_stop_timers implementation when the hook is absent."
+  },
+  "status": "verified",
+  "summary": "The admitted v53 baseline names the cockatrice corpse digestion and petrification path at step 262. On the accepted source currently present in C's worktree, that petrification already executes and produces the statue-opening message; the remaining 27 screens stop at step 263 because the call to invent.c:delobj loses the timer-owner environment. The bounded repair keeps the existing do.c call order and forwards the timer owner so delobj can clear the corpse's ROT_CORPSE timer."
+}
