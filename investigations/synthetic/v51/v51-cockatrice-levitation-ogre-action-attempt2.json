@@ -9,49 +9,119 @@
   "recordingSha256": "4874705d61bde1fc48d7afeabc42809ec38e208c8370d629d256e9a2de0b09a6",
   "recipePath": "challenges/cases/v51/v51-cockatrice-levitation-ogre-action-attempt2.recipe.session.json",
   "recipeSha256": "64c8ffb370b41a939175b762ac464192296fad93c6da7f1cefc7f9f97a006535",
-  "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v51.json",
-  "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+  "evaluationPath": "challenges/evaluations/accepted-d340ffebf19c2ff6d2192c5a92531f069ddeffa1-v51.json",
+  "evaluationCommit": "d340ffebf19c2ff6d2192c5a92531f069ddeffa1",
   "remainingScreens": 95,
   "recordedSteps": 241,
   "status": "complete",
-  "commit": "ff0a8c3ff5c2205a68e2e3add3f52b0e0c7e97d8",
+  "commit": "d340ffebf19c2ff6d2192c5a92531f069ddeffa1",
   "mismatch": {
-    "kind": "screen",
-    "sourceFile": null,
-    "function": null,
-    "line": null,
-    "step": 146,
-    "message": null,
+    "corpus": "synthetic",
+    "batch": "v51",
+    "caseId": "v51-cockatrice-levitation-ogre-action-attempt2",
+    "session": "synthetic/v51/v51-cockatrice-levitation-ogre-action-attempt2",
+    "manifestPath": "challenges/manifests/v51.json",
+    "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+    "recording": "challenges/cases/v51/v51-cockatrice-levitation-ogre-action-attempt2.session.json",
+    "recordingPath": "challenges/cases/v51/v51-cockatrice-levitation-ogre-action-attempt2.session.json",
+    "recordingSha256": "4874705d61bde1fc48d7afeabc42809ec38e208c8370d629d256e9a2de0b09a6",
+    "recipe": "challenges/cases/v51/v51-cockatrice-levitation-ogre-action-attempt2.recipe.session.json",
+    "recipeSha256": "64c8ffb370b41a939175b762ac464192296fad93c6da7f1cefc7f9f97a006535",
+    "replayInputSha256": "cc6fb2279fd4ffe0f9b0698229676d80bb5b754b6530dd0a661cd8a6f08c1b56",
+    "evaluationPath": "challenges/evaluations/accepted-d340ffebf19c2ff6d2192c5a92531f069ddeffa1-v51.json",
+    "evaluationCommit": "d340ffebf19c2ff6d2192c5a92531f069ddeffa1",
+    "evaluationArtifact": "challenges/evaluations/accepted-d340ffebf19c2ff6d2192c5a92531f069ddeffa1-v51.json",
+    "evaluationUtc": "2026-10-12T11:43:19.878Z",
+    "remainingScreens": 95,
+    "recordedSteps": 241,
+    "previousScreensMatched": 146,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 146,
+        "total": 241
+      },
+      "rng": {
+        "matched": 2658,
+        "total": 2913
+      },
+      "cursors": {
+        "matched": 238,
+        "total": 241
+      }
+    },
     "firstMismatch": {
       "screen": {
         "index": 146,
-        "location": { "segmentIndex": 0, "stepIndex": 146, "key": "l" },
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 146,
+          "key": "l"
+        },
         "kind": "ch",
         "row": 0,
         "column": 50,
-        "cCell": { "ch": "i", "color": 8, "attr": 0, "decgfx": 0 },
-        "jsCell": { "ch": "w", "color": 8, "attr": 0, "decgfx": 0 }
+        "cCell": {
+          "ch": "i",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "w",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
       },
       "rng": {
         "index": 2653,
         "cEntry": "rn2(100)=91",
         "cCaller": "obj_resists(zap.c:1469)",
         "jsEntry": "rn2(3)=0",
-        "location": { "segmentIndex": 0, "stepIndex": 147, "key": " " },
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 147,
+          "key": " "
+        },
         "stepIndex": 147
       },
       "cursor": {
         "index": 146,
-        "location": { "segmentIndex": 0, "stepIndex": 146, "key": "l" },
-        "cCursor": [74, 0, 1],
-        "jsCursor": [19, 15, 1]
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 146,
+          "key": "l"
+        },
+        "cCursor": [
+          74,
+          0,
+          1
+        ],
+        "jsCursor": [
+          19,
+          15,
+          1
+        ]
       }
-    }
+    },
+    "step": 146,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
   },
   "summary": "Hero cockatrice touch reaches the missing trap.c:minstapetrify helper through uhitm.c:mhitm_ad_ston after munstone returns false. C emits the monster slowing-down and stone-transition output; JS records note_unported('trap.c minstapetrify') and the monster remains in play. The same missing helper causes the v51 stone-golem nymph corpse-theft case at step 230 through steal.c:steal. The complete source task is trap.c:minstapetrify plus wiring every active JS caller that corresponds to its C call sites. One dothrow.c:thitmonst caller is currently reserved by A2, so implementation scope requires ownership resolution before edits.",
   "source": {
     "file": "trap.c",
-    "functions": ["minstapetrify"],
+    "functions": [
+      "minstapetrify"
+    ],
     "branch": "For a monster target, return when resists_ston is true; convert forms that can become stone golems with mon_to_stone; otherwise continue only when vamp_stone permits petrification, then remove intrinsic speed, emit the visible stone message, and either credit the hero with xkilled or apply monstone. The selected ogre and nymph theft cases reach this helper after their respective touch-petrification checks.",
     "callers": [
       "uhitm.c:hmon_hitmon_misc_obj -> minstapetrify(mon, TRUE) for petrifying corpses and eggs",
