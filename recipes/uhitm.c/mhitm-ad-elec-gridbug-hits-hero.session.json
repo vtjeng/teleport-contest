@@ -1,0 +1,12 @@
+{
+  "comment": "Independent monster-to-hero AD_ELEC recipe. A hostile wizard-generated grid bug gets one adjacent attack after the hero waits; this reaches hitmu -> mhitm_adtyping -> mhitm_ad_elec without relying on the fixed pony session.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 12473862,
+      "datetime": "20440215122000",
+      "nethackrc": "OPTIONS=name:ShockVictim,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile grid bug\n......"
+    }
+  ]
+}
