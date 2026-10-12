@@ -222,8 +222,8 @@ export { extcmds_match } from './cmd_autocomplete.js';
 import { initialExtcmdFlags, parseautocomplete } from './cmd_autocomplete.js';
 import {
     tty_get_ext_cmd,
-    tty_yn_function,
 } from './getline.js';
+import { tty_yn_function } from './topl.js';
 import { game } from './gstate.js';
 import { getnow } from './calendar.js';
 import { getpos } from './getpos.js';

@@ -55,10 +55,7 @@ import {
 import { S_altar } from '../js/symbols.js';
 import { cmdq_add_key, paranoid_query } from '../js/cmd.js';
 import { bot } from '../js/display.js';
-import {
-    UnsupportedGetlinBoundaryError,
-    tty_yn_function,
-} from '../js/getline.js';
+import { tty_yn_function } from '../js/topl.js';
 import { game } from '../js/gstate.js';
 import { delayed_killer, find_delayed_killer } from '../js/end.js';
 import { near_capacity } from '../js/hack.js';
@@ -2169,7 +2166,7 @@ test('tty_yn_function rereads an invalid key and quits on quitchars',
             assert.equal(await ask('yn', quitchar), 'n'.charCodeAt(0));
     });
 
-test('tty_yn_function parses counts and still gates preserving case', async () => {
+test('tty_yn_function parses counts and preserves uppercase responses', async () => {
     await startedGame();
     // topl.c:397-408 admits '#', then topl.c:478-529 consumes the count and
     // returns '#'. The counted response is what askchain() uses to split a
@@ -2181,16 +2178,10 @@ test('tty_yn_function parses counts and still gates preserving case', async () =
     );
     assert.equal(game.yn_number, 2);
 
-    // The uppercase-preserving arm remains outside this port. Its guard is
-    // before show_topl(), so it must leave the answered prompt untouched.
-    const row = game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
-    await assert.rejects(
-        tty_yn_function('Ring?', 'yN', 'n', game),
-        (error) => error instanceof UnsupportedGetlinBoundaryError
-            && /preserving case/u.test(error.message),
-    );
+    // topl.c:401-409 preserves uppercase if an allowed response is uppercase.
+    game.nhDisplay.pushKey('N'.charCodeAt(0));
     assert.equal(
-        game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd(), row,
+        await tty_yn_function('Ring?', 'yN', 'n', game), 'N'.charCodeAt(0),
     );
 });
 

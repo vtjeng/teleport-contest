@@ -612,7 +612,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
     if (!specialThrone && !random.rn2(3)) {
         let removeThrone = !state.wizard;
         if (state.wizard) {
-            const { tty_yn_function } = await import('./getline.js');
+            const { tty_yn_function } = await import('./topl.js');
             removeThrone = await tty_yn_function(
                 'Analyze throne?', 'yn', 'n', state,
             ) === 'y';

@@ -161,7 +161,7 @@ import { visible_region_at } from './region.js';
 import { dist2, mungspaces, visctrl } from './hacklib.js';
 import { HELP_TEXT_FILES } from './help_data.js';
 import { currency, display_inventory, sobj_at } from './invent.js';
-import { tty_yn_function } from './getline.js';
+import { tty_yn_function } from './topl.js';
 import { m_at } from './monst.js';
 import {
     M2_DEMON, M2_ELF, M2_HUMAN, M2_ORC,

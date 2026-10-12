@@ -13,7 +13,8 @@ import {
 } from '../js/hacklib.js';
 import { parseNethackrc } from '../js/options.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
-import { tty_getlin, tty_yn_function, UnsupportedGetlinBoundaryError } from '../js/getline.js';
+import { tty_getlin } from '../js/getline.js';
+import { tty_yn_function } from '../js/topl.js';
 import {
     clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
@@ -1482,10 +1483,10 @@ test('getlin prompt flush writes a dirty blank glyph and preserves clean physica
     assert.equal(state.nhDisplay.inread, 2);
 });
 
-test('getlin releases inread after its existing ctrl-P boundary', async () => {
-    const state = await gameplaySearchState('\x10'); // C Ctrl-P history is still an explicit gap.
-    await assert.rejects(() => tty_getlin('Input:', state), UnsupportedGetlinBoundaryError);
-    assert.equal(state.nhDisplay.inread, 0, 'port-side abort cannot strand prompt rendering state');
+test('getlin handles Ctrl-P history navigation and releases inread', async () => {
+    const state = await gameplaySearchState('\x10x\n');
+    assert.equal(await tty_getlin('Input:', state), '');
+    assert.equal(state.nhDisplay.inread, 0, 'Ctrl-P must not strand prompt rendering state');
 });
 
 test('menuTitleStyle converts canonical heading attributes only for drawing', () => {
