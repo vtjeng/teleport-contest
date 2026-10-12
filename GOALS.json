@@ -280861,6 +280861,358 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-cpostfx-blocking-mimic-display-v47-20261012",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete cpostfx blocking mimic display and verify its production callers",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst"
+      ],
+      "selectionReason": "C owns the v47 mimic timeout source investigation and submitted this complete cpostfx source task; saved current evidence retains its one-screen mismatch.",
+      "detail": "At segment 0 step 52 the small-mimic cpostfx path skips display_nhwindow(WIN_MAP, TRUE), allowing timed hallucination clearing before the map display wait. Await the existing TTY display adapter immediately after newsym and curs_on_u; verify the complete C function and all three callers.",
+      "openedAt": "59d10bf0c5e72fb31f6c6f6f47e02204561023da",
+      "openStanding": {
+        "sha": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "cpostfx",
+          "line": 1129,
+          "endLine": 1338,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1129,
+        "to": 1338
+      },
+      "syntheticProvenance": {
+        "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst": {
+          "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+          "evaluationPath": "challenges/evaluations/accepted-68a1a9f049a7f9efce0a5f9e92e506b68e9bc8f2-v47.json",
+          "evaluationCommit": "68a1a9f049a7f9efce0a5f9e92e506b68e9bc8f2"
+        }
+      },
+      "activeStanding": {
+        "sha": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingPath": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+          "recipe": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.recipe.session.json",
+          "recipeSha256": "39fd145127f7f4c41052613646c6eef92950924fc166825b6900382218052a41",
+          "replayInputSha256": "45d26ffac0f34b9781fd8d0f823de6777c42d57fa57beee35b21eb7ef94b8386",
+          "evaluationPath": "challenges/evaluations/accepted-68a1a9f049a7f9efce0a5f9e92e506b68e9bc8f2-v47.json",
+          "evaluationCommit": "68a1a9f049a7f9efce0a5f9e92e506b68e9bc8f2",
+          "evaluationArtifact": "challenges/evaluations/accepted-68a1a9f049a7f9efce0a5f9e92e506b68e9bc8f2-v47.json",
+          "evaluationUtc": "2026-10-12T02:08:25.910Z",
+          "remainingScreens": 1,
+          "recordedSteps": 54,
+          "previousScreensMatched": 53,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 53,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2667,
+              "total": 2667
+            },
+            "cursors": {
+              "matched": 54,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 5,
+              "column": 28,
+              "cCell": {
+                "ch": "%",
+                "color": 9,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "$",
+                "color": 11,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.json",
+            "result": {
+              "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+              "remainingScreens": 1,
+              "recordedSteps": 54,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+              "evaluationPath": "challenges/evaluations/accepted-bbed9236788ed585d4a6bfe887bb307954dff29d-v47.json",
+              "evaluationCommit": "bbed9236788ed585d4a6bfe887bb307954dff29d",
+              "status": "complete",
+              "commit": "fd24c53d49d2ed13becd40b2f0a898f346769763",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+                "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+                "recordingPath": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+                "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+                "recipe": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.recipe.session.json",
+                "recipeSha256": "39fd145127f7f4c41052613646c6eef92950924fc166825b6900382218052a41",
+                "replayInputSha256": "a1bd9cba620d1524732895cee6d2ff7000488d6f5ad644375a5bf901952930a7",
+                "evaluationPath": "challenges/evaluations/accepted-bbed9236788ed585d4a6bfe887bb307954dff29d-v47.json",
+                "evaluationCommit": "bbed9236788ed585d4a6bfe887bb307954dff29d",
+                "evaluationArtifact": "challenges/evaluations/accepted-bbed9236788ed585d4a6bfe887bb307954dff29d-v47.json",
+                "evaluationUtc": "2026-10-12T01:53:40.971Z",
+                "remainingScreens": 1,
+                "recordedSteps": 54,
+                "previousScreensMatched": 53,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 53,
+                    "total": 54
+                  },
+                  "rng": {
+                    "matched": 2667,
+                    "total": 2667
+                  },
+                  "cursors": {
+                    "matched": 54,
+                    "total": 54
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 5,
+                    "column": 28,
+                    "cCell": {
+                      "ch": "%",
+                      "color": 9,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "$",
+                      "color": 11,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 52,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After the accepted eat.c:eatmupdate fix, the first mismatch is the small-mimic completion boundary: at step 52 C still has Hallucination and renders the hero as an orange (%), while JavaScript has already cleared Hallucination and renders gold ($). The source cause is the missing blocking C window call in eat.c:cpostfx(): C flushes the mimic glyph and waits at display_nhwindow(WIN_MAP, TRUE) before returning to the turn loop, while js/eat.js skips that call with note_unported and allows nh_timeout() to expire Hallucination one input earlier. The existing TTY helper already models the required pending-message wait.",
+              "source": {
+                "file": "eat.c",
+                "branch": "In cpostfx(PM_SMALL_MIMIC), when the hero is not already a mimic and is not Unchanging, C selects ORANGE while Hallucination is active, writes the pending completion message, updates the map, calls curs_on_u(), and blocks at display_nhwindow(WIN_MAP, TRUE). For this recipe the pending You_cant message sets TOPLINE_NEED_MORE, so the TTY map-window implementation enters its WIN_MESSAGE blocking path before cpostfx returns.",
+                "functions": [
+                  "cpostfx"
+                ],
+                "functionRange": "1129-1328",
+                "callers": [
+                  "eat.c:done_eating() calls cpostfx(piece->corpsenm) for a consumed corpse or globby at line 563; it is reached from eatfood() and doeat(). JavaScript js/eat.js:done_eating() is reached from eatfood() and immediate doeat() completion.",
+                  "eat.c:consume_tin() calls cpostfx(mnum) after cprefx() when the tin remains at line 1613; JavaScript js/eat.js:consume_tin() follows the same condition.",
+                  "eat.c:Finish_digestion() calls cpostfx(gc.corpsenm_digested) at line 3964; uhitm.c:gulpum() sets gc.corpsenm_digested and ga.afternmv=Finish_digestion, then hack.c:unmul() invokes the callback. JavaScript js/uhitm.js:gulpum() stores the species and Finish_digestion callback, and js/hack.js:unmul() invokes it."
+                ],
+                "dependencies": [
+                  "C display.c:curs_on_u() calls flush_screen(1) before placing the cursor; JavaScript js/eat.js awaits js/hack.js:curs_on_u(), which performs the map flush.",
+                  "C win/tty/wintty.c:tty_display_nhwindow() handles NHW_MAP with blocking=true by ending glyph output, marking a pending topline TOPLINE_NEED_MORE, and recursively calling tty_display_nhwindow(WIN_MESSAGE, TRUE). JavaScript js/tty_message.js:displayPendingTtyMessageWindow() already waits for a pending TTY message and retires that window in C order.",
+                  "eat.c:cpostfx() also calls steed.c:dismount_steed() with its result discarded; the existing allowed note_unported skip remains unrelated to this non-mounted mismatch."
+                ],
+                "javascriptGap": "js/eat.js:cpostfx() performs the same mimic setup and map flush, then calls note_unported('windows.c display_nhwindow') and returns. The skipped blocking wait lets the enclosing turn proceed to timeout processing before the C path does. Replace that skip with the existing displayPendingTtyMessageWindow(state) call after curs_on_u(state); no shared TTY implementation change is needed.",
+                "proposedImplementationScope": {
+                  "sourceReservations": [
+                    "source:eat.c:cpostfx"
+                  ],
+                  "callerWiring": [
+                    "eat.c:done_eating -> js/eat.js:done_eating",
+                    "eat.c:consume_tin -> js/eat.js:consume_tin",
+                    "eat.c:Finish_digestion -> js/eat.js:Finish_digestion"
+                  ],
+                  "paths": [
+                    "js/eat.js",
+                    "scripts/eat.test.mjs",
+                    "recordings/eat.c/"
+                  ],
+                  "entryPointEvidence": "Use the admitted v47 case through the normal corpse/done_eating path for the timed mimic boundary, the existing mimic-tin recordings for consume_tin, and a recorded gulpum purple-worm case for Finish_digestion. Verify all cited existing recordings strictly after the change; create a fresh recipe/recording only if an entry point lacks a matching existing record."
+                }
+              },
+              "goalKind": "file-port",
+              "selectionReason": "Selected after syncing accepted Main bbed923 into the persistent C worktree and reading saved combined queue SHA-256 54f36433b21bc65e5d131a8cd5fb0b1203e177b9a5132dd2f132f45e5f05d756. A2 owns/parks the other selectable cases; the earlier A2 eatmupdate source owner is accepted and released. This is the first independent remaining candidate.",
+              "evidence": [
+                "Current saved queue entry and accepted evaluation challenges/evaluations/accepted-bbed9236788ed585d4a6bfe887bb307954dff29d-v47.json identify a single screen mismatch at zero-based segment 0, step 52: C cell (row 5, column 28) is (% , color 9); JS cell is ($, color 11). RNG (2667/2667) and cursors (54/54) match; 53/54 screens match.",
+                "The raw C boundary in challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json shows Hallu still set and the hero rendered as ORANGE at step 52, then Hallu clears at step 53. A fresh JS replay of the same input shows Hallu already cleared at step 52 and the hero rendered as GOLD.",
+                "Upstream eat.c:cpostfx() lines 1129-1328 (mimic arm 1173-1226) sets the mimic message and appearance, calls newsym(), calls curs_on_u(), then display_nhwindow(WIN_MAP, TRUE). Upstream win/tty/wintty.c:tty_display_nhwindow() lines 1855-1890 blocks the NHW_MAP route on a nonempty topline by setting TOPLINE_NEED_MORE and calling the blocking WIN_MESSAGE route.",
+                "The current js/eat.js:cpostfx() line 2764 instead calls note_unported('windows.c display_nhwindow') after curs_on_u(). js/hack.js:curs_on_u() flushes the map; js/tty_message.js:displayPendingTtyMessageWindow() implements the pending WIN_MESSAGE blocking wait that the C map-window route delegates to.",
+                "The three direct C callers are eat.c:done_eating() line 563, eat.c:consume_tin() line 1613, and eat.c:Finish_digestion() line 3964. The last is scheduled by uhitm.c:gulpum() lines 5091-5092 and invoked by hack.c:unmul() after clearing ga.afternmv. Their JavaScript call paths are already wired in js/eat.js/js/uhitm.js/js/hack.js."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cpostfx",
+            "implementation": "js/eat.js",
+            "symbol": "cpostfx",
+            "sourceReview": "Read the complete eat.c:cpostfx() definition (1129-1328) and checked all switch branches, intentional fallthroughs, state writes, output order, and random calls. The mimic cases accumulate immobilization turns in giant/large/small order; the active PM_SMALL_MIMIC path writes the pending mimic text and appearance, redraws the hero, flushes with curs_on_u(), then calls display_nhwindow(WIN_MAP, TRUE). Its TTY owner ends glyph output and blocks on the pending message before cpostfx returns. JavaScript now awaits displayPendingTtyMessageWindow(state) immediately after the same map flush, using the existing helper for the TTY WIN_MESSAGE/More wait. Other cpostfx branches remain source-aligned. The only skipped C callee is steed.c:dismount_steed() when mounted; its result is void/discarded and the existing note_unported skip follows the allowed callee rule. No return-valued unported dependency is consumed.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "done_eating",
+                "source": "eat.c:done_eating() line 563 calls cpostfx(piece->corpsenm) for corpses/globbies; done_eating is reached from eatfood() and doeat() immediate completion."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "consume_tin",
+                "source": "eat.c:consume_tin() line 1613 calls cpostfx(mnum) after cprefx() if the tin remains."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "Finish_digestion",
+                "source": "eat.c:Finish_digestion() line 3964 calls cpostfx(gc.corpsenm_digested); uhitm.c:gulpum() sets that species and ga.afternmv, and hack.c:unmul() clears and invokes the callback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/mimic-tin-blind.session.json",
+              "recordings/eat.c/mimic-large-tin-blind.session.json",
+              "recordings/uhitm.c/gulpum-purple-worm-gargoyle-independent-b64.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+                "segment": 0,
+                "fromStep": 49,
+                "throughStep": 53,
+                "source": "cmd.c:doeat -> eat.c:done_eating -> eat.c:cpostfx(PM_SMALL_MIMIC), followed by the timed HALLUC expiry through timeout.c:nh_timeout and potion.c:make_hallucinated"
+              }
+            ],
+            "checkedAt": "2488902931a592f99830889ff9983bf929cc0698"
+          }
+        ],
+        "entryPointReview": "Upstream eat.c has three direct active cpostfx entry points: done_eating after normal corpse/globby consumption, consume_tin after opening a corpse tin, and Finish_digestion after a purple worm finishes digesting prey. The admitted v47 range reaches done_eating with PM_SMALL_MIMIC while HALLUC is expiring and verifies the exact blocking-map boundary. The two existing eat.c mimic-tin recordings reach consume_tin -> cpostfx(PM_SMALL_MIMIC/PM_LARGE_MIMIC), and the existing uhitm.c purple-worm recording reaches gulpum -> unmul -> Finish_digestion -> cpostfx. All three replay streams match after the adapter change.",
+        "entryPoints": [
+          {
+            "name": "eat.c:done_eating normal corpse completion",
+            "functions": [
+              "cpostfx"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+                "segment": 0,
+                "fromStep": 49,
+                "throughStep": 53,
+                "source": "cmd.c:doeat -> eat.c:done_eating -> eat.c:cpostfx(PM_SMALL_MIMIC), followed by the timed HALLUC expiry through timeout.c:nh_timeout and potion.c:make_hallucinated"
+              }
+            ]
+          },
+          {
+            "name": "eat.c:consume_tin corpse-tin completion",
+            "functions": [
+              "cpostfx"
+            ],
+            "recordings": [
+              "recordings/eat.c/mimic-tin-blind.session.json",
+              "recordings/eat.c/mimic-large-tin-blind.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "eat.c:Finish_digestion after purple-worm ingestion",
+            "functions": [
+              "cpostfx"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/gulpum-purple-worm-gargoyle-independent-b64.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
