@@ -282681,8 +282681,8 @@
           "name": "xdrainenergym",
           "line": 1461,
           "endLine": 1474,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -282694,9 +282694,9 @@
           "name": "mhitm_ad_dren",
           "line": 2418,
           "endLine": 2444,
-          "declared": false,
+          "declared": true,
           "sourceFile": "uhitm.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -283067,7 +283067,116 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "xdrainenergym",
+            "implementation": "js/mhitm.js",
+            "symbol": "xdrainenergym",
+            "sourceReview": "Compared all of mhitm.c:xdrainenergym() (1461-1470). C first checks mspec_used < 20, then evaluates attacktype(AT_MAGC) and attacktype(AT_BREA) with short-circuit OR. Only an eligible target receives d(2,2) added to mspec_used; pline_mon() runs afterward only when givemsg is true. JS preserves the guard, random call, state update, and message order. No unported callee or placeholder remains.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "gulpum",
+                "source": "uhitm.c:gulpum() AD_DREN branch calls xdrainenergym(mdef, TRUE) after a successful rn2(4) at 5174-5177"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_dren",
+                "source": "uhitm.c:mhitm_ad_dren() calls xdrainenergym() in the hero-attacker and monster-attacker branches at 2423-2424 and 2437-2439"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-dren.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-poly-energy-vortex-engulf-drain-attempt10",
+                "segment": 0,
+                "fromStep": 76,
+                "throughStep": 76,
+                "source": "uhitm.c:hmonas() -> gulpum() AD_DREN; the successful rn2(4) call reaches xdrainenergym() with the kobold shaman's AT_MAGC attack and mspec_used below 20"
+              }
+            ],
+            "checkedAt": "d2f6f7f43abb751d165585c021d295d34bbcd117"
+          },
+          {
+            "name": "mhitm_ad_dren",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_dren",
+            "sourceReview": "Compared all of uhitm.c:mhitm_ad_dren() (2418-2442). C evaluates mhitm_mgc_atk_negated() first. The hero-attacker arm conditionally calls xdrainenergym() and always clears damage. The hero-defender arm calls hitmsg(), conditionally calls drain_en(), then clears damage. The monster-versus-monster arm conditionally calls xdrainenergym() with the visibility and non-engulf message predicate, then clears damage. JS preserves branch order, RNG gates, arguments, visibility checks, and damage resets. mhitu.c:gulpmu() handles energy-vortex monster-to-hero engulfing with drain_en(); it is not this resolver path.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping() case AD_DREN dispatches to mhitm_ad_dren() at 4808"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum() calls mhitm_adtyping(&gy.youmonst, ...) at 4854"
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem() calls mhitm_adtyping(magr, ..., mdef, ...) at 1059"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu() calls mhitm_adtyping(mtmp, ..., &gy.youmonst, ...) at 1191; this generic path is distinct from the energy-vortex engulf handler mhitu.c:gulpmu()"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-dren.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/xdrain-energy-vortex-monster-pair.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [],
+            "checkedAt": "d2f6f7f43abb751d165585c021d295d34bbcd117"
+          }
+        ],
+        "entryPointReview": "The selected source units are mhitm.c:xdrainenergym() and the complete uhitm.c:mhitm_ad_dren() resolver. Hero polymorph engulfing reaches xdrainenergym directly through uhitm.c:gulpum(); the admitted v47 segment 0 step 76 prefix matches the successful drain and message path. Monster-versus-monster AD_DREN reaches mhitm_ad_dren() through mhitm.c:mdamagem() and uhitm.c:mhitm_adtyping(); the independent matching recording reaches the resolver at segment 0 step 74, where rn2(4)=2 fails before xdrainenergym(). The recording is resolver parity evidence only. The energy-vortex monster-to-hero engulf path is mhitu.c:gulpmu() -> drain_en(), outside these selected source units. The generic hitmu() dispatcher caller is documented as a source caller, not as evidence for energy-vortex engulfing.",
+        "entryPoints": [
+          {
+            "name": "Polymorphed hero engulfs a monster with an energy-drain attack",
+            "functions": [
+              "xdrainenergym"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-poly-energy-vortex-engulf-drain-attempt10",
+                "segment": 0,
+                "fromStep": 76,
+                "throughStep": 76,
+                "source": "uhitm.c:hmonas() -> gulpum() AD_DREN -> mhitm.c:xdrainenergym()"
+              }
+            ]
+          },
+          {
+            "name": "Monster-versus-monster AD_DREN resolver",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_dren"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/xdrain-energy-vortex-monster-pair.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
