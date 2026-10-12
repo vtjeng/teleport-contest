@@ -290911,7 +290911,7 @@
     {
       "id": "port-uhitm-do-stone-u-v51-cockatrice-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port delayed hero stoning from cockatrice attacks",
       "cFile": "uhitm.c",
       "sessions": [
@@ -290925,8 +290925,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "do_stone_u",
@@ -291246,6 +291249,12 @@
         ],
         "entryPointReview": "This is a helper-only range, so entryPoints is empty. Its active source callers are uhitm.c:mhitm_ad_ston() for a cockatrice monster touch and uhitm.c:mhitm_ad_phys() for being struck with a cockatrice corpse as a weapon. The admitted v51 range exercises the first production path through the live monster-turn dispatcher; both callers remain wired to do_stone_u(). The source-owned potion.c:make_stoned() callee is already implemented in js/potion.js and receives the source arguments from do_stone_u().",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T17:12:18.444Z",
+  "capturedAt": "2026-10-12T17:22:31.532Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -96176,22 +96176,60 @@
         "worker": "C",
         "state": "active",
         "reason": "Accepted pyrolisk Main merged; waiting for the refreshed queue before selecting independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-idle-C-after-pyrolisk-queue-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:12:28.873Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "The refreshed queue has no independent unreserved case; preserving the ready bluejelly delivery and held short-version work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012-2d59fc6f2fe4ddd15e6ff38be9f9fb9a3cb662cb",
+        "type": "published",
+        "at": "2026-10-12T17:12:53.286Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "commit": "2d59fc6f2fe4ddd15e6ff38be9f9fb9a3cb662cb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-delayed-stone-46146636-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T17:15:12.411Z",
+        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
+        "integration": "46146636c6f92464e1c18de267d2a38fc8d349d3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-reached-actions-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:17:28.195Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v57: recording source-supported gameplay actions and setup corrections."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012-46146636c6f92464e1c18de267d2a38fc8d349d3-validated",
+        "type": "validated",
+        "at": "2026-10-12T17:21:17.039Z",
+        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012-46146636c6f92464e1c18de267d2a38fc8d349d3-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T17:21:56.563Z",
+        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
-        "worker": "A2",
-        "goal": "port-uhitm-do-stone-u-v51-cockatrice-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "3961fb31767fe6a6b7a61edc0cf78f92361d4aa6",
-        "since": "2026-10-12T09:02:18.983Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
         "worker": "B",
@@ -96758,8 +96796,8 @@
     ]
   },
   "development": {
-    "executionCommit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
-    "measuredAt": "2026-10-12T17:05:39.758Z",
+    "executionCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+    "measuredAt": "2026-10-12T17:20:03.730Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

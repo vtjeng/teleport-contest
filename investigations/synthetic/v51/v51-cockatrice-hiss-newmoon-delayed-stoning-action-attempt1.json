@@ -9,11 +9,11 @@
   "recordingSha256": "c3a3b9980ac3259a01e6810b89632939ae83abe6b8fc7f08d2c7f055af5d3081",
   "recipePath": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.recipe.session.json",
   "recipeSha256": "8c764075b60e03edab5002ff54b475b557457162ffa015e624ab0d5e3c87af2c",
-  "evaluationPath": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
-  "evaluationCommit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+  "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+  "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
   "status": "complete",
-  "commit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
-  "remainingScreens": 204,
+  "commit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+  "remainingScreens": 0,
   "recordedSteps": 303,
   "summary": "At zero-based segment 0 step 88, the hostile cockatrice's unarmed touch enters uhitm.c:do_stone_u through the monster-to-hero AD_STON branch. That helper correctly selects a five-turn delayed stoning and killer identity, but JavaScript records note_unported('potion.c make_stoned') instead of calling its existing make_stoned port. The missing property timeout and delayed killer cause the first screen and cursor divergence at step 88; RNG first diverges at step 89. Implement the whole do_stone_u source unit and wire its existing make_stoned callee, preserving the source's void-call behavior.",
   "mismatch": {
@@ -29,87 +29,33 @@
     "recipe": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.recipe.session.json",
     "recipeSha256": "8c764075b60e03edab5002ff54b475b557457162ffa015e624ab0d5e3c87af2c",
     "replayInputSha256": "323099f94213aabad903d9334bb0f609d1f9ede9074f7f979ac19c504ced9ad9",
-    "evaluationPath": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
-    "evaluationCommit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
-    "evaluationArtifact": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
-    "evaluationUtc": "2026-10-12T17:05:10.338Z",
-    "remainingScreens": 204,
+    "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+    "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+    "evaluationArtifact": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+    "evaluationUtc": "2026-10-12T17:19:32.076Z",
+    "remainingScreens": 0,
     "recordedSteps": 303,
     "previousScreensMatched": 99,
     "regression": false,
-    "passed": false,
+    "passed": true,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 99,
+        "matched": 303,
         "total": 303
       },
       "rng": {
-        "matched": 2777,
+        "matched": 3152,
         "total": 3152
       },
       "cursors": {
-        "matched": 285,
+        "matched": 303,
         "total": 303
       }
     },
-    "firstMismatch": {
-      "screen": {
-        "index": 88,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 88,
-          "key": "."
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 50,
-        "cCell": {
-          "ch": "-",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": " ",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": {
-        "index": 2772,
-        "cEntry": "rn2(2)=0",
-        "cCaller": "exercise(attrib.c:509)",
-        "jsEntry": "rn2(100)=70",
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 89,
-          "key": " "
-        },
-        "stepIndex": 89
-      },
-      "cursor": {
-        "index": 88,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 88,
-          "key": "."
-        },
-        "cCursor": [
-          58,
-          0,
-          1
-        ],
-        "jsCursor": [
-          12,
-          7,
-          1
-        ]
-      }
-    },
-    "step": 88,
-    "kind": "screen",
+    "firstMismatch": null,
+    "step": null,
+    "kind": null,
     "sourceFile": null,
     "function": null,
     "message": null,
@@ -137,5 +83,25 @@
     "Focused admitted-session scan output at /tmp/teleport-validation-1000/run-8XSapD/stdout.log on bf3d3bdbcd75c2148bef7a20dd885fca6dd1f548: segment 0 step 88 screen/cursor first mismatch; RNG first mismatch step 89; replay reports active unported gap potion.c make_stoned. Recorder receipt: /tmp/teleport-validation-1000/run-8XSapD/receipt.json.",
     "nethack-c/upstream/src/uhitm.c:3924-3942 defines do_stone_u(), including the successful polymon branch, killer-name formatting for unique monsters, void make_stoned(5L, NULL, ...), and true return. js/uhitm.js:5188-5215 matches these branches but substitutes note_unported for the existing js/potion.js:558-579 make_stoned implementation.",
     "nethack-c/upstream/src/uhitm.c:4790-4805 dispatches AD_STON to mhitm_ad_ston(); its monster-to-hero arm at 4203-4263 calls do_stone_u(). nethack-c/upstream/src/mhitu.c:1144-1177 calls mhitm_adtyping() from hitmu(), and mattacku()'s AT_TUCH arm reaches hitmu()."
-  ]
+  ],
+  "runtimeVerification": {
+    "commit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+    "casePassed": true,
+    "metrics": {
+      "screens": {
+        "matched": 303,
+        "total": 303
+      },
+      "rng": {
+        "matched": 3152,
+        "total": 3152
+      },
+      "cursors": {
+        "matched": 303,
+        "total": 303
+      }
+    },
+    "evidence": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+    "completionGoal": "port-uhitm-do-stone-u-v51-cockatrice-20261012"
+  }
 }
