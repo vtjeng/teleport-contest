@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { extcmds_match } from '../js/cmd.js';
@@ -537,6 +538,34 @@ test('extended spellings share the four newly ported direct handlers',
             visible,
             new RegExp(`the extended command '${name}' is not ported`, 'u'),
             name,
+        );
+    }
+});
+
+test('extended command dispatch reaches its existing handler functions',
+    async () => {
+    // Each immutable v48 recipe isolates one extcmdlist ef_funct that the
+    // doextcmd() dispatcher had left out. #fight also checks the PREFIXCMD
+    // row handoff to rhack() before its following movement key is consumed.
+    for (const [name, caseId] of [
+        ['fire', 'v48-extended-fire-empty-attempt1'],
+        ['throw', 'v48-extended-throw-rock-attempt2'],
+        ['close', 'v48-extended-close-command-attempt1'],
+        ['wield', 'v48-extended-wield-long-sword-attempt6'],
+        ['fight', 'v48-extended-fight-command-attempt1'],
+    ]) {
+        const recipe = JSON.parse(readFileSync(new URL(
+            `../challenges/cases/v48/${caseId}.recipe.session.json`,
+            import.meta.url,
+        ), 'utf8'));
+        let boundary = null;
+        await runSegment(recipe.segments[0], {
+            onBoundary: (error) => { boundary = error; },
+        });
+        assert.doesNotMatch(
+            boundary?.message ?? '',
+            new RegExp(`for the extended command '${name}' is not ported`, 'u'),
+            `#${name} reaches its handler`,
         );
     }
 });
