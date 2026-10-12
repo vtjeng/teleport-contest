@@ -8,10 +8,10 @@
   "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
   "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
   "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
-  "remainingScreens": 162,
+  "remainingScreens": 39,
   "recordedSteps": 246,
   "status": "complete",
-  "commit": "c566a7a04203eb81c3bdedf6dabd991188998093",
+  "commit": "4eccc7f8d26fc9ab015185fc0796e01195f98b1b",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v53",
@@ -24,62 +24,130 @@
     "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
     "recipe": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.recipe.session.json",
     "recipeSha256": "33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d",
-    "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
-    "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
-    "remainingScreens": 162,
+    "replayInputSha256": "adaae81a08525b7ffc0f968688eaad01774175a945b9384d9d0e50b549f43487",
+    "evaluationPath": "challenges/evaluations/accepted-10bacc75116b05788ed935aa7f24fc20fb324927-v53.json",
+    "evaluationCommit": "10bacc75116b05788ed935aa7f24fc20fb324927",
+    "remainingScreens": 39,
     "recordedSteps": 246,
-    "previousScreensMatched": 84,
+    "previousScreensMatched": 207,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 84,
+        "matched": 207,
         "total": 246
       },
       "rng": {
-        "matched": 2392,
+        "matched": 3527,
         "total": 3829
       },
       "cursors": {
-        "matched": 84,
+        "matched": 241,
         "total": 246
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "makelevel: load_special() has no loader for special level \"Wiz-goal\"",
-      "step": 85
+      "kind": "rng",
+      "message": "C enters quest.c:chat_with_nemesis and opens qt_pager(\"discourage\"); JS returns false from quest_chat and records the nemesis dialogue as unported.",
+      "step": 207
     },
-    "step": 85,
-    "kind": "stop",
-    "sourceFile": "Wiz-goal.lua",
-    "function": null,
-    "message": "makelevel: load_special() has no loader for special level \"Wiz-goal\"",
-    "cFile": null,
-    "luaFile": "Wiz-goal.lua",
-    "line": null
+    "step": 207,
+    "kind": "rng",
+    "sourceFile": "quest.c",
+    "function": "quest_chat",
+    "cFile": "quest.c",
+    "luaFile": null,
+    "line": 483
   },
-  "goalKind": "lua-port",
-  "summary": "Wiz-goal has no registered loader. Port the whole Wizard Quest goal program and wire it into the existing special-level registry.",
+  "goalKind": "file-port",
+  "summary": "The admitted Wiz-goal loader resolves the earlier stop. The current first divergence is #chat with the quest nemesis: C calls qt_pager(\"discourage\") and sets met_nemesis after the pager; JavaScript quest_chat returns false and sounds.domonnoise records the dialogue as unported. Port the nemesis and guardian helpers and wire both branches through quest_chat.",
   "source": {
-    "file": "Wiz-goal.lua",
-    "branch": "Wizard Quest goal-level generation through makelevel -> makemaz -> load_special -> dat/Wiz-goal.lua.",
+    "file": "quest.c",
+    "branch": "When #chat reaches the role quest nemesis or guardian through sounds.c:dochat -> domonnoise, quest_chat dispatches MS_NEMESIS to discourage dialogue and met_nemesis state, or MS_GUARDIAN to the before/after pager selected by questart and killed_nemesis.",
     "functions": [
-      "Wiz-goal.lua"
+      "chat_with_nemesis",
+      "chat_with_guardian",
+      "quest_chat"
     ],
     "callers": [
-      "C mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> nhlua.c:load_lua executes dat/Wiz-goal.lua. JavaScript js/mklev.js:makelevel -> makemaz -> load_special looks up the proto in SPECIAL_LEVEL_LOADERS; no Wiz-goal key is registered.",
-      "C wizcmds.c:wiz_load_splua -> sp_lev.c:load_special -> nhlua.c:load_lua. JavaScript js/wizcmds.js:wiz_load_splua routes through the same special-level loader registry."
+      "C sounds.c:dochat calls domonnoise for the selected adjacent monster; sounds.c:domonnoise maps MS_NEMESIS/MS_GUARDIAN and calls quest.c:quest_chat. JavaScript js/sounds.js:dochat calls domonnoise, which calls js/quest.js:quest_chat.",
+      "The admitted synthetic case v53-quest-nemesis-nearby-action5 reaches the nemesis branch through #chat at segment 0, step 207."
     ],
     "dependencies": [
-      "The first observed gap is the missing whole dat/Wiz-goal.lua program/registry entry, before its level descriptors execute. The current implementation uses the existing shared special-level API and registered QUEST_LEVEL_LOADERS; source review will verify every descriptor helper and production caller before implementation scope is claimed."
+      "qt_pager is already implemented in js/questpgr.js; quest.c discards its return value, so no additional pager behavior is needed. The pre-existing sounds.c MS_NEMESIS/MS_GUARDIAN dispatch remains the source caller."
     ]
   },
   "evidence": [
-    "The admitted v53 evaluation challenges/evaluations/hosted-38314809018-1-v53.json at d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85 records 84/246 screens, 2392/3829 RNG calls, and 84/246 cursors, leaving 162 screens. Its canonical manifest digest is fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39; recording SHA-256 is f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26; recipe SHA-256 is 33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d.",
-    "A fresh strict C/JS differential using the admitted independent recipe reproduced the same stop at segment 1, zero-based step 85, key A. C begins nhlib.lua shuffle alignment with rn2(3) and presents the next level screen; JavaScript has no output after its previous 84 screens.",
-    "C mkmaze.c:1184-1193 selects the resolved special-level proto then calls sp_lev.c:load_special; load_special invokes nhlua.c:load_lua to execute the named dat program. JavaScript js/mklev.js:makemaz and load_special use SPECIAL_LEVEL_LOADERS. The registered quest programs are collected from js/quest_levels.js:QUEST_LEVEL_LOADERS, but that registry has no Wiz-goal entry. The world-generation caller refuses at js/mklev.js:723 before any Wiz-goal body runs.",
-    "Read dat/Wiz-goal.lua as the actual source owner. The missing behavior includes its level initialization, maze flags and map, regions, locked doors and stairs, non-diggable boundary, altar and fixed/random object placement, random traps, Dark One and hostile monster classes, and captive-monster setup. This is a missing whole program, not a Dark One dialogue defect. The named full Lua program and its loader registration are the implementation target; later descriptor/helper gaps, if any, must be enumerated before edits."
-  ]
+    "The current saved queue entry is challenges/evaluations/accepted-10bacc75116b05788ed935aa7f24fc20fb324927-v53.json at 10bacc75116b05788ed935aa7f24fc20fb324927: 207/246 screens, 3527/3829 RNG calls and 241/246 cursors; 39 screens remain. Manifest fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39, recording f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26, recipe 33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d.",
+    "The strict targeted replay at commit 4eccc7f8d26fc9ab015185fc0796e01195f98b1b is preserved at /tmp/teleport-validation-1000/run-hzGQEb/receipt.json and stdout.log. It matches through step 206, then at segment 0, step 207, key h, C renders the opening quote of “Are you ready yet to beg for mercy?” while JS retains the previous top line; C consumes rn2(3)=2 from shuffle(nhlib.lua:19), while JS consumes rn2(5)=0 because the pager branch never runs.",
+    "quest.c:394-400 chat_with_nemesis calls qt_pager(\"discourage\") and then sets Qstat(met_nemesis) only when the flag is false. quest.c:441-448 chat_with_guardian selects guardtalk_after only when u.uhave.questart and killed_nemesis are both true; otherwise it selects guardtalk_before.",
+    "quest.c:473-492 quest_chat preserves the leader m_id branch, then dispatches MS_NEMESIS and MS_GUARDIAN to those helpers. sounds.c:1257-1408 dochat reaches domonnoise for the adjacent monster; sounds.c:729-731 calls quest_chat for these sounds. JavaScript js/sounds.js:1028-1034 currently calls quest_chat but falls back to note_unported because js/quest.js:392-399 supports only the leader identity.",
+    "The prior first mismatch was the Wiz-goal loader stop. Accepted Main now contains the loader, and the current replay reaches step 207; this implementation addresses the new quest.c dialogue frontier rather than repeating the completed loader work."
+  ],
+  "previousDiagnosis": {
+    "source": {
+      "file": "Wiz-goal.lua",
+      "branch": "Wizard Quest goal-level generation through makelevel -> makemaz -> load_special -> dat/Wiz-goal.lua.",
+      "functions": [
+        "Wiz-goal.lua"
+      ],
+      "callers": [
+        "C mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> nhlua.c:load_lua executes dat/Wiz-goal.lua. JavaScript js/mklev.js:makelevel -> makemaz -> load_special looks up the proto in SPECIAL_LEVEL_LOADERS; no Wiz-goal key is registered.",
+        "C wizcmds.c:wiz_load_splua -> sp_lev.c:load_special -> nhlua.c:load_lua. JavaScript js/wizcmds.js:wiz_load_splua routes through the same special-level loader registry."
+      ],
+      "dependencies": [
+        "The first observed gap is the missing whole dat/Wiz-goal.lua program/registry entry, before its level descriptors execute. The current implementation uses the existing shared special-level API and registered QUEST_LEVEL_LOADERS; source review will verify every descriptor helper and production caller before implementation scope is claimed."
+      ]
+    },
+    "mismatch": {
+      "corpus": "synthetic",
+      "batch": "v53",
+      "caseId": "v53-quest-nemesis-nearby-action5",
+      "session": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+      "manifestPath": "challenges/manifests/v53.json",
+      "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+      "recording": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.session.json",
+      "recordingPath": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.session.json",
+      "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
+      "recipe": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.recipe.session.json",
+      "recipeSha256": "33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d",
+      "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
+      "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
+      "remainingScreens": 162,
+      "recordedSteps": 246,
+      "previousScreensMatched": 84,
+      "regression": false,
+      "passed": false,
+      "error": null,
+      "metrics": {
+        "screens": {
+          "matched": 84,
+          "total": 246
+        },
+        "rng": {
+          "matched": 2392,
+          "total": 3829
+        },
+        "cursors": {
+          "matched": 84,
+          "total": 246
+        }
+      },
+      "firstMismatch": {
+        "kind": "stop",
+        "message": "makelevel: load_special() has no loader for special level \"Wiz-goal\"",
+        "step": 85
+      },
+      "step": 85,
+      "kind": "stop",
+      "sourceFile": "Wiz-goal.lua",
+      "function": null,
+      "message": "makelevel: load_special() has no loader for special level \"Wiz-goal\"",
+      "cFile": null,
+      "luaFile": "Wiz-goal.lua",
+      "line": null
+    },
+    "note": "The earlier first mismatch was the missing Wiz-goal loader. Accepted Main now registers that program, and this case reaches quest dialogue; the former diagnosis is retained as history but is no longer the active frontier."
+  }
 }
