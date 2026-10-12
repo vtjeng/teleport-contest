@@ -10,8 +10,8 @@
   "recordingSha256": "4df6d5c7cbddd0eb6b5c266f068af916308861edc051d78e9c3faac09c8f86ff",
   "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
   "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
-  "status": "complete",
-  "commit": "aa2012dddd3ac0cb6b6078f29973b7c5ab0d094c",
+  "status": "partial",
+  "commit": "3b34371d46a47005b16613508fb9e4ce78e70b5a",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v52",
@@ -20,76 +20,101 @@
     "manifestPath": "challenges/manifests/v52.json",
     "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
     "recording": "challenges/cases/v52/v52-minetown-unpaid-tool-pickup-attempt12.session.json",
-    "recordingPath": "challenges/cases/v52/v52-minetown-unpaid-tool-pickup-attempt12.session.json",
     "recordingSha256": "4df6d5c7cbddd0eb6b5c266f068af916308861edc051d78e9c3faac09c8f86ff",
     "recipe": "challenges/cases/v52/v52-minetown-unpaid-tool-pickup-attempt12.recipe.session.json",
     "recipeSha256": "e37902db48514d93a46269ce2b0297d7fbb41cabf8f8d613d157b3fdb12e0e15",
-    "replayInputSha256": "5e32600d28364b4911473a9a7a949a1791cc380ac369c97a7771762b3a9f2022",
+    "replayInputSha256": "6dfbe70c3cb75ecd3f9175e58f447a3102a65d2e9e5c3fcea4aaae072180d0eb",
     "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
     "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
-    "evaluationArtifact": "challenges/evaluations/hosted-38292091033-1-v52.json",
-    "evaluationUtc": "2026-10-12T18:40:54.256Z",
     "remainingScreens": 627,
     "recordedSteps": 627,
-    "previousScreensMatched": null,
-    "regression": false,
     "passed": false,
-    "error": "Cannot read properties of undefined (reading 'lx')",
-    "metrics": {
-      "screens": {
-        "matched": 0,
-        "total": 627
+    "firstMismatch": {
+      "kind": "screen",
+      "step": 572,
+      "key": "h",
+      "row": 0,
+      "column": 67,
+      "cCell": {
+        "ch": "-",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
       },
-      "rng": {
-        "matched": 0,
-        "total": 7364
-      },
-      "cursors": {
-        "matched": 0,
-        "total": 627
+      "jsCell": {
+        "ch": " ",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
       }
     },
-    "firstMismatch": {
-      "kind": "stop",
-      "message": "Replay error: Cannot read properties of undefined (reading 'lx')",
-      "step": null
+    "followingRngMismatch": {
+      "index": 7055,
+      "step": 573,
+      "key": " ",
+      "cEntry": "rn2(8)=3",
+      "cCaller": "muse.c:use_offensive at line 1884",
+      "jsEntry": "rn2(5)=2"
     },
-    "step": null,
-    "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "Replay error: Cannot read properties of undefined (reading 'lx')",
-    "cFile": null,
-    "luaFile": null,
-    "line": null
+    "replayCommit": "3b34371d46a47005b16613508fb9e4ce78e70b5a"
   },
-  "summary": "At C recording step 312, movement enters a Minetown shop subroom and C welcomes the hero to Y-crad’s hardware store. The JS room-entry path indexes only the top-level state.level.rooms array: shop_keeper misses the subroom resident, then the fallback deserted_shop reads lx from an undefined room. The same C room-number lookup also appears in inside_shop and u_entered_shop, so all four source units in this room-entry family need the existing roomnoidx-aware dungeon.js:mapseen_room resolver.",
+  "summary": "The hot-pursuit path improves the selected Minetown replay, but Main checkpoint 34c94c5a1 found one cursor regression (618/627 to 617/627) while screens improved 573/627 to 616/627 and RNG 7078/7364 to 7226/7364. The source-traced cause was shk.c:shk_move comparing squared distance against 64 instead of C distu()>8. The bounded threshold repair is included in this correction; its exact tree matches all 627 screens, cursors, and 7,364 RNG calls in the fresh recipe replay. Awaiting Main CI for this corrected candidate.",
   "source": {
     "file": "shk.c",
-    "branch": "For a room number returned by in_rooms() that identifies a nested shop subroom, C indexes the corresponding svr.rooms entry by roomno - ROOMOFFSET. JavaScript stores those rooms nested under their parent and must resolve the persisted roomnoidx instead of indexing only state.level.rooms. This applies when looking up the resident, the shop bounding box, the shop type, and whether the hero is strictly inside.",
+    "branch": "The Minetown theft path calls hot_pursuit through stolen_value. On the resulting shopkeeper turn, shk_move must use C distu(gtx,gty)>8, where hack.h defines distu as squared distance, to keep the NOTONL candidate out of move_special.",
     "functions": [
-      "inside_shop",
-      "deserted_shop",
-      "u_entered_shop",
-      "shop_keeper"
+      "stolen_value",
+      "hot_pursuit",
+      "rile_shk",
+      "shk_move"
     ],
     "callers": [
-      "hack.c:spoteffects -> check_special_room -> shk.c:u_entered_shop; the v52 recording enters the subroom at step 312.",
-      "shk.c:u_entered_shop -> shop_keeper; a resident is returned before C selects the normal keeper greeting branch.",
-      "shk.c:u_entered_shop -> deserted_shop when a shop has no resident or its keeper is away; the helper reads the same room number for its bounds.",
-      "shk.c:u_entered_shop -> inside_shop after greeting; the result controls whether entry-blocking checks run.",
-      "Other existing production callers of inside_shop and shop_keeper remain wired to these shared helpers and receive the corrected room lookup."
+      "shk.c:stolen_value -> hot_pursuit",
+      "The following monster turn reaches muse.c:use_offensive after hot_pursuit changes the shopkeeper from peaceful to angry.",
+      "monmove.c:m_move -> shk.c:shk_move"
     ],
     "dependencies": [
-      "Reuse the existing js/dungeon.js:mapseen_room(roomIndex, state), which resolves top-level and nested rooms by roomnoidx. No external source delivery dependency is required."
+      "accepted room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9"
     ]
   },
-  "goalKind": "divergence-fix",
   "evidence": [
-    "Saved v52 baseline challenges/evaluations/hosted-38292091033-1-v52.json reports this exact recording hash, 627 recorded steps, 627 remaining screens, zero matched screens/cursors/RNG, and the replay error Cannot read properties of undefined (reading lx).",
-    "A fresh Node replay of the immutable challenge recording reproduces the exception. Prefix replay reduces it to input step 312, key k; the stack is js/shk.js:deserted_shop -> u_entered_shop -> js/rooms.js:check_special_room -> js/hack.js:spoteffects. The original C recording at step 312 shows Hello, wizard! Welcome to Y-crad’s hardware store!, establishing that C found the subroom keeper and took the populated-shop path.",
-    "C shk.c:shop_keeper (1052-1080) resolves svr.rooms[rmno - ROOMOFFSET].resident; JS shk.js:shop_keeper directly indexes state.level.rooms[roomno - ROOMOFFSET], which omits nested subrooms. That miss sends JS u_entered_shop through the empty-shop branch and into deserted_shop, where the same direct index causes the observed lx exception.",
-    "The same representation mismatch is present in the full source units shk.c:inside_shop (568-576), deserted_shop (723-747), and u_entered_shop (751-917). Each C function reads the C-indexed room record, while its JS port directly indexes state.level.rooms. `mklev.c:do_room_or_subroom` assigns roomnoidx from the C room record, and js/dungeon.js:mapseen_room already resolves that identity through the nested parent graph.",
-    "The selected divergence scope is the four room-table reads in js/shk.js:inside_shop, shop_keeper, deserted_shop, and u_entered_shop, all using mapseen_room. Their existing production callers remain wired; no caller dispatcher change is required."
-  ]
+    "Fresh focused replay before correction: /tmp/A2-v52-minetown-muse-scan.json at commit 3b34371d46a47005b16613508fb9e4ce78e70b5a; the recording, manifest, recipe hashes match the admitted v52 input.",
+    "The immutable C screen at step 572 reads `The giant mimic vanishes!  Y-crad booms: \"wizard, you are a thief!\"--More--`; JS emits the same line without the marker. The mismatch is C `-` versus JS blank at row 0 column 67. A read-only recorder/source probe confirmed record-session uses stdin/stdout pipes without a PTY, sets TERM=xterm-256color, and falls back to termcap co#80. C topl.c:262-279 calls more() before appending a next message that cannot fit after the 67-character line with its eight-column margin.",
+    "Step 573 records Y-crad’s wand message. C muse.c:1877-1884 emits that message before the first rn2(8), so the C-only More is the expected wait before that next message.",
+    "C shk.c:stolen_value issues Norep, then calls hot_pursuit and angry_guards(FALSE). Norep defaults to MSGTYP_NOREP and does not itself force More; topline overflow before the next monster message causes the wait.",
+    "C shk.c:hot_pursuit calls rile_shk, copies svp.plname into customer, sets following, clears no_charge on fobj, and calls clear_no_charge_pets. JS shk.js:stolen_value now invokes the new hot_pursuit implementation at the matching source position. Existing JS helpers rile_shk, clear_no_charge, and clear_no_charge_pets implement the dependencies; clear_no_charge_pets was previously closed under port-shk-clear-no-charge-pets.",
+    "The implementation scope of delivery 20763e5c8c468f81294b4648414e6ed942b786b0 is shk.c:hot_pursuit and its active shk.c:stolen_value caller, reached from pickup.c:mbag_item_gone on this admitted path. Other hot_pursuit gaps at unrelated caller sites remain outside that task. The corrected exact replay matches through zero-based segment 0 step 583; its next C RNG site is monmove.c:m_move at step 584, with the source cause traced separately to shk.c:shk_move's avoid threshold.",
+    "After implementation commit c78575762, the exact admitted recording matches every screen, cursor, and RNG call through zero-based segment 0 step 583. The first later RNG mismatch is step 584 in the immutable recording / segment 1 step 585 in the fresh-recipe report: C rn2(20)=2 at monmove.c:m_move:1971 while JS emits rn2(5)=2. A disposable JS replay trace identifies that extra call at priest.c:move_special:612 -> shk.c:shk_move:3413. The trace's keeper is at (55,14), hero at (55,6), and JS has squared distance 64, hero.ushops nonempty, appr 0, and avoid false. C shk.c:shk_move uses distu(gtx,gty)>8; hack.h:1531 defines distu as dist2, so C sets avoid true at this distance. priest.c:move_special:83-87 then skips the (55,15) candidate marked NOTONL (0x00200000) in C, while JS admits it and makes one extra rn2(5) draw. The next C draw is rn2(20) in m_move. The first screen difference is at zero-based boundary 606. The matching prefix was verified by node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json.",
+    "Focused checks pass: node --test scripts/shk.test.mjs; node --test scripts/shop-billing.test.mjs scripts/dokick-shipping.test.mjs; npm run lint. The latter two tests retain their source-gap assertions for distinct out-of-scope hot_pursuit call sites.",
+    "Movement correction commit d07983bb131e56f3c28023417a05f1ab8bee26a4 changes only shk.c:shk_move's distance threshold and adds a C-pinned check. Its fresh recipe replay passes all PRNG calls, screens, cursors, and animation frames; the immutable admitted recording also matches through step 626.",
+    "Main checkpoint candidate 34c94c5a11aa142d89f38ba651fbd0cca8508ab7 showed the hot-pursuit gain but lost one selected cursor: screens 573/627 to 616/627, RNG 7,078/7,364 to 7,226/7,364, cursors 618/627 to 617/627. The challenge recording and its expected values remain unchanged.",
+    "The correction reapplies the already-reviewed shk.c:shk_move threshold patch from movement commit d07983bb131e56f3c28023417a05f1ab8bee26a4 on a branch rooted at hot delivery 20763e5c8c468f81294b4648414e6ed942b786b0. This candidate tree is identical to movement candidate ed46996e9a3d80d5c70c1d98c1849d8cf264b339; the preserved exact C replay receipt reports all 7,364 RNG calls, 627 screens, 627 cursors, and 21 animation frames matching. The separate movement delivery remains preserved; this correction folds the same source/test changes into the hot-pursuit dependency chain to resolve its cursor regression."
+  ],
+  "correctionReplay": {
+    "commit": "c78575762",
+    "command": "node scripts/diff-fresh.mjs challenges/cases/v52/v52-minetown-unpaid-tool-pickup-attempt12.recipe.session.json",
+    "result": "Fresh C and JavaScript output match through the theft/More/wand boundary. The next RNG mismatch is at segment 1 step 585 in diff-fresh output: C rn2(20)=2 from monmove.c:m_move, JS rn2(5)=2. A direct comparison with the immutable admitted recording maps this to zero-based segment 0 step 584; its next screen mismatch is step 606.",
+    "prefixCommand": "node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json",
+    "prefixResult": "Exit 0: v52/v52-minetown-unpaid-tool-pickup-attempt12 segment 0 through step 583 matched."
+  },
+  "movementCorrectionReplay": {
+    "commit": "d07983bb131e56f3c28023417a05f1ab8bee26a4",
+    "command": "node scripts/diff-fresh.mjs challenges/cases/v52/v52-minetown-unpaid-tool-pickup-attempt12.recipe.session.json",
+    "receipt": "/tmp/teleport-validation-1000/run-Q1Dv13/receipt.json",
+    "result": "Exit 0: C and JavaScript match all 7,364 PRNG calls, 627 screens, 627 cursors, and 21 animation frames.",
+    "prefixCommand": "node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json",
+    "prefixResult": "Exit 0: v52/v52-minetown-unpaid-tool-pickup-attempt12 segment 0 through step 626 matched."
+  },
+  "correctedCandidate": {
+    "base": "20763e5c8c468f81294b4648414e6ed942b786b0",
+    "movementSourceCommit": "e50179139d04270beea49cdf70a75e00fb9783bd",
+    "reusedEquivalentReplayCommit": "ed46996e9a3d80d5c70c1d98c1849d8cf264b339",
+    "result": "Exact source tree matches all 7,364 RNG calls, 627 screens, 627 cursors, and 21 animation frames; Main hosted checkpoint pending.",
+    "candidateTree": "c0b4caf8e2234d98667571ab6be49827fad5a255",
+    "reappliedMovementCommits": [
+      "61339716024aa9b4017a07452ac5916e8352fe0d",
+      "d07983bb131e56f3c28023417a05f1ab8bee26a4",
+      "ed46996e9a3d80d5c70c1d98c1849d8cf264b339"
+    ]
+  }
 }

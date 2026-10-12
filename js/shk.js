@@ -1,12 +1,13 @@
 // Shop admission, entry/departure, pricing, pickup billing, itemized payment,
-// bill-object lifecycle, remembered-price queries, and shopkeeper movement.
+// bill-object lifecycle, remembered-price queries, shopkeeper pursuit, and
+// shopkeeper movement.
 // C refs: shk.c inhishop(), inside_shop(), shop_keeper(), u_entered_shop(),
 // u_left_shop(), call_kops(), makekops(), getprice(), get_cost(),
 // get_cost_of_shop_item(), gem_learned(),
 // append_price_quote(), contained_gold(), check_unpaid(), costly_spot(),
 // shop_object(), shk_owns(), mon_owns(), shk_your(), shk_move(),
 // shk_fixes_damage(), and the end-of-game cleanup chain next_shkp(),
-// rile_shk(), onbill(), clear_unpaid(), clear_no_charge(), setpaid(),
+// rile_shk(), hot_pursuit(), onbill(), clear_unpaid(), clear_no_charge(), setpaid(),
 // inherits() and paybill().
 
 import {
@@ -96,7 +97,8 @@ import { game } from './gstate.js';
 import { getpos } from './getpos.js';
 import { intrinsic_possible } from './eat.js';
 import {
-    dist2, encodeUtf8ByteString, online2, sgn, s_suffix, strncmpi, upstart,
+    dist2, encodeUtf8ByteString, online2, sgn, s_suffix, strncmpi,
+    truncateByteString, upstart,
 } from './hacklib.js';
 import { mattacku } from './mhitu.js';
 import { PM_GRID_BUG } from './monsters.js';
@@ -1009,8 +1011,8 @@ export async function remote_burglary(
         await call_kops(shopkeeper, false, state, { message });
 }
 
-// C ref: shk.c rob_shop() (684-719). hot_pursuit() remains an explicit gap;
-// the robbery chronicle event is retained in pline.c's in-memory owner.
+// C ref: shk.c rob_shop() (684-719). This out-of-scope call site still marks
+// hot_pursuit as a gap; the robbery chronicle event stays in pline.c's owner.
 async function rob_shop(
     shopkeeper,
     state = game,
@@ -3393,7 +3395,9 @@ export async function shk_move(shkp, state, rawEnv = {}) {
             env._shopAvoid = uondoor
                 ? !badinv
                 : Boolean((hero.ushops ?? []).some(Boolean)
-                    && dist2(gtx, gty, hero.ux, hero.uy) > 64);
+                    // C shk.c:4972 compares distu() directly with 8;
+                    // distu() is the squared distance from hack.h:1531.
+                    && dist2(gtx, gty, hero.ux, hero.uy) > 8);
             const gdist = dist2(omx, omy, gtx, gty);
             if (((!eshkp.robbed && !eshkp.billct && !eshkp.debit)
                 || env._shopAvoid) && gdist < 3) {
@@ -3446,6 +3450,20 @@ function rile_shk(shopkeeper) {
             entry.price += Math.trunc((entry.price + 2) / 3);
         }
     }
+}
+
+// C ref: shk.c hot_pursuit() (1449-1469). A theft makes this shopkeeper
+// angry, follows the current player, and clears unowned floor and pet objects.
+export function hot_pursuit(shopkeeper, state = game) {
+    if (!shopkeeper.isshk) return;
+
+    rile_shk(shopkeeper);
+    shopkeeper.mextra.eshk.customer = truncateByteString(
+        state.plname ?? '', PL_NSIZ,
+    );
+    shopkeeper.mextra.eshk.following = true;
+    clear_no_charge(null, state.level?.objlist ?? null, state);
+    clear_no_charge_pets(shopkeeper, state);
 }
 
 // C ref: shk.c next_shkp() (214-231). Walks the monster chain from `shopkeeper`
@@ -3742,7 +3760,7 @@ export async function stolen_value(
                 await ttyNorep('You hear a scream, "Thief!"', state);
             }
         }
-        note_unported('shk.c hot_pursuit');
+        hot_pursuit(shkp, state);
         await angry_guards(false, { state });
     }
     return value;
@@ -3812,8 +3830,7 @@ function clear_no_charge(shopkeeper, list, state) {
 }
 
 // C ref: shk.c clear_no_charge_pets() (389-399). Walks fmon and clears
-// no_charge from the inventories of tame monsters only. hot_pursuit() is not
-// ported, so this helper has no JavaScript caller yet.
+// no_charge from the inventories of tame monsters only.
 export function clear_no_charge_pets(shopkeeper, state = game) {
     for (let mtmp = state.level?.monlist ?? null;
         mtmp;

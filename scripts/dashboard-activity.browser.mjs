@@ -35,6 +35,15 @@ try {
   const parked = page.locator('#remainingWorkDisclosure');
   await parked.locator('summary').first().click();
   const durationChart = page.locator('#integrationDurationChart');
+  const pending = page.locator('#pendingMainWork');
+  const submittedBatches = await page.evaluate(() => DATA.pendingMainWork?.deliveries
+    .filter(row => row.kind === 'challenge-preparation').map(row => row.batch) ?? []);
+  if (submittedBatches.length) {
+    const summary = await pending.innerText();
+    assert.match(summary, /Submitted batches awaiting Main:/u);
+    for (const batch of submittedBatches) assert.ok(summary.includes(batch), 'submitted batch is visible without opening Details: ' + batch);
+  }
+  if (screenshot) await pending.locator('..').screenshot({ path: screenshot.replace(/\.png$/u, '-backlog.png') });
   assert.equal(await page.getByRole('heading', { name: 'Worker timeline', exact: true }).count(), 1);
   const durationCharts = [durationChart];
   for (const group of ['implementation', 'preparation']) {
@@ -68,18 +77,18 @@ try {
         .filter(point => Date.parse(point.end) >= start && Date.parse(point.end) <= end);
       const point = points.filter(point => (DATA.activity.segments[point.sourceIndex].kind === 'challenge-preparation')
         === (group === 'preparation')).at(-1);
-      const width = document.getElementById('integrationDurationChart').getBoundingClientRect().width;
+      const { width, height } = document.getElementById('integrationDurationChart').getBoundingClientRect();
       const max = Math.max(1, ...points.flatMap(row => [row.durationMs, row.rollingMeanMs]).map(ms => ms / 60000));
       const previous = Object.values(mainIntegrationDurations(DATA.activity)).flatMap(rows => {
         const before = rows.filter(row => Date.parse(row.end) < start).at(-1);
         return before ? [before.rollingMeanMs / 60000] : [];
       });
       const ceilingMax = Math.max(max, ...previous);
-      const magnitude = 10 ** Math.floor(Math.log10(ceilingMax / 3));
-      const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= ceilingMax / 3);
-      // Match the canvas's documented plot padding and 180 px fixed frame.
+      const magnitude = 10 ** Math.floor(Math.log10(ceilingMax / 5));
+      const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= ceilingMax / 5);
+      // Match the plot padding; height comes from the actual CSS-sized frame.
       return { x: 44 + (Date.parse(point.end) - start) / (end - start) * (width - 56),
-        y: 152 - point.durationMs / 60000 / (Math.ceil(ceilingMax / step) * step) * 140 };
+        y: height - 28 - point.durationMs / 60000 / (Math.ceil(ceilingMax / step) * step) * (height - 40) };
     }, group);
     await chart.click({ position: clickPosition });
     assert.match(await durationDetails.innerText(), /attempt \d+[\s\S]*Rolling mean/u);
