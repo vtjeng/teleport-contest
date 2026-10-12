@@ -9,8 +9,8 @@
   "recordingSha256": "c20b4bab04de8e63e798f0d8b6f06f7b00852b4bf1e9260c29a50f9d40a5fc72",
   "recipePath": "challenges/cases/v49/v49-apply-book-attempt2.recipe.session.json",
   "recipeSha256": "e1b61fa46efe85245c0d71fd68d09f47c09f4293b5e56cc371b02797897f4381",
-  "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v49.json",
-  "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+  "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v49.json",
+  "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
   "status": "complete",
   "baseCommit": "dfd2b6f5efe0e9f45f857f0483c6c2a0ca04e46a",
   "mismatch": {
@@ -26,19 +26,19 @@
     "recipe": "challenges/cases/v49/v49-apply-book-attempt2.recipe.session.json",
     "recipeSha256": "e1b61fa46efe85245c0d71fd68d09f47c09f4293b5e56cc371b02797897f4381",
     "replayInputSha256": "6aa1f555b81c3cd2deced0110e515fe1e32362703bd844a996120945a0f7d4ed",
-    "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v49.json",
-    "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
-    "evaluationArtifact": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v49.json",
-    "evaluationUtc": "2026-10-12T14:28:48.585Z",
-    "remainingScreens": 1,
+    "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v49.json",
+    "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+    "evaluationArtifact": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v49.json",
+    "evaluationUtc": "2026-10-12T15:12:36.544Z",
+    "remainingScreens": 0,
     "recordedSteps": 10,
     "previousScreensMatched": 9,
     "regression": false,
-    "passed": false,
+    "passed": true,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 9,
+        "matched": 10,
         "total": 10
       },
       "rng": {
@@ -46,7 +46,7 @@
         "total": 2737
       },
       "cursors": {
-        "matched": 9,
+        "matched": 10,
         "total": 10
       }
     },
@@ -159,7 +159,27 @@
     "entryPoint": "#apply -> apply.c:doapply -> getobj suggested inventory menu"
   },
   "goalKind": "divergence-fix",
-  "commit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
-  "remainingScreens": 1,
-  "recordedSteps": 10
+  "commit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+  "remainingScreens": 0,
+  "recordedSteps": 10,
+  "runtimeVerification": {
+    "commit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+    "casePassed": true,
+    "metrics": {
+      "screens": {
+        "matched": 10,
+        "total": 10
+      },
+      "rng": {
+        "matched": 2737,
+        "total": 2737
+      },
+      "cursors": {
+        "matched": 10,
+        "total": 10
+      }
+    },
+    "source": "apply.c:doapply -> invent.c:getobj suggested inventory Escape boundary",
+    "evidence": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v49.json"
+  }
 }

@@ -288409,7 +288409,7 @@
     {
       "id": "div-getobj-menu-escape-v49-20261012",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve Escape and empty Enter from inventory menus",
       "cFile": "invent.c",
       "sessions": [],
@@ -288421,8 +288421,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "getobj",
       "session": "synthetic/v49/v49-apply-book-attempt2",
       "step": 9,
@@ -288705,7 +288708,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
