@@ -34,5 +34,48 @@
     "Upstream nethack-c/upstream/src/muse.c:2519-2539 handles MUSE_POLY_TRAP, conditionally calls seetrap(t), then emits the visible message and moves the monster onto the trap. Upstream trap.c:3578-3584 sets tseen and calls newsym when the trap was previously unseen.",
     "JS js/muse.js:1607-1615 has the matching branch but calls seetrap(t, state). JS js/trap_effects.js:503-511 requires env.redraw before checking tseen, then updates tseen and invokes that callback. js/muse.js already imports the canonical newsym display operation.",
     "After the redraw-owner defect is repaired, the branch still contains the explicit note_unported('mon.c newcham') call. That later behavior is outside this diagnosis and must not be represented as fixed by this task."
-  ]
+  ],
+  "scorerComparison": {
+    "scorer": "scripts/score-challenges.mjs replayChallengeCases with the admitted v52 case only",
+    "recordingSha256": "f1d8d97afe139fee3f04e2c5e637dfae60b8e3d87f6cc5e165dc83ee51739f4e",
+    "before": {
+      "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+      "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+      "metrics": {
+        "screens": {
+          "matched": 0,
+          "total": 190
+        },
+        "rng": {
+          "matched": 0,
+          "total": 2726
+        },
+        "cursors": {
+          "matched": 0,
+          "total": 190
+        }
+      },
+      "error": "a trap effect requires the redraw owner"
+    },
+    "after": {
+      "commit": "7e243d7c86f8a4ec52790acfc00d0baa27cdc00f",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 107,
+          "total": 190
+        },
+        "rng": {
+          "matched": 2612,
+          "total": 2726
+        },
+        "cursors": {
+          "matched": 188,
+          "total": 190
+        }
+      },
+      "error": null
+    },
+    "result": "The redraw-owner runner error is removed. The later ordinary mismatch remains at step 107 in mon.c:select_newcham_form, outside this bounded task."
+  }
 }
