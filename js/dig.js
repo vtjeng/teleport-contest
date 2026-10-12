@@ -52,6 +52,7 @@ import {
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    EXPL_MAGICAL,
     N_DIRS,
     FOOT,
     NO_PART,
@@ -107,6 +108,7 @@ import {
     SDOOR,
     SHOPBASE,
     STONE,
+    TRAP_EXPLODE,
     TT_BURIEDBALL,
     TT_INFLOOR,
     A_NONE,
@@ -1655,7 +1657,12 @@ export async function dighole(
             state, rawEnv,
         );
     } else if (trap && is_magical_trap(trap.ttyp)) {
-        note_unported('explode.c explode');
+        const damage = 20 + random.d(3, 6);
+        const { explode } = await import('./explode.js');
+        await explode(
+            x, y, 0, damage, TRAP_EXPLODE, EXPL_MAGICAL, state,
+            { ...rawEnv, random, message },
+        );
         await deltrap(trap, state);
         newsym(x, y, state);
     } else if (is_pool_or_lava(x, y, state)) {

@@ -508,6 +508,26 @@ test('dighole returns the drawbridge refusal after source-ordered spot checks', 
     assert.deepEqual(effects, ['time-left', 'stop-timer', 'ice-effects']);
 });
 
+test('dighole runs magical-trap explosions before deleting and redrawing the trap', () => {
+    const cSource = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
+    const jsSource = readFileSync('js/dig.js', 'utf8');
+    const cStart = cSource.indexOf('\ndighole(boolean pit_only');
+    const cEnd = cSource.indexOf('\nstaticfn void\ndig_up_grave', cStart);
+    const jsStart = jsSource.indexOf('export async function dighole(');
+    const jsEnd = jsSource.indexOf('\n// C ref: dig.c adj_pit_checks()', jsStart);
+    assert.ok(cStart >= 0 && cEnd > cStart, 'C dighole definition');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart, 'JavaScript dighole definition');
+
+    const cDig = cSource.slice(cStart, cEnd);
+    const jsDig = jsSource.slice(jsStart, jsEnd);
+    assert.match(cDig,
+        /explode\(dig_x,\s*dig_y,\s*0,\s*20\s*\+\s*d\(3,\s*6\),\s*TRAP_EXPLODE,\s*EXPL_MAGICAL\);\s*deltrap\(ttmp\);\s*newsym\(dig_x,\s*dig_y\);/u);
+    assert.match(jsDig,
+        /const damage = 20 \+ random\.d\(3, 6\);\s*const \{ explode \} = await import\('\.\/explode\.js'\);\s*await explode\(\s*x, y, 0, damage, TRAP_EXPLODE, EXPL_MAGICAL, state,/u);
+    assert.match(jsDig,
+        /\{ \.\.\.rawEnv, random, message \},\s*\);\s*await deltrap\(trap, state\);\s*newsym\(x, y, state\);/u);
+});
+
 test('adj_pit_checks reports hard foundations and supporting structures', () => {
     const state = digState();
     state.u = { uz: { dnum: 0, dlevel: 1 } };
