@@ -35,37 +35,50 @@ try {
   const parked = page.locator('#remainingWorkDisclosure');
   await parked.locator('summary').first().click();
   const durationChart = page.locator('#integrationDurationChart');
-  const durationDetails = page.locator('#integrationDurationReadout');
-  await durationChart.scrollIntoViewIfNeeded();
-  await durationChart.focus();
-  const durationFrame = await durationChart.boundingBox(), durationScroll = await page.evaluate(() => scrollY);
-  await durationChart.press('End');
-  const selectedDuration = await durationDetails.innerText();
-  assert.match(selectedDuration, /attempt \d+[\s\S]*Rolling mean/u);
-  await durationChart.hover({ position: { x: 80, y: 60 } });
-  assert.equal(await durationDetails.innerText(), selectedDuration, 'hover must preserve a selected duration');
-  await durationChart.press('ArrowLeft');
-  assert.notEqual(await durationDetails.innerText(), selectedDuration, 'keyboard selection moves to the previous attempt');
-  assert.deepEqual(await durationChart.boundingBox(), durationFrame, 'duration selection must not move or resize the plot');
-  assert.equal(await page.evaluate(() => scrollY), durationScroll, 'duration selection must not move the page');
-  assert.ok(await durationChart.evaluate(element => document.activeElement === element));
-  await durationChart.press('Escape');
-  const clickPosition = await page.evaluate(() => {
-    const end = Date.parse(DATA.activity.capturedAt), start = end - 6 * 3600000;
-    const points = mainIntegrationDurations(DATA.activity).filter(point => Date.parse(point.end) >= start && Date.parse(point.end) <= end);
-    const point = points.at(-1), width = document.getElementById('integrationDurationChart').getBoundingClientRect().width;
-    const max = Math.max(1, ...points.flatMap(row => [row.durationMs, row.rollingMeanMs]).map(ms => ms / 60000));
-    const magnitude = 10 ** Math.floor(Math.log10(max / 3));
-    const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= max / 3);
-    // Match the canvas's documented plot padding and 180 px fixed frame.
-    return { x: 44 + (Date.parse(point.end) - start) / (end - start) * (width - 56),
-      y: 152 - point.durationMs / 60000 / (Math.ceil(max / step) * step) * 140 };
-  });
-  await durationChart.click({ position: clickPosition });
-  assert.match(await durationDetails.innerText(), /attempt \d+[\s\S]*Rolling mean/u);
-  assert.deepEqual(await durationChart.boundingBox(), durationFrame);
-  assert.equal(await page.evaluate(() => scrollY), durationScroll);
-  if (screenshot) await durationChart.locator('..').screenshot({ path: screenshot.replace(/\.png$/u, '-integration.png') });
+  const prepDurationChart = page.locator('#prepIntegrationDurationChart');
+  const durationCharts = [durationChart, prepDurationChart];
+  for (const [group, prefix] of [['implementation', 'integrationDuration'], ['preparation', 'prepIntegrationDuration']]) {
+    const chart = page.locator('#' + prefix + 'Chart');
+    const durationDetails = page.locator('#' + prefix + 'Readout');
+    const visibleCount = await page.evaluate(group => {
+      const end = Math.min(Date.parse(DATA.activity.capturedAt),
+        Math.max(...DATA.activity.segments.map(segment => Date.parse(segment.end))));
+      return mainIntegrationDurations(DATA.activity)[group]
+        .filter(point => Date.parse(point.end) >= end - 6 * 3600000 && Date.parse(point.end) <= end).length;
+    }, group);
+    if (!visibleCount) continue;
+    await chart.scrollIntoViewIfNeeded();
+    await chart.focus();
+    const durationFrame = await chart.boundingBox(), durationScroll = await page.evaluate(() => scrollY);
+    await chart.press('End');
+    const selectedDuration = await durationDetails.innerText();
+    assert.match(selectedDuration, /attempt \d+[\s\S]*Rolling mean/u);
+    await chart.hover({ position: { x: 80, y: 60 } });
+    assert.equal(await durationDetails.innerText(), selectedDuration, 'hover must preserve a selected duration');
+    await chart.press('ArrowLeft');
+    if (visibleCount > 1) assert.notEqual(await durationDetails.innerText(), selectedDuration, 'keyboard selection moves to the previous attempt');
+    assert.deepEqual(await chart.boundingBox(), durationFrame, 'duration selection must not move or resize the plot');
+    assert.equal(await page.evaluate(() => scrollY), durationScroll, 'duration selection must not move the page');
+    assert.ok(await chart.evaluate(element => document.activeElement === element));
+    await chart.press('Escape');
+    const clickPosition = await page.evaluate(({ group, prefix }) => {
+      const end = Math.min(Date.parse(DATA.activity.capturedAt),
+        Math.max(...DATA.activity.segments.map(segment => Date.parse(segment.end)))), start = end - 6 * 3600000;
+      const points = mainIntegrationDurations(DATA.activity)[group].filter(point => Date.parse(point.end) >= start && Date.parse(point.end) <= end);
+      const point = points.at(-1), width = document.getElementById(prefix + 'Chart').getBoundingClientRect().width;
+      const max = Math.max(1, ...points.flatMap(row => [row.durationMs, row.rollingMeanMs]).map(ms => ms / 60000));
+      const magnitude = 10 ** Math.floor(Math.log10(max / 3));
+      const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= max / 3);
+      // Match the canvas's documented plot padding and 180 px fixed frame.
+      return { x: 44 + (Date.parse(point.end) - start) / (end - start) * (width - 56),
+        y: 152 - point.durationMs / 60000 / (Math.ceil(max / step) * step) * 140 };
+    }, { group, prefix });
+    await chart.click({ position: clickPosition });
+    assert.match(await durationDetails.innerText(), /attempt \d+[\s\S]*Rolling mean/u);
+    assert.deepEqual(await chart.boundingBox(), durationFrame);
+    assert.equal(await page.evaluate(() => scrollY), durationScroll);
+    if (screenshot) await chart.locator('..').screenshot({ path: screenshot.replace(/\.png$/u, '-' + group + '-integration.png') });
+  }
   console.log('Integration duration: pointer and keyboard selection, pinned hover, stable frame and scroll passed.');
   assert.doesNotMatch(await parked.innerText(), /Unverified functions|Remaining source work/u);
   await parked.locator('summary').first().click();
@@ -143,15 +156,20 @@ try {
       scroll: element.scrollWidth, client: element.clientWidth,
     }));
     assert.ok(size.scroll <= size.client, JSON.stringify({ width, ...size }));
-    const frame = await durationChart.boundingBox();
+    const frames = await Promise.all(durationCharts.map(chart => chart.boundingBox()));
     for (const hours of ['6', '24', '168']) {
       await page.locator('#activityWindow').selectOption(hours);
-      assert.deepEqual(await durationChart.boundingBox(), frame,
-        'changing the time window must preserve the duration plot frame');
+      for (let index = 0; index < durationCharts.length; index++) {
+        assert.deepEqual(await durationCharts[index].boundingBox(), frames[index],
+          'changing the time window must preserve both duration plot frames');
+      }
     }
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
       'the duration summary and readout must not overflow a narrow viewport');
-    if (width === 390 && screenshot) await durationChart.locator('..').screenshot({ path: screenshot.replace(/\.png$/u, '-integration-mobile.png') });
+    if (width === 390 && screenshot) {
+      for (const [index, chart] of durationCharts.entries()) await chart.locator('..')
+        .screenshot({ path: screenshot.replace(/\.png$/u, '-integration-' + index + '-mobile.png') });
+    }
   }
   await page.setViewportSize({ width: 1440, height: 1200 });
   await page.locator('#activityWindow').selectOption('6');
@@ -163,7 +181,7 @@ try {
   assert.deepEqual(errors, []);
   if (screenshot) await page.getByRole('heading', { name: 'Worker activity', exact: true }).locator('..').screenshot({ path: screenshot });
   const originalData = await page.evaluate('DATA');
-  const emptyFrame = await durationChart.boundingBox();
+  const emptyFrames = await Promise.all(durationCharts.map(chart => chart.boundingBox()));
   // The chart must retain its frame when no duration is measurable, including
   // a real open stage whose snapshot endpoint is not a completion event.
   const capturedAt = originalData.activity.capturedAt;
@@ -177,8 +195,11 @@ try {
       + ';\n' + originalHTML.slice(end + 1);
     await page.route(url, route => route.fulfill({ contentType: 'text/html', body: html }));
     await page.reload();
-    assert.match(await page.locator('#integrationDurationSummary').innerText(), /No completed attempts/u);
-    assert.deepEqual(await durationChart.boundingBox(), emptyFrame, 'empty/open-only data must retain the plot frame');
+    for (const [index, prefix] of ['integrationDuration', 'prepIntegrationDuration'].entries()) {
+      assert.match(await page.locator('#' + prefix + 'Summary').innerText(), /No completed attempts/u);
+      assert.deepEqual(await durationCharts[index].boundingBox(), emptyFrames[index],
+        'empty/open-only data must retain both plot frames');
+    }
   }
   assert.deepEqual(errors, []);
   console.log('Activity selection, hover, keyboard, time range, batch labels and responsive percentages passed.');

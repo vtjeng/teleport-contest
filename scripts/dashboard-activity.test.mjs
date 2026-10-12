@@ -15,11 +15,11 @@ test('integration timing retains retries and outliers but excludes open and unkn
     row('open', 740, 750, { ongoing: true }), row('unknown', 750, 750, { durationUnknown: true }),
     row('other', 760, 765, { phase: 'acceptance' }), row('invalid', 780, 770),
     row('missing-end', 790, 790, { superseded: true })] };
-  const points = mainIntegrationDurations(activity);
+  const points = mainIntegrationDurations(activity).implementation;
   assert.deepEqual(points.map(point => point.durationMs / 60000), [5, 10, 720]);
   assert.deepEqual(points.map(point => point.attempt), [1, 2, 1]);
   assert.equal(points[1].rollingMeanMs / 60000, 7.5, 'early means use the two available samples');
-  assert.deepEqual(mainIntegrationDurations({ segments: [] }), []);
+  assert.deepEqual(mainIntegrationDurations({ segments: [] }), { implementation: [], preparation: [] });
 });
 
 test('integration rolling mean uses the last ten complete attempts before the visible window', () => {
@@ -27,11 +27,29 @@ test('integration rolling mean uses the last ten complete attempts before the vi
   const segments = Array.from({ length: 11 }, (_, index) => ({ task: `task-${index}`, lane: 'Main',
     phase: 'integrating', start: new Date(index * 3600000).toISOString(),
     end: new Date(index * 3600000 + (index + 1) * 60000).toISOString() }));
-  const points = mainIntegrationDurations({ segments: [...segments].reverse() });
+  const points = mainIntegrationDurations({ segments: [...segments].reverse() }).implementation;
   assert.equal(points.at(-1).sampleSize, 10);
   assert.equal(points.at(-1).rollingMeanMs / 60000, 6.5, 'mean of durations 2 through 11');
   assert.equal(points.at(-1).durationMs / 60000, 11, 'display filtering never clips a stage duration');
   assert.equal(points.at(-1).sourceIndex, 0, 'point selection retains the original history index');
+});
+
+test('Prep and implementation integration have independent rolling means and sample counts', () => {
+  const at = minute => new Date(minute * 60000).toISOString();
+  const row = (task, start, end, kind) => ({ task, kind, lane: 'Main', phase: 'integrating',
+    start: at(start), end: at(end) });
+  // Interleave short implementation attempts with much longer Prep attempts.
+  const result = mainIntegrationDurations({ segments: [
+    row('A1', 0, 5, 'implementation'), row('Prep1', 5, 105, 'challenge-preparation'),
+    row('A1', 105, 120, 'implementation'), row('Prep1', 120, 320, 'challenge-preparation'),
+  ] });
+  assert.deepEqual(result.implementation.map(point => point.rollingMeanMs / 60000), [5, 10]);
+  assert.deepEqual(result.preparation.map(point => point.rollingMeanMs / 60000), [100, 150]);
+  for (const points of Object.values(result)) {
+    assert.deepEqual(points.map(point => point.sampleSize), [1, 2]);
+    assert.deepEqual(points.map(point => point.attempt), [1, 2]);
+  }
+  assert.deepEqual(result.preparation.map(point => point.sourceIndex), [1, 3]);
 });
 
 test('utilization pools clipped agent-stage time and keeps idle, blocked and unknown distinct', () => {

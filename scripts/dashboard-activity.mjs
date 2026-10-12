@@ -254,19 +254,23 @@ export function mainIntegrationDurations(activity) {
       && Number.isFinite(Date.parse(segment.start)) && Number.isFinite(Date.parse(segment.end))
       && Date.parse(segment.end) >= Date.parse(segment.start))
     .sort((a, b) => Date.parse(a.segment.end) - Date.parse(b.segment.end) || a.sourceIndex - b.sourceIndex);
-  const attempts = new Map();
-  const recent = [];
-  let sum = 0;
-  return points.map(({ segment, sourceIndex }) => {
-    const durationMs = Date.parse(segment.end) - Date.parse(segment.start);
-    const attempt = (attempts.get(segment.task) ?? 0) + 1;
-    attempts.set(segment.task, attempt);
-    recent.push(durationMs);
-    sum += durationMs;
-    if (recent.length > windowSize) sum -= recent.shift();
-    return { sourceIndex, task: segment.task, start: segment.start, end: segment.end,
-      durationMs, attempt, rollingMeanMs: sum / recent.length, sampleSize: recent.length };
-  });
+  return Object.fromEntries(['implementation', 'preparation'].map(group => {
+    const attempts = new Map();
+    const recent = [];
+    let sum = 0;
+    const grouped = points.filter(({ segment }) =>
+      (segment.kind === 'challenge-preparation') === (group === 'preparation'));
+    return [group, grouped.map(({ segment, sourceIndex }) => {
+      const durationMs = Date.parse(segment.end) - Date.parse(segment.start);
+      const attempt = (attempts.get(segment.task) ?? 0) + 1;
+      attempts.set(segment.task, attempt);
+      recent.push(durationMs);
+      sum += durationMs;
+      if (recent.length > windowSize) sum -= recent.shift();
+      return { sourceIndex, task: segment.task, start: segment.start, end: segment.end,
+        durationMs, attempt, rollingMeanMs: sum / recent.length, sampleSize: recent.length };
+    })];
+  }));
 }
 
 // One row represents each agent's current stage. Delivery queue intervals are

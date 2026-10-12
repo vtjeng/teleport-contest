@@ -209,9 +209,39 @@ function sourceDashboardData(workGoals = []) {
 
 test('missing integration history is unavailable, not a zero-time average', () => {
     const rendered = renderDashboard(sourceDashboardData());
-    assert.equal(rendered.get('integrationDurationSummary').textContent, 'No completed attempts');
-    assert.match(rendered.get('integrationDurationReadout').textContent, /unavailable/u);
-    assert.doesNotMatch(rendered.get('integrationDurationSummary').textContent, /0\.0 min/u);
+    for (const prefix of ['integrationDuration', 'prepIntegrationDuration']) {
+        assert.equal(rendered.get(prefix + 'Summary').textContent, 'No completed attempts');
+        assert.match(rendered.get(prefix + 'Readout').textContent, /unavailable/u);
+        assert.doesNotMatch(rendered.get(prefix + 'Summary').textContent, /0\.0 min/u);
+    }
+});
+
+test('separate integration plots show only their own attempts and pin the original task', () => {
+    const data = sourceDashboardData();
+    const at = minute => new Date(Date.UTC(2026, 9, 12, 10) + minute * 60000).toISOString();
+    const row = (task, kind, start, end) => ({ task, kind, lane: 'Main', phase: 'integrating',
+        start: at(start), end: at(end) });
+    data.activity = { capturedAt: at(150), segments: [
+        row('A1', 'implementation', 0, 5), row('Prep1', 'challenge-preparation', 5, 105),
+        row('A2', 'implementation', 105, 120),
+    ], tasks: ['A1', 'Prep1', 'A2'].map(id => ({ id, label: id, worker: id === 'Prep1' ? 'Prep' : 'A',
+        assignedAt: at(0), status: 'integrating' })) };
+    const rendered = renderDashboard(data);
+    assert.equal(rendered.get('integrationDurationSummary').textContent, 'Window mean 10.0 min · 2 attempts');
+    assert.equal(rendered.get('prepIntegrationDurationSummary').textContent, 'Window mean 100.0 min · 1 attempt');
+    const prep = rendered.get('prepIntegrationDurationChart');
+    prep.listeners.keydown[0]({ key: 'End', preventDefault() {} });
+    const selected = rendered.get('prepIntegrationDurationReadout').innerHTML;
+    assert.match(selected, /Prep1[\s\S]*100\.0 min[\s\S]*Rolling mean 100\.0 min \(1 attempt\)/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /Prep1/u);
+    rendered.get('integrationDurationChart').listeners.pointermove[0]({ clientX: 950, clientY: 82 });
+    assert.equal(rendered.get('prepIntegrationDurationReadout').innerHTML, selected,
+        'hovering the other plot cannot replace the pinned Prep attempt');
+    assert.doesNotMatch(rendered.get('integrationDurationReadout').innerHTML, /Prep1/u);
+    rendered.get('integrationDurationChart').listeners.keydown[0]({ key: 'End', preventDefault() {} });
+    assert.match(rendered.get('integrationDurationReadout').innerHTML, /A2[\s\S]*Rolling mean 10\.0 min \(2 attempts\)/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /A2/u);
+    assert.doesNotMatch(rendered.get('prepIntegrationDurationReadout').innerHTML, /A2/u);
 });
 
 test('score cards share one format and show commit ages without hashes', () => {
