@@ -293914,6 +293914,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-v53-untended-temple-ghost-creation-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement intemple from priest.c",
+      "cFile": "priest.c",
+      "sessions": [
+        "synthetic/v53/v53-crown-priest-auto-leader-adjust-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "intemple",
+      "session": "synthetic/v53/v53-crown-priest-auto-leader-adjust-action3"
     }
   ]
 }
