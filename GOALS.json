@@ -292685,6 +292685,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "A2-fix-shk-minetown-room-index-v52-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement inside_shop, deserted_shop, u_entered_shop, shop_keeper from shk.c",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "inside_shop",
+      "session": "synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12"
     }
   ]
 }
