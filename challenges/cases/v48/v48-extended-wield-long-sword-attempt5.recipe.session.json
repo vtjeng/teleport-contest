@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction using the observed wish-created long sword slot n from attempt4; selects n under #wield to reach the actual weapon-switch result.",
+  "segments": [
+    {
+      "seed": 48072010,
+      "datetime": "20571023110830",
+      "nethackrc": "OPTIONS=name:V48ExtendedWield5,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nlong sword\n#wield\nn"
+    }
+  ]
+}

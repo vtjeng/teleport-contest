@@ -147,9 +147,8 @@ function renderDashboard(data, queue = null) {
         return elements.get(id);
     };
     const template = readFileSync(TEMPLATE, 'utf8');
-    const source = template.match(/<script>([\s\S]*?)<\/script>/u)[1]
-        .replace('/*DATA_PLACEHOLDER*/null', JSON.stringify(data))
-        .replace('/*QUEUE_PLACEHOLDER*/null', JSON.stringify(queue));
+    const source = injectDashboardData(template, JSON.stringify(data), JSON.stringify(queue))
+        .match(/<script>([\s\S]*?)<\/script>/u)[1];
     const document = {
         documentElement: {},
         getElementById: element,
@@ -569,7 +568,7 @@ test('one sessions table includes both sets with exact scores and distinct misma
     assert.doesNotMatch(table.innerHTML, /✅ Matched|🔧 Remaining/u);
 });
 
-test('activity distinguishes pending deliveries from reported waits and preserves queue metrics', () => {
+test('activity distinguishes pending deliveries from reported waits and shows utilization instead of pills', () => {
     const data = sourceDashboardData();
     const at = time => `2026-09-25T${time}:00Z`;
     const events = [
@@ -589,7 +588,8 @@ test('activity distinguishes pending deliveries from reported waits and preserve
     }));
     data.activity = activityTimeline({ runId: 'loop-20260925', events }, at('11:15'));
     const rendered = renderDashboard(data);
-    assert.match(rendered.get('activityMetrics').innerHTML, /Ready → integration[\s\S]*30m[\s\S]*2 completed queue intervals/u);
+    assert.match(rendered.get('activityMetrics').innerHTML, /A\/B\/C[\s\S]*Prep[\s\S]*Main/u);
+    assert.doesNotMatch(rendered.get('activityMetrics').innerHTML, /Ready → integration|activity-metric|Longest block/u);
     assert.match(rendered.get('timeline').innerHTML, /activity-row main/u);
     // Only the recorded workers A and B, plus Main, need lanes.
     assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 3);
@@ -631,10 +631,13 @@ test('activity distinguishes pending deliveries from reported waits and preserve
     assert.equal(timeline.innerHTML, beforeSelection.plot);
     assert.match(rendered.get('timelineReadout').innerHTML, /aria-current="step"[^>]*>B · Assigned task/u);
     const shortWindow = rendered.get('activityWindowLabel').textContent;
+    const shortUtilization = rendered.get('activityMetrics').innerHTML;
     timeline.listeners.pointerdown[0]({ button: 0, clientX: 0, pointerId: 1, target: timeline });
     timeline.listeners.pointermove[0]({ clientX: 700, pointerId: 1 });
     timeline.listeners.pointerup[0]({ pointerId: 1 });
     assert.notEqual(rendered.get('activityWindowLabel').textContent, shortWindow);
+    assert.notEqual(rendered.get('activityMetrics').innerHTML, shortUtilization,
+        'percentage shares follow the panned window, not whole-history stage durations');
     assert.match(rendered.get('timeline').innerHTML, /B0/u);
     assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 3);
     rendered.get('activityLatest').listeners.click[0]();
@@ -650,7 +653,7 @@ test('activity view labels preparation and escapes public wait reasons', () => {
     // One preparation task supplies all new coordinator phases in a short window.
     const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
     data.activity = activityTimeline({ events: [
-        { type: 'assign', task: 'P1', worker: 'Prep', kind: 'challenge-preparation', at: at(0) },
+        { type: 'assign', task: 'P1', worker: 'Prep', kind: 'challenge-preparation', batch: 'v40', at: at(0) },
         { type: 'ready', task: 'P1', at: at(5) },
         { type: 'activity', task: 'P1', phase: 'review', reason: 'Check C witnesses.', at: at(6) },
         { type: 'integrating', task: 'P1', at: at(8) },
@@ -667,7 +670,12 @@ test('activity view labels preparation and escapes public wait reasons', () => {
         assert.match(html, new RegExp(`phase-${phase}`, 'u'));
     assert.match(html, /activity-label">Prep/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Await main &lt;admission&gt;/u);
-    assert.match(rendered.get('activityMetrics').innerHTML, /Longest block \/ parked task[\s\S]*Await main &lt;admission&gt;/u);
+    assert.match(rendered.get('activityMetrics').innerHTML, /Prep[\s\S]*25%[\s\S]*40%/u);
+    const index = data.activity.stages.findIndex(row => row.task === 'P1' && row.phase === 'admission');
+    rendered.get('timeline').listeners.click[0]({ target: { classList: { contains: value => value === 'activity-bar' },
+        dataset: { segment: String(index) } } });
+    assert.match(rendered.get('timelineReadout').innerHTML, /<dt>Batch<\/dt><dd>Synthetic local holdout v40<\/dd>/u);
+    assert.match(html, /Batch admission for P1 · v40/u);
 });
 
 test('activity keeps selected-stage details without a separate Inspect list', () => {

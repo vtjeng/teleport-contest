@@ -279701,7 +279701,7 @@
     {
       "id": "port-dungeon-rm-mapseen-v47-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port dungeon.c rm_mapseen and wire its replacement-level caller.",
       "cFile": "dungeon.c",
       "sessions": [
@@ -279715,8 +279715,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bbed9236788ed585d4a6bfe887bb307954dff29d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "rm_mapseen",
@@ -280043,6 +280046,820 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "bbed9236788ed585d4a6bfe887bb307954dff29d",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-elec-zap-destroy-items-v47-20261012",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port electric attack damage and source item destruction behavior across hero, monster, and monster-to-monster callers.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v47/v47-poly-energy-vortex-engulf-drain-attempt10"
+      ],
+      "selectionReason": "Required returned-value dependency for the parked v47 polymorph energy-vortex investigation, selected to unblock that active source task.",
+      "detail": "uhitm.c mhitm_ad_elec dispatches AD_ELEC for damageum, hitmu, and mdamagem and consumes zap.c destroy_items in two arms; zap.c maybe_destroy_item and destroy_items form the complete required return-value dependency. Independent recordings cover all three attack directions and the active zhitu inventory-destruction caller.",
+      "openedAt": "24ebe08983dfc4064c5b40b9515faf645e75df61",
+      "openStanding": {
+        "sha": "bbed9236788ed585d4a6bfe887bb307954dff29d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "68a1a9f049a7f9efce0a5f9e92e506b68e9bc8f2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mhitm_ad_elec",
+          "line": 2684,
+          "endLine": 2741,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2684,
+        "to": 2741
+      },
+      "requiredFunctions": [
+        {
+          "name": "maybe_destroy_item",
+          "line": 5798,
+          "endLine": 5964,
+          "declared": true,
+          "sourceFile": "zap.c",
+          "complete": true
+        },
+        {
+          "name": "destroy_items",
+          "line": 5965,
+          "endLine": 6099,
+          "declared": true,
+          "sourceFile": "zap.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v47/v47-poly-energy-vortex-engulf-drain-attempt10": {
+          "session": "synthetic/v47/v47-poly-energy-vortex-engulf-drain-attempt10",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-poly-energy-vortex-engulf-drain-attempt10",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json",
+          "recordingSha256": "2090d05e3e3a8d98b6aa17a8f06df4cf7ca8ea5cccd480e9411adb66f5d03164",
+          "evaluationPath": "challenges/evaluations/accepted-bbed9236788ed585d4a6bfe887bb307954dff29d-v47.json",
+          "evaluationCommit": "bbed9236788ed585d4a6bfe887bb307954dff29d"
+        }
+      },
+      "activeStanding": {
+        "sha": "bbed9236788ed585d4a6bfe887bb307954dff29d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-poly-energy-vortex-engulf-drain-attempt10",
+          "session": "synthetic/v47/v47-poly-energy-vortex-engulf-drain-attempt10",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json",
+          "recordingPath": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json",
+          "recordingSha256": "2090d05e3e3a8d98b6aa17a8f06df4cf7ca8ea5cccd480e9411adb66f5d03164",
+          "recipe": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.recipe.session.json",
+          "recipeSha256": "2f484021abd59b38dc54194bc534b156d8139ca6e16780cedf5929a4d3dcae8a",
+          "replayInputSha256": "a1bd9cba620d1524732895cee6d2ff7000488d6f5ad644375a5bf901952930a7",
+          "evaluationPath": "challenges/evaluations/accepted-bbed9236788ed585d4a6bfe887bb307954dff29d-v47.json",
+          "evaluationCommit": "bbed9236788ed585d4a6bfe887bb307954dff29d",
+          "evaluationArtifact": "challenges/evaluations/accepted-bbed9236788ed585d4a6bfe887bb307954dff29d-v47.json",
+          "evaluationUtc": "2026-10-12T01:53:40.971Z",
+          "remainingScreens": 7,
+          "recordedSteps": 92,
+          "previousScreensMatched": 85,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 85,
+              "total": 92
+            },
+            "rng": {
+              "matched": 2794,
+              "total": 2873
+            },
+            "cursors": {
+              "matched": 89,
+              "total": 92
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 76,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": "b"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 47,
+              "cCell": {
+                "ch": "I",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2791,
+              "cEntry": "d(2,2)=3",
+              "cCaller": "xdrainenergym(mhitm.c:1466)",
+              "jsEntry": "rn2(3)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": "b"
+              },
+              "stepIndex": 76
+            },
+            "cursor": {
+              "index": 76,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": "b"
+              },
+              "cCursor": [
+                74,
+                0,
+                1
+              ],
+              "jsCursor": [
+                29,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 76,
+          "kind": "rng",
+          "sourceFile": "mhitm.c",
+          "function": "xdrainenergym",
+          "message": null,
+          "cFile": "mhitm.c",
+          "luaFile": null,
+          "line": 1466,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-poly-energy-vortex-engulf-drain-attempt10.json",
+            "result": {
+              "session": "synthetic/v47/v47-poly-energy-vortex-engulf-drain-attempt10",
+              "remainingScreens": 7,
+              "recordedSteps": 92,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-poly-energy-vortex-engulf-drain-attempt10",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingSha256": "2090d05e3e3a8d98b6aa17a8f06df4cf7ca8ea5cccd480e9411adb66f5d03164",
+              "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+              "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+              "status": "complete",
+              "commit": "3999fd2ffbccd412c3be39dc8b69bf2a0c88df16",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-poly-energy-vortex-engulf-drain-attempt10",
+                "session": "synthetic/v47/v47-poly-energy-vortex-engulf-drain-attempt10",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json",
+                "recordingPath": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json",
+                "recordingSha256": "2090d05e3e3a8d98b6aa17a8f06df4cf7ca8ea5cccd480e9411adb66f5d03164",
+                "recipe": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.recipe.session.json",
+                "recipeSha256": "2f484021abd59b38dc54194bc534b156d8139ca6e16780cedf5929a4d3dcae8a",
+                "replayInputSha256": "dd167ef0e545116c8a08718e3dc9a599bbdcde111b32dbc5275ec1330a43135d",
+                "evaluationPath": "challenges/evaluations/accepted-47ce6cdb703dac648a39587abe9512daf2ee2e50-v47.json",
+                "evaluationCommit": "47ce6cdb703dac648a39587abe9512daf2ee2e50",
+                "evaluationArtifact": "challenges/evaluations/accepted-47ce6cdb703dac648a39587abe9512daf2ee2e50-v47.json",
+                "evaluationUtc": "2026-10-11T21:59:47.436Z",
+                "remainingScreens": 7,
+                "recordedSteps": 92,
+                "previousScreensMatched": 85,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 85,
+                    "total": 92
+                  },
+                  "rng": {
+                    "matched": 2794,
+                    "total": 2873
+                  },
+                  "cursors": {
+                    "matched": 89,
+                    "total": 92
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 76,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 76,
+                      "key": "b"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 47,
+                    "cCell": {
+                      "ch": "I",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2791,
+                    "cEntry": "d(2,2)=3",
+                    "cCaller": "xdrainenergym(mhitm.c:1466)",
+                    "jsEntry": "rn2(3)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 76,
+                      "key": "b"
+                    },
+                    "stepIndex": 76
+                  },
+                  "cursor": {
+                    "index": 76,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 76,
+                      "key": "b"
+                    },
+                    "cCursor": [
+                      74,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      29,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 76,
+                "kind": "rng",
+                "sourceFile": "mhitm.c",
+                "function": "xdrainenergym",
+                "message": null,
+                "cFile": "mhitm.c",
+                "luaFile": null,
+                "line": 1466
+              },
+              "summary": "At segment 0 step 76, a polymorphed hero energy vortex engulfs the kobold shaman. C passes the successful AD_DREN roll from uhitm.c:gulpum() to mhitm.c:xdrainenergym(), which sees the target has an AT_MAGC attack and mspec_used below 20, adds d(2,2), and prints the lethargy message. JavaScript still skips that C helper. The complete direct-caller set also includes uhitm.c:mhitm_ad_dren(), reached through the AD_DREN arm of uhitm.c:mhitm_adtyping(); B accepted the earlier reservation, so this caller can now be claimed.",
+              "source": {
+                "file": "mhitm.c",
+                "branch": "mhitm.c:xdrainenergym() runs only when the target monster has mspec_used < 20 and has an AT_MAGC or AT_BREA attack. It adds d(2,2) to mspec_used and, when givemsg is true, calls pline_mon() with “seems lethargic.” C calls this helper directly from uhitm.c:gulpum() for an engulfing AD_DREN attack and from uhitm.c:mhitm_ad_dren() for hero-versus-monster and monster-versus-monster AD_DREN dispatch. The selected case reaches the gulpum() call; the mhitm_ad_dren() calls are routed through uhitm.c:mhitm_adtyping().",
+                "functions": [
+                  "xdrainenergym"
+                ],
+                "callers": [
+                  "uhitm.c:gulpum() at lines 5174-5177 calls xdrainenergym(mdef, TRUE) after a successful rn2(4) roll for an AD_DREN engulf. The selected v47 range reaches this direct call at step 76. JavaScript uhitm.js:gulpum() currently replaces the helper with note_unported.",
+                  "uhitm.c:mhitm_ad_dren() at lines 2418-2442 calls xdrainenergym() in its hero-attacker and monster-attacker branches. The helper also handles the hero-defender branch by calling hitmsg() and drain_en(). Its direct caller is uhitm.c:mhitm_adtyping() case AD_DREN at line 4808; JavaScript currently refuses that arm.",
+                  "uhitm.c:mhitm_adtyping() is called by uhitm.c:damageum(), mhitm.c:mdamagem(), and mhitu.c:hitmu(). Their existing JavaScript paths are uhitm.js:damageum(), mhitm.js:mdamagem(), and mhitu.js:hitmu(); all already dispatch through uhitm.js:mhitm_adtyping(). The task wires only its AD_DREN arm, plus the direct gulpum AD_DREN call."
+                ],
+                "dependencies": [
+                  "mondata.c:attacktype() is a pure catalog helper implemented by js/mondata.js.",
+                  "rng.c:d() and rn2() are implemented by js/rng.js.",
+                  "pline.c:pline_mon() is implemented by js/pline.js and carries the target monster location.",
+                  "uhitm.c:mhitm_mgc_atk_negated() returns the cancellation result used by mhitm_ad_dren(); js/uhitm.js already implements it.",
+                  "trap.c:drain_en() is called only in the hero-defender branch of mhitm_ad_dren(); js/trap_effects.js implements it.",
+                  "uhitm.c:hitmsg() and display.c:canspotmon() are already wired in js/uhitm.js and js/display.js."
+                ],
+                "requiredSourceUnits": [
+                  {
+                    "sourceFile": "uhitm.c",
+                    "name": "mhitm_ad_dren",
+                    "line": 2418,
+                    "endLine": 2442,
+                    "jsFile": "js/uhitm.js",
+                    "reason": "This whole helper contains two additional direct xdrainenergym call sites and is dispatched by the currently unported AD_DREN arm."
+                  }
+                ],
+                "callerContracts": [
+                  "contract:uhitm-adtyping-AD_DREN-dispatch-arm",
+                  "contract:uhitm-gulpum-AD_DREN-call"
+                ],
+                "entryPoints": [
+                  "Hero polymorph attack: uhitm.c:hmonas() -> gulpum() -> xdrainenergym() for an AD_DREN engulf; admitted v47 step 76 exercises the call and true message branch.",
+                  "Monster combat AD_DREN dispatch: mhitm_adtyping() -> mhitm_ad_dren() -> xdrainenergym() when the 25% roll succeeds and the target has a magical or breath attack.",
+                  "Monster-to-hero AD_DREN dispatch: mhitu.c:hitmu() -> mhitm_adtyping() -> mhitm_ad_dren() -> drain_en(); included in the whole helper and to receive independent runtime evidence."
+                ],
+                "callerBlockers": [],
+                "scopeDecision": "The previously parked source dependency is released: ledger reservations for source:uhitm.c:mhitm_adtyping, source:uhitm.c:mhitm_ad_dren, and the selected session are clear before resuming. Complete mhitm.c:xdrainenergym and uhitm.c:mhitm_ad_dren, then wire the existing gulpum and AD_DREN dispatcher caller branches. No return-valued unported dependency remains."
+              },
+              "goalKind": "file-port",
+              "selectionReason": "Selected from fresh combined queue SHA-256 90fac9709e3b3e7fcc3c4fea739f87d074e6fd96a9fac0c6040306130ce71c6d, evaluated against accepted Main ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948. The v47 case remains at 85/92 screens, 2794/2873 RNG calls, and 89/92 cursors; its first mismatch is segment 0 step 76 at mhitm.c:xdrainenergym. The accepted B Pestilence task released the prior uhitm.c:mhitm_adtyping reservation, so the full direct-caller closure can now be claimed.",
+              "evidence": [
+                "Fresh accepted evaluation challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json records v47-poly-energy-vortex-engulf-drain-attempt10 at 85/92 screens, 2794/2873 RNG calls, and 89/92 cursors; its first mismatch remains at segment 0 step 76.",
+                "The C recording at challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json records d(2,2)=3 at xdrainenergym(mhitm.c:1466) on step 76 after the AD_DREN 1-in-4 roll in uhitm.c:gulpum(). The target kobold shaman has an AT_MAGC attack and mspec_used below 20.",
+                "Upstream mhitm.c:1461-1470 has one guard: mspec_used must be below 20 and attacktype must find AT_MAGC or AT_BREA. On success it adds d(2,2) and calls pline_mon() only when givemsg is true.",
+                "The second direct-call family is whole uhitm.c:mhitm_ad_dren() at lines 2418-2442, dispatched by the AD_DREN switch arm in uhitm.c:mhitm_adtyping(). Its other production dispatch callers are mhitm.c:mdamagem(), mhitu.c:hitmu(), and uhitm.c:damageum(); each has an existing JavaScript route to uhitm.js:mhitm_adtyping().",
+                "Accepted Main ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948 published B Pestilence task acceptance and released the previous source:uhitm.c:mhitm_adtyping reservation. The fresh queue SHA is 90fac9709e3b3e7fcc3c4fea739f87d074e6fd96a9fac0c6040306130ce71c6d."
+              ],
+              "blocker": null,
+              "evaluationUtc": "2026-10-12T00:34:31.123Z",
+              "evidencePlan": [
+                "Use the admitted v47 segment 0 step 76 prefix for the successful hero engulf path and xdrainenergym(givemsg=TRUE).",
+                "Create a new C-first recipe/recording under uhitm.c for a monster-to-monster AD_DREN hit that reaches mhitm_ad_dren() and xdrainenergym(givemsg=FALSE).",
+                "Create an independent C-first recipe/recording under uhitm.c for a hostile energy vortex attacking the hero through mhitu.c:hitmu() and the hero-defender branch of mhitm_ad_dren().",
+                "Source-pinned focused tests cover the inaccessible hero-attacker m_dren branch and all helper guards without claiming a runtime producer for that attack-table combination."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_elec",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_elec",
+            "sourceReview": "Read uhitm.c:mhitm_ad_elec() (2684-2739) and compared the complete function in source order. The hero-to-monster arm performs magic cancellation, blind-gated zap text, electric resistance/defense, golem and shield effects, zeroes direct damage when resisted, then adds destroy_items() damage from entry orig_dmg. The monster-to-hero arm calls hitmsg(), applies cancellation, prints the zap and resistance response, records M_SEEN_ELEC or clears it, zeroes resisted damage, then always evaluates the m_lev > rn2(20) gate before the discarded-void destroy_items() call. The monster-to-monster arm returns on cancellation, gates visible text by gv.vis/canseemon, applies resistance/defense effects in C order, then adds destroy_items() using entry damage. JS preserves all three branches and the AD_ELEC dispatcher arm. Its only returned source dependency is zap.c:destroy_items(), included in this task. Existing source helpers hitmsg(), mhitm_mgc_atk_negated(), monstseesu(), monstunseesu(), shieldeff(), and golemeffects() remain wired; their discarded results are not substituted.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping() case AD_ELEC (4794)"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum() calls mhitm_adtyping(&gy.youmonst, ...) (4854)"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu() calls mhitm_adtyping(mtmp, ..., &gy.youmonst, ...) (1191)"
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem() calls mhitm_adtyping(magr, ..., mdef, ...) (1059)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-elec.test.mjs",
+              "scripts/mhitu.test.mjs",
+              "scripts/monster-melee-hit-elec.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-elec-electric-eel-hero-hostile-newt.session.json",
+              "recordings/uhitm.c/mhitm-ad-elec-tame-gridbug-hostile-newt.session.json",
+              "recordings/uhitm.c/mhitm-ad-elec-gridbug-hits-hero.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "1315c98d56365215282500f1576300e85825ba61"
+          },
+          {
+            "name": "maybe_destroy_item",
+            "implementation": "js/zap_destroy_items.js",
+            "symbol": "maybe_destroy_item",
+            "sourceReview": "Read the whole zap.c:maybe_destroy_item() definition (5798-5954), including the external-inventory resistance guard, cold/fire/electric switches, Book of the Dead skip, electric ring skip/recharge path, quantity and in-use adjustments, destruction messages and order, hero-only inventory side effects, carrier-specific useup calls, resistance damage result, and return value. C's default arm sets skip, calls discarded-void pline.c:impossible(), then breaks and continues; JS records note_unported('pline.c impossible') and continues. The function is internal to the JS zap_destroy_items.js owner and is called by the whole destroy_items() port in the C location/order. No UnsupportedItemDestructionError boundary remains.",
+            "callers": [
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "destroy_items",
+                "source": "zap.c:destroy_items() calls maybe_destroy_item() at 6088"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-destroy-items.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/hero-rebounded-lightning-ray.session.json"
+            ],
+            "sourceFile": "zap.c",
+            "synthetic": [],
+            "checkedAt": "1315c98d56365215282500f1576300e85825ba61"
+          },
+          {
+            "name": "destroy_items",
+            "implementation": "js/zap_destroy_items.js",
+            "symbol": "destroy_items",
+            "sourceReview": "Read and compared the whole zap.c:destroy_items() definition (5965-6097): initialization, damage-based cap, early return, bypass reset, eligible-stack reservoir selection, first source-chain tracking with discarded-void pline.c:impossible() handling, deferred item ordering, object-identity check, maybe_destroy_item() accumulation, final bypass reset and return. The two C calls to impossible() whose results are discarded are represented as note_unported('pline.c impossible') and execution continues; no exception or substitute game effect remains. The AD_ELEC mhitm_ad_elec() caller consumes the return value in the hero and monster defender arms and passes entry damage; the monster-to-hero and other already-active source callers continue to use the same JS owner. The helper remains in js/zap_destroy_items.js, corresponding to zap.c.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_elec",
+                "source": "uhitm.c:mhitm_ad_elec() adds destroy_items() in hero-to-monster and monster-to-monster arms and calls it for the hero after the monster level gate (2705, 2719, 2737)"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zhitu",
+                "source": "zap.c:zhitu() calls destroy_items() from its hero inventory damage path; the fixed wizard coverage session reaches it"
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "maybe_destroy_item",
+                "source": "zap.c:destroy_items() calls maybe_destroy_item() at 6088"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-destroy-items.test.mjs",
+              "scripts/uhitm-ad-elec.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-elec-electric-eel-hero-hostile-newt.session.json",
+              "recordings/uhitm.c/mhitm-ad-elec-tame-gridbug-hostile-newt.session.json",
+              "recordings/zap.c/hero-rebounded-lightning-ray.session.json"
+            ],
+            "sourceFile": "zap.c",
+            "synthetic": [],
+            "checkedAt": "1315c98d56365215282500f1576300e85825ba61"
+          }
+        ],
+        "entryPointReview": "The C mhitm_ad_elec() function is selected by uhitm.c:mhitm_adtyping() and reached through damageum(), hitmu(), and mdamagem(); the JS equivalents all retain that dispatcher path. The hero-to-monster electric-eel recipe reaches damageum -> mhitm_adtyping -> mhitm_ad_elec -> zap.c:destroy_items at segment 0 step 66. The tame-grid-bug/hostile-newt recording reaches the M2M arm through mdamagem at segment 0 steps 66, 68, and 72. The independent hostile-grid-bug recording reaches hitmu -> mhitm_adtyping -> mhitm_ad_elec at segment 0 steps 32-33 and 36. The fixed session seed0004-feeding-pony also corroborates the monster-to-hero branch at segment 0 steps 91-92. For the zap helper family, the fixed wizard coverage session reaches zap.c:zhitu -> destroy_items -> maybe_destroy_item at segment 0 step 103, including successful potion destruction; step 106 reaches another maybe_destroy_item item case. The independent rebounded-lightning recording under recordings/zap.c reaches zhitu at segment 0 step 34, then passes destroy_items and maybe_destroy_item, with strict C/JS parity. The Nazgul lightning-ray recipe remains only a blocked monster-inventory variation: JS stops earlier at zap.c:weffects, so it has no recording and is not claimed as passing evidence. No weffects code or behavior is included in this task.",
+        "entryPoints": [
+          {
+            "name": "Hero electric-eel melee hits and zaps a hostile monster",
+            "functions": [
+              "mhitm_ad_elec",
+              {
+                "sourceFile": "zap.c",
+                "name": "destroy_items"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-elec-electric-eel-hero-hostile-newt.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Tame grid bug uses an AD_ELEC monster-to-monster attack",
+            "functions": [
+              "mhitm_ad_elec",
+              {
+                "sourceFile": "zap.c",
+                "name": "destroy_items"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-elec-tame-gridbug-hostile-newt.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Grid bug shocks the hero",
+            "functions": [
+              "mhitm_ad_elec",
+              {
+                "sourceFile": "zap.c",
+                "name": "destroy_items"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-elec-gridbug-hits-hero.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard wand beam destroys carried inventory through zhitu",
+            "functions": [
+              {
+                "sourceFile": "zap.c",
+                "name": "destroy_items"
+              },
+              {
+                "sourceFile": "zap.c",
+                "name": "maybe_destroy_item"
+              }
+            ],
+            "recordings": [
+              "recordings/zap.c/hero-rebounded-lightning-ray.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-poly-energy-vortex-engulf-drain-attempt10",
+          "session": "synthetic/v47/v47-poly-energy-vortex-engulf-drain-attempt10",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json",
+          "recordingPath": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json",
+          "recordingSha256": "2090d05e3e3a8d98b6aa17a8f06df4cf7ca8ea5cccd480e9411adb66f5d03164",
+          "recipe": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.recipe.session.json",
+          "recipeSha256": "2f484021abd59b38dc54194bc534b156d8139ca6e16780cedf5929a4d3dcae8a",
+          "replayInputSha256": "45d26ffac0f34b9781fd8d0f823de6777c42d57fa57beee35b21eb7ef94b8386",
+          "evaluationPath": "challenges/evaluations/accepted-68a1a9f049a7f9efce0a5f9e92e506b68e9bc8f2-v47.json",
+          "evaluationCommit": "68a1a9f049a7f9efce0a5f9e92e506b68e9bc8f2",
+          "evaluationArtifact": "challenges/evaluations/accepted-68a1a9f049a7f9efce0a5f9e92e506b68e9bc8f2-v47.json",
+          "evaluationUtc": "2026-10-12T02:08:25.910Z",
+          "remainingScreens": 7,
+          "recordedSteps": 92,
+          "previousScreensMatched": 85,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 85,
+              "total": 92
+            },
+            "rng": {
+              "matched": 2794,
+              "total": 2873
+            },
+            "cursors": {
+              "matched": 89,
+              "total": 92
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 76,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": "b"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 47,
+              "cCell": {
+                "ch": "I",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2791,
+              "cEntry": "d(2,2)=3",
+              "cCaller": "xdrainenergym(mhitm.c:1466)",
+              "jsEntry": "rn2(3)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": "b"
+              },
+              "stepIndex": 76
+            },
+            "cursor": {
+              "index": 76,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": "b"
+              },
+              "cCursor": [
+                74,
+                0,
+                1
+              ],
+              "jsCursor": [
+                29,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 76,
+          "kind": "rng",
+          "sourceFile": "mhitm.c",
+          "function": "xdrainenergym",
+          "message": null,
+          "cFile": "mhitm.c",
+          "luaFile": null,
+          "line": 1466,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-poly-energy-vortex-engulf-drain-attempt10.json",
+            "result": {
+              "session": "synthetic/v47/v47-poly-energy-vortex-engulf-drain-attempt10",
+              "remainingScreens": 7,
+              "recordedSteps": 92,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-poly-energy-vortex-engulf-drain-attempt10",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingSha256": "2090d05e3e3a8d98b6aa17a8f06df4cf7ca8ea5cccd480e9411adb66f5d03164",
+              "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+              "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+              "status": "complete",
+              "commit": "3999fd2ffbccd412c3be39dc8b69bf2a0c88df16",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-poly-energy-vortex-engulf-drain-attempt10",
+                "session": "synthetic/v47/v47-poly-energy-vortex-engulf-drain-attempt10",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json",
+                "recordingPath": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json",
+                "recordingSha256": "2090d05e3e3a8d98b6aa17a8f06df4cf7ca8ea5cccd480e9411adb66f5d03164",
+                "recipe": "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.recipe.session.json",
+                "recipeSha256": "2f484021abd59b38dc54194bc534b156d8139ca6e16780cedf5929a4d3dcae8a",
+                "replayInputSha256": "dd167ef0e545116c8a08718e3dc9a599bbdcde111b32dbc5275ec1330a43135d",
+                "evaluationPath": "challenges/evaluations/accepted-47ce6cdb703dac648a39587abe9512daf2ee2e50-v47.json",
+                "evaluationCommit": "47ce6cdb703dac648a39587abe9512daf2ee2e50",
+                "evaluationArtifact": "challenges/evaluations/accepted-47ce6cdb703dac648a39587abe9512daf2ee2e50-v47.json",
+                "evaluationUtc": "2026-10-11T21:59:47.436Z",
+                "remainingScreens": 7,
+                "recordedSteps": 92,
+                "previousScreensMatched": 85,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 85,
+                    "total": 92
+                  },
+                  "rng": {
+                    "matched": 2794,
+                    "total": 2873
+                  },
+                  "cursors": {
+                    "matched": 89,
+                    "total": 92
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 76,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 76,
+                      "key": "b"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 47,
+                    "cCell": {
+                      "ch": "I",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2791,
+                    "cEntry": "d(2,2)=3",
+                    "cCaller": "xdrainenergym(mhitm.c:1466)",
+                    "jsEntry": "rn2(3)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 76,
+                      "key": "b"
+                    },
+                    "stepIndex": 76
+                  },
+                  "cursor": {
+                    "index": 76,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 76,
+                      "key": "b"
+                    },
+                    "cCursor": [
+                      74,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      29,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 76,
+                "kind": "rng",
+                "sourceFile": "mhitm.c",
+                "function": "xdrainenergym",
+                "message": null,
+                "cFile": "mhitm.c",
+                "luaFile": null,
+                "line": 1466
+              },
+              "summary": "At segment 0 step 76, a polymorphed hero energy vortex engulfs the kobold shaman. C passes the successful AD_DREN roll from uhitm.c:gulpum() to mhitm.c:xdrainenergym(), which sees the target has an AT_MAGC attack and mspec_used below 20, adds d(2,2), and prints the lethargy message. JavaScript still skips that C helper. The complete direct-caller set also includes uhitm.c:mhitm_ad_dren(), reached through the AD_DREN arm of uhitm.c:mhitm_adtyping(); B accepted the earlier reservation, so this caller can now be claimed.",
+              "source": {
+                "file": "mhitm.c",
+                "branch": "mhitm.c:xdrainenergym() runs only when the target monster has mspec_used < 20 and has an AT_MAGC or AT_BREA attack. It adds d(2,2) to mspec_used and, when givemsg is true, calls pline_mon() with “seems lethargic.” C calls this helper directly from uhitm.c:gulpum() for an engulfing AD_DREN attack and from uhitm.c:mhitm_ad_dren() for hero-versus-monster and monster-versus-monster AD_DREN dispatch. The selected case reaches the gulpum() call; the mhitm_ad_dren() calls are routed through uhitm.c:mhitm_adtyping().",
+                "functions": [
+                  "xdrainenergym"
+                ],
+                "callers": [
+                  "uhitm.c:gulpum() at lines 5174-5177 calls xdrainenergym(mdef, TRUE) after a successful rn2(4) roll for an AD_DREN engulf. The selected v47 range reaches this direct call at step 76. JavaScript uhitm.js:gulpum() currently replaces the helper with note_unported.",
+                  "uhitm.c:mhitm_ad_dren() at lines 2418-2442 calls xdrainenergym() in its hero-attacker and monster-attacker branches. The helper also handles the hero-defender branch by calling hitmsg() and drain_en(). Its direct caller is uhitm.c:mhitm_adtyping() case AD_DREN at line 4808; JavaScript currently refuses that arm.",
+                  "uhitm.c:mhitm_adtyping() is called by uhitm.c:damageum(), mhitm.c:mdamagem(), and mhitu.c:hitmu(). Their existing JavaScript paths are uhitm.js:damageum(), mhitm.js:mdamagem(), and mhitu.js:hitmu(); all already dispatch through uhitm.js:mhitm_adtyping(). The task wires only its AD_DREN arm, plus the direct gulpum AD_DREN call."
+                ],
+                "dependencies": [
+                  "mondata.c:attacktype() is a pure catalog helper implemented by js/mondata.js.",
+                  "rng.c:d() and rn2() are implemented by js/rng.js.",
+                  "pline.c:pline_mon() is implemented by js/pline.js and carries the target monster location.",
+                  "uhitm.c:mhitm_mgc_atk_negated() returns the cancellation result used by mhitm_ad_dren(); js/uhitm.js already implements it.",
+                  "trap.c:drain_en() is called only in the hero-defender branch of mhitm_ad_dren(); js/trap_effects.js implements it.",
+                  "uhitm.c:hitmsg() and display.c:canspotmon() are already wired in js/uhitm.js and js/display.js."
+                ],
+                "requiredSourceUnits": [
+                  {
+                    "sourceFile": "uhitm.c",
+                    "name": "mhitm_ad_dren",
+                    "line": 2418,
+                    "endLine": 2442,
+                    "jsFile": "js/uhitm.js",
+                    "reason": "This whole helper contains two additional direct xdrainenergym call sites and is dispatched by the currently unported AD_DREN arm."
+                  }
+                ],
+                "callerContracts": [
+                  "contract:uhitm-adtyping-AD_DREN-dispatch-arm",
+                  "contract:uhitm-gulpum-AD_DREN-call"
+                ],
+                "entryPoints": [
+                  "Hero polymorph attack: uhitm.c:hmonas() -> gulpum() -> xdrainenergym() for an AD_DREN engulf; admitted v47 step 76 exercises the call and true message branch.",
+                  "Monster combat AD_DREN dispatch: mhitm_adtyping() -> mhitm_ad_dren() -> xdrainenergym() when the 25% roll succeeds and the target has a magical or breath attack.",
+                  "Monster-to-hero AD_DREN dispatch: mhitu.c:hitmu() -> mhitm_adtyping() -> mhitm_ad_dren() -> drain_en(); included in the whole helper and to receive independent runtime evidence."
+                ],
+                "callerBlockers": [],
+                "scopeDecision": "The previously parked source dependency is released: ledger reservations for source:uhitm.c:mhitm_adtyping, source:uhitm.c:mhitm_ad_dren, and the selected session are clear before resuming. Complete mhitm.c:xdrainenergym and uhitm.c:mhitm_ad_dren, then wire the existing gulpum and AD_DREN dispatcher caller branches. No return-valued unported dependency remains."
+              },
+              "goalKind": "file-port",
+              "selectionReason": "Selected from fresh combined queue SHA-256 90fac9709e3b3e7fcc3c4fea739f87d074e6fd96a9fac0c6040306130ce71c6d, evaluated against accepted Main ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948. The v47 case remains at 85/92 screens, 2794/2873 RNG calls, and 89/92 cursors; its first mismatch is segment 0 step 76 at mhitm.c:xdrainenergym. The accepted B Pestilence task released the prior uhitm.c:mhitm_adtyping reservation, so the full direct-caller closure can now be claimed.",
+              "evidence": [
+                "Fresh accepted evaluation challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json records v47-poly-energy-vortex-engulf-drain-attempt10 at 85/92 screens, 2794/2873 RNG calls, and 89/92 cursors; its first mismatch remains at segment 0 step 76.",
+                "The C recording at challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json records d(2,2)=3 at xdrainenergym(mhitm.c:1466) on step 76 after the AD_DREN 1-in-4 roll in uhitm.c:gulpum(). The target kobold shaman has an AT_MAGC attack and mspec_used below 20.",
+                "Upstream mhitm.c:1461-1470 has one guard: mspec_used must be below 20 and attacktype must find AT_MAGC or AT_BREA. On success it adds d(2,2) and calls pline_mon() only when givemsg is true.",
+                "The second direct-call family is whole uhitm.c:mhitm_ad_dren() at lines 2418-2442, dispatched by the AD_DREN switch arm in uhitm.c:mhitm_adtyping(). Its other production dispatch callers are mhitm.c:mdamagem(), mhitu.c:hitmu(), and uhitm.c:damageum(); each has an existing JavaScript route to uhitm.js:mhitm_adtyping().",
+                "Accepted Main ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948 published B Pestilence task acceptance and released the previous source:uhitm.c:mhitm_adtyping reservation. The fresh queue SHA is 90fac9709e3b3e7fcc3c4fea739f87d074e6fd96a9fac0c6040306130ce71c6d."
+              ],
+              "blocker": null,
+              "evaluationUtc": "2026-10-12T00:34:31.123Z",
+              "evidencePlan": [
+                "Use the admitted v47 segment 0 step 76 prefix for the successful hero engulf path and xdrainenergym(givemsg=TRUE).",
+                "Create a new C-first recipe/recording under uhitm.c for a monster-to-monster AD_DREN hit that reaches mhitm_ad_dren() and xdrainenergym(givemsg=FALSE).",
+                "Create an independent C-first recipe/recording under uhitm.c for a hostile energy vortex attacking the hero through mhitu.c:hitmu() and the hero-defender branch of mhitm_ad_dren().",
+                "Source-pinned focused tests cover the inaccessible hero-attacker m_dren branch and all helper guards without claiming a runtime producer for that attack-table combination."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "68a1a9f049a7f9efce0a5f9e92e506b68e9bc8f2",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

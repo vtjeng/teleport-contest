@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe for do_name.c:name menu option d -> o_init.c:rename_disco. Open the name menu and select discoveries; the C screen must show its object-type menu before finalizing the class choice.",
+  "segments": [
+    {
+      "seed": 48070018,
+      "datetime": "20571016091418",
+      "nethackrc": "OPTIONS=name:V48Discover,role:Valkyrie,race:human,gender=female,align=neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#name\nd"
+    }
+  ]
+}

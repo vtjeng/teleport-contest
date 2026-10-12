@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate for the extended-command alias path: cmd.c:doextcmd resolves #close to lock.c:doclose, which accepts the west direction and reaches its no-door response on ordinary floor. This specifically exercises the named extended-command dispatch contract rather than the direct c key.",
+  "segments": [
+    {
+      "seed": 48072002,
+      "datetime": "20571023110030",
+      "nethackrc": "OPTIONS=name:V48ExtendedClose,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#close\nh"
+    }
+  ]
+}

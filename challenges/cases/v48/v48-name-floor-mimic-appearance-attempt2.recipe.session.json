@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C route after attempt1 exposed a lone getpos-menu entry, 'strange object': select it with a, then . to reach namefloorobj's STRANGE_OBJECT branch. Removed a stray space after #wizmap that had produced an unknown-command page.",
+  "segments": [
+    {
+      "seed": 48071231,
+      "datetime": "20571022110231",
+      "nethackrc": "OPTIONS=name:V48MimicName,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nmimic\n#wizmap\n#name\nf  !oa."
+    }
+  ]
+}

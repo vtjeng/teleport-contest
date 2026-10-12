@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for invent.c:dotypeinv through #inventtype. Select the C-confirmed weapon class from the traditional inventory-type prompt, then cancel the resulting item chooser; this exercises class filtering and the temporary this_type reset without using an item.",
+  "segments": [
+    {
+      "seed": 48070034,
+      "datetime": "20571021120741",
+      "nethackrc": "OPTIONS=name:V48InventType,role:Valkyrie,race:human,gender=female,align=neutral,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#inventtype\n)\u001b"
+    }
+  ]
+}

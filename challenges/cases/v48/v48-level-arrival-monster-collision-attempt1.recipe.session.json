@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for do.c:goto_level -> u_collide_m when a migrating tame pet and level monster converge on the hero arrival square. Create a tame dog, then debug-levelport one floor and inspect the C map/message for the collision displacement.",
+  "segments": [
+    {
+      "seed": 48071001,
+      "datetime": "20571016101519",
+      "nethackrc": "OPTIONS=name:V48Collision,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizgenesis\ntame dog\n#wizmap\n #wizlevelport\n2\n#wizmap\n"
+    }
+  ]
+}

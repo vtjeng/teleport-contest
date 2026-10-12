@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-based candidate for dat/Tou-fila.lua; independently chosen debug level-program load used only to exercise this distinct top-level source unit.",
+  "segments": [
+    {
+      "seed": 48048708,
+      "datetime": "20571013092017",
+      "nethackrc": "OPTIONS=name:V48Tourist,role:Tourist,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nTou-fila.lua\n#wizmap\n"
+    }
+  ]
+}

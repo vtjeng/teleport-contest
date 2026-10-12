@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-based candidate for dat/Sam-fila.lua; independently chosen debug level-program load used only to exercise this distinct top-level source unit.",
+  "segments": [
+    {
+      "seed": 48048607,
+      "datetime": "20571013091917",
+      "nethackrc": "OPTIONS=name:V48Samurai,role:Samurai,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nSam-fila.lua\n#wizmap\n"
+    }
+  ]
+}

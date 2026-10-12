@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first follow-up to the #throw command route, wishing a rock then selecting it and throwing east. The source target is cmd.c:doextcmd -> dothrow.c:dothrow, with a reached projectile path if the C prompt and inventory selector accept the recipe.",
+  "segments": [
+    {
+      "seed": 48072005,
+      "datetime": "20571023110330",
+      "nethackrc": "OPTIONS=name:V48ExtendedThrow2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nrock\n#throw\nal"
+    }
+  ]
+}

@@ -2,8 +2,69 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 
-import { activityTimeline, agentStages, syntheticGainByCommit } from './dashboard-activity.mjs';
+import { activityTimeline, activityUtilization, agentStages, syntheticGainByCommit } from './dashboard-activity.mjs';
 import { activityFromLedger, developmentFromCheckpoint, mergeActivity } from './dashboard-snapshot.mjs';
+
+test('utilization pools clipped agent-stage time and keeps idle, blocked and unknown distinct', () => {
+  // A and B each cover ten minutes; C joins for five. Pool worker-minutes,
+  // rather than averaging percentages or assuming every worker was always live.
+  const at = minute => `2026-10-10T10:${String(minute).padStart(2, '0')}:00Z`;
+  const stage = (lane, phase, a, b) => ({ lane, phase, start: at(a), end: at(b) });
+  const rows = [stage('A2', 'working', 0, 10), stage('A2', 'idle', 10, 20),
+    stage('B', 'working', 5, 15), stage('B', 'parked', 15, 20),
+    stage('C', 'unrecorded', 10, 15), stage('Prep', 'rework', 10, 15),
+    stage('Prep', 'blocked', 15, 20), stage('Main', 'integrating', 5, 15),
+    stage('Main', 'waiting', 15, 20), stage('A2', 'queued', 0, 20)];
+  const result = activityUtilization(rows, Date.parse(at(10)), Date.parse(at(20)));
+  const minute = 60000;
+  assert.equal(result[0].role, 'A/B/C');
+  assert.equal(result[0].total, 25 * minute);
+  assert.equal(result[0].work, 5 * minute);
+  assert.equal(result[0].idle, 10 * minute);
+  assert.equal(result[0].blocked, 5 * minute);
+  assert.equal(result[0].unknown, 5 * minute);
+  assert.equal(result[0].utilization, 0.2);
+  assert.equal(result[1].role, 'Prep');
+  assert.equal(result[1].utilization, 0.5);
+  assert.equal(result[2].role, 'Main');
+  assert.equal(result[2].utilization, 0.5);
+  assert.equal(result[0].workers.find(worker => worker.lane === 'A2').utilization, 0);
+  assert.equal(result[0].workers.find(worker => worker.lane === 'B').utilization, 0.5);
+});
+
+test('utilization has no invented activity in empty windows or retired worker histories', () => {
+  const at = hour => `2026-10-10T${String(hour).padStart(2, '0')}:00:00Z`;
+  const stages = [{ lane: 'A', phase: 'working', start: at(1), end: at(2) },
+    { lane: 'A2', phase: 'working', start: at(3), end: at(4) }];
+  // The historical replacement slot does not contribute hours after retirement.
+  const result = activityUtilization(stages, Date.parse(at(2)), Date.parse(at(4)));
+  assert.equal(result[0].total, 3600000);
+  assert.equal(result[0].utilization, 1);
+  assert.equal(result[1].utilization, null);
+  for (const row of activityUtilization([], Date.parse(at(2)), Date.parse(at(4)))) {
+    assert.equal(row.total, 0);
+    assert.equal(row.utilization, null);
+  }
+});
+
+test('preparation batch identity survives public snapshot and every task stage', () => {
+  // Read the batch from the reserved scope, not a guess from a task label.
+  const at = minute => `2026-10-10T10:${String(minute).padStart(2, '0')}:00Z`;
+  const activity = activityFromLedger({ runId: 'loop-20260925', events: [
+    { id: 'claim', type: 'assign', task: 'Prep4', worker: 'Prep', kind: 'challenge-preparation',
+      reservations: ['challenge-batch:v40'], allowedPaths: ['/private'], at: at(0) },
+    { id: 'ready', type: 'ready', task: 'Prep4', at: at(5) },
+    { id: 'merge', type: 'integrating', task: 'Prep4', at: at(6) },
+    { id: 'pass', type: 'validated', task: 'Prep4', passed: true, at: at(7) },
+    { id: 'accept', type: 'accepted', task: 'Prep4', at: at(8) },
+    { id: 'admit', type: 'activity', task: 'Prep4', phase: 'admission', at: at(9) },
+  ] });
+  assert.equal(activity.events[0].batch, 'v40');
+  assert.ok(!JSON.stringify(activity).includes('/private'));
+  const timeline = activityTimeline(activity, at(10));
+  assert.equal(timeline.tasks[0].batch, 'v40');
+  assert.ok(timeline.segments.every(row => row.batch === 'v40' || row.phase === 'unrecorded'));
+});
 
 test('parked task reasons survive publication and older deliveries never replace worker activity', () => {
   // Reproduce A177: two dependency parks interrupt work while three older deliveries wait.

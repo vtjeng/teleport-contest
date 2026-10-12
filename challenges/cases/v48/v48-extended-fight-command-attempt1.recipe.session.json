@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for the named #fight extended-command row: cmd.c:doextcmd resolves the alias to cmd.c:do_fight, which enables the forced-fight prefix state before an eastward movement input. This checks the named command route independently of the direct F prefix.",
+  "segments": [
+    {
+      "seed": 48072003,
+      "datetime": "20571023110130",
+      "nethackrc": "OPTIONS=name:V48ExtendedFight,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nhostile newt\ny#fight\nl"
+    }
+  ]
+}

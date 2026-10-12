@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected drop slot from attempt1 C evidence: inventory letter o is the wished ring. Move one square off the dropped ring, then open the object-location menu to choose the floor target rather than using getpos.self.",
+  "segments": [
+    {
+      "seed": 48071229,
+      "datetime": "20571022110129",
+      "nethackrc": "OPTIONS=name:V48FloorCycle,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nuncursed ring of protection\ndo l#name\nf  !o"
+    }
+  ]
+}

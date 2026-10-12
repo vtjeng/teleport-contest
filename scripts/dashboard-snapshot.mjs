@@ -28,6 +28,9 @@ export function activityFromLedger(ledger) {
       ...(event.worker ? { worker: event.worker } : {}),
       ...(event.goal ? { goal: event.goal } : {}),
       ...(event.kind ? { kind: event.kind } : {}),
+      ...(event.type === 'assign' && event.kind === 'challenge-preparation'
+        && event.reservations?.some(key => /^challenge-batch:v[1-9]\d*$/u.test(key))
+        ? { batch: event.reservations.find(key => /^challenge-batch:v[1-9]\d*$/u.test(key)).split(':')[1] } : {}),
       ...(event.delivery ? { delivery: event.delivery } : {}),
       ...(event.integration ? { integration: event.integration } : {}),
       ...(event.commit ? { commit: event.commit } : {}),

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate for do_name.c:docallcmd option f -> namefloorobj. Wish an uncursed ring and inspect the inventory so the subsequent attempt can place a callable object directly under the hero and choose it with getpos's self-location key.",
+  "segments": [
+    {
+      "seed": 48071008,
+      "datetime": "20571022101519",
+      "nethackrc": "OPTIONS=name:V48NameFloor,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed ring of protection\ni"
+    }
+  ]
+}

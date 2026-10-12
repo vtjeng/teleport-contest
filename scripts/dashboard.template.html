@@ -492,21 +492,13 @@ canvas {
 .activity-navigation { display: flex; align-items: center; gap: 8px; }
 .activity-navigation .chart-range { min-width: 165px; text-align: left; }
 .activity-pan-hint { color: var(--ink-muted); font-size: 11px; }
-.activity-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
-}
-.activity-metric {
-  padding: 10px 12px;
-  background: var(--surface-chart);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-}
-.activity-metric-label { font-size: 11px; color: var(--ink-secondary); }
-.activity-metric-value { display: block; margin: 5px 0 2px; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.activity-metric-detail { font-size: 11px; color: var(--ink-muted); }
+.activity-utilization { width: 100%; max-width: 520px; table-layout: fixed; border-collapse: collapse; margin: 0 0 6px; font-size: 11px; font-variant-numeric: tabular-nums; }
+.activity-utilization th, .activity-utilization td { padding: 3px; text-align: right; white-space: nowrap; }
+.activity-utilization th:first-child { width: 20%; text-align: left; padding-left: 0; }
+.activity-utilization thead th { font-weight: 400; color: var(--ink-muted); }
+.activity-utilization tbody th { font-weight: 500; }
+.activity-utilization .utilization-work { font-weight: 600; }
+.activity-utilization-help { margin: 0 0 12px; color: var(--ink-muted); font-size: 11px; }
 .activity-note { margin: 0 0 14px; font-size: 11px; color: var(--ink-muted); }
 .activity-timeline { cursor: grab; touch-action: pan-y; user-select: none; }
 .activity-timeline.is-panning, .activity-timeline.is-panning .activity-bar { cursor: grabbing; }
@@ -565,8 +557,7 @@ canvas {
 .phase-blocked { --bar: var(--stage-waiting); }
 .phase-idle { --bar: #8c949c; }
 .phase-parked { --bar: #a87930; }
-.activity-block-reason { display: block; height: 3.1em; overflow-y: auto; overflow-wrap: anywhere; }
-.activity-metric, .activity-inspection { min-width: 0; }
+.activity-inspection { min-width: 0; }
 .activity-inspection { overflow-wrap: anywhere; }
 .phase-unrecorded { --bar: var(--stage-unrecorded); }
 .activity-bar.phase-pending, .activity-bar.phase-baseline { color: #172839; }
@@ -640,7 +631,6 @@ canvas {
 .activity-inspection p { margin: 5px 0 8px; }
 .activity-inspection ul { margin: 4px 0 0; padding-left: 18px; }
 @media (max-width: 640px) {
-  .activity-metrics { grid-template-columns: 1fr; gap: 6px; }
   .activity-navigation { width: 100%; justify-content: space-between; }
 }
 @media (max-width: 480px) {
@@ -962,7 +952,8 @@ canvas {
   </div>
   <p class="activity-pan-hint">Drag the timeline to move through time. Arrow keys work when the timeline is focused.</p>
   <div class="chart-wrap">
-    <div class="activity-metrics" id="activityMetrics"></div>
+    <div id="activityMetrics" aria-label="Recorded worker utilization in the visible time window"></div>
+    <p class="activity-utilization-help">Rounded shares of plotted worker-time in this window. Work means assigned or running stages, not CPU use. Unknown means unrecorded; it is not counted as idle.</p>
     <p class="activity-note">One row per agent. Blocks and parked tasks show recorded reasons; pending deliveries stay in task history, not worker rows. Idle and unrecorded time are distinct from blocks. Assigned work does not prove continuous activity. Hover to inspect; select to pin details. Arrow edges mark stages continuing outside the window. Stage details scroll.</p>
     <div class="legend" id="timelineLegend"></div>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
@@ -996,6 +987,7 @@ canvas {
 
 <script>
 const DATA = /*DATA_PLACEHOLDER*/null;
+const activityUtilization = /*UTILIZATION_PLACEHOLDER*/null;
 const QUEUE = /*QUEUE_PLACEHOLDER*/null;
 
 // --- Helpers ---
@@ -1733,7 +1725,20 @@ document.getElementById('stats').innerHTML = [
     '<div class="activity-legend-group"><strong>' + label + '</strong><div class="activity-legend-items">' + phases.map(phase =>
       '<div class="legend-item"><div class="legend-swatch phase-' + phase + '"></div>'
       + phaseNames[phase] + '</div>').join('') + '</div></div>').join('');
+  function utilization(start, end) {
+    const percent = value => value == null ? '—' : Math.round(value * 100) + '%';
+    const rows = activityUtilization(segments, start, end);
+    metrics.innerHTML = '<table class="activity-utilization"><thead><tr><th scope="col">Workers</th>'
+      + '<th scope="col">Work</th><th scope="col">Blocked</th><th scope="col">Idle</th><th scope="col">Unknown</th></tr></thead><tbody>'
+      + rows.map(row => '<tr><th scope="row" title="' + esc(row.workers.map(worker =>
+        displayLane(worker.lane) + ': ' + percent(worker.utilization) + ' work').join(' · ')) + '">' + row.role + '</th>'
+        + ['work', 'blocked', 'idle', 'unknown'].map(key => '<td' + (key === 'work' ? ' class="utilization-work"' : '')
+          + ' title="' + esc(row.total ? fmt(row[key] / 60000) + ' of ' + fmt(row.total / 60000) + ' worker-time' : 'No plotted worker-time') + '">'
+          + percent(row.total ? row[key] / row.total : null) + '</td>').join('') + '</tr>').join('')
+      + '</tbody></table>';
+  }
   if (!history.length) {
+    utilization(0, 0);
     container.textContent = 'No worker activity snapshot is available.';
     return;
   }
@@ -1767,19 +1772,12 @@ document.getElementById('stats').innerHTML = [
   const shortStamp = value => new Date(value).toLocaleTimeString('en-US',
     { hour: '2-digit', minute: '2-digit', hour12: false });
   const duration = segment => (Date.parse(segment.end) - Date.parse(segment.start)) / 60000;
-  const percentile = (values, fraction) => {
-    if (!values.length) return null;
-    const sorted = [...values].sort((a, b) => a - b);
-    return sorted[Math.ceil(fraction * sorted.length) - 1];
-  };
-  const ongoing = segment => segment.end === activity.capturedAt && segment.ongoing;
-  const metric = (label, value, detail) => '<div class="activity-metric"><div class="activity-metric-label">'
-    + label + '</div><strong class="activity-metric-value">' + value
-    + '</strong><div class="activity-metric-detail">' + detail + '</div></div>';
   const name = segment => taskById.get(segment.task)?.label
     || (segment.label ? displayLane(segment.label) : segment.task);
   const isBlock = segment => ['blocked', 'parked'].includes(segment.phase);
   const isWait = segment => isBlock(segment) || ['idle', 'unrecorded'].includes(segment.phase);
+  const batch = segment => taskById.get(segment.task)?.batch || segment.batch;
+  const barName = segment => name(segment) + (batch(segment) ? ' · ' + batch(segment) : '');
   let describedTask = null;
   const detailScroll = new Map();
   function describe(index, source = segments) {
@@ -1804,6 +1802,7 @@ document.getElementById('stats').innerHTML = [
       + '<dt>Stage</dt><dd>' + (actor === worker ? '' : esc(actor) + ' · ') + esc(phaseNames[segment.phase]) + '</dd>'
       + (task ? '<dt>Status</dt><dd>' + esc(task.status) + '</dd>' : '')
       + (task?.goal ? '<dt>Goal</dt><dd>' + esc(task.goal) + '</dd>' : '')
+      + (batch(segment) ? '<dt>Batch</dt><dd>Synthetic local holdout ' + esc(batch(segment)) + '</dd>' : '')
       + (task?.publishedAt ? '<dt>Published</dt><dd>' + stamp(task.publishedAt) + '</dd>' : '') + '</dl>'
       + (segment.reason ? '<p><strong>' + reasonLabel + '</strong>' + esc(segment.reason) + '</p>' : '')
       + '</section><section><h4>' + (task ? 'Task lifespan' : 'Reported interval') + '</h4><ol class="activity-history">'
@@ -1833,25 +1832,11 @@ document.getElementById('stats').innerHTML = [
     const start = viewEnd - span;
     const shown = segments.map((segment, index) => ({ segment, index }))
       .filter(({ segment }) => Date.parse(segment.end) > start && Date.parse(segment.start) < viewEnd);
-    const completed = phase => history.filter(segment => segment.phase === phase
-      && Date.parse(segment.end) > start && Date.parse(segment.end) <= viewEnd
-      && !segment.ongoing).map(segment => duration(segment));
     const waits = shown.filter(({ segment }) => isWait(segment)
       && Date.parse(segment.end) > start && Date.parse(segment.end) <= viewEnd)
       .sort((a, b) => duration(b.segment) - duration(a.segment));
     const blocks = waits.filter(({ segment }) => isBlock(segment));
-    const waitValues = completed('queued');
-    const integrationValues = completed('integrating');
-    metrics.innerHTML = metric('Ready → integration', fmt(percentile(waitValues, .5)),
-      fmt(percentile(waitValues, .9)) + ' p90 · ' + waitValues.length + ' completed queue intervals')
-      + metric('Integration and checks', fmt(percentile(integrationValues, .5)),
-        fmt(percentile(integrationValues, .9)) + ' p90 · ' + integrationValues.length + ' completed stages')
-      + metric('Longest block / parked task', blocks.length ? fmt(duration(blocks[0].segment)) : '—',
-        blocks.length ? esc(name(blocks[0].segment))
-          + (ongoing(blocks[0].segment) ? ' · open at snapshot' : '')
-          + '<span class="activity-block-reason" title="' + esc(blocks[0].segment.reason) + '">'
-          + esc(blocks[0].segment.reason || 'No reason recorded.') + '</span>'
-          : 'No block or parked task recorded in this window');
+    utilization(start, viewEnd);
     windowLabel.textContent = stamp(start) + ' – ' + stamp(viewEnd);
     latestButton.disabled = viewEnd >= latest;
     if (!pinnedStage && !shown.some(row => row.index === selectedIndex)) {
@@ -1881,13 +1866,13 @@ document.getElementById('stats').innerHTML = [
           + (Date.parse(bar.segment.end) > viewEnd ? ' continues-right' : '')
           + (bar.index === selectedIndex ? ' selected' : '') + '" data-segment="'
           + bar.index + '" tabindex="0" role="button" aria-label="'
-          + esc(phaseNames[bar.segment.phase] + ' for ' + name(bar.segment)
+          + esc(phaseNames[bar.segment.phase] + ' for ' + barName(bar.segment)
           + ', ' + fmt(duration(bar.segment))) + '" style="left:'
           + ((bar.a - start) / span * 100) + '%;width:' + ((bar.b - bar.a) / span * 100)
           + '%;top:13px;height:22px">' + (((bar.b - bar.a) / span)
-            * Math.max(1, container.getBoundingClientRect().width - 56) > name(bar.segment).length * 6 + 16
+            * Math.max(1, container.getBoundingClientRect().width - 56) > barName(bar.segment).length * 6 + 16
             && name(bar.segment) !== lane
-            ? esc(name(bar.segment)) : '') + '</div>').join('')
+            ? esc(barName(bar.segment)) : '') + '</div>').join('')
         + (!bars.length ? '<span class="activity-empty">No recorded activity in this window</span>' : '')
         + '</div></div>';
     }
