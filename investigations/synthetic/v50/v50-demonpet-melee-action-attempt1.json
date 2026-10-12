@@ -4,10 +4,10 @@
   "batch": "v50",
   "caseId": "v50-demonpet-melee-action-attempt1",
   "manifestPath": "challenges/manifests/v50.json",
-  "manifestSha256": "8033e81f20119b05c772e33cdeb1079027f7e032da436b16e9f5131eaa0a6f00",
+  "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
   "recordingSha256": "064cea947f1259f065488cc0c8c6f81bb1127ce7d2ddb71f3b726e0ce7202fc2",
-  "evaluationPath": "challenges/evaluations/accepted-ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3-v50.json",
-  "evaluationCommit": "ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3",
+  "evaluationPath": "challenges/evaluations/accepted-50a39b94d0ec3785717011e652bd75a1ed47941a-v50.json",
+  "evaluationCommit": "50a39b94d0ec3785717011e652bd75a1ed47941a",
   "remainingScreens": 46,
   "recordedSteps": 180,
   "status": "complete",
@@ -19,7 +19,9 @@
   "summary": "At step 134, the polymorphed hero's unarmed demon attack enters uhitm.c:damageum's demonpet branch when !rn2(13). C prints the arrival line, chooses the current demon form because rn2(6)=3, creates and tames a horned devil at the hero, and exercises Wisdom. The baseline JavaScript records note_unported('demon.c demonpet') and returns M_ATTK_MISS, skipping those effects. The implementation now ports demonpet and wires it through damageum.",
   "source": {
     "file": "uhitm.c",
-    "functions": ["demonpet"],
+    "functions": [
+      "demonpet"
+    ],
     "branch": "Complete demonpet(): print the message; choose ndemon(u.ualign.type) only when rn2(6)==0, otherwise use the current form; call makemon at the hero with NO_MM_FLAGS; if creation succeeds, call tamedog with a null object and FALSE; then exercise A_WIS in C order.",
     "callers": [
       "uhitm.c:damageum lines 4835-4854 calls demonpet after the initial damage roll when the hero form is a demon, rn2(13)==0, no weapon is wielded, and the form is neither amorous demon nor Balrog; uhitm.c:hmonas reaches damageum from the polymorphed hero attack. js/uhitm.js:damageum now calls the complete demonpet implementation under the matching guard."
@@ -38,5 +40,65 @@
     "nethack-c/upstream/src/uhitm.c:2131-2145 defines the whole static demonpet function. The implementation preserves message -> rn2(6)/optional ndemon -> species selection -> makemon -> conditional tamedog -> Wisdom exercise order. ndemon, makemon, tamedog, and exercise already have JavaScript implementations; only makemon's and ndemon's return values control source branches here.",
     "nethack-c/upstream/src/uhitm.c:4835-4854 shows damageum initializes attack data, applies the demon/unarmed/rn2(13) guard, calls demonpet, and returns M_ATTK_MISS. js/uhitm.js:7517-7524 now calls demonpet under the same guard.",
     "After the change, replaying the admitted case matches through zero-based step 157, including the demonpet summon and taming path. The scanner then stops at step 158 on the separate behavior boundary 'simple monster action requires an armed monster attacking another monster'; this later mismatch is outside demonpet. The source owner is uhitm.c:demonpet, not demon.c, and GOALS.json has no earlier verified evidence for that function."
-  ]
+  ],
+  "currentEvaluationReview": {
+    "reviewedAt": "2026-10-12T07:54:13.611Z",
+    "firstMismatch": {
+      "screen": {
+        "index": 134,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 134,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 26,
+        "cCell": {
+          "ch": "S",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2830,
+        "cEntry": "rn2(6)=3",
+        "cCaller": "demonpet(uhitm.c:2140)",
+        "jsEntry": "rn2(3)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 134,
+          "key": " "
+        },
+        "stepIndex": 134
+      },
+      "cursor": {
+        "index": 134,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 134,
+          "key": " "
+        },
+        "cCursor": [
+          58,
+          0,
+          1
+        ],
+        "jsCursor": [
+          34,
+          7,
+          1
+        ]
+      }
+    },
+    "remainingScreens": 46,
+    "sourceDiagnosisUnchanged": true
+  }
 }

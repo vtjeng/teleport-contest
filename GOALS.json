@@ -283186,6 +283186,299 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "div-inventtype-null-title-v48-20261012",
+      "kind": "divergence-fix",
+      "status": "parked",
+      "summary": "Preserve the unset title in the inventory-type menu",
+      "cFile": "invent.c",
+      "sessions": [],
+      "selectionReason": "The admitted inventory-type case reaches query_objlist with C NULL; JavaScript undefined currently inserts an extra default title.",
+      "detail": "",
+      "openedAt": "f8155772ce567b190427c1de2d683a9910c81ce7",
+      "openStanding": {
+        "sha": "50a39b94d0ec3785717011e652bd75a1ed47941a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "dotypeinv",
+      "session": "synthetic/v48/v48-inventtype-weapons-attempt1",
+      "step": 13,
+      "syntheticProvenance": {
+        "synthetic/v48/v48-inventtype-weapons-attempt1": {
+          "session": "synthetic/v48/v48-inventtype-weapons-attempt1",
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-inventtype-weapons-attempt1",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recordingPath": "challenges/cases/v48/v48-inventtype-weapons-attempt1.session.json",
+          "recordingSha256": "212209e1ef501821d44338f2a844e3f8fada3bbb5c0d22de706c59dade77a668",
+          "evaluationPath": "challenges/evaluations/accepted-50a39b94d0ec3785717011e652bd75a1ed47941a-v48.json",
+          "evaluationCommit": "50a39b94d0ec3785717011e652bd75a1ed47941a"
+        }
+      },
+      "activeStanding": {
+        "sha": "50a39b94d0ec3785717011e652bd75a1ed47941a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-inventtype-weapons-attempt1",
+          "session": "synthetic/v48/v48-inventtype-weapons-attempt1",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recording": "challenges/cases/v48/v48-inventtype-weapons-attempt1.session.json",
+          "recordingPath": "challenges/cases/v48/v48-inventtype-weapons-attempt1.session.json",
+          "recordingSha256": "212209e1ef501821d44338f2a844e3f8fada3bbb5c0d22de706c59dade77a668",
+          "recipe": "challenges/cases/v48/v48-inventtype-weapons-attempt1.recipe.session.json",
+          "recipeSha256": "16c104deaeae9512c4059b1abc22157f52f18468782ac9f9d6a1ecb985c488aa",
+          "replayInputSha256": "b70c8c27c8bcdc5da322ae35fc0bb02ce31894d6ad7e19cc88933585de4ae75c",
+          "evaluationPath": "challenges/evaluations/accepted-50a39b94d0ec3785717011e652bd75a1ed47941a-v48.json",
+          "evaluationCommit": "50a39b94d0ec3785717011e652bd75a1ed47941a",
+          "evaluationArtifact": "challenges/evaluations/accepted-50a39b94d0ec3785717011e652bd75a1ed47941a-v48.json",
+          "evaluationUtc": "2026-10-12T07:39:20.737Z",
+          "remainingScreens": 1,
+          "recordedSteps": 15,
+          "previousScreensMatched": 14,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 14,
+              "total": 15
+            },
+            "rng": {
+              "matched": 2176,
+              "total": 2176
+            },
+            "cursors": {
+              "matched": 14,
+              "total": 15
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 13,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 13,
+                "key": ")"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 31,
+              "cCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 1,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "P",
+                "color": 8,
+                "attr": 1,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 13,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 13,
+                "key": ")"
+              },
+              "cCursor": [
+                37,
+                3,
+                1
+              ],
+              "jsCursor": [
+                37,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 13,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v48/v48-inventtype-weapons-attempt1.json",
+            "result": {
+              "session": "synthetic/v48/v48-inventtype-weapons-attempt1",
+              "remainingScreens": 1,
+              "recordedSteps": 15,
+              "corpus": "synthetic",
+              "batch": "v48",
+              "caseId": "v48-inventtype-weapons-attempt1",
+              "manifestPath": "challenges/manifests/v48.json",
+              "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+              "recordingSha256": "212209e1ef501821d44338f2a844e3f8fada3bbb5c0d22de706c59dade77a668",
+              "evaluationPath": "challenges/evaluations/accepted-50a39b94d0ec3785717011e652bd75a1ed47941a-v48.json",
+              "evaluationCommit": "50a39b94d0ec3785717011e652bd75a1ed47941a",
+              "status": "complete",
+              "commit": "148ff252f630fb3a5f7bc78399f45e553bd6f188",
+              "mismatch": {
+                "screen": {
+                  "index": 13,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 13,
+                    "key": ")"
+                  },
+                  "kind": "ch",
+                  "row": 0,
+                  "column": 31,
+                  "cCell": {
+                    "ch": "W",
+                    "color": 8,
+                    "attr": 1,
+                    "decgfx": 0
+                  },
+                  "jsCell": {
+                    "ch": "P",
+                    "color": 8,
+                    "attr": 1,
+                    "decgfx": 0
+                  }
+                },
+                "rng": null,
+                "cursor": {
+                  "index": 13,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 13,
+                    "key": ")"
+                  },
+                  "cCursor": [
+                    37,
+                    3,
+                    1
+                  ],
+                  "jsCursor": [
+                    37,
+                    5,
+                    1
+                  ]
+                },
+                "session": "synthetic/v48/v48-inventtype-weapons-attempt1",
+                "remainingScreens": 1
+              },
+              "step": 13,
+              "kind": "screen",
+              "summary": "At segment 0 step 13, C displays the selected weapon inventory menu with its first class heading at row 0; JavaScript adds the default 'Pick up what?' title before the same menu, so 'Weapons' is shifted and the first mismatch is W versus P. invent.c:dotypeinv() passes NULL as query_objlist()'s qstr. js/invent.js passes state.gt.this_title ?? undefined, causing js/pickup.js:query_objlist()'s default title parameter to replace C's null. Preserve non-null BUC titles while passing null when dotypeinv's title is unset.",
+              "source": {
+                "file": "invent.c",
+                "branch": "dotypeinv() calls query_objlist(NULL, &gi.invent, flags, &pick_list, PICK_ONE, this_type_only) at lines 4018-4021. The null qstr leaves the first sorted object-class heading as the menu's first visible row.",
+                "functions": [
+                  "dotypeinv"
+                ],
+                "callers": [
+                  "cmd.c ext_func_tab dispatches #inventtype to invent.c:dotypeinv(); js/cmd.js invokes js/invent.js:dotypeinv() through the matching extended-command entry."
+                ],
+                "dependencies": [
+                  "pickup.c:query_objlist() passes qstr directly to end_menu(); a NULL qstr means no additional title row.",
+                  "js/pickup.js:query_objlist() defaults an undefined title argument to 'Pick up what?', but accepts null as an empty title, preserving existing non-null this_title values."
+                ]
+              },
+              "evidence": [
+                "The accepted v48 evaluation identifies one screen mismatch at segment 0 step 13, key ')': C shows 'Weapons' while JavaScript shows 'Pick up what?' at the same row, and the cursor is two rows lower in JavaScript; RNG calls match through this screen.",
+                "The documented single-case scan at replay commit 148ff252 reproduces the mismatch after #inventtype and the ')' weapon-category selection, with no unported functions.",
+                "nethack-c/upstream/src/invent.c:dotypeinv() calls query_objlist() with a NULL qstr at lines 4018-4021; js/invent.js:dotypeinv() passes undefined when gt.this_title is null, selecting js/pickup.js:query_objlist()'s Pick up what? default parameter."
+              ],
+              "goalKind": "divergence-fix",
+              "divergenceResult": {
+                "afterFirstMismatch": null,
+                "afterReplay": {
+                  "id": "run-CBxrwt",
+                  "commit": "be3747ea1f013cfc5dfe39cd9ddba40d7e4325de",
+                  "receipt": "/tmp/teleport-validation-1000/run-CBxrwt/receipt.json",
+                  "screensMatched": 15,
+                  "screensTotal": 15,
+                  "rngMatched": 2176,
+                  "inputBoundaryMatched": true,
+                  "unported": []
+                },
+                "sourceFunctionCompletion": "No new whole-function completion claim; invent.c:dotypeinv was already recorded complete."
+              },
+              "currentEvaluationReview": {
+                "reviewedAt": "2026-10-12T07:49:17.558Z",
+                "remainingScreens": 1,
+                "firstMismatch": {
+                  "screen": {
+                    "index": 13,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 13,
+                      "key": ")"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 31,
+                    "cCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 1,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "P",
+                      "color": 8,
+                      "attr": 1,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 13,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 13,
+                      "key": ")"
+                    },
+                    "cCursor": [
+                      37,
+                      3,
+                      1
+                    ],
+                    "jsCursor": [
+                      37,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "sourceDiagnosisUnchanged": true
+              }
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "50a39b94d0ec3785717011e652bd75a1ed47941a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Give the prepared batch priority at this safe pre-code boundary because C has no independent unreserved work; preserve B inventory correction for resumption."
     }
   ]
 }
