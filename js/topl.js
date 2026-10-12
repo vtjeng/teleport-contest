@@ -7,6 +7,7 @@ import {
     WIN_LOCKHISTORY,
     WIN_NOSTOP,
     WIN_STOP,
+    quitchars,
 } from './const.js';
 import { game } from './gstate.js';
 import { nhgetch } from './input.js';
@@ -15,9 +16,12 @@ import {
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
     TOPLINE_NON_EMPTY,
+    dismissPendingTtyMessage,
 } from './tty_message.js';
 
 const CTRL_P = 0x10;
+const ERASE_CHAR = 0x7F;
+const BACKSPACE = 0x08;
 const ESC = 0x1B;
 
 function messageWindow(state) {
@@ -330,8 +334,226 @@ function setTopline(text, state) {
     }
 }
 
-// C refs: topl.c show_topl(); tty_yn_function() itself is in getline.js,
-// where prompt input and history dispatch share the original caller.
+// C ref: wintty.c tty_clear_nhwindow(WIN_MESSAGE), used by
+// topl.c tty_yn_function() after message-history navigation and wrapped prompts.
+function clearMessageWindow(display) {
+    const lastRow = Math.max(0, display.cursorRow);
+    for (let row = 0; row <= lastRow && row < display.rows; ++row)
+        display.clearRow(row);
+    display.setCursor(0, 0);
+}
+
+// C ref: win/tty/topl.c tty_yn_function() (363-550).  Two arms.  With
+// `resp == (char *) 0` any single keystroke is accepted and returned: the
+// prompt is written, one key is read, and the function jumps straight to
+// clean_up.  With a response set, the prompt names the allowed keys and their
+// default and a loop rejects everything else.
+//
+// Three parts of the restricted arm retain source-specific handling here:
+//   a set holding '#', which turns digits into a count in yn_number;
+//   a set holding an uppercase letter, which suppresses lowc() on the answer;
+//   a set holding <esc>, whose tail names responses the prompt hides.
+// The Ctrl-P reprompt inside the loop stops as well, for the same reason
+// hooked_tty_getlin() also routes Ctrl-P through tty_doprev_message().
+//
+// `def` is unread on the unrestricted arm; C names it because clean_up is
+// shared, and on the restricted arm quitchars and Escape resolve to it.
+export async function tty_yn_function(query, resp, def, state = game) {
+    const { readchar, key2txt } = await import('./cmd.js');
+    const display = state.nhDisplay;
+    if (!display) throw new Error('a yn prompt requires an initialized display');
+
+    // C's file-global yn_number is scoped to one tty_yn_function() call. Keep
+    // the equivalent on the game state so askchain() can consume a counted
+    // response after yn_function() returns '#'.
+    state.yn_number = 0;
+    if (display.toplin === TOPLINE_NEED_MORE && !state._ttyMessageStopped)
+        await dismissPendingTtyMessage(state);
+    // topl.c:391 clears WIN_STOP and WIN_NOSTOP whether or not more() ran.
+    state._ttyMessageStopped = false;
+    // topl.c:392-393 marks a special prompt and raises inread.
+    display.toplin = TOPLINE_SPECIAL_PROMPT;
+    display.inread = (display.inread ?? 0) + 1;
+
+    // Both arms end in the same
+    // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s", prompt); they
+    // differ only in the prompt they build for it.  The restricted arm's
+    // trailing space is already in the string, "in case of reprompt".
+    const preserveCase = resp !== null && /[A-Z]/u.test(resp);
+    let prompt;
+    if (resp !== null) {
+        /* normally we force lowercase, but if any uppercase letters
+           are present in the allowed response, preserve case */
+        // C ref: topl.c:412-413. Characters after the first ESC in resp are
+        // accepted but not shown in the prompt bracket. The displayed portion
+        // is everything before the ESC; the full resp (without the ESC itself)
+        // is used for key matching.
+        let displayResp = resp;
+        if (resp.includes('\x1B')) {
+            const escIdx = resp.indexOf('\x1B');
+            displayResp = resp.slice(0, escIdx);
+            // Replace resp with visible + hidden (without the ESC separator)
+            // so the matching loop below accepts hidden characters too.
+            resp = resp.slice(0, escIdx) + resp.slice(escIdx + 1);
+        }
+        // C ref: topl.c:415 `if (def)` tests a char, so '\0' (0) is falsy
+        // and suppresses the default display.  In JS the parameter arrives
+        // as a one-character string, so '\0' is truthy; test the code point.
+        const showDef = def && def.charCodeAt(0) !== 0;
+        prompt = `${query} [${displayResp}]${showDef ? ` (${def})` : ''} `;
+    } else {
+        prompt = `${query} `;
+    }
+    if (state.u?.ux && !state._bonesRestorePrompt) {
+        const { flush_screen } = await import('./display.js');
+        await flush_screen(1);
+    }
+    // custompline(SUPPRESS_HISTORY) remembers the old line, then draws this
+    // prompt without adding it to history yet.
+    remember_topl(state);
+    show_topl(prompt, state);
+    state._ttyToplines = prompt;
+    state._pending_message = '';
+    // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
+    display.toplin = TOPLINE_NEED_MORE;
+    state._ttyPreviousMessage = prompt;
+
+    // Every key below is the byte readchar() returns, as on the unrestricted
+    // arm; `def` arrives as the one-character string its callers spell.
+    const defByte = def ? def.charCodeAt(0) : 0;
+    let q;
+    let doprev = false;
+    if (resp === null) {
+        q = await readchar(state);
+    } else {
+        do { /* loop until we get valid input */
+            q = await readchar(state);
+            /* !preserve_case */
+            if (!preserveCase && q >= 0x41 && q <= 0x5A) q |= 0x20;
+            if (q === CTRL_P) {
+                const mode = state.iflags?.prevmsg_window ?? 's';
+                if (mode !== 's') {
+                    const savedInread = display.inread;
+                    display.inread = 0;
+                    await tty_doprev_message(state);
+                    display.inread = savedInread;
+                    clearMessageWindow(display);
+                    show_topl(prompt, state);
+                    state._ttyToplines = prompt;
+                    display.toplines = prompt;
+                    display.toplin = TOPLINE_NEED_MORE;
+                } else {
+                    if (!doprev) await tty_doprev_message(state);
+                    await tty_doprev_message(state);
+                    doprev = true;
+                }
+                q = 0;
+                continue;
+            } else if (doprev) {
+                clearMessageWindow(display);
+                show_topl(prompt, state);
+                state._ttyToplines = prompt;
+                display.toplines = prompt;
+                display.toplin = TOPLINE_NEED_MORE;
+                doprev = false;
+                q = 0;
+                continue;
+            }
+            if (q === ESC) {
+                if (resp.includes('q')) q = 'q'.charCodeAt(0);
+                else if (resp.includes('n')) q = 'n'.charCodeAt(0);
+                else q = defByte;
+                break;
+            } else if (quitchars.includes(String.fromCharCode(q))) {
+                // decl.c:96 quitchars[] is " \r\n\033". Escape is tested by
+                // the arm above, so only space, carriage return and line feed
+                // reach this one.
+                q = defByte;
+                break;
+            }
+            const allowNum = resp.includes('#');
+            const digitOk = allowNum && q >= 0x30 && q <= 0x39;
+            if (!resp.includes(String.fromCharCode(q)) && !digitOk) {
+                // tty_nhbell(), which writes no cell and moves no cursor.
+                q = 0;
+            } else if (q === 0x23 || digitOk) {
+                // topl.c:478-529. A digit or '#' starts a count. The first
+                // digit is part of the count, then digits continue until a
+                // terminator. A positive count returns '#' and is exposed as
+                // state.yn_number; zero and malformed counts follow C's no or
+                // reprompt paths respectively.
+                let value = q === 0x23 ? 0 : q - 0x30;
+                let digitLength = q === 0x23 ? 0 : 1;
+                let invalid = false;
+                for (;;) {
+                    const z = await readchar(state);
+                    const lower = !preserveCase && z >= 0x41 && z <= 0x5A
+                        ? z | 0x20 : z;
+                    if (lower >= 0x30 && lower <= 0x39) {
+                        value = value * 10 + lower - 0x30;
+                        digitLength++;
+                        if (!Number.isSafeInteger(value)) {
+                            invalid = true;
+                            break;
+                        }
+                    } else if (lower === 0x79
+                        || quitchars.includes(String.fromCharCode(lower))) {
+                        if (lower === ESC) invalid = true;
+                        break;
+                    } else if (lower === ERASE_CHAR || lower === BACKSPACE) {
+                        if (digitLength <= 0) {
+                            invalid = true;
+                            break;
+                        }
+                        value = Math.trunc(value / 10);
+                        digitLength--;
+                    } else {
+                        invalid = true;
+                        break;
+                    }
+                }
+                if (invalid || value < 0) {
+                    q = 0;
+                } else if (value === 0) {
+                    q = 0x6e; // 'n'
+                } else {
+                    state.yn_number = value;
+                    q = 0x23; // '#'
+                }
+            }
+        } while (!q);
+    }
+
+    // clean_up: gt.toplines is rewritten as the prompt followed by the key,
+    // so message recall shows the answered prompt rather than the bare query.
+    const answerText = state.yn_number
+        ? `#${state.yn_number}` : key2txt(q);
+    state._ttyToplines = `${prompt}${answerText}`;
+    display.toplines = state._ttyToplines;
+    display.topMessage = state._ttyToplines;
+    // The answer itself is not drawn: C's `addtopl(rtmp)` at topl.c:541 is
+    // commented out in favour of rewriting gt.toplines. A one-line prompt
+    // stays on the physical line, and js/display.js _buildScreenOutput()
+    // repaints row 0 from _pending_message. TOPLINE_NON_EMPTY is what stops
+    // the next message treating that line as one awaiting --More--, exactly
+    // as topl.c update_topl():262 does.
+    //
+    // topl.c:547 clears WIN_MESSAGE when cury is nonzero. display.cursorRow
+    // tracks that same wrapped-prompt state, so retain the source cleanup for
+    // long prompts before deciding whether the answered line remains pending.
+    if (display.cursorRow > 0) {
+        clearMessageWindow(display);
+        state._pending_message = '';
+        display.toplin = TOPLINE_EMPTY;
+    } else {
+        state._pending_message = prompt;
+        display.toplin = TOPLINE_NON_EMPTY;
+    }
+    display.inread = Math.max(0, display.inread - 1);
+    if (display.intr) --display.intr;
+    return q;
+}
+
 export function show_topl(text, state = game) {
     const display = state.nhDisplay;
     if (!display) return;

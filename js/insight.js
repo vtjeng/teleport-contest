@@ -358,7 +358,7 @@ import {
 } from './roles.js';
 import { costly_spot } from './shk.js';
 import { ttyPline } from './tty_message.js';
-import { tty_yn_function } from './getline.js';
+import { tty_yn_function } from './topl.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { livelog_printf } from './pline.js';
 import { note_unported } from './unported.js';
