@@ -554,7 +554,7 @@ export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previo
             ? ['Verify the mission plan was fixed before inspecting JavaScript results.',
                 'Verify saved independent C replay results and committed manifest hashes; rerun only for changed inputs or missing or suspect evidence.',
                 'Keep the manifest outside admitted manifests until the batch admission gate passes.']
-            : ['Workers own source review. Preserve their findings; do not repeat whole-source certification for a targeted fix.',
+            : ['Workers own source review. Preserve their findings; do not repeat whole-source certification.',
                 'Address previous failures; run local checks for integration edits, conflicts or suspect evidence. Use the combined hosted checkpoint for full validation.',
                 'Accept targeted fixes from saved CI results: target improvement and no fixed or synthetic per-case regressions.'] };
 }

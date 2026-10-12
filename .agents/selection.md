@@ -292,7 +292,7 @@ goal. If that scope is blocked or overlaps another worker, select another
 independent source-traced task from the saved queue, with regression repairs
 taking priority over other synthetic work.
 Seed continuity is a scheduling preference, not permission to special-case
-that seed or to skip whole-source completion.
+that seed or to omit the source behavior in the selected scope.
 
 Before editing, check the current runtime ledger and pending scope
 announcements for active and pending-delivery reservations. Prepare the next
@@ -311,9 +311,9 @@ assignment. Respect the user's task bounds and stop requests throughout.
 Explain seed continuation, related sessions, and source reservations in
 `--selection-reason`.
 A fresh worker-branch observation stays tied to that commit. Include the
-claimed investigation in the delivery; the orchestrator validates its count
-and provenance before using it in main's cache. Recheck selection and
-existing completion evidence before integrating each delivery; reconcile
+claimed investigation in the delivery; submission checks its recorded count
+and provenance against the cited saved evidence. Do not refresh historical
+counts for acceptance. Before integrating each delivery, reconcile
 work made redundant by intervening integrations rather than implementing it
 again. A submitted delivery may be integrated while another worker proceeds;
 neither dispatch nor integration waits for an entire worker batch.
@@ -394,8 +394,9 @@ source claims before implementation. Cache reuse does not establish source compl
 or replace validation.
 
 Keep the replay cache's existing freshness checks in `scan-sessions.mjs`.
-The current scan supplies the count used to validate this separate
-investigation cache.
+The current scan checks an investigation's count for new task selection.
+Submission instead checks historical counts against their cited saved evidence;
+an accepted fix need not rewrite its original diagnosis.
 
 The queue and dashboard distinguish `complete`, `partial`, `missing`, `stale`
 (count changed), and `invalid` (unreadable or malformed file) results. Only a
@@ -403,7 +404,7 @@ The queue and dashboard distinguish `complete`, `partial`, `missing`, `stale`
 discarding their source findings. CI reads the tracked investigation files;
 keep findings and their source pointers in the result, not only in `.cache/`.
 
-## Opening the goal
+## Registering the goal
 
 Queue a C source port with:
 
@@ -430,9 +431,10 @@ A Lua program correction uses `lua-port` so its top-level behavior remains in
 scope. The same source-tracing and replay requirements apply.
 
 Write a worker-local task context for the selected scope before implementation;
-the orchestrator opens its central goal at integration. A source port includes
+the orchestrator registers its central goal at integration and leaves it queued
+until acceptance. A source port includes
 every unit in its selected range without recorded completion evidence,
-including previously declared functions. Record the evidence as
+including previously declared functions. Submit worker findings as
 `.agents/validation.md`, "Source completion evidence", specifies. Do not
 rewrite historical goal or score rows to make their old name counts verified.
 

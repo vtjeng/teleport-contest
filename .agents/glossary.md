@@ -10,7 +10,8 @@ An implementation task can be one of the following:
 - A divergence fix.
 
 `GOALS.json` records the integration plan for an implementation task as a
-**goal**; it is written through `node scripts/goal-log.mjs`.
+**goal**; `goal-log.mjs` registers it and `task-handoff.mjs accept` records its
+accepted outcome. A closed task record is not a whole-source certification.
 `.agents/selection.md` states how the mismatch queue orders implementation
 tasks. `node scripts/goal-log.mjs roadmap` lists C declarations separately from
 verified functions, and every Lua program with its completion evidence.
@@ -30,13 +31,13 @@ after the gates in `.agents/selection.md` pass.
 
 A **file port** is an implementation task that ports one C file, or one named
 group of functions in a C file, every function in the selected range in C
-order. It closes when every function has recorded whole-source, caller, and validation
-evidence and its recordings reach every entry point in scope (`AGENTS.md`,
-"Validate completed work").
+order. Workers own source review and runtime evidence (`AGENTS.md`,
+"Validate completed work"). Main accepts it from CI results under `.agents/loop.md`,
+without independently certifying every source unit.
 
 A **Lua port** implements one whole `dat/*.lua` program, including its
 helper functions, top-level statements, and production dispatch. It uses the
-same completion evidence as a C file port; loader registration is inventory.
+same worker evidence as a C file port; loader registration is inventory.
 
 A **declaration** is a matching JavaScript name. A **verified source unit**
 has the explicit completion evidence defined in `.agents/validation.md`.
@@ -80,8 +81,8 @@ selection until handoff or an explicit block, as the runtime ledger in
 `.agents/loop.md` records. The central `GOALS.json` open/queued states describe
 integration and its backlog, not all concurrent worker activity; opening and
 closing remain serialized. A worker persists across task deliveries in its
-assigned worktree. A source port closes after its selected range and entry-point
-coverage are verified. A **parked** goal preserves unfinished work while a
+assigned worktree. A source task closes when its delivery is accepted, not
+when every source unit is certified. A **parked** goal preserves unfinished work while a
 higher-priority blocker is addressed.
 
 A **superseded** goal is a retired plan whose work belongs to another named

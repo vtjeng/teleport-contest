@@ -10,7 +10,7 @@ competition holdout is outside this workspace.
 
 ## Routine validation
 
-- Before committing, run focused tests with
+- Before committing worker changes or Main's integration edits, run focused tests with
   `node scripts/run-bounded.mjs focused -- node --test <file>`.
   Put Node test options before the file. `npm test` selects the default
   suite; it does not forward file selections or Node test options.
@@ -35,6 +35,10 @@ competition holdout is outside this workspace.
   do not run a redundant branch-only full checkpoint before each handoff. A
   standalone game change outside the multi-worker loop still requires a
   post-commit checkpoint.
+  Main's standard checks run in CI: the full suite, lint, generated/static
+  checks, and all session evaluations. Main runs focused tests or replays
+  locally only for integration edits, conflict resolutions, failed checks, or
+  a specific result it suspects is wrong. Do not repeat successful CI checks.
   The local `npm run checkpoint` command tests HEAD in a fresh
   worktree, initializes C from the local repository, and excludes uncommitted
   changes. Use `npm run checkpoint -- --commit <revision>` to select another
@@ -73,8 +77,8 @@ competition holdout is outside this workspace.
   Keep HEAD at the candidate until import and closure finish. The hosted
   summary retains its actual GitHub run and per-stage attempts. Hosted runners
   use job timeouts and isolation rather than the local systemd wrapper.
-  Reuse the imported scan cache and synthetic evaluation artifacts for closure;
-  compare synthetic results with accepted evidence under `.agents/scoring.md`.
+  Reuse the imported scan cache and evaluation artifacts for acceptance;
+  the acceptance helper compares them with accepted evidence under `.agents/scoring.md`.
   Do not replay them merely because they were measured remotely.
 - The agent that starts checkpoint owns the command through completion and
   retains its process handle. Do not interrupt that agent merely to take over
@@ -136,17 +140,21 @@ competition holdout is outside this workspace.
 
 ## Source completion evidence
 
-A declaration establishes that code exists. Completion also requires a
-whole-source comparison, production wiring, and appropriate execution
-coverage. Task planning skips only units with this evidence; old
-`ported` flags and old goal closures remain historical name counts.
+Whole-source certification is outside the normal implementation loop. Do not
+start a background coverage audit unless the user requests one. Accepting a
+task does not certify its selected functions. Preserve existing verified
+evidence; old `ported` flags and goal closures alone do not prove completeness.
 
 `.cache/task-context.json` and `.cache/task-evidence.json` are untracked
-handoff files. Do not stage them. The orchestrator records verified evidence
-in GOALS.json.
+handoff files. Do not stage them. Workers describe their source findings and
+runtime coverage in the schema below. Submission checks their schema and
+references; workers own the source comparison and cited prefix replays.
+Acceptance preserves these claims under `workerClaims` in `GOALS.json`,
+separately from independently verified `evidence`.
 
-The worker writes `.cache/task-evidence.json`. The orchestrator reads the
-source and artifacts, verifies the assertions, then records the evidence:
+Only for a user-requested whole-source certification, verify source coverage,
+production wiring, and runtime reachability independently, then record the
+verified evidence:
 
 ```
 node scripts/goal-log.mjs record-evidence --goal <id> \
@@ -177,15 +185,14 @@ source-pinned tests in the existing `entryPointReview`. Missing JavaScript
 behavior or a difficult recipe does not make a caller inactive. Each
 entry is `{ "name", "functions", "recordings", "synthetic" }`. A helper-only range uses
 an empty array and explains its production callers in `entryPointReview`.
-A planned entry point may have empty evidence arrays while blocked; the goal
-cannot close until every listed entry point has a matching recording or
-synthetic range. Reuse one range for multiple functions or entry points only
+A planned entry point may have empty evidence arrays while blocked; name its
+blocker without claiming full coverage. Reuse one range for multiple functions or entry points only
 when the source trace shows that each executes there.
 
 `record-evidence` checks the schema, source and implementation declarations,
-and that caller, test, and recording references exist. The orchestrator
+and that caller, test, and recording references exist. A certification audit
 verifies runtime reachability and that the cited evidence executes the claimed
-functions. At evidence recording and again before closure, it verifies admitted
+functions. At evidence recording and certification closure, the command verifies admitted
 synthetic cases through the last cited step, including earlier segments.
 Successful prefix replays have worktree-local receipts under
 `.cache/synthetic-prefix-receipts/`. A receipt is reused only for the same
@@ -201,11 +208,12 @@ recordings remain available for fixed-workload diagnosis and scoring; evidence
 itself stays under its declared roots. Evidence is stored in `GOALS.json`; keep
 the durable record there.
 
-`close-goal` requires evidence for every planned source unit, complete
-entry-point coverage, and a passing checkpoint at HEAD, including the
-recordings corpus. Historical open goals with spans retain their recorded
-requirements. When a function or its wiring changes, refresh its evidence
-in the same task.
+For source ports, the legacy `close-goal` command requires evidence for every
+planned source unit, complete entry-point coverage, and a passing checkpoint
+at HEAD. It is not the normal acceptance path. Use
+`task-handoff.mjs accept` under `.agents/loop.md` to record a delivered task's
+outcome without making a whole-source completeness claim. When a function or
+its wiring changes, update the worker's findings and evidence in that task.
 Existing declarations that lack evidence remain eligible for implementation
 or verification; do not reimplement correct code merely to change a count.
 If a new source trace proves that a closed goal's completion evidence covered

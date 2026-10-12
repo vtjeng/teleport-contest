@@ -62,10 +62,10 @@ facts in the goal's `--detail`:
 
 Write `.cache/task-context.json` with the functions the fix will read and the
 source fields `goal`, `cFile`, `functions`, `lineRanges`, `cLines`, `jsFile`,
-and `sessions`. The orchestrator opens the queued goal at integration under
+and `sessions`. The orchestrator registers the goal at integration under
 `.agents/loop.md`. On resumption, inspect its recorded state and continue the
-existing task. Historical goals with queued spans retain their existing
-context and closure path.
+existing task. Preserve historical span context; normal task acceptance does
+not require its source-certification closure path.
 
 ### 3. Investigate and implement
 
