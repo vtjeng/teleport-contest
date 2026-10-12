@@ -1,0 +1,44 @@
+{
+  "session": "synthetic/v51/v51-fireelemental-sink-metamorphosis-action-attempt3",
+  "corpus": "synthetic",
+  "batch": "v51",
+  "caseId": "v51-fireelemental-sink-metamorphosis-action-attempt3",
+  "manifestPath": "challenges/manifests/v51.json",
+  "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+  "recordingSha256": "1c17eee8a819cab8a36a0417ff16c54b4eab6275a0c7a61a06faf567a8f5d98e",
+  "evaluationPath": "challenges/evaluations/baseline-v51-admission-20261012.json",
+  "evaluationCommit": "1429fa3c893c4798ccb2117707b507dee4bacd33",
+  "remainingScreens": 244,
+  "recordedSteps": 323,
+  "status": "complete",
+  "summary": "The fresh admitted replay first diverges at segment 0, step 79. In fountain.c:drinksink case 10, toxic waste followed by the freakish metamorphosis message calls polyself(POLY_NOFLAGS) unless Unchanging is active. JS fountain.js:drinksink instead records note_unported('polyself.c polyself') and skips the state transition and its RNG. The saved source completion evidence marks drinksink complete and retained that gap while polyself was unported; GOALS now records polyself.c:polyself as complete. This is a bounded caller divergence: wire the existing polyself implementation at the stale gap, preserving the source message and call order.",
+  "commit": "7a26d4e2f3d514ff046d87377a377857df3b9989",
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "fountain.c",
+    "functions": ["drinksink"],
+    "branch": "The rn2(20) switch selects case 10, and Unchanging is false. C prints the toxic-waste message, prints the freakish-metamorphosis message, calls polyself(POLY_NOFLAGS), and discards its return. The JavaScript branch currently records note_unported('polyself.c polyself') instead of calling the now-implemented function.",
+    "callers": [
+      "potion.c:dodrink -> fountain.c:drinksink (reachable sink, can_reach_floor succeeds, and the hero accepts the drink prompt)"
+    ],
+    "dependencies": ["polyself.c:polyself"]
+  },
+  "mismatch": {
+    "session": "synthetic/v51/v51-fireelemental-sink-metamorphosis-action-attempt3",
+    "remainingScreens": 244,
+    "kind": "rng",
+    "step": 79,
+    "screenIndex": 79,
+    "rngIndex": 2208,
+    "cEntry": "rn2(20)=2",
+    "cCaller": "polyself(polyself.c:490)",
+    "jsEntry": "rn2(12)=6"
+  },
+  "evidence": [
+    "Fresh replay: node scripts/scan-sessions.mjs --json --synthetic v51/v51-fireelemental-sink-metamorphosis-action-attempt3; first screen, cursor, and RNG mismatch is segment 0 step 79, with C rn2(20)=2 at polyself.c:490 and JS rn2(12)=6.",
+    "C source nethack-c/upstream/src/fountain.c:595-712 selects rn2(20), then case 10 prints the toxic-waste line, checks !Unchanging, prints the metamorphosis line and calls polyself(POLY_NOFLAGS). C discards the void result.",
+    "JS source js/fountain.js:1254-1411 preserves the same sink switch; case 10 at line 1371 prints both messages and then records note_unported('polyself.c polyself') instead of invoking polyself.",
+    "GOALS.json records fountain.c:drinksink as complete in goals 406 and 1076; its source evidence explicitly documents the old case-10 gap while polyself was unported. GOALS.json goal polyself-c marks polyself.c:polyself complete, and js/polyself.js exports the implementation.",
+    "The existing production route remains potion.c:dodrink -> fountain.c:drinksink; js/potion.js already imports and awaits drinksink for the accepted sink prompt. No new dodrink wiring is needed."
+  ]
+}
