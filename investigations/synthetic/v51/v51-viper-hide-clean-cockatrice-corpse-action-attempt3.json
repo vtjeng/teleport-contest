@@ -1,0 +1,40 @@
+{
+  "session": "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+  "corpus": "synthetic",
+  "batch": "v51",
+  "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+  "manifestPath": "challenges/manifests/v51.json",
+  "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+  "recordingSha256": "c36d2e67d8675e21a499b0c742854a6bae2f095a3e70620f3f3e46c7d0467811",
+  "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v51.json",
+  "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+  "remainingScreens": 5,
+  "recordedSteps": 157,
+  "status": "complete",
+  "summary": "A fresh admitted replay first diverges at segment 0 step 148 after #monster dispatch reaches polyself.c:dohide. The viper is hiding under the square's only floor object, an unresisted cockatrice corpse. C prints the fatal-mistake message, builds 'hiding under <corpse name>' and calls trap.c:instapetrify, which prints the stone message and enters the death sequence. JavaScript prints the fatal-mistake message but records note_unported('trap.c instapetrify'), so the next pager and cursor differ while RNG stays aligned. GOALS lists dohide as a historical declaration but the source roadmap has no verified completion evidence for it. Implement the complete polyself.c:dohide function and wire the existing instapetrify implementation at the missing source call.",
+  "commit": "d0fae061d2ec9328352b524499cabedd57448e09",
+  "goalKind": "file-port",
+  "source": {
+    "file": "polyself.c",
+    "functions": ["dohide"],
+    "branch": "Read the complete polyself.c:dohide definition at 1777-1876. In this case hides_under is true, the floor pile contains only petrifying corpses, Stone_resistance is false, and ct is one. C uses cxname on the top corpse, applies an() only for ct==1, appends plur(ct), prints the fatal-mistake message, builds kbuf as 'hiding under <corpse name><plural suffix>', and calls instapetrify(kbuf). JavaScript preserves the same pile test, name and first message, but records note_unported('trap.c instapetrify') instead of calling the existing implementation. C discards the void result; after return from a lifesaving outcome, both paths clear uundetected and return ECMD_TIME.",
+    "callers": [
+      "cmd.c:domonability (890-914) dispatches the #monster command to dohide for a hider; js/cmd.js:domonability calls js/polyself.js:dohide(state)."
+    ],
+    "dependencies": ["trap.c:instapetrify"]
+  },
+  "mismatch": {
+    "session": "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+    "remainingScreens": 5,
+    "kind": "screen",
+    "step": 148,
+    "screenIndex": 148
+  },
+  "evidence": [
+    "Fresh replay: node scripts/scan-sessions.mjs --json --synthetic v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3. The first screen and cursor mismatch is segment 0 step 148; RNG is still matched. JS records trap.c instapetrify as unported.",
+    "Admitted v51 manifest sourceTrace: step 148 is the fatal-mistake pager and stone/death sequence at steps 149-150. The recipe's leftward movement separates starting equipment from the only floor corpse, so the fatal test is the all-petrifying-corpse pile branch.",
+    "C source nethack-c/upstream/src/polyself.c:1777-1876 counts the petrifying corpse pile, constructs the exact killer text and calls instapetrify(kbuf); the call result is discarded.",
+    "JS source js/polyself.js:dohide preserves the source pile traversal and fatal-mistake message, then records note_unported('trap.c instapetrify') before clearing uundetected and returning ECMD_TIME.",
+    "The source roadmap at the selected base reports polyself.c with 9 verified of 34 declarations and has no verified dohide source evidence. The historical GOALS declaration marked dohide ported is inventory, not completion evidence. js/trap.js already implements trap.c:instapetrify and its call to done(STONING)."
+  ]
+}
