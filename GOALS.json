@@ -291897,7 +291897,7 @@
           "line": 1777,
           "endLine": 1876,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -292148,7 +292148,60 @@
           "luaFile": null,
           "line": null
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dohide",
+            "implementation": "js/polyself.js",
+            "symbol": "dohide",
+            "sourceReview": "Read and compared the complete polyself.c:dohide definition (1777-1876) and js/polyself.js:dohide. Preserved the held/trapped guard and its undetected/disguise reset, eel water/fountain messages, hides_under and empty-pile branches, exact floor-pile walk and corpse quantity count, Stone_resistance check, singular an() and plural suffix, fatal message and killer text, and the lifesaved continuation. The missing path now awaits the existing trap.c:instapetrify implementation after the warning and before clearing uundetected/returning ECMD_TIME, matching C order; C discards the helper's void result. Preserved the ceiling and plane guards, already-hidden message/ECMD_OK path, and new hidden/disguise state update, newsym, and ECMD_TIME return. The production dispatcher remains aligned: cmd.c:domonability calls dohide for the #monster command, and js/cmd.js:domonability calls dohide(state). Removed the obsolete dohide note_unported placeholder. Verified that all called state predicates and message helpers used here have existing implementations; no consumed-return callee is left unported.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c:domonability dispatches the #monster command to polyself.c:dohide for a hiding-capable polymorphed hero; js/cmd.js:domonability calls js/polyself.js:dohide(state)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polyself.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 156,
+                "source": "cmd.c:domonability #monster -> polyself.c:dohide all-cockatrice floor pile -> trap.c:instapetrify; JS cmd.js:domonability -> polyself.js:dohide -> trap.js:instapetrify"
+              }
+            ],
+            "checkedAt": "64eae40f053969a1a00f84b04619e3340a314340"
+          }
+        ],
+        "entryPointReview": "The selected function is the complete polyself.c:dohide source unit. Its production entry point is #monster through cmd.c:domonability when a polymorphed hiding-capable hero chooses to hide; js/cmd.js:domonability dispatches to js/polyself.js:dohide. The admitted v51 replay exercises that command with a viper and a square whose only floor object is an unresisted cockatrice corpse. It reaches the fatal pile branch, calls instapetrify, completes the death/lifesaving continuation, and matches the full input boundary. The existing youhiding implementation covers ordinary/already-hidden completion in the same function; it is awaited after the source state update. The focused source-pinned test checks the fatal caller order.",
+        "entryPoints": [
+          {
+            "name": "#monster hide with a floor pile of cockatrice corpses",
+            "functions": [
+              "dohide"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 156,
+                "source": "cmd.c:domonability -> polyself.c:dohide fatal pile branch -> trap.c:instapetrify"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
