@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first further source mission mcastu.c:mcast_summon_mons 421-446 nasty summon caller; psi601,disappear490,death389 alternatives. Level30 Monk faces hostile arch-lich without magic resistance. High caster level enables summon/aggravation/death/psi/disappear. Source-based target varies high-level mage versus high-level clerical path; actual first body must overlap-check pending v54 and v55. Expected C summon loop creates monsters or another named spell/attack reaches new actual first behavior; do not count prior destroy/weaken/stun body overlap.. Planned before any JS comparison for this new mission. C-only source action: ObservedClevel30 complete and map prompt clear. Create hostile arch-lich,20bounded forced rests with message acknowledgments, then inventory.",
+  "segments": [
+    {
+      "seed": 56010202,
+      "datetime": "20620721111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Monk,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n30\n                    i                    #wizmap\n#wizgenesis\nhostile arch-lich\n                    m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.                       i                    "
+    }
+  ]
+}

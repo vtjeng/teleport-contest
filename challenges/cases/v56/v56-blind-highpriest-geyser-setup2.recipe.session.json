@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first further source mission mcastu.c:mcast_geyser 523-536 physical8d6 body; mcast_lightning/fire_pillar/open_wounds alternatives. Level30 Caveman establishes blindness via worn blindfold before hostile high priest. Blindness makes BLIND_YOU useless while C high-level clerical spells remain visible as messages; bounded rests seek geyser/lightning/firepillar or another actual distinct first body. Expected C hostile high priest casts named clerical damage body with damage dice/resistance/state; report actual first branch, preserving any overlap probe.. Planned before any JS comparison for this new mission. C-only source action: C level30 messages consume20Space buffer before wish;80Space source-prompt correction ensures blindfold wish reaches command loop.",
+  "segments": [
+    {
+      "seed": 56010201,
+      "datetime": "20620721111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Caveman,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n30\n                                                                                \u0017uncursed blindfold\n                    i                    #wizmap\n"
+    }
+  ]
+}

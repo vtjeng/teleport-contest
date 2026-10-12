@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v56 mission apply.c:jump 2082-2093 TT_BEARTRAP escape -> HP/wounded legs/reset_utrap. Wear jumping boots; enter actual armed bear trap; select valid nearby landing with #jump. Required observation: C rips free, takes damage, wounds a leg and clears trap before landing. Initial source plan fixed before any JavaScript comparison. Scout actual C inventory/prompt/state; actions follow C evidence only. C-only correction: Physical jump cannot pass Wounded_legs from beartrap. C source jump allows magic>0; documented source dowizcast casts chosen spell irrespective knowledge. Scout casting menu at trapped state.",
+  "segments": [
+    {
+      "seed": 56010101,
+      "datetime": "20620318111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed jumping boots\n                    \u0017bear trap\n                    i                    #wizmap\ndb                    Wi                    l        ajm.m.m.m.m.m.        h        ly        #wizcast\n"
+    }
+  ]
+}

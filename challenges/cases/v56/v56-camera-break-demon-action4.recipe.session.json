@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Throw camera downward against hard floor; cheap curse/blessing variation if no release. Throw observed camera g down against stairs/hard floor. Bounded source-based alternate history: after no release from the initial cursed camera, fracture one blessed and one newly cursed camera to exercise the charge-independent release chance and curse-dependent peace state. Independent inputs fixed before comparison of this extended mission. C action3 showed new wish slots h and i rather than reused g. Correct only those observed selections, preserving the missed probe.",
+  "segments": [
+    {
+      "seed": 56010103,
+      "datetime": "20620318111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed expensive camera\n                    i                    #wizmap\ntg>                    i                    \u0017blessed expensive camera\n                    th>                    \u0017cursed expensive camera\n                    ti>                    "
+    }
+  ]
+}

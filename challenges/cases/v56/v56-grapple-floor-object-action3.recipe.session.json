@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v56 mission apply.c:use_grapple 3729+ floor object hit -> pulling object to hero. Drop owned dagger at adjacent visible floor, wield hook and target pile using getpos. Required observation: C grappling skill/random target branch hooks floor object or records bounded source target miss. Initial source plan fixed before any JavaScript comparison. Scout actual C inventory/prompt/state; actions follow C evidence only. C-only prompt correction: One Space acknowledges Where-hit More before selecting actual east pile.",
+  "segments": [
+    {
+      "seed": 56010112,
+      "datetime": "20620318111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed grappling hook\n                    \u0017uncursed dagger\n                    i                    #wizmap\nl        dh        h        wg        ag l.                    i                    "
+    }
+  ]
+}

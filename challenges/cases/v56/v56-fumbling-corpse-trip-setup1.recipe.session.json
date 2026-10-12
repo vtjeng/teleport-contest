@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear gauntlets of fumbling to protect corpse acquisition but leave feet bare. Drop corpse on a known floor and step away/back until FUMBLING expires on an actual movement over the pile. This is floor tripping, distinct from deliberate throw, kick, hide, saddle and monster transformation selftouch callers. Source target fixed before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 56010501,
+      "datetime": "20621024111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed gauntlets of fumbling\n                    i                    #wizmap\n"
+    }
+  ]
+}

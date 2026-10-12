@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission pickup.c:carry_count 1610-1688 weight-limited stack count, then splitobj. Wish large independently selected arrow stack that cannot fit whole carry capacity and falls to floor; manual pickup requests whole stack so C chooses partial count before burden confirmation. Different C helper/result from pendingv55 single-armor burden prompt. Expected C reports only partial quantity can be carried; carry_count chooses count and downstream splitobj/ynq handles it.. Planned before thismission JS comparison; scout actual floor/inventory beforepickup.",
+  "segments": [
+    {
+      "seed": 56010401,
+      "datetime": "20621024111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u00175000 uncursed arrows\n                    i                    #wizmap\n"
+    }
+  ]
+}

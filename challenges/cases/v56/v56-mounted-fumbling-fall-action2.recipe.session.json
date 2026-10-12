@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source mission uses the C-observed starting pony and forced mount from this batch, with no web. Set a short FUMBLING timeout through supported debug intrinsic menu, then take a movement step while riding with uncursed saddle. The automatic timeout caller must invoke existing DISMOUNT_FELL, distinct from web transfer and kick THROWN. C page 2 shows s = fumbling. Select count 1 and finish menu, then move west on ordinary room floor; no web or floor object at destination.",
+  "segments": [
+    {
+      "seed": 56010503,
+      "datetime": "20621024111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #wizmap\n    i                    #ride\nuy                    #wizintrinsic\n>1s h                              "
+    }
+  ]
+}

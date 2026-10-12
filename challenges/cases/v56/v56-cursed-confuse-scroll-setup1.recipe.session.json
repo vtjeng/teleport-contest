@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v56 mission read.c:seffect_confuse_monster cursed scroll versus confused hero handling. Read cursed confuse monster scroll with initially clear mind; source cheap already-confused variation remains available. Required observation: C confusion effect and duration or clear-confusion branch determined by current mind state and curse. Initial source plan fixed before any JavaScript comparison. Scout actual C inventory/prompt/state; actions follow C evidence only.",
+  "segments": [
+    {
+      "seed": 56010111,
+      "datetime": "20620318111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed scroll of confuse monster\n                    i                    #wizmap\n"
+    }
+  ]
+}

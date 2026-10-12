@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first new source mission Wizard with levitation ring safely creates adjacent armed fire traps, then magic whistle forces grounded tame little dog to a trap destination. Source apply.c:magic_whistled565-585 checks mintrap after mnexto relocation; trap.c:mintrap FIRE_TRAP executes monster burn/death branch. Scout C pet creation, slots and room before placing traps. Two materially varied pet/room setups if target misses. Expected C: relocated pet lands on real fire trap and mintrap burns pet/possibly kills; actual firstsourceowner and overlap checked. No JS comparison for this mission yet. C inventory confirms levitation ring o and whistle p; tame little dog created. Map confirms north ordinary floor from hero. Wear o right, move north one, wish firetrap under hero (no entry trigger), move south away, apply p at most16times with4Space message acknowledgments. Do not step back into trap; levitation is not assumed to protect from flames. Forced pet relocation may trigger fire. Actual caller/branch taken must be recorded.",
+  "segments": [
+    {
+      "seed": 56010301,
+      "datetime": "20620921111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                                                                                \u0017uncursed ring of levitation\n                    \u0017uncursed magic whistle\n                    #wizgenesis\ntame little dog\n                    i                    #wizmap\nPor                    k        \u0017fire trap\n                    j        ap    ap    ap    ap    ap    ap    ap    ap    ap    ap    ap    ap    ap    ap    ap    ap                        i                    "
+    }
+  ]
+}

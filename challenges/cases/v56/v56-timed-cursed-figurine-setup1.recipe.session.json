@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v56 mission apply.c:fig_transform 2398 timeout transforms carried or floor cursed figurine. Keep cursed figurine carried then bounded forced turns; source timeout and alternate floor history govern defer decision. Required observation: C spontaneous transform enters timer callback rather than manual use_figurine; observed message and monster disposition. Initial source plan fixed before any JavaScript comparison. Scout actual C inventory/prompt/state; actions follow C evidence only.",
+  "segments": [
+    {
+      "seed": 56010109,
+      "datetime": "20620318111213",
+      "nethackrc": "OPTIONS=name:V56Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed figurine of a gnome\n                    i                    #wizmap\n"
+    }
+  ]
+}
