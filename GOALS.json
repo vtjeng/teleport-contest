@@ -283716,106 +283716,106 @@
           "name": "tty_doprev_message",
           "line": 20,
           "endLine": 121,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "redotoplin",
           "line": 122,
           "endLine": 144,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "show_topl",
           "line": 145,
           "endLine": 169,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "remember_topl",
           "line": 170,
           "endLine": 193,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "addtopl",
           "line": 194,
           "endLine": 204,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "more",
           "line": 205,
           "endLine": 250,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "update_topl",
           "line": 251,
           "endLine": 304,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "topl_putsym",
           "line": 305,
           "endLine": 346,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "putsyms",
           "line": 347,
           "endLine": 353,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "removetopl",
           "line": 354,
           "endLine": 364,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "tty_yn_function",
           "line": 365,
           "endLine": 558,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "msghistory_snapshot",
           "line": 559,
           "endLine": 604,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "free_msghistory_snapshot",
           "line": 605,
           "endLine": 636,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "tty_getmsghistory",
           "line": 637,
           "endLine": 676,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "tty_putmsghistory",
           "line": 677,
           "endLine": 731,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -284020,7 +284020,508 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "tty_doprev_message",
+            "implementation": "js/topl.js",
+            "symbol": "tty_doprev_message",
+            "sourceReview": "C win/tty/topl.c:20-119; translated single/full/combination/reversed history branches, WIN_MESSAGE ring traversal, More handling, and prompt-state restoration.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doprev_message",
+                "source": "cmd.c:doprev_message -> tty_doprev_message"
+              },
+              {
+                "path": "js/topl.js",
+                "symbol": "tty_yn_function",
+                "source": "win/tty/topl.c:tty_yn_function -> tty_doprev_message"
+              },
+              {
+                "path": "js/getline.js",
+                "symbol": "hooked_tty_getlin",
+                "source": "win/tty/topl.c:tty_getlin Ctrl-P path -> tty_doprev_message"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/yn-function-ctrlp.session.json",
+              "recordings/topl.c/menu-search-history-invalid-command.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v48",
+                "caseId": "v48-previous-message-history-ctrlp",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1,
+                "source": "cmd.c:rhack -> cmd.c:doprev_message -> winprocs.win_doprev_message -> win/tty/topl.c:tty_doprev_message"
+              }
+            ],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "redotoplin",
+            "implementation": "js/topl.js",
+            "symbol": "redotoplin",
+            "sourceReview": "C win/tty/topl.c:122-143; translated physical-row redraw, mixed-byte handling, clear-to-end, topline state transition, and wrapped More ordering.",
+            "callers": [
+              {
+                "path": "js/topl.js",
+                "symbol": "tty_doprev_message",
+                "source": "win/tty/topl.c:tty_doprev_message -> redotoplin"
+              },
+              {
+                "path": "js/topl.js",
+                "symbol": "update_topl",
+                "source": "win/tty/topl.c:update_topl -> redotoplin"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/yn-function-ctrlp.session.json",
+              "recordings/topl.c/menu-search-history-invalid-command.session.json",
+              "recordings/topl.c/wrapped-startup-topline.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "show_topl",
+            "implementation": "js/topl.js",
+            "symbol": "show_topl",
+            "sourceReview": "C win/tty/topl.c:145-168; translated STOP/NOSTOP admission, one-shot flag clearing, prior-row clearing, cursor reset, and top-line write.",
+            "callers": [
+              {
+                "path": "js/getline.js",
+                "symbol": "tty_getlin",
+                "source": "win/tty/topl.c:tty_getlin prompt -> show_topl"
+              },
+              {
+                "path": "js/tty_message.js",
+                "symbol": "ttyPline",
+                "source": "win/tty/wintty.c:tty_putstr -> show_topl"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/wrapped-startup-topline.session.json",
+              "recordings/topl.c/urgent-rehumanize-escape-independent.session.json",
+              "recordings/topl.c/yn-function-ctrlp.session.json",
+              "recordings/topl.c/menu-search-history-invalid-command.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "remember_topl",
+            "implementation": "js/topl.js",
+            "symbol": "remember_topl",
+            "sourceReview": "C win/tty/topl.c:170-192; translated ring allocation/padding, locked/empty early return, checkpoint behavior, and row index advancement.",
+            "callers": [
+              {
+                "path": "js/topl.js",
+                "symbol": "update_topl",
+                "source": "win/tty/topl.c:update_topl -> remember_topl"
+              },
+              {
+                "path": "js/tty_message.js",
+                "symbol": "ttyPline",
+                "source": "win/tty/wintty.c:tty_putstr -> remember_topl"
+              },
+              {
+                "path": "js/topl.js",
+                "symbol": "msghistory_snapshot",
+                "source": "win/tty/topl.c:msghistory_snapshot -> remember_topl"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/yn-function-ctrlp.session.json",
+              "recordings/topl.c/menu-search-history-invalid-command.session.json",
+              "recordings/topl.c/wrapped-startup-topline.session.json",
+              "recordings/topl.c/save-message-history-gzip-profile.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "addtopl",
+            "implementation": "js/topl.js",
+            "symbol": "addtopl",
+            "sourceReview": "C win/tty/topl.c:194-203; translated message-window cursor offset, symbol output, clear-to-end, and NEED_MORE state.",
+            "callers": [
+              {
+                "path": "js/topl.js",
+                "symbol": "tty_doprev_message",
+                "source": "win/tty/topl.c:tty_yn_function Ctrl-P cleanup -> addtopl"
+              },
+              {
+                "path": "js/topl.js",
+                "symbol": "tty_yn_function",
+                "source": "win/tty/topl.c:tty_yn_function prompt -> addtopl"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/yn-function-ctrlp.session.json",
+              "recordings/topl.c/menu-search-history-invalid-command.session.json",
+              "recordings/topl.c/split-history-erase.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "more",
+            "implementation": "js/topl.js",
+            "symbol": "more",
+            "sourceReview": "C win/tty/topl.c:205-249; matches unconditional prompt output, flags.standout, the source cursor/wrapped-row branch, xwaitforspace response, Escape WIN_STOP update, docorner/cl_end cleanup and topline/inmore reset.",
+            "callers": [
+              {
+                "path": "js/topl.js",
+                "symbol": "redotoplin",
+                "source": "win/tty/topl.c:redotoplin -> more"
+              },
+              {
+                "path": "js/topl.js",
+                "symbol": "update_topl",
+                "source": "win/tty/topl.c:update_topl -> more"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/wrapped-startup-topline.session.json",
+              "recordings/topl.c/urgent-rehumanize-escape-independent.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "update_topl",
+            "implementation": "js/topl.js",
+            "symbol": "update_topl",
+            "sourceReview": "C win/tty/topl.c:251-303; js/topl.js owns same-line append, WIN_STOP snapshot, history rotation, wait/redraw decisions, wrapping, suppressed-history update and topline writes. js/tty_message.js ttyPlineCore supplies pline/wintty inputs and calls this source owner; terminal primitives remain explicit calls.",
+            "callers": [
+              {
+                "path": "js/tty_message.js",
+                "symbol": "ttyPline",
+                "source": "win/tty/wintty.c:tty_putstr -> update_topl"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/wrapped-startup-topline.session.json",
+              "recordings/topl.c/urgent-rehumanize-escape-independent.session.json",
+              "recordings/topl.c/yn-function-ctrlp.session.json",
+              "recordings/topl.c/menu-search-history-invalid-command.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "topl_putsym",
+            "implementation": "js/topl.js",
+            "symbol": "topl_putsym",
+            "sourceReview": "C win/tty/topl.c:305-352; translated backspace/newline/default cursor branches and window cursor synchronization.",
+            "callers": [
+              {
+                "path": "js/topl.js",
+                "symbol": "putsyms",
+                "source": "win/tty/topl.c:putsyms -> topl_putsym"
+              },
+              {
+                "path": "js/topl.js",
+                "symbol": "removetopl",
+                "source": "win/tty/topl.c:removetopl -> putsyms -> topl_putsym"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/yn-function-ctrlp.session.json",
+              "recordings/topl.c/menu-search-history-invalid-command.session.json",
+              "recordings/topl.c/split-history-erase.session.json",
+              "recordings/topl.c/wrapped-startup-topline.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "removetopl",
+            "implementation": "js/topl.js",
+            "symbol": "removetopl",
+            "sourceReview": "C win/tty/topl.c:354-362; translated repeated backspace-space-backspace removal used to erase quantity digits from the prompt.",
+            "callers": [
+              {
+                "path": "js/topl.js",
+                "symbol": "tty_yn_function",
+                "source": "win/tty/topl.c:tty_yn_function numeric response erase branch -> removetopl"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/split-history-erase.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "tty_yn_function",
+            "implementation": "js/topl.js",
+            "symbol": "tty_yn_function",
+            "sourceReview": "C win/tty/topl.c:365-551; translated prompt construction, response admission, Ctrl-P, numeric accumulation/erase, quit/default cases, and cleanup. Active callers import the implementation from js/topl.js through the TTY window callback and direct TTY prompt paths.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "yn_function",
+                "source": "cmd.c:yn_function dispatches winprocs.win_yn_function -> topl.c:tty_yn_function"
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "list_genocided",
+                "source": "insight.c:list_genocided -> yn_function -> winprocs.win_yn_function"
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "checkfile",
+                "source": "pager.c:checkfile -> yn_function -> winprocs.win_yn_function"
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "sit.c:throne_sit_effect -> yn_function -> winprocs.win_yn_function"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/yn-function-ctrlp.session.json",
+              "recordings/topl.c/menu-search-history-invalid-command.session.json",
+              "recordings/topl.c/split-history-erase.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "msghistory_snapshot",
+            "implementation": "js/topl.js",
+            "symbol": "msghistory_snapshot",
+            "sourceReview": "C win/tty/topl.c:559-603; translated passive-copy versus destructive-purge snapshots, lock flag, ring order, latest-line flush, and purge reset.",
+            "callers": [
+              {
+                "path": "js/topl.js",
+                "symbol": "tty_getmsghistory",
+                "source": "win/tty/topl.c:tty_getmsghistory(init) -> msghistory_snapshot"
+              },
+              {
+                "path": "js/topl.js",
+                "symbol": "tty_putmsghistory",
+                "source": "win/tty/topl.c:tty_putmsghistory(restoring) -> msghistory_snapshot"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/save-message-history-gzip-profile.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "free_msghistory_snapshot",
+            "implementation": "js/topl.js",
+            "symbol": "free_msghistory_snapshot",
+            "sourceReview": "C win/tty/topl.c:605-635; translated ownership release for purged entries, passive lock release, and snapshot reset.",
+            "callers": [
+              {
+                "path": "js/topl.js",
+                "symbol": "tty_getmsghistory",
+                "source": "win/tty/topl.c:tty_getmsghistory end sentinel -> free_msghistory_snapshot"
+              },
+              {
+                "path": "js/topl.js",
+                "symbol": "tty_putmsghistory",
+                "source": "win/tty/topl.c:tty_putmsghistory restore completion -> free_msghistory_snapshot"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/save-message-history-gzip-profile.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "tty_getmsghistory",
+            "implementation": "js/topl.js",
+            "symbol": "tty_getmsghistory",
+            "sourceReview": "C win/tty/topl.c:637-675; translated one-time snapshot initialization, oldest-first iteration, null terminator, and cleanup.",
+            "callers": [
+              {
+                "path": "js/save.js",
+                "symbol": "save_msghistory",
+                "source": "save.c:save_msghistory -> tty_getmsghistory"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/save-message-history-gzip-profile.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "putsyms",
+            "implementation": "js/topl.js",
+            "symbol": "putsyms",
+            "sourceReview": "C win/tty/topl.c:347-352; iterates the NUL-terminated byte string and dispatches each prior byte through topl_putsym, stopping at the first NUL.",
+            "callers": [
+              {
+                "path": "js/topl.js",
+                "symbol": "addtopl",
+                "source": "win/tty/topl.c:addtopl -> putsyms"
+              },
+              {
+                "path": "js/topl.js",
+                "symbol": "redotoplin",
+                "source": "win/tty/topl.c:redotoplin -> putsyms"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/yn-function-ctrlp.session.json",
+              "recordings/topl.c/menu-search-history-invalid-command.session.json",
+              "recordings/topl.c/split-history-erase.session.json",
+              "recordings/topl.c/wrapped-startup-topline.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          },
+          {
+            "name": "tty_putmsghistory",
+            "implementation": "js/topl.js",
+            "symbol": "tty_putmsghistory",
+            "sourceReview": "C win/tty/topl.c:677-730; translated first-restore purge, prior-session ordering, supplied-history insertion, current-message rotation, sentinel restore, and snapshot cleanup.",
+            "callers": [
+              {
+                "path": "js/restore.js",
+                "symbol": "restore_msghistory",
+                "source": "restore.c:restore_msghistory -> tty_putmsghistory"
+              },
+              {
+                "path": "js/questpgr.js",
+                "symbol": "com_pager",
+                "source": "questpgr.c:com_pager_core optional summary -> tty_putmsghistory"
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "getobj",
+                "source": "invent.c:getobj force-inventory prompt -> tty_putmsghistory"
+              },
+              {
+                "path": "js/files.js",
+                "symbol": "read_tribute",
+                "source": "files.c:read_tribute -> tty_putmsghistory"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/topl.c/save-message-history-gzip-profile.session.json",
+              "recordings/topl.c/wrapped-startup-topline.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "775d3509565127b54d23c1aa7ea304293c759f0b"
+          }
+        ],
+        "entryPointReview": "The corrected TTY history family is wired through its production callers. tty_doprev_message now follows the C full, combination, reversed, and single branches including inread behavior; source-pinned tests assert reversed ordering, repeated Ctrl-P More handling and dismiss cleanup, and the non-single inread no-op. update_topl branch logic and its line-wrap/history helpers now live in js/topl.js; ttyPlineCore handles preceding pline and wintty setup and calls update_topl. Existing matching recordings cover command/prompt Ctrl-P, wrapped toplines, urgent output, split-prompt editing, and gzip-profile save/restore; the v48 admitted prefix remains part of the prior delivery evidence. The exact committed wrapped-startup C recording now matches all screens, cursors and RNG calls. patch 006 initializes and clears the recorder foreground to 7, its default; the JS GameDisplay clear methods now represent those blank cells as NO_COLOR, so serialization emits no spurious gray transition. The focused test also covers row and full-screen clears after colored glyphs.",
+        "entryPoints": [
+          {
+            "name": "direct Ctrl-P command dispatch into TTY message history",
+            "functions": [
+              "tty_doprev_message"
+            ],
+            "recordings": [
+              "recordings/topl.c/yn-function-ctrlp.session.json",
+              "recordings/topl.c/menu-search-history-invalid-command.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v48",
+                "caseId": "v48-previous-message-history-ctrlp",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1,
+                "source": "cmd.c:rhack -> cmd.c:doprev_message -> winprocs.win_doprev_message -> win/tty/topl.c:tty_doprev_message"
+              }
+            ]
+          },
+          {
+            "name": "Ctrl-P recall during a yes/no prompt",
+            "functions": [
+              "tty_yn_function",
+              "tty_doprev_message",
+              "redotoplin"
+            ],
+            "recordings": [
+              "recordings/topl.c/yn-function-ctrlp.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "wrapped startup topline and More dismissal",
+            "functions": [
+              "update_topl",
+              "redotoplin",
+              "more"
+            ],
+            "recordings": [
+              "recordings/topl.c/wrapped-startup-topline.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "delete and replace a digit on a counted split prompt",
+            "functions": [
+              "tty_yn_function",
+              "removetopl",
+              "putsyms",
+              "topl_putsym"
+            ],
+            "recordings": [
+              "recordings/topl.c/split-history-erase.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "save and restore prior TTY message history",
+            "functions": [
+              "msghistory_snapshot",
+              "free_msghistory_snapshot",
+              "tty_getmsghistory",
+              "tty_putmsghistory",
+              "remember_topl"
+            ],
+            "recordings": [
+              "recordings/topl.c/save-message-history-gzip-profile.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
