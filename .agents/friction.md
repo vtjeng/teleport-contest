@@ -268,3 +268,20 @@ triage decisions or fix references.
   combined job passed while synthetic evidence cleanup still ran. The import
   guard rejected it. Root waited for the retained watch to exit successfully,
   then imported its complete evidence. Main remained at the exact candidate.
+
+### 2026-10-12 — dispatcher report additions and queued menu correction
+
+- Context: extended-command delivery `e55adc240` contains source commit
+  `8ff88a981`, which also adds three reports already imported separately.
+- Outcome: preserved the current reports, aborted only the conflicting
+  cherry-pick, temporarily removed those named reports in a parent commit,
+  imported the exact source/test/report patch, and restored all three current
+  valid diagnoses before checkpoint.
+- Read-only menu preview: delivery `92449c294` used Escape as the selector's
+  default empty Enter result. B added an explicit empty value, but its first
+  correction used a truthy JavaScript NUL string and a weak negative assertion.
+  Root requested null and the exact reissued prompt; B submitted `33d261d01`
+  with both cases passing. These corrections stay outside this dispatcher task.
+- Dispatch friction: twice Root triggered B's correction turn while its ledger
+  feedback command was still running. The worker correctly waited for the
+  required state. Finish feedback before sending future correction turns.
