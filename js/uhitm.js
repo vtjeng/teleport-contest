@@ -43,6 +43,7 @@ import {
     COLD_RES,
     CONFUSION,
     DEAF,
+    DIED,
     DRAIN_RES,
     DISP_ALWAYS,
     DISP_END,
@@ -1595,12 +1596,14 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
         }
 
         if (fatalGulp && !is_rider(pd)) {
+            let monsterName = pmname(pd, Mgender(mdef, state));
+            if (!type_is_pname(pd)) monsterName = an(monsterName);
             await message(
                 `You ${uDigest ? 'englut' : 'engulf'} ${mon_nam(mdef, state, env)}.`,
                 state,
             );
-            // trap.c instapetrify() is a discarded void death transition.
-            note_unported('trap.c instapetrify');
+            const killer = `${uDigest ? 'swallowing' : uEnfold ? 'enclosing' : 'engulfing'} ${monsterName}${uDigest ? ' whole' : ''}`;
+            await instapetrify(killer, state, { ...env, random, message });
         } else {
             await start_engulf(mdef, state, { ...env, random, message });
             switch (mattk.adtyp) {
@@ -1613,7 +1616,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
                     state.killer ??= {};
                     state.killer.name = `unwisely tried to eat ${pmname(pd, Mgender(mdef, state))}`;
                     state.killer.format = NO_KILLER_PREFIX;
-                    note_unported('end.c done');
+                    await done(DIED, state, { ...env, random, message });
                     return M_ATTK_MISS;
                 }
                 if (heroSlowDigestion(state)) {
