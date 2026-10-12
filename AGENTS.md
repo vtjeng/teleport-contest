@@ -102,6 +102,24 @@ in `.agents/loop.md`, which defines scheduling and merge requests.
 | Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run a synthetic local challenge evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
 | Decide whether a correctness review is warranted, or run or record one (orchestrator only) | `.agents/review.md` and the skill it names for that review |
 
+## GitHub push authorization
+
+The user authorizes normal pushes to `vtjeng/teleport-contest` for hosted
+candidate validation and accepted publication. Keep unaccepted candidates on
+`integration-checkpoint/*` branches; publish only accepted work to `main`.
+Do not force-push or delete refs. Existing validation and publication checks
+still apply.
+
+For a standalone push, use
+`git push -- https://github.com/vtjeng/teleport-contest.git <refspec>`. The trusted project
+rule in `.codex/rules/teleport-push.rules` allows that exact destination after
+Codex reloads its configuration. It does not allow arbitrary remotes or
+publication wrappers, or override managed restrictions.
+
+Prefer hosted validation. If automatic review rejects an authorized push,
+report the exact request and denial so the user can approve it; do not work
+around the denial or treat it as a lasting reason to validate locally.
+
 ## Local command execution
 
 - Check the project documentation before using an unfamiliar command or
