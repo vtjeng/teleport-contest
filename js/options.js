@@ -285,6 +285,7 @@ import {
 import { choose_classes_menu, getlin, select_menu } from './windows.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { note_unported } from './unported.js';
+import { choose_disco_sort } from './o_init.js';
 import { game } from './gstate.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
@@ -5558,6 +5559,13 @@ function optfn_sortdiscoveries(result, statement, negated) {
     }
 }
 
+// C ref: options.c optfn_sortdiscoveries() do_handler arm.  It discards the
+// chooser's count and reports optn_ok after the menu closes.
+async function handler_sortdiscoveries(state) {
+    await choose_disco_sort(0, state);
+    return optn_ok;
+}
+
 // C ref: options.c optfn_sortvanquished() (3958-4009), its startup do_set
 // arm.  The mandatory-value helper runs before negation is considered, so a
 // negated spelling without a value reports and then restores traditional
@@ -8389,6 +8397,7 @@ const OPTION_HANDLERS = Object.freeze({
     paranoid_confirmation: handler_paranoid_confirmation,
     perminv_mode: handler_perminv_mode,
     pickup_burden: handler_pickup_burden,
+    sortdiscoveries: handler_sortdiscoveries,
     pickup_types: (state, helpers) => optfn_pickup_types(
         state, DO_HANDLER, false, '', undefined, helpers,
     ),

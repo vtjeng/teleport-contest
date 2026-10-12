@@ -3,8 +3,11 @@ import test from 'node:test';
 
 import { NROFARTIFACTS } from '../js/artifacts.js';
 import {
+    discovered_cmp,
     dodiscovered,
     init_objects,
+    oclass_to_name,
+    sortloot_descr,
     UnsupportedDiscoveryDisplayError,
 } from '../js/o_init.js';
 import {
@@ -127,4 +130,29 @@ test('dodiscovered stops on the three orders it does not sort', async () => {
     discover(state, POT_WATER);
     await run(state);
     assert.equal(state.flags.discosort, 'o');
+});
+
+test('discovered_cmp ignores the two byte encounter prefix', () => {
+    // o_init.c compares strcmpi(s1 + 2, s2 + 2), so '*' and the blank do not
+    // affect ordering, and comparison is case insensitive.
+    assert.equal(discovered_cmp('* Apple', '  banana'), -1);
+    assert.equal(discovered_cmp('  Scroll', '* scroll'), 0);
+    assert.equal(discovered_cmp('* wand', '  ring'), 1);
+});
+
+test('oclass_to_name lowercases let_to_name output', () => {
+    // o_init.c copies let_to_name(WEAPON_CLASS, FALSE, FALSE), then lowcases
+    // every byte in the copied buffer.
+    assert.equal(oclass_to_name(WEAPON_CLASS), 'weapons');
+});
+
+test('sortloot_descr formats invent.c loot_classify ordering fields', () => {
+    // The C helper supplies a known, dknown dummy potion to loot_classify and
+    // formats orderclass/subclass/disco as %02d%02d%1d plus one space.
+    const state = {};
+    objects_globals_init(state);
+    init_objects(state, () => 0);
+    state.flags = { inv_order: '$")[%?+!=/(*`0_', sortpack: false };
+    state.svc = { context: { current_fruit: 0 } };
+    assert.equal(sortloot_descr(POT_WATER, state), '05012 ');
 });
