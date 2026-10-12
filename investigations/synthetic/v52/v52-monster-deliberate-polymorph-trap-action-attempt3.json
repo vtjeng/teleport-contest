@@ -6,7 +6,7 @@
   "batch": "v52",
   "caseId": "v52-monster-deliberate-polymorph-trap-action-attempt3",
   "manifestPath": "challenges/manifests/v52.json",
-  "manifestSha256": "5f04988dce29fe2cabd35cc3a6be499748ec102c3316522c3753a7724c3fdb06",
+  "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
   "recordingPath": "challenges/cases/v52/v52-monster-deliberate-polymorph-trap-action-attempt3.session.json",
   "recordingSha256": "f1d8d97afe139fee3f04e2c5e637dfae60b8e3d87f6cc5e165dc83ee51739f4e",
   "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
