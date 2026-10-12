@@ -1,0 +1,12 @@
+{
+  "comment": "Independent C-first hero-to-monster AD_ELEC entry point. A debug Wizard uses controlled polymorph into an electric eel, then creates a hostile newt. Fifteen source-page dismissals clear the eel form's overburden message and automatic quarterstaff drop; the two adjacent eel bites miss once and then land. The landed second bite reaches damageum -> mhitm_adtyping -> mhitm_ad_elec -> zap.c:destroy_items. This is distinct from the monster-to-monster grid-bug/newt recipe.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 12473853,
+      "datetime": "20440214120500",
+      "nethackrc": "OPTIONS=name:ShockHero,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #polyself\nelectric eel\n               #wizgenesis\nhostile newt\nkk"
+    }
+  ]
+}

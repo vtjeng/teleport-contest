@@ -1,0 +1,12 @@
+{
+  "comment": "Independent C-first monster-versus-monster AD_ELEC witness. A tame grid bug supplies the AT_BITE/AD_ELEC attack and a hostile newt is an adjacent, weak target, satisfying dogmove.c:dog_move without hero Conflict. The seed was independently chosen for this reproduction; the input keeps the target's empty inventory so this recording isolates the M2M call and destroy_items limit path.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 12473801,
+      "datetime": "20440214120000",
+      "nethackrc": "OPTIONS=name:ShockPair,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\ntame grid bug\n #wizgenesis\nhostile newt\n. . . . . . . . . . . . . ."
+    }
+  ]
+}

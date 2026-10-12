@@ -1,0 +1,12 @@
+{
+  "comment": "Blocked monster-inventory variation for zap.c:maybe_destroy_item and zap.c:destroy_items. Patched C destroys the Nazgul's source-generated opal ring, but JavaScript stops earlier at the existing zap.c:weffects refusal; this recipe is retained to document the missing inventory branch and is not a passing recording.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 12473832,
+      "datetime": "20440214120000",
+      "nethackrc": "OPTIONS=name:ShockCarrierRay,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile Nazgul\n #wizwish\nwand of lightning\nzoj zoj   "
+    }
+  ]
+}
