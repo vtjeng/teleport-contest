@@ -46,9 +46,8 @@ recorded files and choose independent inputs for new reproductions. Do not
 special-case a session or its seed, inputs, expected output, or replay position.
 
 The current operating mode prioritizes synthetic local holdout mismatches;
-`.agents/selection.md` defines selection and automatic generation of a new
-batch before the available queue empties and admission at safe integration
-boundaries. Keep the 44-session fixed
+`.agents/selection.md` defines selection, continuous batch preparation,
+and admission at safe integration boundaries. Keep the 44-session fixed
 workload as a regression check. The current `challenges/manifest.json` remains
 frozen as batch `v1`; new batches use new versioned manifests and retain every
 previous batch and its evaluation history. Synthetic results remain separate

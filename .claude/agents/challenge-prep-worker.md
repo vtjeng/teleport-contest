@@ -22,10 +22,12 @@ action histories, and relevant role or state conditions. Changing only seeds
 is insufficient.
 Record every valid case with patched C. Independently replay each case kept
 in the prepared manifest. Compare its reached behavior, state conditions,
-and action history with every case in the immediately preceding batch and
-every unresolved older case; v7 must differ from all v6 cases. Name the
-closest earlier cases and causal distinction for each case kept in the prepared manifest, including matching
-cases and target misses. Keep valid overlapping probes outside the manifest
+and action history with unresolved admitted cases, earlier submitted unadmitted
+batches, and other cases in the new batch, as `.agents/selection.md` specifies.
+Use saved evaluations and immutable delivery packets; do not replay the archive
+for this comparison. Fully matching admitted cases do not disqualify a new case.
+Name comparable cases in that set and the causal distinction for each included
+case, including matching cases and target misses. Keep valid overlapping probes outside the manifest
 with their C observation and earlier case; replay them again only when needed
 to establish a blocker. Reject invalid setup or recorder failure with C
 evidence. Do not copy a fixed or admitted recording's seed and inputs, special-case a case, or edit prior batches.
@@ -50,9 +52,10 @@ first mismatches, park the task and report the search attempts and source or
 recorder blockers alongside the valid recordings already made. The
 orchestrator decides whether to accept a smaller batch or provide new targets.
 Do not inspect implementation-worker assignments or statuses. The orchestrator
-owns the preparation trigger and admission. After submitting a batch, wait
-for its admission and the next assignment rather than preparing another
-unadmitted reserve. Record idle or blocked turns with a public `summary`
+owns admission. After submitting a batch, claim the next unused version and
+continue without waiting for acceptance, admission, or a queue threshold.
+Handle requested corrections and parked preparation before starting a later
+batch. Record idle or blocked turns with a public `summary`
 naming the dependency and owner; keep private details in `reason`. Keep reached,
 missed, and deferred targets and the remaining candidate list in `missionPlan`
 for that decision.
@@ -78,7 +81,9 @@ prepared `manifest`. In `.cache/checks.json`, include one successful `fresh`
 check per case with its `caseId`, command, and absolute log path. Submit the
 task with its exact base and delivery commits, case paths and hashes, mission
 rationale, and independent replay results. Send `READY_TO_MERGE` with the saved
-packet path. After acceptance, prepare another batch or switch to an
-implementation task. Park unfinished preparation before switching tasks.
+packet path, then continue preparation. Keep Prep dedicated to batch preparation.
 At the clean task boundary, merge the commit returned by
 `worker-state.mjs accepted-main --file <shared-ledger>`, not an unaccepted Main HEAD.
+Claim the next batch at the resulting HEAD. Keep all submitted commits
+unchanged; the next delivery includes only its new case paths, with dependencies
+on pending ancestor deliveries inferred by submission.

@@ -124,7 +124,9 @@ assign and resume reject another worker's reservations. ready frees the worker
 to start another task but keeps that delivery's reservations through acceptance.
 Parking releases only that task's active reservations. A batch identity cannot
 be assigned again; resume a parked preparation task before preparing the next
-version. Only one unaccepted preparation task may exist at a time. Resuming rechecks ownership;
+version. Only one preparation task may be working at a time; submitted batches
+do not block preparation of the next version. Handle earlier parked tasks and
+corrections before starting another batch. Resuming rechecks ownership;
 a parked ready delivery returns to ready, and failed validation requires rework
 and a new delivery SHA. Only one task can be integrating/validated at a time.
 Validation events check the supplied summary; they do not run validation.
@@ -215,7 +217,12 @@ function checkOwnership(state, task) {
         if (task.kind === 'challenge-preparation' && other.kind === 'challenge-preparation') {
             check(task.reservations[0] !== other.reservations[0],
                 `batch identity already used by task ${other.id}`);
-            check(other.status === 'accepted', `preparation task ${other.id} is still pending`);
+            if (task.status === 'working') {
+                check(other.status !== 'working', `preparation task ${other.id} is still pending`);
+                const laterBatch = task.reservations[0].localeCompare(other.reservations[0], 'en', { numeric: true }) > 0;
+                check(!laterBatch || !['parked', 'changes-required'].includes(other.status),
+                    `preparation task ${other.id} is still pending (${other.status}); resume it before a later batch`);
+            }
         }
         if (other.worker === task.worker || !holdsReservation(other)) continue;
         for (const key of task.reservations) check(!other.reservations.includes(key),

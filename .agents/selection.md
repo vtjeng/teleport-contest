@@ -119,15 +119,12 @@ Whole-source completion and caller evidence remain required for every port.
 ## Generating the next synthetic batch
 
 The dedicated Prep worker prepares new batches while implementation workers
-repair current mismatches. Give each preparation task the next unused version number. Keep one
-unaccepted preparation task at a time, and resume a parked batch before
-starting a later version. Keep at most one unadmitted prepared batch; after
-admission, recheck the preparation trigger before starting another.
-If several accepted batches are already waiting for admission, admit those
-before preparing another batch. `worker-state next` lists these ready batches;
-accepting preparation does not admit the batch.
-Preparation does not require the current
-batch to match.
+repair current mismatches. Keep Prep working continuously on one batch at a
+time. After submission, claim the next unused version without waiting for
+acceptance, admission, or a queue threshold. Handle requested corrections and
+resume a parked batch before starting a later version. Submitted batches may
+wait for Main; `worker-state next` keeps them visible. Acceptance does not
+admit a batch. Preparation does not require the current batch to match.
 
 After each current evaluation and worker handoff, check the combined queue and
 reservations for selectable investigations and independent source tasks.
@@ -135,22 +132,18 @@ Exclude claimed or blocked work and group known shared causes. An unclaimed
 session may provide investigation work before its source owner is known; do
 not require a new grouping investigation just to count it. This provisional
 availability count does not establish source independence or authorize edits.
-Request or resume preparation when at most 12 sessions have unmatched screens
-across all admitted batches, or when selectable investigations and independent
-source tasks fall below the number of implementation workers (normally three).
-Use current complete saved evaluations; count each batch-qualified session once, including
-assigned sessions. Missing or stale evidence is not a zero count: refresh it
-before deciding. Keep one preparation task and no second unadmitted reserve.
-Twelve is a starting threshold; record queue starvation in the friction log
-so it can be adjusted from observed preparation and consumption times.
+Use current complete saved evaluations to decide admission priority. Missing
+or stale evidence is not a zero count: refresh it before deciding. Record queue
+starvation in the friction log.
 
 Plan at least 12 new, independently designed C behavior candidates per batch
 before comparing their JavaScript results. For each candidate, name the source
 behavior, the state and action history needed to reach it, and the C
 observation that will show it was reached. Earlier admitted cases do not count
-toward this target. A candidate overlapping the immediately preceding batch or
-an unresolved older case does not count either. Draw candidates from current
-source-traced blockers and parked work, the roadmap's under-exercised functions,
+toward this target. A candidate overlapping an unresolved admitted case, an
+earlier submitted unadmitted case, or another case in the new batch does not
+count either. Draw candidates from current source-traced blockers and parked
+work, the roadmap's under-exercised functions,
 and earlier missions that missed their intended behavior. Prefer targets with
 a plausible C route and different source owners; reserve some missions for less
 directed exploration. A rare blocker is
@@ -189,12 +182,8 @@ provisional because main can advance during preparation. The orchestrator's
 first saved evaluation after admission is authoritative and may find fewer than
 12 remaining mismatching sessions.
 
-After a batch's first saved evaluation, fully matching cases remain in its
-manifest but do not count toward a runway of 12 cases with a mismatch.
-Use the total across admitted batches and the independent-task fallback above
-to decide when to prepare the next version. The per-batch target is not an
-admission requirement. Do not filter, replace, or extend
-an admitted batch to fill the target.
+The per-batch preparation target is not an admission requirement. Do not
+filter, replace, or extend an admitted batch to fill the target.
 
 The worker submits case recipes and C recordings under
 `challenges/cases/<batch>/`. Keep the manifest in immutable delivery evidence,
@@ -202,12 +191,17 @@ outside `challenges/manifests/`, with an independent C replay result in each
 case's `reproducibility` field. The orchestrator checks the cases, merges the
 recipes and recordings into `main`, runs the combined checkpoint, and accepts
 the delivery. Keep those files and their hashes unchanged. Compare each
-candidate's reached C behavior, relevant state, and action history with every
-case in the immediately preceding batch and every still-unresolved case in any
-earlier batch. For v7, compare with every v6 case and unresolved v1-v5 cases.
+candidate's reached C behavior, relevant state, and action history with
+unresolved admitted cases, earlier submitted unadmitted batches, and other cases in the
+new batch. Use the latest complete saved evaluations for admitted cases and
+immutable delivery packets for unadmitted cases. A merged task does not imply
+that its cases match. Fully matching admitted cases do not disqualify a new
+case for overlap, even in the immediately preceding batch. Use saved C evidence
+for this comparison; do not replay the archive just to check overlap. Full
+regression validation still covers every admitted case.
 Shared startup and command setup do not by themselves constitute overlap; the
-substantive behavior exercised must differ. Record the closest earlier cases
-and causal distinction for every included candidate, including candidates
+substantive behavior exercised must differ. Cite comparable cases from that set
+and the causal distinction for every included candidate, including candidates
 that already match JavaScript or miss their intended target. Keep valid
 overlapping C probes outside the prepared manifest with their C observation
 and the earlier case they duplicate. They do not need independent replay unless
