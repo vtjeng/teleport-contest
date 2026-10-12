@@ -292587,7 +292587,7 @@
     {
       "id": "A2-port-shk-gem-learned-v52-prayer-gem-20261012",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement gem_learned from shk.c",
       "cFile": "shk.c",
       "sessions": [
@@ -292597,7 +292597,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "6f4abfb9dd2c5ee00eae26f123d4338a61159c78",
       "delivered": null,
       "functions": [
         {
@@ -292610,6 +292610,80 @@
       "range": {
         "from": 3198,
         "to": 3236
+      },
+      "closeStanding": {
+        "sha": "6f4abfb9dd2c5ee00eae26f123d4338a61159c78",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "4cd4881552c06e139c24162766546ede1f17aeea",
+        "target": "synthetic/v52/v52-prayer-crowning-gem-luck-action-attempt3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/6f4abfb9dd2c5ee00eae26f123d4338a61159c78/run-hosted-zLqtLA/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "gem_learned",
+            "implementation": "js/shk.js",
+            "symbol": "gem_learned",
+            "sourceReview": "Read the complete shk.c:gem_learned definition (3198-3236). In source order it traverses bill-bearing shopkeepers with next_shkp(fmon, TRUE), loads each bill count and starts at bill_p, decrements ct on every iteration, finds the unpaid object by bo_id, continues without advancing bp when find_oid fails, updates price only for the requested otyp or every GEM_CLASS object when oindx is STRANGE_OBJECT, then advances bp. The JS preserves that pointer behavior and uses the existing next_shkp, find_oid, and get_cost implementations; get_cost is supplied by accepted delivery ea8accb036fde7b15b539cf524fac6cc53d8d4a2. The function mutates bill prices and emits no direct message or RNG call. Removed the discover_object callback refusal and apply.c touchstone note_unported substitute; discovery and forgetting now call this implementation directly.",
+            "callers": [
+              {
+                "path": "js/o_init.js",
+                "symbol": "discover_object",
+                "source": "o_init.c:discover_object (483-490) calls gem_learned(oindx) for a newly known GEM_CLASS object during the live moveloop, before update_inventory()."
+              },
+              {
+                "path": "js/o_init.js",
+                "symbol": "undiscover_object",
+                "source": "o_init.c:undiscover_object (520-521) calls gem_learned(oindx) when an unencountered, unknown gem is removed from disco[]."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_stone",
+                "source": "apply.c:use_stone (2748-2749) calls makeknown for TOUCHSTONE and the selected gem; makeknown expands to discover_object, whose GEM_CLASS branch calls gem_learned."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk.test.mjs",
+              "scripts/o-init.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-prayer-crowning-gem-luck-action-attempt3",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 57,
+                "source": "wizcmds.c:wiz_identify -> invent.c:identify -> invent.c:fully_identify_obj -> hack.h:makeknown -> o_init.c:discover_object -> shk.c:gem_learned"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected helper has two direct active C call sites, both wired: newly known live gems in o_init.c:discover_object and forgetting a gem in o_init.c:undiscover_object. The v52 admitted recording reaches the first through #wizidentify, selecting a carried gem; its matching prefix through step 57 executes fully_identify_obj -> makeknown -> discover_object -> gem_learned. apply.c:use_stone is also wired through discover_object for touchstone/gem knowledge. Forgetting and touchstone entry paths are not separately claimed as runtime-covered by this range. The challenge's later prayer/crowning setup is not reached and is not claimed.",
+        "entryPoints": [
+          {
+            "name": "identify a carried gem through #wizidentify",
+            "functions": [
+              "gem_learned"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-prayer-crowning-gem-luck-action-attempt3",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 57,
+                "source": "cmd.c:rhack -> wizcmds.c:wiz_identify -> invent.c:identify/fully_identify_obj -> hack.h:makeknown -> o_init.c:discover_object -> shk.c:gem_learned"
+              }
+            ]
+          }
+        ]
       }
     }
   ]
