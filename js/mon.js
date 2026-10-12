@@ -5714,6 +5714,11 @@ export async function mondied(mdef, state = game, env = {}) {
 // dead monster is detached only after the square has been redrawn.
 export async function monstone(mdef, state = game, env = {}) {
     const random = env.random ?? { rn2 };
+    // C uses the process-global random functions in both monstone() and
+    // mkobj.c's statue creation. Keep the internal rn2 fallback local; the
+    // object helpers need the caller's complete provider or their own
+    // state-aware defaults.
+    const objectEnv = objectGenerationEnv({ ...env, state });
     const x = mdef.mx;
     const y = mdef.my;
     let wasinside = false;
@@ -5742,11 +5747,10 @@ export async function monstone(mdef, state = game, env = {}) {
                 },
             });
             if (obj.otyp === BOULDER
-                || obj_resists(obj, 0, 0, { ...env, state, random })) {
+                || obj_resists(obj, 0, 0, objectEnv)) {
                 if (await flooreffects(obj, x, y, 'fall', { ...env, state }))
                     continue;
-                place_object(obj, x, y,
-                             objectGenerationEnv({ ...env, state, random }));
+                place_object(obj, x, y, objectEnv);
             } else {
                 if (obj.lamplit) end_burn(obj, true, { ...env, state });
                 obj.nobj = oldminvent;
@@ -5765,7 +5769,7 @@ export async function monstone(mdef, state = game, env = {}) {
             x,
             y,
             corpstatflags,
-            objectGenerationEnv({ ...env, state, random }),
+            objectEnv,
         );
         if (has_mgivenname(mdef))
             statue = oname(statue, mdef.mextra?.mgivenname ?? mdef.mgivenname,
@@ -5777,7 +5781,7 @@ export async function monstone(mdef, state = game, env = {}) {
             add_to_container(
                 statue,
                 obj,
-                objectGenerationEnv({ ...env, state, random }),
+                objectEnv,
             );
         }
         statue.owt = weight(statue, { ...env, state });
@@ -5788,11 +5792,11 @@ export async function monstone(mdef, state = game, env = {}) {
             y,
             true,
             false,
-            objectGenerationEnv({ ...env, state, random }),
+            objectEnv,
         );
     }
 
-    stackobj(statue, objectGenerationEnv({ ...env, state, random }));
+    stackobj(statue, objectEnv);
     if (glyph_is_invisible(state.level.at(x, y).glyph))
         unmap_object(x, y, state);
     // monstone() is also reached from mhitm.c's planning displacement pass.
