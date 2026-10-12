@@ -1,0 +1,63 @@
+{
+  "session": "synthetic/v53/v53-earth-remote-blessed-pick-cave-action10",
+  "corpus": "synthetic",
+  "batch": "v53",
+  "caseId": "v53-earth-remote-blessed-pick-cave-action10",
+  "manifestPath": "challenges/manifests/v53.json",
+  "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+  "recordingSha256": "7bbe25fa0404c24e17929b490cd367aa3431991171d51effcf4b3e3434fc8b1c",
+  "evaluationPath": "challenges/evaluations/accepted-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-v53.json",
+  "evaluationCommit": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
+  "remainingScreens": 2,
+  "recordedSteps": 335,
+  "status": "complete",
+  "commit": "f5079a5f70191126a6e8330581702871941d0533",
+  "mismatch": {
+    "kind": "screen",
+    "corpus": "synthetic",
+    "session": "synthetic/v53/v53-earth-remote-blessed-pick-cave-action10",
+    "sourceFile": "dig.c",
+    "cFile": "dig.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v53/v53-earth-remote-blessed-pick-cave-action10"
+    ],
+    "remainingScreens": 2,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 333,
+    "caseId": "v53-earth-remote-blessed-pick-cave-action10",
+    "batch": "v53",
+    "recordingPath": "challenges/cases/v53/v53-earth-remote-blessed-pick-cave-action10.session.json",
+    "error": null
+  },
+  "summary": "On an Earth level, a blessed pickaxe can call dig.c:mkcavearea(FALSE) after the hero finishes cutting rock. JavaScript records the omitted helper call and ends the occupation, while C expands the cave, updates vision, blocks on the message, and then finishes. This is a bounded caller repair in dig.c:dig plus whole implementations of its missing static helpers; it grants no whole-dig credit.",
+  "source": {
+    "file": "dig.c",
+    "functions": [
+      "dig",
+      "rm_waslit",
+      "mkcavepos",
+      "mkcavearea"
+    ],
+    "branch": "In dig.c:dig, after effort exceeds 100 while the current Earth-level target is STONE or SCORR, C tests the blessed pick with rn2(3). On success it calls mkcavearea(FALSE) and jumps to cleanup. JS dig.js has the same branch and draw but calls note_unported('dig.c mkcavearea'), finishes the occupation, and returns before the source terrain, vision, message-wait, and cleanup behavior. The two preceding screens match; the first difference is at zero-based step 333.",
+    "callers": [
+      "C apply.c:doapply -> dig.c:use_pick_axe/use_pick_axe2 installs dig as the occupation; allmain.c later invokes dig.c:dig. JavaScript apply.js dispatches through js/dig.js:use_pick_axe/use_pick_axe2, and allmain.js invokes the same exported dig callback.",
+      "C dig.c:dig calls mkcavearea(FALSE) for blessed Earth digging and mkcavearea(TRUE) for the cursed or ordinary Earth roll. mkcavearea calls rm_waslit and mkcavepos; mkcavepos changes map/vision state and calls feel_newsym.",
+      "The selected recording reaches the blessed FALSE arm. Existing source history records mkcavearea as an unported gap; an earlier dig goal explicitly parked Earth-level mkcavearea evidence as unavailable before this source-reaching v53 recording. This task does not close the incomplete whole dig source unit."
+    ],
+    "dependencies": [
+      "rm_waslit is a pure source helper whose result is consumed by mkcavearea; implement it and pin its C neighborhood predicate in a focused test.",
+      "mkcavepos and mkcavearea are currently absent from js/dig.js. Implement both complete static functions and reuse the existing terrain, message, vision, monster-location, and display operations at the matching C call sites. The mkcavearea rockit=true branch also uses the C monster relocation and crash-message path; do not infer runtime coverage of that arm from this blessed case.",
+      "Do not edit dig.c:dighole or its JS magical-trap caller: that exact source function is reserved by A and is outside this task."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved accepted v53 evaluation challenges/evaluations/accepted-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-v53.json identifies this recording by SHA-256 7bbe25fa0404c24e17929b490cd367aa3431991171d51effcf4b3e3434fc8b1c and canonical manifest digest fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39. The case has 333/335 matching screens, 10532/10532 RNG calls, 333/335 cursors, and error null.",
+    "The admitted manifest's source trace identifies C's step 333 cave-extension message and step 334 output from mkcavearea(FALSE). The saved queue keeps this first mismatch distinct from A's magical-trap dighole-to-explode case.",
+    "Upstream nethack-c/upstream/src/dig.c:mkcavearea (88-128) calls rm_waslit, displays and waits for the message, grows the cave in two rings through mkcavepos, flushes/delays each ring, updates a corridor under the hero to room, and sets vision_full_recalc. mkcavepos at 48-86 updates terrain and visibility and redraws with feel_newsym. js/dig.js:dig now calls these complete helpers in both source Earth branches and retains the source cleanup path.",
+    "Selected runtime evidence: a fresh diff-fresh replay of synthetic/v53/v53-earth-remote-blessed-pick-cave-action10 matches all 335 steps, all 10532 RNG calls, screens, and cursors, including the blessed-pick mkcavearea(FALSE) call.",
+    "Rockit=true runtime evidence: recipes/dig.c/earth-cursed-plus-one-pick-cave-collapse-v53.session.json is an input-only cursed +1 pick variation; its C recording is recordings/dig.c/earth-cursed-plus-one-pick-cave-collapse-v53.session.json (SHA-256 68394c8146a7525066550f571e9ecd861db8413bd773cbe6ccc609d8be382b61). C reaches dig.c:dig's rn2(6)=0 at zero-based step 335, calls mkcavearea(TRUE), and shows the collapse at step 336. A fresh diff-fresh replay matches all 337 steps, 10185 RNG calls, screens, and cursors.",
+    "Focused scripts/dig-cavearea.test.mjs passes all four cases, including C-pinned rm_waslit coverage, mkcavepos state/order, both mkcavearea arms, message wait ordering, and ring flush/delay behavior. Focused ESLint on js/dig.js and scripts/dig-cavearea.test.mjs passes."
+  ]
+}
