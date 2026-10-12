@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T02:13:10.748Z",
+  "capturedAt": "2026-10-12T02:28:13.416Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -91251,19 +91251,185 @@
         "worker": "A2",
         "state": "active",
         "reason": "A2 resumed v47 AD_DREN after its electric/zap dependency cleared; replay reachability and source alignment are being rechecked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-review-Prep12-v48-20261012",
+        "type": "activity",
+        "at": "2026-10-12T02:15:28.391Z",
+        "task": "Prep12",
+        "phase": "review",
+        "reason": "Reviewing prepared v48 C recordings and overlap evidence before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep12-c2e0cb8d-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T02:16:05.971Z",
+        "task": "Prep12",
+        "integration": "c2e0cb8d45803d929b04707409659b133d4bf10f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7c340de89e2469f1c928206a655dc1d8f2457174",
+        "type": "ready",
+        "at": "2026-10-12T02:19:46.834Z",
+        "task": "C-investigation-v47-mimic-hallucination-post-eatmupdate-cfirst-20261012",
+        "delivery": "7c340de89e2469f1c928206a655dc1d8f2457174"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Cpostfx-7c340de8-20261012",
+        "type": "received",
+        "at": "2026-10-12T02:20:10.261Z",
+        "task": "C-investigation-v47-mimic-hallucination-post-eatmupdate-cfirst-20261012",
+        "delivery": "7c340de89e2469f1c928206a655dc1d8f2457174"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-A2-luna-high-20261012",
+        "type": "observe",
+        "at": "2026-10-12T02:20:25.296Z",
+        "worker": "A2",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-Prep12-c2e0cb8d-20261012",
+        "type": "validated",
+        "at": "2026-10-12T02:21:20.370Z",
+        "task": "Prep12",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep12-c2e0cb8d45803d929b04707409659b133d4bf10f-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T02:21:23.548Z",
+        "task": "Prep12"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-Prep-sol-medium-20261012",
+        "type": "observe",
+        "at": "2026-10-12T02:21:43.304Z",
+        "worker": "Prep",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-admission-Prep12-v48-20261012",
+        "type": "activity",
+        "at": "2026-10-12T02:21:45.124Z",
+        "task": "Prep12",
+        "phase": "admission",
+        "reason": "Admitting the accepted v48 batch after checking current overlap and passing checkpoint evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-baseline-Prep12-v48-b353fb52-20261012",
+        "type": "activity",
+        "at": "2026-10-12T02:22:07.496Z",
+        "task": "Prep12",
+        "phase": "baseline",
+        "reason": "Saving the first v48 evaluation before workers select its failures."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep-sol-medium-idle-v48-20261012",
+        "type": "turn",
+        "at": "2026-10-12T02:22:09.831Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep is waiting for the coordinator to admit v48 and save its first baseline before checking the next preparation trigger."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-B-luna-high-20261012",
+        "type": "observe",
+        "at": "2026-10-12T02:23:34.867Z",
+        "worker": "B",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-C-luna-high-20261012",
+        "type": "observe",
+        "at": "2026-10-12T02:23:36.967Z",
+        "worker": "C",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-luna-high-wait-v48-queue-20261012",
+        "type": "turn",
+        "at": "2026-10-12T02:24:01.740Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep-sol-medium-idle-v48-baseline-20261012",
+        "type": "turn",
+        "at": "2026-10-12T02:24:38.673Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep is idle: v48 is admitted, and 16 unmatched sessions with sufficient independent work keep the next-batch preparation trigger unmet."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v48-name-discovered-object-type-20261012",
+        "type": "assign",
+        "at": "2026-10-12T02:25:02.877Z",
+        "task": "B-investigation-v48-name-discovered-object-type-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-v48-investigation-20261012",
+        "type": "turn",
+        "at": "2026-10-12T02:25:05.103Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-investigation-v48-extended-fire-empty-20261012",
+        "type": "assign",
+        "at": "2026-10-12T02:25:26.027Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-o-init-rename-disco-v48-20261012",
+        "type": "implement",
+        "at": "2026-10-12T02:27:04.634Z",
+        "task": "B-investigation-v48-name-discovered-object-type-20261012",
+        "goal": "port-o-init-rename-disco-v48-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v48-doextcmd-fire-20261012",
+        "type": "implement",
+        "at": "2026-10-12T02:27:45.582Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
+        "goal": "fix-cmd-doextcmd-fire-dispatch-v48-20261012"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "Prep12",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
+        "task": "C-investigation-v47-mimic-hallucination-post-eatmupdate-cfirst-20261012",
+        "worker": "C",
+        "goal": "port-cpostfx-blocking-mimic-display-v47-20261012",
+        "kind": "implementation",
         "status": "ready",
-        "delivery": "1813695dbf7ba989b9ed27fede1672a232443f50",
-        "since": "2026-10-11T23:02:56.257Z",
+        "delivery": "7c340de89e2469f1c928206a655dc1d8f2457174",
+        "since": "2026-10-12T02:19:46.834Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -91660,8 +91826,8 @@
     ]
   },
   "development": {
-    "executionCommit": "68a1a9f049a7f9efce0a5f9e92e506b68e9bc8f2",
-    "measuredAt": "2026-10-12T02:09:23.829Z",
+    "executionCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+    "measuredAt": "2026-10-12T02:26:55.658Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
