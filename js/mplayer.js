@@ -29,6 +29,7 @@ import { m_dowear } from './worn.js';
 import { monmightthrowwep } from './weapon.js';
 import { m_at } from './monst.js';
 import { goodpos, rloc } from './teleport.js';
+import { verbalize } from './pline.js';
 
 const developers = Object.freeze([
     'Alex', 'Dave', 'Dean', 'Derek', 'Eric', 'Izchak', 'Janet', 'Jessie', 'Ken', 'Kevin', 'Michael', 'Mike', 'Pasi', 'Pat', 'Patric', 'Paul', 'Sean', 'Steve', 'Timo', 'Warwick',
@@ -40,6 +41,30 @@ const developers = Object.freeze([
     'Helge', 'Ron', 'Timo',
     'Joshua', 'Pat', '',
 ]);
+
+// C: mplayer.c mplayer_talk(). The patched recorder builds SetVoice as a
+// no-op, so the observable work here is its hostility check, one rn2(3), and
+// the verbalized line.
+export async function mplayer_talk(monster, state = game, rawEnv = {}) {
+    if (monster.mpeaceful) return;
+
+    const random = rawEnv.random ?? state.random ?? { rn2 };
+    const sameClass = monster.data === state.mons?.[state.urole?.mnum];
+    const messages = sameClass
+        ? [
+            "I can't win, and neither will you!",
+            "You don't deserve to win!",
+            'Mine should be the honor, not yours!',
+        ]
+        : [
+            'The low-life wants to talk, eh?',
+            'Fight, scum!',
+            'Here is what I have to say!',
+        ];
+    await verbalize(`Talk? -- ${messages[random.rn2(3)]}`, state, {
+        message: rawEnv.message,
+    });
+}
 
 // C: mplayer.c dev_name(). It avoids reusing a live monster-player's given
 // name prefix, then returns null after the source's 100-attempt safeguard.
