@@ -102,6 +102,7 @@ test('checkpoint runs full, generated, static, and score', () => {
         commands.map(({ label }) => label),
         [
             'full test suite',
+            'lint',
             'generated data (check:colors)',
             'generated data (check:config-statements)',
             'generated data (check:data-base)',

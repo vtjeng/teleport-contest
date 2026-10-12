@@ -5,13 +5,12 @@ import { lstatSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { acceptTask } from './accept-task.mjs';
-import { acceptedMain, savedQueueIssues } from './worker-backlog.mjs';
+import { savedQueueIssues } from './worker-backlog.mjs';
 import { nextActions, summarizeLedger } from './worker-state.mjs';
-import { git, isAncestor, validateHistoricalEvaluation, verifyPublicationChanges } from './worker-delivery.mjs';
+import { git, isAncestor, verifyPublicationChanges } from './worker-delivery.mjs';
 import { BOOKKEEPING_FILES } from './checkpoint-reuse.mjs';
-import { readCheckpointResult } from './checkpoint-results.mjs';
-import { admittedBatchIds, evaluationBatch, readChallengeBatches, readEvaluation } from './challenge-results.mjs';
-import { loadEvaluationDirectory, compareChallengeBatches } from './compare-challenge-evaluations.mjs';
+import { admittedBatchIds } from './challenge-results.mjs';
+import { reviewTask } from './task-verdict.mjs';
 import { writeDashboardSnapshot } from './dashboard-snapshot.mjs';
 import { checkPublishedCI } from './check-published-ci.mjs';
 import { readRows } from './score-log.mjs';
@@ -22,11 +21,11 @@ const USAGE = `Usage: node scripts/task-handoff.mjs <review|accept|publish> --ta
   accept:  [--evaluations <directory>]
   publish: [--queue <saved-combined-work-queue>]
 
-review compares saved synthetic results with the latest accepted checkpoint by
+review compares saved fixed and synthetic results with the latest accepted checkpoint by
 default; an explicit baseline must also belong to an accepted delivery. Newly
 admitted batches use their first complete recorded baseline when absent from
-that commit. Review source evidence and resolve reported regressions yourself.
-accept runs the existing acceptance helper and returns the worker handoff.
+that commit. A targeted fix must improve its assigned session without regressions.
+accept enforces the saved verdict and returns the worker handoff; review is optional.
 Resume the idle submitting worker before publish; this tool sends no messages.
 publish generates the dashboard snapshot, commits only closure reports, checks
 publication changes, pushes accepted Main, records publication, checks CI once,
@@ -60,59 +59,7 @@ function context(options, root) {
     return { root, ledgerPath, readState, state, task, delivery };
 }
 
-export function reviewTask(options, root = process.cwd()) {
-    const ctx = context(options, root);
-    const candidate = git(ctx.root, 'rev-parse', 'HEAD');
-    if (ctx.delivery.integration !== candidate || !['integrating', 'validated'].includes(ctx.task.status))
-        throw new Error('review requires the current integrated candidate');
-    const summary = readCheckpointResult(ctx.root, candidate);
-    if (summary.commit !== candidate || summary.allPassed !== true) throw new Error('candidate checkpoint must pass at HEAD');
-    const acceptCommand = ['node', 'scripts/task-handoff.mjs', 'accept', '--task', options.task,
-        '--ledger', options.ledger, ...(options.evaluations ? ['--evaluations', options.evaluations] : [])];
-    if (ctx.task.kind === 'challenge-preparation') return { task: options.task, candidate,
-        preparation: true, next: { review: 'Review the saved C mission and replay evidence, then accept.',
-            command: acceptCommand } };
-    const baselinePath = options.baseline ? resolve(ctx.root, options.baseline) : acceptedMain(ctx.state)?.checkpoint;
-    const baselineDelivery = Object.values(ctx.state.deliveries).find(d => d.acceptedAt
-        && (d.checkpoint === baselinePath || d.supplementalCheckpoint === baselinePath));
-    if (!baselinePath || !baselineDelivery)
-        throw new Error('baseline must identify an accepted checkpoint in the shared ledger');
-    const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'));
-    const accepted = baselineDelivery.checkpoint === baselinePath ? baselineDelivery.integration === baseline.commit
-        : baselineDelivery.publishedCommit && isAncestor(ctx.root, baselineDelivery.integration, baseline.commit)
-            && isAncestor(ctx.root, baseline.commit, baselineDelivery.publishedCommit);
-    if (baseline.allPassed !== true || !isAncestor(ctx.root, baseline.commit, candidate) || !accepted)
-        throw new Error('baseline checkpoint differs from its accepted integration');
-    const candidateDirectory = options.evaluations ? resolve(ctx.root, options.evaluations) : join(summary.artifacts, 'synthetic');
-    const admitted = readChallengeBatches(ctx.root);
-    const before = loadEvaluationDirectory(join(baseline.artifacts, 'synthetic'), baseline.commit);
-    const admissionBaselines = [];
-    // An admission after the accepted checkpoint has its own first measurement.
-    // Never substitute early history for a missing artifact of an older batch.
-    const newBatches = admitted.filter(entry => !before.has(entry.batch)
-        && !git(ctx.root, 'ls-tree', baseline.commit, '--', entry.manifestPath));
-    const rows = newBatches.length ? readRows(join(ctx.root, 'SCORE.tsv')) : [];
-    for (const batch of newBatches) {
-        for (const row of rows.filter(row => row.event === 'challenge'
-            && row.challenge_manifest_sha256 === batch.manifestSha256)) {
-            const evaluation = readEvaluation(ctx.root, row.challenge_evaluation);
-            if (evaluationBatch(evaluation) !== batch.batch || evaluation.status !== 'complete') continue;
-            if (evaluation.sha !== row.sha) throw new Error('admission baseline differs from its recorded commit');
-            if (evaluation.sha === candidate || Date.parse(row.utc) > Date.parse(ctx.delivery.integratingAt))
-                throw new Error('admission baseline must precede the current integration');
-            validateHistoricalEvaluation(ctx.root, evaluation, candidate);
-            before.set(batch.batch, evaluation);
-            admissionBaselines.push({ batch: batch.batch, commit: evaluation.sha, evaluation: row.challenge_evaluation });
-            break;
-        }
-    }
-    const comparison = compareChallengeBatches(before, loadEvaluationDirectory(candidateDirectory, candidate), admitted);
-    return { task: options.task, baseline: baseline.commit, candidate, baselineCheckpoint: baselinePath,
-        candidateCheckpoint: join(summary.artifacts, 'summary.json'), admissionBaselines,
-        ...comparison, next: comparison.reviewRequired
-            ? { review: 'Resolve the reported regressions or missing evidence before acceptance.', command: null }
-            : { review: 'Finish the required source-evidence review, then accept.', command: acceptCommand } };
-}
+export { reviewTask } from './task-verdict.mjs';
 
 export function publishTask(options, root = process.cwd(), { checkCI = (args, cwd) => checkPublishedCI(args, {
     gh: values => execFileSync('gh', values, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }),

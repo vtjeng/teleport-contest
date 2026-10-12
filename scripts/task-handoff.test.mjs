@@ -1,109 +1,18 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { parseHandoffArgs, publishTask, reviewTask } from './task-handoff.mjs';
-import { createLedger, recordEvent, summarizeLedger } from './worker-state.mjs';
-import { corpusDigest, digest, totalsFor } from './challenge-results.mjs';
-import { appendRow, COLUMNS } from './score-log.mjs';
+import { digest, totalsFor } from './challenge-results.mjs';
+import { acceptTask } from './accept-task.mjs';
+import { completedSourceUnits } from './port-evidence.mjs';
+import { appendRow } from './score-log.mjs';
 import { recordEvaluation } from './score-challenges.mjs';
 import { writeDashboardSnapshot } from './dashboard-snapshot.mjs';
 
-function fixture(t, { preparation = false } = {}) {
-    const parent = mkdtempSync(join(tmpdir(), 'task-handoff-'));
-    t.after(() => rmSync(parent, { recursive: true, force: true }));
-    const root = join(parent, 'main');
-    mkdirSync(root);
-    const git = (...args) => execFileSync('git', ['-c', 'core.hooksPath=/dev/null', ...args],
-        { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
-    const write = (path, bytes) => {
-        mkdirSync(dirname(join(root, path)), { recursive: true });
-        writeFileSync(join(root, path), bytes);
-    };
-    const json = (path, value) => write(path, JSON.stringify(value));
-    git('init', '-qb', 'main');
-    git('config', 'user.name', 'Handoff fixture');
-    git('config', 'user.email', 'fixture@example.invalid');
-    git('config', 'commit.gpgsign', 'false');
-    write('.gitignore', '.cache/\n');
-    write('js/fixture.js', 'export const fixture = true;\n');
-    write('SCORE.tsv', COLUMNS.join('\t') + '\n');
-    const recipe = JSON.stringify({ version: 5, segments: [{ moves: 'i' }] });
-    // Two screens permit a partial baseline and a full candidate without replay.
-    const recording = JSON.stringify({ version: 5, segments: [{ steps: [{ screen: 'start' }, { screen: 'inventory' }] }] });
-    const entry = { id: 'case', title: 'Independent transport fixture',
-        recipe: 'challenges/cases/case.recipe.json', recipeSha256: digest(recipe),
-        recording: 'challenges/cases/case.session.json', recordingSha256: digest(recording) };
-    write(entry.recipe, recipe); write(entry.recording, recording);
-    json('challenges/manifest.json', { version: 1, cases: [entry] });
-    git('add', '.gitignore', 'js/fixture.js', 'SCORE.tsv', entry.recipe, entry.recording, 'challenges/manifest.json');
-    git('commit', '-qm', 'Fixture baseline');
-    const baseline = git('rev-parse', 'HEAD');
-    const candidatePath = preparation ? 'challenges/cases/v2/pending.recipe.json' : 'js/fixture.js';
-    write(candidatePath, preparation ? recipe : 'export const fixture = false;\n');
-    git('add', candidatePath); git('commit', '-qm', 'Fixture candidate');
-    const candidate = git('rev-parse', 'HEAD');
-    git('init', '--bare', '-q', join(parent, 'remote.git'));
-    git('remote', 'add', 'origin', join(parent, 'remote.git'));
-    git('push', '-q', 'origin', `${baseline}:refs/heads/main`); // This is only a disposable filesystem remote.
-    function checkpoint(commit, matched) {
-        const relative = `.git/checkpoint-results/${commit}/fixture`;
-        const artifacts = join(root, relative);
-        const cases = [{ id: entry.id, recordingSha256: entry.recordingSha256,
-            passed: matched === 2, error: null, metrics: Object.fromEntries(['screens', 'rng', 'cursors']
-                .map(key => [key, { matched, total: 2 }])) }];
-        json(`${relative}/synthetic/v1.json`, { version: 1, sha: commit, utc: '2026-10-01T00:00:00Z',
-            status: 'complete', scorerSha256: digest('same fixture scorer'),
-            manifestSha256: corpusDigest(cases), cases, totals: totalsFor(cases) });
-        // The dashboard requires the actual 44-session shape and matching hash,
-        // not just aggregate counts. Each fixture session has one of two matches.
-        const results = { results: Array.from({ length: 44 }, (_, index) => ({ session: `fixture-${index}.session.json`,
-            passed: false, metrics: Object.fromEntries(['screens', 'rngCalls', 'cursors']
-                .map(key => [key, { matched: 1, total: 2 }])) })) };
-        const bytes = JSON.stringify(results);
-        write(`${relative}/session-results.json`, bytes);
-        const summary = { commit, executionCommit: commit, artifacts, allPassed: true,
-            timestamp: '2026-10-01T00:00:00Z', artifactHashes: { 'session-results.json': digest(bytes) },
-            score: { sessions: 44, passing: 0, screensMatched: 44, rngMatched: 44, cursorsMatched: 44 } };
-        json(`${relative}/summary.json`, summary);
-        json(`.git/checkpoint-results/${commit}/latest.json`, summary);
-        return join(artifacts, 'summary.json');
-    }
-    const baselineCheckpoint = checkpoint(baseline, 1), candidateCheckpoint = checkpoint(candidate, 2);
-    let ledger = createLedger('loop-20261009', root), sequence = 0;
-    const send = event => {
-        ledger = recordEvent(ledger, { id: `fixture-${++sequence}`, ...event });
-        json('.cache/ledger.json', ledger);
-    };
-    send({ type: 'register', worker: 'A', worktree: join(parent, 'worker'), branch: 'worker/a', base: baseline, handle: 'existing-A' });
-    for (const [task, commit, summary] of [['A0', baseline, baselineCheckpoint], ['A1', candidate, candidateCheckpoint]]) {
-        const prep = preparation && task === 'A1';
-        send({ type: 'assign', task, worker: 'A', ...(prep ? { kind: 'challenge-preparation' } : { goal: task }),
-            seed: null, base: baseline, reservations: [prep ? 'challenge-batch:v2' : `source:fixture.c:${task}`],
-            allowedPaths: [prep ? 'challenges/cases/v2/' : 'js/fixture.js'] });
-        send({ type: 'ready', task, base: baseline, delivery: commit, commits: [commit],
-            paths: [task === 'A1' ? candidatePath : 'js/fixture.js'],
-            evidence: join(root, '.cache/evidence.json'), dependencies: [] });
-        send({ type: 'integrating', task, integration: commit });
-        if (task === 'A0') {
-            send({ type: 'validated', task, checkpoint: summary, passed: true });
-            send({ type: 'accepted', task });
-        }
-    }
-    send({ type: 'turn', worker: 'A', state: 'idle', reason: 'Submitted.', processes: [] });
-    const options = { task: 'A1', ledger: '.cache/ledger.json' };
-    const accept = () => {
-        send({ type: 'validated', task: 'A1', passed: true, checkpoint: candidateCheckpoint });
-        send({ type: 'accepted', task: 'A1' });
-    };
-    const calls = [];
-    const checkCI = args => { calls.push(args); return { checked: 0, pending: [], completed: [], failed: false }; };
-    return { root, parent, git, write, json, options, baseline, candidate, baselineCheckpoint, candidateCheckpoint,
-        accept, send, calls, checkCI, state: () => summarizeLedger(JSON.parse(readFileSync(join(root, options.ledger), 'utf8'))) };
-}
+import { handoffFixture as fixture } from './test-fixtures/task-handoff.mjs';
 
 test('handoff phases reject misspelled, missing, duplicate and irrelevant arguments', () => {
     assert.deepEqual(parseHandoffArgs(['review', '--task', 'A1', '--ledger', 'ledger']),
@@ -156,6 +65,80 @@ test('preparation handoff requests its saved C review without implementation syn
     assert.equal(f.state().tasks.A1.status, 'integrating', 'review cannot accept preparation automatically');
 });
 
+test('targeted acceptance imports CI results without certifying source units and resumes safely', t => {
+    const f = fixture(t, { acceptance: true });
+    const receipt = acceptTask(f.options, f.root);
+    assert.equal(receipt.commit, f.candidate);
+    assert.equal(receipt.handoff.action, 'resume');
+    assert.equal(f.state().tasks.A1.status, 'accepted');
+    const goal = JSON.parse(readFileSync(join(f.root, 'GOALS.json'), 'utf8')).goals[0];
+    assert.equal(goal.status, 'closed', 'a queued task can be accepted without the selection/open-goal ceremony');
+    assert.equal(goal.acceptance.basis, 'target-improvement');
+    assert.equal(goal.acceptance.baseline, f.baseline);
+    assert.equal(goal.workerClaims.functions[0].name, 'fixture');
+    assert.equal(goal.evidence, undefined, 'a worker claim is not independent source certification');
+    assert.deepEqual(completedSourceUnits(goal), [], 'acceptance must not inflate whole-source completion');
+    const before = f.git('status', '--porcelain');
+    assert.deepEqual(acceptTask(f.options, f.root), receipt);
+    assert.equal(f.git('status', '--porcelain'), before, 'retry does not duplicate imports or records');
+});
+
+test('fixed-development targets use the same saved-result acceptance rule', t => {
+    const f = fixture(t, { acceptance: true, fixedTarget: true });
+    const verdict = reviewTask(f.options, f.root);
+    assert.equal(verdict.target, 'fixture-0');
+    assert.equal(verdict.targetImproved, true);
+    assert.equal(verdict.fixed.changes[0].delta.screens, 1, 'the target gains its second recorded boundary');
+    assert.equal(acceptTask(f.options, f.root).commit, f.candidate);
+    assert.equal(f.state().tasks.A1.status, 'accepted');
+});
+
+test('target improvement cannot hide a fixed-session regression or unchanged target', t => {
+    const f = fixture(t, { acceptance: true });
+    const evaluationPath = join(dirname(f.candidateCheckpoint), 'synthetic/v1.json');
+    const originalEvaluation = readFileSync(evaluationPath);
+    const evaluation = JSON.parse(originalEvaluation);
+    // Equal to the accepted baseline: gains on another session would not fix this target.
+    evaluation.cases[0].passed = false;
+    for (const metric of Object.values(evaluation.cases[0].metrics)) metric.matched = 1;
+    evaluation.totals = totalsFor(evaluation.cases);
+    writeFileSync(evaluationPath, JSON.stringify(evaluation));
+    assert.throws(() => acceptTask(f.options, f.root), /targetImproved.*false/);
+    assert.equal(f.state().tasks.A1.status, 'integrating', 'a rejected verdict must not record validation or acceptance');
+    writeFileSync(evaluationPath, originalEvaluation);
+    const summary = JSON.parse(readFileSync(f.candidateCheckpoint));
+    const path = join(summary.artifacts, 'session-results.json');
+    const results = JSON.parse(readFileSync(path));
+    // One loss and one gain leave the aggregate unchanged; only per-session comparison catches it.
+    results.results[0].metrics.screens.matched = 0;
+    results.results[1].metrics.screens.matched = 2;
+    const bytes = JSON.stringify(results);
+    writeFileSync(path, bytes);
+    summary.artifactHashes['session-results.json'] = digest(bytes);
+    f.json(`.git/checkpoint-results/${f.candidate}/latest.json`, summary);
+    assert.throws(() => acceptTask(f.options, f.root), /fixture-0/);
+    assert.equal(f.state().tasks.A1.status, 'integrating');
+    assert.equal(f.git('status', '--porcelain'), '', 'failed comparisons write no score or goal reports');
+});
+
+test('acceptance requires comparable saved artifacts, not just a green aggregate', t => {
+    const f = fixture(t, { acceptance: true });
+    const path = join(dirname(f.candidateCheckpoint), 'synthetic/v1.json');
+    const evaluation = JSON.parse(readFileSync(path));
+    writeFileSync(path, JSON.stringify({ ...evaluation, scorerSha256: digest('another scorer') }));
+    assert.throws(() => acceptTask(f.options, f.root), /scorer changed/);
+    writeFileSync(path, JSON.stringify(evaluation));
+    const summary = JSON.parse(readFileSync(f.candidateCheckpoint));
+    f.json(`.git/checkpoint-results/${f.candidate}/latest.json`, { ...summary, artifactHashes: {} });
+    assert.throws(() => acceptTask(f.options, f.root), /session results do not belong/);
+    f.json(`.git/checkpoint-results/${f.candidate}/latest.json`, summary);
+    const report = reviewTask(f.options, f.root);
+    assert.equal(report.target, 'synthetic/v1/case');
+    assert.equal(report.targetImproved, true);
+    assert.equal(report.reviewRequired, false);
+    assert.equal(f.git('status', '--porcelain'), '');
+});
+
 test('new admissions use their first recorded baseline, but missing accepted artifacts stay missing', t => {
     const f = fixture(t);
     const firstManifest = JSON.parse(readFileSync(join(f.root, 'challenges/manifest.json'), 'utf8'));
@@ -173,6 +156,8 @@ test('new admissions use their first recorded baseline, but missing accepted art
     const artifacts = join(f.root, `.git/checkpoint-results/${candidate}/fixture`);
     f.json(`.git/checkpoint-results/${candidate}/fixture/synthetic/v1.json`, { ...first, sha: candidate });
     f.json(`.git/checkpoint-results/${candidate}/fixture/synthetic/v2.json`, { ...value, sha: candidate });
+    f.write(`.git/checkpoint-results/${candidate}/fixture/session-results.json`,
+        readFileSync(join(oldSummary.artifacts, 'session-results.json')));
     f.json(`.git/checkpoint-results/${candidate}/latest.json`, { ...oldSummary, commit: candidate, artifacts });
     f.send({ type: 'integrating', task: 'A1', integration: candidate });
     const report = reviewTask(f.options, f.root);
