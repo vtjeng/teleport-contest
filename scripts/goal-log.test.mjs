@@ -15,10 +15,37 @@ import {
     SPAN_LINE_CAP, checkpointClosingStanding, deliveredSince, formatGoal,
     formatRoadmap, lineRanges, nextSpan, readGoals, roadmapRows,
     selectFunctionRange, spanContext, taskContext, validateGoals, refreshCompletion,
-    assertPortComplete, recordEvidence, luaRoadmapRows,
+    assertPortComplete, recordEvidence, luaRoadmapRows, goalFromWorkerContext,
 } from './goal-log.mjs';
 
 const dir = mkdtempSync(join(tmpdir(), 'goal-log-'));
+
+test('submitted source scope registers without selecting its session again', () => {
+    // backfire is the complete small zap.c function in the received v52 fix.
+    // An unadmitted fixture identity proves registration does not consult the queue.
+    const task = { id: 'submitted-backfire', goal: 'submitted-zap-port', seed: 'synthetic/v999/submitted-case' };
+    const context = { goal: task.goal, kind: 'file-port', sourceFile: 'zap.c',
+        functions: ['backfire'], sessions: [task.seed] };
+    const goal = goalFromWorkerContext(task, context);
+    assert.equal(goal.status, 'queued');
+    assert.equal(goal.openedAt, null);
+    assert.equal(goal.openStanding, null);
+    assert.deepEqual(goal.functions.map(entry => entry.name), ['backfire']);
+    assert.deepEqual(goal.sessions, [task.seed]);
+    assert.equal(goal.workerClaims, undefined);
+    assert.doesNotThrow(() => validateGoals({ goals: [goal] }));
+});
+
+test('submitted bounded fixes retain the assigned target and source function', () => {
+    // A divergence fix records one primary source owner while its packet retains callers.
+    const task = { id: 'submitted-fix', goal: 'submitted-bounded-fix', seed: 'synthetic/v999/assigned-case' };
+    const goal = goalFromWorkerContext(task, { goal: task.goal, kind: 'divergence-fix',
+        sourceFile: 'steed.c', functions: ['dismount_steed'], sessions: [task.seed] });
+    assert.equal(goal.function, 'dismount_steed');
+    assert.equal(goal.session, task.seed);
+    assert.equal(goal.status, 'queued');
+    assert.throws(() => goalFromWorkerContext(task, { goal: 'different-goal' }), /assigned goal/u);
+});
 
 // Two file-port functions and one divergence fix, plus one legacy goal in the
 // shape GOALS.json held before 2026-09-05 (boundary and slices, no kind).

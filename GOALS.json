@@ -292487,6 +292487,34 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-zap-backfire-v52-cursed-wand-20261012",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement backfire from zap.c",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v52/v52-cursed-wand-nothing-backfire-action-attempt2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v52-cursed-wand-nothing-backfire-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "backfire",
+          "line": 2605,
+          "endLine": 2617,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 2605,
+        "to": 2617
+      }
     }
   ]
 }
