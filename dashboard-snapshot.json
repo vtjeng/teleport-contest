@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T17:45:24.819Z",
+  "capturedAt": "2026-10-12T17:57:27.562Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -96374,6 +96374,80 @@
         "type": "accepted",
         "at": "2026-10-12T17:44:39.961Z",
         "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-84d6-queue-refresh-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:45:44.435Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012-78249f85dbbdf64bb5c2750aefc525a37359d7f8",
+        "type": "published",
+        "at": "2026-10-12T17:46:28.991Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
+        "commit": "78249f85dbbdf64bb5c2750aefc525a37359d7f8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-bluejelly-bde63f29-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T17:49:45.897Z",
+        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
+        "integration": "bde63f29a107e70c943ab214f3ac2fe8d24dad95"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-smaller-batch-review-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:51:52.138Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep21/v57: bounded search complete; waiting for Root’s smaller-batch decision on 5 failures and 6 controls."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep21-smaller-batch-73-attempts-20261012",
+        "type": "activity",
+        "at": "2026-10-12T17:55:01.638Z",
+        "task": "Prep21",
+        "phase": "review",
+        "reason": "Approved eleven-case v57 preparation after 73 independent C attempts across 25 source behaviors: five provisional distinct first failures and six controls with observed coverage differences. Geyser and contained figurine targets remain deferred; admission review is separate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012-bde63f29a107e70c943ab214f3ac2fe8d24dad95-validated",
+        "type": "validated",
+        "at": "2026-10-12T17:55:57.558Z",
+        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-immutable-submission-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:56:36.731Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: approved 11-case delivery is being committed and submitted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012-bde63f29a107e70c943ab214f3ac2fe8d24dad95-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T17:56:44.841Z",
+        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9774b5d259f1448c19fea2bd1b334845f25b9b46",
+        "type": "ready",
+        "at": "2026-10-12T17:57:01.432Z",
+        "task": "Prep21",
+        "delivery": "9774b5d259f1448c19fea2bd1b334845f25b9b46"
       }
     ]
   },
@@ -96403,17 +96477,6 @@
         "blockedBy": [
           "Prep16"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
-        "worker": "C",
-        "goal": "fix-mhitu-gulpmu-blind-engulfer-name-v51-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "64457b3398d812828fdb1fbe7e0767b946c7a8d8",
-        "since": "2026-10-12T13:00:07.020Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -96461,6 +96524,24 @@
           "Prep17",
           "Prep18",
           "Prep19"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep21",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "9774b5d259f1448c19fea2bd1b334845f25b9b46",
+        "batch": "v57",
+        "since": "2026-10-12T17:57:01.432Z",
+        "blockedBy": [
+          "Prep16",
+          "Prep17",
+          "Prep18",
+          "Prep19",
+          "Prep20"
         ],
         "unblocks": 0
       }
@@ -96923,8 +97004,8 @@
     ]
   },
   "development": {
-    "executionCommit": "84d6d7988311f02b029d1638fca8ac822f12043f",
-    "measuredAt": "2026-10-12T17:42:30.066Z",
+    "executionCommit": "bde63f29a107e70c943ab214f3ac2fe8d24dad95",
+    "measuredAt": "2026-10-12T17:54:48.052Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

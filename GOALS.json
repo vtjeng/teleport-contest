@@ -292215,7 +292215,7 @@
     {
       "id": "fix-mhitu-gulpmu-blind-engulfer-name-v51-20261012",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve source visibility and sensing when naming an engulfer",
       "cFile": "mhitu.c",
       "sessions": [],
@@ -292227,8 +292227,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bde63f29a107e70c943ab214f3ac2fe8d24dad95",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "gulpmu",
       "session": "synthetic/v51/v51-bluejelly-newt-cold-passive-action-attempt4",
       "step": 117,
@@ -292477,7 +292480,13 @@
           "luaFile": null,
           "line": null
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "bde63f29a107e70c943ab214f3ac2fe8d24dad95",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
