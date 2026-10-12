@@ -10,33 +10,61 @@
   "recordingSha256": "212209e1ef501821d44338f2a844e3f8fada3bbb5c0d22de706c59dade77a668",
   "evaluationPath": "challenges/evaluations/accepted-bcec557f6844ad95efb413b7662c31a6304f69d7-v48.json",
   "evaluationCommit": "bcec557f6844ad95efb413b7662c31a6304f69d7",
-  "status": "complete",
-  "commit": "148ff252f630fb3a5f7bc78399f45e553bd6f188",
+  "status": "resolved",
+  "commit": "be3747ea1f013cfc5dfe39cd9ddba40d7e4325de",
   "mismatch": {
     "screen": {
       "index": 13,
-      "location": { "segmentIndex": 0, "stepIndex": 13, "key": ")" },
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 13,
+        "key": ")"
+      },
       "kind": "ch",
       "row": 0,
       "column": 31,
-      "cCell": { "ch": "W", "color": 8, "attr": 1, "decgfx": 0 },
-      "jsCell": { "ch": "P", "color": 8, "attr": 1, "decgfx": 0 }
+      "cCell": {
+        "ch": "W",
+        "color": 8,
+        "attr": 1,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "P",
+        "color": 8,
+        "attr": 1,
+        "decgfx": 0
+      }
     },
     "rng": null,
     "cursor": {
       "index": 13,
-      "location": { "segmentIndex": 0, "stepIndex": 13, "key": ")" },
-      "cCursor": [37, 3, 1],
-      "jsCursor": [37, 5, 1]
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 13,
+        "key": ")"
+      },
+      "cCursor": [
+        37,
+        3,
+        1
+      ],
+      "jsCursor": [
+        37,
+        5,
+        1
+      ]
     }
   },
   "step": 13,
   "kind": "screen",
-  "summary": "At segment 0 step 13, C displays the selected weapon inventory menu with its first class heading at row 0; JavaScript adds the default 'Pick up what?' title before the same menu, so 'Weapons' is shifted and the first mismatch is W versus P. invent.c:dotypeinv() passes NULL as query_objlist()'s qstr. js/invent.js passes state.gt.this_title ?? undefined, causing js/pickup.js:query_objlist()'s default title parameter to replace C's null. Preserve non-null BUC titles while passing null when dotypeinv's title is unset.",
+  "summary": "The divergence is resolved. invent.c:dotypeinv() passes a NULL qstr to query_objlist(); js/invent.js now passes null when this_title is unset so the shared query does not insert its default “Pick up what?” title. Fresh replay matches all 15 screens, 2176 RNG calls, cursor positions, and the input boundary through the admitted case.",
   "source": {
     "file": "invent.c",
     "branch": "dotypeinv() calls query_objlist(NULL, &gi.invent, flags, &pick_list, PICK_ONE, this_type_only) at lines 4018-4021. The null qstr leaves the first sorted object-class heading as the menu's first visible row.",
-    "functions": ["dotypeinv"],
+    "functions": [
+      "dotypeinv"
+    ],
     "callers": [
       "cmd.c ext_func_tab dispatches #inventtype to invent.c:dotypeinv(); js/cmd.js invokes js/invent.js:dotypeinv() through the matching extended-command entry."
     ],
@@ -48,7 +76,22 @@
   "evidence": [
     "The accepted v48 evaluation identifies one screen mismatch at segment 0 step 13, key ')': C shows 'Weapons' while JavaScript shows 'Pick up what?' at the same row, and the cursor is two rows lower in JavaScript; RNG calls match through this screen.",
     "The documented single-case scan at replay commit 148ff252 reproduces the mismatch after #inventtype and the ')' weapon-category selection, with no unported functions.",
-    "nethack-c/upstream/src/invent.c:dotypeinv() calls query_objlist() with a NULL qstr at lines 4018-4021; js/invent.js:dotypeinv() passes undefined when gt.this_title is null, selecting js/pickup.js:query_objlist()'s Pick up what? default parameter."
+    "nethack-c/upstream/src/invent.c:dotypeinv() calls query_objlist() with a NULL qstr at lines 4018-4021; js/invent.js:dotypeinv() passes undefined when gt.this_title is null, selecting js/pickup.js:query_objlist()'s Pick up what? default parameter.",
+    "The bounded focused suite passed 12 tests, including a source-pinned assertion for C NULL and the JavaScript null fallback. Lint passed. Exact committed replay run-CBxrwt at be3747ea1f013cfc5dfe39cd9ddba40d7e4325de matches 15/15 screens, the input boundary, and has no unported functions."
   ],
-  "goalKind": "divergence-fix"
+  "goalKind": "divergence-fix",
+  "resolution": {
+    "afterFirstMismatch": null,
+    "afterReplay": {
+      "id": "run-CBxrwt",
+      "commit": "be3747ea1f013cfc5dfe39cd9ddba40d7e4325de",
+      "receipt": "/tmp/teleport-validation-1000/run-CBxrwt/receipt.json",
+      "screensMatched": 15,
+      "screensTotal": 15,
+      "rngMatched": 2176,
+      "inputBoundaryMatched": true,
+      "unported": []
+    },
+    "sourceFunctionCompletion": "No new whole-function completion claim; invent.c:dotypeinv was already recorded complete."
+  }
 }
