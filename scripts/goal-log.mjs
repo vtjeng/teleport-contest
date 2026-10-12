@@ -1209,7 +1209,8 @@ async function main(args) {
             const { loadWorkQueue } = await import('./mismatch-queue.mjs');
             const scan = options['development-scan']
                 ? readDevelopmentScan(options['development-scan']) : undefined;
-            const queue = loadWorkQueue({ scan });
+            const queue = loadWorkQueue({ scan,
+                diagnosticSessions: new Set([goal.session, ...(goal.sessions ?? [])]) });
             if (queue.blockers?.length)
                 throw new Error('synthetic evidence is incomplete; goal closure is blocked');
             goal.closeMismatches = scopedMismatches(goal, queue);

@@ -265,6 +265,10 @@ separately from other goals.
    case files unadmitted and record no challenge score or mismatch-queue entry.
    Run the same acceptance helper; preparation tasks skip goal closure and
    synthetic import.
+   After importing a passing checkpoint, finish the required review and run
+   the acceptance helper next. For preparation, review the saved C mission
+   and replay evidence; skip implementation-only synthetic regression review.
+   If acceptance cannot proceed, record the blocker.
    When the batch-admission gate in `.agents/selection.md` later passes, recheck
    every included case against unresolved admitted cases and earlier submitted
    unadmitted batches using current evaluations and the packet's C behavior, state,

@@ -191,7 +191,7 @@ function comparableMeasurement(evaluation, entry, previous, previousEntry, recor
             entry.metrics?.[key]?.total === previousEntry.metrics?.[key]?.total);
 }
 
-function evaluationCase(batch, evaluation, entry, previous, owners) {
+function evaluationCase(batch, evaluation, entry, previous, owners, diagnosticSessions) {
     const metrics = {
         screens: count(entry.metrics?.screens),
         rng: count(entry.metrics?.rng ?? entry.metrics?.rngCalls),
@@ -209,19 +209,12 @@ function evaluationCase(batch, evaluation, entry, previous, owners) {
         || metrics.rng.matched < metrics.rng.total
         || metrics.cursors.matched < metrics.cursors.total);
     if (!mismatch) return null;
-    const directDiagnostic = entry.firstMismatch ?? entry.diagnostic ?? entry.divergence
-        ?? entry.mismatch ?? null;
-    const cached = directDiagnostic ? null : ensureSyntheticDiagnostic(batch, entry);
-    const attributed = cachedDiagnosticEntry(batch, entry, cached, owners);
-    const diagnostic = directDiagnostic ?? cached?.divergence ?? (cached?.boundary ? {
-        kind: 'stop', message: cached.boundary, step: cached.screensEmitted,
-    } : null);
     const previousEntry = previous?.cases?.get(entry.id);
     const comparable = comparableMeasurement(evaluation, entry, previous?.evaluation,
         previousEntry, entry.recordingSha256);
     const previousMatched = comparable
         ? count(previousEntry?.metrics?.screens)?.matched ?? null : null;
-    return {
+    const measured = {
         corpus: 'synthetic', batch: batch.batch, caseId: entry.id,
         session: syntheticSessionId(batch.batch, entry.id),
         manifestPath: batch.manifestPath, manifestSha256: batch.manifestSha256,
@@ -239,7 +232,24 @@ function evaluationCase(batch, evaluation, entry, previous, owners) {
         previousScreensMatched: previousMatched,
         regression: previousMatched !== null && metrics.screens.matched < previousMatched,
         passed: Boolean(entry.passed), error: entry.error ?? null,
-        metrics, firstMismatch: diagnostic,
+        metrics,
+    };
+    // Exclusion depends on validated recording identity and measured debt,
+    // not a new replay. Closure needs diagnostics only for its named sessions;
+    // it still checks complete, current evidence for every admitted batch.
+    const investigation = readInvestigation(batch.root, measured);
+    const excluded = investigation.status === 'complete' && investigation.result?.resolution;
+    const diagnose = !excluded && (diagnosticSessions === null || diagnosticSessions.has(measured.session));
+    const directDiagnostic = entry.firstMismatch ?? entry.diagnostic ?? entry.divergence
+        ?? entry.mismatch ?? null;
+    const cached = directDiagnostic ? null : diagnose
+        ? ensureSyntheticDiagnostic(batch, entry) : cachedSyntheticDiagnostic(batch, entry);
+    const attributed = cachedDiagnosticEntry(batch, entry, cached, owners);
+    const diagnostic = directDiagnostic ?? cached?.divergence ?? (cached?.boundary ? {
+        kind: 'stop', message: cached.boundary, step: cached.screensEmitted,
+    } : null);
+    return {
+        ...measured, investigation, firstMismatch: diagnostic,
         step: diagnosticStep(diagnostic),
         kind: diagnosticKind(diagnostic, metrics, entry.error),
         sourceFile: diagnostic?.sourceFile ?? diagnostic?.cFile ?? diagnostic?.luaFile ?? null,
@@ -259,7 +269,8 @@ function evaluationCase(batch, evaluation, entry, previous, owners) {
     };
 }
 
-export function buildSyntheticQueue(batches, { root = PROJECT_ROOT, owners = null } = {}) {
+export function buildSyntheticQueue(batches, { root = PROJECT_ROOT, owners = null,
+    diagnosticSessions = null } = {}) {
     const sessions = [];
     const excluded = [];
     const blockers = [];
@@ -298,13 +309,12 @@ export function buildSyntheticQueue(batches, { root = PROJECT_ROOT, owners = nul
         }
         batch.evaluationPath = state.path;
         for (const result of evaluation.cases) {
-            const entry = evaluationCase(batch, evaluation, result, previous, sourceOwners);
+            const entry = evaluationCase(batch, evaluation, result, previous, sourceOwners, diagnosticSessions);
             if (entry?.blocked) {
                 blockers.push({ ...batchView, caseId: result.id, blocked: true, reason: entry.reason });
                 continue;
             }
             if (entry) {
-                entry.investigation = readInvestigation(root, entry);
                 const resolution = entry.investigation.status === 'complete'
                     ? entry.investigation.result?.resolution : null;
                 if (resolution) {
@@ -597,13 +607,13 @@ export function loadMismatchQueue(scan = runScan()) {
     return queue;
 }
 
-export function loadWorkQueue({ scan = null, root = PROJECT_ROOT } = {}) {
+export function loadWorkQueue({ scan = null, root = PROJECT_ROOT, diagnosticSessions = null } = {}) {
     const fixed = loadMismatchQueue(scan ?? undefined);
     const batches = readSyntheticBatches(root);
     let owners;
     try { owners = functionOwners(); }
     catch { owners = new Map(); }
-    const synthetic = buildSyntheticQueue(batches, { root, owners });
+    const synthetic = buildSyntheticQueue(batches, { root, owners, diagnosticSessions });
     return buildWorkQueue(fixed, synthetic);
 }
 

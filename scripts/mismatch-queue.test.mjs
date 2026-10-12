@@ -11,6 +11,96 @@ import {
     formatQueue, parseCaller, queueEntry,
 } from './mismatch-queue.mjs';
 
+function diagnosticFixture(t) {
+    const root = mkdtempSync(join(tmpdir(), 'queue-diagnostic-scope-'));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    for (const path of ['scripts', '.cache', 'challenges/cases', 'investigations/synthetic/v1'])
+        mkdirSync(join(root, path), { recursive: true });
+    // This process records scanner dispatches without pretending to replay a game.
+    writeFileSync(join(root, 'scripts/scan-sessions.mjs'),
+        "import { appendFileSync } from 'node:fs'; appendFileSync('.cache/dispatched', process.argv.at(-1) + '\\n');\n");
+    // Four boundaries distinguish two matched screens from the two-screen debt.
+    const recording = JSON.stringify({ version: 5, segments: [{
+        steps: Array.from({ length: 4 }, () => ({})),
+    }] });
+    const cases = ['excluded', 'selected', 'unrelated'].map(id => {
+        const entry = { id, recording: `challenges/cases/${id}.session.json`, recordingSha256: 'b'.repeat(64) };
+        writeFileSync(join(root, entry.recording), recording);
+        return entry;
+    });
+    const evaluation = { sha: 'c'.repeat(40), utc: '2026-10-12T00:00:00Z', cases: cases.map(entry => ({
+        ...entry, passed: false, metrics: { screens: { matched: 2, total: 4 },
+            rng: { matched: 4, total: 4 }, cursors: { matched: 4, total: 4 } },
+    })) };
+    const batches = [{ batch: 'v1', manifestPath: 'challenges/manifest.json', manifestSha256: 'a'.repeat(64),
+        cases, status: 'measured', evaluation, evaluationPath: 'challenges/evaluations/fixture.json' }];
+    const report = { session: 'synthetic/v1/excluded', corpus: 'synthetic', batch: 'v1', caseId: 'excluded',
+        manifestPath: batches[0].manifestPath, manifestSha256: batches[0].manifestSha256,
+        recordingSha256: cases[0].recordingSha256, recordedSteps: 4, remainingScreens: 2,
+        evaluationPath: batches[0].evaluationPath, evaluationCommit: evaluation.sha,
+        commit: 'd'.repeat(40), status: 'complete', summary: 'The reference build differs.',
+        mismatch: { session: 'synthetic/v1/excluded', remainingScreens: 2 },
+        goalKind: 'divergence-fix', source: { file: 'version.c', functions: ['version'],
+            branch: 'Compile-time feature list.', callers: ['version command'], dependencies: [] },
+        evidence: ['Recorded and judge build options differ.'],
+        resolution: { kind: 'build-provenance', reason: 'Different build options.', disposition: 'Retain the recording.' } };
+    const save = value => writeFileSync(join(root, 'investigations/synthetic/v1/excluded.json'), JSON.stringify(value));
+    save(report);
+    const queue = options => buildSyntheticQueue(batches, { root, owners: new Map(), ...options });
+    const dispatched = () => {
+        try { return readFileSync(join(root, '.cache/dispatched'), 'utf8').trim().split('\n'); }
+        catch (error) { if (error.code === 'ENOENT') return []; throw error; }
+    };
+    return { root, batches, report, save, queue, dispatched };
+}
+
+test('selection diagnoses actionable cases but never replays a valid exclusion', t => {
+    const f = diagnosticFixture(t);
+    const queue = f.queue();
+    assert.deepEqual(f.dispatched(), ['v1/selected', 'v1/unrelated']);
+    assert.deepEqual(queue.excluded.map(entry => entry.caseId), ['excluded']);
+    assert.deepEqual(queue.sessions.map(entry => entry.caseId), ['selected', 'unrelated']);
+});
+
+test('closure diagnoses only its named sessions and retains unrelated measured debt', t => {
+    const f = diagnosticFixture(t);
+    const queue = f.queue({ diagnosticSessions: new Set(['synthetic/v1/selected']) });
+    assert.deepEqual(f.dispatched(), ['v1/selected']);
+    assert.equal(queue.sessions.find(entry => entry.caseId === 'unrelated').remainingScreens, 2);
+    assert.equal(queue.generationReady, false, 'unrelated debt is not treated as parity');
+    f.batches[0].status = 'stale';
+    const stale = f.queue({ diagnosticSessions: new Set() });
+    assert.equal(stale.selectionBlocked, true, 'a scoped diagnostic request cannot bypass stale evaluations');
+    assert.equal(stale.blockers.length, 1);
+    assert.deepEqual(f.dispatched(), ['v1/selected']);
+});
+
+test('invalid, partial and stale exclusion records remain actionable and are diagnosed', async t => {
+    const variants = [
+        ['missing mismatch fields', report => { report.mismatch = {}; }],
+        ['partial resolution', report => { report.status = 'partial'; }],
+        ['different recording', report => { report.recordingSha256 = 'e'.repeat(64); }],
+        ['changed debt', report => { report.remainingScreens = 1; report.mismatch.remainingScreens = 1; }],
+    ]; // One screen, or a different hash, makes this two-screen exclusion stale.
+    for (const [name, change] of variants) await t.test(name, t => {
+        const f = diagnosticFixture(t);
+        change(f.report); f.save(f.report);
+        const queue = f.queue();
+        assert.deepEqual(f.dispatched(), ['v1/excluded', 'v1/selected', 'v1/unrelated']);
+        assert.equal(queue.excluded.length, 0);
+        assert.equal(queue.sessions.length, 3);
+    });
+});
+
+test('a valid exclusion cannot hide incomplete recording measurements', t => {
+    const f = diagnosticFixture(t);
+    f.batches[0].evaluation.cases[0].metrics.screens.total = 3; // The recording actually has four boundaries.
+    const queue = f.queue({ diagnosticSessions: new Set() });
+    assert.equal(queue.blockers.length, 1);
+    assert.equal(queue.excluded.length, 0);
+    assert.deepEqual(f.dispatched(), []);
+});
+
 // These synthetic sessions isolate queue policy from the changing game port.
 // Ten recorded steps make the remaining-screen upper bounds easy to inspect.
 const passing = {

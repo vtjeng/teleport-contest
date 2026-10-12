@@ -167,8 +167,8 @@ function fixture(t) {
         'export function loadMismatchQueue() {',
         "    return JSON.parse(readFileSync(new URL('../.cache/queue.json', import.meta.url), 'utf8'));",
         '}',
-        'export function loadWorkQueue({ scan } = {}) {',
-        "    appendFileSync(new URL('../.cache/queue-requests.jsonl', import.meta.url), JSON.stringify({ scan }) + '\\n');",
+        'export function loadWorkQueue({ scan, diagnosticSessions = null } = {}) {',
+        "    appendFileSync(new URL('../.cache/queue-requests.jsonl', import.meta.url), JSON.stringify({ scan, diagnosticSessions: diagnosticSessions && [...diagnosticSessions] }) + '\\n');",
         '    const fixed = loadMismatchQueue();',
         "    if (fixed.mode === 'work') return fixed;",
         "    return { mode: 'work', corpus: 'combined', fixed, synthetic: { sessions: [], blockers: [], generationReady: true },",
@@ -614,6 +614,10 @@ test('synthetic divergence closure requires current evidence even with a passing
     f.json('.cache/queue.json', queue);
     f.cli('close-goal', '--goal', 'synthetic-fix', '--development-scan', '.cache/fixed-scan.json');
     assert.equal(f.goals()[0].status, 'closed');
+    const calls = readFileSync(join(f.root, '.cache/queue-requests.jsonl'), 'utf8')
+        .trim().split('\n').map(line => JSON.parse(line));
+    assert.deepEqual(calls.at(-1).diagnosticSessions, [session],
+        'closure limits diagnostic dispatch without skipping global evidence blockers');
     f.refuses(/no fixed regression or synthetic candidate|generate.*batch/u,
         'queue-goal', '--id', 'unrelated', '--kind', 'file-port', '--c-file', 'unrelated.c',
         '--summary', 'An empty queue calls for a new batch');

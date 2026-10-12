@@ -67,8 +67,11 @@ export function reviewTask(options, root = process.cwd()) {
         throw new Error('review requires the current integrated candidate');
     const summary = readCheckpointResult(ctx.root, candidate);
     if (summary.commit !== candidate || summary.allPassed !== true) throw new Error('candidate checkpoint must pass at HEAD');
+    const acceptCommand = ['node', 'scripts/task-handoff.mjs', 'accept', '--task', options.task,
+        '--ledger', options.ledger, ...(options.evaluations ? ['--evaluations', options.evaluations] : [])];
     if (ctx.task.kind === 'challenge-preparation') return { task: options.task, candidate,
-        preparation: true, next: 'Review the saved C mission and replay evidence before acceptance.' };
+        preparation: true, next: { review: 'Review the saved C mission and replay evidence, then accept.',
+            command: acceptCommand } };
     const baselinePath = options.baseline ? resolve(ctx.root, options.baseline) : acceptedMain(ctx.state)?.checkpoint;
     const baselineDelivery = Object.values(ctx.state.deliveries).find(d => d.acceptedAt
         && (d.checkpoint === baselinePath || d.supplementalCheckpoint === baselinePath));
@@ -103,9 +106,12 @@ export function reviewTask(options, root = process.cwd()) {
             break;
         }
     }
+    const comparison = compareChallengeBatches(before, loadEvaluationDirectory(candidateDirectory, candidate), admitted);
     return { task: options.task, baseline: baseline.commit, candidate, baselineCheckpoint: baselinePath,
         candidateCheckpoint: join(summary.artifacts, 'summary.json'), admissionBaselines,
-        ...compareChallengeBatches(before, loadEvaluationDirectory(candidateDirectory, candidate), admitted) };
+        ...comparison, next: comparison.reviewRequired
+            ? { review: 'Resolve the reported regressions or missing evidence before acceptance.', command: null }
+            : { review: 'Finish the required source-evidence review, then accept.', command: acceptCommand } };
 }
 
 export function publishTask(options, root = process.cwd(), { checkCI = (args, cwd) => checkPublishedCI(args, {
