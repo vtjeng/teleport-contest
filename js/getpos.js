@@ -1030,6 +1030,22 @@ export async function getpos(ccp, force, goal, state = game) {
                 cursorAt(cx, cy, state);
                 continue;
             }
+            const menuKey = state.commandBindings.specialKeys?.['getpos.menu'];
+            if (key === menuKey) {
+                state.iflags.getloc_usemenu = !state.iflags.getloc_usemenu;
+                await ttyPline(
+                    state.iflags.getloc_usemenu
+                        ? "Using a menu to show possible targets for 'm|M', 'o|O', 'd|D', and 'x|X'."
+                        : 'Not using a menu to show possible targets.',
+                    state,
+                );
+                messageGiven = true;
+                state.gg.getposx = cx;
+                state.gg.getposy = cy;
+                cursorAt(cx, cy, state);
+                await flush_screen(0);
+                continue;
+            }
             if (key === '#') {
                 state.iflags.autodescribe = !state.iflags.autodescribe;
                 await ttyPline(
