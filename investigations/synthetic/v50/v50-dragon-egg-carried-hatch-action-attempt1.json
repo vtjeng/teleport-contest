@@ -1,0 +1,87 @@
+{
+  "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
+  "remainingScreens": 303,
+  "recordedSteps": 1755,
+  "corpus": "synthetic",
+  "batch": "v50",
+  "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+  "manifestPath": "challenges/manifests/v50.json",
+  "manifestSha256": "8033e81f20119b05c772e33cdeb1079027f7e032da436b16e9f5131eaa0a6f00",
+  "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+  "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
+  "evaluationPath": "challenges/evaluations/baseline-e4c7bc56e-v50.json",
+  "evaluationCommit": "e4c7bc56eb850377811e089788227269b277950d",
+  "status": "complete",
+  "commit": "f1e47e401b3297caf156ba21cef3d272aeef2d83",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "batch": "v50",
+    "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+    "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
+    "manifestPath": "challenges/manifests/v50.json",
+    "manifestSha256": "8033e81f20119b05c772e33cdeb1079027f7e032da436b16e9f5131eaa0a6f00",
+    "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+    "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
+    "evaluationPath": "challenges/evaluations/baseline-e4c7bc56e-v50.json",
+    "evaluationCommit": "e4c7bc56eb850377811e089788227269b277950d",
+    "remainingScreens": 303,
+    "recordedSteps": 1755,
+    "previousScreensMatched": 1452,
+    "regression": false,
+    "passed": false,
+    "metrics": {
+      "screens": {
+        "matched": 1452,
+        "total": 1755
+      },
+      "rng": {
+        "matched": 7573,
+        "total": 10005
+      },
+      "cursors": {
+        "matched": 1452,
+        "total": 1755
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 1452,
+      "message": "simple monster action requires an armed monster attacking another monster"
+    }
+  },
+  "summary": "The carried egg hatch succeeds through timeout.c:hatch_egg and tamedog; the first mismatch is the later weapon attack, not egg creation. At step 1452 JavaScript stops inside mhitm.c:mattackm() because its adjacent AT_WEAP path refuses an armed monster. C continues at step 1453 with rnd(20)=14 and the Woodland-elf swinging its runed broadsword at the baby red dragon. Implement the whole partially ported mattackm() function, including both current refusals (mundetected defender and armed AT_WEAP), and complete its consumed incomplete helpers before claiming whole-function evidence.",
+  "source": {
+    "file": "mhitm.c",
+    "branch": "mattackm() with an adjacent (distmin <= 1) armed monster using AT_WEAP; the attacker already wields the runed broadsword, attacks the newly hatched baby red dragon, and reaches hitmm(). Also cover the function’s mundetected-defender branch and its complete returned passive-attack contract because mattackm() is the selected whole function.",
+    "functions": [
+      "mattackm() whole mhitm.c:293-576",
+      "pre_mm_attack() whole mhitm.c:41-72",
+      "hitmm() whole mhitm.c:644-732",
+      "passivemm() whole mhitm.c:1304-1457"
+    ],
+    "callers": [
+      "dogmove.c:dog_move() -> mattackm(mtmp, mtmp2) at 1151 and return attack at 1165; current v50 replay exercises the direct ordinary pet-versus-monster action.",
+      "dogmove.c:pet_ranged_attk() -> mattackm(mtmp, mtarg) at 923 and retaliatory mattackm(mtarg, mtmp) at 946.",
+      "mhitm.c:fightm() -> mattackm(mtmp, mon) at 143 and return attack at 164.",
+      "monmove.c:covetous attack -> mattackm(mtmp, intruder) at 1794; monmove.c:m_move() monster-versus-monster attack at 2097 and return attack at 2111.",
+      "mhitu.c:steed attack/retaliation -> mattackm(mtmp, u.usteed) at 537 and mattackm(u.usteed, mtmp) at 547."
+    ],
+    "dependencies": [
+      "mattackm() consumes hitmm(), passivemm(), gazemm(), explmm(), gulpmm(), breamm()/spitmm(), and thrwmm() results; verify their returned contracts against C, and include any incomplete consumed callee in the task scope.",
+      "hitmm() consumes mdamagem() and calls pre_mm_attack() for its map/visibility state changes.",
+      "mattackm() consumes failed_grab() and helper results from mhitu.c, weapon.c, mon.c, and mthrowu.c; preserve their existing source-aligned implementations and expand scope if a consumed callee is incomplete.",
+      "The v50 case reaches the existing dogmove.c:dog_move() caller; no new caller adapter or session-specific mapping is needed."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Admitted v50 case challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json has 1755 recorded steps; its manifest sourceTrace identifies carried egg hatching at steps 1328 and 1376, then the first mismatch at step 1452 in the later armed attack.",
+    "The saved v50 baseline challenges/evaluations/baseline-e4c7bc56e-v50.json records 1452/1755 screens, 7573/10005 RNG calls, and 1452/1755 cursors matched; its source commit is e4c7bc56eb850377811e089788227269b277950d.",
+    "Focused diagnostic `/tmp/teleport-v50-dragon-egg-scan.json`, run from admitted Main 03b0395d562daf356bb7984e49324eb3fedc9236, stops at step 1452 on `UnsupportedSimpleMonsterActionError` for an armed monster attacking another monster.",
+    "C source `nethack-c/upstream/src/mhitm.c:mattackm()` sets up visibility, attacker turn state, and the attack loop; its adjacent AT_WEAP branch (406-417) selects/preserves MON_WEP, calls `mswingsm()` and `hitval()`, then falls through to the physical attack case which rolls `rnd(20 + i)` at line 441 and consumes `hitmm()` result. The recording’s next step has `rnd(20)=14 @ mattackm(mhitm.c:441)` and the runed-broadsword attack message.",
+    "JavaScript `js/mhitm.js:mattackm()` has explicit unported boundaries at lines 732 (`mundetected` defender) and 798 (armed AT_WEAP). The separate earlier starting-pet scope implemented only empty-handed fall-through and explicitly excluded actual wielded weapons; it does not cover this branch.",
+    "The whole-function selection also includes its consumed incomplete `hitmm()`/`passivemm()` results and `pre_mm_attack()` side effects, so the task must cover the functions named in `source.functions` and any incomplete consumed return dependency found during source review.",
+    "The closest v50 case, `v50-own-dragon-egg-floor-hatch-action-attempt1`, uses a floor egg laid through `lay_an_egg`; this selected case uses a carried wished three-egg stack that hatches and reschedules siblings. Its first mismatch is a subsequent armed monster attack, distinct from the floor-egg path."
+  ]
+}
