@@ -86,21 +86,91 @@ export function addtopl(text, state = game) {
     display.clearToEol();
 }
 
-function wrapTopline(text, columns) {
-    const lines = [];
-    let rest = String(text);
-    while (rest.length >= columns) {
+// C ref: topl.c update_topl()'s line splitting and byte cursor rules.
+export function wrapTtyTopline(message, columns) {
+    const logicalLines = [];
+    let remaining = String(message);
+    while (remaining.length >= columns) {
         let split = columns - 1;
-        while (split > 0 && rest[split] !== ' ') --split;
-        if (!split) {
-            split = rest.indexOf(' ');
+        while (split > 0 && remaining[split] !== ' ') --split;
+        if (split === 0) {
+            split = remaining.indexOf(' ');
             if (split < 0) break;
         }
-        lines.push(rest.slice(0, split));
-        rest = rest.slice(split + 1);
+        logicalLines.push(remaining.slice(0, split));
+        remaining = remaining.slice(split + 1);
     }
-    lines.push(rest);
-    return lines;
+    logicalLines.push(remaining);
+    const physicalWidth = Math.max(1, columns - 1);
+    return logicalLines.flatMap((line) => {
+        if (!line.length) return [''];
+        const rows = [];
+        for (let start = 0; start < line.length; start += physicalWidth)
+            rows.push(line.slice(start, start + physicalWidth));
+        return rows;
+    });
+}
+
+export function writeRecorderTtyLine(display, row, value) {
+    const line = String(value);
+    let column = 0;
+    for (const ch of line) {
+        if (column >= display.cols) break;
+        if (ch !== '\0') display.setCell(column, row, ch, NO_COLOR, 0);
+        ++column;
+    }
+    display.setCursor(column, row);
+    display.clearToEol();
+}
+
+export function appendRecorderTtyLine(display, startColumn, row, value) {
+    let column = startColumn;
+    for (const ch of String(value)) {
+        if (column >= display.cols) break;
+        if (ch !== '\0') display.setCell(column, row, ch, NO_COLOR, 0);
+        ++column;
+    }
+    display.setCursor(column, row);
+    display.clearToEol();
+}
+
+function rememberPendingMessage(state, message, mixedFirstCell = null) {
+    state._pending_message = message;
+    if (mixedFirstCell) state._ttyMixedFirstCell = mixedFirstCell;
+    else delete state._ttyMixedFirstCell;
+    state._ttyToplines = message;
+    if (state.nhDisplay) {
+        state.nhDisplay.topMessage = message;
+        state.nhDisplay.toplines = message;
+        state.nhDisplay.toplin = TOPLINE_NEED_MORE;
+    }
+}
+
+function redrawTtyTopline(state, message, mixedFirstCell = null) {
+    const display = state.nhDisplay;
+    if (!display) return;
+    const lines = wrapTtyTopline(message, display.cols);
+    for (let row = 0; row < lines.length; ++row)
+        writeRecorderTtyLine(display, row, lines[row]);
+    if (mixedFirstCell) display.setCell(0, 0, mixedFirstCell, NO_COLOR, 0);
+    display.setCursor(lines.at(-1)?.length ?? 0, lines.length - 1);
+}
+
+export function fitsOnTtyTopline(prior, next, columns) {
+    return wrapTtyTopline(prior, columns).length === 1
+        && next.length + prior.length + 3
+            < columns - '--More--'.length;
+}
+
+function rememberSuppressedMessage(state, message, columns) {
+    const next = String(message);
+    const current = state._ttyToplines ?? '';
+    const sharesTopline = current
+        && fitsOnTtyTopline(current, next, columns);
+    if (current && !sharesTopline) remember_topl(state);
+    const toplines = sharesTopline ? `${current}  ${next}` : next;
+    state._ttyToplines = toplines;
+    if (state.nhDisplay) state.nhDisplay.toplines = toplines;
 }
 
 // C ref: topl.c redotoplin().  Wrapped text invokes more() after painting.
@@ -113,7 +183,7 @@ export async function redotoplin(text, state = game) {
     // the same bytes on its terminal.
     state._pending_message = text;
     display.topMessage = text;
-    const lines = wrapTopline(text, display.cols);
+    const lines = wrapTtyTopline(text, display.cols);
     for (let row = 0; row < lines.length && row < display.rows; ++row) {
         display.setCursor(0, row);
         for (let col = 0; col < lines[row].length && col < display.cols; ++col)
@@ -186,7 +256,7 @@ export async function update_topl(message, state = game, context = {}) {
     // the room and cursor terms pass; its caller supplies that comparison
     // result because the pline layer also uses it when handling WIN_STOP.
     if (stoppedAtEntry && !deathComparisonReached) {
-        callbacks.rememberSuppressedMessage?.(state, next, columns);
+        rememberSuppressedMessage(state, next, columns);
         state._ttyPreviousMessage = context.normalizedMessage ?? message;
         resetLastMessage();
         return;
@@ -195,14 +265,14 @@ export async function update_topl(message, state = game, context = {}) {
 
     if (current
         && !deathMessage
-        && callbacks.fitsOnTtyTopline?.(current, next, columns)) {
-        callbacks.rememberPendingMessage?.(
+        && fitsOnTtyTopline(current, next, columns)) {
+        rememberPendingMessage(
             state,
             `${current}  ${next}`,
             state._ttyMixedFirstCell ?? null,
         );
         if (!stoppedAtEntry && state.nhDisplay) {
-            callbacks.appendRecorderTtyLine?.(
+            appendRecorderTtyLine(
                 state.nhDisplay,
                 current.length + 2,
                 0,
@@ -222,12 +292,11 @@ export async function update_topl(message, state = game, context = {}) {
         });
     }
     if (deathComparisonReached) state._ttyMessageStopped = false;
-    if (acknowledgedTopline)
-        callbacks.redrawTtyTopline?.(state, next, mixedFirstCell);
+    if (acknowledgedTopline) redrawTtyTopline(state, next, mixedFirstCell);
     if (state._ttyToplines) remember_topl(state);
-    callbacks.rememberPendingMessage?.(state, next, mixedFirstCell);
+    rememberPendingMessage(state, next, mixedFirstCell);
     state._ttyPreviousMessage = context.normalizedMessage ?? message;
-    if (callbacks.wrapTtyTopline?.(next, columns).length > 1) {
+    if (wrapTtyTopline(next, columns).length > 1) {
         await callbacks.dismissPendingTtyMessage?.(state, {
             preventEscapeStop: urgentMessage,
         });
