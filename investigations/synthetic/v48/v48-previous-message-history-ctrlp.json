@@ -63,7 +63,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The recorded Ctrl-P byte is rejected by the JavaScript repeated-command admission boundary inside cmd.js:rhack() before it reaches the existing doprev_message() dispatch. NetHack accepts the bound command, whose src/cmd.c:doprev_message() calls the active TTY callback win/tty/topl.c:tty_doprev_message(). The TTY callback traverses WIN_MESSAGE history, which is not represented by the current JavaScript topline-only state. Completing this replay requires the overlapping cmd.c:rhack admission scope currently reserved by worker C and porting the TTY history callback and its state.",
+  "summary": "At accepted Main 02f2d3c, the recorded Ctrl-P byte is still rejected by the JavaScript repeated-command admission boundary in cmd.js:rhack() before doprev_message() dispatch. A direct replay at merged worker HEAD 02896bd reproduces the same step-1 stop with one matching screen, cursor, and all 3063 RNG calls. C accepts the bound command and dispatches src/cmd.c:doprev_message() to the TTY callback win/tty/topl.c:tty_doprev_message(); that callback traverses the WIN_MESSAGE history ring, which JavaScript does not represent. The source scope is the complete TTY topline/history family, its message-window creation and writer paths, active command and prompt/wait callers, and the history save/restore callbacks. The latest ledger confirms cmd.c:rhack is unreserved after C parked its version task; include the admission row and caller wiring in the implementation claim.",
   "source": {
     "file": "src/cmd.c",
     "branch": "A directly bound prevmsg key reaches rhack() with no prefix; C dispatches its command row, while JS admitParsedCommand() rejects the row before dispatch.",
@@ -75,7 +75,9 @@
       "src/cmd.c:rhack -> doprev_message -> nh_doprev_message; win/tty/wintty.c:tty_procs -> tty_doprev_message"
     ],
     "dependencies": [
-      "win/tty/topl.c:tty_doprev_message and WIN_MESSAGE history state; worker C owns source:cmd.c:rhack"
+      "win/tty/topl.c:complete topline/history family and WIN_MESSAGE history state",
+      "win/tty/wintty.c:tty_create_nhwindow, tty_putstr, tty_wait_synch",
+      "src/cmd.c:rhack command admission and doprev_message dispatch; unreserved at current ledger recheck"
     ]
   },
   "evidence": [
@@ -84,6 +86,24 @@
     "C source include/winprocs.h:71,153 maps nh_doprev_message to windowprocs.win_doprev_message; win/tty/wintty.c:142 registers tty_doprev_message in tty_procs; win/tty/topl.c:20-119 implements the callback over WIN_MESSAGE data/maxrow/maxcol, with single/full/combination/reversed branches.",
     "C source win/tty/topl.c:172-192 remember_topl stores toplines in the circular WIN_MESSAGE buffer and advances maxrow/maxcol; JavaScript js/tty_message.js currently tracks _ttyToplines and pending text but has no corresponding history ring.",
     "Recorder configuration enables TTY_GRAPHICS by sys/unix/hints/linux-minimal setting WINSRC=$(WINTTYSRC), and include/config.h selects DEFAULT_WINDOW_SYS tty; this rules out nhwindows.c as the recorder callback implementation.",
-    "Next source-backed probe: after the rhack admission owner resolves the reservation, allow the bound prevmsg command through its ordinary dispatch and verify that the first newly exposed mismatch is the missing TTY history traversal/rendering, then scope the whole tty_doprev_message function and required message-history state."
-  ]
+    "Accepted Main 02f2d3c still evaluates this case as 1/2 screens, 1/2 cursors, and 3063/3063 RNG calls; its first mismatch remains the command admission stop at step 1.",
+    "A direct runSegment replay at merged HEAD 02896bd emits the same boundary error before doprev_message dispatch, with one screen, cursor [30,6,1], no unported marker, and 3063 RNG calls.",
+    "The complete source family includes topl.c:tty_doprev_message, redotoplin, show_topl, remember_topl, addtopl, more, update_topl, topl_putsym, removetopl, tty_yn_function, msghistory_snapshot, free_msghistory_snapshot, tty_getmsghistory, and tty_putmsghistory. Active callers include cmd.c:rhack/doprev_message; wintty.c:tty_create_nhwindow/tty_putstr/tty_wait_synch; questpgr.c and invent.c message-history writes; and save.c/restore.c history serialization callbacks."
+  ],
+  "currentReplay": {
+    "baseEvaluation": "challenges/evaluations/accepted-02f2d3c93e6d30843cc91ad3087f3f9c55829690-v48.json",
+    "baseCommit": "02f2d3c93e6d30843cc91ad3087f3f9c55829690",
+    "workerHead": "02896bd6c3a9ec4720b544eec148192d58f9db3a",
+    "screens": 1,
+    "cursors": 1,
+    "rngMatched": 3063,
+    "rngTotal": 3063,
+    "firstMismatch": "cmd.js:rhack admitParsedCommand rejects prevmsg before C-equivalent dispatch",
+    "historyPath": [
+      "cmd.c:rhack -> cmd.c:doprev_message -> winprocs nh_doprev_message -> win/tty/topl.c:tty_doprev_message",
+      "win/tty/topl.c:remember_topl <- update_topl and wintty.c:tty_putstr",
+      "win/tty/topl.c:tty_yn_function and wintty.c:tty_wait_synch call tty_doprev_message",
+      "win/tty/topl.c:tty_getmsghistory and tty_putmsghistory snapshot and restore the same ring"
+    ]
+  }
 }
