@@ -1414,7 +1414,8 @@ export async function drown(state = game) {
     }
     await water_damage_chain(state.invent, false, { state });
     if (u.umonnum === PM_GREMLIN && rn2(3)) {
-        note_unported('mon.c split_mon');
+        const { split_mon } = await import('./potion.js');
+        await split_mon(state.youmonst, null, { state });
     } else if (u.umonnum === PM_IRON_GOLEM) {
         await ttyPline('You rust!', state);
         const damage = Maybe_Half_Phys(d(2, 6), state);
