@@ -294609,6 +294609,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-insight-blindfolded-only-status-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement status_enlightenment from insight.c",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v53/v53-blind-fountain-water-snakes-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "status_enlightenment",
+      "session": "synthetic/v53/v53-blind-fountain-water-snakes-action2"
     }
   ]
 }
