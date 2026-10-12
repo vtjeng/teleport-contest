@@ -660,6 +660,7 @@ import {
     vtense,
     xnameFresh,
     ansimpleoname,
+    an,
 } from './objnam.js';
 import { bury_an_obj, obj_resists } from './bury.js';
 import { objdescr_is } from './o_init.js';
@@ -6234,7 +6235,7 @@ export async function mon_to_stone(mtmp, state = game, env = {}) {
         if (await newcham(mtmp, state.mons[PM_STONE_GOLEM], { ...env, state })) {
             if (canseemon(mtmp, state)) {
                 await message(
-                    `Now it's ${an(pmname(mtmp.data, gender(mtmp)))}`,
+                    `Now it's ${an(pmname(mtmp.data, gender(mtmp)))}.`,
                     state,
                     env,
                 );

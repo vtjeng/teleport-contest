@@ -22,6 +22,7 @@ import {
     PM_CLAY_GOLEM,
     PM_STONE_GOLEM,
     PM_VAMPIRE,
+    PM_WOOD_GOLEM,
 } from '../js/monsters.js';
 import { d, rn1, rn2, rnd, rne } from '../js/rng.js';
 import { STATUE } from '../js/objects.js';
@@ -69,11 +70,11 @@ function placeFixture(monster) {
     throw new Error('no free fixture square');
 }
 
-function env() {
+function env(messages = null) {
     return {
         state: game,
         random: { d, rn1, rn2, rnd, rne },
-        message: async () => {},
+        message: async (text) => { messages?.push(text); },
         unsupported: (reason) => { throw new Error(reason); },
     };
 }
@@ -98,6 +99,18 @@ test('mon_to_stone changes a golem into a stone golem', async () => {
     await mon_to_stone(golem, game, env());
     assert.equal(golem.data, game.mons[PM_STONE_GOLEM]);
 });
+
+test('mon_to_stone reports the visible replacement species with C punctuation',
+    async () => {
+        await hero(7710046);
+        const messages = [];
+        const golem = placeFixture(fixture(PM_WOOD_GOLEM));
+
+        await mon_to_stone(golem, game, env(messages));
+
+        assert.equal(golem.data, game.mons[PM_STONE_GOLEM]);
+        assert.equal(messages.at(-1), "Now it's a stone golem.");
+    });
 
 test('monstone leaves a statue and detaches the dead monster', async () => {
     await hero();
