@@ -10,7 +10,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { preflightDelivery, resolveEventCommits, submitDelivery, syncMain, verifyEvent } from './worker-delivery.mjs';
 import { admittedBatchIds } from './challenge-results.mjs';
-import { acceptedMain, acceptedDependency, pendingMainWork, workerWork, savedQueueIssues } from './worker-backlog.mjs';
+import { acceptedMain, acceptedDependency, batchWakeups, pendingMainWork, workerWork, savedQueueIssues } from './worker-backlog.mjs';
 import { readRows } from './score-log.mjs';
 
 export const USAGE = `Usage (run from the coordinator or assigned worker checkout root):
@@ -99,6 +99,12 @@ Pass a saved combined mismatch queue with --queue to list worker candidates
 separately from Main's delivery backlog. Counts are provisional: workers must
 check source independence and recheck parked blockers. Admission suggestions
 do not interrupt an active checkpoint or waive baseline/admission checks.
+wakeups lists idle/blocked workers whose last report predates a new admitted
+baseline. Refresh the saved queue when queueReady is false, then ask those
+workers to recheck. Their next turn or assignment clears the reminder; do not
+replace a current task or interrupt a running process. Ready preparation gets
+integration priority when independent worker work is short; existing preparation
+is listed instead of requesting another batch.
 Feed actual completion observations into turn events; saved state is not proof of
 liveness. Feedback waits for a safe task boundary. resume refuses to mix two
 working tasks on one worker. preflight reads committed files, reports omissions,
@@ -118,7 +124,9 @@ assign and resume reject another worker's reservations. ready frees the worker
 to start another task but keeps that delivery's reservations through acceptance.
 Parking releases only that task's active reservations. A batch identity cannot
 be assigned again; resume a parked preparation task before preparing the next
-version. Only one unaccepted preparation task may exist at a time. Resuming rechecks ownership;
+version. Only one preparation task may be working at a time; submitted batches
+do not block preparation of the next version. Handle earlier parked tasks and
+corrections before starting another batch. Resuming rechecks ownership;
 a parked ready delivery returns to ready, and failed validation requires rework
 and a new delivery SHA. Only one task can be integrating/validated at a time.
 Validation events check the supplied summary; they do not run validation.
@@ -209,7 +217,12 @@ function checkOwnership(state, task) {
         if (task.kind === 'challenge-preparation' && other.kind === 'challenge-preparation') {
             check(task.reservations[0] !== other.reservations[0],
                 `batch identity already used by task ${other.id}`);
-            check(other.status === 'accepted', `preparation task ${other.id} is still pending`);
+            if (task.status === 'working') {
+                check(other.status !== 'working', `preparation task ${other.id} is still pending`);
+                const laterBatch = task.reservations[0].localeCompare(other.reservations[0], 'en', { numeric: true }) > 0;
+                check(!laterBatch || !['parked', 'changes-required'].includes(other.status),
+                    `preparation task ${other.id} is still pending (${other.status}); resume it before a later batch`);
+            }
         }
         if (other.worker === task.worker || !holdsReservation(other)) continue;
         for (const key of task.reservations) check(!other.reservations.includes(key),
@@ -335,6 +348,7 @@ function applyEvent(state, event, at) {
             check(task.kind === 'challenge-preparation' && task.status === 'accepted',
                 'admission and baseline activity require accepted preparation');
         // Observation only: never occupy/release the integration slot or authorize acceptance.
+        if (event.phase === 'baseline') task.baselineAt ??= at;
         if (event.phase === 'done') delete task.activity;
         else task.activity = { phase: event.phase, reason: event.reason, at };
         return;
@@ -474,12 +488,21 @@ export function nextActions(state, admittedBatches = [], queue = null) {
         .sort((a, b) => b.unblocks - a.unblocks || a.since.localeCompare(b.since));
     const available = workerWork(state, queue);
     const reserve = pending.preparedBatches[0];
+    const short = available.candidateGroups !== null && available.candidateGroups < available.implementationWorkers;
+    const readyPrep = ready.filter(row => row.kind === 'challenge-preparation')
+        .sort((a, b) => a.batch.localeCompare(b.batch, 'en', { numeric: true }))[0];
+    const preparing = tasks.find(task => task.kind === 'challenge-preparation' && task.status !== 'accepted');
+    const prepAction = readyPrep ? { action: 'integrate-prepared-batch-next', task: readyPrep.task, batch: readyPrep.batch }
+        : preparing ? { action: 'finish-preparation', task: preparing.id,
+            batch: preparing.reservations[0].split(':')[1] } : { action: 'prepare-more-work' };
+    const preferred = short && !reserve && readyPrep ? readyPrep : ready[0];
     available.admission = available.candidateGroups === null ? { action: 'reassess-worker-work' }
-        : available.candidateGroups < available.implementationWorkers
+        : short
             ? reserve ? { action: 'admit-at-next-safe-boundary', batch: reserve.batch, task: reserve.task }
-                : { action: 'prepare-more-work' }
+                : prepAction
             : { action: 'check-independence' };
     return {
+        wakeups: batchWakeups(state, admittedBatches, queue),
         connections: Object.values(state.workers).filter(w => w.connectionRequestedAt && !w.connectedAt)
             .map(w => ({ worker: w.worker, handle: w.handle })),
         unread: deliveries.filter(d => !d.receivedAt && !d.acceptedAt)
@@ -494,8 +517,8 @@ export function nextActions(state, admittedBatches = [], queue = null) {
                 : w.turn === 'blocked' ? 'resolve-blocker' : w.turn === 'active' ? 'continue' : 'inspect-turn',
             reason: w.reason ?? null, processes: w.processes,
             task: tasks.find(t => t.worker === w.worker && t.status === 'working')?.id ?? null })),
-        integration: slot ? { task: slot.id, status: slot.status } : ready[0]
-            ? { task: ready[0].task, delivery: ready[0].delivery, status: 'ready' } : null,
+        integration: slot ? { task: slot.id, status: slot.status } : preferred
+            ? { task: preferred.task, delivery: preferred.delivery, status: 'ready' } : null,
         workerWork: available,
         pendingMainWork: { ...pending,
             // Keep routine coordination compact; status and the dashboard retain reasons.

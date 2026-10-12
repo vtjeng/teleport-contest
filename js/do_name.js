@@ -133,6 +133,7 @@ import {
 import { carried, dealloc_obj, objectType } from './obj.js';
 import {
     discover_object,
+    rename_disco,
     undiscover_object,
 } from './o_init.js';
 import {
@@ -717,7 +718,7 @@ export async function docallcmd(state) {
         await namefloorobj(state);
         break;
     case 'd':
-        note_unported('o_init.c rename_disco()');
+        await rename_disco(state);
         break;
     case 'a': {
         const { donamelevel } = await import('./dungeon.js');

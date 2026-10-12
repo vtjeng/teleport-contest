@@ -280865,7 +280865,7 @@
     {
       "id": "port-cpostfx-blocking-mimic-display-v47-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete cpostfx blocking mimic display and verify its production callers",
       "cFile": "eat.c",
       "sessions": [
@@ -280879,8 +280879,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bcec557f6844ad95efb413b7662c31a6304f69d7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "cpostfx",
@@ -281212,6 +281215,351 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "bcec557f6844ad95efb413b7662c31a6304f69d7",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-o-init-rename-disco-v48-20261012",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the discovered-object type naming menu and its caller",
+      "cFile": "o_init.c",
+      "sessions": [
+        "synthetic/v48/v48-name-discovered-object-type-attempt2"
+      ],
+      "selectionReason": "The current v48 case has ten unmatched screens and a complete source investigation; this ready delivery unblocks the later getpos correction.",
+      "detail": "Port complete o_init.c rename_disco, class-grouped callable discoveries, no-discovery and no-callable branches, selection and the zeroobj-derived docall argument; wire do_name.c docallcmd option d. Verify the admitted range from step 7 through 16.",
+      "openedAt": "dc80dd8a84242c4e431e93652e69ba69d5d0e840",
+      "openStanding": {
+        "sha": "bcec557f6844ad95efb413b7662c31a6304f69d7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "1cefd15ca83512eb920105c96202699a1b04a8e0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "rename_disco",
+          "line": 1131,
+          "endLine": 1209,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1131,
+        "to": 1209
+      },
+      "syntheticProvenance": {
+        "synthetic/v48/v48-name-discovered-object-type-attempt2": {
+          "session": "synthetic/v48/v48-name-discovered-object-type-attempt2",
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-name-discovered-object-type-attempt2",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recordingPath": "challenges/cases/v48/v48-name-discovered-object-type-attempt2.session.json",
+          "recordingSha256": "0c7e49f0e6fa9e8ada040950119660ff27795a59229b5d0288059b74a8466ce0",
+          "evaluationPath": "challenges/evaluations/accepted-bcec557f6844ad95efb413b7662c31a6304f69d7-v48.json",
+          "evaluationCommit": "bcec557f6844ad95efb413b7662c31a6304f69d7"
+        }
+      },
+      "activeStanding": {
+        "sha": "bcec557f6844ad95efb413b7662c31a6304f69d7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-name-discovered-object-type-attempt2",
+          "session": "synthetic/v48/v48-name-discovered-object-type-attempt2",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recording": "challenges/cases/v48/v48-name-discovered-object-type-attempt2.session.json",
+          "recordingPath": "challenges/cases/v48/v48-name-discovered-object-type-attempt2.session.json",
+          "recordingSha256": "0c7e49f0e6fa9e8ada040950119660ff27795a59229b5d0288059b74a8466ce0",
+          "recipe": "challenges/cases/v48/v48-name-discovered-object-type-attempt2.recipe.session.json",
+          "recipeSha256": "ac9864c6ca4c157fa56d0b423c93010f2edd7bde0ce9304cfd1117725258f6f9",
+          "replayInputSha256": "ba4b9dbed3a031d8bbb056cffac46e851c837e55f7cb028266a775459dab5a3a",
+          "evaluationPath": "challenges/evaluations/accepted-bcec557f6844ad95efb413b7662c31a6304f69d7-v48.json",
+          "evaluationCommit": "bcec557f6844ad95efb413b7662c31a6304f69d7",
+          "evaluationArtifact": "challenges/evaluations/accepted-bcec557f6844ad95efb413b7662c31a6304f69d7-v48.json",
+          "evaluationUtc": "2026-10-12T02:35:28.805Z",
+          "remainingScreens": 10,
+          "recordedSteps": 17,
+          "previousScreensMatched": 7,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 7,
+              "total": 17
+            },
+            "rng": {
+              "matched": 2815,
+              "total": 2815
+            },
+            "cursors": {
+              "matched": 7,
+              "total": 17
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 7,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 7,
+                "key": "d"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 33,
+              "cCell": {
+                "ch": "P",
+                "color": 8,
+                "attr": 1,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 7,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 7,
+                "key": "d"
+              },
+              "cCursor": [
+                39,
+                21,
+                1
+              ],
+              "jsCursor": [
+                14,
+                7,
+                1
+              ]
+            }
+          },
+          "step": 7,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v48/v48-name-discovered-object-type-attempt2.json",
+            "result": {
+              "session": "synthetic/v48/v48-name-discovered-object-type-attempt2",
+              "remainingScreens": 10,
+              "recordedSteps": 17,
+              "corpus": "synthetic",
+              "batch": "v48",
+              "caseId": "v48-name-discovered-object-type-attempt2",
+              "manifestPath": "challenges/manifests/v48.json",
+              "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+              "recordingSha256": "0c7e49f0e6fa9e8ada040950119660ff27795a59229b5d0288059b74a8466ce0",
+              "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+              "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+              "status": "complete",
+              "commit": "fe95bf9b24f4ab18810aba9f8f81824bc5c701d8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v48",
+                "caseId": "v48-name-discovered-object-type-attempt2",
+                "session": "synthetic/v48/v48-name-discovered-object-type-attempt2",
+                "manifestPath": "challenges/manifests/v48.json",
+                "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+                "recording": "challenges/cases/v48/v48-name-discovered-object-type-attempt2.session.json",
+                "recordingPath": "challenges/cases/v48/v48-name-discovered-object-type-attempt2.session.json",
+                "recordingSha256": "0c7e49f0e6fa9e8ada040950119660ff27795a59229b5d0288059b74a8466ce0",
+                "recipe": "challenges/cases/v48/v48-name-discovered-object-type-attempt2.recipe.session.json",
+                "recipeSha256": "ac9864c6ca4c157fa56d0b423c93010f2edd7bde0ce9304cfd1117725258f6f9",
+                "replayInputSha256": "6acb7d6362e2ad6534f53d5ba74f7ebf8bd4ffe5c65489b7ea0e3e2ee16e6352",
+                "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+                "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+                "evaluationArtifact": "challenges/evaluations/baseline-b353fb527-v48.json",
+                "evaluationUtc": "2026-10-12T02:22:10.552Z",
+                "remainingScreens": 10,
+                "recordedSteps": 17,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 7,
+                    "total": 17
+                  },
+                  "rng": {
+                    "matched": 2815,
+                    "total": 2815
+                  },
+                  "cursors": {
+                    "matched": 7,
+                    "total": 17
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 7,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 7,
+                      "key": "d"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 33,
+                    "cCell": {
+                      "ch": "P",
+                      "color": 8,
+                      "attr": 1,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 7,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 7,
+                      "key": "d"
+                    },
+                    "cCursor": [
+                      39,
+                      21,
+                      1
+                    ],
+                    "jsCursor": [
+                      14,
+                      7,
+                      1
+                    ]
+                  }
+                },
+                "step": 7,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At segment 0 step 7, do_name.c:docallcmd() dispatches the selected 'd' option to o_init.c:rename_disco(). The patched C recording draws the discoveries menu, while js/do_name.js stops at note_unported('o_init.c rename_disco()'), so the remaining menu selection and call-name input never run. Port the whole rename_disco() function in js/o_init.js and replace the refusal in the existing do_namecmd() caller.",
+              "source": {
+                "file": "o_init.c",
+                "branch": "rename_disco() enumerates classes in flags.inv_order, keeps discovered types accepted by interesting_to_discover() and objtyp_is_callable(), groups menu entries by class, then calls docall() for a selected type.",
+                "functions": [
+                  "rename_disco"
+                ],
+                "callers": [
+                  "do_name.c:docallcmd() case 'd' calls rename_disco(); js/do_name.js:do_namecmd() already reaches the matching case and currently records the call as unported."
+                ],
+                "dependencies": [
+                  "o_init.c:interesting_to_discover() is implemented by js/o_init.js and has source-pinned discovery tests.",
+                  "do_name.c:objtyp_is_callable() is implemented by js/do_name.js and has source-pinned tests in scripts/iactions.test.mjs.",
+                  "o_init.c:disco_append_typename() and disco_typename() are implemented in js/o_init.js.",
+                  "windows.c:add_menu_heading() and select_menu() map to js/windows.js; the menu display uses js/tty_menu.js.",
+                  "do_name.c:docall() is implemented in js/do_name.js and owns the type alias prompt and discovery update."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved queue baseline challenges/evaluations/baseline-b353fb527-v48.json identifies synthetic/v48/v48-name-discovered-object-type-attempt2 at segment 0, step 7, on input d; its C cell is P at row 0, column 33 and its JavaScript cell is blank.",
+                "The documented scan `node scripts/scan-sessions.mjs --json --synthetic v48/v48-name-discovered-object-type-attempt2` replayed commit fe95bf9 and reported the refusal `o_init.c rename_disco()`, with issued command #name and stop input `#name daV`.",
+                "nethack-c/upstream/src/do_name.c:594 dispatches docallcmd() case d to rename_disco(); js/do_name.js:720 has the matching production branch and the unported refusal.",
+                "nethack-c/upstream/src/o_init.c:1131-1206 contains the complete rename_disco() implementation; it builds the class-grouped discoveries menu and invokes docall() for a selected callable type.",
+                "The independent admitted recipe challenges/cases/v48/v48-name-discovered-object-type-attempt2.recipe.session.json selects the discovered armor type and assigns an alias, so it can verify the complete production path after the port."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rename_disco",
+            "implementation": "js/o_init.js",
+            "symbol": "rename_disco",
+            "sourceReview": "Read all of o_init.c:1131-1206 in order. The loop walks flags.inv_order, scans each class from svb.bases to the class boundary, increments ct before checking objtyp_is_callable, groups callable rows with one class heading, then distinguishes no discoveries, no callable discoveries, and menu selection. Selection maps to a zeroobj-derived temporary with otyp, oclass, quan=1, known=!oc_uses_known, and dknown=true before docall. No RNG or durable game-state write occurs in rename_disco itself; messages, menu drawing/input, and docall make it impure. Existing callees were inspected: interesting_to_discover and disco_append_typename in o_init.c, objtyp_is_callable and docall in do_name.c, and add_menu_heading/select_menu through windows.c. Their JavaScript implementations are reused; no unported return-valued callee remains.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "docallcmd",
+                "source": "do_name.c:docallcmd() case 'd' calls rename_disco() (C source line 594). cmd.c registers both 'call' and 'name' commands to docallcmd()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v48",
+                "caseId": "v48-name-discovered-object-type-attempt2",
+                "segment": 0,
+                "fromStep": 7,
+                "throughStep": 16,
+                "source": "cmd.c extcmdlist 'name' -> do_name.c:docallcmd() case 'd' -> o_init.c:rename_disco() -> do_name.c:docall()"
+              }
+            ],
+            "checkedAt": "e1a9ff18f9ef902e8df48864b3c9a7dafa408cec"
+          }
+        ],
+        "entryPointReview": "The active entry point is the extended #name/#call command choosing the discovery-list option. cmd.c registers both command names to do_name.c:docallcmd(); its case 'd' calls o_init.c:rename_disco(), which reaches do_name.c:docall() after a type is selected. The patched C recorder includes this path, and the admitted v48 recipe uses #name to select a discovered armor type and assign its alias. No compile-time-disabled caller branch was found for rename_disco().",
+        "entryPoints": [
+          {
+            "name": "Extended #name/#call command selects and names a discovered object type",
+            "functions": [
+              "rename_disco"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v48",
+                "caseId": "v48-name-discovered-object-type-attempt2",
+                "segment": 0,
+                "fromStep": 7,
+                "throughStep": 16,
+                "source": "cmd.c extcmdlist 'name' -> do_name.c:docallcmd() case 'd' -> o_init.c:rename_disco() -> do_name.c:docall()"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1cefd15ca83512eb920105c96202699a1b04a8e0",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

@@ -21,6 +21,7 @@ export function pendingMainWork(state, admittedBatches = []) {
         const batch = task.reservations?.find(key => key.startsWith('challenge-batch:'))?.split(':')[1];
         const row = { task: task.id, worker: task.worker, goal: task.goal ?? null,
             kind: task.kind, status: task.status, delivery: delivery?.delivery ?? null,
+            ...(task.kind === 'challenge-preparation' ? { batch } : {}),
             since: delivery?.readyAt ?? task.assignedAt,
             blockedBy: [...new Set((delivery?.dependencies ?? [])
                 .filter(sha => !acceptedDependency(state, sha))
@@ -43,6 +44,25 @@ export function pendingMainWork(state, admittedBatches = []) {
     backlog.parkedTasks.sort(oldest);
     backlog.preparedBatches.sort((a, b) => a.batch.localeCompare(b.batch, 'en', { numeric: true }));
     return backlog;
+}
+
+// A recorded idle/blocked turn can outlive the empty queue that caused it.
+// Keep the newest admitted baseline visible until the worker records a recheck
+// or receives newer work. No notification acknowledgements or timer are needed.
+export function batchWakeups(state, admittedBatches, queue) {
+    const baseline = Object.values(state.tasks).filter(task => task.kind === 'challenge-preparation' && task.baselineAt)
+        .map(task => ({ at: task.baselineAt, batch: task.reservations[0].split(':')[1] }))
+        .filter(row => admittedBatches.includes(row.batch))
+        .sort((a, b) => a.at.localeCompare(b.at)).at(-1);
+    if (!baseline) return [];
+    const queueReady = queue?.mode === 'work' && !queue.selectionBlocked && !queue.blockers?.length
+        && Boolean(queue.synthetic?.batches?.some(row => row.batch === baseline.batch && row.status === 'complete'));
+    return Object.values(state.workers ?? {}).filter(worker => worker.worker !== 'Prep' && worker.handle
+        && ['idle', 'blocked'].includes(worker.turn) && worker.turnAt < baseline.at
+        && !Object.values(state.tasks).some(task => task.worker === worker.worker && task.status === 'working'
+            && (task.resumedAt ?? task.assignedAt) >= baseline.at))
+        .map(worker => ({ worker: worker.worker, handle: worker.handle, batch: baseline.batch,
+            since: baseline.at, queueReady: Boolean(queueReady) }));
 }
 
 // Saved measurements describe mismatch debt; reservations describe what workers

@@ -46,9 +46,8 @@ recorded files and choose independent inputs for new reproductions. Do not
 special-case a session or its seed, inputs, expected output, or replay position.
 
 The current operating mode prioritizes synthetic local holdout mismatches;
-`.agents/selection.md` defines selection and automatic generation of a new
-batch before the available queue empties and admission at safe integration
-boundaries. Keep the 44-session fixed
+`.agents/selection.md` defines selection, continuous batch preparation,
+and admission at safe integration boundaries. Keep the 44-session fixed
 workload as a regression check. The current `challenges/manifest.json` remains
 frozen as batch `v1`; new batches use new versioned manifests and retain every
 previous batch and its evaluation history. Synthetic results remain separate
@@ -102,6 +101,24 @@ in `.agents/loop.md`, which defines scheduling and merge requests.
 | Append a `SCORE.tsv` event row or read an aggregate remote-holdout result (orchestrator only) | `.agents/scoring.md` |
 | Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run a synthetic local challenge evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
 | Decide whether a correctness review is warranted, or run or record one (orchestrator only) | `.agents/review.md` and the skill it names for that review |
+
+## GitHub push authorization
+
+The user authorizes normal pushes to `vtjeng/teleport-contest` for hosted
+candidate validation and accepted publication. Keep unaccepted candidates on
+`integration-checkpoint/*` branches; publish only accepted work to `main`.
+Do not force-push or delete refs. Existing validation and publication checks
+still apply.
+
+For a standalone push, use
+`git push -- https://github.com/vtjeng/teleport-contest.git <refspec>`. The trusted project
+rule in `.codex/rules/teleport-push.rules` allows that exact destination after
+Codex reloads its configuration. It does not allow arbitrary remotes or
+publication wrappers, or override managed restrictions.
+
+Prefer hosted validation. If automatic review rejects an authorized push,
+report the exact request and denial so the user can approve it; do not work
+around the denial or treat it as a lasting reason to validate locally.
 
 ## Local command execution
 

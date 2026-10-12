@@ -282,6 +282,31 @@ test('challenge preparation submits C cases while keeping its manifest in delive
     assert.deepEqual(preparedFromDelivery(submitted.deliveries[head].evidence), manifest);
     assert.equal(f.git(worker, 'ls-tree', '-r', '--name-only', head, '--',
         'challenges/manifests'), '');
+    // Reuse the tiny fixture recording to test batch scoping and dependency
+    // inference, not gameplay novelty. v3 starts before v2 is accepted.
+    const nextRecipe = recipePath.replace('/v2/', '/v3/');
+    const nextRecording = recordingPath.replace('/v2/', '/v3/');
+    f.event({ type: 'assign', task: 'prep-v3', worker: 'B',
+        kind: 'challenge-preparation', seed: null, base: head,
+        reservations: ['challenge-batch:v3'], allowedPaths: ['challenges/cases/v3/'] }, worker);
+    mkdirSync(join(worker, 'challenges/cases/v3'), { recursive: true });
+    writeFileSync(join(worker, nextRecipe), recipe);
+    writeFileSync(join(worker, nextRecording), recording);
+    f.git(worker, 'add', nextRecipe, nextRecording);
+    f.git(worker, 'commit', '-qm', 'prepare next batch before acceptance');
+    const nextHead = f.git(worker, 'rev-parse', 'HEAD');
+    const nextManifest = { ...manifest, batch: 'v3', cases: [{ ...manifest.cases[0],
+        recipe: nextRecipe, recording: nextRecording }] };
+    writeFileSync(join(worker, '.cache/context.json'),
+        JSON.stringify({ kind: 'challenge-preparation', batch: 'v3' }));
+    writeFileSync(evidencePath, JSON.stringify({ missionPlan: 'Exercise next batch submission.', manifest: nextManifest }));
+    const next = f.success(args.map(arg => arg === 'prep-v2' ? 'prep-v3' : arg), worker);
+    assert.equal(next.tasks['prep-v2'].status, 'ready');
+    assert.deepEqual(next.deliveries[nextHead].commits, [nextHead]);
+    assert.deepEqual(next.deliveries[nextHead].paths.sort(), [nextRecipe, nextRecording].sort());
+    assert.deepEqual(next.deliveries[nextHead].dependencies, [head]);
+    assert.deepEqual(preparedFromDelivery(next.deliveries[head].evidence), manifest,
+        'the earlier immutable packet survives new worktree-local evidence');
     f.git(f.root, 'cherry-pick', head);
     const preflight = f.success(['preflight', '--task', 'prep-v2']);
     assert.equal(preflight.passed, true);
