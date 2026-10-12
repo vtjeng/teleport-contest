@@ -1396,10 +1396,11 @@ async function emergency_disrobe(lostsome, state = game) {
             await remove_worn_item(selected, false, state);
         }
         lostsome.value = true;
-        // C discards dropx()'s result. Its liquid-terrain branch is still
-        // refused by the partial do.c port, so skip the call at this exact
-        // boundary instead of entering that refusal or inventing a drop.
-        note_unported('do.c dropx');
+        // C trap.c:emergency_disrobe() calls do.c:dropx() before it advances
+        // the local inventory count. At a pool, dropx() also runs the source
+        // water-damage path, so the selected object must leave inventory.
+        const { dropCommandEnv, dropx } = await import('./do.js');
+        await dropx(selected, dropCommandEnv(state));
         --invc;
     }
     return true;
