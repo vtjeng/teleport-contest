@@ -286568,7 +286568,7 @@
     {
       "id": "div-sit-throne-effect-court-summon-v51-20261012",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire ordinary throne court summoning",
       "cFile": "sit.c",
       "sessions": [],
@@ -286580,8 +286580,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "throne_sit_effect",
       "session": "synthetic/v51/v51-throne-court-summon-selected-action-attempt2",
       "step": 47,
@@ -286854,7 +286857,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T12:44:10.153Z",
+  "capturedAt": "2026-10-12T13:02:47.295Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -94746,22 +94746,171 @@
         "type": "accepted",
         "at": "2026-10-12T12:42:45.237Z",
         "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v51-cockatrice-levitation-ogre-20261012-1a6200d70f38f5568d132ccfd8c70d7befcb8c67",
+        "type": "published",
+        "at": "2026-10-12T12:45:04.514Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "commit": "1a6200d70f38f5568d132ccfd8c70d7befcb8c67"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v51-bluejelly-newt-cold-passive-attempt4-20261012",
+        "type": "assign",
+        "at": "2026-10-12T12:45:14.010Z",
+        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-bluejelly-investigation-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T12:45:20.944Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v51-bluejelly-gulpmu-divergence-20261012",
+        "type": "implement",
+        "at": "2026-10-12T12:49:17.530Z",
+        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
+        "goal": "fix-mhitu-gulpmu-blind-engulfer-name-v51-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "throne-integrating-8f901abe",
+        "type": "integrating",
+        "at": "2026-10-12T12:51:28.639Z",
+        "task": "A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012",
+        "integration": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0446506ab274dcdc34a51592de51018a5e19eef9",
+        "type": "ready",
+        "at": "2026-10-12T12:55:02.026Z",
+        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
+        "delivery": "0446506ab274dcdc34a51592de51018a5e19eef9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-after-bluejelly-20261012",
+        "type": "turn",
+        "at": "2026-10-12T12:55:38.423Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "bluejelly-received-0446506a",
+        "type": "received",
+        "at": "2026-10-12T12:57:08.445Z",
+        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
+        "delivery": "0446506ab274dcdc34a51592de51018a5e19eef9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "bluejelly-canonical-visibility-feedback-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T12:57:20.631Z",
+        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
+        "delivery": "0446506ab274dcdc34a51592de51018a5e19eef9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012-8f901abeaff0f711cef77b3bb8fa5c22eecdbe11-validated",
+        "type": "validated",
+        "at": "2026-10-12T12:58:17.387Z",
+        "task": "A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep18-v54-recovered-recording-20261012",
+        "type": "turn",
+        "at": "2026-10-12T12:58:34.246Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v54: six provisional source-distinct defects; checking further monster spell branches and preserved recordings."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getobj-empty-commit-feedback-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T12:59:40.189Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "delivery": "92449c294641f2004c63c94a6eb5f95c721c7e85"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-bluejelly-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T12:59:57.981Z",
+        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012-8f901abeaff0f711cef77b3bb8fa5c22eecdbe11-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T13:00:01.257Z",
+        "task": "A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-64457b3398d812828fdb1fbe7e0767b946c7a8d8",
+        "type": "ready",
+        "at": "2026-10-12T13:00:07.020Z",
+        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
+        "delivery": "64457b3398d812828fdb1fbe7e0767b946c7a8d8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-after-bluejelly-correction-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:00:25.427Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-escape-correction-after-feedback-20261012",
+        "type": "resume",
+        "at": "2026-10-12T13:01:14.337Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "bluejelly-correction-received-64457b33",
+        "type": "received",
+        "at": "2026-10-12T13:01:47.858Z",
+        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
+        "delivery": "64457b3398d812828fdb1fbe7e0767b946c7a8d8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-after-throne-accepted-queue-check-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:01:58.351Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Accepted throne Main is merged. Remaining cases are claimed, pending A2 integration, or blocked by Cs parked host-profile evidence task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-getobj-empty-completion-correction-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:02:28.685Z",
+        "worker": "B",
+        "state": "active"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-investigation-v49-apply-book-attempt2-20261012",
-        "worker": "B",
-        "goal": "div-getobj-menu-escape-v49-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "92449c294641f2004c63c94a6eb5f95c721c7e85",
-        "since": "2026-10-12T05:22:46.446Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
         "worker": "C",
@@ -94833,17 +94982,6 @@
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012",
-        "worker": "A2",
-        "goal": "div-sit-throne-effect-court-summon-v51-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "def66703813df3578189d5890865f9f91d530715",
-        "since": "2026-10-12T08:34:48.819Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
         "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
         "worker": "C",
         "goal": "port-mhitm-rustm-v51-20261012",
@@ -94884,9 +95022,7 @@
         "status": "ready",
         "delivery": "3961fb31767fe6a6b7a61edc0cf78f92361d4aa6",
         "since": "2026-10-12T09:02:18.983Z",
-        "blockedBy": [
-          "A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -94945,6 +95081,17 @@
         "status": "ready",
         "delivery": "f4f12a8713cdac19fdf47771e6e41af662317ded",
         "since": "2026-10-12T12:38:30.815Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v51-bluejelly-newt-cold-passive-attempt4-20261012",
+        "worker": "C",
+        "goal": "fix-mhitu-gulpmu-blind-engulfer-name-v51-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "64457b3398d812828fdb1fbe7e0767b946c7a8d8",
+        "since": "2026-10-12T13:00:07.020Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -95407,8 +95554,8 @@
     ]
   },
   "development": {
-    "executionCommit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
-    "measuredAt": "2026-10-12T12:38:42.008Z",
+    "executionCommit": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11",
+    "measuredAt": "2026-10-12T12:56:47.811Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
