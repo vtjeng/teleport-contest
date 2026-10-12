@@ -294001,7 +294001,7 @@
     {
       "id": "C-file-port-fountain-dipfountain-excalibur-v53-20261012",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dipfountain from fountain.c",
       "cFile": "fountain.c",
       "sessions": [
@@ -294011,7 +294011,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
       "delivered": null,
       "functions": [
         {
@@ -294024,6 +294024,69 @@
       "range": {
         "from": 394,
         "to": 557
+      },
+      "closeStanding": {
+        "sha": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "27121df96ceb22f30703b42264d03ecb3d439095",
+        "target": "synthetic/v53/v53-knight-excalibur-fountain-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/26748832bec4c8d55150cd96f4f870355f5d2bbd/run-hosted-MaSYjJ/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dipfountain",
+            "symbol": "dipfountain",
+            "implementation": "js/fountain.js",
+            "pure": false,
+            "sourceReview": "Complete fountain.c:dipfountain() lines 394-554. The implementation preserves source order: levitation exit; role-dependent rn2 Excalibur eligibility; lawful oname/discover/bless/erosion/Wisdom/livelog branch or nonlawful curse/decrement/erosion/Wisdom/livelog branch; water damage early return; fate cases 16-29; inventory update; dryup. It reuses existing source-backed callees and removes the Excalibur refusal. The same replay later reaches fountain.c:dowaterdemon’s wish message (screen 159); its existing JS owner now calls mhis then mhe with state, RNG and explicit-or-canonical canspotmon. This is a bounded caller wiring repair, not a whole-function completion claim for dowaterdemon.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip calls dipfountain(obj) after selecting the dipped object; the JS caller passes the object, game state and environment to fountain.js."
+              }
+            ],
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-knight-excalibur-fountain-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 299,
+                "source": "potion.c:dodip -> fountain.c:dipfountain; selected recording reaches lawful Knight Excalibur success at step 121 and later fountain.c:dowaterdemon wish message at step 159; the final candidate matches the full recorded segment."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected whole source unit is fountain.c:dipfountain. Its production entry is potion.c:dodip, preserved in JS through potion.js:dodip. The selected session reaches the lawful Excalibur arm at step 121 and later the water-demon wish message at step 159; the final candidate matches all 300 recorded steps without runner error. The delivery also repairs a separately reserved environment handoff in the existing dowaterdemon wish-message caller, with focused coverage; it does not assert new whole-function completion for dowaterdemon.",
+        "entryPoints": [
+          {
+            "name": "Dipping a qualifying lawful Knight long sword into a fountain creates Excalibur",
+            "functions": [
+              "dipfountain"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-knight-excalibur-fountain-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 299,
+                "source": "potion.c:dodip -> fountain.c:dipfountain; lawful Excalibur success at step 121 and full segment match"
+              }
+            ]
+          }
+        ]
       }
     }
   ]
