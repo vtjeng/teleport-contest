@@ -279722,8 +279722,8 @@
           "name": "rm_mapseen",
           "line": 2665,
           "endLine": 2694,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -279972,7 +279972,78 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rm_mapseen",
+            "implementation": "js/dungeon.js",
+            "symbol": "rm_mapseen",
+            "sourceReview": "Read all of dungeon.c:rm_mapseen (2665-2691). It walks mapseenchn in order, computes each ledger number as the owning dungeon's ledger_start plus the recorded dlevel, stops at the first match, and returns unchanged when there is no match. For a match it frees the custom annotation and every final_resting_place node, then unlinks the mapseen node through either its predecessor or the list head. The JS array splice performs the unlink and allows the node and owned nested values to be reclaimed. This mutates bookkeeping state but makes no random call or output; there are no unported callees.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "makemap_prepost",
+                "source": "cmd.c:makemap_prepost(TRUE) calls rm_mapseen(ledger_no(&u.uz)); active production caller chain: cmd.c wizard command dispatch -> wizcmds.c:wiz_makemap -> cmd.c:makemap_prepost(TRUE)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "makemap_prepost",
+                "source": "wizcmds.c:wiz_load_splua calls sp_lev.c:lspo_reset_level(NULL) -> cmd.c:makemap_prepost(TRUE) -> dungeon.c:rm_mapseen."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dungeon.test.mjs",
+              "scripts/sp-lev-reset-finalize-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wiz-load-des-explicit.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c wizard dispatch -> wizcmds.c:wiz_makemap -> cmd.c:makemap_prepost(TRUE) -> dungeon.c:rm_mapseen"
+              }
+            ],
+            "checkedAt": "45032873f53f43e826185d63d8e532be51bcd094"
+          }
+        ],
+        "entryPointReview": "The selected source range contains one direct caller, cmd.c:makemap_prepost(TRUE), and no other calls to rm_mapseen. Active production entry route 1 is #wizmakemap: cmd.c wizard dispatch -> wizcmds.c:wiz_makemap -> makemap_prepost(TRUE); its matching runtime evidence is the admitted v47 range below. Active production entry route 2 is #wizloaddes: wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level(NULL) -> makemap_prepost(TRUE); its matching independent recording is recordings/wizcmds.c/wiz-load-des-explicit.session.json. makemap_prepost(FALSE) does not call rm_mapseen. The old dungeon.c rm_mapseen note_unported marker is removed from this production path.",
+        "entryPoints": [
+          {
+            "name": "#wizmakemap",
+            "functions": [
+              "rm_mapseen"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c wizard dispatch -> wizcmds.c:wiz_makemap -> cmd.c:makemap_prepost(TRUE) -> dungeon.c:rm_mapseen"
+              }
+            ]
+          },
+          {
+            "name": "#wizloaddes",
+            "functions": [
+              "rm_mapseen"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wiz-load-des-explicit.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
