@@ -513,7 +513,6 @@ import {
     slept_monst,
     attk_protection,
     xdrainenergym,
-    rustm,
 } from './mhitm.js';
 import { burn_away_slime, fall_asleep } from './timeout.js';
 import { set_ulycn } from './were.js';
@@ -4962,7 +4961,9 @@ export async function mhitm_ad_phys(
                 }
             }
 
-            await rustm(state.youmonst, otmp, state, { ...env, random });
+            // rustm() is a discarded void call in mhitm.c. Its own C random/
+            // erosion effect remains a named gap until that owner is ported.
+            note_unported('mhitm.c rustm');
             if (wasPoisoned && (env.dieroll ?? 0) <= 5) {
                 const reason = `${s_suffix(Monnam(magr, state, env))} `
                     + `${mpoisons_subj(magr, mattk, state)}`;
@@ -5042,7 +5043,7 @@ export async function mhitm_ad_phys(
         }
 
         if (mhm.damage)
-            await rustm(mdef, mwep, state, { ...env, random });
+            note_unported('mhitm.c rustm');
         if ((mwep.opoisoned || permapoisoned(mwep)) && !random.rn2(4))
             await mhitm_really_poison(magr, mattk, mdef, mhm, state, {
                 ...env, random,

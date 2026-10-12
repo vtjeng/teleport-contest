@@ -288030,7 +288030,7 @@
     {
       "id": "port-mhitm-rustm-v51-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete weapon erosion from defender attack types",
       "cFile": "mhitm.c",
       "sessions": [
@@ -288394,7 +288394,17 @@
             "synthetic": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "1b66655a6bf141bca61c3df6d0fbde6493699a48",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Hosted38266346302 failed only the new independent monster-pair recording: it stops at step148 on the unaccepted armed mattackm branch before rustm step155. Preserve source and evidence; resume after C whole-combat dependency is accepted."
     }
   ]
 }

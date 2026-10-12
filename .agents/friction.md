@@ -345,3 +345,18 @@ triage decisions or fix references.
   only the submitted helper and erosion import, retained Main's existing
   message import, and excluded unchanged worker-parent mswingsm context.
   The combined mhitm and uhitm focused checks passed.
+
+### 2026-10-12 — Rustm runtime dependency
+
+- Rustm's hosted checkpoint passed the fixed 44-session workload and every
+  older recording, but its new monster-pair recording stopped at step 148,
+  before the cited Rustm call at 155. The worker's passing recording used its
+  pending whole-combat parent; the submitted dependency list did not identify
+  that requirement. Root preserved the failed artifacts and focused diagnosis,
+  parked Rustm, and restored accepted executable inputs before selecting
+  another delivery. Resume after C's full combat task is accepted.
+- Whole mattackm intake found the newly reachable pudding-split branch absent.
+  C owns that correction. Whole monflee caller intake found ordinary command
+  paths still requiring injected visibility/message functions; B owns the
+  source-backed defaults. The getpos correction preserves C's pointer lifetime,
+  terrain scan outputs, numeric input bytes, and empty goal string.
