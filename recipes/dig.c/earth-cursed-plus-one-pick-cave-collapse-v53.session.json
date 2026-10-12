@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 53010113,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>>N                    \u0017cursed +1 pick-axe\n                    i                    #wizmap\n#wizkill\n  h. \u001b                    #wizmap\n#levelchange\n20\n                                                  #teleport\n hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkkkkkkk.                    ao y ",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Independent cursed +1 pick variation for dig.c:dig reaching mkcavearea(TRUE); the seed and clock are fixed before recording, and the recipe input contains no recorded steps."
+}

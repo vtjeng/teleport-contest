@@ -18,6 +18,7 @@ import {
     A_STR,
     A_WIS,
     COLNO,
+    COULD_SEE,
     CORR,
     ALTAR,
     DEAF,
@@ -71,6 +72,7 @@ import {
     HALLUC,
     HALLUC_RES,
     IRONBARS,
+    IN_SIGHT,
     IS_WATERWALL,
     WEB,
     IS_ALTAR,
@@ -127,6 +129,7 @@ import {
     HALF_PHDAM,
     MM_NOMSG,
     RIGHT_SIDE,
+    RLOC_NOMSG,
     ROT_ORGANIC,
     TAINT_AGE,
     Amask2align,
@@ -140,7 +143,7 @@ import { objectGenerationEnv } from './object_generation.js';
 // js/hack.js imports dig_typ(); both crossings occur only inside function
 // bodies, so the source-owned in_town() remains safe across the cycle.
 import {
-    in_town, losehp, may_dig, nomul, pooleffects, spot_checks, spoteffects, switch_terrain,
+    in_town, losehp, may_dig, nh_delay_output, nomul, pooleffects, spot_checks, spoteffects, switch_terrain,
 } from './hack.js';
 import {
     can_reach_floor,
@@ -166,7 +169,9 @@ import { punish } from './read.js';
 import { stop_timer, obj_stop_timers } from './timeout.js';
 import { costly_spot, shop_keeper, shopdig, stolen_value } from './shk.js';
 import { shkname } from './shknam.js';
-import { grounded, hides_under, is_flyer, is_floater, is_watch } from './mondata.js';
+import {
+    grounded, hides_under, is_flyer, is_floater, is_watch, passes_walls,
+} from './mondata.js';
 import {
     angry_guards,
     deal_with_overcrowding,
@@ -193,7 +198,7 @@ import {
     STATUE,
 } from './objects.js';
 import { cvt_sdoor_to_door } from './detect.js';
-import { feel_newsym, newsym } from './display.js';
+import { feel_newsym, flush_screen, newsym } from './display.js';
 import { verbalize } from './pline.js';
 import { in_rooms } from './rooms.js';
 import { acurr, adjalign, exercise } from './attrib.js';
@@ -231,7 +236,9 @@ import { bimanual } from './worn.js';
 import { On_stairs, stairway_at } from './stairs.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { unconscious } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow, ttyPline,
+} from './tty_message.js';
 import { wield_tool, welded } from './wield.js';
 import { Can_dig_down, ceiling, depth, dunlevs_in_dungeon, get_level, ledger_no, on_level, surface } from './dungeon.js';
 import { abon, dbon, dmgval, setmnotwielded } from './weapon.js';
@@ -327,6 +334,123 @@ export function pick_can_reach(pick, x, y, state = game) {
 // pointer; set_occupation() stores this same callback in state.go.
 export function is_digging(state = game) {
     return state.go?.occupation === dig;
+}
+
+// C ref: dig.c rm_waslit() (30-45), the neighborhood predicate used by
+// mkcavearea() before it rewrites the terrain around the hero.
+export function rm_waslit(state = game) {
+    const { ux, uy } = state.u;
+    const center = state.level.at(ux, uy);
+    if (center.typ === ROOM && center.waslit) return true;
+    for (let x = ux - 2; x < ux + 3; ++x) {
+        for (let y = uy - 1; y < uy + 2; ++y) {
+            if (isok(x, y) && state.level.at(x, y).waslit) return true;
+        }
+    }
+    return false;
+}
+
+// C ref: dig.c mkcavepos() (48-86). The rockit arm keeps obstructing terrain,
+// traps, and wall-walking monsters out of the new ceiling-collapse footprint.
+export async function mkcavepos(
+    x, y, dist, waslit, rockit, state = game, rawEnv = {},
+) {
+    if (!isok(x, y)) return;
+    const location = state.level.at(x, y);
+    if (rockit) {
+        if (IS_OBSTRUCTED(location.typ, state) || t_at(x, y, state)) return;
+        const monster = m_at(x, y, state);
+        if (monster && !passes_walls(monster.data)) {
+            const relocate = rawEnv.relocateMonster ?? rloc;
+            await relocate(monster, RLOC_NOMSG, {
+                ...rawEnv,
+                state,
+                random: {
+                    d, rn1, rn2, rne, rnl, rnd, rnz,
+                    ...(rawEnv.random ?? {}),
+                },
+            });
+        }
+    } else if (location.typ === ROOM) {
+        return;
+    }
+
+    const unblockPoint = rawEnv.unblockPoint ?? unblock_point;
+    unblockPoint(x, y, state);
+    location.seenv = 0;
+    location.flags = 0;
+    if ('doormask' in location) location.doormask = 0;
+    if (dist < 3) location.lit = !rockit;
+    if (waslit) location.waslit = !rockit;
+    location.horizontal = false;
+    state.viz_array[y][x] = dist < 3 ? IN_SIGHT | COULD_SEE : COULD_SEE;
+    location.typ = rockit ? STONE : ROOM;
+
+    // C's impossible() here is a debug diagnostic: mkcavearea() calls this
+    // helper only with distances one and two.
+    const feelNewsym = rawEnv.feelNewsym ?? feel_newsym;
+    feelNewsym(x, y, state);
+}
+
+// C ref: dig.c mkcavearea() (88-128). Its display window is a forced TTY
+// boundary; each of the two terrain rings is then flushed and delay-captured
+// before the next ring is changed.
+export async function mkcavearea(
+    rockit, state = game, rawEnv = {},
+) {
+    const { ux, uy } = state.u;
+    let xmin = ux;
+    let xmax = ux;
+    let ymin = uy;
+    let ymax = uy;
+    const waslit = rm_waslit(state);
+    const message = rawEnv.message ?? ttyPline;
+
+    if (rockit) {
+        // Soundeffect(se_crashing_rock, 100) is a no-op in the recorder TTY.
+        await message('Crash!  The ceiling collapses around you!', state, rawEnv);
+    } else {
+        const creates = state.level.at(ux, uy).typ === CORR;
+        await message(
+            `A mysterious force ${creates ? 'creates a' : 'extends the'} cave around you!`,
+            state,
+            rawEnv,
+        );
+    }
+    const displayMessageWindow = rawEnv.displayMessageWindow
+        ?? displayPendingTtyMessageWindow;
+    await displayMessageWindow(state);
+
+    for (let dist = 1; dist <= 2; ++dist) {
+        xmin--;
+        xmax++;
+        if (dist < 2) {
+            ymin--;
+            ymax++;
+            for (let i = xmin + 1; i < xmax; ++i) {
+                await mkcavepos(i, ymin, dist, waslit, rockit, state, rawEnv);
+                await mkcavepos(i, ymax, dist, waslit, rockit, state, rawEnv);
+            }
+        }
+        for (let i = ymin; i <= ymax; ++i) {
+            await mkcavepos(xmin, i, dist, waslit, rockit, state, rawEnv);
+            await mkcavepos(xmax, i, dist, waslit, rockit, state, rawEnv);
+        }
+
+        const flushScreen = rawEnv.flushScreen ?? flush_screen;
+        const delayOutput = rawEnv.delayOutput ?? nh_delay_output;
+        await flushScreen(1);
+        await delayOutput(state);
+    }
+
+    if (!rockit && state.level.at(ux, uy).typ === CORR) {
+        const center = state.level.at(ux, uy);
+        center.typ = ROOM;
+        if (waslit) center.waslit = true;
+        newsym(ux, uy);
+    }
+
+    state.vision_full_recalc = 1;
 }
 
 // C ref: dig.c dig_check() (207-253). `madeby === null` represents C's
@@ -644,12 +768,16 @@ export async function dig(state = game, rawEnv = {}) {
             || IS_TREE(location.typ, state)) {
             if (Is_earthlevel(u.uz, state)) {
                 if (weapon.blessed && !random.rn2(3)) {
-                    note_unported('dig.c mkcavearea');
+                    await mkcavearea(false, state, {
+                        ...rawEnv, random, message,
+                    });
                     finishDigging(digging, state);
                     return 0;
                 } else if ((weapon.cursed && !random.rn2(4))
                     || (!weapon.blessed && !random.rn2(6))) {
-                    note_unported('dig.c mkcavearea');
+                    await mkcavearea(true, state, {
+                        ...rawEnv, random, message,
+                    });
                     finishDigging(digging, state);
                     return 0;
                 }
