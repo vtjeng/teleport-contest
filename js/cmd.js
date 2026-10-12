@@ -5179,6 +5179,8 @@ async function doextcmd(key, state, onSelectedEntry = null) {
             return ECMD_OK;
         case 'doread':
             return await runReadCommand(key, state);
+        case 'dodrink':
+            return await runQuaffCommand(key, state);
         case 'dowieldquiver':
             return await failClosedCommand(
                 key, state, () => dowieldquiver(state),
@@ -5218,6 +5220,8 @@ async function doextcmd(key, state, onSelectedEntry = null) {
             return doddoremarm(state);
         case 'dotakeoff':
             return await runTakeOffCommand(key, state);
+        case 'doremring':
+            return await runRemoveCommand(key, state);
         case 'dowear':
             return await runWearCommand(key, state);
         case 'doputon':
@@ -5355,6 +5359,11 @@ async function doextcmd(key, state, onSelectedEntry = null) {
         case 'doforce':
             // C ref: lock.c doforce(), which returns ECMD_OK or ECMD_TIME.
             return await doforce(state);
+        case 'doswapweapon':
+            // C ref: wield.c doswapweapon(), the #swap command.
+            return await failClosedCommand(
+                key, state, () => doswapweapon(state),
+            );
         case 'dotip':
             // C ref: pickup.c dotip(), which returns its own ECMD_* result.
             return await failClosedCommand(key, state, () => dotip(state));
