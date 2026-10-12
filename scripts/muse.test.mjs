@@ -615,6 +615,68 @@ test('find_misc preserves trap precedence and inert-container RNG', () => {
     assert.deepEqual(bounds, [5]);
 });
 
+test('use_misc supplies seetrap redraw and preserves injected redraw owners',
+    async () => {
+        const state = await offensiveHero();
+        state.level.traps ??= [];
+        const cases = [];
+        const reserved = new Set();
+        for (let radius = 1; radius <= 4 && cases.length < 2; radius++) {
+            for (let y = state.u.uy - radius;
+                y <= state.u.uy + radius && cases.length < 2; y++) {
+                for (let x = state.u.ux - radius;
+                    x <= state.u.ux + radius && cases.length < 2; x++) {
+                    const tx = x + 1;
+                    const valid = (sx, sy) => sx > 0 && sx < COLNO - 1
+                        && sy > 0 && sy < ROWNO - 1
+                        && !(sx === state.u.ux && sy === state.u.uy)
+                        && !state.level.monsters[sx]?.[sy]
+                        && !reserved.has(`${sx},${sy}`);
+                    if (!valid(x, y) || !valid(tx, y)) continue;
+                    cases.push({ x, y, tx, ty: y, injected: cases.length === 0 });
+                    reserved.add(`${x},${y}`);
+                    reserved.add(`${tx},${y}`);
+                }
+            }
+        }
+        assert.equal(cases.length, 2);
+        for (const entry of cases) {
+            const monster = offensiveMonster(state, PM_GOBLIN, null, {
+                mx: entry.x,
+                my: entry.y,
+                cham: NON_PM,
+                mhp: 8,
+                mhpmax: 8,
+                minvis: true,
+            });
+            const trap = {
+                tx: entry.tx,
+                ty: entry.ty,
+                ttyp: POLY_TRAP,
+                tseen: false,
+            };
+            state.level.traps.push(trap);
+            state.viz_array[entry.y][entry.x] |= IN_SIGHT;
+            state.viz_array[entry.ty][entry.tx] &= ~IN_SIGHT;
+            place_monster(monster, entry.x, entry.y, state);
+
+            const selection = find_misc(monster, { state });
+            assert.equal(selection?.kind, 'polymorph trap');
+            assert.deepEqual([selection.x, selection.y], [entry.tx, entry.ty]);
+            const redraws = [];
+            const env = entry.injected
+                ? { redraw: (x, y) => redraws.push([x, y]) }
+                : {};
+            assert.equal(await use_misc(monster, selection, state, env), 2);
+            assert.equal(trap.tseen, true);
+            if (entry.injected)
+                assert.deepEqual(redraws, [[entry.tx, entry.ty]]);
+            assert.deepEqual([monster.mx, monster.my], [entry.tx, entry.ty]);
+            assert.equal(state.unported.has('mon.c newcham'), true,
+                'later polymorph behavior remains an explicit source gap');
+        }
+    });
+
 test('a wounded ordinary hostile with an inert weapon selects no item action',
     () => {
         const state = makeSelectionState();

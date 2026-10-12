@@ -1610,8 +1610,16 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         const trapY = selection.y;
         const t = t_at(trapX, trapY, state);
         const vistrapspot = cansee(t.tx, t.ty, state);
-        if (vis || vistrapspot)
-            seetrap(t, state);
+        if (vis || vistrapspot) {
+            // C seetrap() redraws with newsym(); preserve an injected owner
+            // for focused/planning callers, and bind the live fallback to
+            // this action's state.
+            seetrap(t, {
+                ...env,
+                state,
+                redraw: env.redraw ?? ((x, y) => newsym(x, y, state)),
+            });
+        }
         if (vismon || vistrapspot) {
             // C: vtense(fakename[0], locomotion(...))
             // fakename[0] is "mon", a singular noun for conjugation
