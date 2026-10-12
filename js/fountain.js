@@ -11,6 +11,7 @@
 import {
     ARM,
     A_MAX,
+    A_LAWFUL,
     A_CON,
     A_DEX,
     A_WIS,
@@ -42,14 +43,21 @@ import {
     S_LRING,
     SEE_INVIS,
     UNCHANGING,
+    LL_ARTIFACT,
+    ONAME_VIA_DIP,
+    ONAME_KNOW_ARTI,
+    uhim,
     nothing_seems_to_happen,
 } from './const.js';
 import { acurr, adjattrib, exercise, poison_strdmg } from './attrib.js';
+import {
+    ART_EXCALIBUR, artiname, discover_artifact, exist_artifact,
+} from './artifacts.js';
 import { monster_detect } from './detect.js';
 import {
     bot, newsym, glyph_at, glyph_is_cmap, glyph_to_cmap,
 } from './display.js';
-import { Amonnam, hcolor, hliquid, a_monnam } from './do_name.js';
+import { Amonnam, hcolor, hliquid, a_monnam, oname } from './do_name.js';
 import { level_difficulty, dunlevs_in_dungeon, dunlev } from './dungeon.js';
 import { del_engr_at } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -79,7 +87,7 @@ import {
     PM_KNIGHT, PM_SEWER_RAT, PM_WATER_DEMON, PM_WATER_ELEMENTAL,
     PM_WATER_MOCCASIN, PM_WATER_NYMPH,
 } from './monsters.js';
-import { curse, mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class } from './obj.js';
+import { bless, curse, mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class } from './obj.js';
 import { observe_object } from './o_init.js';
 import { body_part, mbodypart, polyself } from './polyself.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
@@ -102,7 +110,7 @@ import {
     displayPendingTtyMessageWindow, ttyPline,
 } from './tty_message.js';
 import { fruitname, makeplural } from './fruit.js';
-import { verbalize } from './pline.js';
+import { livelog_printf, verbalize } from './pline.js';
 import { note_unported } from './unported.js';
 import { Fire_resistance } from './zap.js';
 import { Glib } from './wield.js';
@@ -113,6 +121,7 @@ import {
     POTION_CLASS, POT_ACID, POT_FRUIT_JUICE, POT_GAIN_ENERGY,
     POT_GAIN_LEVEL, POT_LEVITATION, POT_MONSTER_DETECTION,
     POT_OBJECT_DETECTION, POT_OIL, POT_POLYMORPH, POT_WATER, RING_CLASS,
+    LONG_SWORD,
 } from './objects.js';
 import { canspotmon } from './display.js';
 import { somegold } from './steal.js';
@@ -194,9 +203,15 @@ async function dowaterdemon(state = game, env = {}) {
             // C ref: fountain.c:78. On low levels the demon is grateful
             // and grants a wish. level_difficulty() adds depth adjustments.
             if (random.rnd(100) > (80 + level_difficulty(state))) {
+                const pronounEnv = {
+                    ...env,
+                    state,
+                    random,
+                    canSpotMonster: env.canSpotMonster ?? canspotmon,
+                };
                 await message(
-                    `Grateful for ${mhis(mtmp, { state })} release, `
-                    + `${mhe(mtmp, { state })} grants you a wish!`,
+                    `Grateful for ${mhis(mtmp, pronounEnv)} release, `
+                    + `${mhe(mtmp, pronounEnv)} grants you a wish!`,
                     state,
                 );
                 // mongrantswish removes the monster and gives a wish.
@@ -907,9 +922,8 @@ function CLEAR_FOUNTAIN_LOOTED(x, y, state) {
 // hero dips an object into a fountain. Applies water_damage to the item,
 // then rolls rnd(30) for a random fate.
 //
-// Fail-closed arms: Excalibur creation (long sword + lawful + knight),
-// curse/uncurse (unless exercised), and several fate branches that need
-// unported helpers.
+// Implements the complete fountain.c:dipfountain() source body, including
+// Excalibur creation and the common fountain-removal path.
 export async function dipfountain(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? { d, rn1, rn2, rnd, rne };
@@ -924,20 +938,69 @@ export async function dipfountain(obj, state = game, env = {}) {
         return;
     }
 
-    // C ref: fountain.c:404-447. Excalibur path: dipping a long sword
-    // in a fountain when the hero meets specific conditions. Fail-closed
-    // because it needs oname(), discover_artifact(), and artifact checks
-    // that are not fully ported for in-game use.
-    const { LONG_SWORD } = await import('./objects.js');
-    if (obj.otyp === LONG_SWORD && (state.u.ulevel ?? 0) >= 5) {
-        // C evaluates rn2() as part of the compound condition; consume it
-        // even when throwing so the PRNG stays in sync.
-        const isKnight = state.urole?.mnum === PM_KNIGHT;
-        if (!random.rn2(isKnight ? 6 : 30)
-            && obj.quan === 1 && !obj.oartifact) {
-            throw new UnsupportedFountainError(
-                'the Excalibur creation path in dipfountain()');
+    // C ref: fountain.c:404-447. Preserve the source's short-circuit
+    // order: the role-dependent draw precedes quantity, artifact and
+    // existing-Excalibur checks.
+    if (obj.otyp === LONG_SWORD
+        && (state.u.ulevel ?? 0) >= 5
+        && !random.rn2(state.urole?.mnum === PM_KNIGHT ? 6 : 30)
+        && obj.quan === 1
+        && !obj.oartifact
+        && !exist_artifact(
+            LONG_SWORD, artiname(ART_EXCALIBUR, state), state)) {
+        const lady = 'Lady of the Lake';
+
+        if (state.u.ualign?.type !== A_LAWFUL) {
+            await message(
+                `A freezing mist rises from the ${hliquid('water', env)} and envelopes the sword.`,
+                state);
+            await message('The fountain disappears!', state);
+            await curse(obj, { ...env, state, random });
+            if (obj.spe > -6 && !random.rn2(3)) obj.spe--;
+            obj.oerodeproof = false;
+            await exercise(A_WIS, false, state, random, {
+                encumberMessage: env.encumberMessage,
+            });
+            livelog_printf(
+                LL_ARTIFACT,
+                `was denied ${artiname(ART_EXCALIBUR, state)}!  The ${lady} has deemed ${uhim(state)} unworthy`,
+                state,
+            );
+        } else {
+            await message(
+                'From the murky depths, a hand reaches up to bless the sword.',
+                state);
+            await message(
+                'As the hand retreats, the fountain disappears!', state);
+            obj = await oname(
+                obj,
+                artiname(ART_EXCALIBUR, state),
+                ONAME_VIA_DIP | ONAME_KNOW_ARTI,
+                { ...env, state, random },
+            );
+            discover_artifact(ART_EXCALIBUR, state);
+            await bless(obj, { ...env, state, random });
+            obj.oeroded = 0;
+            obj.oeroded2 = 0;
+            obj.oerodeproof = true;
+            await exercise(A_WIS, true, state, random, {
+                encumberMessage: env.encumberMessage,
+            });
+            livelog_printf(
+                LL_ARTIFACT,
+                `was given ${artiname(ART_EXCALIBUR, state)} by the ${lady}`,
+                state,
+            );
         }
+        update_inventory({ ...env, state });
+        set_levltyp(state.u.ux, state.u.uy, ROOM, { ...env, state });
+        state.level.at(state.u.ux, state.u.uy).flags = 0;
+        newsym(state.u.ux, state.u.uy);
+        if (in_town(state.u.ux, state.u.uy, state)) {
+            const { angry_guards } = await import('./mon.js');
+            await angry_guards(false, { ...env, state });
+        }
+        return;
     }
 
     // C ref: fountain.c:448-452. Wash hands or water-damage the item.
@@ -1059,7 +1122,7 @@ export async function dipfountain(obj, state = game, env = {}) {
         }
         break;
     }
-    update_inventory(env);
+    update_inventory({ ...env, state });
     await dryup(state.u.ux, state.u.uy, true, state, env);
 }
 

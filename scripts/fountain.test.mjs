@@ -57,11 +57,13 @@ import {
 } from '../js/fountain.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
+import { ART_EXCALIBUR } from '../js/artifacts.js';
 import { vomit } from '../js/eat.js';
 import {
     PM_ACID_BLOB,
     PM_SEWER_RAT,
     PM_WATER_ELEMENTAL,
+    PM_WATER_DEMON,
     PM_WATER_MOCCASIN,
     PM_WATER_NYMPH,
     PM_VROCK,
@@ -73,7 +75,7 @@ import { mksobj } from '../js/obj.js';
 import {
     DILITHIUM_CRYSTAL, GOLD_PIECE, LOADSTONE, LUCKSTONE,
     POTION_CLASS, POT_SPEED,
-    POT_WATER,
+    POT_WATER, LONG_SWORD,
 } from '../js/objects.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
@@ -1507,4 +1509,176 @@ test('vomit reaches altar_wrath after installing its C delay', async () => {
     assert.equal(game.multi_reason, 'vomiting');
     assert.equal(game.u.ualign.record, 4);
     assert.ok(!game.unported.has('pray.c altar_wrath'));
+});
+
+
+async function startedKnightGame() {
+    await runSegment({
+        seed: 53010105,
+        datetime: '20591210141820',
+        nethackrc: RC.replace('role:Wizard', 'role:Knight')
+            .replace('gender:female', 'gender:male')
+            .replace('align:neutral', 'align:lawful'),
+        moves: '',
+    });
+    game.u.ulevel = 7;
+    return game;
+}
+
+test('dipfountain creates Excalibur for a lawful Knight in C order', async () => {
+    const cSource = await readFile(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+        'utf8',
+    );
+    const cStart = cSource.indexOf('dipfountain(struct obj *obj)');
+    const cEnd = cSource.indexOf('\n\n/* dipping', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const c = cSource.slice(cStart, cEnd);
+
+    assert.ok(c.indexOf('rn2(Role_if(PM_KNIGHT) ? 6 : 30)')
+        < c.indexOf('obj->quan == 1L'));
+    assert.ok(c.indexOf('oname(obj, artiname(ART_EXCALIBUR')
+        < c.indexOf('discover_artifact(ART_EXCALIBUR)'));
+    assert.ok(c.indexOf('discover_artifact(ART_EXCALIBUR)')
+        < c.indexOf('bless(obj)'));
+    assert.ok(c.indexOf('bless(obj)') < c.indexOf('obj->oeroded = obj->oeroded2 = 0'));
+
+    await startedKnightGame();
+    const location = game.level.at(game.u.ux, game.u.uy);
+    location.typ = FOUNTAIN;
+    location.flags = 0x7fffffff;
+    const sword = mksobj(LONG_SWORD, false, false, { state: game });
+    sword.quan = 1;
+    sword.spe = 1;
+    sword.oeroded = 2;
+    sword.oeroded2 = 1;
+    sword.oerodeproof = false;
+    addinv(sword, { state: game });
+    game.uwep = sword;
+    const draws = [];
+    const messages = [];
+
+    await dipfountain(sword, game, {
+        message: async (text) => messages.push(text),
+        random: {
+            rn2(bound) {
+                draws.push(bound);
+                if (bound === 6) return 0;
+                if (bound === 19) return 0;
+                assert.fail(`unexpected rn2(${bound})`);
+            },
+        },
+    });
+
+    assert.deepEqual(draws, [6, 19]);
+    assert.deepEqual(messages, [
+        'From the murky depths, a hand reaches up to bless the sword.',
+        'As the hand retreats, the fountain disappears!',
+    ]);
+    assert.equal(sword.oartifact, ART_EXCALIBUR);
+    assert.equal(sword.oextra.oname, 'Excalibur');
+    assert.equal(sword.blessed, true);
+    assert.equal(sword.oeroded, 0);
+    assert.equal(sword.oeroded2, 0);
+    assert.equal(sword.oerodeproof, true);
+    assert.equal(game.artiexist[ART_EXCALIBUR].exists, 1);
+    assert.equal(game.artiexist[ART_EXCALIBUR].found, 1);
+    assert.ok(game.artidisco.includes(ART_EXCALIBUR));
+    assert.equal(location.typ, ROOM);
+    assert.equal(location.flags, 0);
+});
+
+
+test('dipfountain denies Excalibur to a nonlawful sword bearer in C order', async () => {
+    await startedKnightGame();
+    game.u.ualign.type = 0;
+    const location = game.level.at(game.u.ux, game.u.uy);
+    location.typ = FOUNTAIN;
+    const sword = mksobj(LONG_SWORD, false, false, { state: game });
+    sword.quan = 1;
+    sword.spe = 1;
+    sword.blessed = true;
+    addinv(sword, { state: game });
+    const draws = [];
+    const messages = [];
+
+    await dipfountain(sword, game, {
+        message: async (text) => messages.push(text),
+        random: {
+            rn2(bound) {
+                draws.push(bound);
+                if (bound === 6 || bound === 3) return 0;
+                if (bound === 2) return 1;
+                assert.fail(`unexpected rn2(${bound})`);
+            },
+        },
+    });
+
+    assert.deepEqual(draws, [6, 3, 2]);
+    assert.deepEqual(messages, [
+        'A freezing mist rises from the water and envelopes the sword.',
+        'The fountain disappears!',
+    ]);
+    assert.equal(sword.oartifact, 0);
+    assert.equal(sword.blessed, false);
+    assert.equal(sword.cursed, true);
+    assert.equal(sword.spe, 0);
+    assert.equal(sword.oerodeproof, false);
+    assert.equal(location.typ, ROOM);
+});
+
+test('water-demon wish forwards the caller-owned pronoun environment', async () => {
+    const cSource = await readFile(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+        'utf8',
+    );
+    const cStart = cSource.indexOf('dowaterdemon(void)');
+    const cEnd = cSource.indexOf('\n/* Water Nymph */', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const c = cSource.slice(cStart, cEnd);
+    assert.ok(c.indexOf('mhis(mtmp)') < c.indexOf('mhe(mtmp)'));
+
+    await startedGame();
+    game.level.at(game.u.ux, game.u.uy).typ = FOUNTAIN;
+    const demon = newMonster({
+        data: game.mons[PM_WATER_DEMON],
+        mnum: PM_WATER_DEMON,
+        mx: game.u.ux,
+        my: game.u.uy,
+        mhp: 30,
+        mhpmax: 30,
+    });
+    const seen = [];
+    const messages = [];
+    const stopBeforeWish = new Error('stop after C pronoun message');
+
+    await assert.rejects(
+        drinkfountain(game, {
+            message(text) {
+                messages.push(text);
+                if (text.startsWith('Grateful for ')) throw stopBeforeWish;
+            },
+            random: {
+                rnd(bound) {
+                    if (bound === 30) return 23; // C's water-demon fate.
+                    if (bound === 100) return 100; // Take the wish branch.
+                    assert.fail(`unexpected rnd(${bound})`);
+                },
+            },
+            makeMonster: async () => demon,
+            canSpotMonster(mon, state) {
+                assert.equal(mon, demon);
+                assert.equal(state, game);
+                seen.push(mon);
+                return false;
+            },
+        }),
+        (error) => error === stopBeforeWish,
+    );
+
+    assert.deepEqual(messages, [
+        'You unleash a water demon!',
+        'Grateful for its release, it grants you a wish!',
+    ]);
+    assert.deepEqual(seen, [demon, demon]);
 });
