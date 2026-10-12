@@ -294532,7 +294532,7 @@
     {
       "id": "fix-dokick-barefoot-corpse-instapetrify-v53-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement really_kick_object from dokick.c",
       "cFile": "dokick.c",
       "sessions": [
@@ -294542,10 +294542,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a09ed76e70057094ef1a3e0202eed78b6814c58f",
       "delivered": null,
       "function": "really_kick_object",
-      "session": "synthetic/v53/v53-barefoot-kick-cockatrice-corpse-action1"
+      "session": "synthetic/v53/v53-barefoot-kick-cockatrice-corpse-action1",
+      "closeStanding": {
+        "sha": "a09ed76e70057094ef1a3e0202eed78b6814c58f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "ce966d4bd4812d2d625f234fde8f87b1d105ebdc",
+        "target": "synthetic/v53/v53-barefoot-kick-cockatrice-corpse-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/a09ed76e70057094ef1a3e0202eed78b6814c58f/run-hosted-kyZxLC/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "really_kick_object",
+            "implementation": "js/dokick.js",
+            "symbol": "really_kick_object",
+            "sourceReview": "Read the complete dokick.c:really_kick_object body at lines 508-790 and the matching JavaScript function. This correction covers only the branch at C lines 542-555: with no kicking boots, a touch-petrifying corpse, and no Stone resistance, C prints the bare-foot message; if polymon(PM_STONE_GOLEM) does not save the hero, it sets the normalized killer name and calls instapetrify before continuing after any recovery. JavaScript now awaits the existing js/trap.js:instapetrify helper at the same point. The helper and its terminal/recovery behavior are unchanged. Other really_kick_object branches and their named gaps remain outside this correction.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "kick_object",
+                "source": "C dokick.c:dokick dispatches the floor object through kick_object to really_kick_object; JavaScript dokick -> kick_object -> really_kick_object uses the same production path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dokick.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-barefoot-kick-cockatrice-corpse-action1",
+                "segment": 0,
+                "fromStep": 217,
+                "throughStep": 222,
+                "source": "dokick.c:dokick -> kick_object -> really_kick_object barefoot-corpse branch -> trap.c:instapetrify -> end.c:done(STONING); the recorded wizard recovery returns to the kick continuation."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected production entry point is #kick on a floor cockatrice corpse while the hero is barefoot and lacks Stone resistance. C dokick.c:dokick -> kick_object -> really_kick_object calls trap.c:instapetrify before continuing after the wizard death refusal. JavaScript already wires the same #kick path; this correction replaces the named gap at that caller and does not claim whole really_kick_object or trap.c:instapetrify completion.",
+        "entryPoints": [
+          {
+            "name": "Kick a cockatrice corpse barefoot",
+            "functions": [
+              "really_kick_object"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-barefoot-kick-cockatrice-corpse-action1",
+                "segment": 0,
+                "fromStep": 217,
+                "throughStep": 222,
+                "source": "dokick.c:dokick -> kick_object -> really_kick_object -> trap.c:instapetrify -> end.c:done(STONING), including the recorded recovery and continued kick."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

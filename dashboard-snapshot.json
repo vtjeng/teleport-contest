@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T23:38:47.386Z",
+  "capturedAt": "2026-10-12T23:46:56.091Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -99202,6 +99202,87 @@
         "type": "accepted",
         "at": "2026-10-12T23:37:56.618Z",
         "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012-8d1e7865eb249438ad4e15cac2c58d9607f4b3b6",
+        "type": "published",
+        "at": "2026-10-12T23:39:01.784Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "commit": "8d1e7865eb249438ad4e15cac2c58d9607f4b3b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v53-mounted-residual-action4-20261012",
+        "type": "assign",
+        "at": "2026-10-12T23:39:08.435Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-barefoot53-a09ed76e7-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T23:39:44.115Z",
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
+        "integration": "a09ed76e70057094ef1a3e0202eed78b6814c58f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-topl-pager-redraw-v53-20261012",
+        "type": "implement",
+        "at": "2026-10-12T23:42:41.029Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "goal": "div-fix-topl-clear-after-more-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a9dfe69f128a7a3c4033d7b9eaaf0567fd278c29",
+        "type": "ready",
+        "at": "2026-10-12T23:43:00.631Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "delivery": "a9dfe69f128a7a3c4033d7b9eaaf0567fd278c29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-quest-chat-a9dfe69f-20261012",
+        "type": "received",
+        "at": "2026-10-12T23:43:51.532Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "delivery": "a9dfe69f128a7a3c4033d7b9eaaf0567fd278c29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v53-shop-damage-active-after-scope-20261012",
+        "type": "turn",
+        "at": "2026-10-12T23:44:05.386Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-idle-after-quest-chat-v53-20261012",
+        "type": "turn",
+        "at": "2026-10-12T23:44:33.545Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent queue case is available: remaining sessions are already owned, under validation, or held. Waiting for the next refreshed queue or a released reservation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012-a09ed76e70057094ef1a3e0202eed78b6814c58f-validated",
+        "type": "validated",
+        "at": "2026-10-12T23:45:40.514Z",
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012-a09ed76e70057094ef1a3e0202eed78b6814c58f-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T23:46:06.742Z",
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012"
       }
     ]
   },
@@ -99282,17 +99363,6 @@
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
-        "worker": "A2",
-        "goal": "fix-dokick-barefoot-corpse-instapetrify-v53-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "ec477816056fdc8d518fa4cbc07feb48013b0462",
-        "since": "2026-10-12T22:59:10.440Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
         "worker": "A2",
         "goal": "fix-insight-blindfolded-only-status-v53-20261012",
@@ -99333,6 +99403,17 @@
         "status": "ready",
         "delivery": "6ab2a02d0a0321a65e1bbfed31730eabd94051df",
         "since": "2026-10-12T23:21:01.368Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "worker": "A2",
+        "goal": "port-quest-nemesis-chat-v53-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "a9dfe69f128a7a3c4033d7b9eaaf0567fd278c29",
+        "since": "2026-10-12T23:43:00.631Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -99818,8 +99899,8 @@
     ]
   },
   "development": {
-    "executionCommit": "ce966d4bd4812d2d625f234fde8f87b1d105ebdc",
-    "measuredAt": "2026-10-12T23:36:11.314Z",
+    "executionCommit": "a09ed76e70057094ef1a3e0202eed78b6814c58f",
+    "measuredAt": "2026-10-12T23:44:42.444Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
