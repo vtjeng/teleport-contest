@@ -42,6 +42,7 @@ import {
     COLNO,
     IN_SIGHT,
     OBJ_MINVENT,
+    OBJ_FLOOR,
     ROWNO,
     W_ARM,
     W_ARMC,
@@ -54,6 +55,7 @@ import {
     LS_OBJECT,
 } from '../js/const.js';
 import { newMonster } from '../js/monst.js';
+import { GameMap } from '../js/game.js';
 import { hands_obj } from '../js/invent.js';
 import {
     M2_STRONG,
@@ -61,6 +63,7 @@ import {
     PM_COCKATRICE,
     PM_DEATH,
     PM_GREMLIN,
+    PM_GRID_BUG,
     PM_MONK,
     PM_SAMURAI,
     PM_SHADE,
@@ -68,6 +71,7 @@ import {
     PM_VAMPIRE,
     PM_GIANT,
     PM_GIANT_EEL,
+    PM_HILL_ORC,
     PM_HUMAN,
     PM_HUMAN_WEREWOLF,
     PM_MIND_FLAYER,
@@ -133,6 +137,7 @@ import {
     mwepgone,
     martial_bonus,
     mon_wield_item,
+    possibly_unwield,
     select_hwep,
     select_rwep,
     setmnotwielded,
@@ -478,6 +483,75 @@ test('mon_wield_item keeps same-type and empty selection branches actionless', a
     subject.weapon_check = NEED_HTH_WEAPON;
     assert.equal(await mon_wield_item(subject, { state }), 0);
     assert.equal(subject.weapon_check, NEED_WEAPON);
+});
+
+test('possibly_unwield handles retained, missing, and unusable weapons', async () => {
+    const state = makeState();
+    state.level = new GameMap();
+    const sword = object(state, LONG_SWORD, {
+        owornmask: W_WEP,
+        where: OBJ_MINVENT,
+    });
+    const subject = monster(state, PM_HILL_ORC, {
+        mx: 5,
+        my: 5,
+        minvent: sword,
+        mw: sword,
+        weapon_check: NO_WEAPON_WANTED,
+    });
+    sword.ocarry = subject;
+
+    await possibly_unwield(subject, false, { state, canSee: () => false });
+    assert.equal(subject.mw, sword);
+    assert.equal(subject.weapon_check, NEED_WEAPON);
+
+    subject.minvent = null;
+    await possibly_unwield(subject, false, { state, canSee: () => false });
+    assert.equal(subject.mw, null);
+    assert.equal(subject.weapon_check, NEED_WEAPON);
+
+    const dropped = object(state, LONG_SWORD, {
+        owornmask: W_WEP,
+        where: OBJ_MINVENT,
+    });
+    const bug = monster(state, PM_GRID_BUG, {
+        mx: 5,
+        my: 5,
+        minvent: dropped,
+        mw: dropped,
+        weapon_check: NEED_WEAPON,
+    });
+    dropped.ocarry = bug;
+    await possibly_unwield(bug, true, { state, canSee: () => false });
+    assert.equal(bug.mw, null);
+    assert.equal(bug.weapon_check, NO_WEAPON_WANTED);
+    assert.equal(dropped.where, OBJ_FLOOR);
+    assert.equal(dropped.bypass, true);
+
+    const visibleSword = object(state, LONG_SWORD, {
+        owornmask: W_WEP,
+        where: OBJ_MINVENT,
+    });
+    const visibleBug = monster(state, PM_GRID_BUG, {
+        mx: 6,
+        my: 6,
+        minvent: visibleSword,
+        mw: visibleSword,
+        weapon_check: NEED_WEAPON,
+    });
+    visibleSword.ocarry = visibleBug;
+    const lines = [];
+    const redraws = [];
+    const visibleOps = visibleMessages(state, lines);
+    await possibly_unwield(visibleBug, false, {
+        state,
+        canSee: () => true,
+        message: visibleOps.message,
+        newsym: (x, y) => redraws.push([x, y]),
+    });
+    assert.ok(lines.some((line) => line.includes('drops')));
+    assert.deepEqual(redraws, [[6, 6]]);
+    assert.equal(visibleSword.where, OBJ_FLOOR);
 });
 
 test('mon_wield_item identifies a newly welded visible weapon', async () => {

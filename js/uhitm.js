@@ -4056,7 +4056,7 @@ async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
         if (!otmp || otmp.where !== OBJ_INVENT) continue;
         if (await theft_petrifies(otmp, state, env)) break;
         if (unwornmask & W_WEP) {
-            possibly_unwield(mdef, false, env);
+            await possibly_unwield(mdef, false, env);
         } else if (unwornmask & W_ARMG) {
             await mselftouch(mdef, null, true, { ...env, state });
             if (mdef.mhp < 1) break;
@@ -4253,7 +4253,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
         // Both calls are void source callees. Existing partial ports are
         // safe no-ops when extraction cleared the weapon; retain their source
         // order before checking whether the defender died.
-        possibly_unwield(mdef, false, env);
+        await possibly_unwield(mdef, false, env);
         mdef.mstrategy &= ~STRAT_WAITFORU;
         await mselftouch(mdef, null, false, { ...env, state });
 
