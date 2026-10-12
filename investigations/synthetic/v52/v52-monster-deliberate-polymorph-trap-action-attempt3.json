@@ -1,0 +1,38 @@
+{
+  "session": "synthetic/v52/v52-monster-deliberate-polymorph-trap-action-attempt3",
+  "remainingScreens": 190,
+  "recordedSteps": 190,
+  "corpus": "synthetic",
+  "batch": "v52",
+  "caseId": "v52-monster-deliberate-polymorph-trap-action-attempt3",
+  "manifestPath": "challenges/manifests/v52.json",
+  "manifestSha256": "5f04988dce29fe2cabd35cc3a6be499748ec102c3316522c3753a7724c3fdb06",
+  "recordingPath": "challenges/cases/v52/v52-monster-deliberate-polymorph-trap-action-attempt3.session.json",
+  "recordingSha256": "f1d8d97afe139fee3f04e2c5e637dfae60b8e3d87f6cc5e165dc83ee51739f4e",
+  "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+  "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+  "status": "complete",
+  "commit": "d849e164ae7274dd97ab74cc7e4b7520593d7680",
+  "mismatch": {
+    "session": "synthetic/v52/v52-monster-deliberate-polymorph-trap-action-attempt3",
+    "remainingScreens": 190,
+    "kind": "error",
+    "message": "a trap effect requires the redraw owner"
+  },
+  "summary": "The admitted polymorph-trap replay stops when JS muse.c:use_misc calls seetrap with the game state instead of the required redraw operation. C use_misc calls seetrap(t), whose source implementation marks the trap seen and redraws the square through newsym. The canonical JS newsym function is already imported in muse.js; the bounded fix is to pass a redraw owner to seetrap while preserving a caller-injected redraw. The later mon.c:newcham gap is downstream and is not included in this diagnosis or scope.",
+  "source": {
+    "file": "muse.c",
+    "branch": "In use_misc's MUSE_POLY_TRAP branch, when the hero can see the monster or trap, call seetrap before the deliberate-jump message; seetrap marks the trap seen and redraws its square.",
+    "functions": ["use_misc"],
+    "callers": ["monmove.c:m_move"],
+    "dependencies": ["trap.c:seetrap", "display.c:newsym"]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Accepted v52 evaluation hosted-38292091033-1-v52.json records this case as failed with error 'a trap effect requires the redraw owner'; the recording has 190 steps and its input/recording identity is pinned by the admitted v52 manifest.",
+    "Upstream nethack-c/upstream/src/monmove.c:797-798 calls find_misc(mtmp), then use_misc(mtmp) when a miscellaneous action was selected.",
+    "Upstream nethack-c/upstream/src/muse.c:2519-2539 handles MUSE_POLY_TRAP, conditionally calls seetrap(t), then emits the visible message and moves the monster onto the trap. Upstream trap.c:3578-3584 sets tseen and calls newsym when the trap was previously unseen.",
+    "JS js/muse.js:1607-1615 has the matching branch but calls seetrap(t, state). JS js/trap_effects.js:503-511 requires env.redraw before checking tseen, then updates tseen and invokes that callback. js/muse.js already imports the canonical newsym display operation.",
+    "After the redraw-owner defect is repaired, the branch still contains the explicit note_unported('mon.c newcham') call. That later behavior is outside this diagnosis and must not be represented as fixed by this task."
+  ]
+}
