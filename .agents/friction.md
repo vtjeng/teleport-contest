@@ -128,3 +128,13 @@ triage decisions or fix references.
 
 - Friction: `git merge --trailer` failed again with exit 129, repeating the Prep13 mistake already recorded here.
 - Outcome: merge used `--no-commit`, then `git commit --trailer`; the report-only conflict retained the verified current diagnosis.
+
+### 2026-10-12 — saved acceptance and divergence evidence terminology
+
+- Context: inventory candidate `dd7580b087b2f6d91b80159b92966379aa7eba3a`, hosted run `38224853910`.
+- Friction: importing the 51 saved synthetic evaluations and recording acceptance took 151 seconds (receipt `run-GsJnzk`: 08:45:17.630Z–08:47:48.801Z). No games were replayed by this handoff. The coordinator initially queried the nonexistent `checkpoint.yml`; the repository uses `checkpoint-trial.yml`.
+- Outcome: the exact run was watched once, imported and accepted. Check the repository workflow filename before discovery.
+
+- Context: C pyrolisk callback delivery `ba6dad22346f0b8b7cba2fbfe509abe87ad3141f`.
+- Friction: `scopeEvidence()` reuses the port-evidence schema for divergence fixes, which led the worker to treat function entries as new whole-function completion claims and stop packaging a completed repair.
+- Outcome: the packet identifies each affected function and explicitly limits its source review to the callback repair. It retains `kind: divergence-fix`; the coordinator records no new whole-source completion for it. No blocked recipe was fabricated and no validation rule changed.
