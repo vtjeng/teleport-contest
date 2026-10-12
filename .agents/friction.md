@@ -231,3 +231,23 @@ triage decisions or fix references.
   its whole asynchronous port remains a separate combat delivery. All 137
   combined focused tests, lint, and quality checks pass. No pending combat
   source is required by this candidate.
+
+### 2026-10-12 — petrification caller suspension broke level creation
+
+- Context: exact candidate `d6378edad` and hosted checkpoint `38247549364`.
+- Friction: the new `newcham` caller yielded a dynamic import even when
+  `mselftouch` immediately returned without effects. The focused checks did
+  not include synchronous monster creation and theme-room contracts.
+- Outcome: the hosted gate passed all 44 fixed sessions and 1,967 recordings
+  but failed 14 tests. Saved every failed shard log and the failed summary;
+  requested a bounded C correction for the synchronous guard path and the
+  obsolete pit refusal test. Saved synthetic results show two completed v51
+  cases and no losses across 1,540 cases, but acceptance waits for the retry.
+  A read-only preview found the same unconditional suspension in the pending
+  combat delivery's `possibly_unwield` caller and queued a separate correction.
+- Correction: C's `76e877018` keeps the post-armor corpse guard synchronous
+  and updates the pit assertion to verify death before damage RNG. All four
+  affected test files pass. The submit tool rejected exact Main as a correction
+  base because the original assignment used another branch's ancestry. C
+  preserves both histories with an ancestry merge whose tree equals the exact
+  Main candidate, then reapplies only the two-file correction for submission.

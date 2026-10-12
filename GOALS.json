@@ -286447,7 +286447,7 @@
                 "source": "steal.c:steal -> trap.c:minstapetrify; corpse theft petrifies the nonresistant nymph"
               }
             ],
-            "checkedAt": "c28103bd01d6e4d331777ec811b5c7980d29d2d6"
+            "checkedAt": "b398e65479958c3f027fae99a1ecfaa91fa5c8ef"
           },
           {
             "name": "mselftouch",
@@ -286494,7 +286494,7 @@
               "recordings/trap.c/mintrap-pit-independent.session.json"
             ],
             "synthetic": [],
-            "checkedAt": "c28103bd01d6e4d331777ec811b5c7980d29d2d6"
+            "checkedAt": "b398e65479958c3f027fae99a1ecfaa91fa5c8ef"
           }
         ],
         "entryPointReview": "The recorder build includes all reviewed call sites. Positive minstapetrify behavior is covered through two active production paths: hero cockatrice contact via uhitm.c:mhitm_ad_ston and cockatrice-corpse theft via steal.c:steal. mselftouch production reachability is covered through mon.c:newcham and trap.c:mintrap pit fall by independent matching recordings; both take the documented no-wielded-corpse guard. The direct dothrow.c:hurtle_step, mhurtle_step, and thitmonst bindings are all source-ordered and dynamically exercised by scripts/dothrow.test.mjs, which checks hero-credit, byplayer=false statue, and engulfed-corpse cleanup behavior. Those caller functions are not claimed complete, and no separate recorded play is claimed for their bindings. The mselftouch active corpse-contact branch is source-reviewed but was not reached by the retained recordings.",
