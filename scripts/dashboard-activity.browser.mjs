@@ -16,6 +16,29 @@ try {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   assert.equal((await page.goto(url)).status(), 200);
+  const excludedCases = await page.evaluate(() => challengeCases
+    .filter(item => challengeExclusion(item))
+    .map(item => ({ name: item.title || item.id, reason: challengeExclusion(item).reason })));
+  if (excludedCases.length) {
+    const sessionNames = () => page.locator('#challengeTable tbody tr').evaluateAll(rows =>
+      rows.map(row => row.cells[0]?.innerText.split('\n')[0]));
+    const pending = await sessionNames();
+    for (const item of excludedCases) assert.ok(!pending.includes(item.name), item.name);
+    const showAll = page.locator('#sessionShowAll');
+    await showAll.focus();
+    await showAll.press('Space');
+    const all = await sessionNames();
+    for (const item of excludedCases) assert.ok(all.includes(item.name), item.name);
+    const excludedRows = page.locator('#challengeTable tbody tr').filter({ hasText: 'Excluded' });
+    assert.equal(await excludedRows.count(), excludedCases.length);
+    await excludedRows.first().locator('summary').click();
+    assert.ok((await excludedRows.first().innerText()).includes(excludedCases[0].reason));
+    await showAll.focus();
+    await showAll.press('Space');
+    assert.ok(await showAll.evaluate(element => document.activeElement === element));
+    assert.equal(await excludedRows.count(), 0);
+    console.log('Excluded cases: hidden from pending work, available with raw scores and reasons, keyboard toggle passed.');
+  }
   const plot = page.locator('#timeline');
   const readout = page.locator('#timelineReadout');
   await plot.evaluate(element => window.scrollTo(0, scrollY + element.getBoundingClientRect().top - 450));
@@ -39,6 +62,26 @@ try {
   if (await prep.count()) {
     await prep.click();
     assert.match(await readout.innerText(), /Synthetic local holdout v\d+/u);
+  }
+  // Exercise a recovered historical endpoint when the preview contains one.
+  // These rows are history, not bars claiming measured publication work.
+  const recovered = await page.evaluate('DATA.activity.tasks.filter(task => task.publicationKnownBy).map(task => task.label).reverse()');
+  for (const label of recovered) {
+    const bar = page.locator('.activity-bar');
+    const index = await bar.evaluateAll((bars, name) => bars.findIndex(element => element.getAttribute('aria-label')?.includes(name)), label);
+    if (index < 0) continue;
+    await bar.nth(index).click();
+    const beforeHistory = await plot.boundingBox(), beforeScroll = await page.evaluate(() => scrollY);
+    const publication = readout.getByRole('button', { name: /Publication · duration unknown/u });
+    assert.equal(await publication.count(), 1);
+    assert.match(await readout.innerText(), /Published by[\s\S]*exact time unknown/u);
+    await publication.evaluate(element => element.focus({ preventScroll: true }));
+    await publication.press('Enter');
+    assert.match(await publication.innerText(), /duration unknown · selected/u);
+    assert.deepEqual(await plot.boundingBox(), beforeHistory);
+    assert.equal(await page.evaluate(() => scrollY), beforeScroll);
+    console.log('Recovered publication: known-by timestamp, unknown duration and stable keyboard selection passed.');
+    break;
   }
   // Include a narrow phone width: fixed percentage columns must not overflow.
   for (const width of [1440, 900, 600, 390, 320]) {

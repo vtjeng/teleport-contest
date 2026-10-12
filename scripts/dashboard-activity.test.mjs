@@ -132,6 +132,28 @@ test('integration closes a resumed worker interval even without a second ready e
   assert.ok(segments.filter(row => row.task === 'A117').every(row => !row.ongoing));
 });
 
+test('recovered publication closes task history without adding invented Main work', () => {
+  // Acceptance at minute 3 and a known-public bound at 8 do not establish
+  // five minutes of publication work, nor publication continuing to minute 10.
+  const at = minute => `2026-10-10T10:${String(minute).padStart(2, '0')}:00Z`;
+  const activity = activityFromLedger({ runId: 'loop-20260925', events: [
+    { id: 'assign', type: 'assign', task: 'C1', worker: 'C', at: at(0) },
+    { id: 'ready', type: 'ready', task: 'C1', at: at(1) },
+    { id: 'merge', type: 'integrating', task: 'C1', at: at(2) },
+    { id: 'accept', type: 'accepted', task: 'C1', at: at(3) },
+    { id: 'recover', type: 'publication-confirmed', task: 'C1', knownBy: at(8), at: at(9) },
+  ] });
+  assert.equal(activity.events.at(-1).knownBy, at(8));
+  const result = activityTimeline(activity, at(10));
+  assert.equal(result.tasks[0].status, 'published');
+  assert.equal(result.tasks[0].publicationKnownBy, at(8));
+  assert.equal(result.tasks[0].publishedAt, null);
+  const publications = result.segments.filter(row => row.phase === 'publication');
+  assert.deepEqual(publications.map(row => [row.start, row.end, row.durationUnknown]), [[at(8), at(8), true]]);
+  assert.ok(result.stages.every(row => row.phase !== 'publication'),
+    'an unknown duration cannot count as measured publication utilization');
+});
+
 test('agent stages prefer active work over queued deliveries and reset stale blocked reports', () => {
   // A1 is pending while A2 works; A2 reports a block, then resumes without an active turn.
   const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;

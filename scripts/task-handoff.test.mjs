@@ -4,6 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { parseHandoffArgs, publishTask, reviewTask } from './task-handoff.mjs';
 import { createLedger, recordEvent, summarizeLedger } from './worker-state.mjs';
 import { corpusDigest, digest, totalsFor } from './challenge-results.mjs';
@@ -181,6 +182,12 @@ test('publication generates reports, checks them before push, records exact remo
     const report = publishTask(f.options, f.root, f);
     assert.equal(f.git('ls-remote', 'origin', 'refs/heads/main').split(/\s/)[0], report.commit);
     assert.equal(f.state().deliveries[f.candidate].publishedCommit, report.commit);
+    assert.equal(f.state().deliveries[f.baseline].publishedCommit, report.commit,
+        'one push confirms every earlier accepted delivery it includes');
+    assert.equal(f.state().deliveries[f.baseline].publishedAt, undefined,
+        'an older missing first-push time is not rewritten as the latest push time');
+    assert.equal(f.state().deliveries[f.baseline].publicationKnownBy,
+        f.state().deliveries[f.candidate].publishedAt);
     assert.equal(report.next.workers[0].action, 'resume');
     const snapshot = JSON.parse(readFileSync(join(f.root, 'dashboard-snapshot.json'), 'utf8'));
     assert.equal(snapshot.development.executionCommit, f.candidate);
@@ -190,6 +197,43 @@ test('publication generates reports, checks them before push, records exact remo
     publishTask(f.options, f.root, f); // Published retries only check CI and summarize next work.
     assert.equal(f.git('rev-list', '--count', 'HEAD'), count);
     assert.equal(f.calls.filter(call => call.commit === report.commit).length, 2);
+});
+
+test('publication reconciliation previews without writes, applies once, and leaves unmerged work pending', t => {
+    const f = fixture(t); f.accept();
+    // An accepted side-branch delivery is not included in Main's later push.
+    f.git('switch', '-qc', 'unmerged-fixture', f.baseline);
+    f.git('commit', '--allow-empty', '-qm', 'Unmerged fixture delivery');
+    const unmerged = f.git('rev-parse', 'HEAD');
+    f.git('switch', '-q', 'main');
+    f.send({ type: 'assign', task: 'A2', worker: 'A', goal: 'A2', seed: null, base: f.baseline,
+        reservations: ['source:fixture.c:A2'], allowedPaths: ['js/fixture.js'] });
+    f.send({ type: 'ready', task: 'A2', base: f.baseline, delivery: unmerged, commits: [unmerged],
+        paths: ['js/fixture.js'], evidence: join(f.root, '.cache/evidence.json'), dependencies: [] });
+    f.send({ type: 'integrating', task: 'A2', integration: unmerged });
+    f.send({ type: 'validated', task: 'A2', passed: true, checkpoint: f.candidateCheckpoint });
+    f.send({ type: 'accepted', task: 'A2' });
+    f.git('push', '-q', 'origin', `${f.candidate}:refs/heads/main`);
+    f.send({ type: 'published', task: 'A1', commit: f.candidate });
+    const script = fileURLToPath(new URL('./worker-state.mjs', import.meta.url));
+    const args = [script, 'reconcile-publications', '--file', f.options.ledger];
+    const run = (extra = []) => JSON.parse(execFileSync(process.execPath, [...args, ...extra],
+        { cwd: f.root, encoding: 'utf8' }));
+    const before = readFileSync(join(f.root, f.options.ledger), 'utf8');
+    assert.deepEqual(run().events.map(event => event.task), ['A0']);
+    assert.equal(readFileSync(join(f.root, f.options.ledger), 'utf8'), before);
+    assert.equal(run(['--apply']).count, 1);
+    assert.equal(f.state().deliveries[f.baseline].publishedCommit, f.candidate);
+    assert.equal(f.state().deliveries[unmerged].publishedCommit, undefined);
+    assert.equal(run(['--apply']).count, 0, 'an applied repair is not repeated');
+    const after = readFileSync(join(f.root, f.options.ledger), 'utf8');
+    const forged = { id: 'forged-publication-bound', type: 'publication-confirmed', task: 'A2',
+        commit: f.candidate, knownBy: f.state().deliveries[f.candidate].publishedAt, evidenceTask: 'A1' };
+    assert.throws(() => execFileSync(process.execPath, [script, 'event', '--file', f.options.ledger,
+        '--json', JSON.stringify(forged)], { cwd: f.root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }),
+    /publication evidence must contain the accepted integration/);
+    assert.equal(readFileSync(join(f.root, f.options.ledger), 'utf8'), after,
+        'a publication claim for an unmerged integration leaves the ledger unchanged');
 });
 
 test('dirty implementation and unsafe report contents never reach remote Main', t => {
