@@ -283190,7 +283190,7 @@
     {
       "id": "div-inventtype-null-title-v48-20261012",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "open",
       "summary": "Preserve the unset title in the inventory-type menu",
       "cFile": "invent.c",
       "sessions": [],
@@ -283222,7 +283222,7 @@
         }
       },
       "activeStanding": {
-        "sha": "50a39b94d0ec3785717011e652bd75a1ed47941a",
+        "sha": "c464879ca8bcec43ae5cd3355abd0aa2f935bffe",
         "screens": 11405,
         "rng": 792838
       },
