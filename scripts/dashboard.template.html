@@ -288,22 +288,9 @@ summary:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 4
 .goal-symbol { display: inline-block; width: 1em; text-align: center; }
 .goal-symbol.active { color: var(--goal-in-progress); }
 .goal-symbol.paused { color: var(--goal-paused); }
-.verification-help { position: relative; }
-.verification-help summary { list-style: none; }
-.verification-help summary::-webkit-details-marker { display: none; }
-.verification-help summary::after { content: '?'; display: inline-grid; place-items: center;
-  width: 12px; height: 12px; margin-left: 4px; border: 1px solid currentColor; border-radius: 50%;
-  font: 600 10px/1 'Inter', sans-serif; vertical-align: middle; }
-.verification-help p { position: absolute; right: 0; top: calc(100% + 8px); z-index: 3;
-  width: min(280px, calc(100vw - 64px)); padding: 12px; border: 1px solid var(--baseline);
-  border-radius: 4px; background: var(--surface-card); color: var(--ink-primary);
-  font: 12px/1.5 'Inter', system-ui, sans-serif; text-align: left; text-transform: none;
-  letter-spacing: normal; box-shadow: 0 4px 12px var(--border); }
 #sourceWorkTable th { text-align: right; border-right: 0; left: auto; z-index: 1; }
 #sourceWorkTable .source-heading { text-align: left; left: 0; border-right: 1px solid var(--border); z-index: 3; }
 #sourceWorkTable .goals-heading { text-align: center; border-bottom: 0; padding-bottom: 0; }
-#sourceWorkTable .verification-heading { z-index: 4; border-bottom: 0; padding-bottom: 0; border-left: 1px solid var(--border); }
-#sourceWorkTable .verification-count { border-left: 1px solid var(--border); }
 code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
 
 /* --- Legend --- */
@@ -975,8 +962,8 @@ canvas {
 </div>
 
 <details class="section" id="remainingWorkDisclosure">
-  <summary><h3 class="section-title" id="remainingWorkTitle">Remaining source work</h3></summary>
-  <p class="subtitle">Unfinished scope deferred by the coordinator. This status does not mean a worker was interrupted; each record gives its remaining-work reason.</p>
+  <summary><h3 class="section-title" id="remainingWorkTitle">Parked goals</h3></summary>
+  <p class="subtitle">Recorded deferrals, not current worker activity or whole-source coverage.</p>
   <label class="challenge-filter">Filter <input type="search" id="remainingWorkFilter" placeholder="Goal or blocker"></label>
   <div class="chart-wrap" id="remainingWorkList"></div>
 </details>
@@ -1207,16 +1194,13 @@ document.getElementById('stats').innerHTML = [
     owners.forEach(owner => {
       if (!files.has(owner)) {
         files.set(owner, { sourceFile: owner, goalsClosed: 0,
-          active: 0, paused: 0, queued: 0, units: new Map() });
+          active: 0, paused: 0, queued: 0 });
       }
       const file = files.get(owner);
       if (goal.status === 'closed') file.goalsClosed += 1;
       if (goal.status === 'open') file.active += 1;
       if (goal.status === 'parked') file.paused += 1;
       if (goal.status === 'queued') file.queued += 1;
-      goal.units.filter(unit => (unit.sourceFile || goal.sourceFile) === owner)
-        .forEach(unit => file.units.set(unit.name,
-          Boolean(file.units.get(unit.name) || unit.verified)));
     });
   });
   const table = document.getElementById('sourceWorkTable');
@@ -1239,20 +1223,15 @@ document.getElementById('stats').innerHTML = [
   document.getElementById('sourceWorkLegend').innerHTML = states.map(state =>
     '<span class="legend-item">' + symbol(state) + ' ' + state.label + '</span>').join('');
   let html = '<thead><tr><th scope="col" rowspan="2" class="source-heading">Source file</th>'
-    + '<th scope="colgroup" colspan="' + states.length + '" class="goals-heading">Goals</th>'
-    + '<th scope="colgroup" colspan="2" class="verification-heading"><details class="verification-help"><summary>Functions / programs</summary>'
-    + '<p><strong>Verified:</strong> listed functions or programs with recorded source review, caller checks, and validation evidence.<br><br><strong>Listed:</strong> distinct C functions or whole Lua programs named in this file’s goals. 0 means those goals’ lists are empty.</p>'
-    + '</details></th></tr><tr>'
+    + '<th scope="colgroup" colspan="' + states.length + '" class="goals-heading">Tasks</th></tr><tr>'
     + states.map(state => '<th scope="col" aria-label="' + state.label + '" title="' + state.label + '">'
       + symbol(state) + '</th>').join('')
-    + '<th scope="col" class="verification-count">Verified</th><th scope="col">Listed</th></tr></thead><tbody>';
+    + '</tr></thead><tbody>';
   sorted.forEach(file => {
-    const verified = [...file.units.values()].filter(Boolean).length;
     html += '<tr' + (file.active ? ' class="in-progress"' : '') + '>'
       + '<td>' + esc(file.sourceFile) + '</td>'
       + states.map(state => '<td' + (file[state.key] ? '' : ' aria-label="0"') + '>' + (file[state.key] || '') + '</td>').join('')
-      + '<td class="verification-count' + (verified ? '' : ' zero') + '">' + verified + '</td>'
-      + '<td' + (file.units.size ? '' : ' class="zero"') + '>' + file.units.size + '</td></tr>';
+      + '</tr>';
   });
   table.innerHTML = html + '</tbody>';
 })();
@@ -1992,7 +1971,7 @@ document.getElementById('stats').innerHTML = [
         : stamp(row.publishedAt)) + '</td></tr>').join('') + '</tbody>';
 })();
 
-// --- Unfinished source scope, separate from worker activity ---
+// --- Parked goal history, separate from current worker activity ---
 (function() {
   const goals = (DATA.workGoals || []).filter(goal => goal.status === 'parked');
   const list = document.getElementById('remainingWorkList');
@@ -2000,16 +1979,14 @@ document.getElementById('stats').innerHTML = [
   const esc = value => String(value ?? '').replace(/&/g, '&amp;')
     .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   document.getElementById('remainingWorkTitle').textContent
-    = 'Remaining source work · ' + goals.length;
+    = 'Parked goals · ' + goals.length;
   function render() {
     const query = String(filter.value ?? '').toLowerCase().trim();
     const rows = goals.filter(goal => !query || (goal.id + ' ' + goal.parkedReason)
       .toLowerCase().includes(query));
     list.innerHTML = rows.length ? rows.map(goal => {
-      const remaining = (goal.units || []).filter(unit => !unit.verified).map(unit => unit.name);
       return '<details><summary>' + esc(goal.id) + '</summary><p>'
         + esc(goal.parkedReason || 'No remaining-work reason recorded.') + '</p>'
-        + (remaining.length ? '<p>Unverified functions: ' + esc(remaining.join(', ')) + '</p>' : '')
         + '</details>';
     }).join('') : '<p class="table-note">No matching source goals.</p>';
   }

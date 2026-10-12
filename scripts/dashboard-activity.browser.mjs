@@ -16,6 +16,21 @@ try {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   assert.equal((await page.goto(url)).status(), 200);
+  const sourceHistory = page.locator('#sourceWorkDisclosure');
+  await sourceHistory.locator('summary').first().click();
+  if (await page.locator('#sourceWorkTable').count()) {
+    const headings = await page.locator('#sourceWorkTable thead').innerText();
+    assert.match(headings, /Tasks/iu);
+    assert.doesNotMatch(headings, /Verified|Listed|Functions \/ programs/iu);
+  }
+  await sourceHistory.locator('summary').first().focus();
+  await sourceHistory.locator('summary').first().press('Enter');
+  assert.equal(await sourceHistory.evaluate(element => element.open), false,
+    'source history remains keyboard-accessible without the removed coverage help');
+  const parked = page.locator('#remainingWorkDisclosure');
+  await parked.locator('summary').first().click();
+  assert.doesNotMatch(await parked.innerText(), /Unverified functions|Remaining source work/u);
+  await parked.locator('summary').first().click();
   const excludedCases = await page.evaluate(() => challengeCases
     .filter(item => challengeExclusion(item))
     .map(item => ({ name: item.title || item.id, reason: challengeExclusion(item).reason })));

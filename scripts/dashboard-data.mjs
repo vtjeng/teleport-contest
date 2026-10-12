@@ -6,7 +6,7 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { completedSourceUnits, sourceUnits, sourceUnitKey } from './port-evidence.mjs';
+import { sourceUnits } from './port-evidence.mjs';
 import { readRows, standing } from './score-log.mjs';
 import { challengeDashboard } from './challenge-results.mjs';
 import { challengeDashboardPayload } from './dashboard-payload.mjs';
@@ -266,25 +266,13 @@ function goalNameFromNote(note) {
   return note.split(/[.;]/)[0].slice(0, 50);
 }
 
-// GOALS.json remains the source for scope and completion evidence. Worker
+// GOALS.json remains the source for task scope and history. Worker
 // activity comes only from the published ledger snapshot.
 const goalRecords = new Map();
 if (existsSync('GOALS.json')) {
   for (const record of JSON.parse(readFileSync('GOALS.json', 'utf8')).goals) {
     goalRecords.set(record.id, record);
   }
-}
-
-function completionCounts(record) {
-  const functions = sourceUnits(record);
-  const verified = new Set(completedSourceUnits(record).map(entry => sourceUnitKey(record, entry)));
-  return {
-    functionsDeclared: functions.filter((entry) => entry.declared ?? entry.ported).length,
-    functionsVerified: verified.size,
-    functionsTotal: functions.length,
-    units: functions.map((entry) => ({ name: entry.name, sourceFile: entry.sourceFile,
-      verified: verified.has(sourceUnitKey(record, entry)) })),
-  };
 }
 
 // Current work follows the register, independently of historical commit names.
@@ -298,7 +286,7 @@ const workGoals = [...goalRecords.values()]
     parkedReason: record.parkedReason ?? null,
     supersededBy: record.supersededBy ?? null,
     supersededReason: record.supersededReason ?? null,
-    units: completionCounts(record).units,
+    units: sourceUnits(record).map(entry => ({ name: entry.name, sourceFile: entry.sourceFile })),
   }));
 
 // --- Saved screen measurements, including spans and divergence fixes ---

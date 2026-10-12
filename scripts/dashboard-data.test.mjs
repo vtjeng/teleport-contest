@@ -924,9 +924,8 @@ function sourceFileRows(table) {
     }).filter(([file]) => file !== undefined));
 }
 
-test('source ports deduplicate overlapping C units and include whole Lua programs', () => {
-    // The two C goals overlap on test_move. Its older verified evidence must
-    // remain counted when the later goal lists it without new verification.
+test('source history counts tasks without presenting whole-function certification', () => {
+    // Overlapping C units and a Lua program remain scope metadata, not a coverage denominator.
     const ports = [
         { id: 'movement-first', sourceFile: 'hack.c', status: 'closed',
             units: [{ name: 'test_move', verified: true }, { name: 'moverock', verified: true }],
@@ -945,13 +944,10 @@ test('source ports deduplicate overlapping C units and include whole Lua program
             spansClosed: 0, spansTotal: 0, screensDelivered: null },
     ];
     const table = renderDashboard(sourceDashboardData(ports)).get('sourceWorkTable').innerHTML;
-    // Three distinct C units, two verified, across two goals; summing the
-    // goals' unit counts would incorrectly report four units.
-    assert.deepEqual(sourceFileRows(table).get('hack.c'), ['1', '', '1', '2', '3']);
-    assert.deepEqual(sourceFileRows(table).get('Arc-loca.lua'), ['', '', '1', '1', '1']);
-    assert.deepEqual(sourceFileRows(table).get('options.c'), ['', '1', '', '0', '1']);
-    assert.match(table, /<summary>Functions \/ programs<\/summary>/u);
-    assert.match(table, /<strong>Listed:<\/strong> distinct C functions or whole Lua programs/u);
+    assert.deepEqual(sourceFileRows(table).get('hack.c'), ['1', '', '1']);
+    assert.deepEqual(sourceFileRows(table).get('Arc-loca.lua'), ['', '', '1']);
+    assert.deepEqual(sourceFileRows(table).get('options.c'), ['', '1', '']);
+    assert.doesNotMatch(table, /Verified|Listed|Functions \/ programs/u);
 });
 
 test('source inventory includes fixes and parked goals without a live-work panel', () => {
@@ -973,9 +969,9 @@ test('source inventory includes fixes and parked goals without a live-work panel
     const rendered = renderDashboard(sourceDashboardData(work));
     const table = rendered.get('sourceWorkTable').innerHTML;
     assert.match(table, /class="in-progress"><td>fountain\.c<\/td>/u);
-    assert.deepEqual(sourceFileRows(table).get('fountain.c'), ['1', '1', '1', '1', '1']);
+    assert.deepEqual(sourceFileRows(table).get('fountain.c'), ['1', '1', '1']);
     assert.match(table, /class="in-progress"><td>dog\.c<\/td>/u);
-    assert.deepEqual(sourceFileRows(table).get('dog.c'), ['1', '', '', '0', '0']);
+    assert.deepEqual(sourceFileRows(table).get('dog.c'), ['1', '', '']);
     assert.doesNotMatch(rendered.get('stats').innerHTML, /Source-port|Goals closed|Goal selection/u);
 });
 
@@ -987,7 +983,7 @@ test('queued goals remain visible in the source inventory', () => {
         const rendered = renderDashboard(sourceDashboardData(work));
         if (work.length) {
             assert.deepEqual(sourceFileRows(rendered.get('sourceWorkTable').innerHTML).get('dog.c'),
-                ['', '', '1', '', '0', '0']); // Only the queued column counts this goal.
+                ['', '', '1', '']); // Only the queued column counts this goal.
             assert.match(rendered.get('sourceWorkLegend').innerHTML, /Queued/u);
         }
     }
@@ -1175,6 +1171,6 @@ test('source work attributes required units to their own file without name colli
         units: [{ name: 'helper', sourceFile: 'primary.c', verified: true },
             { name: 'helper', sourceFile: 'foreign.c', verified: false }] }]));
     const rows = sourceFileRows(rendered.get('sourceWorkTable').innerHTML);
-    assert.deepEqual(rows.get('primary.c'), ['1', '', '', '1', '1']);
-    assert.deepEqual(rows.get('foreign.c'), ['1', '', '', '0', '1']);
+    assert.deepEqual(rows.get('primary.c'), ['1', '', '']);
+    assert.deepEqual(rows.get('foreign.c'), ['1', '', '']);
 });
