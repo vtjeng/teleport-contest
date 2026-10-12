@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first steed.c:mount_steed; Mount a tame pony with cursed saddle; later dismount/cursed saddle path differs from ordinary mount control.. Required state/action history: Knight wishes cursed saddle, creates tame pony, applies saddle from observed square, then rides.. Target observation: C mount/dismount refusal or bucking caused by cursed saddle state..",
+  "segments": [
+    {
+      "seed": 52001008,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          \u0017cursed saddle\ni          i          #wizgenesis\ntame pony\n         #wizmap\naib          #wizmap\n#ride\nby          #wizmap\n"
+    }
+  ]
+}

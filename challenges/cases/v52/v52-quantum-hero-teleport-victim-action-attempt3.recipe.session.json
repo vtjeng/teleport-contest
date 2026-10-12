@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first uhitm.c:mhitm_ad_tlpt; Hero quantum-mechanic AD_TLPT uses u_teleport_mon on defender and disappearance messaging.. Required state/action history: Become quantum mechanic, unwield weapon, force hit on nearby ordinary monster.. Target observation: C victim suddenly disappears and relocates from hero contact..",
+  "segments": [
+    {
+      "seed": 52001006,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #polyself\nquantum mechanic\n                    #wizgenesis\nhostile ogre\n         #wizmap\nw-          Fu          Fu          Fu          Fu          Fu          "
+    }
+  ]
+}

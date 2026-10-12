@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pray.c:fix_worst_trouble; TROUBLE_BLIND branch calls make_blinded; C forced pleased prayer allows bounded minor-trouble repair search. Source-proven aligned altar/unicorn of different alignment gives adjalign(5) in pray.c:eval_offering1932-1940, permitting minor-trouble repair instead of initial low-alignment action1. Observed unicorn corpse fell to altar floor; floorfood sacrifice query now answered yes before forced successful prayer.. Quaff observed cursed blindness potion, place neutral altar, pray and accept debug forced success.",
+  "segments": [
+    {
+      "seed": 52001002,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          \u0017cursed potion of blindness\ni qo          \u0017neutral altar\n          #pray\ny y          \u0017white unicorn corpse\n          i          #offer\ny          #pray\ny y          m.          m.          m.          #pray\ny y          m.          m.          m.          #pray\ny y          m.          m.          m.          "
+    }
+  ]
+}

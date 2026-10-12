@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mhitu.c:passiveum; Floating-eye passive AD_PLYS sees monster reflection and returns without paralyzing monster.. Required state/action history: Become floating eye; gain cold resistance before waiting for nearby silver dragon physical attack.. Target observation: C reflected gaze message; attacker not frozen, unlike unreflected counter-gaze..",
+  "segments": [
+    {
+      "seed": 52001004,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          \u0017blessed ring of cold resistance\ni"
+    }
+  ]
+}

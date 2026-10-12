@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c:use_bell; Ordinary cursed bell creates a nymph through rn2(4)==0, contrasting the earlier no-summon target miss.. Required state/action history: Wish cursed ordinary bell; apply bounded times after observed inventory slot.. Target observation: C shrill ringing followed by a nymph creation/message..",
+  "segments": [
+    {
+      "seed": 52001001,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed bell\ni"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mhitu.c:passiveum AD_ACID2477-2478 -> uhitm.c:erode_armor. Acid-blob hero removes cloak and receives bounded80turn attacks from brown pudding, whose AD_DCAY0damage and MR_ACID preserve both actors. Target C rn2(30)==0 followed by erode_armor rn2(5) selects armor even if none is worn.",
+  "segments": [
+    {
+      "seed": 52002801,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          Tb          #polyself\nacid blob\n                    #wizgenesis\nhostile brown pudding\n          #wizmap\nm.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          "
+    }
+  ]
+}

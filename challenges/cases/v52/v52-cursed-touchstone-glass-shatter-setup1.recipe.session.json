@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c:use_stone; cursed touchstone destroys non-graystone gem via obj_resists80. Wizard rubs white glass on cursed touchstone. Inventory scout.",
+  "segments": [
+    {
+      "seed": 52002401,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed touchstone\n          \u00172 worthless pieces of white glass\n          i          "
+    }
+  ]
+}

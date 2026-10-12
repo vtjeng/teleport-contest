@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first eat.c:cpostfx PM_SMALL_MIMIC mounted branch -> steed.c:dismount_steed DISMOUNT_FELL. Knight mounts tame pony with cursed saddle, wishes fresh small mimic corpse; inventory scout chooses independent eating action. C inventory identifies fresh corpse as j, eat after completed mount setup.",
+  "segments": [
+    {
+      "seed": 52001008,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          \u0017cursed saddle\ni          i          #wizgenesis\ntame pony\n         #wizmap\naib          #wizmap\n#ride\nby          #wizmap\n\u0017uncursed small mimic corpse\n          i          ej          m.          m.          m.          m.          m.          "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mhitu.c:gulpmu; Engulfer plucks mounted hero from saddle and calls steed.c:dismount_steed DISMOUNT_ENGULFED.. Required state/action history: Knight saddles tame pony with uncursed saddle, mounts, creates nearby hostile purple worm and waits bounded turns.. Target observation: C plucks hero from steed then swallows hero; steed is placed back on map..",
+  "segments": [
+    {
+      "seed": 52001009,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Knight,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed saddle\ni          i"
+    }
+  ]
+}

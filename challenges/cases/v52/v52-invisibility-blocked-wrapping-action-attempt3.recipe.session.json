@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first potion.c:peffect_invisibility; Mummy wrapping blocks timed invisibility while potion still establishes intrinsic timeout.. Required state/action history: Replace cloak with mummy wrapping and quaff observed invisibility potion; later remove wrapping.. Target observation: C potion message/visible hero while wrapped; removal exposes active invisibility..",
+  "segments": [
+    {
+      "seed": 52001007,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed mummy wrapping\n\u0017uncursed potion of invisibility\ni          i Tb          Wp          qf          Tp          "
+    }
+  ]
+}

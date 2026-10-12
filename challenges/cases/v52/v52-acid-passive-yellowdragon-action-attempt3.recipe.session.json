@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mhitu.c:passiveum AD_ACID. Material variation from zero-damage brown pudding: acid-resistant yellow dragon has real physical damage, enabling passiveum; ochre-jelly hero and finite20full-healing potions raise formHP before attacks. Source hitmu calls passiveum only for nonzero damage. Inventory scout. C observed healing stack o; quaff20potions, generate yellow dragon and wait20forced rests. All inputs selected independently from Csource/state.",
+  "segments": [
+    {
+      "seed": 52002801,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          Tb          #polyself\nochre jelly\n                    \u001720 blessed potions of full healing\n          i                    qo          qo          qo          qo          qo          qo          qo          qo          qo          qo          qo          qo          qo          qo          qo          qo          qo          qo          qo          qo          #wizgenesis\nhostile yellow dragon\n          #wizmap\nm.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          "
+    }
+  ]
+}

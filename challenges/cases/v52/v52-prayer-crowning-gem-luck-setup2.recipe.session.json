@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pray.c:pleased1339-1345 crowning gcrownu805. Neutral hero establishes PIOUS through differently aligned unicorn offerings on coaligned altar; coaligned gray unicorn accepts identified valuable gems for+5Luck (dothrow.c:gem_accept2331), two gifts enable crowning random branch. Inventory/monster-location scout before independent throws. C hero42,16/unicorn42,17 -> throw identified diamond o south j; regenerate independent coaligned recipient after Cteleport and inspect actual second position.",
+  "segments": [
+    {
+      "seed": 52003001,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l          \u00173 uncursed diamonds\n          #wizidentify\n                    #wizgenesis\npeaceful gray unicorn\n          #wizmap\ntoj          #wizgenesis\npeaceful gray unicorn\n          #wizmap\n"
+    }
+  ]
+}

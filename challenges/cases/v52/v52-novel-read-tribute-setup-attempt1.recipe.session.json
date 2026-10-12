@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first read.c:doread; SPE_NOVEL branch calls read_tribute and records literacy conduct separately from ordinary spellbook learning.. Required state/action history: Wish novel, read observed inventory slot, respond to tribute display prompts.. Target observation: C novel passage/title display and source read_tribute selection..",
+  "segments": [
+    {
+      "seed": 52001012,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017novel\ni"
+    }
+  ]
+}

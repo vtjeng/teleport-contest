@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first trap.c:drown -> emergency_disrobe4897-4944: levitating heavily loaded human removes ring over wished pool; selects/removes/drops gear until crawlable. Scout inventory before levitation and pool creation. C identifies levitation ring p and100rocks q; wear ring on left hand, create pool beneath, then remove p.",
+  "segments": [
+    {
+      "seed": 52002601,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l          \u0017uncursed ring of levitation\n          \u0017100 uncursed rocks\n          i                    Ppl          \u0017pool\n          Rp          "
+    }
+  ]
+}
