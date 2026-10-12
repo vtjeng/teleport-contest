@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47002063,
+      "datetime": "20470707070707",
+      "nethackrc": "OPTIONS=name:PolyDrainVar,role:Healer,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile kobold shaman\n#wizmap\n#polyself\nenergy vortex\n Fb Fb Fb Fb Fb Fb"
+    }
+  ],
+  "comment": "Independent hero-polyform variation for uhitm.c:gulpum's AD_DREN arm. The Healer, seed, time, and attack count differ from the admitted v47 case; a generated kobold shaman supplies the magical-attack predicate required by mhitm.c:xdrainenergym."
+}

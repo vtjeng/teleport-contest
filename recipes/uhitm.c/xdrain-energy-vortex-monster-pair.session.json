@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47001065,
+      "datetime": "20570615161718",
+      "nethackrc": "OPTIONS=name:DrainPetPair,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile lichen\n#wizgenesis\nhostile lichen\n#wizgenesis\ntame energy vortex\n. . . . . . . . . . . . . . . . . . . ."
+    }
+  ],
+  "comment": "Blocked candidate recipe for monster-versus-monster AD_DREN. Wizard genesis creates two hostile lichens before a tame energy vortex, then waits for pet combat. The C route reaches uhitm.c:mhitm_ad_elec before the later AD_DREN dispatch; JavaScript still refuses the M2M electric branch, and C that branch depends on return-valued zap.c:destroy_items(mdef, AD_ELEC, orig_dmg). Do not treat the old recording as matching this recipe. Preserve this input and record a fresh differential only after those source paths are ported."
+}

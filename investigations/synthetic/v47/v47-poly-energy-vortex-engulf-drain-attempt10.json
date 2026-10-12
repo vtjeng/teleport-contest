@@ -164,12 +164,23 @@
     "The second direct-call family is whole uhitm.c:mhitm_ad_dren() at lines 2418-2442, dispatched by the AD_DREN switch arm in uhitm.c:mhitm_adtyping(). Its other production dispatch callers are mhitm.c:mdamagem(), mhitu.c:hitmu(), and uhitm.c:damageum(); each has an existing JavaScript route to uhitm.js:mhitm_adtyping().",
     "Accepted Main ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948 published B Pestilence task acceptance and released the previous source:uhitm.c:mhitm_adtyping reservation. The fresh queue SHA is 90fac9709e3b3e7fcc3c4fea739f87d074e6fd96a9fac0c6040306130ce71c6d."
   ],
-  "blocker": null,
+  "blocker": "The monster-versus-monster AD_DREN path cannot be completed or evidenced independently yet. In the required recipe, C reaches uhitm.c:mhitm_ad_elec before the later AD_DREN dispatch; its M2M branch is still refused in js/uhitm.js and calls return-valued zap.c:destroy_items(mdef, AD_ELEC, orig_dmg). Complete that M2M branch and zap.c:destroy_items path before resuming this task.",
   "evaluationUtc": "2026-10-12T00:34:31.123Z",
   "evidencePlan": [
-    "Use the admitted v47 segment 0 step 76 prefix for the successful hero engulf path and xdrainenergym(givemsg=TRUE).",
-    "Create a new C-first recipe/recording under uhitm.c for a monster-to-monster AD_DREN hit that reaches mhitm_ad_dren() and xdrainenergym(givemsg=FALSE).",
-    "Create an independent C-first recipe/recording under uhitm.c for a hostile energy vortex attacking the hero through mhitu.c:hitmu() and the hero-defender branch of mhitm_ad_dren().",
-    "Source-pinned focused tests cover the inaccessible hero-attacker m_dren branch and all helper guards without claiming a runtime producer for that attack-table combination."
-  ]
+    "The admitted v47 segment 0 step 76 prefix reaches uhitm.c:gulpum() -> mhitm.c:xdrainenergym(givemsg=TRUE); retain this source range as successful runtime evidence.",
+    "The independent xdrain-energy-vortex-hero-variation recipe/recording reaches the same helper through uhitm.c:gulpum() and passes a fresh C/JS differential.",
+    "The xdrain-energy-vortex-monster-pair recipe is retained as a blocked candidate. Its C attack reaches uhitm.c:mhitm_ad_elec before the needed AD_DREN path; do not count its stale prior recording as matching evidence. Resume only after the M2M AD_ELEC branch and zap.c:destroy_items are implemented and record a fresh C/JS match.",
+    "A separate hero-defender recipe remains exploratory and has no matching recording; it is not runtime evidence for this parked task."
+  ],
+  "implementationStatus": "parked",
+  "callerBlockers": [
+    "uhitm.c:mhitm_ad_elec monster-versus-monster branch is incomplete in js/uhitm.js. It calls return-valued zap.c:destroy_items(mdef, AD_ELEC, orig_dmg), whose result contributes to mhm.damage. This branch runs before the M2M mhitm_ad_dren call needed to prove the selected source behavior."
+  ],
+  "scopeDecision": "The helper and AD_DREN dispatch implementation are saved, but this file-port is not ready for delivery. The admitted v47 range and independent hero-polyform variation cover the xdrainenergym helper through uhitm.c:gulpum. The M2M caller still requires the preceding AD_ELEC M2M branch and its return-valued zap.c:destroy_items dependency; park until that whole source dependency is implemented and a fresh matching M2M recording passes.",
+  "m2mDiagnosis": {
+    "reproduction": "The independent pet-versus-hostile recipe failed fresh JS replay at the first monster-vs-monster electric attack; JS throws UnsupportedTurnBoundaryError for a simple monster action requiring one monster to shock another.",
+    "cSourceOrder": "mon.c:movemon_singlemon() enters fightm() for the Conflict gate; mhitm.c:fightm() calls resist_conflict(). Later, the pet attack reaches mhitm.c:mdamagem() -> uhitm.c:mhitm_adtyping(). C processes AD_ELEC before a later AD_DREN attack.",
+    "jsGap": "js/uhitm.js:mhitm_ad_elec has no M2M arm and refuses it. C uses zap.c:destroy_items(mdef, AD_ELEC, orig_dmg) return value in mhm.damage; the JS destroy_items helper currently does not cover this electric monster-vs-monster path.",
+    "taskBoundary": "This dependency is outside the current xdrainenergym/mhitm_ad_dren scope. Do not add a refusal or substitute behavior; park and resume after the M2M AD_ELEC and destroy_items source paths are complete."
+  }
 }
