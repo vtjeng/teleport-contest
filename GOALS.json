@@ -293422,7 +293422,7 @@
     {
       "id": "C-v52-emergency-disrobe-dropx-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement emergency_disrobe from trap.c",
       "cFile": "trap.c",
       "sessions": [
@@ -293432,10 +293432,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "12f580ce1848f52ff276586e2556284911109965",
       "delivered": null,
       "function": "emergency_disrobe",
-      "session": "synthetic/v52/v52-emergency-drowning-disrobe-action-attempt2"
+      "session": "synthetic/v52/v52-emergency-drowning-disrobe-action-attempt2",
+      "closeStanding": {
+        "sha": "12f580ce1848f52ff276586e2556284911109965",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "28410c7d3faaf6a81ced119bcc94e8c91d7fed36",
+        "target": "synthetic/v52/v52-emergency-drowning-disrobe-action-attempt2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/12f580ce1848f52ff276586e2556284911109965/run-hosted-WDm0yl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "emergency_disrobe",
+            "symbol": "emergency_disrobe",
+            "implementation": "js/trap.js",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "drown",
+                "source": "trap.c:drown invokes emergency_disrobe during the crawl-out path."
+              }
+            ],
+            "tests": [
+              "scripts/trap-water-damage.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-emergency-drowning-disrobe-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 142,
+                "source": "trap.c:drown -> trap.c:emergency_disrobe -> do.c:dropx -> do.c:flooreffects -> trap.c:water_damage"
+              }
+            ],
+            "sourceReview": "Bounded caller repair only: C trap.c:emergency_disrobe calls dropx(otmp) after selecting and marking the object lost, then decrements invc. JS now awaits the existing do.c:dropx port with dropCommandEnv(state) in the same order. This allows the already ported pool landing/flooreffects/water_damage path to remove the object and update later drowning behavior. This is not a whole-function completion claim for emergency_disrobe, dropx, flooreffects, or water_damage."
+          }
+        ],
+        "entryPointReview": "The admitted drowning crawl-out route reaches trap.c:drown -> emergency_disrobe -> do.c:dropx -> pool flooreffects/water_damage. The exact 143-step admitted replay now matches every screen, cursor, RNG event, and input boundary through completion; no unported calls remain. Evidence establishes this selected caller route only and does not award whole-function completion.",
+        "entryPoints": [
+          {
+            "name": "Drowning crawl-out emergency disrobe drops selected inventory object",
+            "functions": [
+              "emergency_disrobe"
+            ],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-emergency-drowning-disrobe-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 142,
+                "source": "trap.c:drown -> trap.c:emergency_disrobe -> do.c:dropx -> do.c:flooreffects -> trap.c:water_damage"
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": []
+      }
     }
   ]
 }

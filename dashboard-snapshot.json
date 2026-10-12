@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T21:06:26.403Z",
+  "capturedAt": "2026-10-12T21:15:39.622Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -98146,6 +98146,55 @@
         "type": "accepted",
         "at": "2026-10-12T21:05:40.474Z",
         "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012-98f52a1ae996875a16c7f2ed8f802341ecedcf5f",
+        "type": "published",
+        "at": "2026-10-12T21:06:39.815Z",
+        "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012",
+        "commit": "98f52a1ae996875a16c7f2ed8f802341ecedcf5f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-six-queue-cases-reserved-20261012",
+        "type": "turn",
+        "at": "2026-10-12T21:06:49.023Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "The refreshed queue has no independent case: five unresolved cases are reserved in ready deliveries, and v48 short-version remains held. Waiting for Main to integrate drowning and refresh the queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrate-drown-12f580ce1848f52ff276586e2556284911109965",
+        "type": "integrating",
+        "at": "2026-10-12T21:07:24.595Z",
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
+        "integration": "12f580ce1848f52ff276586e2556284911109965"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012-12f580ce1848f52ff276586e2556284911109965-validated",
+        "type": "validated",
+        "at": "2026-10-12T21:14:17.467Z",
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012-12f580ce1848f52ff276586e2556284911109965-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T21:14:45.863Z",
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-v48-supported-profile-check-20261012",
+        "type": "activity",
+        "at": "2026-10-12T21:15:26.999Z",
+        "task": "C-investigation-v48-short-version-command-20261012",
+        "phase": "waiting",
+        "reason": "Read-only build check confirmed that the recorder selects Linux or Darwin hints from its actual host and upstream sets MacOS PORT_ID only for Apple builds. No documented matching profile runs on this Linux host; strict version recording still requires a supported Darwin environment. Output normalization remains unapproved."
       }
     ]
   },
@@ -98206,17 +98255,6 @@
           "Prep19",
           "Prep20"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
-        "worker": "C",
-        "goal": "C-v52-emergency-disrobe-dropx-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "5d5a66529a65d434bb8246cc06c2735293a08069",
-        "since": "2026-10-12T19:17:42.090Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -98780,8 +98818,8 @@
     ]
   },
   "development": {
-    "executionCommit": "28410c7d3faaf6a81ced119bcc94e8c91d7fed36",
-    "measuredAt": "2026-10-12T21:04:30.290Z",
+    "executionCommit": "12f580ce1848f52ff276586e2556284911109965",
+    "measuredAt": "2026-10-12T21:12:18.267Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
