@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T20:31:28.618Z",
+  "capturedAt": "2026-10-12T20:49:18.696Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -97992,6 +97992,37 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Reviewing seven provisional failures and matching-control coverage after 96 preserved C attempts; all commands have finished."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v52-minetown-muse-continuation-20261012-7a3945aba38d49e800f4e56814e7e53fbeae1e50",
+        "type": "published",
+        "at": "2026-10-12T20:31:40.894Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "commit": "7a3945aba38d49e800f4e56814e7e53fbeae1e50"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-seetrap-adf2eb895f6ea37e9edcc25a154cddf8ff97b791",
+        "type": "integrating",
+        "at": "2026-10-12T20:36:00.206Z",
+        "task": "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012",
+        "integration": "adf2eb895f6ea37e9edcc25a154cddf8ff97b791"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012-adf2eb895f6ea37e9edcc25a154cddf8ff97b791-validated",
+        "type": "validated",
+        "at": "2026-10-12T20:44:49.811Z",
+        "task": "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012-adf2eb895f6ea37e9edcc25a154cddf8ff97b791-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T20:45:12.331Z",
+        "task": "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012"
       }
     ]
   },
@@ -98099,17 +98130,6 @@
         "unblocks": 0
       },
       {
-        "task": "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012",
-        "worker": "C",
-        "goal": "C-v52-muse-polymorph-trap-redraw-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "7e243d7c86f8a4ec52790acfc00d0baa27cdc00f",
-        "since": "2026-10-12T19:29:11.203Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
         "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
         "worker": "B",
         "goal": "fix-spell-novel-read-levelup-message-v52-20261012",
@@ -98156,9 +98176,7 @@
         "status": "ready",
         "delivery": "30e6e3c07c06f039188e465174c1b5a349c1dbc8",
         "since": "2026-10-12T20:14:08.627Z",
-        "blockedBy": [
-          "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -98643,8 +98661,8 @@
     ]
   },
   "development": {
-    "executionCommit": "b656ad046d1e5a1cc595197a576bae8a175ca2eb",
-    "measuredAt": "2026-10-12T20:27:07.685Z",
+    "executionCommit": "adf2eb895f6ea37e9edcc25a154cddf8ff97b791",
+    "measuredAt": "2026-10-12T20:41:29.403Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

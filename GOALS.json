@@ -293067,7 +293067,7 @@
     {
       "id": "C-v52-muse-polymorph-trap-redraw-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement use_misc from muse.c",
       "cFile": "muse.c",
       "sessions": [
@@ -293077,10 +293077,74 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "adf2eb895f6ea37e9edcc25a154cddf8ff97b791",
       "delivered": null,
       "function": "use_misc",
-      "session": "synthetic/v52/v52-monster-deliberate-polymorph-trap-action-attempt3"
+      "session": "synthetic/v52/v52-monster-deliberate-polymorph-trap-action-attempt3",
+      "closeStanding": {
+        "sha": "adf2eb895f6ea37e9edcc25a154cddf8ff97b791",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "b656ad046d1e5a1cc595197a576bae8a175ca2eb",
+        "target": "synthetic/v52/v52-monster-deliberate-polymorph-trap-action-attempt3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/adf2eb895f6ea37e9edcc25a154cddf8ff97b791/run-hosted-Lvl8Cy/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "use_misc",
+            "symbol": "use_misc",
+            "implementation": "js/muse.js",
+            "pure": false,
+            "sourceReview": "Bounded branch repair only: C muse.c:use_misc calls seetrap(t) before the visible monster-jump message. C trap.c:seetrap marks the trap known and redraws through newsym. The matching JS call now passes a state-bound newsym fallback and preserves an explicitly injected redraw owner. This does not claim whole use_misc or trap.c:seetrap completion. The later mon.c:newcham path remains unported and outside this task.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "The production monster action adapter calls find_misc then passes its selected action and environment to use_misc; C monmove.c:m_move has the corresponding find_misc/use_misc order."
+              }
+            ],
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-monster-deliberate-polymorph-trap-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 106,
+                "source": "monmove.c:m_move -> muse.c:find_misc -> muse.c:use_misc MUSE_POLY_TRAP -> trap.c:seetrap -> display.c:newsym; matching prefix ends before mon.c:newcham at step 107"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This packet attests only the bounded redraw-owner repair. The admitted replay now executes the previously throwing polymorph-trap branch and matches its recorded screens through zero-based step 106. It first diverges at step 107 while C enters select_newcham_form; JS still records note_unported('mon.c newcham'). No whole-function completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Monster deliberately enters a polymorph trap and redraws it before the jump message",
+            "functions": [
+              "use_misc"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-monster-deliberate-polymorph-trap-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 106,
+                "source": "monmove.c:m_move -> muse.c:find_misc -> muse.c:use_misc -> trap.c:seetrap -> display.c:newsym"
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": []
+      }
     }
   ]
 }
