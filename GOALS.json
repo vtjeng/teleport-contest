@@ -293997,6 +293997,34 @@
         ],
         "incompleteFunctions": []
       }
+    },
+    {
+      "id": "C-file-port-fountain-dipfountain-excalibur-v53-20261012",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement dipfountain from fountain.c",
+      "cFile": "fountain.c",
+      "sessions": [
+        "synthetic/v53/v53-knight-excalibur-fountain-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v53-knight-excalibur-fountain-action2-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dipfountain",
+          "line": 394,
+          "endLine": 557,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 394,
+        "to": 557
+      }
     }
   ]
 }
