@@ -1,0 +1,12 @@
+{
+  "comment": "Independent wizard recipe for zap.c:zhitu -> destroy_items -> maybe_destroy_item when a rebounded lightning ray hits the hero. The recipe uses its own seed, time, wished wand, gas-spore setup, inventory selection, and aim.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 12473861,
+      "datetime": "20440215121500",
+      "nethackrc": "OPTIONS=name:ShockRebound,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017wand of lightning\n\u0007gas spore\nzol"
+    }
+  ]
+}
