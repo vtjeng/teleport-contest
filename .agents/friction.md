@@ -437,3 +437,10 @@ triage decisions or fix references.
 - Friction and evidence: `register-task-goal` rejected caller metadata with `--required-functions requires a C or Lua source port`; `.cache/dismount-current-registration.json` retains the retry result.
 - Reason: normal acceptance requires the assigned goal to be registered from the received worker context, without selecting its session again.
 - Outcome: `d787c2776` restricts the port-completion option to source ports. The original immutable caller context is preserved, actual registration succeeded, and all 25 existing goal tests passed outside the sandbox. The sandbox test process exited without inner diagnostics; it did not establish a source failure. Hosted checkpoint `38306945771` passed at `d2e601976`.
+
+### 2026-10-12 — goal captions omitted the source-file fallback
+
+- Context: received acid and prayer divergence fixes registered with `register-task-goal` from worker contexts using `cFile`.
+- Friction and evidence: their source fields were correct, but their default human summaries read `Implement passiveum from undefined` and `Implement fix_worst_trouble from undefined`. The caption interpolates `context.sourceFile` without the `cFile` fallback used by source registration.
+- Reason: the public dashboard needs accurate task captions. No source-scope or completion change was needed.
+- Outcome: publication `0cb1d7e52` corrected those two captions without changing immutable context, scope, lifecycle or claims. The novel registration also uses a descriptive bounded-fix caption. The default formatter remains unchanged; future worker contexts can supply an explicit summary or sourceFile.

@@ -960,7 +960,7 @@ export async function study_book(spellbook, state = game, env = {}) {
                         ACH_NOVL, state,
                     );
                     more_experienced(20, 0, state);
-                    await newexplevel(state);
+                    await newexplevel(state, { ...env, random });
                     state.u.uevent.read_tribute = 1;
                 }
             }

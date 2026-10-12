@@ -293340,7 +293340,7 @@
       "id": "fix-mhitu-passiveum-acid-corrosion-caller-v52-20261012",
       "kind": "divergence-fix",
       "status": "closed",
-      "summary": "Implement passiveum from undefined",
+      "summary": "Repair the acid passive armor-corrosion call",
       "cFile": "mhitu.c",
       "sessions": [
         "synthetic/v52/v52-acid-passive-yellowdragon-action-attempt3"
@@ -293422,7 +293422,7 @@
     {
       "id": "C-v52-emergency-disrobe-dropx-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement emergency_disrobe from trap.c",
       "cFile": "trap.c",
       "sessions": [
@@ -293432,10 +293432,256 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "12f580ce1848f52ff276586e2556284911109965",
       "delivered": null,
       "function": "emergency_disrobe",
-      "session": "synthetic/v52/v52-emergency-drowning-disrobe-action-attempt2"
+      "session": "synthetic/v52/v52-emergency-drowning-disrobe-action-attempt2",
+      "closeStanding": {
+        "sha": "12f580ce1848f52ff276586e2556284911109965",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "28410c7d3faaf6a81ced119bcc94e8c91d7fed36",
+        "target": "synthetic/v52/v52-emergency-drowning-disrobe-action-attempt2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/12f580ce1848f52ff276586e2556284911109965/run-hosted-WDm0yl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "emergency_disrobe",
+            "symbol": "emergency_disrobe",
+            "implementation": "js/trap.js",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "drown",
+                "source": "trap.c:drown invokes emergency_disrobe during the crawl-out path."
+              }
+            ],
+            "tests": [
+              "scripts/trap-water-damage.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-emergency-drowning-disrobe-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 142,
+                "source": "trap.c:drown -> trap.c:emergency_disrobe -> do.c:dropx -> do.c:flooreffects -> trap.c:water_damage"
+              }
+            ],
+            "sourceReview": "Bounded caller repair only: C trap.c:emergency_disrobe calls dropx(otmp) after selecting and marking the object lost, then decrements invc. JS now awaits the existing do.c:dropx port with dropCommandEnv(state) in the same order. This allows the already ported pool landing/flooreffects/water_damage path to remove the object and update later drowning behavior. This is not a whole-function completion claim for emergency_disrobe, dropx, flooreffects, or water_damage."
+          }
+        ],
+        "entryPointReview": "The admitted drowning crawl-out route reaches trap.c:drown -> emergency_disrobe -> do.c:dropx -> pool flooreffects/water_damage. The exact 143-step admitted replay now matches every screen, cursor, RNG event, and input boundary through completion; no unported calls remain. Evidence establishes this selected caller route only and does not award whole-function completion.",
+        "entryPoints": [
+          {
+            "name": "Drowning crawl-out emergency disrobe drops selected inventory object",
+            "functions": [
+              "emergency_disrobe"
+            ],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-emergency-drowning-disrobe-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 142,
+                "source": "trap.c:drown -> trap.c:emergency_disrobe -> do.c:dropx -> do.c:flooreffects -> trap.c:water_damage"
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": []
+      }
+    },
+    {
+      "id": "fix-pray-blindness-caller-v52-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore the prayer blindness cure call",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v52/v52-prayer-unicorn-alignment-blindness-action-attempt9"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64",
+      "delivered": null,
+      "function": "fix_worst_trouble",
+      "session": "synthetic/v52/v52-prayer-unicorn-alignment-blindness-action-attempt9",
+      "closeStanding": {
+        "sha": "021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "12f580ce1848f52ff276586e2556284911109965",
+        "target": "synthetic/v52/v52-prayer-unicorn-alignment-blindness-action-attempt9",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64/run-hosted-lJOSl9/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "fix_worst_trouble",
+            "implementation": "js/pray.js",
+            "symbol": "fix_worst_trouble",
+            "sourceReview": "This task repairs only the TROUBLE_BLIND caller branch; it does not claim whole fix_worst_trouble completion. C pray.c:fix_worst_trouble (373-600), TROUBLE_BLIND at 555-575, clears u.ucreamed and calls make_blinded(0L,FALSE) at 566 before the optional deafness cure and composed message. JS had cleared cream but substituted note_unported('potion.c make_blinded'). The existing potion.c:make_blinded implementation is already imported in js/pray.js and clears only the timed blindness while preserving other sources; it also owns the sight-transition update. The caller now awaits it at the C source position with the same state and environment.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "pleased",
+                "source": "pray.c:pleased calls fix_worst_trouble for prayer action cases 1-5 (1139-1156); JS pleased calls at 2267-2283"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs",
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-prayer-unicorn-alignment-blindness-action-attempt9",
+                "segment": 0,
+                "fromStep": 236,
+                "throughStep": 236,
+                "source": "pray.c:pleased -> pray.c:fix_worst_trouble TROUBLE_BLIND -> potion.c:make_blinded"
+              }
+            ],
+            "sourceFile": "pray.c"
+          }
+        ],
+        "entryPointReview": "The production path is pray.c:pleased -> fix_worst_trouble(TROUBLE_BLIND). The selected v52 recording reaches the source call at segment 0, step 236 and now matches the full replay. The existing make_blinded dependency is source-checked and exercised by its existing focused test; it receives no new completion claim.",
+        "entryPoints": [
+          {
+            "name": "Prayer cures the hero's timed blindness",
+            "functions": [
+              "fix_worst_trouble"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-prayer-unicorn-alignment-blindness-action-attempt9",
+                "segment": 0,
+                "fromStep": 236,
+                "throughStep": 236,
+                "source": "pray.c:pleased -> pray.c:fix_worst_trouble TROUBLE_BLIND"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fix-spell-novel-read-levelup-message-v52-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore the novel reward's level-up message",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v52/v52-novel-read-tribute-action-attempt2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "69ca4a7e4581fca6ab57835fa512cde4f10ec2d2",
+      "delivered": null,
+      "function": "study_book",
+      "session": "synthetic/v52/v52-novel-read-tribute-action-attempt2",
+      "closeStanding": {
+        "sha": "69ca4a7e4581fca6ab57835fa512cde4f10ec2d2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64",
+        "target": "synthetic/v52/v52-novel-read-tribute-action-attempt2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/69ca4a7e4581fca6ab57835fa512cde4f10ec2d2/run-hosted-5ieS1r/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "study_book",
+            "implementation": "js/spell.js",
+            "symbol": "study_book",
+            "sourceFile": "spell.c",
+            "sourceReview": "Compared the SPE_NOVEL branch of C spell.c:study_book (468-818; novel reward around 509-535): after read_tribute succeeds, C records literacy, checks unpaid status, makes the object type known, then once awards the achievement and 20 XP, calls newexplevel(), and sets u.uevent.read_tribute. The bounded divergence was JS calling newexplevel(state) without the existing message/RNG owner from env, even though exper.js:newexplevel forwards that env to pluslvl. JS now calls newexplevel(state, { ...env, random }) at the same source point; achievement, XP, and flag order are unchanged. Verified the existing exper.c:newexplevel/pluslvl behavior; neither helper is edited or claimed complete here.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread calls study_book for SPBOOK_CLASS; js/read.js:doread passes the active ttyPline message and y_n prompt owners into js/spell.js:study_book."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/novel-level-up.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-novel-read-tribute-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 21,
+                "source": "read.c:doread -> spell.c:study_book SPE_NOVEL -> exper.c:newexplevel -> pluslvl"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted v52 replay reaches the novel through the normal doread command. Its complete 22-screen, 2,698-RNG, 22-cursor differential now matches. The focused test then places the initialized hero exactly at the next XP threshold and directly exercises study_book's tribute reward through newexplevel and pluslvl, asserting the level-up message and one-time flag. This is a branch repair only; no whole-source completion claim is made.",
+        "entryPoints": [
+          {
+            "name": "Read a novel and receive its one-time tribute experience",
+            "functions": [
+              "study_book"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-novel-read-tribute-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 21,
+                "source": "read.c:doread -> spell.c:study_book SPE_NOVEL reward branch"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "C-v52-steed-use-saddle-stoning-caller-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore petrification when saddling a cockatrice",
+      "cFile": "steed.c",
+      "sessions": [
+        "synthetic/v52/v52-saddle-cockatrice-touch-action-attempt2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_saddle",
+      "session": "synthetic/v52/v52-saddle-cockatrice-touch-action-attempt2"
     }
   ]
 }

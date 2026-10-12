@@ -1630,7 +1630,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
                 eyes = makeplural(eyes);
             msgbuf = `Your ${eyes} ${vtense(eyes, 'feel')} better`;
             state.u.ucreamed = 0;
-            note_unported('potion.c make_blinded');
+            await make_blinded(0, false, state, env);
         }
         if (cureDeaf) {
             await make_deaf(0, false, state);

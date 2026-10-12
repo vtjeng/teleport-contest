@@ -1,0 +1,54 @@
+{
+  "session": "synthetic/v52/v52-novel-read-tribute-action-attempt2",
+  "corpus": "synthetic",
+  "batch": "v52",
+  "caseId": "v52-novel-read-tribute-action-attempt2",
+  "manifestPath": "challenges/manifests/v52.json",
+  "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+  "recordingSha256": "520f0264e06e717f356079b548f9237d2b1be33aad031f4e17a6da3947a06179",
+  "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+  "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+  "remainingScreens": 22,
+  "recordedSteps": 22,
+  "status": "complete",
+  "commit": "42195423bd99f453747e4c233fb62b515ebe8dc4",
+  "mismatch": {
+    "kind": "runtime-error",
+    "corpus": "synthetic",
+    "session": "synthetic/v52/v52-novel-read-tribute-action-attempt2",
+    "sourceFile": "spell.c",
+    "cFile": "spell.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v52/v52-novel-read-tribute-action-attempt2"
+    ],
+    "remainingScreens": 22,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 0,
+    "caseId": "v52-novel-read-tribute-action-attempt2",
+    "batch": "v52",
+    "recordingPath": "challenges/cases/v52/v52-novel-read-tribute-action-attempt2.session.json",
+    "error": "pluslvl needs a message owner"
+  },
+  "summary": "Reading the novel's tribute reaches spell.c:study_book's one-time 20 XP reward. C then calls newexplevel() with the global message facility available. JavaScript calls newexplevel(state) without forwarding study_book's existing message callback, so a level-up reaches pluslvl with no message owner and aborts the replay.",
+  "source": {
+    "file": "spell.c",
+    "branch": "The SPE_NOVEL branch in study_book after read_tribute succeeds and u.uevent.read_tribute is still false: record the achievement, award more_experienced(20, 0), call newexplevel(), then set the one-time flag.",
+    "functions": [
+      "study_book"
+    ],
+    "callers": [
+      "read.c:doread -> spell.c:study_book; js/read.js:doread calls js/spell.js:study_book with message: ttyPline, prompt: y_n, and the active state.",
+      "spell.c:study_book calls exper.c:newexplevel after awarding the novel XP; JS study_book currently calls newexplevel(state) without its existing env.message owner."
+    ],
+    "dependencies": [
+      "exper.c:newexplevel and exper.c:pluslvl already have JavaScript implementations in js/exper.js. Verify their existing return/message contract; this bounded correction wires study_book's message and random owners through newexplevel and does not claim either helper or whole study_book completion."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved v52 evaluation hosted-38292091033-1-v52.json at fcfb7afe71226851b75665b753b0c2c73ceb7af4 records this case as 0/22 screens, 0/2698 RNG and error pluslvl needs a message owner. Canonical v52 manifest digest is 38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e; recording SHA-256 is 520f0264e06e717f356079b548f9237d2b1be33aad031f4e17a6da3947a06179.",
+    "Fresh C/JavaScript differential at this worker boundary reproduced the exact runtime error. C spell.c:study_book (around lines 510-535) calls newexplevel() after more_experienced(20, 0); JS spell.js study_book lines 961-964 calls more_experienced(20, 0, state) and then await newexplevel(state). The JS helper exper.js newexplevel forwards its env to pluslvl, which throws when env.message is absent.",
+    "The production caller js/read.js:doread already passes message: ttyPline into study_book. The scoped correction must forward that message owner (and the existing random owner) only at the novel level-up call, preserving the one-time achievement and flag order."
+  ]
+}

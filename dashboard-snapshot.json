@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T21:06:26.403Z",
+  "capturedAt": "2026-10-12T21:37:44.900Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -98146,6 +98146,135 @@
         "type": "accepted",
         "at": "2026-10-12T21:05:40.474Z",
         "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012-98f52a1ae996875a16c7f2ed8f802341ecedcf5f",
+        "type": "published",
+        "at": "2026-10-12T21:06:39.815Z",
+        "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012",
+        "commit": "98f52a1ae996875a16c7f2ed8f802341ecedcf5f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-six-queue-cases-reserved-20261012",
+        "type": "turn",
+        "at": "2026-10-12T21:06:49.023Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "The refreshed queue has no independent case: five unresolved cases are reserved in ready deliveries, and v48 short-version remains held. Waiting for Main to integrate drowning and refresh the queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrate-drown-12f580ce1848f52ff276586e2556284911109965",
+        "type": "integrating",
+        "at": "2026-10-12T21:07:24.595Z",
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
+        "integration": "12f580ce1848f52ff276586e2556284911109965"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012-12f580ce1848f52ff276586e2556284911109965-validated",
+        "type": "validated",
+        "at": "2026-10-12T21:14:17.467Z",
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012-12f580ce1848f52ff276586e2556284911109965-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T21:14:45.863Z",
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-v48-supported-profile-check-20261012",
+        "type": "activity",
+        "at": "2026-10-12T21:15:26.999Z",
+        "task": "C-investigation-v48-short-version-command-20261012",
+        "phase": "waiting",
+        "reason": "Read-only build check confirmed that the recorder selects Linux or Darwin hints from its actual host and upstream sets MacOS PORT_ID only for Apple builds. No documented matching profile runs on this Linux host; strict version recording still requires a supported Darwin environment. Output normalization remains unapproved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-idle-after-drowning-accepted-12f580ce-20261012",
+        "type": "turn",
+        "at": "2026-10-12T21:15:40.344Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted drowning Main is merged. The saved queue predates it, so I’m waiting for Main’s refreshed queue before selecting work; v48 short-version remains held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012-200f9433034d7e5d8ec7d596ddbb1f3caba0f62f",
+        "type": "published",
+        "at": "2026-10-12T21:15:52.610Z",
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
+        "commit": "200f9433034d7e5d8ec7d596ddbb1f3caba0f62f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrate-prayer-021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64",
+        "type": "integrating",
+        "at": "2026-10-12T21:16:49.418Z",
+        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
+        "integration": "021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012-021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64-validated",
+        "type": "validated",
+        "at": "2026-10-12T21:22:55.526Z",
+        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012-021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T21:23:20.960Z",
+        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012-0cb1d7e52d69f51a7cf68e9689e0f888d5623317",
+        "type": "published",
+        "at": "2026-10-12T21:24:37.315Z",
+        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
+        "commit": "0cb1d7e52d69f51a7cf68e9689e0f888d5623317"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-novel-next-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T21:25:08.025Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "The refreshed queue has no independent session: novel is B ready, polymorph and saddle are C ready, and v48 short-version remains held. Waiting for novel integration and the next queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrate-novel-69ca4a7e4581fca6ab57835fa512cde4f10ec2d2",
+        "type": "integrating",
+        "at": "2026-10-12T21:26:12.168Z",
+        "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
+        "integration": "69ca4a7e4581fca6ab57835fa512cde4f10ec2d2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-novel-read-tribute-action-attempt2-20261012-69ca4a7e4581fca6ab57835fa512cde4f10ec2d2-validated",
+        "type": "validated",
+        "at": "2026-10-12T21:34:38.193Z",
+        "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-novel-read-tribute-action-attempt2-20261012-69ca4a7e4581fca6ab57835fa512cde4f10ec2d2-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T21:35:13.097Z",
+        "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012"
       }
     ]
   },
@@ -98206,39 +98335,6 @@
           "Prep19",
           "Prep20"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
-        "worker": "C",
-        "goal": "C-v52-emergency-disrobe-dropx-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "5d5a66529a65d434bb8246cc06c2735293a08069",
-        "since": "2026-10-12T19:17:42.090Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
-        "worker": "B",
-        "goal": "fix-pray-blindness-caller-v52-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "42195423bd99f453747e4c233fb62b515ebe8dc4",
-        "since": "2026-10-12T19:26:55.144Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
-        "worker": "B",
-        "goal": "fix-spell-novel-read-levelup-message-v52-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "a577fc8927a71cef6f8e093b20353f0764fa3231",
-        "since": "2026-10-12T19:34:45.173Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -98780,8 +98876,8 @@
     ]
   },
   "development": {
-    "executionCommit": "28410c7d3faaf6a81ced119bcc94e8c91d7fed36",
-    "measuredAt": "2026-10-12T21:04:30.290Z",
+    "executionCommit": "69ca4a7e4581fca6ab57835fa512cde4f10ec2d2",
+    "measuredAt": "2026-10-12T21:31:38.031Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
