@@ -1,0 +1,39 @@
+{
+  "session": "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+  "corpus": "synthetic",
+  "batch": "v51",
+  "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+  "manifestPath": "challenges/manifests/v51.json",
+  "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+  "recordingSha256": "ece7fa4de510fa51b06f5630486b76f8fb74c3a4d8b9f6a55623a9c2714fa2f8",
+  "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v51.json",
+  "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+  "remainingScreens": 47,
+  "recordedSteps": 193,
+  "status": "complete",
+  "summary": "The saved admitted replay first diverges at segment 0 step 146. In uhitm.c:gulpum, the engulfing Trapper's fatal_gulp path for an unresisted cockatrice prints the engulf line, constructs the source killer text and calls instapetrify(kbuf). JavaScript prints the first line and records note_unported('trap.c instapetrify'), then continues combat. The existing trap.c:instapetrify implementation must be called here with the source-ordered killer string and the attack environment. This is another branch of the whole gulpum function; the related purple-worm Rider case also exposes the unported done(DIED) call, so both source calls belong in the complete function scope.",
+  "commit": "11d588d0541c2e2786ce81d6754a83ec9dea1069",
+  "goalKind": "file-port",
+  "source": {
+    "file": "uhitm.c",
+    "functions": ["gulpum"],
+    "branch": "Read the complete gulpum definition at uhitm.c:4958-5195. In this case, engulf_target succeeds and touch_petrifies(pd) makes fatal_gulp true without Stone resistance. The fatal_gulp && !is_rider branch emits the engulf line, chooses pmname by monster gender, applies an() unless the monster has a proper name, formats the killer as swallowing/enclosing/engulfing plus that name and optional whole, then calls instapetrify(kbuf). C discards its void result. JS currently stops after the first message at note_unported('trap.c instapetrify').",
+    "callers": [
+      "uhitm.c:hmonas -> uhitm.c:gulpum via the hero-as-monster AT_ENGL dispatch; js/uhitm.js:hmonas already awaits gulpum and consumes its M_ATTK_MISS result."
+    ],
+    "dependencies": ["end.c:done", "trap.c:instapetrify"]
+  },
+  "mismatch": {
+    "session": "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+    "remainingScreens": 47,
+    "kind": "screen",
+    "step": 146,
+    "screenIndex": 146
+  },
+  "evidence": [
+    "Saved admitted v51 sourceTrace: the blind Trapper retains blessed monster detection, then engulfs an adjacent cockatrice; C prints the fatal petrification line at step 146 and the Die? boundary at step 147. JS skips the instapetrify transition and continues combat. Its later RNG mismatch follows this missing death path.",
+    "C source nethack-c/upstream/src/uhitm.c:4958-5195, fatal_gulp && !is_rider arm: emits the initial engulf message, constructs the source killer buffer with an()/pmname(), and calls instapetrify(kbuf).",
+    "JS source js/uhitm.js:gulpum has the same fatal_gulp branch but records note_unported('trap.c instapetrify') and returns through the surrounding function. trap.c:instapetrify is already implemented in js/trap.js and calls done(STONING).",
+    "GOALS.json marks the trap.c:instapetrify implementation complete; its return is void and discarded at this caller. The selected entry exercises the existing hero-as-monster attack route through hmonas, which awaits gulpum."
+  ]
+}
