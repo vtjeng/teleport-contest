@@ -280887,7 +280887,7 @@
           "line": 1129,
           "endLine": 1338,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -281124,7 +281124,95 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cpostfx",
+            "implementation": "js/eat.js",
+            "symbol": "cpostfx",
+            "sourceReview": "Read the complete eat.c:cpostfx() definition (1129-1328) and checked all switch branches, intentional fallthroughs, state writes, output order, and random calls. The mimic cases accumulate immobilization turns in giant/large/small order; the active PM_SMALL_MIMIC path writes the pending mimic text and appearance, redraws the hero, flushes with curs_on_u(), then calls display_nhwindow(WIN_MAP, TRUE). Its TTY owner ends glyph output and blocks on the pending message before cpostfx returns. JavaScript now awaits displayPendingTtyMessageWindow(state) immediately after the same map flush, using the existing helper for the TTY WIN_MESSAGE/More wait. Other cpostfx branches remain source-aligned. The only skipped C callee is steed.c:dismount_steed() when mounted; its result is void/discarded and the existing note_unported skip follows the allowed callee rule. No return-valued unported dependency is consumed.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "done_eating",
+                "source": "eat.c:done_eating() line 563 calls cpostfx(piece->corpsenm) for corpses/globbies; done_eating is reached from eatfood() and doeat() immediate completion."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "consume_tin",
+                "source": "eat.c:consume_tin() line 1613 calls cpostfx(mnum) after cprefx() if the tin remains."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "Finish_digestion",
+                "source": "eat.c:Finish_digestion() line 3964 calls cpostfx(gc.corpsenm_digested); uhitm.c:gulpum() sets that species and ga.afternmv, and hack.c:unmul() clears and invokes the callback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/mimic-tin-blind.session.json",
+              "recordings/eat.c/mimic-large-tin-blind.session.json",
+              "recordings/uhitm.c/gulpum-purple-worm-gargoyle-independent-b64.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+                "segment": 0,
+                "fromStep": 49,
+                "throughStep": 53,
+                "source": "cmd.c:doeat -> eat.c:done_eating -> eat.c:cpostfx(PM_SMALL_MIMIC), followed by the timed HALLUC expiry through timeout.c:nh_timeout and potion.c:make_hallucinated"
+              }
+            ],
+            "checkedAt": "2488902931a592f99830889ff9983bf929cc0698"
+          }
+        ],
+        "entryPointReview": "Upstream eat.c has three direct active cpostfx entry points: done_eating after normal corpse/globby consumption, consume_tin after opening a corpse tin, and Finish_digestion after a purple worm finishes digesting prey. The admitted v47 range reaches done_eating with PM_SMALL_MIMIC while HALLUC is expiring and verifies the exact blocking-map boundary. The two existing eat.c mimic-tin recordings reach consume_tin -> cpostfx(PM_SMALL_MIMIC/PM_LARGE_MIMIC), and the existing uhitm.c purple-worm recording reaches gulpum -> unmul -> Finish_digestion -> cpostfx. All three replay streams match after the adapter change.",
+        "entryPoints": [
+          {
+            "name": "eat.c:done_eating normal corpse completion",
+            "functions": [
+              "cpostfx"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+                "segment": 0,
+                "fromStep": 49,
+                "throughStep": 53,
+                "source": "cmd.c:doeat -> eat.c:done_eating -> eat.c:cpostfx(PM_SMALL_MIMIC), followed by the timed HALLUC expiry through timeout.c:nh_timeout and potion.c:make_hallucinated"
+              }
+            ]
+          },
+          {
+            "name": "eat.c:consume_tin corpse-tin completion",
+            "functions": [
+              "cpostfx"
+            ],
+            "recordings": [
+              "recordings/eat.c/mimic-tin-blind.session.json",
+              "recordings/eat.c/mimic-large-tin-blind.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "eat.c:Finish_digestion after purple-worm ingestion",
+            "functions": [
+              "cpostfx"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/gulpum-purple-worm-gargoyle-independent-b64.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
