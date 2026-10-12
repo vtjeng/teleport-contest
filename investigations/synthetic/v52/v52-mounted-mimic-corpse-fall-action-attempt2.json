@@ -1,0 +1,138 @@
+{
+  "session": "synthetic/v52/v52-mounted-mimic-corpse-fall-action-attempt2",
+  "remainingScreens": 68,
+  "recordedSteps": 271,
+  "corpus": "synthetic",
+  "batch": "v52",
+  "caseId": "v52-mounted-mimic-corpse-fall-action-attempt2",
+  "manifestPath": "challenges/manifests/v52.json",
+  "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+  "recordingSha256": "6714b41714d542c54a14c904e2b968d0f36cfc167026dc0c4fcdb9b1823fee2d",
+  "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+  "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+  "status": "complete",
+  "commit": "fcc3f92539c48564cbe41e7dbe54c06f954745e8",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v52",
+    "caseId": "v52-mounted-mimic-corpse-fall-action-attempt2",
+    "session": "synthetic/v52/v52-mounted-mimic-corpse-fall-action-attempt2",
+    "manifestPath": "challenges/manifests/v52.json",
+    "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+    "recording": "challenges/cases/v52/v52-mounted-mimic-corpse-fall-action-attempt2.session.json",
+    "recordingPath": "challenges/cases/v52/v52-mounted-mimic-corpse-fall-action-attempt2.session.json",
+    "recordingSha256": "6714b41714d542c54a14c904e2b968d0f36cfc167026dc0c4fcdb9b1823fee2d",
+    "recipe": "challenges/cases/v52/v52-mounted-mimic-corpse-fall-action-attempt2.recipe.session.json",
+    "recipeSha256": "147b9d96a84d1c3bc84e2e59935ecf77afd0e97f6d4f2e6a85d61e5c53516ee7",
+    "replayInputSha256": "5e32600d28364b4911473a9a7a949a1791cc380ac369c97a7771762b3a9f2022",
+    "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+    "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+    "evaluationArtifact": "challenges/evaluations/hosted-38292091033-1-v52.json",
+    "evaluationUtc": "2026-10-12T18:40:54.256Z",
+    "remainingScreens": 68,
+    "recordedSteps": 271,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 203,
+        "total": 271
+      },
+      "rng": {
+        "matched": 2922,
+        "total": 3825
+      },
+      "cursors": {
+        "matched": 203,
+        "total": 271
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 203,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 203,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 4,
+        "cCell": {
+          "ch": "f",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "n",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2888,
+        "cEntry": "rn2(3)=1",
+        "cCaller": "landing_spot(steed.c:543)",
+        "jsEntry": "rn2(5)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 202,
+          "key": " "
+        },
+        "stepIndex": 202
+      },
+      "cursor": {
+        "index": 203,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 203,
+          "key": " "
+        },
+        "cCursor": [
+          41,
+          0,
+          1
+        ],
+        "jsCursor": [
+          52,
+          8,
+          1
+        ]
+      }
+    },
+    "step": 202,
+    "kind": "rng",
+    "sourceFile": "steed.c",
+    "function": "landing_spot",
+    "message": null,
+    "cFile": "steed.c",
+    "luaFile": null,
+    "line": 543
+  },
+  "summary": "When a mounted hero finishes eating a small mimic corpse, C prints the mimicry message and calls dismount_steed(DISMOUNT_FELL). JavaScript eat.js prints the same message but records the dismount as unported, leaving the hero on the steed. This skips the C landing_spot tie-break and fall processing; the later JavaScript rn2(5) draw is not a mismatching landing candidate count.",
+  "source": {
+    "file": "eat.c",
+    "branch": "The completed meal is a small, large, or giant mimic corpse; the hero is not already a mimic, is not unchanging, and is riding when fpostfx handles the corpse effect.",
+    "functions": [
+      "fpostfx"
+    ],
+    "callers": [
+      "eat.c:done_eating"
+    ],
+    "dependencies": [
+      "steed.c:dismount_steed",
+      "steed.c:landing_spot"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v52 evaluation identifies step 202 as the first RNG mismatch and step 203 as the first screen mismatch. C records rn2(3)=1 at steed.c:landing_spot line 543; JavaScript records rn2(5)=1 at the same input boundary, followed by a different screen and cursor.",
+    "Upstream eat.c:1200-1208 handles PM_GIANT_MIMIC, PM_LARGE_MIMIC, and PM_SMALL_MIMIC by printing the temptation message and calling dismount_steed(DISMOUNT_FELL) when u.usteed is set.",
+    "js/eat.js:fpostfx has the matching mimic-corpse branch and emits the same message, but when state.u.usteed exists it calls note_unported(\"steed.c dismount_steed\") instead of the existing dismount owner.",
+    "A direct call to the existing JavaScript landing_spot on the replay state after the mimicry message yields rn2(3), matching the C bound. The divergence comes from the missing eat caller binding, not landing_spot candidate counting."
+  ]
+}
