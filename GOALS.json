@@ -281565,7 +281565,7 @@
     {
       "id": "fix-cmd-doextcmd-fire-dispatch-v48-20261012",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire five implemented extended-command handlers and preserve selected command flags",
       "cFile": "cmd.c",
       "sessions": [
@@ -281583,8 +281583,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "02f2d3c93e6d30843cc91ad3087f3f9c55829690",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doextcmd",
       "session": "synthetic/v48/v48-extended-fire-empty-attempt1",
       "step": 6,
@@ -282369,7 +282372,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "02f2d3c93e6d30843cc91ad3087f3f9c55829690",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

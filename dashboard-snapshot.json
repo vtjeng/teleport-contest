@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T05:18:02.979Z",
+  "capturedAt": "2026-10-12T06:28:13.721Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -92409,22 +92409,521 @@
         "at": "2026-10-12T05:16:11.949Z",
         "task": "B-investigation-v49-apply-book-attempt2-20261012",
         "goal": "div-getobj-menu-escape-v49-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep13-44b6c875-20261012",
+        "type": "published",
+        "at": "2026-10-12T05:18:50.057Z",
+        "task": "Prep13",
+        "commit": "44b6c8758e45cdf0f48ef38b2c61d9bb0ee9b941"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-92449c294641f2004c63c94a6eb5f95c721c7e85",
+        "type": "ready",
+        "at": "2026-10-12T05:22:46.446Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "delivery": "92449c294641f2004c63c94a6eb5f95c721c7e85"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v49-apply-book-idle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:23:39.564Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "The getobj Escape fix is submitted; awaiting the coordinator’s integration boundary and next independent queue review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep14-active-c-abilities-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:26:41.490Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep is extending v50 with independent C monster abilities after verifying 31 cases and five distinct local failures."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-menu-escape-92449c29-20261012",
+        "type": "received",
+        "at": "2026-10-12T05:27:58.538Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "delivery": "92449c294641f2004c63c94a6eb5f95c721c7e85"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e55adc240bed52e7990e1a0228cffafe16098a04",
+        "type": "ready",
+        "at": "2026-10-12T05:28:40.978Z",
+        "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
+        "delivery": "e55adc240bed52e7990e1a0228cffafe16098a04"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v49-extcmd-ready-e55adc240-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:28:48.339Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep14-idle-search-decision-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:31:51.917Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep prepared 40 valid v50 cases and is waiting for Main’s smaller-batch decision or additional source targets."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep14-active-submit-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:32:59.716Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep is committing and submitting all 40 valid v50 cases after Main approved the smaller batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e52b2241fa692778fb88220e318f3667410fcd17",
+        "type": "ready",
+        "at": "2026-10-12T05:33:24.516Z",
+        "task": "Prep14",
+        "delivery": "e52b2241fa692778fb88220e318f3667410fcd17"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep15-active-v51-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:34:07.508Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep is planning v51 after submitting all40v50cases and syncing accepted Main."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep15-v51-20261012",
+        "type": "assign",
+        "at": "2026-10-12T05:34:29.028Z",
+        "task": "Prep15",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v51"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-shop-resume-pickup-evidence-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:41:22.393Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is finishing source-matched pickup container evidence and final checks for the v47 shop port."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-v49-dispatch-e55adc24-20261012",
+        "type": "received",
+        "at": "2026-10-12T05:45:27.829Z",
+        "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
+        "delivery": "e55adc240bed52e7990e1a0228cffafe16098a04"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep14-v50-e52b2241-20261012",
+        "type": "received",
+        "at": "2026-10-12T05:45:30.405Z",
+        "task": "Prep14",
+        "delivery": "e52b2241fa692778fb88220e318f3667410fcd17"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C-sort-active-callers-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T05:47:47.052Z",
+        "task": "C-investigation-v48-discovery-sort-menu-20261012",
+        "delivery": "2f6c53965ba952cfac3e0adf7c4f61e4b5e84936"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5cb537b4e65fc4b54b6779be4c14d4cc21aab260",
+        "type": "ready",
+        "at": "2026-10-12T05:49:31.362Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "delivery": "5cb537b4e65fc4b54b6779be4c14d4cc21aab260"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v48-name-floor-object-attempt5-20261012",
+        "type": "assign",
+        "at": "2026-10-12T05:51:47.180Z",
+        "task": "A2-investigation-v48-name-floor-object-attempt5-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-sort-callers-20261012",
+        "type": "resume",
+        "at": "2026-10-12T05:52:34.942Z",
+        "task": "C-investigation-v48-discovery-sort-menu-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-sort-callers-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:52:42.176Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-shop-5cb537b4-20261012",
+        "type": "received",
+        "at": "2026-10-12T05:52:54.984Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "delivery": "5cb537b4e65fc4b54b6779be4c14d4cc21aab260"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-prep14-control-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T05:52:58.462Z",
+        "task": "Prep14",
+        "phase": "review",
+        "reason": "Verify immutable C recordings and review matching controls against approved saved-coverage rule before admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-Prep14-control-coverage-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T05:54:01.413Z",
+        "task": "Prep14",
+        "delivery": "e52b2241fa692778fb88220e318f3667410fcd17"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-v48-name-floor-object-20261012",
+        "type": "park",
+        "at": "2026-10-12T05:54:19.277Z",
+        "task": "A2-investigation-v48-name-floor-object-attempt5-20261012",
+        "reason": "The @ input diverges inside getpos.c:getpos, whose full source function is reserved by B-investigation-v48-getpos-monster-menu-20261012. Preserved source trace in commit f28bc748f; resume after that reservation is released or accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-92449-independent-work-check-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:54:35.373Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "All current v48/v49 mismatches are reserved by A2, C, or prior B deliveries; waiting for the next independently available batch after Prep15 admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-Prep15-for-Prep14-coverage-20261012",
+        "type": "park",
+        "at": "2026-10-12T05:55:03.265Z",
+        "task": "Prep15",
+        "reason": "Prep confirms no live commands and preserved v51 files at a clean boundary; handle earlier Prep14 control-coverage correction before resuming this same v51 assignment."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-C-dispatch-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T05:55:07.755Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
+        "phase": "review",
+        "reason": "Review source dispatch and saved five-case replay evidence; ready binding fix unblocks later command deliveries."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v48-queue-reservations-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:55:13.176Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Current saved mismatches are covered by active or pending worker reservations. Need an accepted release or refreshed queue with an independent source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-Prep14-control-coverage-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T05:55:31.331Z",
+        "task": "Prep14"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep14-active-control-coverage-correction-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:55:35.001Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep is correcting v50 matching controls against saved coverage; v51 is preserved for later resume."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-active-floorname-self-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:55:47.543Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating and repairing the v48 floor-name SELF cursor branch with the accepted getpos implementation as a declared dependency."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v48-name-floor-object-self-20261012",
+        "type": "assign",
+        "at": "2026-10-12T05:55:57.501Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v48-floorname-getpos-self-20261012",
+        "type": "implement",
+        "at": "2026-10-12T05:57:22.170Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "goal": "divergence-fix-getpos-self-key-floor-name-v48-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-dispatch-c78972645-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T06:00:04.166Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
+        "integration": "c7897264513f7435be6222a202ed1673c5643ab0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-shop-source-kind-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T06:03:17.777Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "delivery": "5cb537b4e65fc4b54b6779be4c14d4cc21aab260"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-shop-metadata-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T06:04:27.753Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-07ebea9225679ee0034c2070d886f3d9e28e96fe",
+        "type": "ready",
+        "at": "2026-10-12T06:05:19.699Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "07ebea9225679ee0034c2070d886f3d9e28e96fe"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-47c76762a620fb7fe297dfdfc06b6f7efee883db",
+        "type": "ready",
+        "at": "2026-10-12T06:05:50.604Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "delivery": "47c76762a620fb7fe297dfdfc06b6f7efee883db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-floorname-self-submit-20261012",
+        "type": "turn",
+        "at": "2026-10-12T06:06:14.391Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Floor-name SELF fix is delivered and queued; waiting for an independent admitted mismatch after current command and source reservations clear."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-floor-self-07ebea922-correct-task-20261012",
+        "type": "received",
+        "at": "2026-10-12T06:06:44.824Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "07ebea9225679ee0034c2070d886f3d9e28e96fe"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-shop-kind-47c76762-20261012",
+        "type": "received",
+        "at": "2026-10-12T06:06:49.299Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "delivery": "47c76762a620fb7fe297dfdfc06b6f7efee883db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-root-dispatcher-diagnosis-20261012",
+        "type": "turn",
+        "at": "2026-10-12T06:07:08.618Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Waiting for Root to finish dispatcher test diagnosis and provide a refreshed independent queue; shop metadata correction is ready."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-dispatch-c789-failure-20261012",
+        "type": "validated",
+        "at": "2026-10-12T06:07:42.764Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-087526e2d600261cf45bdb172c7119b85b7b0f7d",
+        "type": "ready",
+        "at": "2026-10-12T06:08:43.891Z",
+        "task": "Prep14",
+        "delivery": "087526e2d600261cf45bdb172c7119b85b7b0f7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-C-dispatch-retry-packaging-20261012",
+        "type": "activity",
+        "at": "2026-10-12T06:09:09.251Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
+        "phase": "waiting",
+        "reason": "Outdated wizard-kill test assertion corrected and focused check passed; C will finish current handoff then package the correction required for retry."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep14-coverage-087526e2-20261012",
+        "type": "received",
+        "at": "2026-10-12T06:09:56.744Z",
+        "task": "Prep14",
+        "delivery": "087526e2d600261cf45bdb172c7119b85b7b0f7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-Prep15-after-v50-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T06:10:23.780Z",
+        "task": "Prep15"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep15-active-after-v50-correction-20261012",
+        "type": "turn",
+        "at": "2026-10-12T06:10:26.264Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep resumed v51 after submitting the corrected v50 packet with seven controls that add documented coverage."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ff4afe97965f6d71faa65c9b37763d4b31514460",
+        "type": "ready",
+        "at": "2026-10-12T06:10:32.228Z",
+        "task": "C-investigation-v48-discovery-sort-menu-20261012",
+        "delivery": "ff4afe97965f6d71faa65c9b37763d4b31514460"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-sort-callers-ff4afe979-20261012",
+        "type": "received",
+        "at": "2026-10-12T06:10:51.678Z",
+        "task": "C-investigation-v48-discovery-sort-menu-20261012",
+        "delivery": "ff4afe97965f6d71faa65c9b37763d4b31514460"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v48-dispatch-test-fix-20261012",
+        "type": "resume",
+        "at": "2026-10-12T06:11:42.870Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f2f23a50ff0a34a21c9d5e59908074ec8ef4aa6c",
+        "type": "ready",
+        "at": "2026-10-12T06:13:14.706Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
+        "delivery": "f2f23a50ff0a34a21c9d5e59908074ec8ef4aa6c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-after-corrections-20261012",
+        "type": "turn",
+        "at": "2026-10-12T06:13:32.383Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-dispatch-test-f2f23a50-20261012",
+        "type": "received",
+        "at": "2026-10-12T06:13:47.831Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
+        "delivery": "f2f23a50ff0a34a21c9d5e59908074ec8ef4aa6c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-dispatch-retry-02f2d3c93-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T06:13:52.525Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
+        "integration": "02f2d3c93e6d30843cc91ad3087f3f9c55829690"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v48-short-version-after-dispatch-20261012",
+        "type": "resume",
+        "at": "2026-10-12T06:14:29.577Z",
+        "task": "C-investigation-v48-short-version-command-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-v48-short-version-20261012",
+        "type": "turn",
+        "at": "2026-10-12T06:14:57.026Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-C-dispatch-retry-hosted-20261012",
+        "type": "activity",
+        "at": "2026-10-12T06:15:18.651Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
+        "phase": "waiting",
+        "reason": "Hosted checkpoint running for corrected dispatcher candidate; stale assertion passed focused check and prior failure is retained."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v48-doversion-20261012",
+        "type": "implement",
+        "at": "2026-10-12T06:16:40.941Z",
+        "task": "C-investigation-v48-short-version-command-20261012",
+        "goal": "fix-version-doversion-versionshort-v48-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-dispatch-retry-02f2d3c93-20261012",
+        "type": "validated",
+        "at": "2026-10-12T06:23:25.011Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v48-extended-fire-empty-attempt1-20261012-02f2d3c93e6d30843cc91ad3087f3f9c55829690-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T06:25:05.807Z",
+        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C-short-version-host-evidence-20261012",
+        "type": "park",
+        "at": "2026-10-12T06:28:06.984Z",
+        "task": "C-investigation-v48-short-version-command-20261012",
+        "reason": "C reports committed implementation and V/mV normalized host-string replay, but strict evidence gate rejects submission: local C emits Unix while official profile emits MacOS. Preserve commits 4f13891af and15e869a33, recipes and private check evidence; no raw mismatching recording is in the regression corpus. Source completion remains unproven pending a permitted host-profile evidence route or matching recorder."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v48-extended-fire-empty-attempt1-20261012",
-        "worker": "C",
-        "goal": "fix-cmd-doextcmd-fire-dispatch-v48-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "09731e9aa0d118bc027c01ae959c88078fc9ac11",
-        "since": "2026-10-12T02:40:25.486Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B-investigation-v48-getpos-monster-menu-20261012",
         "worker": "B",
@@ -92434,7 +92933,7 @@
         "delivery": "801cda8f8eab1e9f801f8b4dbf21baf7e745fcf9",
         "since": "2026-10-12T02:44:40.516Z",
         "blockedBy": [],
-        "unblocks": 1
+        "unblocks": 2
       },
       {
         "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
@@ -92445,7 +92944,7 @@
         "delivery": "fc3ecd318125731e144a4d4ea78736e3179f6854",
         "since": "2026-10-12T02:49:01.758Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "B-investigation-v48-inventtype-weapons-20261012",
@@ -92461,16 +92960,77 @@
         "unblocks": 0
       },
       {
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "worker": "B",
+        "goal": "div-getobj-menu-escape-v49-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "92449c294641f2004c63c94a6eb5f95c721c7e85",
+        "since": "2026-10-12T05:22:46.446Z",
+        "blockedBy": [
+          "B-investigation-v48-getpos-monster-menu-20261012",
+          "B-investigation-v48-inventtype-weapons-20261012"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
+        "worker": "C",
+        "goal": "divergence-fix-cmd-doextcmd-quaff-remove-swap-v49-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "e55adc240bed52e7990e1a0228cffafe16098a04",
+        "since": "2026-10-12T05:28:40.978Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "worker": "B",
+        "goal": "divergence-fix-getpos-self-key-floor-name-v48-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "07ebea9225679ee0034c2070d886f3d9e28e96fe",
+        "since": "2026-10-12T06:05:19.699Z",
+        "blockedBy": [
+          "B-investigation-v48-getpos-monster-menu-20261012"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "worker": "A2",
+        "goal": "div-shk-sellobj-v47-shop-drop-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "47c76762a620fb7fe297dfdfc06b6f7efee883db",
+        "since": "2026-10-12T06:05:50.604Z",
+        "blockedBy": [
+          "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep14",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "087526e2d600261cf45bdb172c7119b85b7b0f7d",
+        "batch": "v50",
+        "since": "2026-10-12T06:08:43.891Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
         "task": "C-investigation-v48-discovery-sort-menu-20261012",
         "worker": "C",
         "goal": "port-o-init-choose-disco-sort-v48-20261012",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "2f6c53965ba952cfac3e0adf7c4f61e4b5e84936",
-        "since": "2026-10-12T03:00:12.538Z",
-        "blockedBy": [
-          "C-investigation-v48-extended-fire-empty-attempt1-20261012"
-        ],
+        "delivery": "ff4afe97965f6d71faa65c9b37763d4b31514460",
+        "since": "2026-10-12T06:10:32.228Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -92864,17 +93424,6 @@
         "reason": "Parked after committing corrected source findings e546f3c39. The current queue boundary at step 48 is behind the do.c:dropz costly-shop preflight refusal. A whole shk.c:sellobj port is not independently bounded: direct dothrow.c:check_shop_obj ownership and its six throwit callers must be included, and return-valued special_stock -> shknam.c:is_izchak must be ported with its active shk_chat caller. No game code was edited."
       },
       {
-        "task": "C-investigation-v48-short-version-command-20261012",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-12T02:47:55.150Z",
-        "blockedBy": [],
-        "reason": "The source owner is version.c:doversion, but its production key route must be wired through cmd.c:rhack, which remains reserved by C delivery 09731e9aa0d118bc027c01ae959c88078fc9ac11. Park until that reservation is accepted or otherwise released; also verify version build-profile provenance when resumed."
-      },
-      {
         "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
         "worker": "A2",
         "goal": null,
@@ -92906,12 +93455,34 @@
         "since": "2026-10-12T05:06:09.795Z",
         "blockedBy": [],
         "reason": "Fresh source trace identifies getpos.c:getpos() at @/NHKF_GETPOS_SELF as the first mismatch. Its whole source function is reserved by B-investigation-v48-getpos-monster-menu-20261012. Preserved investigations/synthetic/v48/v48-name-floor-object-attempt5.json; resume after B delivery is accepted or releases the source reservation."
+      },
+      {
+        "task": "A2-investigation-v48-name-floor-object-attempt5-20261012",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-12T05:54:19.277Z",
+        "blockedBy": [],
+        "reason": "The @ input diverges inside getpos.c:getpos, whose full source function is reserved by B-investigation-v48-getpos-monster-menu-20261012. Preserved source trace in commit f28bc748f; resume after that reservation is released or accepted."
+      },
+      {
+        "task": "C-investigation-v48-short-version-command-20261012",
+        "worker": "C",
+        "goal": "fix-version-doversion-versionshort-v48-20261012",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-12T06:28:06.984Z",
+        "blockedBy": [],
+        "reason": "C reports committed implementation and V/mV normalized host-string replay, but strict evidence gate rejects submission: local C emits Unix while official profile emits MacOS. Preserve commits 4f13891af and15e869a33, recipes and private check evidence; no raw mismatching recording is in the regression corpus. Source completion remains unproven pending a permitted host-profile evidence route or matching recorder."
       }
     ]
   },
   "development": {
-    "executionCommit": "8e3e7c6d12940b179f4b92fd0981987d2b118cea",
-    "measuredAt": "2026-10-12T05:16:15.814Z",
+    "executionCommit": "02f2d3c93e6d30843cc91ad3087f3f9c55829690",
+    "measuredAt": "2026-10-12T06:19:13.633Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
