@@ -1,0 +1,79 @@
+{
+  "session": "synthetic/v53/v53-blind-fountain-water-snakes-action2",
+  "corpus": "synthetic",
+  "batch": "v53",
+  "caseId": "v53-blind-fountain-water-snakes-action2",
+  "manifestPath": "challenges/manifests/v53.json",
+  "manifestSha256": "dd39b86ed28491087b5b7fc15cdb512bd375b0e5b359ac58f70dbb6bf321dcd7",
+  "recordingSha256": "ab238f6a6b0a904005877ec9a2f8223668be87890b4ece7336d42a6bfbd14ea6",
+  "evaluationPath": "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json",
+  "evaluationCommit": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
+  "status": "complete",
+  "commit": "ec477816056fdc8d518fa4cbc07feb48013b0462",
+  "summary": "At segment 0 step 97, self-knowledge from a fountain displays the wrong blindness cause. C says the hero is deliberately blind because of the worn blindfold; JavaScript reports temporarily blind. The source mismatch is the Blindfolded_only predicate in insight.c:status_enlightenment, not the water-snake fountain outcome named by the case.",
+  "source": {
+    "file": "insight.c",
+    "branch": "In status_enlightenment, when Blind is true and HBlinded has no FROMOUTSIDE/FROMFORM cause, C selects \"deliberately\" exactly when EBlinded is set and Blinded is false. youprop.h:92-103 defines Blinded from intrinsic blindness only and Blind from intrinsic or extrinsic blindness, both respecting BBlinded. The JS predicate instead tested E(BLINDED) && !blind where blind includes the extrinsic blindfold, making Blindfolded_only false.",
+    "functions": [
+      "status_enlightenment"
+    ],
+    "callers": [
+      "fountain.c:drinkfountain fate 19 -> insight.c:enlightenment -> insight.c:status_enlightenment; JavaScript fountain.js:drinkfountain imports insight.js:enlightenment, which calls status_enlightenment."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json at 26748832bec4c8d55150cd96f4f870355f5d2bbd reports this case at 202/203 screens, 2985/2985 RNG values, and 203/203 cursors; the manifest sourceTrace identifies the first mismatch at step 97.",
+    "The immutable recording segment 0 step 96 drinks the fountain and receives fate 19 self-knowledge; step 97 opens the attributes menu, with C text \"You are deliberately blind because of your blindfold.\" The recording records no RNG delta at step 97 and a matching cursor; the only discrepancy is that status line.",
+    "Upstream insight.c:1060-1071 selects the adjective using Blindfolded_only; youprop.h:92-103 defines Blindfolded_only as EBlinded && !Blinded, while Blind includes both HBlinded and EBlinded. js/insight.js:1208-1210 incorrectly used !blind where blind includes the extrinsic blindfold; js/insight.js:1314-1316 consumes that value for the status phrase.",
+    "The displayed title and status menu are reached through the active source caller fountain.c:drinkfountain:286-290 -> insight.c:enlightenment:383-422 -> status_enlightenment. JavaScript fountain.js:693-705 wires the same fate to insight.js:enlightenment, whose body calls status_enlightenment at 2047."
+  ],
+  "remainingScreens": 1,
+  "recordedSteps": 203,
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v53",
+    "caseId": "v53-blind-fountain-water-snakes-action2",
+    "session": "synthetic/v53/v53-blind-fountain-water-snakes-action2",
+    "manifestPath": "challenges/manifests/v53.json",
+    "manifestSha256": "dd39b86ed28491087b5b7fc15cdb512bd375b0e5b359ac58f70dbb6bf321dcd7",
+    "recordingPath": "challenges/cases/v53/v53-blind-fountain-water-snakes-action2.session.json",
+    "recordingSha256": "ab238f6a6b0a904005877ec9a2f8223668be87890b4ece7336d42a6bfbd14ea6",
+    "evaluationPath": "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json",
+    "evaluationCommit": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
+    "remainingScreens": 1,
+    "recordedSteps": 203,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 202,
+        "total": 203
+      },
+      "rng": {
+        "matched": 2985,
+        "total": 2985
+      },
+      "cursors": {
+        "matched": 203,
+        "total": 203
+      }
+    },
+    "firstMismatch": {
+      "segmentIndex": 0,
+      "stepIndex": 97,
+      "key": " ",
+      "sourceFile": "insight.c",
+      "function": "status_enlightenment",
+      "cScreenMessage": "You are deliberately blind because of your blindfold.",
+      "jsBehavior": "You are temporarily blind because of your blindfold."
+    },
+    "step": 97,
+    "kind": "screen",
+    "sourceFile": "insight.c",
+    "function": "status_enlightenment",
+    "message": "The C Blindfolded_only macro tests extrinsic blindfold blindness against Blinded (intrinsic blindness); JavaScript excluded the active blindfold from its own adjective predicate."
+  }
+}
