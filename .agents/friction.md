@@ -251,3 +251,42 @@ triage decisions or fix references.
   base because the original assignment used another branch's ancestry. C
   preserves both histories with an ancestry merge whose tree equals the exact
   Main candidate, then reapplies only the two-file correction for submission.
+
+### 2026-10-12 — throne investigation schema and exact patch import
+
+- Context: ready throne caller delivery `def667038` after petrification acceptance.
+- Friction: its diagnosis used `verified`/`resolved` as investigation status
+  and omitted fields required by `readInvestigation`. Root preserved the
+  separate diagnosis commit and refreshed the schema and accepted evaluation
+  before selecting the goal. The source commit also edited the old report,
+  causing a conflict with that refresh.
+- Outcome: aborted only the conflicting cherry-pick, preserved the original
+  report parent, imported the exact three-file patch, then restored the
+  current canonical diagnosis with the worker's matching evidence retained.
+  Only the restored combined state enters checkpoint and public Main.
+- Earlier retry import: Root attempted to import `38249833613` after the
+  combined job passed while synthetic evidence cleanup still ran. The import
+  guard rejected it. Root waited for the retained watch to exit successfully,
+  then imported its complete evidence. Main remained at the exact candidate.
+
+### 2026-10-12 — dispatcher report additions and queued menu correction
+
+- Context: extended-command delivery `e55adc240` contains source commit
+  `8ff88a981`, which also adds three reports already imported separately.
+- Outcome: preserved the current reports, aborted only the conflicting
+  cherry-pick, temporarily removed those named reports in a parent commit,
+  imported the exact source/test/report patch, and restored all three current
+  valid diagnoses before checkpoint.
+- Read-only menu preview: delivery `92449c294` used Escape as the selector's
+  default empty Enter result. B added an explicit empty value, but its first
+  correction used a truthy JavaScript NUL string and a weak negative assertion.
+  Root requested null and the exact reissued prompt; B submitted `33d261d01`
+  with both cases passing. These corrections stay outside this dispatcher task.
+- Dispatch friction: twice Root triggered B's correction turn while its ledger
+  feedback command was still running. The worker correctly waited for the
+  required state. Finish feedback before sending future correction turns.
+- Dispatcher preflight also found that the older canonical report import did
+  not preserve final report correction `e55adc240` as an exact patch. Root
+  preserved its original report parent, imported that correction unchanged,
+  and restored the current diagnoses before retrying preflight. Game code
+  stayed identical to the already linted and quality-checked candidate.

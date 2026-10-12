@@ -285773,7 +285773,7 @@
     {
       "id": "port-trap-minstapetrify-v51-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monster petrification and wielded-corpse self-touch with active callers",
       "cFile": "trap.c",
       "sessions": [
@@ -285788,8 +285788,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "minstapetrify",
@@ -286554,7 +286557,950 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+        "screens": 11405,
+        "rng": 792838
       }
+    },
+    {
+      "id": "div-sit-throne-effect-court-summon-v51-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Wire ordinary throne court summoning",
+      "cFile": "sit.c",
+      "sessions": [],
+      "selectionReason": "Ready caller repair unblocks queued dependent work after its history dependency was accepted. Current v51 evidence first mismatches at segment 0 step 47; the source-traced investigation identifies omitted makemon invocation after courtmon in sit.c throne_sit_effect case 7. Use existing makemon_runtime without claiming whole throne_sit_effect completion.",
+      "detail": "At accepted12c, the immutable v51 case matches47/73 screens and first diverges in the court-summoning loop. C sit.c112-125 calls makemon(courtmon(), saved hero tx/ty, NO_MM_FLAGS) once per rnd(10) attempt; js/sit.js currently evaluates courtmon and skips creation. Repair only that caller binding and preserve RNG and message order. See investigations/synthetic/v51/v51-throne-court-summon-selected-action-attempt2.json.",
+      "openedAt": "2ac7900bba2dc8b2a000b418e2669fb655accd27",
+      "openStanding": {
+        "sha": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "throne_sit_effect",
+      "session": "synthetic/v51/v51-throne-court-summon-selected-action-attempt2",
+      "step": 47,
+      "syntheticProvenance": {
+        "synthetic/v51/v51-throne-court-summon-selected-action-attempt2": {
+          "session": "synthetic/v51/v51-throne-court-summon-selected-action-attempt2",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-throne-court-summon-selected-action-attempt2",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.session.json",
+          "recordingSha256": "8cbcc893f746e6e41f23dc8726640e9f0265e1834436ab65b135b44ea85f3296",
+          "evaluationPath": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
+          "evaluationCommit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba"
+        }
+      },
+      "activeStanding": {
+        "sha": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-throne-court-summon-selected-action-attempt2",
+          "session": "synthetic/v51/v51-throne-court-summon-selected-action-attempt2",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.session.json",
+          "recordingPath": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.session.json",
+          "recordingSha256": "8cbcc893f746e6e41f23dc8726640e9f0265e1834436ab65b135b44ea85f3296",
+          "recipe": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.recipe.session.json",
+          "recipeSha256": "cc1a9d5d65001c0538e9ca8578a9a21528d776daffa9e760ac0c3bc219e4f95b",
+          "replayInputSha256": "ec87e2802e283d81d8a6817b5ed4b751d0fd39498a69f63092959777e15f3e9b",
+          "evaluationPath": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
+          "evaluationCommit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+          "evaluationArtifact": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
+          "evaluationUtc": "2026-10-12T12:38:17.754Z",
+          "remainingScreens": 26,
+          "recordedSteps": 73,
+          "previousScreensMatched": 47,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 47,
+              "total": 73
+            },
+            "rng": {
+              "matched": 2961,
+              "total": 3661
+            },
+            "cursors": {
+              "matched": 59,
+              "total": 73
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 47,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 59,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2961,
+              "cEntry": "rn2(8)=1",
+              "cCaller": "collect_coords(teleport.c:700)",
+              "jsEntry": "rn2(60)=9",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": "\n"
+              },
+              "stepIndex": 47
+            },
+            "cursor": {
+              "index": 47,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": "\n"
+              },
+              "cCursor": [
+                67,
+                0,
+                1
+              ],
+              "jsCursor": [
+                58,
+                13,
+                1
+              ]
+            }
+          },
+          "step": 47,
+          "kind": "rng",
+          "sourceFile": "teleport.c",
+          "function": "collect_coords",
+          "message": null,
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": 700,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-throne-court-summon-selected-action-attempt2.json",
+            "result": {
+              "session": "synthetic/v51/v51-throne-court-summon-selected-action-attempt2",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-throne-court-summon-selected-action-attempt2",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingPath": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.session.json",
+              "recordingSha256": "8cbcc893f746e6e41f23dc8726640e9f0265e1834436ab65b135b44ea85f3296",
+              "recipePath": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.recipe.session.json",
+              "recipeSha256": "cc1a9d5d65001c0538e9ca8578a9a21528d776daffa9e760ac0c3bc219e4f95b",
+              "evaluationPath": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
+              "evaluationCommit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+              "evaluationUtc": "2026-10-12T12:38:17.754Z",
+              "status": "complete",
+              "summary": "At zero-based segment 0 step 47, the wizard has selected ordinary throne effect 7. C begins the court-summoning loop; JavaScript calls courtmon() but records note_unported('makemon.c makemon') instead of creating the selected monster. C therefore consumes the monster-placement and creation calls, produces a monster, and updates the screen, while JavaScript skips all of those effects. The queue labels C's next RNG entry collect_coords(teleport.c:700), a downstream placement helper; the source defect is the skipped makemon call in sit.c:throne_sit_effect.",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-throne-court-summon-selected-action-attempt2",
+                "session": "synthetic/v51/v51-throne-court-summon-selected-action-attempt2",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.session.json",
+                "recordingPath": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.session.json",
+                "recordingSha256": "8cbcc893f746e6e41f23dc8726640e9f0265e1834436ab65b135b44ea85f3296",
+                "recipe": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.recipe.session.json",
+                "recipeSha256": "cc1a9d5d65001c0538e9ca8578a9a21528d776daffa9e760ac0c3bc219e4f95b",
+                "replayInputSha256": "ec87e2802e283d81d8a6817b5ed4b751d0fd39498a69f63092959777e15f3e9b",
+                "evaluationPath": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
+                "evaluationCommit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+                "evaluationArtifact": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
+                "evaluationUtc": "2026-10-12T12:38:17.754Z",
+                "remainingScreens": 26,
+                "recordedSteps": 73,
+                "previousScreensMatched": 47,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 47,
+                    "total": 73
+                  },
+                  "rng": {
+                    "matched": 2961,
+                    "total": 3661
+                  },
+                  "cursors": {
+                    "matched": 59,
+                    "total": 73
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 47,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 59,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2961,
+                    "cEntry": "rn2(8)=1",
+                    "cCaller": "collect_coords(teleport.c:700)",
+                    "jsEntry": "rn2(60)=9",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": "\n"
+                    },
+                    "stepIndex": 47
+                  },
+                  "cursor": {
+                    "index": 47,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      67,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      58,
+                      13,
+                      1
+                    ]
+                  }
+                },
+                "step": 47,
+                "kind": "rng",
+                "sourceFile": "teleport.c",
+                "function": "collect_coords",
+                "message": null,
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "line": 700
+              },
+              "source": {
+                "file": "sit.c",
+                "functions": [
+                  "throne_sit_effect"
+                ],
+                "branch": "C sit.c:throne_sit_effect() case 7 sets cnt=rnd(10), emits the throne voice, then repeats (void)makemon(courtmon(), tx, ty, NO_MM_FLAGS) while cnt--. This is an ordinary throne effect, after the wizard selected effect 7; the chosen throne is not a special Vlad's Tower throne.",
+                "callers": [
+                  "C sit.c:dosit() calls throne_sit_effect() for an ordinary throne. JavaScript js/sit.js:dosit reaches throne_sit_effect() through the same sitting command path.",
+                  "C mkroom.c:courtmon() selects and returns each court monster type. JavaScript js/mkroom.js:courtmon() already implements this selector and preserves its two source RNG calls.",
+                  "C makemon.c:makemon() receives the selected type at the hero's coordinates with NO_MM_FLAGS and relocates that request through enexto_core(). JavaScript js/makemon_create.js:makemon_runtime() wraps the existing makemon() implementation and supports this explicit-species, explicit-coordinate, no-flags runtime shape."
+                ],
+                "dependencies": [
+                  "The current JavaScript branch already has the matching courtmon() result and the makemon_runtime() helper is already implemented for explicit-species creation at the hero square with NO_MM_FLAGS. The missing behavior is the caller invocation in throne_sit_effect; no collect_coords or courtmon implementation change is indicated by this trace.",
+                  "The prior TTY-history delivery 04d8cf96fb539e0c0b6333f88d7576ce447f699e changes the same js/sit.js module's tty_yn_function import. This v51 work is based on that submitted code and must declare the delivery as an actual dependency."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The admitted v51 baseline reports first mismatch at step 47 with 47/73 screens, 2961/3661 RNG calls, and 59/73 cursors matched. Evaluation metadata binds it to manifest SHA 6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c and recording SHA 8cbcc893f746e6e41f23dc8726640e9f0265e1834436ab65b135b44ea85f3296.",
+                "A fresh strict C/JavaScript diff of the admitted recipe reproduces the same first mismatch at boundary 48 (one-based): C has 3661 RNG calls and JavaScript 3035; the first missing C RNG entry is rn2(8)=1 at collect_coords, while JavaScript's next entry is rn2(60)=9. The C screen has a monster marker at row 0 column 59 where JavaScript has a blank. The full output is retained at /tmp/teleport-validation-1000/run-hH1Gjv/stdout.log, receipt /tmp/teleport-validation-1000/run-hH1Gjv/receipt.json.",
+                "Upstream nethack-c/upstream/src/sit.c:114-123 confirms case 7 performs courtmon() followed by makemon() for each of rnd(10) attempts. js/sit.js:468-476 performs courtmon() but skips makemon(), recording note_unported('makemon.c makemon'). The 626-call RNG gap and missing monster are consequences of this omitted call, not a collect_coords defect.",
+                "Upstream nethack-c/upstream/src/makemon.c:1147-1200 confirms explicit-species placement at the hero square with NO_MM_FLAGS relocates through enexto_core(). Existing js/makemon_create.js:1280-1305 admits that exact call shape, and js/makemon_create.js:3348-3394 awaits the creation runtime tail. The implementation should invoke that helper once per loop iteration with the selected species, hero coordinates, state, random source, and message operation."
+              ],
+              "commit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+              "remainingScreens": 26,
+              "recordedSteps": 73
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "divergence-fix-cmd-doextcmd-quaff-remove-swap-v49-20261012",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Wire quaff remove and swap extended commands",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v49/v49-quaff-potion-attempt2",
+        "synthetic/v49/v49-remove-accessory-attempt2",
+        "synthetic/v49/v49-swap-empty-attempt2"
+      ],
+      "selectionReason": "Oldest dependency-ready implementation delivery after throne publication. The three valid v49 investigations locate one missing dispatcher binding family in doextcmd: dodrink, doremring and doswapweapon already have source-backed handlers and direct-key result wrappers. Their source owner is cmd.c despite downstream handler annotations in the queue. Repair those bindings without whole doextcmd or rhack completion credit.",
+      "detail": "At accepted8f901abe, v49 quaff first mismatches at segment0 step7 (7/9 screens), remove at step8 (8/10), and swap at step6 (6/7). C cmd.c493-519 invokes the selected ef_funct and returns its ECMD result; rows1809,1821 and1884-1885 name the existing handlers. js/cmd.js lacks those three switch arms. Retain immutable case/evaluation provenance and source findings in their investigations/synthetic/v49 reports.",
+      "openedAt": "adb1e01348e42936c27bdc003df8af38910d18b2",
+      "openStanding": {
+        "sha": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "doextcmd",
+      "session": "synthetic/v49/v49-quaff-potion-attempt2",
+      "step": 7,
+      "syntheticProvenance": {
+        "synthetic/v49/v49-quaff-potion-attempt2": {
+          "session": "synthetic/v49/v49-quaff-potion-attempt2",
+          "corpus": "synthetic",
+          "batch": "v49",
+          "caseId": "v49-quaff-potion-attempt2",
+          "manifestPath": "challenges/manifests/v49.json",
+          "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+          "recordingPath": "challenges/cases/v49/v49-quaff-potion-attempt2.session.json",
+          "recordingSha256": "1092edb1d46b2d9076c4492970001062f362c807a1acd802e1aa2c5365d98cfe",
+          "evaluationPath": "challenges/evaluations/accepted-8f901abeaff0f711cef77b3bb8fa5c22eecdbe11-v49.json",
+          "evaluationCommit": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11"
+        },
+        "synthetic/v49/v49-remove-accessory-attempt2": {
+          "session": "synthetic/v49/v49-remove-accessory-attempt2",
+          "corpus": "synthetic",
+          "batch": "v49",
+          "caseId": "v49-remove-accessory-attempt2",
+          "manifestPath": "challenges/manifests/v49.json",
+          "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+          "recordingPath": "challenges/cases/v49/v49-remove-accessory-attempt2.session.json",
+          "recordingSha256": "d12ebbb20bc2d2e382216404451c81bad2eae63b81abf8efaf495f93e87a6fca",
+          "evaluationPath": "challenges/evaluations/accepted-8f901abeaff0f711cef77b3bb8fa5c22eecdbe11-v49.json",
+          "evaluationCommit": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11"
+        },
+        "synthetic/v49/v49-swap-empty-attempt2": {
+          "session": "synthetic/v49/v49-swap-empty-attempt2",
+          "corpus": "synthetic",
+          "batch": "v49",
+          "caseId": "v49-swap-empty-attempt2",
+          "manifestPath": "challenges/manifests/v49.json",
+          "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+          "recordingPath": "challenges/cases/v49/v49-swap-empty-attempt2.session.json",
+          "recordingSha256": "93ae8835be07f1b1ad21ad9ff1014528dba164f1e6ac71cd048f85407d95e4a4",
+          "evaluationPath": "challenges/evaluations/accepted-8f901abeaff0f711cef77b3bb8fa5c22eecdbe11-v49.json",
+          "evaluationCommit": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11"
+        }
+      },
+      "activeStanding": {
+        "sha": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v49",
+          "caseId": "v49-quaff-potion-attempt2",
+          "session": "synthetic/v49/v49-quaff-potion-attempt2",
+          "manifestPath": "challenges/manifests/v49.json",
+          "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+          "recording": "challenges/cases/v49/v49-quaff-potion-attempt2.session.json",
+          "recordingPath": "challenges/cases/v49/v49-quaff-potion-attempt2.session.json",
+          "recordingSha256": "1092edb1d46b2d9076c4492970001062f362c807a1acd802e1aa2c5365d98cfe",
+          "recipe": "challenges/cases/v49/v49-quaff-potion-attempt2.recipe.session.json",
+          "recipeSha256": "12c022cb990d79b5ac3eec8164c847d12b6672addb996074489051f40cb65c09",
+          "replayInputSha256": "0008053e1bf235cf6f0fc23d4d56c4a291b36239babcdcdf713d76ca56c3e920",
+          "evaluationPath": "challenges/evaluations/accepted-8f901abeaff0f711cef77b3bb8fa5c22eecdbe11-v49.json",
+          "evaluationCommit": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11",
+          "evaluationArtifact": "challenges/evaluations/accepted-8f901abeaff0f711cef77b3bb8fa5c22eecdbe11-v49.json",
+          "evaluationUtc": "2026-10-12T12:56:10.011Z",
+          "remainingScreens": 2,
+          "recordedSteps": 9,
+          "previousScreensMatched": 7,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 7,
+              "total": 9
+            },
+            "rng": {
+              "matched": 2817,
+              "total": 2817
+            },
+            "cursors": {
+              "matched": 7,
+              "total": 9
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: dodrink() for the extended command 'quaff' is not ported",
+            "step": 7
+          },
+          "step": 7,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "dodrink",
+          "message": "unsupported hero command: dodrink() for the extended command 'quaff' is not ported",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v49/v49-quaff-potion-attempt2.json",
+            "result": {
+              "session": "synthetic/v49/v49-quaff-potion-attempt2",
+              "remainingScreens": 2,
+              "recordedSteps": 9,
+              "corpus": "synthetic",
+              "batch": "v49",
+              "caseId": "v49-quaff-potion-attempt2",
+              "manifestPath": "challenges/manifests/v49.json",
+              "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+              "recordingSha256": "1092edb1d46b2d9076c4492970001062f362c807a1acd802e1aa2c5365d98cfe",
+              "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v49.json",
+              "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+              "status": "complete",
+              "commit": "4a7f283b474dbc6f79a49f2e218618bb945290ee",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v49",
+                "caseId": "v49-quaff-potion-attempt2",
+                "session": "synthetic/v49/v49-quaff-potion-attempt2",
+                "manifestPath": "challenges/manifests/v49.json",
+                "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+                "recording": "challenges/cases/v49/v49-quaff-potion-attempt2.session.json",
+                "recordingPath": "challenges/cases/v49/v49-quaff-potion-attempt2.session.json",
+                "recordingSha256": "1092edb1d46b2d9076c4492970001062f362c807a1acd802e1aa2c5365d98cfe",
+                "recipe": "challenges/cases/v49/v49-quaff-potion-attempt2.recipe.session.json",
+                "recipeSha256": "12c022cb990d79b5ac3eec8164c847d12b6672addb996074489051f40cb65c09",
+                "replayInputSha256": "783f4a4a92dfd0a8090752d43fc33c85a489fa16fa48a11f2b520c610ad3428d",
+                "evaluationPath": "challenges/evaluations/baseline-1462b295f-v49.json",
+                "evaluationCommit": "1462b295f3bf6514ca24014016052b1e475bffda",
+                "evaluationArtifact": "challenges/evaluations/baseline-1462b295f-v49.json",
+                "evaluationUtc": "2026-10-12T05:09:46.324Z",
+                "remainingScreens": 2,
+                "recordedSteps": 9,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 7,
+                    "total": 9
+                  },
+                  "rng": {
+                    "matched": 2817,
+                    "total": 2817
+                  },
+                  "cursors": {
+                    "matched": 7,
+                    "total": 9
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: dodrink() for the extended command 'quaff' is not ported",
+                  "step": 7
+                },
+                "step": 7,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "dodrink",
+                "message": "unsupported hero command: dodrink() for the extended command 'quaff' is not ported",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This case reaches the same missing selected-handler binding in js/cmd.js:doextcmd() as the other two v49 cases. Upstream cmd.c:doextcmd() sets ge.ext_tlist and invokes the selected ef_funct pointer, so the selected dodrink() runs and its ECMD_* result is returned to rhack(). The JavaScript switch has no dodrink case and falls through to UnsupportedHeroCommandBoundaryError. The handler is already implemented in js/potion.js; its direct-key route already retains the return result. This bounded divergence fix adds only the corresponding doextcmd() binding and does not claim the whole function as ported.",
+              "source": {
+                "file": "cmd.c",
+                "branch": "The player selects #quaff. cmd.c:doextcmd() (493-519) assigns the selected row to ge.ext_tlist then calls its ef_funct pointer. The extcmdlist row at cmd.c:1809 maps to dodrink(); the JS switch lacks that case and reaches the generic unsupported-handler default.",
+                "functions": [
+                  "doextcmd",
+                  "dodrink"
+                ],
+                "callers": [
+                  "cmd.c:rhack dispatches # to doextcmd(); doextcmd() invokes the selected function pointer and returns its ECMD_* result to rhack().",
+                  "js/cmd.js:rhack dispatches # to doextcmd(); its doextcmd() switch must route ef_funct 'dodrink' to the existing handler and return the same ECMD_* result."
+                ],
+                "dependencies": [
+                  "The existing JavaScript potion.c:dodrink() (526-615) handler and direct-key result wrapper are already implemented; no new helper or handler port is needed."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The immutable v49 baseline 1462b295f3bf6514ca24014016052b1e475bffda identifies synthetic/v49/v49-quaff-potion-attempt2 at step 7: unsupported hero command: dodrink() for the extended command 'quaff' is not ported.",
+                "The saved baseline reports 7/9 screens and cursors, with 2817/2817 RNG calls matched before the refusal.",
+                "The admitted case recording is 1092edb1d46b2d9076c4492970001062f362c807a1acd802e1aa2c5365d98cfe; the recipe identity is 12c022cb990d79b5ac3eec8164c847d12b6672addb996074489051f40cb65c09; both local case files are tracked in accepted-main and their SHA-256 values match the coordinator queue. Only challenges/manifests/v49.json and the baseline evaluation are absent from this worktree. No challenge files were copied or rewritten.",
+                "Upstream cmd.c:doextcmd() (493-519) invokes ef_funct and returns retval; cmd.c extcmdlist cmd.c:1809 binds the selected name to dodrink. potion.c:dodrink() (526-615) establishes the selected handler return contract.",
+                "js/cmd.js:doextcmd() lacks an arm for dodrink; its default resets command state and throws the exact unsupported extended-command boundary in the evaluation. The existing direct-key route calls runQuaffCommand(key, state) and returns the resulting ECMD value to rhack().",
+                "The implementation scope is the single missing dodrink dispatcher binding in cmd.c:doextcmd() parity; this is not whole-function doextcmd() completion.",
+                "Focused replay on the admitted local recipe and recording passes at base 4a7f283b474dbc6f79a49f2e218618bb945290ee: 9 screens, 9 cursors, and 2817 RNG calls match the recorded C output; see .cache/c-v49-extcmd-replay.json."
+              ],
+              "localManifestCheck": {
+                "status": "available-after-accepted-main-sync",
+                "acceptedMainCommit": "44b6c8758e45cdf0f48ef38b2c61d9bb0ee9b941",
+                "manifestPath": "challenges/manifests/v49.json",
+                "manifestCorpusSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+                "evaluationPath": "challenges/evaluations/baseline-1462b295f-v49.json",
+                "evaluationCommit": "1462b295f3bf6514ca24014016052b1e475bffda",
+                "caseFiles": "Present locally; recording and recipe hashes match the admitted v49 baseline provenance."
+              },
+              "focusedReplay": {
+                "base": "4a7f283b474dbc6f79a49f2e218618bb945290ee",
+                "passed": true,
+                "lengths": {
+                  "rng": {
+                    "c": 2817,
+                    "js": 2817
+                  },
+                  "screens": {
+                    "c": 9,
+                    "js": 9
+                  },
+                  "cursors": {
+                    "c": 9,
+                    "js": 9
+                  },
+                  "animFrames": {
+                    "c": 0,
+                    "js": 0
+                  }
+                },
+                "artifact": ".cache/c-v49-extcmd-replay.json"
+              },
+              "currentEvaluationReview": {
+                "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v49.json",
+                "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: dodrink() for the extended command 'quaff' is not ported",
+                  "step": 7
+                },
+                "remainingScreens": 2,
+                "sourceDiagnosisUnchanged": true
+              }
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v49",
+          "caseId": "v49-remove-accessory-attempt2",
+          "session": "synthetic/v49/v49-remove-accessory-attempt2",
+          "manifestPath": "challenges/manifests/v49.json",
+          "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+          "recording": "challenges/cases/v49/v49-remove-accessory-attempt2.session.json",
+          "recordingPath": "challenges/cases/v49/v49-remove-accessory-attempt2.session.json",
+          "recordingSha256": "d12ebbb20bc2d2e382216404451c81bad2eae63b81abf8efaf495f93e87a6fca",
+          "recipe": "challenges/cases/v49/v49-remove-accessory-attempt2.recipe.session.json",
+          "recipeSha256": "7e259239d7f7a078fcd95dc360c5918d1bc77c29478b49a6b7e371b2488a4f08",
+          "replayInputSha256": "0008053e1bf235cf6f0fc23d4d56c4a291b36239babcdcdf713d76ca56c3e920",
+          "evaluationPath": "challenges/evaluations/accepted-8f901abeaff0f711cef77b3bb8fa5c22eecdbe11-v49.json",
+          "evaluationCommit": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11",
+          "evaluationArtifact": "challenges/evaluations/accepted-8f901abeaff0f711cef77b3bb8fa5c22eecdbe11-v49.json",
+          "evaluationUtc": "2026-10-12T12:56:10.011Z",
+          "remainingScreens": 2,
+          "recordedSteps": 10,
+          "previousScreensMatched": 8,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 8,
+              "total": 10
+            },
+            "rng": {
+              "matched": 2509,
+              "total": 2509
+            },
+            "cursors": {
+              "matched": 8,
+              "total": 10
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: doremring() for the extended command 'remove' is not ported",
+            "step": 8
+          },
+          "step": 8,
+          "kind": "stop",
+          "sourceFile": "do_wear.c",
+          "function": "doremring",
+          "message": "unsupported hero command: doremring() for the extended command 'remove' is not ported",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v49/v49-remove-accessory-attempt2.json",
+            "result": {
+              "session": "synthetic/v49/v49-remove-accessory-attempt2",
+              "remainingScreens": 2,
+              "recordedSteps": 10,
+              "corpus": "synthetic",
+              "batch": "v49",
+              "caseId": "v49-remove-accessory-attempt2",
+              "manifestPath": "challenges/manifests/v49.json",
+              "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+              "recordingSha256": "d12ebbb20bc2d2e382216404451c81bad2eae63b81abf8efaf495f93e87a6fca",
+              "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v49.json",
+              "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+              "status": "complete",
+              "commit": "4a7f283b474dbc6f79a49f2e218618bb945290ee",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v49",
+                "caseId": "v49-remove-accessory-attempt2",
+                "session": "synthetic/v49/v49-remove-accessory-attempt2",
+                "manifestPath": "challenges/manifests/v49.json",
+                "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+                "recording": "challenges/cases/v49/v49-remove-accessory-attempt2.session.json",
+                "recordingPath": "challenges/cases/v49/v49-remove-accessory-attempt2.session.json",
+                "recordingSha256": "d12ebbb20bc2d2e382216404451c81bad2eae63b81abf8efaf495f93e87a6fca",
+                "recipe": "challenges/cases/v49/v49-remove-accessory-attempt2.recipe.session.json",
+                "recipeSha256": "7e259239d7f7a078fcd95dc360c5918d1bc77c29478b49a6b7e371b2488a4f08",
+                "replayInputSha256": "783f4a4a92dfd0a8090752d43fc33c85a489fa16fa48a11f2b520c610ad3428d",
+                "evaluationPath": "challenges/evaluations/baseline-1462b295f-v49.json",
+                "evaluationCommit": "1462b295f3bf6514ca24014016052b1e475bffda",
+                "evaluationArtifact": "challenges/evaluations/baseline-1462b295f-v49.json",
+                "evaluationUtc": "2026-10-12T05:09:46.324Z",
+                "remainingScreens": 2,
+                "recordedSteps": 10,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 8,
+                    "total": 10
+                  },
+                  "rng": {
+                    "matched": 2509,
+                    "total": 2509
+                  },
+                  "cursors": {
+                    "matched": 8,
+                    "total": 10
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: doremring() for the extended command 'remove' is not ported",
+                  "step": 8
+                },
+                "step": 8,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "function": "doremring",
+                "message": "unsupported hero command: doremring() for the extended command 'remove' is not ported",
+                "cFile": "do_wear.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This case reaches the same missing selected-handler binding in js/cmd.js:doextcmd() as the other two v49 cases. Upstream cmd.c:doextcmd() sets ge.ext_tlist and invokes the selected ef_funct pointer, so the selected doremring() runs and its ECMD_* result is returned to rhack(). The JavaScript switch has no doremring case and falls through to UnsupportedHeroCommandBoundaryError. The handler is already implemented in js/do_wear.js; its direct-key route already retains the return result. This bounded divergence fix adds only the corresponding doextcmd() binding and does not claim the whole function as ported.",
+              "source": {
+                "file": "cmd.c",
+                "branch": "The player selects #remove. cmd.c:doextcmd() (493-519) assigns the selected row to ge.ext_tlist then calls its ef_funct pointer. The extcmdlist row at cmd.c:1821 maps to doremring(); the JS switch lacks that case and reaches the generic unsupported-handler default.",
+                "functions": [
+                  "doextcmd",
+                  "doremring"
+                ],
+                "callers": [
+                  "cmd.c:rhack dispatches # to doextcmd(); doextcmd() invokes the selected function pointer and returns its ECMD_* result to rhack().",
+                  "js/cmd.js:rhack dispatches # to doextcmd(); its doextcmd() switch must route ef_funct 'doremring' to the existing handler and return the same ECMD_* result."
+                ],
+                "dependencies": [
+                  "The existing JavaScript do_wear.c:doremring() (1874-1892) handler and direct-key result wrapper are already implemented; no new helper or handler port is needed."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The immutable v49 baseline 1462b295f3bf6514ca24014016052b1e475bffda identifies synthetic/v49/v49-remove-accessory-attempt2 at step 8: unsupported hero command: doremring() for the extended command 'remove' is not ported.",
+                "The saved baseline reports 8/10 screens and cursors, with 2509/2509 RNG calls matched before the refusal.",
+                "The admitted case recording is d12ebbb20bc2d2e382216404451c81bad2eae63b81abf8efaf495f93e87a6fca; the recipe identity is 7e259239d7f7a078fcd95dc360c5918d1bc77c29478b49a6b7e371b2488a4f08; both local case files are tracked in accepted-main and their SHA-256 values match the coordinator queue. Only challenges/manifests/v49.json and the baseline evaluation are absent from this worktree. No challenge files were copied or rewritten.",
+                "Upstream cmd.c:doextcmd() (493-519) invokes ef_funct and returns retval; cmd.c extcmdlist cmd.c:1821 binds the selected name to doremring. do_wear.c:doremring() (1874-1892) establishes the selected handler return contract.",
+                "js/cmd.js:doextcmd() lacks an arm for doremring; its default resets command state and throws the exact unsupported extended-command boundary in the evaluation. The existing direct-key route calls runRemoveCommand(key, state) and returns the resulting ECMD value to rhack().",
+                "The implementation scope is the single missing doremring dispatcher binding in cmd.c:doextcmd() parity; this is not whole-function doextcmd() completion.",
+                "Focused replay on the admitted local recipe and recording passes at base 4a7f283b474dbc6f79a49f2e218618bb945290ee: 10 screens, 10 cursors, and 2509 RNG calls match the recorded C output; see .cache/c-v49-extcmd-replay.json."
+              ],
+              "localManifestCheck": {
+                "status": "available-after-accepted-main-sync",
+                "acceptedMainCommit": "44b6c8758e45cdf0f48ef38b2c61d9bb0ee9b941",
+                "manifestPath": "challenges/manifests/v49.json",
+                "manifestCorpusSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+                "evaluationPath": "challenges/evaluations/baseline-1462b295f-v49.json",
+                "evaluationCommit": "1462b295f3bf6514ca24014016052b1e475bffda",
+                "caseFiles": "Present locally; recording and recipe hashes match the admitted v49 baseline provenance."
+              },
+              "focusedReplay": {
+                "base": "4a7f283b474dbc6f79a49f2e218618bb945290ee",
+                "passed": true,
+                "lengths": {
+                  "rng": {
+                    "c": 2509,
+                    "js": 2509
+                  },
+                  "screens": {
+                    "c": 10,
+                    "js": 10
+                  },
+                  "cursors": {
+                    "c": 10,
+                    "js": 10
+                  },
+                  "animFrames": {
+                    "c": 0,
+                    "js": 0
+                  }
+                },
+                "artifact": ".cache/c-v49-extcmd-replay.json"
+              },
+              "currentEvaluationReview": {
+                "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v49.json",
+                "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: doremring() for the extended command 'remove' is not ported",
+                  "step": 8
+                },
+                "remainingScreens": 2,
+                "sourceDiagnosisUnchanged": true
+              }
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v49",
+          "caseId": "v49-swap-empty-attempt2",
+          "session": "synthetic/v49/v49-swap-empty-attempt2",
+          "manifestPath": "challenges/manifests/v49.json",
+          "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+          "recording": "challenges/cases/v49/v49-swap-empty-attempt2.session.json",
+          "recordingPath": "challenges/cases/v49/v49-swap-empty-attempt2.session.json",
+          "recordingSha256": "93ae8835be07f1b1ad21ad9ff1014528dba164f1e6ac71cd048f85407d95e4a4",
+          "recipe": "challenges/cases/v49/v49-swap-empty-attempt2.recipe.session.json",
+          "recipeSha256": "ac9264e82c8fdceb0a618268e2defd6595858f2018a479e46952d6d8986ab4b9",
+          "replayInputSha256": "0008053e1bf235cf6f0fc23d4d56c4a291b36239babcdcdf713d76ca56c3e920",
+          "evaluationPath": "challenges/evaluations/accepted-8f901abeaff0f711cef77b3bb8fa5c22eecdbe11-v49.json",
+          "evaluationCommit": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11",
+          "evaluationArtifact": "challenges/evaluations/accepted-8f901abeaff0f711cef77b3bb8fa5c22eecdbe11-v49.json",
+          "evaluationUtc": "2026-10-12T12:56:10.011Z",
+          "remainingScreens": 1,
+          "recordedSteps": 7,
+          "previousScreensMatched": 6,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 6,
+              "total": 7
+            },
+            "rng": {
+              "matched": 2287,
+              "total": 2287
+            },
+            "cursors": {
+              "matched": 6,
+              "total": 7
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: doswapweapon() for the extended command 'swap' is not ported",
+            "step": 6
+          },
+          "step": 6,
+          "kind": "stop",
+          "sourceFile": "wield.c",
+          "function": "doswapweapon",
+          "message": "unsupported hero command: doswapweapon() for the extended command 'swap' is not ported",
+          "cFile": "wield.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v49/v49-swap-empty-attempt2.json",
+            "result": {
+              "session": "synthetic/v49/v49-swap-empty-attempt2",
+              "remainingScreens": 1,
+              "recordedSteps": 7,
+              "corpus": "synthetic",
+              "batch": "v49",
+              "caseId": "v49-swap-empty-attempt2",
+              "manifestPath": "challenges/manifests/v49.json",
+              "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+              "recordingSha256": "93ae8835be07f1b1ad21ad9ff1014528dba164f1e6ac71cd048f85407d95e4a4",
+              "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v49.json",
+              "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+              "status": "complete",
+              "commit": "4a7f283b474dbc6f79a49f2e218618bb945290ee",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v49",
+                "caseId": "v49-swap-empty-attempt2",
+                "session": "synthetic/v49/v49-swap-empty-attempt2",
+                "manifestPath": "challenges/manifests/v49.json",
+                "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+                "recording": "challenges/cases/v49/v49-swap-empty-attempt2.session.json",
+                "recordingPath": "challenges/cases/v49/v49-swap-empty-attempt2.session.json",
+                "recordingSha256": "93ae8835be07f1b1ad21ad9ff1014528dba164f1e6ac71cd048f85407d95e4a4",
+                "recipe": "challenges/cases/v49/v49-swap-empty-attempt2.recipe.session.json",
+                "recipeSha256": "ac9264e82c8fdceb0a618268e2defd6595858f2018a479e46952d6d8986ab4b9",
+                "replayInputSha256": "783f4a4a92dfd0a8090752d43fc33c85a489fa16fa48a11f2b520c610ad3428d",
+                "evaluationPath": "challenges/evaluations/baseline-1462b295f-v49.json",
+                "evaluationCommit": "1462b295f3bf6514ca24014016052b1e475bffda",
+                "evaluationArtifact": "challenges/evaluations/baseline-1462b295f-v49.json",
+                "evaluationUtc": "2026-10-12T05:09:46.324Z",
+                "remainingScreens": 1,
+                "recordedSteps": 7,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 6,
+                    "total": 7
+                  },
+                  "rng": {
+                    "matched": 2287,
+                    "total": 2287
+                  },
+                  "cursors": {
+                    "matched": 6,
+                    "total": 7
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: doswapweapon() for the extended command 'swap' is not ported",
+                  "step": 6
+                },
+                "step": 6,
+                "kind": "stop",
+                "sourceFile": "wield.c",
+                "function": "doswapweapon",
+                "message": "unsupported hero command: doswapweapon() for the extended command 'swap' is not ported",
+                "cFile": "wield.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This case reaches the same missing selected-handler binding in js/cmd.js:doextcmd() as the other two v49 cases. Upstream cmd.c:doextcmd() sets ge.ext_tlist and invokes the selected ef_funct pointer, so the selected doswapweapon() runs and its ECMD_* result is returned to rhack(). The JavaScript switch has no doswapweapon case and falls through to UnsupportedHeroCommandBoundaryError. The handler is already implemented in js/wield.js; its direct-key route already retains the return result. This bounded divergence fix adds only the corresponding doextcmd() binding and does not claim the whole function as ported.",
+              "source": {
+                "file": "cmd.c",
+                "branch": "The player selects #swap. cmd.c:doextcmd() (493-519) assigns the selected row to ge.ext_tlist then calls its ef_funct pointer. The extcmdlist row at cmd.c:1884-1885 maps to doswapweapon(); the JS switch lacks that case and reaches the generic unsupported-handler default.",
+                "functions": [
+                  "doextcmd",
+                  "doswapweapon"
+                ],
+                "callers": [
+                  "cmd.c:rhack dispatches # to doextcmd(); doextcmd() invokes the selected function pointer and returns its ECMD_* result to rhack().",
+                  "js/cmd.js:rhack dispatches # to doextcmd(); its doextcmd() switch must route ef_funct 'doswapweapon' to the existing handler and return the same ECMD_* result."
+                ],
+                "dependencies": [
+                  "The existing JavaScript wield.c:doswapweapon() (461-501) handler and direct-key result wrapper are already implemented; no new helper or handler port is needed."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The immutable v49 baseline 1462b295f3bf6514ca24014016052b1e475bffda identifies synthetic/v49/v49-swap-empty-attempt2 at step 6: unsupported hero command: doswapweapon() for the extended command 'swap' is not ported.",
+                "The saved baseline reports 6/7 screens and cursors, with 2287/2287 RNG calls matched before the refusal.",
+                "The admitted case recording is 93ae8835be07f1b1ad21ad9ff1014528dba164f1e6ac71cd048f85407d95e4a4; the recipe identity is ac9264e82c8fdceb0a618268e2defd6595858f2018a479e46952d6d8986ab4b9; both local case files are tracked in accepted-main and their SHA-256 values match the coordinator queue. Only challenges/manifests/v49.json and the baseline evaluation are absent from this worktree. No challenge files were copied or rewritten.",
+                "Upstream cmd.c:doextcmd() (493-519) invokes ef_funct and returns retval; cmd.c extcmdlist cmd.c:1884-1885 binds the selected name to doswapweapon. wield.c:doswapweapon() (461-501) establishes the selected handler return contract.",
+                "js/cmd.js:doextcmd() lacks an arm for doswapweapon; its default resets command state and throws the exact unsupported extended-command boundary in the evaluation. The existing direct-key route calls failClosedCommand(key, state, () => doswapweapon(state)) and returns the resulting ECMD value to rhack().",
+                "The implementation scope is the single missing doswapweapon dispatcher binding in cmd.c:doextcmd() parity; this is not whole-function doextcmd() completion.",
+                "Focused replay on the admitted local recipe and recording passes at base 4a7f283b474dbc6f79a49f2e218618bb945290ee: 7 screens, 7 cursors, and 2287 RNG calls match the recorded C output; see .cache/c-v49-extcmd-replay.json."
+              ],
+              "localManifestCheck": {
+                "status": "available-after-accepted-main-sync",
+                "acceptedMainCommit": "44b6c8758e45cdf0f48ef38b2c61d9bb0ee9b941",
+                "manifestPath": "challenges/manifests/v49.json",
+                "manifestCorpusSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+                "evaluationPath": "challenges/evaluations/baseline-1462b295f-v49.json",
+                "evaluationCommit": "1462b295f3bf6514ca24014016052b1e475bffda",
+                "caseFiles": "Present locally; recording and recipe hashes match the admitted v49 baseline provenance."
+              },
+              "focusedReplay": {
+                "base": "4a7f283b474dbc6f79a49f2e218618bb945290ee",
+                "passed": true,
+                "lengths": {
+                  "rng": {
+                    "c": 2287,
+                    "js": 2287
+                  },
+                  "screens": {
+                    "c": 7,
+                    "js": 7
+                  },
+                  "cursors": {
+                    "c": 7,
+                    "js": 7
+                  },
+                  "animFrames": {
+                    "c": 0,
+                    "js": 0
+                  }
+                },
+                "artifact": ".cache/c-v49-extcmd-replay.json"
+              },
+              "currentEvaluationReview": {
+                "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v49.json",
+                "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: doswapweapon() for the extended command 'swap' is not ported",
+                  "step": 6
+                },
+                "remainingScreens": 1,
+                "sourceDiagnosisUnchanged": true
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }

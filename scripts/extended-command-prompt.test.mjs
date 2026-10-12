@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { compareSessionOutputs, formatReport } from './diff-fresh.mjs';
 
 import { extcmds_match } from '../js/cmd.js';
 import {
@@ -567,6 +568,47 @@ test('extended command dispatch reaches its existing handler functions',
             new RegExp(`for the extended command '${name}' is not ported`, 'u'),
             `#${name} reaches its handler`,
         );
+    }
+});
+
+test('quaff, remove, and swap extended names keep their handler results',
+    async () => {
+    for (const [name, caseId] of [
+        ['quaff', 'v49-quaff-potion-attempt2'],
+        ['remove', 'v49-remove-accessory-attempt2'],
+        ['swap', 'v49-swap-empty-attempt2'],
+    ]) {
+        const root = new URL(
+            `../challenges/cases/v49/${caseId}`,
+            import.meta.url,
+        );
+        const recipe = JSON.parse(readFileSync(new URL(
+            `${root.href}.recipe.session.json`,
+        ), 'utf8'));
+        const recording = JSON.parse(readFileSync(new URL(
+            `${root.href}.session.json`,
+        ), 'utf8'));
+        let boundary = null;
+        const output = await runSegment(recipe.segments[0], {
+            onBoundary: (error) => { boundary = error; },
+        });
+        assert.equal(
+            boundary,
+            null,
+            `#${name} returns from its existing extended-command handler`,
+        );
+        assert.doesNotMatch(
+            topLine(),
+            new RegExp(`for the extended command '${name}' is not ported`, 'u'),
+            `#${name} does not fall through doextcmd()`,
+        );
+        const comparison = compareSessionOutputs(recording, {
+            rng: output.getRngLog(),
+            screens: output.getScreens(),
+            cursors: output.getCursors(),
+            animFrames: output.getAnimationFramesByStep(),
+        });
+        assert.equal(comparison.passed, true, formatReport(comparison));
     }
 });
 

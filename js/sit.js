@@ -113,7 +113,7 @@ import {
     SPBOOK_CLASS,
 } from './objects.js';
 import { body_part } from './polyself.js';
-import { d, rn1, rn2, rne, rnd } from './rng.js';
+import { d, rn1, rn2, rne, rnd, rnz } from './rng.js';
 import { aggravate } from './wizard.js';
 import { S_altar, S_grave, S_ice, S_sink, S_throne } from './symbols.js';
 
@@ -347,8 +347,7 @@ async function special_throne_effect(effect, state, rawEnv = {}) {
 }
 
 // C ref: sit.c throne_sit_effect() (39-234). C's calls to still-unported
-// void effects are named at their source positions; the courtmon() result is
-// retained because C evaluates it before discarding makemon()'s result.
+// void effects are named at their source positions.
 async function throne_sit_effect(state, rawEnv = {}) {
     const u = state.u;
     const random = sit_water_random(rawEnv);
@@ -470,9 +469,25 @@ async function throne_sit_effect(state, rawEnv = {}) {
                 { message },
             );
             const { courtmon } = await import('./mkroom.js');
+            const { makemon_runtime } = await import('./makemon_create.js');
+            const creationRandom = {
+                d, rn1, rn2, rne, rnd, rnz,
+                ...random,
+            };
+            const creationEnv = {
+                ...rawEnv,
+                state,
+                random: creationRandom,
+                message,
+            };
             while (count--) {
-                courtmon(state, random);
-                note_unported('makemon.c makemon');
+                await makemon_runtime(
+                    courtmon(state, random),
+                    tx,
+                    ty,
+                    0,
+                    creationEnv,
+                );
             }
             break;
         }
