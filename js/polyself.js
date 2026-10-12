@@ -1331,7 +1331,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
 
     await retouch_equipment(2, state, env); // polyself.c:polymon
     if (!state.uarmg)
-        note_unported('trap.c selftouch');
+        await selftouch('No longer petrify-resistant, you', state, env);
 
     /* the explanation of '#monster' used to be shown sooner, but there are
        possible fatalities above and it isn't useful unless hero survives */

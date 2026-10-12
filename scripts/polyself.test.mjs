@@ -113,6 +113,18 @@ test('polymon cures sickness after the new form grants resistance', () => {
         /const sicknessResistance = u\.uprops\[SICK_RES\];\s*const sickResistant = Boolean\(\s*sicknessResistance\.intrinsic \|\| sicknessResistance\.extrinsic\s*\|\| defended\(state\.youmonst, M\.AD_DISE, state\),\s*\);\s*if \(sickResistant && u\.uprops\[SICK\]\.intrinsic\) \{\s*await make_sick\(0, null, false, SICK_ALL, state, env\);\s*await message\('You no longer feel sick\.', state, env\);/u);
 });
 
+test('polymon self-touches after losing glove protection', () => {
+    // polyself.c:1025-1027 resolves equipment retouching before checking the
+    // new form's glove slot. The already ported trap.c:selftouch then owns
+    // corpse contact, instapetrify, and any post-lifesaving unwield.
+    assert.match(C_POLYMON_FUNCTION,
+        /retouch_equipment\(2\);[\s\S]*?if \(!uarmg\)\s*selftouch\(no_longer_petrify_resistant\);/u);
+    assert.match(JS_POLYMON_FUNCTION,
+        /await retouch_equipment\(2, state, env\);[^\n]*\n\s*if \(!state\.uarmg\)\s*await selftouch\('No longer petrify-resistant, you', state, env\);/u);
+    assert.doesNotMatch(JS_POLYMON_FUNCTION,
+        /note_unported\('trap\.c selftouch'\)/u);
+});
+
 test('polymon dismounts when the transformed hero cannot ride', () => {
     assert.match(C_POLYMON_FUNCTION,
         /if \(!can_ride\(u\.usteed\)\)\s*dismount_steed\(DISMOUNT_POLY\);/u);
