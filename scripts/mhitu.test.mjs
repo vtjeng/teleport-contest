@@ -1329,6 +1329,29 @@ test('gulpmu clears leash state after the swallowed leash message', () => {
         /note_unported\('apply\.c unleash_all'\)/u);
 });
 
+test('gulpmu wires the source engulfed dismount with its random owner', () => {
+    // mhitu.c:1315-1329 calls the steed helper after printing the plucking
+    // message. steed.c:581 evaluates landing_spot's RNG before the shared
+    // dismount tail, so the JS caller must pass the active state and random
+    // provider through the same call.
+    const cStart = MHITU_C.indexOf('/* 5.0: dismount for all engulfers');
+    const cEnd = MHITU_C.indexOf('        } else {', cStart);
+    const cBranch = MHITU_C.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'C gulpmu must contain the mounted-engulfer branch');
+    assert.match(cBranch, /dismount_steed\(DISMOUNT_ENGULFED\);/u);
+
+    const jsStart = MHITU_JS.indexOf('if (u.usteed) {',
+        MHITU_JS.indexOf('async function gulpmu('));
+    const jsEnd = MHITU_JS.indexOf('} else if (rawEnv.planning)', jsStart);
+    const jsBranch = MHITU_JS.slice(jsStart, jsEnd);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart,
+        'JS gulpmu must contain the mounted-engulfer branch');
+    assert.match(jsBranch,
+        /await dismount_steed\(DISMOUNT_ENGULFED, state, \{[\s\S]*?state,[\s\S]*?random,[\s\S]*?\}\);/u);
+    assert.doesNotMatch(jsBranch, /note_unported\('steed\.c dismount_steed'\)/u);
+});
+
 test('an ice vortex swallows, freezes, and expels an ordinary hero',
     async () => {
     // mhitu.c:848-850 and gulpmu():1292, 1392-1393, 1502-1508. The first

@@ -117,6 +117,8 @@ import {
 import { accessible } from './monmove.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
+    AD_PHYS,
+    PM_BAT,
     M1_AMORPHOUS,
     M1_HUMANOID,
     M1_UNSOLID,
@@ -135,13 +137,14 @@ import {
     S_UNICORN,
     S_VORTEX,
 } from './monsters.js';
+import { monkilled } from './mon.js';
 import { greatest_erosion, isMetallic, mksobj } from './obj.js';
 import { BOULDER, SADDLE } from './objects.js';
 import { an } from './objnam.js';
 import { encumber_msg, u_handsy } from './pickup.js';
 import { body_part, polymon, steed_vs_stealth } from './polyself.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
-import { enexto, teleds } from './teleport.js';
+import { enexto, rloc_to, teleds } from './teleport.js';
 import {
     float_down,
     instapetrify,
@@ -855,6 +858,7 @@ async function landing_spot(reason, forceit, state = game, random = { rn2 }) {
 export async function dismount_steed(reason, state = game, rawEnv = {}) {
     const u = state.u;
     const random = rawEnv.random ?? { rn2 };
+    const positionEnv = { ...rawEnv, state, random };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('dismount_steed random injection requires rn2');
     const save_utrap = u.utrap;
@@ -912,11 +916,9 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
             have_spot = await landing_spot(reason, 1, state, random);
         break;
     case DISMOUNT_ENGULFED:
-        // mhitu.c prints its own message; the tail below then skips
-        // float_down() and leaves the hero inside the engulfer.
-        throw new UnsupportedSteedError(
-            'dismount_steed(DISMOUNT_ENGULFED)',
-        );
+        // mhitu.c has placed the engulfer on the hero's square and printed
+        // the plucking message. C releases the mount without a second line.
+        break;
     case DISMOUNT_BONES:
         // bones.c, after the hero has died.
         throw new UnsupportedSteedError('dismount_steed(DISMOUNT_BONES)');
@@ -989,11 +991,16 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
      */
     const steedcc = { x: u.ux, y: u.uy };
     if (m_at(u.ux, u.uy, state)) {
-        // The hero's square is occupied only when an engulfer plucked the
-        // hero from the saddle, which DISMOUNT_ENGULFED already refuses.
-        throw new UnsupportedSteedError(
-            'dismount_steed() onto an occupied hero square',
-        );
+        // C steed.c:693-700. An engulfer occupies the former mounted square;
+        // place the released steed nearby, trying its own species before the
+        // bat and ghost fallbacks.
+        const nearbySteed = enexto(u.ux, u.uy, mtmp.data, positionEnv)
+            ?? enexto(u.ux, u.uy, state.mons[PM_BAT], positionEnv)
+            ?? enexto(u.ux, u.uy, state.mons[PM_GHOST], positionEnv);
+        if (nearbySteed) {
+            steedcc.x = nearbySteed.x;
+            steedcc.y = nearbySteed.y;
+        }
     }
 
     if (!(mtmp.mhp < 1)) { /* !DEADMONSTER(mtmp) */
@@ -1040,25 +1047,30 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
                 );
             }
         } else {
-            // The enexto() fallback that keeps the hero put has no owner, and
-            // the killed()/monkilled() arm below it is reached only through
-            // that fallback's failure; both need a hero who is held,
-            // engulfed, or has nowhere to stand, and the BYCHOICE arm above
-            // has already returned for the last of those.
-            throw new UnsupportedSteedError(
-                'dismount_steed() with no landing spot for the hero',
-            );
+            // C steed.c:777-793 leaves the hero in place and removes a steed
+            // that has no adjacent destination after an engulfed dismount.
+            const nearbySteed = enexto(u.ux, u.uy, mtmp.data, positionEnv);
+            if (nearbySteed) {
+                await rloc_to(mtmp, nearbySteed.x, nearbySteed.y, positionEnv);
+            } else {
+                await monkilled(mtmp, '', -AD_PHYS, state, positionEnv);
+            }
         }
     } /* !DEADMONSTER(mtmp) */
 
     /* usually return the hero to the surface */
-    state.in_steed_dismounting = 1;
-    await float_down(0, W_SADDLE, state);
-    state.in_steed_dismounting = 0;
-    state.disp ??= {};
-    state.disp.botl = true;
-    await encumber_msg(state);
-    state.vision_full_recalc = 1;
+    if (reason !== DISMOUNT_ENGULFED && reason !== DISMOUNT_BONES) {
+        state.in_steed_dismounting = 1;
+        await float_down(0, W_SADDLE, state);
+        state.in_steed_dismounting = 0;
+        state.disp ??= {};
+        state.disp.botl = true;
+        await encumber_msg(state);
+        state.vision_full_recalc = 1;
+    } else {
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
     /* polearms behave differently when not mounted */
     if (state.uwep && is_pole(state.uwep, state))
         state.unweapon = true;

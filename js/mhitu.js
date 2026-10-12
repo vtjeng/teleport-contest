@@ -20,6 +20,7 @@ import {
     CONFLICT,
     CONFUSION,
     DETECT_MONSTERS,
+    DISMOUNT_ENGULFED,
     DISPLACED,
     DIED,
     ERODE_CORRODE,
@@ -264,7 +265,7 @@ import { enexto, teleds } from './teleport.js';
 import { discover_object, observe_object } from './o_init.js';
 import { is_quest_artifact } from './questpgr.js';
 import { d, rn1, rn2, rnd, rne, rn2_on_display_rng } from './rng.js';
-import { Punished } from './steed.js';
+import { dismount_steed, Punished } from './steed.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import {
     t_at,
@@ -2317,9 +2318,11 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
                 state,
                 rawEnv,
             );
-            // steed.c dismount_steed() is still partial for DISMOUNT_ENGULFED;
-            // C discards its void result, so preserve the named boundary.
-            note_unported('steed.c dismount_steed');
+            await dismount_steed(DISMOUNT_ENGULFED, state, {
+                ...rawEnv,
+                state,
+                random,
+            });
         } else if (rawEnv.planning) {
             // Planning suppresses only the display operation. Source state
             // transitions and game-RNG draws below still run on the clone.
