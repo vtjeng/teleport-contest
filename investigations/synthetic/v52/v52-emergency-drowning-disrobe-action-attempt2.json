@@ -1,0 +1,46 @@
+{
+  "session": "synthetic/v52/v52-emergency-drowning-disrobe-action-attempt2",
+  "remainingScreens": 4,
+  "recordedSteps": 143,
+  "corpus": "synthetic",
+  "batch": "v52",
+  "caseId": "v52-emergency-drowning-disrobe-action-attempt2",
+  "manifestPath": "challenges/manifests/v52.json",
+  "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+  "recordingPath": "challenges/cases/v52/v52-emergency-drowning-disrobe-action-attempt2.session.json",
+  "recordingSha256": "c2554ddf873f14c5ba0ccb7da4277e184506a86098f503bf5c46bfc8199e33c0",
+  "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+  "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+  "status": "complete",
+  "commit": "9dda334742ff4b02ce9496bf2ff226d7227f1b2e",
+  "mismatch": {
+    "kind": "rng",
+    "step": 138,
+    "cFile": "trap.c",
+    "function": "water_damage",
+    "line": 4771,
+    "message": null,
+    "rng": {
+      "index": 2550,
+      "cEntry": "rn2(20)=5",
+      "cCaller": "water_damage(trap.c:4771)",
+      "jsEntry": "rn2(16)=13"
+    }
+  },
+  "summary": "The RNG offset reported at drown's water_damage_chain is downstream of an omitted dropx call in emergency_disrobe. C selects a droppable inventory object, calls dropx, and then decrements invc; JS records note_unported('do.c dropx') and decrements invc without removing or landing the object. The retained inventory changes later water_damage_chain contents and the RNG stream. Repair the existing emergency_disrobe caller to invoke the already implemented dropx/flooreffects/water_damage path.",
+  "source": {
+    "file": "trap.c",
+    "branch": "During drown's crawl-out attempt, when near_capacity exceeds the allowed load and emergency_disrobe selects a droppable inventory item, drop the selected object before decrementing the local inventory count.",
+    "functions": ["emergency_disrobe"],
+    "callers": ["trap.c:drown"],
+    "dependencies": ["do.c:dropx", "do.c:flooreffects", "trap.c:water_damage"]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Upstream nethack-c/upstream/src/trap.c:4897-4944 selects otmp and calls dropx(otmp) before invc--; the only production caller is drown at trap.c:5157.",
+    "JS js/trap.js:1363-1404 mirrors the selection loop but replaces dropx with note_unported('do.c dropx'), leaving the selected object in inventory and on its original object chain while decrementing invc.",
+    "Upstream nethack-c/upstream/src/do.c:782-797 removes the object from inventory and calls flooreffects; do.c:272-287 routes a pool landing through water_damage(obj, NULL, FALSE). Existing JS js/do.js:2113-2137 invokes the same drop tail, js/do.js:1000-1008 routes pool landings through water_damage, and js/trap_water_damage.js:568-659 implements that path.",
+    "Single-case diagnostic /tmp/teleport-validation-1000/run-fiSZC8/stdout.log (replay commit 9dda334742ff4b02ce9496bf2ff226d7227f1b2e) reproduces the saved step-138 mismatch and reports the active JS gap do.c dropx; the admitted queue attributes C's first unmatched draw to water_damage(trap.c:4771).",
+    "Prep16 source intake .cache/prep16-source-intake-reviewed.json independently identifies this case's earlier emergency_disrobe -> dropx omission and notes that the later water_damage RNG offset can follow from inventory that should already have been dropped."
+  ]
+}
