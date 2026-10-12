@@ -31047,7 +31047,15 @@
         "sha": "86453f83323a1f0b0d746d1123245a4c08f8eacf",
         "screens": 7503,
         "rng": 543153
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "getpos",
+          "reason": "The v48 floor-object naming trace proves getpos.c:997–1004 NHKF_GETPOS_SELF is missing. Whole-source review also identified absent queued input, mouse selection, run/rush, filter and moveskip branches and mismatched message state. The earlier terrain search evidence therefore did not establish complete getpos behavior.",
+          "followupGoal": "divergence-fix-getpos-self-key-floor-name-v48-20261012",
+          "at": "9daf8cbe6844b9b9e1fb8cbaa31f73756d64a16f"
+        }
+      ]
     },
     {
       "id": "port-getpos-help-seed0360",
@@ -287509,6 +287517,59 @@
         "sha": "98b22439c86389e89602ba6c6c2dff8b8032856e",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "divergence-fix-getpos-self-key-floor-name-v48-20261012",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete getpos position selection and its menu dependency",
+      "cFile": "getpos.c",
+      "sessions": [
+        "synthetic/v48/v48-name-floor-object-attempt5"
+      ],
+      "selectionReason": "The v48 floor-object naming mismatch at step 50 exposes the omitted NHKF_GETPOS_SELF branch in getpos.c:997–1004. The earlier terrain-symbol-search whole-function evidence was partial. Complete getpos 771–1167 and its return-valued getpos_menu dependency 665–725, including queue, position, filter, movement, exit and caller behavior.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "getpos",
+          "line": 771,
+          "endLine": 1170,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 771,
+        "to": 1170
+      },
+      "requiredFunctions": [
+        {
+          "name": "getpos_menu",
+          "line": 665,
+          "endLine": 728,
+          "declared": true,
+          "sourceFile": "getpos.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v48/v48-name-floor-object-attempt5": {
+          "session": "synthetic/v48/v48-name-floor-object-attempt5",
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-name-floor-object-attempt5",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recordingPath": "challenges/cases/v48/v48-name-floor-object-attempt5.session.json",
+          "recordingSha256": "fb830b3492fdd58e79203b5251c03d34ca1dd7baadf26bafaac607030a16ba57",
+          "evaluationPath": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v48.json",
+          "evaluationCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e"
+        }
       }
     }
   ]

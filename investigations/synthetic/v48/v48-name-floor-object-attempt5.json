@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v48.json",
   "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
   "recordingSha256": "fb830b3492fdd58e79203b5251c03d34ca1dd7baadf26bafaac607030a16ba57",
-  "evaluationPath": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
-  "evaluationCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0",
+  "evaluationPath": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v48.json",
+  "evaluationCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e",
   "status": "complete",
-  "commit": "8fd3bf608ab36412c3a92bc33f20311fb1b07537",
+  "commit": "98b22439c86389e89602ba6c6c2dff8b8032856e",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v48",
@@ -24,11 +24,11 @@
     "recordingSha256": "fb830b3492fdd58e79203b5251c03d34ca1dd7baadf26bafaac607030a16ba57",
     "recipe": "challenges/cases/v48/v48-name-floor-object-attempt5.recipe.session.json",
     "recipeSha256": "fc6e6fb7ec82e8a19d2972d1c5a7d09c55a4a06f21b325c036b6fdc84ad54f8b",
-    "replayInputSha256": "6bc1637724558a2511d9843818b9334b1a2927313a87e74be349a4dc4f075945",
-    "evaluationPath": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
-    "evaluationCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0",
-    "evaluationArtifact": "challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json",
-    "evaluationUtc": "2026-10-12T03:03:42.952Z",
+    "replayInputSha256": "d5a630475a98b3391ccf1dff66a7600b2538e762a543696bd432061ffeca0879",
+    "evaluationPath": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v48.json",
+    "evaluationCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e",
+    "evaluationArtifact": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v48.json",
+    "evaluationUtc": "2026-10-12T13:21:46.416Z",
     "remainingScreens": 1,
     "recordedSteps": 60,
     "previousScreensMatched": 59,
@@ -90,7 +90,8 @@
     "file": "getpos.c",
     "branch": "When c equals gc.Cmd.spkeys[NHKF_GETPOS_SELF] (default @), getpos() resets every gidx entry, assigns cx/cy from u.ux/u.uy, and jumps to nxtc. That path updates gg.getposx/getposy, map cursor and screen, then reads the next key.",
     "functions": [
-      "getpos"
+      "getpos",
+      "getpos_menu"
     ],
     "callers": [
       "do_name.c:namefloorobj() calls getpos(&cc, FALSE, buf) before resolving the selected floor object; js/do_name.js:namefloorobj() calls js/getpos.js:getpos() on the same path."
@@ -104,7 +105,7 @@
     "The saved admitted v48 evaluation at challenges/evaluations/accepted-1cefd15ca83512eb920105c96202699a1b04a8e0-v48.json reports this case at 59/60 screens, 2587/2587 RNG calls, and 60/60 cursors; its first mismatch is segment 0 step 50 on @, screen row 0 column 0 (C h, JS C). The recording is challenges/cases/v48/v48-name-floor-object-attempt5.session.json.",
     "nethack-c/upstream/src/getpos.c:getpos() lines 997-1004 implement NHKF_GETPOS_SELF: zero all gidx entries, set cx=u.ux and cy=u.uy, then goto nxtc. The shared nxtc path updates gg.getposx/getposy, calls curs(WIN_MAP,cx,cy), and flushes the screen. It emits no message and does not leave the targeting loop.",
     "The production caller is nethack-c/upstream/src/do_name.c:namefloorobj() lines 679-771, which initializes cc to the hero and calls getpos(&cc,FALSE,buf). js/do_name.js:namefloorobj() already wires that route into js/getpos.js:getpos(). At the mismatch, the recipe has selected an offset cursor before @; the missing JS special-key arm instead falls through to the non-force unknown-direction exit path.",
-    "The selected divergence scope is only the SELF-key branch inside the existing partially ported getpos() function. This task does not claim getpos() or do_namefloorobj() as newly source-complete."
+    "The omitted SELF branch proves the previous whole-getpos completion evidence was partial. The follow-up covers getpos.c:getpos 771–1167 and its return-valued getpos_menu dependency 665–725, including queued input, mouse selection, movement prefixes, filtering, message state and exits."
   ],
-  "goalKind": "divergence-fix"
+  "goalKind": "file-port"
 }
