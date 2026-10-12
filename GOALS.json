@@ -285773,7 +285773,7 @@
     {
       "id": "port-trap-minstapetrify-v51-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monster petrification and wielded-corpse self-touch with active callers",
       "cFile": "trap.c",
       "sessions": [
@@ -285788,8 +285788,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "minstapetrify",
@@ -286554,6 +286557,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

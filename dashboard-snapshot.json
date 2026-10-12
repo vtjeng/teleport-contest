@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T11:53:14.491Z",
+  "capturedAt": "2026-10-12T12:44:10.153Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -94577,6 +94577,175 @@
         "worker": "A2",
         "state": "idle",
         "reason": "Accepted Main is merged. Waiting for a refreshed queue and release of pending A2 source reservations before selecting another case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v48-previous-message-history-ctrlp-20261012-59940b652eb1b3b0bb7319942f647f963864904a",
+        "type": "published",
+        "at": "2026-10-12T11:54:45.854Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "commit": "59940b652eb1b3b0bb7319942f647f963864904a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-history-queue-selection-20261012",
+        "type": "turn",
+        "at": "2026-10-12T11:55:41.659Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "At the post-history queue, only free source work is v51 bluejelly, which overlaps C’s active `mhitu.c:gulpmu`; short-version is held. B’s getobj Escape delivery remains ready for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep18-v54-post-first-comparison-20261012",
+        "type": "turn",
+        "at": "2026-10-12T11:57:16.456Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v54: verified ten independent C replays and continuing varied shop, Quest, Rider, scroll and terrain missions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep18-v54-crowning-castle-shop-search-20261012",
+        "type": "turn",
+        "at": "2026-10-12T12:07:30.574Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v54: continuing crowning, drawbridge and unpaid-tool searches after verified C state and preserved misses."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-minstapetrify-d6378edad",
+        "type": "integrating",
+        "at": "2026-10-12T12:12:07.735Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "integration": "d6378edadba60bffd5e37654d18411812d969e6a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "minstapetrify-failed-38247549364",
+        "type": "validated",
+        "at": "2026-10-12T12:19:58.743Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "minstapetrify-feedback-38247549364",
+        "type": "feedback",
+        "at": "2026-10-12T12:20:20.292Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "delivery": "fbfe1b901816f72b4f2306b0959fc5b71ef0f331"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "combat-sync-construction-feedback-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T12:22:05.949Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "2f28012992fbf8e03c8d8caaed756bcb7fef76f7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-minstapetrify-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T12:22:39.188Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-minstapetrify-correction-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T12:22:42.176Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep18-v54-four-first-owners-20261012",
+        "type": "turn",
+        "at": "2026-10-12T12:30:15.345Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v54: four provisional independent first defects and continued C spell, shop and terrain searches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6187d0de40b188b6ea1d7e99e25af9c45d916652",
+        "type": "ready",
+        "at": "2026-10-12T12:32:07.016Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "delivery": "6187d0de40b188b6ea1d7e99e25af9c45d916652"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "minstapetrify-correction-received-6187d0de",
+        "type": "received",
+        "at": "2026-10-12T12:33:13.497Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "delivery": "6187d0de40b188b6ea1d7e99e25af9c45d916652"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "minstapetrify-retry-integrating-12c2941a",
+        "type": "integrating",
+        "at": "2026-10-12T12:33:51.093Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "integration": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v50-combat-sync-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T12:36:11.483Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-combat-sync-correction-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T12:36:20.174Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f4f12a8713cdac19fdf47771e6e41af662317ded",
+        "type": "ready",
+        "at": "2026-10-12T12:38:30.815Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "f4f12a8713cdac19fdf47771e6e41af662317ded"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-combat-sync-correction-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T12:38:48.324Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "combat-sync-correction-received-f4f12a87",
+        "type": "received",
+        "at": "2026-10-12T12:39:40.453Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "f4f12a8713cdac19fdf47771e6e41af662317ded"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v51-cockatrice-levitation-ogre-20261012-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-validated",
+        "type": "validated",
+        "at": "2026-10-12T12:40:39.912Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v51-cockatrice-levitation-ogre-20261012-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T12:42:45.237Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012"
       }
     ]
   },
@@ -94755,28 +94924,6 @@
         "unblocks": 0
       },
       {
-        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
-        "worker": "C",
-        "goal": "port-trap-minstapetrify-v51-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "fbfe1b901816f72b4f2306b0959fc5b71ef0f331",
-        "since": "2026-10-12T11:05:01.906Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
-        "worker": "C",
-        "goal": "port-mhitm-mattackm-v50-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "2f28012992fbf8e03c8d8caaed756bcb7fef76f7",
-        "since": "2026-10-12T11:15:52.584Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "Prep17",
         "worker": "Prep",
         "goal": null,
@@ -94788,6 +94935,17 @@
         "blockedBy": [
           "Prep16"
         ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "worker": "C",
+        "goal": "port-mhitm-mattackm-v50-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "f4f12a8713cdac19fdf47771e6e41af662317ded",
+        "since": "2026-10-12T12:38:30.815Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -95249,8 +95407,8 @@
     ]
   },
   "development": {
-    "executionCommit": "d340ffebf19c2ff6d2192c5a92531f069ddeffa1",
-    "measuredAt": "2026-10-12T11:44:01.936Z",
+    "executionCommit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+    "measuredAt": "2026-10-12T12:38:42.008Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
