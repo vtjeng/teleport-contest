@@ -278168,7 +278168,7 @@
     {
       "id": "port-hero-level-teleport-trap-v47-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port hero level-teleport trap activation and command dispatch.",
       "cFile": "teleport.c",
       "sessions": [
@@ -278182,8 +278182,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "47b7ce458965199c8f97771a983240cc8d0f0e21",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dotele",
@@ -278547,6 +278550,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "47b7ce458965199c8f97771a983240cc8d0f0e21",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
