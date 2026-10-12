@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T23:22:11.644Z",
+  "capturedAt": "2026-10-12T23:30:20.790Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -99089,6 +99089,80 @@
         "type": "accepted",
         "at": "2026-10-12T23:21:31.036Z",
         "task": "A2-investigation-v53-dig-magic-trap-explosion-action2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v53-dig-magic-trap-explosion-action2-20261012-d2400b91563a917bc4587774649d909243968432",
+        "type": "published",
+        "at": "2026-10-12T23:22:27.081Z",
+        "task": "A2-investigation-v53-dig-magic-trap-explosion-action2-20261012",
+        "commit": "d2400b91563a917bc4587774649d909243968432"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-v53-quest-nemesis-source-20261012",
+        "type": "turn",
+        "at": "2026-10-12T23:22:32.367Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing the new quest-dialogue frontier after the accepted Wiz-goal loader fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-cavearea53-14ac3f483-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T23:23:03.151Z",
+        "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012",
+        "integration": "14ac3f48337297707c5da82a2939b273d09de0ae"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "type": "assign",
+        "at": "2026-10-12T23:23:20.561Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-active-ring-shop-v53-20261012T2324Z",
+        "type": "turn",
+        "at": "2026-10-12T23:23:43.253Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Diagnosing the unreserved v53 ring-shop wall-digging mismatch against C source."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v53-quest-nemesis-chat-20261012",
+        "type": "implement",
+        "at": "2026-10-12T23:25:09.523Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "goal": "port-quest-nemesis-chat-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-implement-pay-for-damage-v53-20261012",
+        "type": "implement",
+        "at": "2026-10-12T23:28:40.153Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "goal": "C-port-pay-for-damage-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012-14ac3f48337297707c5da82a2939b273d09de0ae-validated",
+        "type": "validated",
+        "at": "2026-10-12T23:29:17.639Z",
+        "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012-14ac3f48337297707c5da82a2939b273d09de0ae-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T23:29:40.668Z",
+        "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012"
       }
     ]
   },
@@ -99166,17 +99240,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012",
-        "worker": "B",
-        "goal": "fix-dig-earth-blessed-pick-cave-area-v53-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "9e437c17b4c2c95f8e485d3b2494d0d0f98b6c02",
-        "since": "2026-10-12T22:53:33.710Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -99727,8 +99790,8 @@
     ]
   },
   "development": {
-    "executionCommit": "10bacc75116b05788ed935aa7f24fc20fb324927",
-    "measuredAt": "2026-10-12T23:15:56.919Z",
+    "executionCommit": "14ac3f48337297707c5da82a2939b273d09de0ae",
+    "measuredAt": "2026-10-12T23:27:54.528Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

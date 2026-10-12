@@ -294264,7 +294264,7 @@
     {
       "id": "fix-dig-earth-blessed-pick-cave-area-v53-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Repair the two Earth-level mkcavearea caller branches in dig.c:dig and implement the whole missing rm_waslit, mkcavepos, and mkcavearea helpers.",
       "cFile": "dig.c",
       "sessions": [
@@ -294274,10 +294274,179 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "14ac3f48337297707c5da82a2939b273d09de0ae",
       "delivered": null,
       "function": "dig",
-      "session": "synthetic/v53/v53-earth-remote-blessed-pick-cave-action10"
+      "session": "synthetic/v53/v53-earth-remote-blessed-pick-cave-action10",
+      "closeStanding": {
+        "sha": "14ac3f48337297707c5da82a2939b273d09de0ae",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "10bacc75116b05788ed935aa7f24fc20fb324927",
+        "target": "synthetic/v53/v53-earth-remote-blessed-pick-cave-action10",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/14ac3f48337297707c5da82a2939b273d09de0ae/run-hosted-U8j4UC/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "rm_waslit",
+            "implementation": "js/dig.js",
+            "symbol": "rm_waslit",
+            "sourceReview": "Read the complete pure helper at dig.c:30-45. It checks the lit ROOM under the hero, then the source five-by-three isok-filtered neighborhood. The focused test pins center, edge, and outside-neighborhood results to these source rules.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "mkcavearea",
+                "source": "dig.c:mkcavearea:95"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dig-cavearea.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/earth-cursed-plus-one-pick-cave-collapse-v53.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-earth-remote-blessed-pick-cave-action10",
+                "segment": 0,
+                "fromStep": 333,
+                "throughStep": 334,
+                "source": "dig.c:mkcavearea -> dig.c:rm_waslit"
+              }
+            ]
+          },
+          {
+            "name": "mkcavepos",
+            "implementation": "js/dig.js",
+            "symbol": "mkcavepos",
+            "sourceReview": "Read the complete impure helper at dig.c:48-86. It preserves isok and rockit blockers, no-message monster relocation, unblock_point, aliased doormask/flags clearing, lighting and waslit rules, horizontal and viz_array updates, terrain assignment, and feel_newsym order.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "mkcavearea",
+                "source": "dig.c:mkcavearea:112-121"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig-cavearea.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/earth-cursed-plus-one-pick-cave-collapse-v53.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-earth-remote-blessed-pick-cave-action10",
+                "segment": 0,
+                "fromStep": 333,
+                "throughStep": 334,
+                "source": "dig.c:mkcavearea -> dig.c:mkcavepos"
+              }
+            ]
+          },
+          {
+            "name": "mkcavearea",
+            "implementation": "js/dig.js",
+            "symbol": "mkcavearea",
+            "sourceReview": "Read the complete impure helper at dig.c:88-128. Both callers preserve the source random draw and cleanup. The helper sends the branch-specific message, forces the message-window input boundary, grows two ordered rings through mkcavepos with per-ring flush and delay, updates a center corridor for rockit=false, and sets vision_full_recalc.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "dig",
+                "source": "dig.c:dig:470-477"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig-cavearea.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/earth-cursed-plus-one-pick-cave-collapse-v53.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-earth-remote-blessed-pick-cave-action10",
+                "segment": 0,
+                "fromStep": 333,
+                "throughStep": 334,
+                "source": "dig.c:dig -> dig.c:mkcavearea(FALSE)"
+              }
+            ]
+          },
+          {
+            "name": "dig",
+            "implementation": "js/dig.js",
+            "symbol": "dig",
+            "sourceReview": "The scoped source paths are the existing blessed and cursed/unblessed Earth checks in dig.c:dig. They retain their rn2 calls, invoke the corresponding mkcavearea mode, then call finishDigging and return 0. This evidence does not certify the rest of dig.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "use_pick_axe",
+                "source": "apply.c:doapply -> dig.c:use_pick_axe/use_pick_axe2 -> allmain.c occupation dispatch"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/dig.c/earth-cursed-plus-one-pick-cave-collapse-v53.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-earth-remote-blessed-pick-cave-action10",
+                "segment": 0,
+                "fromStep": 333,
+                "throughStep": 334,
+                "source": "dig.c:dig -> dig.c:mkcavearea(FALSE)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "C apply.c:doapply reaches dig.c:use_pick_axe/use_pick_axe2, which installs dig as the occupation; allmain.c later invokes dig.c:dig. JavaScript apply.js installs js/dig.js:dig and allmain.js invokes that callback. The selected v53 play exercises the blessed Earth-level caller, while the independent recipe exercises the cursed caller. No consumed return-valued callee remains unported in these branches.",
+        "entryPoints": [
+          {
+            "name": "Blessed pick expands an Earth-level cave",
+            "functions": [
+              "dig",
+              "rm_waslit",
+              "mkcavepos",
+              "mkcavearea"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-earth-remote-blessed-pick-cave-action10",
+                "segment": 0,
+                "fromStep": 333,
+                "throughStep": 334,
+                "source": "apply.c:doapply -> dig.c:use_pick_axe -> allmain.c:occupation -> dig.c:dig -> dig.c:mkcavearea(FALSE) -> dig.c:rm_waslit/mkcavepos"
+              }
+            ]
+          },
+          {
+            "name": "Cursed pick collapses an Earth-level cave",
+            "functions": [
+              "dig",
+              "rm_waslit",
+              "mkcavepos",
+              "mkcavearea"
+            ],
+            "recordings": [
+              "recordings/dig.c/earth-cursed-plus-one-pick-cave-collapse-v53.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
