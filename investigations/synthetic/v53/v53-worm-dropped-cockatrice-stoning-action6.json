@@ -9,38 +9,36 @@
   "recordingSha256": "7d5478eeb058306ce8137558c77749734899fe1905b5c494291a11e6e66a5622",
   "recipePath": "challenges/cases/v53/v53-worm-dropped-cockatrice-stoning-action6.recipe.session.json",
   "recipeSha256": "cb951520a83186af5b4db62474fad541b08b2e4da7ed563125f85b33baf1434b",
-  "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
-  "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
+  "evaluationPath": "challenges/evaluations/accepted-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-v53.json",
+  "evaluationCommit": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
   "before": {
     "admittedEvaluation": {
+      "path": "challenges/evaluations/accepted-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-v53.json",
+      "commit": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
       "screens": {
-        "matched": 0,
+        "matched": 263,
         "total": 290
       },
       "rng": {
-        "matched": 0,
+        "matched": 2678,
         "total": 2694
       },
       "cursors": {
-        "matched": 0,
+        "matched": 263,
         "total": 290
       },
-      "error": "random injection requires rn2, rnd, rn1, and rne"
+      "error": null,
+      "remainingScreens": 27
     },
-    "manifestTrace": {
-      "step": 262,
-      "owner": "do.c:engulfer_digests_food",
-      "cRng": "rnd(2)=2 @ next_ident(mkobj.c:521)",
-      "jsRng": "rn2(100)=71"
-    },
-    "workerReplayAtAcceptedSource": {
+    "privateDiagnosticReplay": {
       "commit": "57db3186aeb0cd6cef9072e4c29c56af541fb298",
       "replayInputSha256": "87b3cc1f69818e82e5d7df5b669ef2eb34caa265843ebaaf4f9e4b3a8d165cc2",
       "screensEmitted": 263,
       "recordedSteps": 290,
       "divergence": null,
-      "boundary": "unsupported hero command: an unported branch of this command: stopObjectTimers is not available for otyp 265",
-      "message": "You jump through an opening in the new statue of a purple worm."
+      "boundary": "UnsupportedDropError: stopObjectTimers is not available for otyp 265",
+      "message": "You jump through an opening in the new statue of a purple worm.",
+      "interpretation": "This local replay refusal is separate diagnostic evidence; it is not the admitted evaluation runner error."
     }
   },
   "sourceReview": {
@@ -48,13 +46,13 @@
       {
         "file": "do.c",
         "name": "dropz",
-        "range": "806-842",
+        "range": "807-843",
         "behavior": "The swallowed branch calls engulfer_digests_food; when it returns true, dropz returns after encumber_msg and does not transfer the corpse to the engulfer inventory."
       },
       {
         "file": "do.c",
         "name": "engulfer_digests_food",
-        "range": "849-881",
+        "range": "849-885",
         "behavior": "A digesting purple worm immediately consumes a cockatrice corpse, calls minstapetrify on u.ustuck, then delobj on the consumed corpse before returning true."
       },
       {
@@ -70,11 +68,11 @@
         "behavior": "The existing timer owner removes object timers and runs their cleanup in timer-list order."
       }
     ],
-    "jsDefect": "The JS engulfer_digests_food path used only state when calling minstapetrify and delobj. invent.c delobj therefore lacked the existing timeout.c obj_stop_timers hook and refused on the timed corpse after the worm had already petrified.",
-    "repair": "Forward dropz's normalized state/operation environment through engulfer digestion and its source callees. Preserve any injected stopObjectTimers owner, supplying the existing obj_stop_timers implementation when the hook is absent."
+    "jsDefect": "JS dropz passed only state into engulfer_digests_food. The helper then called delobj without the operation hooks required by invent.c:delobj to stop the corpse timer. The C path calls delobj after minstapetrify, and its return is not consumed.",
+    "repair": "Forward dropz’s normalized state/operation environment through engulfer digestion and its source callees. Preserve an injected stopObjectTimers owner; otherwise supply the existing timeout.c:obj_stop_timers implementation."
   },
   "status": "resolved",
-  "summary": "The admitted hosted baseline recorded a runtime error before output because monstone supplied an incomplete random provider; that prior issue is preserved in history. The manifest source trace also pointed to swallowed corpse digestion at step 262. On the accepted source currently present in C’s worktree, the petrification path executes and creates the statue, but the replay then stopped at step 263 because delobj lacked the timeout owner for the corpse timer. The bounded caller repair forwards the timer owner while retaining C call order. A final saved replay verifies all 290 steps.",
+  "summary": "The accepted 0ddb v53 baseline matches 263 of 290 screens, 2678 of 2694 RNG calls, and 263 of 290 cursors, with no runner error. A separate local replay reaches the statue screen, then stops because corpse deletion lacks the timer owner. The repair forwards the normalized timer owner through swallowed digestion and delobj while preserving injected hooks and C call order. The final saved replay matches all 290 steps.",
   "history": [
     {
       "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
