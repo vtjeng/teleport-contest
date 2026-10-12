@@ -283535,14 +283535,18 @@
     {
       "id": "div-mon-to-stone-message-v51-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Repair the stone golem transformation message",
       "cFile": "mon.c",
       "sessions": [],
       "selectionReason": "A fresh replay traces the error to the implemented visible transformation branch of mon_to_stone.",
       "detail": "v51 wood-golem/cockatrice segment 0: frozen comparison loses the segment after an undefined an binding, so its first mismatch step is null and zero screens match. Diagnostic replay identifies the causal boundary after 155 captured screens. C mon.c:3748-3764 formats Now it is with an(pmname(...)) and a final period; js/mon.js lacks the existing an import and final period. Preserve whole existing function and callers; no new source completion credit.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "facb4c55fd68661ad074955488c6bd7a5f61d7a3",
+      "openStanding": {
+        "sha": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "mon_to_stone",
@@ -283561,7 +283565,123 @@
           "evaluationPath": "challenges/evaluations/baseline-v51-admission-20261012.json",
           "evaluationCommit": "1429fa3c893c4798ccb2117707b507dee4bacd33"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-cockatrice-levitation-wood-golem-action-attempt2",
+          "session": "synthetic/v51/v51-cockatrice-levitation-wood-golem-action-attempt2",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-cockatrice-levitation-wood-golem-action-attempt2.session.json",
+          "recordingPath": "challenges/cases/v51/v51-cockatrice-levitation-wood-golem-action-attempt2.session.json",
+          "recordingSha256": "1b404d03053e63f1b21879980241c69fff9e5d3aaea9648a94c98daa2689b044",
+          "recipe": "challenges/cases/v51/v51-cockatrice-levitation-wood-golem-action-attempt2.recipe.session.json",
+          "recipeSha256": "75d7f2502d6966d6c96cf76070ba491e59569709e95357026009e09e23bb7714",
+          "replayInputSha256": "1710a507152ba0ad3f1e6006447f6e66b079ece7039fa32d15b06398caa405af",
+          "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v51.json",
+          "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+          "evaluationArtifact": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v51.json",
+          "evaluationUtc": "2026-10-12T08:42:56.045Z",
+          "remainingScreens": 247,
+          "recordedSteps": 247,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "an is not defined",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 247
+            },
+            "rng": {
+              "matched": 0,
+              "total": 2661
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 247
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: an is not defined",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: an is not defined",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-cockatrice-levitation-wood-golem-action-attempt2.json",
+            "result": {
+              "session": "synthetic/v51/v51-cockatrice-levitation-wood-golem-action-attempt2",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-cockatrice-levitation-wood-golem-action-attempt2",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingSha256": "1b404d03053e63f1b21879980241c69fff9e5d3aaea9648a94c98daa2689b044",
+              "evaluationPath": "challenges/evaluations/baseline-v51-admission-20261012.json",
+              "evaluationCommit": "1429fa3c893c4798ccb2117707b507dee4bacd33",
+              "remainingScreens": 247,
+              "recordedSteps": 247,
+              "status": "complete",
+              "summary": "The admitted replay reaches the visible golem transformation branch of mon.c:mon_to_stone after the wood golem attacks the cockatrice hero. The JS implementation transforms the monster through newcham, then throws ReferenceError because mon.js calls an() without importing it. After that binding is repaired, its follow-up message would still omit the period present in C's pline(\"Now it's %s.\", ...). Existing source evidence marks mon_to_stone ported, its JS body and callers are present, and its relevant source dependencies are already implemented; these are divergences in implemented behavior, not missing source behavior.",
+              "commit": "c464879ca8bcec43ae5cd3355abd0aa2f935bffe",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "mon.c",
+                "functions": [
+                  "mon_to_stone"
+                ],
+                "branch": "A golem is visible, newcham() successfully changes it to PM_STONE_GOLEM, and canseemon() allows the follow-up pline() to format an(pmname(mtmp->data, Mgender(mtmp))). JS reaches that message at mon.js:6237 but an is not bound in the module; its template string also omits the period in C's format string.",
+                "callers": [
+                  "mhitu.c:passiveum -> mon_to_stone (selected wood-golem/cockatrice path)",
+                  "mon.c:m_consume_obj -> mon_to_stone",
+                  "mhitm.c:mdisplacem -> mon_to_stone",
+                  "mhitm.c:do_stone_mon -> mon_to_stone",
+                  "uhitm.c:instapetrify -> mon_to_stone",
+                  "trap.c:minstapetrify -> mon_to_stone"
+                ],
+                "dependencies": [
+                  "mon.c:newcham",
+                  "vision.c:canseemon",
+                  "do_name.c:Monnam",
+                  "do_name.c:pmname",
+                  "mondata.c:gender",
+                  "objnam.c:an"
+                ]
+              },
+              "mismatch": {
+                "session": "synthetic/v51/v51-cockatrice-levitation-wood-golem-action-attempt2",
+                "remainingScreens": 247,
+                "kind": "stop",
+                "message": "Replay error: an is not defined",
+                "causalBoundary": "The diagnostic evidence identifies the causal runtime boundary after 155 captured screens; the frozen comparison reports step null because the thrown error discards the segment output."
+              },
+              "evidence": [
+                "Fresh replay: node scripts/scan-sessions.mjs --json --synthetic v51/v51-cockatrice-levitation-wood-golem-action-attempt2; stop stack is mon_to_stone at js/mon.js:6237, called by passiveum at js/mhitu.js:3433, then hitmu, mattacku, dochug and movemon.",
+                "C source nethack-c/upstream/src/mon.c:3748-3764 checks golem species, conditionally emits ‘<monster> solidifies...’, calls newcham(PM_STONE_GOLEM), then conditionally emits pline(\"Now it's %s.\", an(pmname(..., Mgender(...)))).",
+                "JS source js/mon.js:6221-6245 follows the same branch order and calls newcham before the follow-up message. Its objnam.js import list at js/mon.js:640-663 includes ansimpleoname but omits the existing exported an() helper, and its message template has no final period.",
+                "GOALS.json source inventory at /goals/240/functions/11 records mon_to_stone (mon.c:3748-3765) as ported. scripts/mon-stone-migration.test.mjs already exercises the production helper and verifies the golem changes to PM_STONE_GOLEM.",
+                "The selected admitted case manifest source trace identifies mhitu.c:passiveum -> mon.c:mon_to_stone -> newcham -> an(pmname) and documents the error after 155 captured screens. Queue identity uses the canonical v51 manifest digest and recording digest recorded above."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
