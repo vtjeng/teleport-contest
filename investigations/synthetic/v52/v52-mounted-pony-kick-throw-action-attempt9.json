@@ -1,0 +1,139 @@
+{
+  "session": "synthetic/v52/v52-mounted-pony-kick-throw-action-attempt9",
+  "remainingScreens": 106,
+  "recordedSteps": 269,
+  "corpus": "synthetic",
+  "batch": "v52",
+  "caseId": "v52-mounted-pony-kick-throw-action-attempt9",
+  "manifestPath": "challenges/manifests/v52.json",
+  "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+  "recordingSha256": "930b9b22f870ef5b586021f2ef834f8876324f8f0b8ce802f6153992105fd8b1",
+  "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+  "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+  "status": "complete",
+  "commit": "fcc3f92539c48564cbe41e7dbe54c06f954745e8",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v52",
+    "caseId": "v52-mounted-pony-kick-throw-action-attempt9",
+    "session": "synthetic/v52/v52-mounted-pony-kick-throw-action-attempt9",
+    "manifestPath": "challenges/manifests/v52.json",
+    "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+    "recording": "challenges/cases/v52/v52-mounted-pony-kick-throw-action-attempt9.session.json",
+    "recordingPath": "challenges/cases/v52/v52-mounted-pony-kick-throw-action-attempt9.session.json",
+    "recordingSha256": "930b9b22f870ef5b586021f2ef834f8876324f8f0b8ce802f6153992105fd8b1",
+    "recipe": "challenges/cases/v52/v52-mounted-pony-kick-throw-action-attempt9.recipe.session.json",
+    "recipeSha256": "e56cb56f7943378ecbe0f2854ea6608284b8e880f46e3d7a5f4eb74a86b45511",
+    "replayInputSha256": "5e32600d28364b4911473a9a7a949a1791cc380ac369c97a7771762b3a9f2022",
+    "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+    "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+    "evaluationArtifact": "challenges/evaluations/hosted-38292091033-1-v52.json",
+    "evaluationUtc": "2026-10-12T18:40:54.256Z",
+    "remainingScreens": 106,
+    "recordedSteps": 269,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 163,
+        "total": 269
+      },
+      "rng": {
+        "matched": 2738,
+        "total": 2750
+      },
+      "cursors": {
+        "matched": 163,
+        "total": 269
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 163,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 163,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 28,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2736,
+        "cEntry": "rn2(3)=1",
+        "cCaller": "landing_spot(steed.c:543)",
+        "jsEntry": "rn2(5)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 163,
+          "key": " "
+        },
+        "stepIndex": 163
+      },
+      "cursor": {
+        "index": 163,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 163,
+          "key": " "
+        },
+        "cCursor": [
+          75,
+          0,
+          1
+        ],
+        "jsCursor": [
+          52,
+          8,
+          1
+        ]
+      }
+    },
+    "step": 163,
+    "kind": "rng",
+    "sourceFile": "steed.c",
+    "function": "landing_spot",
+    "message": null,
+    "cFile": "steed.c",
+    "luaFile": null,
+    "line": 543
+  },
+  "summary": "When a positive #kick command reduces a mounted pony’s tameness and the resistance check fails, C calls dismount_steed(DISMOUNT_THROWN). JavaScript kick_steed records the missing dismount as unported, so the steed remains mounted and the later turn draws replace C’s landing_spot tie-break. The existing JavaScript landing_spot probe on the recorded pre-action state draws rn2(3), matching C; the divergence is the missing caller and DISMOUNT_THROWN branch, not candidate counting.",
+  "source": {
+    "file": "steed.c",
+    "branch": "The hero is mounted, answers yes to kicking, and after kick_steed decrements mtame the hero-level-plus-tameness resistance check fails.",
+    "functions": [
+      "kick_steed",
+      "dismount_steed"
+    ],
+    "callers": [
+      "dokick.c:dokick",
+      "steed.c:kick_steed"
+    ],
+    "dependencies": [
+      "steed.c:landing_spot"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v52 evaluation identifies step 163 as the first screen and RNG mismatch: C records rn2(3)=1 at steed.c:landing_spot line 543, while JavaScript records rn2(5)=2 and leaves the screen cursor at [52,8,1] instead of [75,0,1].",
+    "Upstream steed.c:402-450 decrements the steed’s tameness and calls dismount_steed(DISMOUNT_THROWN) when tameness is zero or the resistance roll fails. js/steed.js:kick_steed instead records note_unported and returns at this branch.",
+    "Upstream steed.c:600-613 maps DISMOUNT_THROWN to the same fall message and riding-accident processing as DISMOUNT_FELL. js/steed.js:dismount_steed calls landing_spot before its reason switch but throws UnsupportedSteedError for DISMOUNT_THROWN, so the branch cannot complete.",
+    "A direct call to the existing JavaScript landing_spot on the pony replay’s visible pre-action state returns a single tie-break bound of 3, matching the C bound. The missing thrown dismount path explains why later JavaScript turn RNG replaces the C landing tie-break."
+  ]
+}
