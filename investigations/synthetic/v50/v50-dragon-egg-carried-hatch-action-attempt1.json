@@ -83,5 +83,40 @@
     "JavaScript `js/mhitm.js:mattackm()` has explicit unported boundaries at lines 732 (`mundetected` defender) and 798 (armed AT_WEAP). The separate earlier starting-pet scope implemented only empty-handed fall-through and explicitly excluded actual wielded weapons; it does not cover this branch.",
     "The whole-function selection also includes its consumed incomplete `hitmm()`/`passivemm()` results and `pre_mm_attack()` side effects, so the task must cover the functions named in `source.functions` and any incomplete consumed return dependency found during source review.",
     "The closest v50 case, `v50-own-dragon-egg-floor-hatch-action-attempt1`, uses a floor egg laid through `lay_an_egg`; this selected case uses a carried wished three-egg stack that hatches and reschedules siblings. Its first mismatch is a subsequent armed monster attack, distinct from the floor-egg path."
-  ]
+  ],
+  "callerRangeCorrection": {
+    "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+    "correctionBase": "605633b974feadd91dd904a08a41e30f30298293",
+    "preservesDeliveries": [
+      "1eca93cb1068ff481271b35f49de5497934ef095",
+      "2f28012992fbf8e03c8d8caaed756bcb7fef76f7",
+      "f4f12a8713cdac19fdf47771e6e41af662317ded"
+    ],
+    "pre_mm_attack": {
+      "directCallers": [
+        {
+          "function": "missmm",
+          "cLine": 81,
+          "jsSymbol": "missmm"
+        },
+        {
+          "function": "hitmm",
+          "cLine": 657,
+          "jsSymbol": "hitmm"
+        }
+      ],
+      "indirectDispatch": "mattackm routes missed strikes through missmm and successful strikes through hitmm; it does not directly call pre_mm_attack."
+    },
+    "runtimeEvidence": {
+      "candidateTree": "605633b974feadd91dd904a08a41e30f30298293",
+      "check": "node scripts/synthetic-range-evidence.mjs /tmp/c-combat-final-range-1754.json",
+      "case": "v50/v50-dragon-egg-carried-hatch-action-attempt1",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 1754,
+      "result": "matched",
+      "log": "/tmp/c-combat-final-range.log",
+      "logSha256": "237c6eb33dd981925d3b858f33e640b5d7ba0e59d109db17f3f0f25fc58ebab4"
+    }
+  }
 }
