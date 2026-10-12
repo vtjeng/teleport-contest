@@ -15,6 +15,7 @@
   "mismatch": {
     "kind": "synthetic",
     "corpus": "synthetic",
+    "session": "synthetic/v52/v52-cursed-wand-nothing-backfire-action-attempt2",
     "sourceFile": "zap.c",
     "cFile": "zap.c",
     "luaFile": null,
