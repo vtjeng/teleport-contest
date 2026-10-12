@@ -413,20 +413,22 @@ test('a pit viper draws the pit joke', async () => {
     assert.deepEqual(plainEnv.lines, ['The lichen falls into a pit!']);
 });
 
-// trap.c mselftouch() (3912-3933), called from trapeffect_pit():2000. Its body
-// is refused, and the guard has to be the C one: a wielded object that is not
-// a corpse, and a corpse that does not petrify, both fall through. Each of the
-// three shapes is asserted below.
-test('a wielded cockatrice corpse stops the fall', async () => {
+// trap.c mselftouch() (3913-3936), called from trapeffect_pit():2000. A
+// petrifying corpse kills a bare-handed monster before the pit damage roll;
+// non-corpse objects and non-petrifying corpses fall through the C guard.
+test('a wielded cockatrice corpse petrifies a monster before pit damage', async () => {
     await hero();
     const { mon } = victimInPit(PM_JACKAL, 9);
     mon.mw = mksobj(CORPSE, false, false, { state: game });
     mon.mw.corpsenm = PM_COCKATRICE;
 
-    await refusesAsync(
-        () => mintrap(mon, 0, pitEnv([4])),
-        'a monster touching its wielded corpse',
-    );
+    const env = pitEnv([4]);
+    assert.equal(await mintrap(mon, 0, env), Trap_Killed_Mon);
+    assert.equal(mon.mhp, 0, 'monstone removes a non-resistant jackal');
+    assert.ok(env.lines.some((line) => line.includes('turns to stone')),
+        'mselftouch emits the source stone message before monstone');
+    assert.equal(env.bounds.includes('rnd(6)'), false,
+        'a monster killed by mselftouch skips trapeffect_pit damage');
 
     // The same corpse of a species that does not petrify runs the arm out.
     const safe = victimInPit(PM_JACKAL, 9);
