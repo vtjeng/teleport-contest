@@ -78,8 +78,10 @@ import {
     hurtle,
     hurtle_step,
     mhurtle,
+    mhurtle_step,
     multishot_class_bonus,
     should_mulch_missile,
+    thitmonst,
     throw_obj,
     throw_ok,
     throwit,
@@ -171,7 +173,9 @@ import {
     ART_MJOLLNIR,
     init_artifacts,
 } from '../js/artifacts.js';
-import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import {
+    d, enableRngLog, getRngLog, initRng, rn1, rn2, rne, rnl, rnd,
+} from '../js/rng.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
 import { HeadlessTerminal } from '../js/terminal.js';
 import {
@@ -608,7 +612,205 @@ test('hurtle_step() maps an unseen collision on the planned level only', async (
     } finally {
         resetGame();
     }
+
+    resetGame();
+    await runSegment({
+        seed: ARENA_SEED,
+        datetime: HURTLE_FIXTURE_DATETIME,
+        nethackrc: 'OPTIONS=name:HurtleMonsterStone,role:Valkyrie,race:human,'
+            + 'gender:female,align:lawful,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none,!acoustics\n',
+        moves: '',
+    });
+    const movingState = game;
+    movingState.in_mklev = true;
+    movingState.level.regions = [];
+    movingState.context = {
+        ...movingState.context,
+        ident: movingState.context?.ident ?? 1,
+        mon_moving: true,
+    };
+    const hurtled = newMonster({
+        data: movingState.mons[PM_ORC],
+        mnum: PM_ORC,
+        m_id: 9102,
+        mhp: 30,
+        mhpmax: 30,
+        mcanmove: true,
+        mcansee: true,
+    });
+    const cockatrice = newMonster({
+        data: movingState.mons[PM_COCKATRICE],
+        mnum: PM_COCKATRICE,
+        m_id: 9103,
+        mhp: 20,
+        mhpmax: 20,
+        mcanmove: true,
+        mcansee: true,
+    });
+    const bumpX = movingState.u.ux + 2;
+    const bumpY = movingState.u.uy;
+    movingState.level.at(bumpX - 1, bumpY).typ = ROOM;
+    movingState.level.at(bumpX, bumpY).typ = ROOM;
+    place_monster(hurtled, bumpX - 1, bumpY, movingState);
+    place_monster(cockatrice, bumpX, bumpY, movingState);
+    for (let i = 0; i < 16; i++) movingState.nhDisplay.pushKey(32);
+    try {
+        assert.equal(await mhurtle_step({
+            monster: hurtled,
+            state: movingState,
+            env: {
+                message: async () => {},
+                random: { d, rn1, rn2, rnd, rne, rnl },
+                unsupported: () => {},
+            },
+        }, bumpX, bumpY), false);
+        assert.equal(hurtled.mhp, 0,
+            'the monster-moving collision takes the byplayer=FALSE path');
+    } finally {
+        resetGame();
+    }
 });
+
+test('dothrow petrification call sites use minstapetrify in C order', async () => {
+    const cHurtleStart = DOTHROW_C.indexOf(
+        'hurtle_step(genericptr_t arg, coordxy x, coordxy y)',
+    );
+    const cHurtleEnd = DOTHROW_C.indexOf('\n/* used by mhurtle_step()', cHurtleStart);
+    const cMHurtleStart = DOTHROW_C.indexOf('mhurtle_step(genericptr_t arg');
+    const cMHurtleEnd = DOTHROW_C.indexOf('\n/*\n * The player moves', cMHurtleStart);
+    const cThrowStart = DOTHROW_C.indexOf('\nthitmonst(\n');
+    const cThrowEnd = DOTHROW_C.indexOf('\n#undef special_obj_hits_leader', cThrowStart);
+    const cHurtle = DOTHROW_C.slice(cHurtleStart, cHurtleEnd);
+    const cMHurtle = DOTHROW_C.slice(cMHurtleStart, cMHurtleEnd);
+    const cThrow = DOTHROW_C.slice(cThrowStart, cThrowEnd);
+    const jsHurtle = DOTHROW_JS.slice(
+        DOTHROW_JS.indexOf('export async function hurtle_step('),
+        DOTHROW_JS.indexOf('\n// C ref: dothrow.c will_hurtle()',
+            DOTHROW_JS.indexOf('export async function hurtle_step(')),
+    );
+    const jsMHurtle = DOTHROW_JS.slice(
+        DOTHROW_JS.indexOf('export async function mhurtle_step('),
+        DOTHROW_JS.indexOf('\n// C ref: dothrow.c mhurtle()',
+            DOTHROW_JS.indexOf('export async function mhurtle_step(')),
+    );
+    const jsThrow = DOTHROW_JS.slice(
+        DOTHROW_JS.indexOf('export async function thitmonst('),
+        DOTHROW_JS.indexOf('\n// C ref: dothrow.c ',
+            DOTHROW_JS.indexOf('export async function thitmonst(') + 1),
+    );
+    assert.ok(cHurtleStart >= 0 && cHurtleEnd > cHurtleStart);
+    assert.ok(cMHurtleStart >= 0 && cMHurtleEnd > cMHurtleStart);
+    assert.ok(cThrowStart >= 0 && cThrowEnd > cThrowStart);
+    assert.match(cHurtle,
+        /touch_petrifies\(gy\.youmonst\.data\)[\s\S]*?minstapetrify\(mon, TRUE\);/u);
+    assert.equal((cMHurtle.match(/minstapetrify\(/gu) ?? []).length, 3);
+    assert.match(cMHurtle,
+        /minstapetrify\(mon, !svc\.context\.mon_moving\);[\s\S]*?minstapetrify\(mtmp, !svc\.context\.mon_moving\);[\s\S]*?minstapetrify\(mon, TRUE\);/u);
+    assert.match(cThrow,
+        /if \(obj->otyp == CORPSE && touch_petrifies\(&mons\[obj->corpsenm\]\)\)[\s\S]*?minstapetrify\(u\.ustuck, TRUE\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?delobj\(obj\);/u);
+    assert.match(jsHurtle,
+        /await minstapetrify\(mon, true, state,[\s\S]*?await wake_nearto\(x, y, 10, \{ state, random, message \}\);/u);
+    assert.match(jsMHurtle,
+        /await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?newsym\(monster\.mx, monster\.my\);[\s\S]*?await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?newsym\(otherMonster\.mx, otherMonster\.my\);[\s\S]*?await minstapetrify\(monster, true/u);
+    assert.match(jsThrow,
+        /await minstapetrify\(\s*u\.ustuck, true, state, operationEnv,\s*\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?delobj\(obj, \{ state \}\);/u);
+    assert.doesNotMatch(DOTHROW_JS, /note_unported\('trap\.c minstapetrify'\)/u);
+
+    resetGame();
+    await runSegment({
+        seed: ARENA_SEED,
+        datetime: HURTLE_FIXTURE_DATETIME,
+        nethackrc: 'OPTIONS=name:HurtleStone,role:Valkyrie,race:human,'
+            + 'gender:female,align:lawful,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none,!acoustics\n',
+        moves: '',
+    });
+    const state = game;
+    state.u.umonnum = PM_COCKATRICE;
+    state.u.umonster = PM_HUMAN;
+    state.youmonst.data = state.mons[PM_COCKATRICE];
+    state.level.at(state.u.ux + 1, state.u.uy).typ = ROOM;
+    const target = newMonster({
+        data: state.mons[PM_ORC],
+        mnum: PM_ORC,
+        m_id: 9101,
+        mhp: 30,
+        mhpmax: 30,
+        mcanmove: true,
+        mcansee: true,
+    });
+    place_monster(target, state.u.ux + 1, state.u.uy, state);
+    for (let i = 0; i < 16; i++) state.nhDisplay.pushKey(32);
+    try {
+        assert.equal(await hurtle_step({ state, range: 1 },
+            state.u.ux + 1, state.u.uy), false);
+        assert.equal(target.mhp, 0,
+            'the polymorphed hero’s bodily collision petrifies the target');
+        assert.equal(state.u.uconduct.killer, 1,
+            'the C byplayer=TRUE call credits the hero for the kill');
+    } finally {
+        resetGame();
+    }
+});
+
+test('thitmonst petrifies an engulfing animal before consuming its corpse',
+    async () => {
+        const cStart = DOTHROW_C.indexOf('\nthitmonst(\n');
+        const cEnd = DOTHROW_C.indexOf('\n#undef special_obj_hits_leader', cStart);
+        const c = DOTHROW_C.slice(cStart, cEnd);
+        const jsStart = DOTHROW_JS.indexOf('export async function thitmonst(');
+        const jsEnd = DOTHROW_JS.indexOf('\n}\n\n', jsStart);
+        const js = DOTHROW_JS.slice(jsStart, jsEnd);
+        assert.match(c,
+            /if \(obj->otyp == CORPSE && touch_petrifies\(&mons\[obj->corpsenm\]\)\)[\s\S]*?if \(is_animal\(md\)\)[\s\S]*?minstapetrify\(u\.ustuck, TRUE\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?delobj\(obj\);[\s\S]*?return 1;/u);
+        assert.match(js,
+            /await minstapetrify\(\s*u\.ustuck, true, state, operationEnv,\s*\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?delobj\(obj, \{ state \}\);[\s\S]*?return 1;/u);
+
+        resetGame();
+        await runSegment({
+            seed: ARENA_SEED,
+            datetime: HURTLE_FIXTURE_DATETIME,
+            nethackrc: 'OPTIONS=name:EngulferStone,role:Valkyrie,race:human,'
+                + 'gender:female,align:lawful,!legacy,!tutorial,!splash_screen,'
+                + 'pettype:none,!acoustics\n',
+            moves: '',
+        });
+        const state = game;
+        const engulfer = newMonster({
+            data: state.mons[PM_PURPLE_WORM],
+            mnum: PM_PURPLE_WORM,
+            m_id: 9104,
+            mhp: 30,
+            mhpmax: 30,
+            mcanmove: true,
+            mcansee: true,
+        });
+        const x = state.u.ux + 1;
+        const y = state.u.uy;
+        state.level.at(x, y).typ = ROOM;
+        place_monster(engulfer, x, y, state);
+        state.u.uswallow = true;
+        state.u.ustuck = engulfer;
+        state.u.uswldtim = 5;
+        const corpse = item(state, CORPSE, { corpsenm: PM_COCKATRICE });
+        const environment = {
+            state,
+            random: { d, rn1, rn2, rnd, rne, rnl },
+            message: async () => {},
+            unsupported: () => {},
+        };
+        for (let i = 0; i < 16; i++) state.nhDisplay.pushKey(32);
+        try {
+            assert.equal(await thitmonst(engulfer, corpse, state, environment), 1);
+            assert.equal(engulfer.mhp, 0,
+                'the swallowed animal is petrified through minstapetrify');
+            assert.equal(corpse.where, OBJ_DELETED,
+                'the corpse is deleted only after C clears the swallow state');
+        } finally {
+            resetGame();
+        }
+    });
 
 test('hurtle() installs source multi state and walks normalized recoil', async () => {
     const start = DOTHROW_C.indexOf('\nhurtle(int dx, int dy, int range, boolean verbose)');

@@ -434,6 +434,7 @@ import {
     Flying,
     Levitation,
     drown,
+    minstapetrify,
     t_at,
     trapname,
 } from './trap.js';
@@ -726,8 +727,8 @@ function mhurtleTrapEnvironment(rawEnv, state) {
 
 // C ref: dothrow.c mhurtle_step() (992-1074). This is the monster callback
 // consumed by walk_path(): its boolean decides whether the path advances to
-// the next cell. mintrap()'s Trap_* result is consumed exactly as in C; the
-// petrification helpers are void and retain named gaps at their call sites.
+// the next cell. mintrap()'s Trap_* result is consumed exactly as in C;
+// minstapetrify() remains a void callee, with the source call order preserved.
 export async function mhurtle_step(arg, x, y) {
     const { monster, state = game, env = {} } = arg ?? {};
     if (!monster || !state.level)
@@ -778,12 +779,16 @@ export async function mhurtle_step(arg, x, y) {
         });
         if (touch_petrifies(otherMonster.data)
             && !which_armor(monster, W_ARMU | W_ARM | W_ARMC, state)) {
-            note_unported('trap.c minstapetrify');
+            await minstapetrify(
+                monster, !state.context?.mon_moving, state, env,
+            );
             newsym(monster.mx, monster.my);
         }
         if (touch_petrifies(monster.data)
             && !which_armor(otherMonster, W_ARMU | W_ARM | W_ARMC, state)) {
-            note_unported('trap.c minstapetrify');
+            await minstapetrify(
+                otherMonster, !state.context?.mon_moving, state, env,
+            );
             newsym(otherMonster.mx, otherMonster.my);
         }
     } else if (u_at(x, y, state)) {
@@ -799,7 +804,9 @@ export async function mhurtle_step(arg, x, y) {
         });
         if (Upolyd(state.u) && touch_petrifies(state.youmonst.data)
             && !which_armor(monster, W_ARMU | W_ARM | W_ARMC, state)) {
-            note_unported('trap.c minstapetrify');
+            await minstapetrify(monster, true, state, {
+                ...env, state, random, message,
+            });
             newsym(monster.mx, monster.my);
         }
         if (touch_petrifies(monster.data)
@@ -1008,7 +1015,9 @@ export async function hurtle_step(arg, x, y) {
         }
         if (touch_petrifies(state.youmonst?.data)
             && !which_armor(mon, W_ARMU | W_ARM | W_ARMC, state)) {
-            note_unported('trap.c minstapetrify');
+            await minstapetrify(mon, true, state, {
+                ...arg?.env, state, random, message,
+            });
         }
         await wake_nearto(x, y, 10, { state, random, message });
         return false;
@@ -3201,7 +3210,9 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
         const md = u.ustuck?.data ?? mon.data;
         if (otyp === CORPSE && touch_petrifies(state.mons?.[obj.corpsenm])) {
             if (is_animal(md)) {
-                note_unported('trap.c minstapetrify');
+                await minstapetrify(
+                    u.ustuck, true, state, operationEnv,
+                );
                 if (!u.uswallow) {
                     // C consumes the cockatrice corpse after the swallowed
                     // target is petrified. delobj() is implemented here and
