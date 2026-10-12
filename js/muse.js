@@ -62,6 +62,8 @@ import {
     NORMAL_SPEED,
     NOTELL,
     NON_PM,
+    NC_SHOW_MSG,
+    NC_VIA_WAND_OR_SPELL,
     OBJ_AT,
     OBJ_FLOOR,
     P_DAGGER,
@@ -148,7 +150,7 @@ import { m_next2u } from './mhitu.js';
 import { paralyze_monst } from './mhitm.js';
 import {
     healmon, m_carrying, maybe_unhide_at, mon_offmap, mondead, mongone, monkilled,
-    seemimic, wakeup, xkilled, is_Vlad, flash_mon, m_in_air,
+    seemimic, wakeup, xkilled, is_Vlad, flash_mon, m_in_air, newcham,
 } from './mon.js';
 import {
     acidic, amorphous, attacktype, attacktype_fordmg, can_blow, dmgtype,
@@ -1467,7 +1469,6 @@ export async function mloot_container(mon, container, vismon, rawEnv = {}) {
 //
 // Unported callees whose results the C discards:
 //   mon.c m_useup       -- consumed object stays in monster inventory
-//   mon.c newcham           -- polymorph skipped
 export async function use_misc(mtmp, selection, state, env = {}) {
     const otmp = selection.object;
     const i = await precheck(mtmp, otmp, state, env);
@@ -1585,7 +1586,12 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         // MUSE_WAN_POLYMORPH
         if (!otmp) throw new Error('use_misc: no wand of polymorph');
         await mzapwand(mtmp, otmp, true, state);
-        note_unported('mon.c newcham');
+        const target = muse_newcham_mon(mtmp, { ...env, state });
+        await newcham(mtmp, target, {
+            ...env,
+            state,
+            ncflags: NC_VIA_WAND_OR_SPELL | NC_SHOW_MSG,
+        });
         if (oseen)
             discover_object(O.WAN_POLYMORPH, true, true, true, state);
         return 2;
@@ -1599,7 +1605,12 @@ export async function use_misc(mtmp, selection, state, env = {}) {
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} suddenly mutates!`,
                 state);
-        note_unported('mon.c newcham');
+        const target = muse_newcham_mon(mtmp, { ...env, state });
+        await newcham(mtmp, target, {
+            ...env,
+            state,
+            ncflags: NC_SHOW_MSG,
+        });
         if (oseen)
             discover_object(O.POT_POLYMORPH, true, true, true, state);
         return 2;
@@ -1637,7 +1648,11 @@ export async function use_misc(mtmp, selection, state, env = {}) {
             worm_move(mtmp, { ...env, state });
         newsym(trapX, trapY, state);
 
-        note_unported('mon.c newcham');
+        await newcham(mtmp, null, {
+            ...env,
+            state,
+            ncflags: NC_SHOW_MSG,
+        });
         return 2;
     }
     case 'container':

@@ -8,6 +8,8 @@ import {
     HALLUC,
     HOLE,
     MFAST,
+    NC_SHOW_MSG,
+    NC_VIA_WAND_OR_SPELL,
     OBJ_FLOOR,
     OBJ_MINVENT,
     POLY_TRAP,
@@ -667,14 +669,72 @@ test('use_misc supplies seetrap redraw and preserves injected redraw owners',
             const env = entry.injected
                 ? { redraw: (x, y) => redraws.push([x, y]) }
                 : {};
-            assert.equal(await use_misc(monster, selection, state, env), 2);
+            const selectedForms = [];
+            const hitPointRolls = [];
+            const messages = [];
+            const random = {
+                d: () => assert.fail('unexpected d() during this form change'),
+                rn1: (bound, base) => {
+                    selectedForms.push([bound, base]);
+                    return PM_JACKAL;
+                },
+                rn2: () => 0,
+                rnd: (bound) => {
+                    hitPointRolls.push(bound);
+                    return 1;
+                },
+                rne: () => assert.fail('unexpected rne() during this form change'),
+            };
+            assert.equal(await use_misc(monster, selection, state, {
+                ...env,
+                random,
+                message: async (text) => messages.push(text),
+            }), 2);
             assert.equal(trap.tseen, true);
             if (entry.injected)
                 assert.deepEqual(redraws, [[entry.tx, entry.ty]]);
             assert.deepEqual([monster.mx, monster.my], [entry.tx, entry.ty]);
-            assert.equal(state.unported.has('mon.c newcham'), true,
-                'later polymorph behavior remains an explicit source gap');
+            assert.equal(monster.data, state.mons[PM_JACKAL],
+                'the trap arm calls the NULL-target newcham selector');
+            assert.ok(selectedForms.length > 0,
+                'the C random-form selection runs after the trap relocation');
+            assert.ok(hitPointRolls.length > 0,
+                'the selected form receives C new-monster hit-point rolls');
+            assert.equal(state.unported.has('mon.c newcham'), false);
         }
+    });
+
+test('use_misc binds all polymorph callers with their C target and flag order',
+    () => {
+        const useMiscStart = MUSE_C.indexOf('\nuse_misc(');
+        const c = MUSE_C.slice(useMiscStart);
+        const wandAt = c.indexOf('case MUSE_WAN_POLYMORPH:');
+        const potionAt = c.indexOf('case MUSE_POT_POLYMORPH:', wandAt);
+        const trapAt = c.indexOf('case MUSE_POLY_TRAP:', potionAt);
+        assert.ok(useMiscStart >= 0 && wandAt >= 0 && potionAt > wandAt
+            && trapAt > potionAt);
+        assert.match(c.slice(wandAt, potionAt),
+            /mzapwand\(mtmp, otmp, TRUE\);[\s\S]*?newcham\(mtmp, muse_newcham_mon\(mtmp\),[\s\S]*?NC_VIA_WAND_OR_SPELL \| NC_SHOW_MSG/su);
+        assert.match(c.slice(potionAt, trapAt),
+            /m_useup\(mtmp, otmp\);[\s\S]*?newcham\(mtmp, muse_newcham_mon\(mtmp\),[\s\S]*?NC_SHOW_MSG/su);
+        assert.match(c.slice(trapAt),
+            /worm_move\(mtmp\);[\s\S]*?newcham\(mtmp, \(struct permonst \*\) 0, NC_SHOW_MSG\)/su);
+
+        const jsUseMiscAt = MUSE_JS.indexOf('export async function use_misc(');
+        const js = MUSE_JS.slice(jsUseMiscAt);
+        const jsWandAt = js.indexOf('// MUSE_WAN_POLYMORPH');
+        const jsPotionAt = js.indexOf('// MUSE_POT_POLYMORPH', jsWandAt);
+        const jsTrapAt = js.indexOf('// MUSE_POLY_TRAP', jsPotionAt);
+        assert.ok(jsUseMiscAt >= 0 && jsWandAt >= 0
+            && jsPotionAt > jsWandAt && jsTrapAt > jsPotionAt);
+        assert.match(js.slice(jsWandAt, jsPotionAt),
+            /await mzapwand[\s\S]*?muse_newcham_mon\(mtmp,[\s\S]*?await newcham\(mtmp, target,[\s\S]*?NC_VIA_WAND_OR_SPELL \| NC_SHOW_MSG/su);
+        assert.match(js.slice(jsPotionAt, jsTrapAt),
+            /await m_useup[\s\S]*?muse_newcham_mon\(mtmp,[\s\S]*?await newcham\(mtmp, target,[\s\S]*?ncflags: NC_SHOW_MSG/su);
+        assert.match(js.slice(jsTrapAt),
+            /place_monster[\s\S]*?await newcham\(mtmp, null,[\s\S]*?ncflags: NC_SHOW_MSG/su);
+        assert.equal(NC_SHOW_MSG, 0x01);
+        assert.equal(NC_VIA_WAND_OR_SPELL, 0x02);
     });
 
 test('a wounded ordinary hostile with an inert weapon selects no item action',
