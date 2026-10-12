@@ -293586,7 +293586,7 @@
     {
       "id": "fix-spell-novel-read-levelup-message-v52-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore the novel reward's level-up message",
       "cFile": "spell.c",
       "sessions": [
@@ -293596,10 +293596,74 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "69ca4a7e4581fca6ab57835fa512cde4f10ec2d2",
       "delivered": null,
       "function": "study_book",
-      "session": "synthetic/v52/v52-novel-read-tribute-action-attempt2"
+      "session": "synthetic/v52/v52-novel-read-tribute-action-attempt2",
+      "closeStanding": {
+        "sha": "69ca4a7e4581fca6ab57835fa512cde4f10ec2d2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64",
+        "target": "synthetic/v52/v52-novel-read-tribute-action-attempt2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/69ca4a7e4581fca6ab57835fa512cde4f10ec2d2/run-hosted-5ieS1r/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "study_book",
+            "implementation": "js/spell.js",
+            "symbol": "study_book",
+            "sourceFile": "spell.c",
+            "sourceReview": "Compared the SPE_NOVEL branch of C spell.c:study_book (468-818; novel reward around 509-535): after read_tribute succeeds, C records literacy, checks unpaid status, makes the object type known, then once awards the achievement and 20 XP, calls newexplevel(), and sets u.uevent.read_tribute. The bounded divergence was JS calling newexplevel(state) without the existing message/RNG owner from env, even though exper.js:newexplevel forwards that env to pluslvl. JS now calls newexplevel(state, { ...env, random }) at the same source point; achievement, XP, and flag order are unchanged. Verified the existing exper.c:newexplevel/pluslvl behavior; neither helper is edited or claimed complete here.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread calls study_book for SPBOOK_CLASS; js/read.js:doread passes the active ttyPline message and y_n prompt owners into js/spell.js:study_book."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/novel-level-up.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-novel-read-tribute-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 21,
+                "source": "read.c:doread -> spell.c:study_book SPE_NOVEL -> exper.c:newexplevel -> pluslvl"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted v52 replay reaches the novel through the normal doread command. Its complete 22-screen, 2,698-RNG, 22-cursor differential now matches. The focused test then places the initialized hero exactly at the next XP threshold and directly exercises study_book's tribute reward through newexplevel and pluslvl, asserting the level-up message and one-time flag. This is a branch repair only; no whole-source completion claim is made.",
+        "entryPoints": [
+          {
+            "name": "Read a novel and receive its one-time tribute experience",
+            "functions": [
+              "study_book"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-novel-read-tribute-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 21,
+                "source": "read.c:doread -> spell.c:study_book SPE_NOVEL reward branch"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
