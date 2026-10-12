@@ -6,10 +6,10 @@
   "batch": "v47",
   "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
   "manifestPath": "challenges/manifests/v47.json",
-  "manifestSha256": "1477974e87becdf484ee24d23333bbecbc039fac1fce53c89ec18ab612d627ef",
+  "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
   "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
-  "evaluationPath": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
-  "evaluationCommit": "56fe7fb916a1ffdf783a557694a1c1c18af784de",
+  "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+  "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
   "status": "complete",
   "commit": "7aa1bbc2856d5c2e2aee47c10d3dd73807bb3cf0",
   "mismatch": {
@@ -18,14 +18,14 @@
     "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
     "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
     "manifestPath": "challenges/manifests/v47.json",
-    "manifestSha256": "1477974e87becdf484ee24d23333bbecbc039fac1fce53c89ec18ab612d627ef",
+    "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
     "recording": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
     "recordingPath": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
     "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
     "recipe": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.recipe.session.json",
     "recipeSha256": "39fd145127f7f4c41052613646c6eef92950924fc166825b6900382218052a41",
-    "evaluationPath": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
-    "evaluationCommit": "56fe7fb916a1ffdf783a557694a1c1c18af784de",
+    "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+    "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
     "remainingScreens": 2,
     "recordedSteps": 54,
     "previousScreensMatched": 52,
@@ -51,12 +51,12 @@
         "index": 52,
         "location": {
           "segmentIndex": 0,
-          "stepIndex": 53,
+          "stepIndex": 52,
           "key": " "
         },
         "kind": "ch",
-        "row": 7,
-        "column": 32,
+        "row": 6,
+        "column": 31,
         "cCell": {
           "ch": "(",
           "color": 3,
@@ -71,22 +71,22 @@
         }
       },
       "rng": {
-        "index": 2259,
+        "index": 2258,
         "cEntry": "rn2(1)=0",
         "cCaller": "m_move(monmove.c:1978)",
         "jsEntry": "rn2(12)=8",
         "location": {
           "segmentIndex": 0,
-          "stepIndex": 54,
+          "stepIndex": 53,
           "key": " "
         },
-        "stepIndex": 54
+        "stepIndex": 53
       },
       "cursor": {
         "index": 53,
         "location": {
           "segmentIndex": 0,
-          "stepIndex": 54,
+          "stepIndex": 53,
           "key": " "
         },
         "cCursor": [
@@ -101,7 +101,7 @@
         ]
       }
     },
-    "step": 53,
+    "step": 52,
     "kind": "screen",
     "sourceFile": "eat.c",
     "function": "eatmupdate",
@@ -110,7 +110,7 @@
     "luaFile": null,
     "line": 181
   },
-  "summary": "At zero-based segment 0, step 53, the admitted v47 candidate enters the timeout-clear branch while the hero is mimicking a small mimic corpse. The eat.c:eatmupdate() source unit is now implemented and wired from potion.c:make_hallucinated(); an independent recording verifies the active orange-to-gold appearance update. The selected case still differs at this boundary because C eat.c:cpostfx() blocks in display_nhwindow(WIN_MAP, TRUE) after starting mimicry, while JS cpostfx() records note_unported('windows.c display_nhwindow') and returns. That cpostfx/window scheduling gap delays C's next captured screen; it is a separate source task and remains out of this goal.",
+  "summary": "At zero-based segment 0, step 52 in the current accepted evaluation, the admitted v47 candidate enters the timeout-clear branch while the hero is mimicking a small mimic corpse. The eat.c:eatmupdate() source unit is now implemented and wired from potion.c:make_hallucinated(); an independent recording verifies the active orange-to-gold appearance update. The selected case still differs at this boundary because C eat.c:cpostfx() blocks in display_nhwindow(WIN_MAP, TRUE) after starting mimicry, while JS cpostfx() records note_unported('windows.c display_nhwindow') and returns. That cpostfx/window scheduling gap delays C's next captured screen; it is a separate source task and remains out of this goal.",
   "source": {
     "file": "eat.c",
     "functions": [
@@ -147,9 +147,9 @@
     }
   },
   "goalKind": "file-port",
-  "selectionReason": "Selected as the first unreserved independent candidate in saved combined queue SHA-256 46b5891629d3d59e5e62550cd812381e88752c80574406c65acffb4f4fed55cb, after skipping C/B-owned sessions, A2's already claimed shop and gremlin cases, and the earlier poly-energy session which already has a parked A2 investigation blocked on B's uhitm.c:mhitm_adtyping reservation. This candidate's first owner is eat.c:eatmupdate, with no current active eat.c or potion.c reservation.",
+  "selectionReason": "Selected as the first unreserved independent candidate in saved combined queue SHA-256 90fac9709e3b3e7fcc3c4fea739f87d074e6fd96a9fac0c6040306130ce71c6d, after skipping C/B-owned sessions, A2's already claimed shop and gremlin cases, and the earlier poly-energy session which was parked on B's uhitm.c:mhitm_adtyping reservation. This candidate's source diagnosis remains eat.c:eatmupdate, with no active eat.c or potion.c reservation.",
   "evidence": [
-    "The v47 manifest SHA-256 is 1477974e87becdf484ee24d23333bbecbc039fac1fce53c89ec18ab612d627ef. The admitted candidate is v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst, with 54 steps, 52/54 screens, 2272/2667 RNG calls, and 53/54 cursors in the accepted v47 evaluation. Its recipe and recording hashes are recorded above.",
+    "The v47 manifest identity SHA-256 is b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608. The admitted candidate is v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst, with 54 steps, 52/54 screens, 2272/2667 RNG calls, and 53/54 cursors in the accepted ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948 v47 evaluation. Its recipe and recording hashes are recorded above.",
     "The recipe independently uses seed 47000134, date/time 20571111111214, debug Wizard, no pet, and moves `#wizwish` for a small mimic corpse, `#wizintrinsic` with `10h` to set a 10-turn hallucination timeout, then eats the corpse from slot p and dismisses the resulting pages. C reaches cpostfx(PM_SMALL_MIMIC) while hallucinating, starts orange-object mimicry, then clears hallucination during the active mimic state.",
     "The source function is eat.c:eatmupdate() at lines 181-213. It returns before work unless ge.eatmbuf is nonnull and gn.nomovemsg points to that same active mimic completion buffer. For an orange object appearance after hallucination ends, it selects `You now prefer mimicking yourself.` and GOLD_PIECE, copies the new text into the active buffer, sets mappearance, and calls newsym().",
     "The sole direct C caller is potion.c:make_hallucinated() line 418 under changed && !Hallucination. The JavaScript implementation now wires this caller to eatmupdate(). No other eatmupdate() call exists in upstream C, and the relevant appearance predicate is a header macro.",
