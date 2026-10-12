@@ -291256,6 +291256,543 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-gulpum-v51-fatal-engulf-20261012",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port whole hero engulf attack and fatal transitions",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3",
+        "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4"
+      ],
+      "selectionReason": "Oldest dependency-ready delivery; whole gulpum owns both fatal engulf mismatches",
+      "detail": "",
+      "openedAt": "b91a7c6eaf7c5d154625fe0ff284c46e42bc8deb",
+      "openStanding": {
+        "sha": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "gulpum",
+          "line": 4958,
+          "endLine": 5197,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4958,
+        "to": 5197
+      },
+      "syntheticProvenance": {
+        "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3": {
+          "session": "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+          "recordingSha256": "d548560245011f4fdf091e5062c3bbecd534f284196631afc3f6548aa6a51a40",
+          "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+          "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3"
+        },
+        "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4": {
+          "session": "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
+          "recordingSha256": "ece7fa4de510fa51b06f5630486b76f8fb74c3a4d8b9f6a55623a9c2714fa2f8",
+          "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+          "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3"
+        }
+      },
+      "activeStanding": {
+        "sha": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+          "session": "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
+          "recordingPath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
+          "recordingSha256": "ece7fa4de510fa51b06f5630486b76f8fb74c3a4d8b9f6a55623a9c2714fa2f8",
+          "recipe": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.recipe.session.json",
+          "recipeSha256": "7cffb24fbb78b32652e12b891aa1b966f1840e921c41c7a5f512af1ebbce6824",
+          "replayInputSha256": "86473216252a06dc9d6e4dc618e353b82fd1c8399511cd7938463f3ea1dc2889",
+          "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+          "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+          "evaluationArtifact": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+          "evaluationUtc": "2026-10-12T17:19:32.076Z",
+          "remainingScreens": 47,
+          "recordedSteps": 193,
+          "previousScreensMatched": 146,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 146,
+              "total": 193
+            },
+            "rng": {
+              "matched": 2764,
+              "total": 3207
+            },
+            "cursors": {
+              "matched": 168,
+              "total": 193
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.json",
+            "result": {
+              "session": "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingSha256": "ece7fa4de510fa51b06f5630486b76f8fb74c3a4d8b9f6a55623a9c2714fa2f8",
+              "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+              "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+              "remainingScreens": 47,
+              "recordedSteps": 193,
+              "status": "complete",
+              "summary": "The saved admitted replay first diverges at segment 0 step 146. In uhitm.c:gulpum, the engulfing Trapper's fatal_gulp path for an unresisted cockatrice prints the engulf line, constructs the source killer text and calls instapetrify(kbuf). JavaScript prints the first line and records note_unported('trap.c instapetrify'), then continues combat. The existing trap.c:instapetrify implementation must be called here with the source-ordered killer string and the attack environment. This is another branch of the whole gulpum function; the related purple-worm Rider case also exposes the unported done(DIED) call, so both source calls belong in the complete function scope.",
+              "commit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+              "goalKind": "file-port",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "gulpum"
+                ],
+                "branch": "Read the complete gulpum definition at uhitm.c:4958-5195. In this case, engulf_target succeeds and touch_petrifies(pd) makes fatal_gulp true without Stone resistance. The fatal_gulp && !is_rider branch emits the engulf line, chooses pmname by monster gender, applies an() unless the monster has a proper name, formats the killer as swallowing/enclosing/engulfing plus that name and optional whole, then calls instapetrify(kbuf). C discards its void result. JS currently stops after the first message at note_unported('trap.c instapetrify').",
+                "callers": [
+                  "uhitm.c:hmonas -> uhitm.c:gulpum via the hero-as-monster AT_ENGL dispatch; js/uhitm.js:hmonas already awaits gulpum and consumes its M_ATTK_MISS result."
+                ],
+                "dependencies": [
+                  "end.c:done",
+                  "trap.c:instapetrify"
+                ]
+              },
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+                "session": "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
+                "recordingPath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
+                "recordingSha256": "ece7fa4de510fa51b06f5630486b76f8fb74c3a4d8b9f6a55623a9c2714fa2f8",
+                "recipe": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.recipe.session.json",
+                "recipeSha256": "7cffb24fbb78b32652e12b891aa1b966f1840e921c41c7a5f512af1ebbce6824",
+                "replayInputSha256": "86473216252a06dc9d6e4dc618e353b82fd1c8399511cd7938463f3ea1dc2889",
+                "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+                "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+                "evaluationArtifact": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+                "evaluationUtc": "2026-10-12T17:19:32.076Z",
+                "remainingScreens": 47,
+                "recordedSteps": 193,
+                "previousScreensMatched": 146,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 146,
+                    "total": 193
+                  },
+                  "rng": {
+                    "matched": 2764,
+                    "total": 3207
+                  },
+                  "cursors": {
+                    "matched": 168,
+                    "total": 193
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 146,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 146,
+                      "key": "h"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 32,
+                    "cCell": {
+                      "ch": "t",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "e",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2757,
+                    "cEntry": "rn2(5)=2",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "jsEntry": "rnd(21)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 148,
+                      "key": " "
+                    },
+                    "stepIndex": 148
+                  },
+                  "cursor": {
+                    "index": 146,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 146,
+                      "key": "h"
+                    },
+                    "cCursor": [
+                      56,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      62,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 146,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "evidence": [
+                "Saved admitted v51 sourceTrace: the blind Trapper retains blessed monster detection, then engulfs an adjacent cockatrice; C prints the fatal petrification line at step 146 and the Die? boundary at step 147. JS skips the instapetrify transition and continues combat. Its later RNG mismatch follows this missing death path.",
+                "C source nethack-c/upstream/src/uhitm.c:4958-5195, fatal_gulp && !is_rider arm: emits the initial engulf message, constructs the source killer buffer with an()/pmname(), and calls instapetrify(kbuf).",
+                "JS source js/uhitm.js:gulpum has the same fatal_gulp branch but records note_unported('trap.c instapetrify') and returns through the surrounding function. trap.c:instapetrify is already implemented in js/trap.js and calls done(STONING).",
+                "GOALS.json marks the trap.c:instapetrify implementation complete; its return is void and discarded at this caller. The selected entry exercises the existing hero-as-monster attack route through hmonas, which awaits gulpum."
+              ],
+              "recordingPath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
+              "recipeSha256": "7cffb24fbb78b32652e12b891aa1b966f1840e921c41c7a5f512af1ebbce6824",
+              "recipePath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.recipe.session.json"
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 146,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 146,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 32,
+              "cCell": {
+                "ch": "t",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "e",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2757,
+              "cEntry": "rn2(5)=2",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "rnd(21)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 148,
+                "key": " "
+              },
+              "stepIndex": 148
+            },
+            "cursor": {
+              "index": 146,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 146,
+                "key": "h"
+              },
+              "cCursor": [
+                56,
+                0,
+                1
+              ],
+              "jsCursor": [
+                62,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 146,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+          "session": "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+          "recordingPath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+          "recordingSha256": "d548560245011f4fdf091e5062c3bbecd534f284196631afc3f6548aa6a51a40",
+          "recipe": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.recipe.session.json",
+          "recipeSha256": "59940034f76e92307f6c29d01c8b945c10d0b5cdf2be7cf7104ccd12b4e6b776",
+          "replayInputSha256": "86473216252a06dc9d6e4dc618e353b82fd1c8399511cd7938463f3ea1dc2889",
+          "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+          "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+          "evaluationArtifact": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+          "evaluationUtc": "2026-10-12T17:19:32.076Z",
+          "remainingScreens": 14,
+          "recordedSteps": 172,
+          "previousScreensMatched": 158,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 158,
+              "total": 172
+            },
+            "rng": {
+              "matched": 2885,
+              "total": 2885
+            },
+            "cursors": {
+              "matched": 162,
+              "total": 172
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3.json",
+            "result": {
+              "session": "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingSha256": "d548560245011f4fdf091e5062c3bbecd534f284196631afc3f6548aa6a51a40",
+              "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+              "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+              "remainingScreens": 14,
+              "recordedSteps": 172,
+              "status": "complete",
+              "summary": "The saved admitted replay first diverges at segment 0 step 114. In uhitm.c:gulpum, the hero's purple-worm AD_DGST Rider branch prints the fatal digestion message, ends engulfing, sets the killer and format, calls done(DIED), then returns M_ATTK_MISS. JavaScript currently records note_unported('end.c done') after the same preceding state changes and returns, so the next death-pager boundary and temporary worm glyph differ. The done result is discarded in C; wire the existing done implementation at this exact source position. This is one branch of the whole gulpum function, which has no verified source-completion evidence and also omits the fatal engulf instapetrify caller exercised by the related session.",
+              "commit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+              "goalKind": "file-port",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "gulpum"
+                ],
+                "branch": "Read the complete gulpum definition at uhitm.c:4958-5195. In this case, engulf_target succeeds, fatal_gulp is true for the digesting Rider, and the non-petrification branch calls start_engulf then the AD_DGST Rider arm. C emits the fatal digestion line, runs end_engulf, writes svk.killer.name and format, calls done(DIED), and returns M_ATTK_MISS. JS has the same ordered path but replaces done(DIED) with note_unported('end.c done'). The void result from done is discarded.",
+                "callers": [
+                  "uhitm.c:hmonas -> uhitm.c:gulpum via the hero-as-monster AT_ENGL dispatch; js/uhitm.js:hmonas already awaits gulpum and consumes its M_ATTK_MISS result."
+                ],
+                "dependencies": [
+                  "end.c:done",
+                  "trap.c:instapetrify"
+                ]
+              },
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+                "session": "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+                "recordingPath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+                "recordingSha256": "d548560245011f4fdf091e5062c3bbecd534f284196631afc3f6548aa6a51a40",
+                "recipe": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.recipe.session.json",
+                "recipeSha256": "59940034f76e92307f6c29d01c8b945c10d0b5cdf2be7cf7104ccd12b4e6b776",
+                "replayInputSha256": "86473216252a06dc9d6e4dc618e353b82fd1c8399511cd7938463f3ea1dc2889",
+                "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+                "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+                "evaluationArtifact": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+                "evaluationUtc": "2026-10-12T17:19:32.076Z",
+                "remainingScreens": 14,
+                "recordedSteps": 172,
+                "previousScreensMatched": 158,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 158,
+                    "total": 172
+                  },
+                  "rng": {
+                    "matched": 2885,
+                    "total": 2885
+                  },
+                  "cursors": {
+                    "matched": 162,
+                    "total": 172
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 114,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 114,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 14,
+                    "column": 37,
+                    "cCell": {
+                      "ch": "w",
+                      "color": 5,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "&",
+                      "color": 13,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 115,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 115,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      14,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      48,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 114,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "evidence": [
+                "Saved admitted v51 sourceTrace: C swallow step 113, fatal digestion pager step 114 retains the temporary worm glyph at Death tile (37,14), then the Die? input boundary follows. JS omits done at the corresponding step, proceeds into Death combat, releases the glyph early and displays the deadly-touch message. The recording's RNG counts still match at this first screen difference.",
+                "C source nethack-c/upstream/src/uhitm.c:4958-5195, especially the AD_DGST Rider branch: after start_engulf, fatal digestion text, end_engulf, killer name/format writes, done(DIED), and M_ATTK_MISS return occur in this order.",
+                "JS source js/uhitm.js:gulpum has the corresponding Rider branch and currently calls note_unported('end.c done'); js/uhitm.js:hmonas already awaits gulpum and consumes its return value.",
+                "GOALS.json and js/end.js show an existing end.c:done implementation; its return is void and discarded at this caller. The complete gulpum function has no verified source-completion evidence, so the implementation scope must include its other omitted source call as well."
+              ],
+              "recordingPath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+              "recipeSha256": "59940034f76e92307f6c29d01c8b945c10d0b5cdf2be7cf7104ccd12b4e6b776",
+              "recipePath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.recipe.session.json"
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 114,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 114,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 14,
+              "column": 37,
+              "cCell": {
+                "ch": "w",
+                "color": 5,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "&",
+                "color": 13,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 115,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 115,
+                "key": " "
+              },
+              "cCursor": [
+                14,
+                0,
+                1
+              ],
+              "jsCursor": [
+                48,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 114,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null
+        }
+      ]
     }
   ]
 }
