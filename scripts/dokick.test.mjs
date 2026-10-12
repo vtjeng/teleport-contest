@@ -48,12 +48,12 @@ test('dokick.c floor-object kick and gold-catch source owners are exported', () 
 import { runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { newMonster } from '../js/monst.js';
-import { newObject, place_object } from '../js/obj.js';
-import { CORPSE, GOLD_PIECE, COIN_CLASS } from '../js/objects.js';
+import { newObject } from '../js/obj.js';
+import { GOLD_PIECE, COIN_CLASS } from '../js/objects.js';
 import { PM_LEPRECHAUN, PM_SOLDIER, PM_SERGEANT, PM_LIEUTENANT,
-    PM_CAPTAIN, PM_WATCHMAN, PM_COCKATRICE, PM_NEWT } from '../js/monsters.js';
+    PM_CAPTAIN, PM_WATCHMAN, PM_NEWT } from '../js/monsters.js';
 import {
-    OBJ_MINVENT, A_CHA, HALLUC, HALLUC_RES, STONE_RES, WEB,
+    OBJ_MINVENT, A_CHA, HALLUC, HALLUC_RES, WEB,
 } from '../js/const.js';
 
 async function goldState() {
@@ -130,32 +130,24 @@ test('really_kick_object uses both hallucination resistance sources',
     }
 });
 
-test('really_kick_object initializes the barefoot petrification killer',
-    async () => {
-    const state = await goldState();
-    const x = state.u.ux + 1;
-    const y = state.u.uy;
-    const corpse = newObject({
-        otyp: CORPSE,
-        oclass: state.objects[CORPSE].oc_class,
-        corpsenm: PM_COCKATRICE,
-        quan: 1,
-        owt: 10,
-    });
-    place_object(corpse, x, y, { state });
-    state.gk = { kickedobj: corpse };
-    state.u.dx = 1;
-    state.u.dy = 0;
-    state.uarmf = null;
-    state.u.uprops[STONE_RES].intrinsic = 0;
-    state.u.uprops[STONE_RES].extrinsic = 0;
-    delete state.killer;
-    await kicks.really_kick_object(x, y, state, {
-        message: async () => {},
-    });
-    assert.match(state.killer.name, /^kicking .* barefoot$/u);
-    assert.equal(state.svk, undefined);
-    assert.ok(state.unported.has('trap.c instapetrify'));
+test('really_kick_object calls instapetrify before continuing a bare-foot corpse kick', () => {
+    // This source-pinned branch covers dokick.c:542-555; the v53 recording
+    // separately exercises the terminal transition and kick continuation.
+    const cStart = DOKICK_C.indexOf(
+        '\nreally_kick_object(coordxy x, coordxy y)\n{',
+    );
+    const cEnd = DOKICK_C.indexOf('\n}\n', cStart);
+    const jsStart = DOKICK_JS.indexOf('export async function really_kick_object(');
+    const jsEnd = DOKICK_JS.indexOf('\n}\n', jsStart);
+    const cKick = DOKICK_C.slice(cStart, cEnd);
+    const jsKick = DOKICK_JS.slice(jsStart, jsEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cKick,
+        /if \(!uarmf && gk\.kickedobj->otyp == CORPSE[\s\S]*?touch_petrifies\(&mons\[gk\.kickedobj->corpsenm\]\)[\s\S]*?!Stone_resistance\)[\s\S]*?Sprintf\(svk\.killer\.name, "kicking %s barefoot"[\s\S]*?instapetrify\(svk\.killer\.name\);[\s\S]*?isgold =/u);
+    assert.match(jsKick,
+        /if \(!state\.uarmf && object\(\)\.otyp === CORPSE[\s\S]*?touch_petrifies\(state\.mons\[object\(\)\.corpsenm\]\)[\s\S]*?state\.killer\.name = `kicking \$\{killer_xname\(object\(\), state\)\} barefoot`;[\s\S]*?await instapetrify\(state\.killer\.name, state, env\);[\s\S]*?const isGold =/u);
+    assert.doesNotMatch(jsKick, /note_unported\('trap\.c instapetrify'\)/u);
 });
 
 test('ghitm applies each source mercenary threshold with a strict comparison', async () => {
