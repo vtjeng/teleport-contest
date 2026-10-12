@@ -353,6 +353,7 @@
         "js/pager.js",
         "js/pline.js",
         "js/sit.js",
+        "js/topl.js",
         "js/topten.js",
         "js/tty_menu.js",
         "js/tty_message.js",

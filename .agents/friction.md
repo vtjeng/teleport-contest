@@ -194,3 +194,25 @@ triage decisions or fix references.
 - Outcome: checked the missing output receipt, saved the same import code as
   an ignored temporary script, and ran that script under the bounded runner.
   All 51 saved evaluations were recorded before the public push.
+
+### 2026-10-12 — entry-point metadata omitted from coordinator evidence
+
+- Context: discovery source acceptance at `583ca5765`.
+- Friction: Root copied the six function records from the worker packet but
+  omitted its entry-point review and four entry-point records. Closure
+  correctly rejected the incomplete metadata after importing the scores.
+- Outcome: copied the reviewed entry-point fields, verified them at the same
+  tested commit, and retried acceptance without replaying the full workload.
+  History's evidence import includes all three fields before its retry gate.
+
+### 2026-10-12 — corrected history source re-integrated
+
+- Context: history correction `d94761f7`, after the failed `b3f99748` candidate.
+- Outcome: preserved every original source patch and imported only the history
+  commits plus the scoped correction. The correction fixes the duplicated
+  WIN_STOP state, wrap cursor, and speculative quest-history side effect;
+  its C comparisons establish the updated display digests. Nine fixed
+  regression replays and 683 worker tests pass. The combined candidate's
+  38 focused tests, lint and quality checks pass. The new module retains
+  its earlier commands-area assignment, which was preserved on the failed
+  branch. The hosted retry must cover every earlier failed stage.
