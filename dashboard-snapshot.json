@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T02:11:40.522Z",
+  "capturedAt": "2026-10-12T02:13:10.748Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -55,7 +55,8 @@
         "at": "2026-09-25T15:16:06.957Z",
         "task": "C1",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v2"
       },
       {
         "runId": "loop-20260925",
@@ -286,7 +287,8 @@
         "at": "2026-09-25T16:49:09.136Z",
         "task": "C3",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v3"
       },
       {
         "runId": "loop-20260925",
@@ -494,7 +496,8 @@
         "at": "2026-09-25T17:45:47.268Z",
         "task": "C4",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v4"
       },
       {
         "runId": "loop-20260925",
@@ -763,7 +766,8 @@
         "at": "2026-09-25T20:15:06.747Z",
         "task": "C6-v5-prep",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v5"
       },
       {
         "runId": "loop-20260925",
@@ -2152,7 +2156,8 @@
         "at": "2026-09-26T04:42:53.503Z",
         "task": "B10-v6-prep",
         "worker": "B",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v6"
       },
       {
         "runId": "loop-20260925",
@@ -2505,7 +2510,8 @@
         "at": "2026-09-26T07:52:06.010Z",
         "task": "C14-v7-prep",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v7"
       },
       {
         "runId": "loop-20260925",
@@ -2924,7 +2930,8 @@
         "at": "2026-09-26T12:25:55.141Z",
         "task": "C15-v8-prep",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v8"
       },
       {
         "runId": "loop-20260925",
@@ -5490,7 +5497,8 @@
         "at": "2026-09-27T10:07:29.189Z",
         "task": "C27",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v9"
       },
       {
         "runId": "loop-20260925",
@@ -6234,7 +6242,8 @@
         "at": "2026-09-27T17:03:08.765Z",
         "task": "C28",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v10"
       },
       {
         "runId": "loop-20260925",
@@ -8247,7 +8256,8 @@
         "at": "2026-09-28T12:40:07.907Z",
         "task": "A42-v11-prep",
         "worker": "A",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v11"
       },
       {
         "runId": "loop-20260925",
@@ -9010,7 +9020,8 @@
         "at": "2026-09-28T21:29:37.976Z",
         "task": "A44-v12-prep",
         "worker": "A",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v12"
       },
       {
         "runId": "loop-20260925",
@@ -10090,7 +10101,8 @@
         "at": "2026-09-29T08:19:26.151Z",
         "task": "C47",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v13"
       },
       {
         "runId": "loop-20260925",
@@ -10653,7 +10665,8 @@
         "at": "2026-09-29T15:24:55.030Z",
         "task": "C49",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v14"
       },
       {
         "runId": "loop-20260925",
@@ -11585,7 +11598,8 @@
         "at": "2026-09-29T23:15:26.700Z",
         "task": "C51",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v15"
       },
       {
         "runId": "loop-20260925",
@@ -13688,7 +13702,8 @@
         "at": "2026-09-30T08:50:12.114Z",
         "task": "A59",
         "worker": "A2",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v16"
       },
       {
         "runId": "loop-20260925",
@@ -17956,7 +17971,8 @@
         "at": "2026-10-01T02:48:07.706Z",
         "task": "C56",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v17"
       },
       {
         "runId": "loop-20260925",
@@ -24886,7 +24902,8 @@
         "at": "2026-10-01T19:39:58.892Z",
         "task": "C59",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v18"
       },
       {
         "runId": "loop-20260925",
@@ -31541,7 +31558,8 @@
         "at": "2026-10-02T09:29:26.110Z",
         "task": "C62",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v19"
       },
       {
         "runId": "loop-20260925",
@@ -34690,7 +34708,8 @@
         "at": "2026-10-02T18:03:49.006Z",
         "task": "C63",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v20"
       },
       {
         "runId": "loop-20260925",
@@ -37691,7 +37710,8 @@
         "at": "2026-10-03T02:01:42.446Z",
         "task": "C65",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v21"
       },
       {
         "runId": "loop-20260925",
@@ -42914,7 +42934,8 @@
         "at": "2026-10-03T21:40:54.387Z",
         "task": "B98",
         "worker": "B",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v22"
       },
       {
         "runId": "loop-20260925",
@@ -53755,7 +53776,8 @@
         "at": "2026-10-06T04:02:39.400Z",
         "task": "A104",
         "worker": "A2",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v23"
       },
       {
         "runId": "loop-20260925",
@@ -54585,7 +54607,8 @@
         "at": "2026-10-06T13:43:04.991Z",
         "task": "C113",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v24"
       },
       {
         "runId": "loop-20260925",
@@ -55935,7 +55958,8 @@
         "at": "2026-10-06T20:24:27.079Z",
         "task": "B120",
         "worker": "B",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v25"
       },
       {
         "runId": "loop-20260925",
@@ -56557,7 +56581,8 @@
         "at": "2026-10-06T23:49:03.388Z",
         "task": "A113",
         "worker": "A2",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v26"
       },
       {
         "runId": "loop-20260925",
@@ -57938,7 +57963,8 @@
         "at": "2026-10-07T08:19:52.266Z",
         "task": "B131",
         "worker": "B",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v27"
       },
       {
         "runId": "loop-20260925",
@@ -60320,7 +60346,8 @@
         "at": "2026-10-07T23:11:35.822Z",
         "task": "C138",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v28"
       },
       {
         "runId": "loop-20260925",
@@ -60615,7 +60642,8 @@
         "at": "2026-10-07T23:49:23.265Z",
         "task": "C139",
         "worker": "C",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v29"
       },
       {
         "runId": "loop-20260925",
@@ -63666,7 +63694,8 @@
         "at": "2026-10-08T10:39:07.614Z",
         "task": "B155",
         "worker": "B",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v30"
       },
       {
         "runId": "loop-20260925",
@@ -63777,7 +63806,8 @@
         "at": "2026-10-08T11:20:39.892Z",
         "task": "B156",
         "worker": "B",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v31"
       },
       {
         "runId": "loop-20260925",
@@ -63899,7 +63929,8 @@
         "at": "2026-10-08T11:48:04.096Z",
         "task": "B157",
         "worker": "B",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v32"
       },
       {
         "runId": "loop-20260925",
@@ -64163,7 +64194,8 @@
         "at": "2026-10-08T12:43:06.029Z",
         "task": "B158",
         "worker": "B",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v33"
       },
       {
         "runId": "loop-20260925",
@@ -64378,7 +64410,8 @@
         "at": "2026-10-08T13:36:01.152Z",
         "task": "B159",
         "worker": "B",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v34"
       },
       {
         "runId": "loop-20260925",
@@ -64640,7 +64673,8 @@
         "at": "2026-10-08T14:48:17.979Z",
         "task": "B160",
         "worker": "B",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v35"
       },
       {
         "runId": "loop-20260925",
@@ -64854,7 +64888,8 @@
         "at": "2026-10-08T15:43:27.451Z",
         "task": "B161",
         "worker": "B",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v36"
       },
       {
         "runId": "loop-20260925",
@@ -65578,7 +65613,8 @@
         "at": "2026-10-08T17:20:06.251Z",
         "task": "Prep1",
         "worker": "Prep",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v37"
       },
       {
         "runId": "loop-20260925",
@@ -74426,7 +74462,8 @@
         "at": "2026-10-09T15:17:09.715Z",
         "task": "Prep2",
         "worker": "Prep",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v38"
       },
       {
         "runId": "loop-20260925",
@@ -78145,7 +78182,8 @@
         "at": "2026-10-10T02:52:49.646Z",
         "task": "Prep3",
         "worker": "Prep",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v39"
       },
       {
         "runId": "loop-20260925",
@@ -78891,7 +78929,8 @@
         "at": "2026-10-10T06:10:34.406Z",
         "task": "Prep4",
         "worker": "Prep",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v40"
       },
       {
         "runId": "loop-20260925",
@@ -80743,7 +80782,8 @@
         "at": "2026-10-10T11:25:39.048Z",
         "task": "Prep5",
         "worker": "Prep",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v41"
       },
       {
         "runId": "loop-20260925",
@@ -82236,7 +82276,8 @@
         "at": "2026-10-10T15:58:28.388Z",
         "task": "Prep6",
         "worker": "Prep",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v42"
       },
       {
         "runId": "loop-20260925",
@@ -83722,7 +83763,8 @@
         "at": "2026-10-10T20:53:03.525Z",
         "task": "Prep7",
         "worker": "Prep",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v43"
       },
       {
         "runId": "loop-20260925",
@@ -85203,7 +85245,8 @@
         "at": "2026-10-11T01:20:08.047Z",
         "task": "Prep8",
         "worker": "Prep",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v44"
       },
       {
         "runId": "loop-20260925",
@@ -86684,7 +86727,8 @@
         "at": "2026-10-11T05:56:16.305Z",
         "task": "Prep9",
         "worker": "Prep",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v45"
       },
       {
         "runId": "loop-20260925",
@@ -87338,7 +87382,8 @@
         "at": "2026-10-11T09:23:36.855Z",
         "task": "Prep10",
         "worker": "Prep",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v46"
       },
       {
         "runId": "loop-20260925",
@@ -88875,7 +88920,8 @@
         "at": "2026-10-11T15:28:17.293Z",
         "task": "Prep11",
         "worker": "Prep",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v47"
       },
       {
         "runId": "loop-20260925",
@@ -89949,7 +89995,8 @@
         "at": "2026-10-11T20:51:02.285Z",
         "task": "Prep12",
         "worker": "Prep",
-        "kind": "challenge-preparation"
+        "kind": "challenge-preparation",
+        "batch": "v48"
       },
       {
         "runId": "loop-20260925",
@@ -91172,6 +91219,38 @@
         "type": "accepted",
         "at": "2026-10-12T02:10:51.431Z",
         "task": "A2-v47-mhitm-ad-elec-zap-destroy-items-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v47-cpostfx-blocking-mimic-display-20261012",
+        "type": "implement",
+        "at": "2026-10-12T02:11:41.873Z",
+        "task": "C-investigation-v47-mimic-hallucination-post-eatmupdate-cfirst-20261012",
+        "goal": "port-cpostfx-blocking-mimic-display-v47-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-v47-mhitm-ad-elec-zap-destroy-items-20261012-ccdfdec0fe83d5ae772dce19fe430bbf3a3f54b0",
+        "type": "published",
+        "at": "2026-10-12T02:11:50.473Z",
+        "task": "A2-v47-mhitm-ad-elec-zap-destroy-items-20261012",
+        "commit": "ccdfdec0fe83d5ae772dce19fe430bbf3a3f54b0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-investigation-v47-poly-energy-vortex-engulf-drain-20261012-after-ad-elec-accepted",
+        "type": "resume",
+        "at": "2026-10-12T02:12:09.520Z",
+        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-v47-poly-energy-resume-after-ad-elec-20261012",
+        "type": "turn",
+        "at": "2026-10-12T02:13:00.086Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 resumed v47 AD_DREN after its electric/zap dependency cleared; replay reachability and source alignment are being rechecked."
       }
     ]
   },
@@ -91577,17 +91656,6 @@
         "since": "2026-10-11T23:08:54.777Z",
         "blockedBy": [],
         "reason": "Parked after committing corrected source findings e546f3c39. The current queue boundary at step 48 is behind the do.c:dropz costly-shop preflight refusal. A whole shk.c:sellobj port is not independently bounded: direct dothrow.c:check_shop_obj ownership and its six throwit callers must be included, and return-valued special_stock -> shknam.c:is_izchak must be ported with its active shk_chat caller. No game code was edited."
-      },
-      {
-        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
-        "worker": "A2",
-        "goal": "port-mhitm-xdrainenergym-v47-20261012",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-12T01:11:54.782Z",
-        "blockedBy": [],
-        "reason": "Matching mhitm_ad_dren entry evidence is blocked by the partial uhitm.c:mhitm_ad_elec monster-to-monster arm and its return-valued electric zap.c:destroy_items dependency; current-scope work is recoverable at 88e87512c103a05a6b4d8f320056fb65cd26e44a."
       }
     ]
   },
