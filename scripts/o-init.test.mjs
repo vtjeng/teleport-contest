@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import * as objectExports from '../js/objects.js';
@@ -11,6 +12,7 @@ import {
     oinit,
     randomize_gem_colors,
     setgemprobs,
+    undiscover_object,
 } from '../js/o_init.js';
 import {
     ACID_VENOM,
@@ -47,6 +49,8 @@ import {
     WAND_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
+
+const C_O_INIT = readFileSync('nethack-c/upstream/src/o_init.c', 'utf8');
 
 function makeDeterministicRandom(seed) {
     let value = seed >>> 0;
@@ -389,29 +393,45 @@ test('discover_object applies live credit and inventory effects in C order', () 
     assert.deepEqual(events, ['exercise:19', 'inventory']);
 });
 
-test('discover_object reprices a newly learned gem before refreshing inventory', () => {
+test('discover_object runs native gem billing before refreshing inventory', () => {
     const state = discoveryState();
     const events = [];
     discover_object(AQUAMARINE, true, true, false, state, {
-        gemLearned(oindx) {
-            events.push(`gem:${oindx}`);
-            assert.equal(state.objects[oindx].oc_name_known, 1);
-        },
         hooks: {
-            updateInventory() { events.push('inventory'); },
+            updateInventory() {
+                events.push('inventory');
+                assert.equal(state.objects[AQUAMARINE].oc_name_known, 1);
+            },
         },
     });
-    assert.deepEqual(events, [`gem:${AQUAMARINE}`, 'inventory']);
+    assert.deepEqual(events, ['inventory']);
 });
 
-test('discover_object preflights live gem pricing before catalog mutation', () => {
+test('discover_object uses gem_learned without an injected callback', () => {
     const state = discoveryState();
     const base = state.svb.bases[GEM_CLASS];
-    assert.throws(
-        () => discover_object(AQUAMARINE, true, true, false, state),
-        /requires gem_learned/,
-    );
-    assert.equal(state.objects[AQUAMARINE].oc_name_known, 0);
-    assert.equal(state.objects[AQUAMARINE].oc_encountered, 0);
-    assert.equal(state.svd.disco[base], 0);
+    const updates = [];
+    const result = discover_object(AQUAMARINE, true, true, false, state, {
+        hooks: { updateInventory() { updates.push('inventory'); } },
+    });
+    assert.equal(result, true);
+    assert.equal(state.objects[AQUAMARINE].oc_name_known, 1);
+    assert.equal(state.objects[AQUAMARINE].oc_encountered, 1);
+    assert.equal(state.svd.disco[base], AQUAMARINE);
+    assert.deepEqual(updates, ['inventory']);
+    assert.match(C_O_INIT,
+        /if \(objects\[oindx\]\.oc_class == GEM_CLASS\)\s*gem_learned\(oindx\);[\s\S]*?update_inventory\(\);/u);
+});
+
+test('undiscover_object calls the source gem billing helper by default', () => {
+    const state = discoveryState();
+    const base = state.svb.bases[GEM_CLASS];
+    state.svd.disco[base] = AQUAMARINE;
+    assert.equal(state.svd.disco[base], AQUAMARINE);
+
+    undiscover_object(AQUAMARINE, state);
+
+    assert.equal(state.svd.disco.includes(AQUAMARINE), false);
+    assert.match(C_O_INIT,
+        /if \(objects\[oindx\]\.oc_class == GEM_CLASS\)\s*gem_learned\(oindx\); \/\* ok, it's actually been unlearned \*\//u);
 });

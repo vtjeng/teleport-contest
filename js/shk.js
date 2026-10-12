@@ -2,7 +2,7 @@
 // bill-object lifecycle, remembered-price queries, and shopkeeper movement.
 // C refs: shk.c inhishop(), inside_shop(), shop_keeper(), u_entered_shop(),
 // u_left_shop(), call_kops(), makekops(), getprice(), get_cost(),
-// get_cost_of_shop_item(),
+// get_cost_of_shop_item(), gem_learned(),
 // append_price_quote(), contained_gold(), check_unpaid(), costly_spot(),
 // shop_object(), shk_owns(), mon_owns(), shk_your(), shk_move(),
 // shk_fixes_damage(), and the end-of-game cleanup chain next_shkp(),
@@ -90,7 +90,7 @@ import { acurr, adjalign } from './attrib.js';
 import { arti_cost } from './artifacts.js';
 import { yn_function } from './cmd.js';
 import { bot, map_invisible } from './display.js';
-import { assign_level, depth, on_level } from './dungeon.js';
+import { assign_level, depth, mapseen_room, on_level } from './dungeon.js';
 import { um_dist } from './apply.js';
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
@@ -521,7 +521,7 @@ export function inside_shop(x, y, state = game) {
     const location = state.level?.at(x, y);
     const roomno = location?.roomno ?? 0;
     const room = roomno >= ROOMOFFSET
-        ? state.level.rooms?.[roomno - ROOMOFFSET]
+        ? mapseen_room(roomno - ROOMOFFSET, state)
         : null;
     return room && !location.edge && room.rtype >= SHOPBASE ? roomno : 0;
 }
@@ -530,7 +530,7 @@ export function inside_shop(x, y, state = game) {
 // any missing surcharge before the caller reads the shop's state.
 export function shop_keeper(roomno, state = game) {
     if (roomno < ROOMOFFSET) return null;
-    const resident = state.level?.rooms?.[roomno - ROOMOFFSET]?.resident;
+    const resident = mapseen_room(roomno - ROOMOFFSET, state)?.resident;
     if (resident) {
         if (!resident.mextra?.eshk) {
             note_unported('pline.c impossible');
@@ -1061,7 +1061,7 @@ async function deserted_shop(
     { message = ttyPline } = {},
 ) {
     const roomno = Math.trunc(enterstring?.[0] ?? 0);
-    const room = state.level.rooms[roomno - ROOMOFFSET];
+    const room = mapseen_room(roomno - ROOMOFFSET, state);
     let sensed = 0;
     let total = 0;
 
@@ -2737,7 +2737,7 @@ export async function u_entered_shop(
         return true;
     }
 
-    const room = state.level.rooms[roomno - ROOMOFFSET];
+    const room = mapseen_room(roomno - ROOMOFFSET, state);
     const shopName = SHTYPES[room.rtype - SHOPBASE].name;
     if (!NOTANGRY(shopkeeper)) {
         if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
@@ -3460,6 +3460,27 @@ function next_shkp(shopkeeper, withbill, state) {
         if (!shkp.mextra.eshk.surcharge) rile_shk(shkp);
     }
     return shkp;
+}
+
+// C ref: shk.c gem_learned() (3198-3236). Identifying or forgetting one gem
+// reprices matching unpaid objects on every live shopkeeper's bill.
+export function gem_learned(oindx, state = game) {
+    for (let shkp = next_shkp(state.level?.monlist ?? null, true, state); shkp;
+        shkp = next_shkp(shkp.nmon, true, state)) {
+        const eshk = shkp.mextra.eshk;
+        let ct = eshk.billct;
+        let bpIndex = 0;
+        while (--ct >= 0) {
+            const bp = eshk.bill_p[bpIndex];
+            const obj = find_oid(bp.bo_id, state);
+            if (!obj) continue; // C's `continue` leaves bp at the same bill row.
+            if (oindx !== STRANGE_OBJECT
+                ? obj.otyp === oindx : obj.oclass === GEM_CLASS) {
+                bp.price = get_cost(obj, shkp, state);
+            }
+            ++bpIndex;
+        }
+    }
 }
 
 // C ref: shk.c onbill() (1135-1155). C returns the bill entry; this returns it

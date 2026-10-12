@@ -292491,7 +292491,7 @@
     {
       "id": "port-zap-backfire-v52-cursed-wand-20261012",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement backfire from zap.c",
       "cFile": "zap.c",
       "sessions": [
@@ -292501,7 +292501,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "4cd4881552c06e139c24162766546ede1f17aeea",
       "delivered": null,
       "functions": [
         {
@@ -292514,6 +292514,413 @@
       "range": {
         "from": 2605,
         "to": 2617
+      },
+      "closeStanding": {
+        "sha": "4cd4881552c06e139c24162766546ede1f17aeea",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "5814725469a04a5cc2b68a4fd19de47137c4f7b1",
+        "target": "synthetic/v52/v52-cursed-wand-nothing-backfire-action-attempt2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/4cd4881552c06e139c24162766546ede1f17aeea/run-hosted-avrsYc/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "backfire",
+            "implementation": "js/zap.js",
+            "symbol": "backfire",
+            "sourceReview": "Read zap.c:backfire (2605-2614) and its dozap caller (2648-2653). Preserve the source order: set otmp->in_use, print The(xname(otmp)) suddenly explodes, roll d(otmp->spe + 2, 6), apply Maybe_Half_Phys, call losehp with \"exploding wand\" and KILLED_BY_AN, then useupall. dozap then calls exercise(A_STR,FALSE) and returns ECMD_TIME before the ordinary inventory tail. All consumed return values are implemented by existing d, losehp, and useupall owners; no callee gap remains in this branch. The neighboring weffects refusal remains outside the selected function.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "dozap",
+                "source": "zap.c:dozap calls backfire(obj) after zappable(obj) and the cursed-wand rn2 gate; it then exercises strength and returns ECMD_TIME."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runZapCommand",
+                "source": "cmd.c command dispatch reaches zap.c:dozap for key 0x7a, the z command."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-cursed-wand-nothing-backfire-action-attempt2",
+                "segment": 0,
+                "fromStep": 207,
+                "throughStep": 1102,
+                "source": "cmd.c key 0x7a dispatches dozap(); zap.c:dozap calls backfire() after zappable() and the cursed-wand rn2 gate"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is the z command. js/extcmdlist_data.js maps key 0x7a to dozap; js/cmd.js dispatches it to js/zap.js:dozap. zap.c:dozap reaches backfire only after zappable() succeeds and the cursed-wand backfire roll is zero. The cited v52 recording exercises this command route repeatedly and matches through the complete segment. The later weffects() branch remains an independent refusal outside this function scope.",
+        "entryPoints": [
+          {
+            "name": "cursed-wand backfire from the z command",
+            "functions": [
+              "backfire"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-cursed-wand-nothing-backfire-action-attempt2",
+                "segment": 0,
+                "fromStep": 207,
+                "throughStep": 1102,
+                "source": "cmd.c key 0x7a dispatches dozap(); zap.c:dozap calls backfire() after zappable() and the cursed-wand rn2 gate"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "A2-port-shk-gem-learned-v52-prayer-gem-20261012",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Implement gem_learned from shk.c",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v52/v52-prayer-crowning-gem-luck-action-attempt3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v52-prayer-crowning-gem-luck-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "6f4abfb9dd2c5ee00eae26f123d4338a61159c78",
+      "delivered": null,
+      "functions": [
+        {
+          "name": "gem_learned",
+          "line": 3198,
+          "endLine": 3236,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 3198,
+        "to": 3236
+      },
+      "closeStanding": {
+        "sha": "6f4abfb9dd2c5ee00eae26f123d4338a61159c78",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "4cd4881552c06e139c24162766546ede1f17aeea",
+        "target": "synthetic/v52/v52-prayer-crowning-gem-luck-action-attempt3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/6f4abfb9dd2c5ee00eae26f123d4338a61159c78/run-hosted-zLqtLA/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "gem_learned",
+            "implementation": "js/shk.js",
+            "symbol": "gem_learned",
+            "sourceReview": "Read the complete shk.c:gem_learned definition (3198-3236). In source order it traverses bill-bearing shopkeepers with next_shkp(fmon, TRUE), loads each bill count and starts at bill_p, decrements ct on every iteration, finds the unpaid object by bo_id, continues without advancing bp when find_oid fails, updates price only for the requested otyp or every GEM_CLASS object when oindx is STRANGE_OBJECT, then advances bp. The JS preserves that pointer behavior and uses the existing next_shkp, find_oid, and get_cost implementations; get_cost is supplied by accepted delivery ea8accb036fde7b15b539cf524fac6cc53d8d4a2. The function mutates bill prices and emits no direct message or RNG call. Removed the discover_object callback refusal and apply.c touchstone note_unported substitute; discovery and forgetting now call this implementation directly.",
+            "callers": [
+              {
+                "path": "js/o_init.js",
+                "symbol": "discover_object",
+                "source": "o_init.c:discover_object (483-490) calls gem_learned(oindx) for a newly known GEM_CLASS object during the live moveloop, before update_inventory()."
+              },
+              {
+                "path": "js/o_init.js",
+                "symbol": "undiscover_object",
+                "source": "o_init.c:undiscover_object (520-521) calls gem_learned(oindx) when an unencountered, unknown gem is removed from disco[]."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_stone",
+                "source": "apply.c:use_stone (2748-2749) calls makeknown for TOUCHSTONE and the selected gem; makeknown expands to discover_object, whose GEM_CLASS branch calls gem_learned."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk.test.mjs",
+              "scripts/o-init.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-prayer-crowning-gem-luck-action-attempt3",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 57,
+                "source": "wizcmds.c:wiz_identify -> invent.c:identify -> invent.c:fully_identify_obj -> hack.h:makeknown -> o_init.c:discover_object -> shk.c:gem_learned"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected helper has two direct active C call sites, both wired: newly known live gems in o_init.c:discover_object and forgetting a gem in o_init.c:undiscover_object. The v52 admitted recording reaches the first through #wizidentify, selecting a carried gem; its matching prefix through step 57 executes fully_identify_obj -> makeknown -> discover_object -> gem_learned. apply.c:use_stone is also wired through discover_object for touchstone/gem knowledge. Forgetting and touchstone entry paths are not separately claimed as runtime-covered by this range. The challenge's later prayer/crowning setup is not reached and is not claimed.",
+        "entryPoints": [
+          {
+            "name": "identify a carried gem through #wizidentify",
+            "functions": [
+              "gem_learned"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-prayer-crowning-gem-luck-action-attempt3",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 57,
+                "source": "cmd.c:rhack -> wizcmds.c:wiz_identify -> invent.c:identify/fully_identify_obj -> hack.h:makeknown -> o_init.c:discover_object -> shk.c:gem_learned"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "A2-fix-shk-minetown-room-index-v52-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement inside_shop, deserted_shop, u_entered_shop, shop_keeper from shk.c",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "67776b9593bfb9e0bc90bc2ead6934245f045b8b",
+      "delivered": null,
+      "function": "inside_shop",
+      "session": "synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12",
+      "closeStanding": {
+        "sha": "67776b9593bfb9e0bc90bc2ead6934245f045b8b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "6f4abfb9dd2c5ee00eae26f123d4338a61159c78",
+        "target": "synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/67776b9593bfb9e0bc90bc2ead6934245f045b8b/run-hosted-592TQW/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "inside_shop",
+            "sourceFile": "shk.c",
+            "implementation": "js/shk.js",
+            "symbol": "inside_shop",
+            "pure": true,
+            "sourceReview": "Bounded room-identity correction only. C reads levl[x][y].roomno and tests the corresponding contiguous svr.rooms entry; JavaScript now resolves that conceptual room index with dungeon.js:mapseen_room. The nested-shop test pins the strict interior and shop-type result; no whole-function completion is claimed.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "u_entered_shop",
+                "source": "C hack.c:check_special_room calls shk.c:u_entered_shop, which calls inside_shop after its greeting; JavaScript keeps the existing call wiring."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "shop_keeper",
+            "sourceFile": "shk.c",
+            "implementation": "js/shk.js",
+            "symbol": "shop_keeper",
+            "pure": false,
+            "sourceReview": "Bounded room-identity correction only. C returns svr.rooms[rmno - ROOMOFFSET].resident; JavaScript now reads that resident through mapseen_room, preserving the existing anger/surcharge branch. No whole-function completion is claimed.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "u_entered_shop",
+                "source": "C shk.c:u_entered_shop calls shop_keeper(*enterstring); the existing JavaScript caller remains wired and now resolves nested residents."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-minetown-unpaid-tool-pickup-attempt12",
+                "segment": 0,
+                "fromStep": 312,
+                "throughStep": 312,
+                "source": "hack.c:check_special_room -> shk.c:u_entered_shop -> shk.c:shop_keeper finds the Minetown hardware-store resident for the nested C room identity."
+              }
+            ]
+          },
+          {
+            "name": "u_entered_shop",
+            "sourceFile": "shk.c",
+            "implementation": "js/shk.js",
+            "symbol": "u_entered_shop",
+            "pure": false,
+            "sourceReview": "Bounded room-identity correction only. C uses svr.rooms[*enterstring - ROOMOFFSET].rtype after resolving an active keeper; JavaScript now resolves the same conceptual index through mapseen_room. Existing command/movement caller wiring is unchanged. No whole-function completion is claimed.",
+            "callers": [
+              {
+                "path": "js/rooms.js",
+                "symbol": "check_special_room",
+                "source": "C hack.c:check_special_room calls shk.c:u_entered_shop for newly entered shops; JavaScript rooms.js retains this production call."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-minetown-unpaid-tool-pickup-attempt12",
+                "segment": 0,
+                "fromStep": 312,
+                "throughStep": 312,
+                "source": "hack.c movement/check_special_room -> shk.c:u_entered_shop resolves the nested room type and reaches the hardware-store greeting."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This bounded correction fixes the nested-room identity used by the four selected shk.c functions. The v52 Minetown case now passes its former step-312 failure and reaches an unrelated muse.c divergence at screen 572 / RNG step 573. The case covers the staffed entry path through shop_keeper and u_entered_shop; scripts/shk.test.mjs separately reaches inside_shop and the no-resident deserted_shop path with a nested fixture. No whole-file or whole-function completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Minetown nested hardware-store entry",
+            "functions": [
+              "inside_shop",
+              "shop_keeper",
+              "u_entered_shop"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-minetown-unpaid-tool-pickup-attempt12",
+                "segment": 0,
+                "fromStep": 312,
+                "throughStep": 312,
+                "source": "hack.c:check_special_room -> shk.c:u_entered_shop -> shop_keeper; the same call then uses inside_shop and the nested shop type."
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": [
+          {
+            "name": "deserted_shop",
+            "sourceFile": "shk.c",
+            "reason": "The v52 C replay enters a staffed shop, so shk.c:u_entered_shop finds its keeper and does not call deserted_shop. scripts/shk.test.mjs exercises the nested-room empty-shop helper path in JavaScript, but there is no matching C runtime evidence for this branch.",
+            "blockedRecipe": "recipes/shk.c/v52-empty-shop-branch-blocked.session.json"
+          }
+        ]
+      }
+    },
+    {
+      "id": "port-mplayer-talk-v52-endgame-chat-20261012",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Implement mplayer_talk from mplayer.c",
+      "cFile": "mplayer.c",
+      "sessions": [
+        "synthetic/v52/v52-endgame-mplayer-chat-action-attempt6"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v52-endgame-mplayer-chat-attempt6-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f",
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mplayer_talk",
+          "line": 356,
+          "endLine": 380,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 356,
+        "to": 380
+      },
+      "closeStanding": {
+        "sha": "ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "67776b9593bfb9e0bc90bc2ead6934245f045b8b",
+        "target": "synthetic/v52/v52-endgame-mplayer-chat-action-attempt6",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f/run-hosted-V1f77u/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mplayer_talk",
+            "implementation": "js/mplayer.js",
+            "symbol": "mplayer_talk",
+            "sourceReview": "Read the complete mplayer.c:mplayer_talk definition at 356-375. The function returns before side effects for peaceful monsters; otherwise it calls SetVoice (empty in this recorder build), compares mtmp->data by species pointer with mons[gu.urole.mnum], consumes exactly one rn2(3) from the matching three-message array, and passes the selected formatted line to verbalize. The bounded sounds.c:domonnoise branch at 1025-1030 is wired with the same state, random owner, and message sink, replacing its note_unported placeholder. No return-valued callee is unported.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:domonnoise:1025-1030"
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "dochat",
+                "source": "sounds.c:dochat -> domonnoise"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mplayer-talk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-endgame-mplayer-chat-action-attempt6",
+                "segment": 0,
+                "fromStep": 104,
+                "throughStep": 114,
+                "source": "sounds.c:dochat -> sounds.c:domonnoise:1025-1030 -> mplayer.c:mplayer_talk:356-375"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "C has one active caller for mplayer_talk: sounds.c:domonnoise calls it only from the hostile MS_HUMANOID branch when In_endgame and is_mplayer are both true. The production route is #chat through sounds.c:dochat and the command registry, then js/sounds.js:domonnoise. The recorder build defines SetVoice as empty in sndprocs.h:276, so there is no additional observable voice operation to port. The peaceful early return is source-pinned by the focused test; the admitted synthetic range exercises the hostile production entry point.",
+        "entryPoints": [
+          {
+            "name": "Hostile endgame monster-player through #chat",
+            "functions": [
+              "mplayer_talk"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-endgame-mplayer-chat-action-attempt6",
+                "segment": 0,
+                "fromStep": 104,
+                "throughStep": 114,
+                "source": "sounds.c:dochat -> sounds.c:domonnoise:1025-1030 -> mplayer.c:mplayer_talk:356-375"
+              }
+            ]
+          }
+        ]
       }
     }
   ]

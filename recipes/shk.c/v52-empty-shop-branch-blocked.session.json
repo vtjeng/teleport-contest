@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8300417,
+      "datetime": "20361204110923",
+      "nethackrc": "OPTIONS=name:EmptyShopProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00165\n ."
+    }
+  ],
+  "comment": "Blocked C-runtime coverage for shk.c:deserted_shop. This independently selected D:5 arrival reaches the C shop-entry path, but shk.c:u_entered_shop finds its live shopkeeper and does not call the empty-shop helper. A C setup that makes a nested shop have no resident remains unrecorded; this recipe is not evidence for deserted_shop."
+}

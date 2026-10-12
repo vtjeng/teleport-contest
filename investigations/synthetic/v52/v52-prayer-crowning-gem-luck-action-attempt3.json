@@ -1,0 +1,96 @@
+{
+  "session": "synthetic/v52/v52-prayer-crowning-gem-luck-action-attempt3",
+  "remainingScreens": 738,
+  "recordedSteps": 738,
+  "corpus": "synthetic",
+  "batch": "v52",
+  "caseId": "v52-prayer-crowning-gem-luck-action-attempt3",
+  "manifestPath": "challenges/manifests/v52.json",
+  "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+  "recordingSha256": "034e0fe3d8fc869b48a37c99db55c499ac8e91ddc0f8523f993fb32a6555e3dc",
+  "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+  "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+  "status": "complete",
+  "commit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v52",
+    "caseId": "v52-prayer-crowning-gem-luck-action-attempt3",
+    "session": "synthetic/v52/v52-prayer-crowning-gem-luck-action-attempt3",
+    "manifestPath": "challenges/manifests/v52.json",
+    "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+    "recording": "challenges/cases/v52/v52-prayer-crowning-gem-luck-action-attempt3.session.json",
+    "recordingPath": "challenges/cases/v52/v52-prayer-crowning-gem-luck-action-attempt3.session.json",
+    "recordingSha256": "034e0fe3d8fc869b48a37c99db55c499ac8e91ddc0f8523f993fb32a6555e3dc",
+    "recipe": "challenges/cases/v52/v52-prayer-crowning-gem-luck-action-attempt3.recipe.session.json",
+    "recipeSha256": "5c2084190eddc07301266a6be4e6c3dbad9d8d7077fd9de10fe2f37b0ed60e7b",
+    "replayInputSha256": "5e32600d28364b4911473a9a7a949a1791cc380ac369c97a7771762b3a9f2022",
+    "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+    "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+    "evaluationArtifact": "challenges/evaluations/hosted-38292091033-1-v52.json",
+    "evaluationUtc": "2026-10-12T18:40:54.256Z",
+    "remainingScreens": 738,
+    "recordedSteps": 738,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "discover_object requires gem_learned",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 738
+      },
+      "rng": {
+        "matched": 0,
+        "total": 4300
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 738
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: discover_object requires gem_learned",
+      "step": null
+    },
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: discover_object requires gem_learned",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v52 recipe enters #wizidentify, selects the carried diamond stack, and calls invent.c:fully_identify_obj(). Its makeknown expansion reaches o_init.c:discover_object() during the live moveloop. C directly invokes shk.c:gem_learned() for newly known gems, but JS requires an injected gemLearned callback and throws “discover_object requires gem_learned”. This stops replay before the later donations and prayer setup; the crowning branch is not reached by this evidence.",
+  "source": {
+    "file": "shk.c",
+    "branch": "o_init.c:discover_object marks a newly identified gem known and, only during the live moveloop before gameover, calls gem_learned(oindx) before update_inventory(). gem_learned walks bill-bearing shopkeepers and refreshes prices for matching unpaid gem objects. o_init.c:undiscover_object also calls it when a gem is removed from the discovery list. The JavaScript discovery function currently throws on the normal live gem-identification route unless a caller supplies a hook.",
+    "functions": [
+      "gem_learned",
+      "discover_object",
+      "undiscover_object"
+    ],
+    "callers": [
+      "wizcmds.c:wiz_identify -> invent.c:identify -> invent.c:fully_identify_obj -> hack.h:makeknown -> o_init.c:discover_object -> shk.c:gem_learned.",
+      "o_init.c:undiscover_object calls shk.c:gem_learned when a formerly named gem is forgotten.",
+      "apply.c:use_stone calls makeknown for the touchstone and selected gem; js/apply.js currently supplies note_unported(\"shk.c gem_learned\") as an explicit fallback hook, which must be removed when wiring the implementation."
+    ],
+    "dependencies": [
+      "Accepted shop delivery ea8accb036fde7b15b539cf524fac6cc53d8d4a2 supplies the already-used shk.c:get_cost / js/shk.js:get_cost behavior consumed by gem_learned; find_oid and next_shkp are also already present in js/shk.js.",
+      "No live source reservation for shk.c:gem_learned, o_init.c:discover_object, o_init.c:undiscover_object, or apply.c:use_stone was present at assignment."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved v52 baseline challenges/evaluations/hosted-38292091033-1-v52.json at fcfb7afe71226851b75665b753b0c2c73ceb7af4 reports the exact admitted recording 034e0fe3d8fc869b48a37c99db55c499ac8e91ddc0f8523f993fb32a6555e3dc, 738 recorded steps/screens, and stop error “discover_object requires gem_learned”. The C-first source trace reports 57 matching screens/cursors and RNG prefix before the selected inventory identification; crowning is not reached.",
+    "nethack-c/upstream/src/invent.c:2635-2650 defines fully_identify_obj; hack.h:1530 expands makeknown(x) to discover_object(x, TRUE, TRUE, TRUE).",
+    "nethack-c/upstream/src/o_init.c:440-494 shows observe_object and discover_object; lines 483-490 call gem_learned for a newly known GEM_CLASS object in the live moveloop before update_inventory. Lines 498-523 show undiscover_object also calls gem_learned when forgetting a gem.",
+    "nethack-c/upstream/src/shk.c:3195-3231 defines gem_learned: traverse next_shkp(fmon, TRUE), scan each bill entry, find the unpaid object by bo_id, and refresh bp->price with get_cost when its gem type matches (or all gems for STRANGE_OBJECT).",
+    "js/wizcmds.js:456-480 and js/cmd.js:3508-3515 are the live #wizidentify command path; js/invent.js:2778-2783 calls discover_object from fully_identify_obj.",
+    "js/o_init.js:428-489 currently requires a caller-provided gemLearned callback at lines 465-469 and throws on this normal call; js/o_init.js:492-525 silently skips the source gem_learned side effect in undiscover_object when no callback exists.",
+    "js/shk.js already owns get_cost, find_oid, and next_shkp; js/o_init.js already imports append_price_quote from shk.js while shk.js imports discover_object from o_init.js, so the task can wire the native helper through the existing module relationship.",
+    "js/apply.js:2287-2294 explicitly replaces the source touchstone calls’ missing default with note_unported(\"shk.c gem_learned\"); remove this placeholder so the use_stone path reaches the same implementation."
+  ]
+}

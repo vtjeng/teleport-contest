@@ -1,0 +1,64 @@
+{
+  "session": "synthetic/v52/v52-endgame-mplayer-chat-action-attempt6",
+  "corpus": "synthetic",
+  "batch": "v52",
+  "caseId": "v52-endgame-mplayer-chat-action-attempt6",
+  "manifestPath": "challenges/manifests/v52.json",
+  "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+  "recordingSha256": "8838b6872e3c628f3783834a5a2198f56f0ff4895940c59abd1de9df20a0bb9c",
+  "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+  "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+  "remainingScreens": 1,
+  "recordedSteps": 115,
+  "status": "complete",
+  "commit": "51e72f43723a21422e7486a88df69744d7c25e7f",
+  "mismatch": {
+    "kind": "rng",
+    "corpus": "synthetic",
+    "session": "synthetic/v52/v52-endgame-mplayer-chat-action-attempt6",
+    "sourceFile": "mplayer.c",
+    "cFile": "mplayer.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v52/v52-endgame-mplayer-chat-action-attempt6"
+    ],
+    "remainingScreens": 1,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 104,
+    "caseId": "v52-endgame-mplayer-chat-action-attempt6",
+    "batch": "v52",
+    "recordingPath": "challenges/cases/v52/v52-endgame-mplayer-chat-action-attempt6.session.json",
+    "rng": {
+      "index": 4640,
+      "cEntry": "rn2(3)=1",
+      "cCaller": "mplayer_talk(mplayer.c:376)",
+      "jsEntry": "rn2(12)=4",
+      "stepIndex": 104
+    }
+  },
+  "summary": "The hostile monster-player chat path in sounds.c:domonnoise reaches mplayer.c:mplayer_talk in C, but js/sounds.js records note_unported and omits the class-specific quote and its rn2(3) draw. Port the entire mplayer_talk function in js/mplayer.js and replace that caller placeholder.",
+  "source": {
+    "file": "mplayer.c",
+    "branch": "During #chat in the Endgame, an audible hostile monster-player with MS_HUMANOID reaches domonnoise; mplayer_talk returns immediately for peaceful monsters and otherwise chooses a same-class or other-class quote with rn2(3).",
+    "functions": [
+      "mplayer_talk"
+    ],
+    "callers": [
+      "sounds.c:domonnoise at 1025-1030 calls mplayer_talk for hostile endgame monster-players; js/sounds.js:domonnoise contains the matching note_unported branch.",
+      "The production entry is #chat through sounds.c:dochat and js/sounds.js:dochat, dispatched by the command registry."
+    ],
+    "dependencies": [
+      "rng.c:rn2 supplies the single quote-selection draw for nonpeaceful monsters.",
+      "pline.c:verbalize emits the quoted line and owns PLINE_VERBALIZE state.",
+      "sndprocs.h:276 defines SetVoice as empty in the recorder build, so it has no runtime output/state effect here."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v52 queue identifies challenges/manifests/v52.json with canonical manifest SHA-256 38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e, recording SHA-256 8838b6872e3c628f3783834a5a2198f56f0ff4895940c59abd1de9df20a0bb9c, and hosted evaluation challenges/evaluations/hosted-38292091033-1-v52.json at fcfb7afe71226851b75665b753b0c2c73ceb7af4.",
+    "The first mismatch is segment 0 step 104, input key u: C logs rn2(3)=1 from mplayer_talk(mplayer.c:376), while JS logs rn2(12)=4 after the caller records note_unported and omits the quote-selection draw. Baseline metrics are 114/115 screens and cursors, with 4721/4726 RNG calls matching.",
+    "nethack-c/upstream/src/mplayer.c:356-375 is the complete mplayer_talk function. It returns for peaceful monsters, calls SetVoice (a no-op under sndprocs.h:276 in this recorder build), selects one of three messages according to whether mtmp->data is the hero role species, and calls verbalize with the selected line.",
+    "nethack-c/upstream/src/sounds.c:1025-1030 is the production caller branch in domonnoise; it runs only for a hostile MS_HUMANOID monster-player on an endgame level. js/sounds.js:1243-1248 currently records the missing callee. The task will replace only this branch and does not claim whole domonnoise completion.",
+    "js/sounds.js:dochat reaches domonnoise after the player selects an adjacent monster via #chat. The complete function scope is mplayer.c:mplayer_talk plus this bounded caller replacement."
+  ]
+}

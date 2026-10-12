@@ -209,9 +209,84 @@ function sourceDashboardData(workGoals = []) {
 
 test('missing integration history is unavailable, not a zero-time average', () => {
     const rendered = renderDashboard(sourceDashboardData());
-    assert.equal(rendered.get('integrationDurationSummary').textContent, 'No completed attempts');
+    for (const prefix of ['integrationDuration', 'prepIntegrationDuration']) {
+        assert.equal(rendered.get(prefix + 'Summary').textContent, 'No completed attempts');
+        assert.doesNotMatch(rendered.get(prefix + 'Summary').textContent, /0\.0 min/u);
+    }
     assert.match(rendered.get('integrationDurationReadout').textContent, /unavailable/u);
-    assert.doesNotMatch(rendered.get('integrationDurationSummary').textContent, /0\.0 min/u);
+});
+
+test('integration series share a chart but keep independent means and pin the original task', () => {
+    const data = sourceDashboardData();
+    const at = minute => new Date(Date.UTC(2026, 9, 12, 10) + minute * 60000).toISOString();
+    const row = (task, kind, start, end) => ({ task, kind, lane: 'Main', phase: 'integrating',
+        start: at(start), end: at(end) });
+    data.activity = { capturedAt: at(150), segments: [
+        row('A1', 'implementation', 0, 5), row('Prep1', 'challenge-preparation', 5, 105),
+        row('A2', 'implementation', 105, 120),
+    ], tasks: ['A1', 'Prep1', 'A2'].map(id => ({ id, label: id, worker: id === 'Prep1' ? 'Prep' : 'A',
+        assignedAt: at(0), status: 'integrating' })) };
+    const rendered = renderDashboard(data);
+    assert.equal(rendered.get('integrationDurationSummary').textContent, 'Window mean 10.0 min · 2 attempts');
+    assert.equal(rendered.get('prepIntegrationDurationSummary').textContent, 'Window mean 100.0 min · 1 attempt');
+    const chart = rendered.get('integrationDurationChart');
+    chart.listeners.keydown[0]({ key: 'End', preventDefault() {} });
+    assert.match(rendered.get('integrationDurationReadout').innerHTML, /A2[\s\S]*Rolling mean 10\.0 min \(2 attempts\)/u);
+    chart.listeners.keydown[0]({ key: 'ArrowLeft', preventDefault() {} });
+    const selected = rendered.get('integrationDurationReadout').innerHTML;
+    assert.match(selected, /Prep1[\s\S]*100\.0 min[\s\S]*Rolling mean 100\.0 min \(1 attempt\)/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /Prep1/u);
+    chart.listeners.pointermove[0]({ clientX: 950, clientY: 82 });
+    assert.equal(rendered.get('integrationDurationReadout').innerHTML, selected,
+        'hovering another series cannot replace the pinned Prep attempt');
+    chart.listeners.keydown[0]({ key: 'End', preventDefault() {} });
+    assert.match(rendered.get('integrationDurationReadout').innerHTML, /A2[\s\S]*Rolling mean 10\.0 min \(2 attempts\)/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /A2/u);
+    const ops = chart.ops;
+    assert.ok(ops.some(([call, dash]) => call === 'setLineDash' && dash.length === 2), 'Prep rolling mean is dashed');
+    assert.ok(ops.some(([call]) => call === 'fillRect'), 'Prep attempts have square marks');
+    assert.ok(ops.some(([call, , , radius]) => call === 'arc' && radius === 3.5), 'implementation attempts have circular marks');
+    const blueStart = ops.findIndex(([call, key, value]) => call === 'set' && key === 'strokeStyle' && value === '--integration-blue');
+    assert.ok(ops.slice(blueStart).find(([call]) => call === 'moveTo')[1] > 44,
+        'without older history, the mean starts at the first completion, not the left padding');
+});
+
+test('rolling lines carry pre-window means and step only at completed attempts', () => {
+    const data = sourceDashboardData();
+    const at = minute => new Date(Date.UTC(2026, 9, 12) + minute * 60000).toISOString();
+    const row = (task, start, end, extra = {}) => ({ task, lane: 'Main', phase: 'integrating',
+        start: at(start), end: at(end), ...extra });
+    // The six-hour view is minutes 240–600. Both series have older samples;
+    // only implementation has a completion in the view (20 min, mean 15 min).
+    data.activity = { capturedAt: at(600), tasks: [], segments: [
+        row('old-implementation', 0, 10),
+        row('old-prep', 10, 110, { kind: 'challenge-preparation' }),
+        row('new-implementation', 480, 500), row('gap', 500, 600, { phase: 'idle' }),
+    ] };
+    const rendered = renderDashboard(data);
+    const ops = rendered.get('integrationDurationChart').ops;
+    const meanPath = color => {
+        let strokeStyle, path = [];
+        for (const [call, ...args] of ops) {
+            if (call === 'set' && args[0] === 'strokeStyle') strokeStyle = args[1];
+            if (call === 'beginPath') path = [];
+            if (call === 'moveTo' || call === 'lineTo') path.push(args);
+            if (call === 'stroke' && strokeStyle === color) return path;
+        }
+        return [];
+    };
+    // Canvas padding is 44/12 px in a 1000 px frame. Prep's carried 100 min
+    // mean sets the ceiling, mapping implementation's means 10/15 to y=138/131.
+    const completionX = 44 + (500 - 240) / 360 * 944;
+    assert.deepEqual(meanPath('--integration-blue'), [
+        [44, 138], [completionX, 138], [completionX, 131], [988, 131],
+    ], 'carry the old mean to the left edge, hold, jump at completion, then hold to the right edge');
+    assert.deepEqual(meanPath('--integration-orange'), [[44, 12], [988, 12]],
+        'Prep retains its pre-window 100 minute mean even without a completion in view');
+    assert.equal(rendered.get('integrationDurationSummary').textContent, 'Window mean 20.0 min · 1 attempt');
+    assert.match(rendered.get('prepIntegrationDurationSummary').textContent, /No completed attempts/u);
+    assert.equal(ops.filter(([call]) => call === 'arc').length, 1,
+        'pre-window means must not create fake attempt markers');
 });
 
 test('score cards share one format and show commit ages without hashes', () => {

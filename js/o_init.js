@@ -16,7 +16,7 @@ import { obj_typename } from './objnam.js';
 import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
 import { rn2 } from './rng.js';
 import { note_unported } from './unported.js';
-import { append_price_quote } from './shk.js';
+import { append_price_quote, gem_learned } from './shk.js';
 import {
     A_WIS, BUFSZ, ECMD_OK, HALLUC, HALLUC_RES, MENU_COMBINATION,
     MENU_PARTIAL, MENU_TRADITIONAL, PICK_ONE,
@@ -425,9 +425,8 @@ function hallucinating(state) {
         && !propertyActive(state.u, HALLUC_RES);
 }
 
-// C ref: o_init.c discover_object(). gemLearned owns shk.c gem_learned(),
-// whose bill traversal belongs to the shop subsystem. All live dependencies
-// are checked before the discovery ledger or object catalog is mutated.
+// C ref: o_init.c discover_object(). The source calls shk.c gem_learned()
+// directly when a gem becomes identified during live play.
 export function discover_object(
     oindx,
     markAsKnown,
@@ -462,11 +461,6 @@ export function discover_object(
         && typeof env.random.rn2 !== 'function') {
         throw new TypeError('discover_object exercise requires rn2');
     }
-    const gemLearned = env.gemLearned ?? env.hooks.gemLearned;
-    if (liveKnowledge && objectClass === GEM_CLASS
-        && typeof gemLearned !== 'function') {
-        throw new Error('discover_object requires gem_learned');
-    }
     if (liveKnowledge) preflight_update_inventory(env);
 
     const classEnd = state.svb.bases[objectClass + 1] ?? NUM_OBJECTS;
@@ -482,7 +476,7 @@ export function discover_object(
         if (creditHero)
             exercise_nonphysical(A_WIS, true, state, env.random);
         if (liveKnowledge) {
-            if (objectClass === GEM_CLASS) gemLearned(oindx, env);
+            if (objectClass === GEM_CLASS) gem_learned(oindx, state);
             update_inventory(env);
         }
     }
@@ -492,9 +486,8 @@ export function discover_object(
 // C ref: o_init.c undiscover_object() (498-523). When a user-assigned name
 // (oc_uname) is cleared and the object is neither formally identified
 // (oc_name_known) nor encountered (oc_encountered), remove it from the
-// disco[] discovery list. The GEM_CLASS arm calls gem_learned() ("unlearned")
-// which this port defers to the gemLearned hook.
-export function undiscover_object(oindx, state = game, rawEnv = {}) {
+// disco[] discovery list. Its GEM_CLASS arm recalculates unpaid gem prices.
+export function undiscover_object(oindx, state = game) {
     const objects = ensureObjectGlobals(state);
     const type = objects[oindx];
     if (!type) return;
@@ -518,11 +511,7 @@ export function undiscover_object(oindx, state = game, rawEnv = {}) {
         state.svd.disco[dindx - 1] = 0;
     // C: impossible("named object not in disco") -- should not happen
 
-    if (found && acls === GEM_CLASS) {
-        const gemLearned = rawEnv.gemLearned ?? rawEnv.hooks?.gemLearned;
-        if (typeof gemLearned === 'function')
-            gemLearned(oindx, rawEnv);
-    }
+    if (found && acls === GEM_CLASS) gem_learned(oindx, state);
 }
 
 // C ref: o_init.c observe_object().

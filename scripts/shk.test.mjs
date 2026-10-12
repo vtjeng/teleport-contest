@@ -7,6 +7,7 @@ import {
     HUNGRY,
     MS_HUMANOID,
     MS_SELL,
+    MAXNROFROOMS,
     OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_INVENT,
@@ -23,6 +24,8 @@ import {
     COIN_CLASS,
     objects_globals_init,
     POT_WATER,
+    DIAMOND,
+    RUBY,
     DART,
     CORPSE,
     CHAIN_MAIL,
@@ -33,9 +36,11 @@ import {
     WAN_SLEEP,
     SACK,
     LEASH,
+    STRANGE_OBJECT,
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { newObject } from '../js/obj.js';
+import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -47,6 +52,8 @@ import {
     get_cost,
     get_pricing_units,
     getprice,
+    gem_learned,
+    inside_shop,
     find_objowner,
     inhishop,
     is_unpaid,
@@ -61,6 +68,7 @@ import {
     shopdig,
     Shk_Your,
     shk_your,
+    u_entered_shop,
 } from '../js/shk.js';
 import { hidden_gold } from '../js/vault.js';
 import {
@@ -156,6 +164,60 @@ test('shop_keeper applies the anger surcharge once to active bill entries', () =
     assert.deepEqual(bill.map((entry) => entry.price), [2, 4, 6, 9]);
     assert.equal(shop_keeper(ROOMOFFSET, state), keeper);
     assert.deepEqual(bill.map((entry) => entry.price), [2, 4, 6, 9]);
+});
+
+test('nested shop identity reaches keeper and deserted-shop handling', async () => {
+    // C stores subrooms after MAXNROFROOMS; this shop identity exercises the
+    // nested-room resolver in inside_shop(), shop_keeper(), and the
+    // u_entered_shop() -> deserted_shop() production path.
+    const state = {
+        level: new GameMap(),
+        u: {
+            // These adjacent positions model entering from outside at a
+            // normal interior square in the child shop.
+            ux: 12, uy: 6, ux0: 10, uy0: 6,
+            ushops: [0, 0, 0, 0, 0],
+        },
+    };
+    // C allocates subrooms after MAXNROFROOMS; offset three avoids colliding
+    // with the ordinary room indices in this synthetic fixture.
+    const roomIndex = MAXNROFROOMS + 3;
+    const roomno = roomIndex + ROOMOFFSET;
+    const subroom = {
+        roomnoidx: roomIndex,
+        // SHOPBASE + 1 selects a concrete shop type for C's shop test.
+        rtype: SHOPBASE + 1,
+        // This rectangle contains (12, 6), the hero's fixture square.
+        lx: 12, hx: 13, ly: 6, hy: 7,
+    };
+    const parent = {
+        roomnoidx: 0,
+        rtype: 0,
+        nsubrooms: 1,
+        sbrooms: [subroom],
+    };
+    state.level.rooms = [parent];
+    state.level.at(12, 6).roomno = roomno;
+    const keeper = billShopkeeper(roomno, []);
+    keeper.mpeaceful = true;
+    subroom.resident = keeper;
+
+    assert.match(C_SHK, /#define IS_SHOP\(x\) \(svr\.rooms\[x\]\.rtype >= SHOPBASE\)/u);
+    assert.match(
+        sourceBody(C_SHK, 'inside_shop(coordxy x, coordxy y)'),
+        /rno = levl\[x\]\[y\]\.roomno;\s*if \(\(rno < ROOMOFFSET\)\s*\|\| levl\[x\]\[y\]\.edge \|\| !IS_SHOP\(rno - ROOMOFFSET\)\)/u,
+    );
+    assert.equal(inside_shop(12, 6, state), roomno);
+    assert.equal(shop_keeper(roomno, state), keeper);
+
+    // Removing the resident reaches deserted_shop() through the same entry
+    // helper; the message proves it read the child room's coordinates.
+    subroom.resident = null;
+    const messages = [];
+    await u_entered_shop([roomno], state, {
+        message: async (text) => messages.push(text),
+    });
+    assert.deepEqual(messages, ['This shop is deserted.']);
 });
 
 test('restshk pacifies a ghostly keeper for a different customer', () => {
@@ -434,6 +496,54 @@ function costState(charisma = 11) {
     state.urole = { mnum: -1 };
     return state;
 }
+
+test('gem_learned reprices matching bill entries and all gems for STRANGE_OBJECT', () => {
+    // C shk.c:gem_learned() walks each bill-bearing live shopkeeper, resolves
+    // bo_id with find_oid(), and updates each matching bill price.
+    const state = costState();
+    const diamond = pricedObject(state, DIAMOND, { o_id: 41 });
+    const ruby = pricedObject(state, RUBY, { o_id: 42 });
+    const potion = pricedObject(state, POT_HEALING, { o_id: 43 });
+    diamond.nobj = ruby;
+    ruby.nobj = potion;
+    state.invent = diamond;
+
+    const bill = [
+        { bo_id: 41, price: 900 },
+        { bo_id: 42, price: 901 },
+        { bo_id: 43, price: 902 },
+        { bo_id: 44, price: 903 },
+        { bo_id: 41, price: 904 }, // outside billct
+    ];
+    const keeper = billShopkeeper(ROOMOFFSET, bill);
+    keeper.mextra.eshk.billct = 4;
+    state.level = {
+        monlist: keeper,
+        objlist: null,
+        buriedobjlist: null,
+    };
+
+    state.objects[DIAMOND].oc_name_known = 1;
+    const identifiedDiamondPrice = get_cost(diamond, keeper, state);
+    gem_learned(DIAMOND, state);
+    assert.equal(bill[0].price, identifiedDiamondPrice);
+    assert.equal(bill[1].price, 901);
+    assert.equal(bill[2].price, 902);
+    assert.equal(bill[3].price, 903); // The missing final id leaves C's pointer there.
+    assert.equal(bill[4].price, 904);
+
+    state.objects[RUBY].oc_name_known = 1;
+    const identifiedRubyPrice = get_cost(ruby, keeper, state);
+    gem_learned(STRANGE_OBJECT, state);
+    assert.equal(bill[0].price, identifiedDiamondPrice);
+    assert.equal(bill[1].price, identifiedRubyPrice);
+    assert.equal(bill[2].price, 902);
+    assert.equal(bill[4].price, 904);
+
+    const cBody = sourceBody(C_SHK, '\ngem_learned(int oindx)');
+    assert.match(cBody,
+        /for \(shkp = next_shkp\(fmon, TRUE\); shkp;[\s\S]*?obj = find_oid\(bp->bo_id\);[\s\S]*?if \(!obj\)[\s\S]*?continue;[\s\S]*?oindx != STRANGE_OBJECT[\s\S]*?obj->oclass == GEM_CLASS[\s\S]*?bp->price = get_cost\(obj, shkp\);[\s\S]*?\+\+bp;/u);
+});
 
 test('ordinary charge helpers preserve source quantity and id partitions',
     () => {

@@ -2281,12 +2281,7 @@ export async function use_stone(tstone, state = game, env = {}) {
                     && (state.urole?.mnum === PM_ARCHEOLOGIST
                         || state.urace?.mnum === PM_GNOME)))) {
             const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
-            const knowledgeEnv = {
-                ...env,
-                random,
-                gemLearned: env.gemLearned ?? env.hooks?.gemLearned
-                    ?? (() => note_unported('shk.c gem_learned')),
-            };
+            const knowledgeEnv = { ...env, random };
             discover_object(TOUCHSTONE, true, true, true, state, {
                 ...knowledgeEnv,
             });

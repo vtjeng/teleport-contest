@@ -1,0 +1,95 @@
+{
+  "session": "synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12",
+  "remainingScreens": 627,
+  "recordedSteps": 627,
+  "corpus": "synthetic",
+  "batch": "v52",
+  "caseId": "v52-minetown-unpaid-tool-pickup-attempt12",
+  "manifestPath": "challenges/manifests/v52.json",
+  "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+  "recordingSha256": "4df6d5c7cbddd0eb6b5c266f068af916308861edc051d78e9c3faac09c8f86ff",
+  "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+  "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+  "status": "complete",
+  "commit": "aa2012dddd3ac0cb6b6078f29973b7c5ab0d094c",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v52",
+    "caseId": "v52-minetown-unpaid-tool-pickup-attempt12",
+    "session": "synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12",
+    "manifestPath": "challenges/manifests/v52.json",
+    "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+    "recording": "challenges/cases/v52/v52-minetown-unpaid-tool-pickup-attempt12.session.json",
+    "recordingPath": "challenges/cases/v52/v52-minetown-unpaid-tool-pickup-attempt12.session.json",
+    "recordingSha256": "4df6d5c7cbddd0eb6b5c266f068af916308861edc051d78e9c3faac09c8f86ff",
+    "recipe": "challenges/cases/v52/v52-minetown-unpaid-tool-pickup-attempt12.recipe.session.json",
+    "recipeSha256": "e37902db48514d93a46269ce2b0297d7fbb41cabf8f8d613d157b3fdb12e0e15",
+    "replayInputSha256": "5e32600d28364b4911473a9a7a949a1791cc380ac369c97a7771762b3a9f2022",
+    "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+    "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+    "evaluationArtifact": "challenges/evaluations/hosted-38292091033-1-v52.json",
+    "evaluationUtc": "2026-10-12T18:40:54.256Z",
+    "remainingScreens": 627,
+    "recordedSteps": 627,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "Cannot read properties of undefined (reading 'lx')",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 627
+      },
+      "rng": {
+        "matched": 0,
+        "total": 7364
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 627
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: Cannot read properties of undefined (reading 'lx')",
+      "step": null
+    },
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: Cannot read properties of undefined (reading 'lx')",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At C recording step 312, movement enters a Minetown shop subroom and C welcomes the hero to Y-crad’s hardware store. The JS room-entry path indexes only the top-level state.level.rooms array: shop_keeper misses the subroom resident, then the fallback deserted_shop reads lx from an undefined room. The same C room-number lookup also appears in inside_shop and u_entered_shop, so all four source units in this room-entry family need the existing roomnoidx-aware dungeon.js:mapseen_room resolver.",
+  "source": {
+    "file": "shk.c",
+    "branch": "For a room number returned by in_rooms() that identifies a nested shop subroom, C indexes the corresponding svr.rooms entry by roomno - ROOMOFFSET. JavaScript stores those rooms nested under their parent and must resolve the persisted roomnoidx instead of indexing only state.level.rooms. This applies when looking up the resident, the shop bounding box, the shop type, and whether the hero is strictly inside.",
+    "functions": [
+      "inside_shop",
+      "deserted_shop",
+      "u_entered_shop",
+      "shop_keeper"
+    ],
+    "callers": [
+      "hack.c:spoteffects -> check_special_room -> shk.c:u_entered_shop; the v52 recording enters the subroom at step 312.",
+      "shk.c:u_entered_shop -> shop_keeper; a resident is returned before C selects the normal keeper greeting branch.",
+      "shk.c:u_entered_shop -> deserted_shop when a shop has no resident or its keeper is away; the helper reads the same room number for its bounds.",
+      "shk.c:u_entered_shop -> inside_shop after greeting; the result controls whether entry-blocking checks run.",
+      "Other existing production callers of inside_shop and shop_keeper remain wired to these shared helpers and receive the corrected room lookup."
+    ],
+    "dependencies": [
+      "Reuse the existing js/dungeon.js:mapseen_room(roomIndex, state), which resolves top-level and nested rooms by roomnoidx. No external source delivery dependency is required."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved v52 baseline challenges/evaluations/hosted-38292091033-1-v52.json reports this exact recording hash, 627 recorded steps, 627 remaining screens, zero matched screens/cursors/RNG, and the replay error Cannot read properties of undefined (reading lx).",
+    "A fresh Node replay of the immutable challenge recording reproduces the exception. Prefix replay reduces it to input step 312, key k; the stack is js/shk.js:deserted_shop -> u_entered_shop -> js/rooms.js:check_special_room -> js/hack.js:spoteffects. The original C recording at step 312 shows Hello, wizard! Welcome to Y-crad’s hardware store!, establishing that C found the subroom keeper and took the populated-shop path.",
+    "C shk.c:shop_keeper (1052-1080) resolves svr.rooms[rmno - ROOMOFFSET].resident; JS shk.js:shop_keeper directly indexes state.level.rooms[roomno - ROOMOFFSET], which omits nested subrooms. That miss sends JS u_entered_shop through the empty-shop branch and into deserted_shop, where the same direct index causes the observed lx exception.",
+    "The same representation mismatch is present in the full source units shk.c:inside_shop (568-576), deserted_shop (723-747), and u_entered_shop (751-917). Each C function reads the C-indexed room record, while its JS port directly indexes state.level.rooms. `mklev.c:do_room_or_subroom` assigns roomnoidx from the C room record, and js/dungeon.js:mapseen_room already resolves that identity through the nested parent graph.",
+    "The selected divergence scope is the four room-table reads in js/shk.js:inside_shop, shop_keeper, deserted_shop, and u_entered_shop, all using mapseen_room. Their existing production callers remain wired; no caller dispatcher change is required."
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T18:57:00.118Z",
+  "capturedAt": "2026-10-12T20:01:54.322Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -96820,6 +96820,808 @@
         "at": "2026-10-12T18:56:42.689Z",
         "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012",
         "delivery": "e9b25429ef94bf1bd5c73e30911f98c014eda81d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep17-68dbb7191fcca59065198c767464249aa7641fc3",
+        "type": "published",
+        "at": "2026-10-12T18:57:05.007Z",
+        "task": "Prep17",
+        "commit": "68dbb7191fcca59065198c767464249aa7641fc3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-light-actions-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:57:29.547Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is recording artifact-light, punished-darkness and swallowed-light actions after independent C setup inspection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-v52-backfire-e9b25429-20261012",
+        "type": "received",
+        "at": "2026-10-12T18:57:39.380Z",
+        "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012",
+        "delivery": "e9b25429ef94bf1bd5c73e30911f98c014eda81d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "backfire-current-intake-20261012",
+        "type": "activity",
+        "at": "2026-10-12T18:57:42.671Z",
+        "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012",
+        "phase": "review",
+        "reason": "Integrate the ready cursed-wand source fix before the next prepared batch; preserve the worker diagnosis and use exact-candidate CI for acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v52-endgame-mplayer-chat-20261012",
+        "type": "assign",
+        "at": "2026-10-12T18:58:10.404Z",
+        "task": "B-investigation-v52-endgame-mplayer-chat-attempt6-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-light-replays-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:58:17.638Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is replaying three reached illumination states and reviewing source-distinct first mismatches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d8096c85acc2aa9460effe94fbccfe7cf7bee36a",
+        "type": "ready",
+        "at": "2026-10-12T19:00:27.989Z",
+        "task": "A2-investigation-v52-prayer-crowning-gem-luck-20261012",
+        "delivery": "d8096c85acc2aa9460effe94fbccfe7cf7bee36a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v52-gem-delivered-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:00:50.300Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-digestion-trap-source-search-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:01:32.462Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is recording trapped-form release and three NPC digestion state missions; earlier recordings and comparisons are preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-mplayer-talk-v52-20261012",
+        "type": "implement",
+        "at": "2026-10-12T19:01:39.448Z",
+        "task": "B-investigation-v52-endgame-mplayer-chat-attempt6-20261012",
+        "goal": "port-mplayer-talk-v52-endgame-chat-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+        "type": "assign",
+        "at": "2026-10-12T19:02:20.730Z",
+        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-digestion-trap-actions-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:03:13.531Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is recording trapped-form release and NPC digestion actions, with seven provisional first failures under crosswalk review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-backfire-4cd4881552c06e139c24162766546ede1f17aeea",
+        "type": "integrating",
+        "at": "2026-10-12T19:04:21.082Z",
+        "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012",
+        "integration": "4cd4881552c06e139c24162766546ede1f17aeea"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-v52-gem-d8096c85-20261012",
+        "type": "received",
+        "at": "2026-10-12T19:05:25.618Z",
+        "task": "A2-investigation-v52-prayer-crowning-gem-luck-20261012",
+        "delivery": "d8096c85acc2aa9460effe94fbccfe7cf7bee36a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0f0345aecbe0ffe68217b1b558818389c9e83edb",
+        "type": "ready",
+        "at": "2026-10-12T19:05:33.799Z",
+        "task": "B-investigation-v52-endgame-mplayer-chat-attempt6-20261012",
+        "delivery": "0f0345aecbe0ffe68217b1b558818389c9e83edb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b990a633252ec72e94821afeda13bafa84b4b798",
+        "type": "ready",
+        "at": "2026-10-12T19:06:18.769Z",
+        "task": "C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012",
+        "delivery": "b990a633252ec72e94821afeda13bafa84b4b798"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-digestion-trap-alternatives-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:06:50.066Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is recording two source-supported setup alternatives after reaching slime transformation and wraith growth in C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v52-minetown-room-index-20261012",
+        "type": "implement",
+        "at": "2026-10-12T19:07:10.698Z",
+        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+        "goal": "A2-fix-shk-minetown-room-index-v52-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v52-acid-passive-yellowdragon-20261012",
+        "type": "assign",
+        "at": "2026-10-12T19:07:31.381Z",
+        "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v52-post-dismount-queue-refresh-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:08:24.074Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v52-emergency-drowning-investigation-20261012",
+        "type": "assign",
+        "at": "2026-10-12T19:08:53.349Z",
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v52-emergency-drowning-diagnosis-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:09:54.465Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v52-minetown-active-20261012-1",
+        "type": "turn",
+        "at": "2026-10-12T19:10:50.486Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-v52-mplayer-0f0345ae-20261012",
+        "type": "received",
+        "at": "2026-10-12T19:11:37.742Z",
+        "task": "B-investigation-v52-endgame-mplayer-chat-attempt6-20261012",
+        "delivery": "0f0345aecbe0ffe68217b1b558818389c9e83edb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-v52-dismount-b990a633-20261012",
+        "type": "received",
+        "at": "2026-10-12T19:11:41.402Z",
+        "task": "C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012",
+        "delivery": "b990a633252ec72e94821afeda13bafa84b4b798"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-music-artifact-setups-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:11:52.656Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 continues C source missions for trap release, nurse digestion, musical drawbridges and NPC artifact effects."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v52-emergency-disrobe-dropx-20261012",
+        "type": "implement",
+        "at": "2026-10-12T19:12:17.961Z",
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
+        "goal": "C-v52-emergency-disrobe-dropx-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-cursed-wand-nothing-backfire-20261012-4cd4881552c06e139c24162766546ede1f17aeea-validated",
+        "type": "validated",
+        "at": "2026-10-12T19:12:22.335Z",
+        "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-cursed-wand-nothing-backfire-20261012-4cd4881552c06e139c24162766546ede1f17aeea-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T19:12:44.539Z",
+        "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v52-acid-passive-yellowdragon-20261012",
+        "type": "implement",
+        "at": "2026-10-12T19:13:14.296Z",
+        "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012",
+        "goal": "fix-mhitu-passiveum-acid-corrosion-caller-v52-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-castle-npc-actions-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:13:19.786Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is recording the Castle entry and a bounded NPC Magicbane attack route; all earlier C attempts are preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-castle-tune-action-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:15:01.257Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is recording the musical Castle bridge action after C established an NPC Magicbane confusion hit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5704c1a8b90e8ea382bd46838cf2e3df7e950c30",
+        "type": "ready",
+        "at": "2026-10-12T19:15:27.694Z",
+        "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012",
+        "delivery": "5704c1a8b90e8ea382bd46838cf2e3df7e950c30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-new-state-replays-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:16:00.592Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is replaying six reached trap, digestion, musical bridge and NPC artifact gameplay routes; all 90 attempts are preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9f8fa46fc41480fdac403b5f2b2db93725e9c1b9",
+        "type": "ready",
+        "at": "2026-10-12T19:16:14.371Z",
+        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+        "delivery": "9f8fa46fc41480fdac403b5f2b2db93725e9c1b9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-new-state-js-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:16:41.097Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is comparing six independently replayed gameplay routes; all 90 C attempts remain preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-minetown-wait-v52-queue-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:17:07.396Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Minetown delivery 9f8fa46fc is ready. Waiting for Root’s refreshed combined queue after accepted Main 4cd488155."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5d5a66529a65d434bb8246cc06c2735293a08069",
+        "type": "ready",
+        "at": "2026-10-12T19:17:42.090Z",
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
+        "delivery": "5d5a66529a65d434bb8246cc06c2735293a08069"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v52-prayer-unicorn-blindness-20261012",
+        "type": "assign",
+        "at": "2026-10-12T19:20:11.282Z",
+        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-minetown-muse-continuation-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:20:16.508Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing the Minetown replay after the submitted room fix; new source task will depend on delivery 9f8fa46fc if it reaches muse."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v52-monster-deliberate-polymorph-trap-attempt3-20261012",
+        "type": "assign",
+        "at": "2026-10-12T19:20:28.765Z",
+        "task": "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v52-minetown-muse-continuation-20261012",
+        "type": "assign",
+        "at": "2026-10-12T19:20:48.419Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v52-prayer-blindness-20261012",
+        "type": "implement",
+        "at": "2026-10-12T19:22:12.986Z",
+        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
+        "goal": "fix-pray-blindness-caller-v52-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-final-crosswalk-review-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:22:46.213Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is reviewing first-owner overlap and saved control coverage after 90 preserved C attempts and 27 byte-identical replays."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v52-muse-polymorph-trap-redraw-20261012",
+        "type": "implement",
+        "at": "2026-10-12T19:22:56.089Z",
+        "task": "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012",
+        "goal": "C-v52-muse-polymorph-trap-redraw-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "gem-current-intake-20261012",
+        "type": "activity",
+        "at": "2026-10-12T19:24:52.040Z",
+        "task": "A2-investigation-v52-prayer-crowning-gem-luck-20261012",
+        "phase": "review",
+        "reason": "Integrate the oldest ready gem fix and the latest requested two-series chart; publish accepted backfire and gem results together after this combined gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-wielded-armor-source-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:25:05.961Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is recording an independent wearing-from-weapon-slot mission while final overlap and control coverage review continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-gem-6f4abfb9dd2c5ee00eae26f123d4338a61159c78",
+        "type": "integrating",
+        "at": "2026-10-12T19:25:19.294Z",
+        "task": "A2-investigation-v52-prayer-crowning-gem-luck-20261012",
+        "integration": "6f4abfb9dd2c5ee00eae26f123d4338a61159c78"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-wielded-boots-action-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:26:28.646Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is recording wearing previously wielded boots; eleven other provisional first behaviors remain under source crosswalk review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-42195423bd99f453747e4c233fb62b515ebe8dc4",
+        "type": "ready",
+        "at": "2026-10-12T19:26:55.144Z",
+        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
+        "delivery": "42195423bd99f453747e4c233fb62b515ebe8dc4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v52-novel-read-tribute-20261012",
+        "type": "assign",
+        "at": "2026-10-12T19:27:16.788Z",
+        "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7e243d7c86f8a4ec52790acfc00d0baa27cdc00f",
+        "type": "ready",
+        "at": "2026-10-12T19:29:11.203Z",
+        "task": "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012",
+        "delivery": "7e243d7c86f8a4ec52790acfc00d0baa27cdc00f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v52-novel-read-tribute-action-attempt2-20261012",
+        "type": "implement",
+        "at": "2026-10-12T19:29:45.878Z",
+        "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
+        "goal": "fix-spell-novel-read-levelup-message-v52-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-v52-minetown-muse-config-blocker-20261012",
+        "type": "park",
+        "at": "2026-10-12T19:30:44.898Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "reason": "The fresh scan’s first mismatch is a C-only More marker after Norep, but the immutable session nethackrc has no MSGTYPE rule and C source defaults Norep to MSGTYP_NOREP. This blocks a source-valid implementation on this same recording until its effective C options/provenance are known. Partial source findings are preserved in investigations/synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12.json; the later hot_pursuit gap is recorded there."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v52-saddle-cockatrice-investigation-20261012",
+        "type": "assign",
+        "at": "2026-10-12T19:34:00.970Z",
+        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a577fc8927a71cef6f8e093b20353f0764fa3231",
+        "type": "ready",
+        "at": "2026-10-12T19:34:45.173Z",
+        "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
+        "delivery": "a577fc8927a71cef6f8e093b20353f0764fa3231"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-saddle-investigation-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:35:08.787Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Source tracing the admitted saddle and cockatrice touch action before claiming implementation scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-minetown-hot-pursuit-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:36:06.913Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing the missing Minetown shopkeeper pursuit behavior and checking its recorded caller path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v52-minetown-muse-continuation-20261012-hot-pursuit",
+        "type": "resume",
+        "at": "2026-10-12T19:36:10.487Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-novel-read-v52-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:36:27.366Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B has submitted the novel-read fix. Every actionable case in the saved queue is owned; the short-version case remains held pending its provenance review. Waiting for integration or a refreshed admitted queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-implement-v52-saddle-cockatrice-stoning-20261012",
+        "type": "implement",
+        "at": "2026-10-12T19:36:31.983Z",
+        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+        "goal": "C-v52-steed-use-saddle-stoning-caller-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-minetown-hot-pursuit-20261012",
+        "type": "implement",
+        "at": "2026-10-12T19:39:10.938Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "goal": "A2-port-shk-hot-pursuit-v52-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v52-prayer-crowning-gem-luck-20261012-6f4abfb9dd2c5ee00eae26f123d4338a61159c78-validated",
+        "type": "validated",
+        "at": "2026-10-12T19:39:53.508Z",
+        "task": "A2-investigation-v52-prayer-crowning-gem-luck-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-5704c1a8b90e8ea382bd46838cf2e3df7e950c30",
+        "type": "received",
+        "at": "2026-10-12T19:40:15.282Z",
+        "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012",
+        "delivery": "5704c1a8b90e8ea382bd46838cf2e3df7e950c30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-9f8fa46fc41480fdac403b5f2b2db93725e9c1b9",
+        "type": "received",
+        "at": "2026-10-12T19:40:20.456Z",
+        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+        "delivery": "9f8fa46fc41480fdac403b5f2b2db93725e9c1b9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-5d5a66529a65d434bb8246cc06c2735293a08069",
+        "type": "received",
+        "at": "2026-10-12T19:40:25.363Z",
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
+        "delivery": "5d5a66529a65d434bb8246cc06c2735293a08069"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-42195423bd99f453747e4c233fb62b515ebe8dc4",
+        "type": "received",
+        "at": "2026-10-12T19:40:29.336Z",
+        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
+        "delivery": "42195423bd99f453747e4c233fb62b515ebe8dc4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v52-prayer-crowning-gem-luck-20261012-6f4abfb9dd2c5ee00eae26f123d4338a61159c78-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T19:41:02.551Z",
+        "task": "A2-investigation-v52-prayer-crowning-gem-luck-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v52-prayer-crowning-gem-luck-20261012-0365a492b5f9f84735deaf6f038ac880da071441",
+        "type": "published",
+        "at": "2026-10-12T19:42:31.056Z",
+        "task": "A2-investigation-v52-prayer-crowning-gem-luck-20261012",
+        "commit": "0365a492b5f9f84735deaf6f038ac880da071441"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v52-cursed-wand-nothing-backfire-20261012-0365a492b5f9f84735deaf6f038ac880da071441",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T19:42:37.682Z",
+        "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012",
+        "commit": "0365a492b5f9f84735deaf6f038ac880da071441",
+        "knownBy": "2026-10-12T19:42:31.056Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-minetown-67776b9593bfb9e0bc90bc2ead6934245f045b8b",
+        "type": "integrating",
+        "at": "2026-10-12T19:43:38.400Z",
+        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+        "integration": "67776b9593bfb9e0bc90bc2ead6934245f045b8b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-7e243d7c86f8a4ec52790acfc00d0baa27cdc00f",
+        "type": "received",
+        "at": "2026-10-12T19:44:28.878Z",
+        "task": "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012",
+        "delivery": "7e243d7c86f8a4ec52790acfc00d0baa27cdc00f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a577fc8927a71cef6f8e093b20353f0764fa3231",
+        "type": "received",
+        "at": "2026-10-12T19:44:34.273Z",
+        "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
+        "delivery": "a577fc8927a71cef6f8e093b20353f0764fa3231"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-20763e5c8c468f81294b4648414e6ed942b786b0",
+        "type": "ready",
+        "at": "2026-10-12T19:48:34.290Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "delivery": "20763e5c8c468f81294b4648414e6ed942b786b0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-20763e5c8c468f81294b4648414e6ed942b786b0",
+        "type": "received",
+        "at": "2026-10-12T19:48:58.419Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "delivery": "20763e5c8c468f81294b4648414e6ed942b786b0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2ac40434589f38f5e67dfcdde02ef0ec03f37db0",
+        "type": "ready",
+        "at": "2026-10-12T19:49:08.131Z",
+        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+        "delivery": "2ac40434589f38f5e67dfcdde02ef0ec03f37db0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v52-minetown-move-continuation-20261012",
+        "type": "assign",
+        "at": "2026-10-12T19:49:20.265Z",
+        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-2ac40434589f38f5e67dfcdde02ef0ec03f37db0",
+        "type": "received",
+        "at": "2026-10-12T19:49:44.741Z",
+        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+        "delivery": "2ac40434589f38f5e67dfcdde02ef0ec03f37db0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012-67776b9593bfb9e0bc90bc2ead6934245f045b8b-validated",
+        "type": "validated",
+        "at": "2026-10-12T19:50:12.678Z",
+        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-saddle-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:50:20.300Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "All current v52 queue cases are reserved by A2, B, or C. The only unreserved case remains held for its build-profile provenance decision; waiting for Main integration or the next admitted queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012-67776b9593bfb9e0bc90bc2ead6934245f045b8b-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T19:50:48.597Z",
+        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012-fcc756c121bde46f1742960bfc686a2872211724",
+        "type": "published",
+        "at": "2026-10-12T19:51:59.730Z",
+        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+        "commit": "fcc756c121bde46f1742960bfc686a2872211724"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-final-review-no-live-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:52:33.727Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Finalizing twelve distinct game behavior failures and seven matching controls; all independent C attempts are preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-mplayer-ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f",
+        "type": "integrating",
+        "at": "2026-10-12T19:53:33.704Z",
+        "task": "B-investigation-v52-endgame-mplayer-chat-attempt6-20261012",
+        "integration": "ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b02faa4f089627c4e01057453683eec7518bdbc0",
+        "type": "ready",
+        "at": "2026-10-12T19:55:18.218Z",
+        "task": "Prep22",
+        "delivery": "b02faa4f089627c4e01057453683eec7518bdbc0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b02faa4f089627c4e01057453683eec7518bdbc0",
+        "type": "received",
+        "at": "2026-10-12T19:55:43.179Z",
+        "task": "Prep22",
+        "delivery": "b02faa4f089627c4e01057453683eec7518bdbc0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep23-v59-20261012",
+        "type": "assign",
+        "at": "2026-10-12T19:55:59.125Z",
+        "task": "Prep23",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v59"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-source-plan-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:56:02.006Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing the next independent C game batch from source after preserving the prior delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-shk-move-distance-20261012",
+        "type": "implement",
+        "at": "2026-10-12T19:57:45.256Z",
+        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
+        "goal": "A2-fix-shk-move-avoid-distance-v52-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-initial-C-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:58:40.219Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Recording twelve new C game setups before JavaScript comparison."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-endgame-mplayer-chat-attempt6-20261012-ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f-validated",
+        "type": "validated",
+        "at": "2026-10-12T19:59:53.202Z",
+        "task": "B-investigation-v52-endgame-mplayer-chat-attempt6-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-action-scout-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:00:04.326Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Following the twelve C setups with source-directed game actions and prompt scouts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-endgame-mplayer-chat-attempt6-20261012-ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T20:00:15.618Z",
+        "task": "B-investigation-v52-endgame-mplayer-chat-attempt6-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ed46996e9a3d80d5c70c1d98c1849d8cf264b339",
+        "type": "ready",
+        "at": "2026-10-12T20:00:28.141Z",
+        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
+        "delivery": "ed46996e9a3d80d5c70c1d98c1849d8cf264b339"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-ed46996e9a3d80d5c70c1d98c1849d8cf264b339",
+        "type": "received",
+        "at": "2026-10-12T20:01:07.444Z",
+        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
+        "delivery": "ed46996e9a3d80d5c70c1d98c1849d8cf264b339"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-await-mplayer-queue-refresh-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:01:34.564Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B merged accepted Main and found no independent unreserved case. Waiting for the post-import queue refresh; the v48 short-version case remains held."
       }
     ]
   },
@@ -96883,14 +97685,121 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012",
-        "worker": "B",
-        "goal": "port-zap-backfire-v52-cursed-wand-20261012",
+        "task": "C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012",
+        "worker": "C",
+        "goal": "C-v52-steed-dismount-callers-20261012",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "e9b25429ef94bf1bd5c73e30911f98c014eda81d",
-        "since": "2026-10-12T18:56:42.689Z",
+        "delivery": "b990a633252ec72e94821afeda13bafa84b4b798",
+        "since": "2026-10-12T19:06:18.769Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012",
+        "worker": "B",
+        "goal": "fix-mhitu-passiveum-acid-corrosion-caller-v52-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "5704c1a8b90e8ea382bd46838cf2e3df7e950c30",
+        "since": "2026-10-12T19:15:27.694Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
+        "worker": "C",
+        "goal": "C-v52-emergency-disrobe-dropx-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "5d5a66529a65d434bb8246cc06c2735293a08069",
+        "since": "2026-10-12T19:17:42.090Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
+        "worker": "B",
+        "goal": "fix-pray-blindness-caller-v52-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "42195423bd99f453747e4c233fb62b515ebe8dc4",
+        "since": "2026-10-12T19:26:55.144Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012",
+        "worker": "C",
+        "goal": "C-v52-muse-polymorph-trap-redraw-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "7e243d7c86f8a4ec52790acfc00d0baa27cdc00f",
+        "since": "2026-10-12T19:29:11.203Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
+        "worker": "B",
+        "goal": "fix-spell-novel-read-levelup-message-v52-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "a577fc8927a71cef6f8e093b20353f0764fa3231",
+        "since": "2026-10-12T19:34:45.173Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "worker": "A2",
+        "goal": "A2-port-shk-hot-pursuit-v52-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "20763e5c8c468f81294b4648414e6ed942b786b0",
+        "since": "2026-10-12T19:48:34.290Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+        "worker": "C",
+        "goal": "C-v52-steed-use-saddle-stoning-caller-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2ac40434589f38f5e67dfcdde02ef0ec03f37db0",
+        "since": "2026-10-12T19:49:08.131Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep22",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "b02faa4f089627c4e01057453683eec7518bdbc0",
+        "batch": "v58",
+        "since": "2026-10-12T19:55:18.218Z",
+        "blockedBy": [
+          "Prep18",
+          "Prep19",
+          "Prep20",
+          "Prep21"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
+        "worker": "A2",
+        "goal": "A2-fix-shk-move-avoid-distance-v52-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "ed46996e9a3d80d5c70c1d98c1849d8cf264b339",
+        "since": "2026-10-12T20:00:28.141Z",
+        "blockedBy": [
+          "A2-investigation-v52-minetown-muse-continuation-20261012"
+        ],
         "unblocks": 0
       }
     ],
@@ -97364,8 +98273,8 @@
     ]
   },
   "development": {
-    "executionCommit": "5814725469a04a5cc2b68a4fd19de47137c4f7b1",
-    "measuredAt": "2026-10-12T18:55:14.790Z",
+    "executionCommit": "ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f",
+    "measuredAt": "2026-10-12T19:58:58.424Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

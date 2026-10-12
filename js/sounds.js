@@ -129,6 +129,7 @@ import { game } from './gstate.js';
 import { could_seduce, doseduce } from './mhitu.js';
 import { nomul } from './hack.js';
 import { youHear } from './pline.js';
+import { mplayer_talk } from './mplayer.js';
 import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
@@ -1243,7 +1244,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
     case MS_HUMANOID:
         if (!mtmp.mpeaceful) {
             if (In_endgame(state.u?.uz) && is_mplayer(ptr))
-                note_unported('sounds.c mplayer_talk');
+                await mplayer_talk(mtmp, state, { random, message });
             else
                 plineMsg = 'threatens you.';
             break;
