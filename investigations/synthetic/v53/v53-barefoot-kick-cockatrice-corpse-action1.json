@@ -10,7 +10,7 @@
   "evaluationPath": "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json",
   "evaluationCommit": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
   "status": "complete",
-  "commit": "c76a688200e11759a47d3d9c991f33ba613a40c2",
+  "commit": "2622c1f6822448b14cda8be1ddeba3653d4960ea",
   "summary": "At segment 0 step 219, C reaches the bare-foot cockatrice corpse branch in dokick.c:really_kick_object. After the kick message and killer name, C calls trap.c:instapetrify before continuing the kick. JavaScript records note_unported and proceeds without the stoning prompt or death/recovery transition.",
   "source": {
     "file": "dokick.c",
@@ -79,5 +79,25 @@
     "sourceFile": "dokick.c",
     "function": "really_kick_object",
     "message": "The C corpse-contact branch calls instapetrify before the kick continues; JavaScript skipped the call."
+  },
+  "observedReplay": {
+    "runId": "run-P2qvW8",
+    "command": [
+      "node",
+      "scripts/scan-sessions.mjs",
+      "--json",
+      "--synthetic",
+      "v53/v53-barefoot-kick-cockatrice-corpse-action1"
+    ],
+    "replayCommit": "2622c1f6822448b14cda8be1ddeba3653d4960ea",
+    "screensEmitted": 247,
+    "recordedSteps": 247,
+    "divergence": null,
+    "recordingMatched": true,
+    "inputBoundaryMatched": true,
+    "unported": [
+      "sounds.c SoundAchievement"
+    ],
+    "receipt": "/tmp/teleport-validation-1000/run-P2qvW8/receipt.json"
   }
 }
