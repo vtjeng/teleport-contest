@@ -369,7 +369,7 @@ import {
 } from './stairs.js';
 import { Punished, dismount_steed, stucksteed } from './steed.js';
 import { enexto, rloc, safe_teleds } from './teleport.js';
-import { burn_away_slime, obj_has_timer, preflight_end_burn, rider_revival_time, run_timers, start_timer } from './timeout.js';
+import { burn_away_slime, obj_has_timer, obj_stop_timers, preflight_end_burn, rider_revival_time, run_timers, start_timer } from './timeout.js';
 import {
     climb_pit,
     fill_pit,
@@ -2227,7 +2227,20 @@ export async function dropz(obj, with_impact, env = {}) {
                     obj, state.u.ux, state.u.uy, true, false, state,
                 );
             }
-            if (!await engulfer_digests_food(obj, state)) {
+            // C do.c:dropz() reaches invent.c:delobj() after a swallower
+            // digests a corpse. Keep the timer owner with that call so timed
+            // corpses release their ROT/REVIVE/SHRINK timers before freeing.
+            const digestionEnv = {
+                ...normalized,
+                hooks: {
+                    ...normalized.hooks,
+                    stopObjectTimers: normalized.hooks.stopObjectTimers
+                        ?? ((item, hookEnv) => obj_stop_timers(
+                            item, hookEnv.state ?? state, hookEnv,
+                        )),
+                },
+            };
+            if (!await engulfer_digests_food(obj, state, digestionEnv)) {
                 const { mpickobj } = await import('./steal.js');
                 mpickobj(state.u.ustuck, obj, { state });
             }
@@ -2263,7 +2276,7 @@ function engulfer_polyfood(obj, state) {
         || dmgtype(species, AD_POLY);
 }
 
-async function engulfer_digests_food(obj, state = game) {
+async function engulfer_digests_food(obj, state = game, env = {}) {
     const swallower = state.u?.ustuck;
     const digests = swallower?.data?.mattk?.some((attack) =>
         attack.aatyp === AT_ENGL && attack.adtyp === AD_DGST);
@@ -2294,21 +2307,25 @@ async function engulfer_digests_food(obj, state = game) {
         await newcham(
             swallower,
             couldSlime ? state.mons[PM_GREEN_SLIME] : null,
-            { state, ncflags: couldSlime ? NC_SHOW_MSG : NO_NC_FLAGS },
+            {
+                ...env,
+                state,
+                ncflags: couldSlime ? NC_SHOW_MSG : NO_NC_FLAGS,
+            },
         );
     } else if (couldPetrify) {
-        await minstapetrify(swallower, true, state);
+        await minstapetrify(swallower, true, state, env);
     } else if (couldGrow) {
         // C discards grow_up()'s pointer here, but the HP, level and form
         // changes still finish before the swallowed object is deleted.
-        await grow_up(swallower, null, { state });
+        await grow_up(swallower, null, { ...env, state });
     } else if (couldHeal) {
         healmon(swallower, swallower.mhpmax, 0);
         // C's source call is mcureblindness(mon, FALSE); it is void and the
         // monster blindness helper is not yet ported.
         note_unported('mon.c mcureblindness');
     }
-    delobj(obj, { state });
+    delobj(obj, { ...env, state });
     return true;
 }
 
