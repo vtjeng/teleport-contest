@@ -586,9 +586,14 @@ Optional for all kinds:
   --detail <text>            Supporting source and mismatch evidence.
   --development-scan <path>  Use a saved fixed-workload scan for selection.
 
-The goal ID must be new. Selection must satisfy the current mismatch queue.
-Queueing does not open the goal; use task-context for worker handoff and
-open-goal when integrating the task.`,
+The goal ID must be new. New task selection must satisfy the current mismatch queue.
+Use register-task-goal for a submitted delivery's preserved scope.
+Neither command opens the goal.`,
+    },
+    'register-task-goal': {
+        description: 'Register the preserved source scope of a received worker delivery.',
+        usage: '--task <id> --ledger <file>',
+        details: 'Reads the immutable delivery context. Leaves the goal queued without selecting the task again or changing its investigation.',
     },
     'open-goal': {
         description: 'Open a queued goal or resume a parked goal.',
@@ -760,6 +765,32 @@ function newGoal(options) {
         throw new Error('--required-functions requires a C or Lua source port');
     }
     return goal;
+}
+
+export function goalFromWorkerContext(task, context) {
+    if (!task.goal || context.goal !== task.goal)
+        throw new Error('worker context must name the assigned goal');
+    const functions = context.functions ?? [];
+    const options = {
+        id: task.goal, kind: context.kind,
+        summary: context.summary ?? `Implement ${functions.join(', ') || context.function || context.luaFile} from ${context.sourceFile}`,
+        'c-file': context.cFile ?? context.sourceFile,
+        'lua-file': context.luaFile ?? context.sourceFile,
+        sessions: (context.sessions ?? [task.seed].filter(Boolean)).join(','),
+        'selection-reason': `Preserved source scope from submitted worker task ${task.id}`,
+    };
+    if (context.kind === 'file-port') {
+        if (!functions.length) throw new Error('worker file-port context needs its selected functions');
+        options['from-function'] = functions[0];
+        options['to-function'] = functions.at(-1);
+    } else if (context.kind === 'divergence-fix') {
+        options.function = context.function ?? functions[0];
+        options.session = task.seed ?? context.sessions?.[0];
+    }
+    if (context.requiredFunctions?.length)
+        options['required-functions'] = context.requiredFunctions.map(entry =>
+            typeof entry === 'string' ? entry : `${entry.sourceFile}:${entry.name}`).join(',');
+    return newGoal(options);
 }
 
 /** A name inventory or a unit test alone cannot close a port. */
@@ -971,6 +1002,26 @@ async function main(args) {
         return;
     }
     const options = parseOptions(args.slice(1));
+    if (mode === 'register-task-goal') {
+        required(options, ['task', 'ledger']);
+        const { summarizeLedger } = await import('./worker-state.mjs');
+        const { readDelivery } = await import('./worker-delivery.mjs');
+        const state = summarizeLedger(JSON.parse(readFileSync(options.ledger, 'utf8')));
+        if (state.coordinatorRoot !== PROJECT_ROOT)
+            throw new Error('register a submitted goal from its coordinator checkout');
+        const task = state.tasks[options.task];
+        const delivery = state.deliveries[task?.deliveries.at(-1)];
+        if (!task?.goal || !delivery?.receivedAt)
+            throw new Error('goal registration requires a received implementation delivery');
+        const store = readGoals();
+        const existing = store.goals.find(entry => entry.id === task.goal);
+        if (existing) { console.log(formatGoal(existing)); return; }
+        const goal = goalFromWorkerContext(task, readDelivery(delivery).context);
+        store.goals.push(goal);
+        writeGoals(store);
+        console.log(formatGoal(goal));
+        return;
+    }
     if (mode === 'queue-goal') {
         const store = readGoals();
         if (store.goals.some((entry) => entry.id === options.id)) {

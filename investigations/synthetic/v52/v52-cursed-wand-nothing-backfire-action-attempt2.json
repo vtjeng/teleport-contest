@@ -1,0 +1,58 @@
+{
+  "session": "synthetic/v52/v52-cursed-wand-nothing-backfire-action-attempt2",
+  "corpus": "synthetic",
+  "batch": "v52",
+  "caseId": "v52-cursed-wand-nothing-backfire-action-attempt2",
+  "manifestPath": "challenges/manifests/v52.json",
+  "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+  "recordingSha256": "c031d9b0879034b6ee6302240114bccf104c3ec0749a36b3686fdb168cd0a11f",
+  "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+  "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+  "remainingScreens": 896,
+  "recordedSteps": 1103,
+  "status": "complete",
+  "commit": "8bbc83c814d80788817422045633cd08fd484fec",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "session": "synthetic/v52/v52-cursed-wand-nothing-backfire-action-attempt2",
+    "sourceFile": "zap.c",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v52/v52-cursed-wand-nothing-backfire-action-attempt2"
+    ],
+    "remainingScreens": 896,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 207,
+    "caseId": "v52-cursed-wand-nothing-backfire-action-attempt2",
+    "batch": "v52",
+    "recordingPath": "challenges/cases/v52/v52-cursed-wand-nothing-backfire-action-attempt2.session.json"
+  },
+  "summary": "The cursed wand reaches zap.c:dozap's backfire branch at step 207. JavaScript throws UnsupportedZapError instead of running the existing C backfire sequence, so the recorded screen is missing and the C d(70,6) call at RNG index 2429 is absent. Port the whole zap.c:backfire function and call it from dozap before exercise(A_STR, FALSE) and ECMD_TIME.",
+  "source": {
+    "file": "zap.c",
+    "branch": "After dozap successfully selects and charges a cursed wand, the WAND_BACKFIRE_CHANCE draw returns zero, so dozap calls backfire before the direction prompt or other wand effect.",
+    "functions": [
+      "backfire"
+    ],
+    "callers": [
+      "zap.c:dozap at 2648 is the sole direct C caller; js/cmd.js:runZapCommand dispatches production commands to js/zap.js:dozap."
+    ],
+    "dependencies": [
+      "hack.c:losehp, implemented in js/hack.js; the backfire caller discards its return value.",
+      "invent.c:useupall, implemented in js/invent.js with existing source-completion evidence; the backfire caller discards its return value.",
+      "rng.c:d and zap.c:Maybe_Half_Phys, used to preserve source damage and random-call order."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v52 queue identifies challenges/manifests/v52.json with canonical manifest SHA-256 38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e, this recording SHA-256 c031d9b0879034b6ee6302240114bccf104c3ec0749a36b3686fdb168cd0a11f, and evaluation challenges/evaluations/hosted-38292091033-1-v52.json measured at fcfb7afe71226851b75665b753b0c2c73ceb7af4.",
+    "The saved fresh-differential log reports the first mismatch at segment 0, step 207, key 'o': JavaScript has no screen at that step; C calls d(70,6)=234 in backfire(zap.c:2611) at RNG index 2429. The saved baseline has 207/1103 screens and cursors matched and 2429/2438 RNG entries matched.",
+    "nethack-c/upstream/src/zap.c:2605-2614 defines the complete backfire body: set otmp->in_use, print the explosion message, roll d(otmp->spe + 2, 6), pass Maybe_Half_Phys(dmg) to losehp with killer name 'exploding wand' and KILLED_BY_AN, then consume the wand with useupall.",
+    "nethack-c/upstream/src/zap.c:2647-2653 calls backfire after zappable() and the conditional WAND_BACKFIRE_CHANCE draw, then exercises strength and returns ECMD_TIME without the ordinary inventory-update tail.",
+    "js/zap.js:875-900 contains the matching dozap control flow but throws UnsupportedZapError at the backfire arm. js/cmd.js:3342-3347 reaches dozap from the production command dispatcher.",
+    "js/hack.js:1335-1390 implements losehp and its human HP/death path used by this recording. js/invent.js:4955-4973 implements useupall; GOALS.json records source review and caller/test evidence for invent.c:useupall. This task does not claim whole hack.c:losehp completion.",
+    "The complete implementation scope is zap.c:backfire as a whole function plus the existing dozap call site in js/zap.js. The caller keeps the existing charge, backfire-probability draw, strength exercise, and ECMD_TIME order."
+  ]
+}

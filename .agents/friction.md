@@ -402,3 +402,18 @@ triage decisions or fix references.
   both recorded commands had exited successfully and that no command remained
   live. Its thirty completed C attempts and earlier deliveries were preserved;
   it continued the same v57 task.
+
+### 2026-10-12 — submitted-goal registration
+
+- B's received backfire delivery could not be registered with `queue-goal`:
+  that command repeated synthetic task selection and rejected the preserved
+  historical investigation. The approved CI acceptance workflow requires
+  registration from worker context. Root added `register-task-goal`, which
+  reads the hash-verified received packet and leaves the goal queued without
+  selection or report rewrites. Its focused tests and the actual B registration
+  passed; the combined candidate still requires hosted validation.
+- Prep17's mission plan contains embedded C screen observations on one JSON
+  line. Printing its first line produced excessive output; a ledger event
+  also printed full state when its stdout was not redirected. Root switched
+  to selected-field summaries and cache-file output. The saved independent
+  replays and all 148 original input hashes were checked without rerunning C.

@@ -243,6 +243,32 @@ export function activityUtilization(stages, start, end) {
   });
 }
 
+// Full elapsed durations of completed integration/checks attempts, not CPU
+// time. Keep retries and outliers; never treat an open snapshot as an endpoint.
+// Embedded in the dashboard so the chart and tests use the same calculation.
+export function mainIntegrationDurations(activity) {
+  const windowSize = 10;
+  const points = (activity?.segments ?? []).map((segment, sourceIndex) => ({ segment, sourceIndex }))
+    .filter(({ segment }) => segment.lane === 'Main' && segment.phase === 'integrating'
+      && !segment.ongoing && !segment.durationUnknown && !segment.superseded
+      && Number.isFinite(Date.parse(segment.start)) && Number.isFinite(Date.parse(segment.end))
+      && Date.parse(segment.end) >= Date.parse(segment.start))
+    .sort((a, b) => Date.parse(a.segment.end) - Date.parse(b.segment.end) || a.sourceIndex - b.sourceIndex);
+  const attempts = new Map();
+  const recent = [];
+  let sum = 0;
+  return points.map(({ segment, sourceIndex }) => {
+    const durationMs = Date.parse(segment.end) - Date.parse(segment.start);
+    const attempt = (attempts.get(segment.task) ?? 0) + 1;
+    attempts.set(segment.task, attempt);
+    recent.push(durationMs);
+    sum += durationMs;
+    if (recent.length > windowSize) sum -= recent.shift();
+    return { sourceIndex, task: segment.task, start: segment.start, end: segment.end,
+      durationMs, attempt, rollingMeanMs: sum / recent.length, sampleSize: recent.length };
+  });
+}
+
 // One row represents each agent's current stage. Delivery queue intervals are
 // retained above for task history and metrics, never for worker-row activity.
 export function agentStages(segments, events = []) {

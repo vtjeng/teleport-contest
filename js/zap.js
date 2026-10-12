@@ -5,9 +5,9 @@
 // dozap() is ported whole, and so is the command around its effect arms: the
 // two guards, the object prompt, the charge, the direction prompt, the wand
 // that glows and fades when no direction is given, and the worn-out wand that
-// crumbles. One of its five effect arms still stops: backfire(). The fifth,
-// weffects(), dispatches immediate effects and aimed rays; the callback and
-// ray families record their own remaining source boundaries below.
+// crumbles. One of its five effect arms still stops: weffects(), which
+// dispatches immediate effects and aimed rays; the callback and ray families
+// record their own remaining source boundaries below.
 //
 // The shop usage fee stops the command earlier than any of them. check_unpaid()
 // runs between the object prompt and the charge, and js/shk.js raises
@@ -845,6 +845,21 @@ export async function zappable(wand, state = game) {
     return 1;
 }
 
+// C ref: zap.c backfire() (2605-2614). Keep in_use set through losehp(),
+// because lethal damage can end the game before useupall() frees the wand.
+async function backfire(wand, state) {
+    wand.in_use = true;
+    await ttyPline(
+        `${The(xnameFresh(wand, state), state)} suddenly explodes!`, state,
+    );
+    const damage = d(wand.spe + 2, 6);
+    await losehp(
+        maybeHalfPhysical(damage, state), 'exploding wand', KILLED_BY_AN,
+        state,
+    );
+    await useupall(wand, { state });
+}
+
 // C ref: zap.c zap_ok() (2616-2623), the getobj() callback for the `z`
 // command. Every wand is a likely candidate and nothing else is one, so a
 // starting hero who carries a single wand sees it alone in the prompt.
@@ -856,13 +871,8 @@ export function zap_ok(obj) {
 
 // C ref: zap.c dozap() (2625-2683), the `z` command, translated whole.
 //
-// One of the five effect arms stops, and it stops after everything C does
-// ahead of it has run, so the charge, the prompts and the draws that select
-// the arm all happen first:
-//
-// - backfire() throws the cursed wand up in the hero's face. The rn2 that
-//   picks it is inside the condition, so a cursed wand that does not backfire
-//   spends the draw and carries on exactly as C does.
+// The rn2 that picks backfire() is inside the condition, so a cursed wand
+// that does not backfire spends the draw and carries on exactly as C does.
 // weffects() runs the aimed-zap machinery below it and the empty
 // secret-door-detection scan.
 //
@@ -892,11 +902,14 @@ export async function dozap(state = game) {
         await ttyPline(nothing_happens, state);
     } else if (obj.cursed && !rn2(WAND_BACKFIRE_CHANCE)) {
         /* the wand blows up in your face! */
-        // backfire() names the wand, rolls d(spe + 2, 6) damage through
-        // losehp() and useupall()s the wreckage; exercise(A_STR, FALSE) and
-        // the early `return ECMD_TIME` that skips update_inventory() follow
-        // it.
-        throw new UnsupportedZapError('backfire() for a cursed wand');
+        await backfire(obj, state);
+        await exercise(
+            A_STR, false, state, { rn2 },
+            { encumberMessage: encumber_msg },
+        );
+        // backfire() freed obj and refreshed inventory; C returns before the
+        // ordinary update_inventory() tail.
+        return ECMD_TIME;
     } else if (need_dir && !await getdir(null, state)) {
         if (!heroIsBlind(state))
             await ttyPline(
