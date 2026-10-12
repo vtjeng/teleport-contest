@@ -1207,7 +1207,8 @@ function status_enlightenment(mode, final, state, lines) {
         || Boolean(u.usteed && is_flyer(u.usteed.data));
     const actualFlying = flying && !B(FLYING);
     const blind = active(BLINDED) && !B(BLINDED);
-    const blindfoldedOnly = Boolean(E(BLINDED) && !blind);
+    const blindfoldedOnly = Boolean(E(BLINDED)
+        && !(H(BLINDED) && !B(BLINDED)));
     const hallucinating = Boolean(H(HALLUC)
         && !(H(HALLUC_RES) || E(HALLUC_RES)));
     const deaf = Boolean(H(DEAF) || E(DEAF) || u.uroleplay?.deaf);
