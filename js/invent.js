@@ -1242,9 +1242,9 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
                         // invent.c:getobj() distinguishes display_pickinv's
                         // Escape result from an ordinary uncommitted menu.
                         cancelValue: '\x1b',
-                        // invent.c:tty_select_menu returns NUL when an empty
-                        // inventory menu is committed with Enter.
-                        emptyValue: '\0',
+                        // wintty.c:tty_select_menu reports n == 0 for Enter;
+                        // invent.c:display_pickinv converts that to NUL.
+                        emptyValue: null,
                     },
                 );
                 if (!picked) {

@@ -28,7 +28,10 @@ test('getobj commits an empty suggested inventory menu on Enter', async () => {
         moves: '.#apply\n?\n',
     });
 
-    // invent.c:tty_select_menu returns NUL for Enter with no item selected;
-    // getobj treats that as an empty result, not an Escape cancellation.
-    assert.notEqual(game._pending_message, 'Never mind.');
+    // wintty.c:tty_select_menu reports n == 0 for Enter, which
+    // invent.c:display_pickinv converts to NUL. getobj treats that as an
+    // empty result and draws the exact object question again.
+    const [topLine] = game.nhDisplay.serialize().split('\n');
+    assert.equal(topLine.trimEnd(),
+        'What do you want to use or apply? [chijk or ?*]');
 });
