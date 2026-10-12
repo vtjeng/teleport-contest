@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v48.json",
   "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
   "recordingSha256": "fb830b3492fdd58e79203b5251c03d34ca1dd7baadf26bafaac607030a16ba57",
-  "evaluationPath": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v48.json",
-  "evaluationCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e",
+  "evaluationPath": "challenges/evaluations/accepted-b126627c379b87b95d86d7b9a070973eabc9f24c-v48.json",
+  "evaluationCommit": "b126627c379b87b95d86d7b9a070973eabc9f24c",
   "status": "complete",
-  "commit": "98b22439c86389e89602ba6c6c2dff8b8032856e",
+  "commit": "b126627c379b87b95d86d7b9a070973eabc9f24c",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v48",
@@ -24,11 +24,11 @@
     "recordingSha256": "fb830b3492fdd58e79203b5251c03d34ca1dd7baadf26bafaac607030a16ba57",
     "recipe": "challenges/cases/v48/v48-name-floor-object-attempt5.recipe.session.json",
     "recipeSha256": "fc6e6fb7ec82e8a19d2972d1c5a7d09c55a4a06f21b325c036b6fdc84ad54f8b",
-    "replayInputSha256": "d5a630475a98b3391ccf1dff66a7600b2538e762a543696bd432061ffeca0879",
-    "evaluationPath": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v48.json",
-    "evaluationCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e",
-    "evaluationArtifact": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v48.json",
-    "evaluationUtc": "2026-10-12T13:21:46.416Z",
+    "replayInputSha256": "b7d864f26bfec677fa1875b1e8b5796b5d40c40c25bb22f46cc47be49cffd3bc",
+    "evaluationPath": "challenges/evaluations/accepted-b126627c379b87b95d86d7b9a070973eabc9f24c-v48.json",
+    "evaluationCommit": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+    "evaluationArtifact": "challenges/evaluations/accepted-b126627c379b87b95d86d7b9a070973eabc9f24c-v48.json",
+    "evaluationUtc": "2026-10-12T15:54:57.868Z",
     "remainingScreens": 1,
     "recordedSteps": 60,
     "previousScreensMatched": 59,
@@ -85,10 +85,10 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The @ input diverges in the SELF-key branch of getpos.c:getpos(). C resets every location-cycle index, restores the cursor to u.ux/u.uy, then reaches nxtc without changing the message or ending targeting. JavaScript has no getpos.self branch and treats @ as an unknown direction, so namefloorobj continues from the wrong selected coordinate.",
+  "summary": "The original failure is the SELF-key cursor branch. This delivery completes getpos and its required getpos_menu function, preserving queued input, cursor state, movement, selection, help, filters, terrain search and cleanup. It also wires the simulated-mouse branch of getdir without claiming the whole getdir function.",
   "source": {
     "file": "getpos.c",
-    "branch": "When c equals gc.Cmd.spkeys[NHKF_GETPOS_SELF] (default @), getpos() resets every gidx entry, assigns cx/cy from u.ux/u.uy, and jumps to nxtc. That path updates gg.getposx/getposy, map cursor and screen, then reads the next key.",
+    "branch": "Complete getpos and getpos_menu definitions; bounded cmd.c:getdir NHKF_GETDIR_MOUSE caller.",
     "functions": [
       "getpos",
       "getpos_menu"
@@ -97,8 +97,7 @@
       "do_name.c:namefloorobj() calls getpos(&cc, FALSE, buf) before resolving the selected floor object; js/do_name.js:namefloorobj() calls js/getpos.js:getpos() on the same path."
     ],
     "dependencies": [
-      "B delivery 801cda8f8eab1e9f801f8b4dbf21baf7e745fcf9 already supplies the separate getpos.menu toggle branch and is an ancestor of this task base.",
-      "The existing local gidx array stores the source location-cycle indices; the SELF branch resets it without changing message state."
+      "Existing command queue, terminal input, gathered locations, descriptions and menu implementations. The bounded mouse caller is included in this delivery."
     ]
   },
   "evidence": [
