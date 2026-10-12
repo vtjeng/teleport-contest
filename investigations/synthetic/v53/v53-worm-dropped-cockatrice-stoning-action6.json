@@ -140,7 +140,7 @@
   },
   "remainingScreens": 27,
   "recordedSteps": 290,
-  "commit": "2195437aa",
+  "commit": "2195437aa4ab8efc6a5c127ef61f0ab9ce97a539",
   "goalKind": "divergence-fix",
   "mismatch": {
     "kind": "screens",
