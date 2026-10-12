@@ -82,6 +82,7 @@ import {
 } from '../js/monsters.js';
 
 const C_SHK = readFileSync('nethack-c/upstream/src/shk.c', 'utf8');
+const C_HACK = readFileSync('nethack-c/upstream/include/hack.h', 'utf8');
 const JS_SHK = readFileSync('js/shk.js', 'utf8');
 const C_DIG = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
 const JS_DIG = readFileSync('js/dig.js', 'utf8');
@@ -239,6 +240,28 @@ test('hot_pursuit angers the keeper and clears floor and pet no-charge flags', (
     const nonKeeper = { isshk: false, mpeaceful: true };
     hot_pursuit(nonKeeper, state);
     assert.equal(nonKeeper.mpeaceful, true);
+});
+
+test('shk_move keeps C distu avoidance threshold in squared-distance units', () => {
+    const cBody = C_SHK.match(
+        /shk_move\(struct monst \*shkp\)\s*\{([\s\S]*?)\n\}/u,
+    )?.[1];
+    assert.ok(cBody, 'the C shk_move definition is present');
+    assert.match(cBody, /avoid = \(\*u\.ushops && distu\(gtx, gty\) > 8\);/u);
+    assert.match(
+        C_HACK,
+        /#define distu\(xx, yy\) dist2\(\(coordxy\) \(xx\), \(coordxy\) \(yy\), u\.ux, u\.uy\)/u,
+    );
+
+    const jsBody = sourceBody(JS_SHK, 'export async function shk_move(');
+    assert.match(
+        jsBody,
+        /dist2\(gtx, gty, hero\.ux, hero\.uy\) > 8/u,
+    );
+    assert.doesNotMatch(
+        jsBody,
+        /dist2\(gtx, gty, hero\.ux, hero\.uy\) > 64/u,
+    );
 });
 
 test('nested shop identity reaches keeper and deserted-shop handling', async () => {

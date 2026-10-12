@@ -3395,7 +3395,9 @@ export async function shk_move(shkp, state, rawEnv = {}) {
             env._shopAvoid = uondoor
                 ? !badinv
                 : Boolean((hero.ushops ?? []).some(Boolean)
-                    && dist2(gtx, gty, hero.ux, hero.uy) > 64);
+                    // C shk.c:4972 compares distu() directly with 8;
+                    // distu() is the squared distance from hack.h:1531.
+                    && dist2(gtx, gty, hero.ux, hero.uy) > 8);
             const gdist = dist2(omx, omy, gtx, gty);
             if (((!eshkp.robbed && !eshkp.billct && !eshkp.debit)
                 || env._shopAvoid) && gdist < 3) {
