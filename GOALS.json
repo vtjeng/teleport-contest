@@ -294092,7 +294092,7 @@
     {
       "id": "port-wiz-goal-v53-20261012",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the complete Wizard Quest goal level program and register its production loader.",
       "luaFile": "Wiz-goal.lua",
       "sessions": [
@@ -294102,7 +294102,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "3fd1185f744ed2b8ef8226d6eb23b8a13d330395",
       "delivered": null,
       "functions": [
         {
@@ -294110,7 +294110,75 @@
           "line": 1,
           "endLine": 132
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "3fd1185f744ed2b8ef8226d6eb23b8a13d330395",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
+        "target": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/3fd1185f744ed2b8ef8226d6eb23b8a13d330395/run-hosted-oYZrzl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "Wiz-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "wizGoal",
+            "sourceReview": "Read and translated the whole upstream dat/Wiz-goal.lua program, lines 1-132, in order. It sets solid-fill/mazelevel, the 20x76 map, one filled temple and 16 area light regions, 16 locked doors, the up stair, non-diggable boundary, noncoaligned altar, 15 object calls (the named blessed Eye followed by 14 random objects), six random traps, and all 36 monster calls. The fixed map, doors, objects, monsters, and trap count are generated deterministically from source by scripts/generate-wiz-goal-level.mjs. The seven random class-B monsters, eight random class-i monsters, eight fixed vampire bats and Dark One precede the eight captive descriptors exactly as C. Existing lspo_* descriptor implementations provide every source operation; no unported helper is called or claimed. The existing mklev.js load_special initializes nhlib alignment shuffle before invoking the loader and runs the source post-processing after it.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "C mklev.c:makelevel selects the special-level prototype and calls mkmaze.c:makemaz, which calls sp_lev.c:load_special and nhlua.c:load_lua on dat/Wiz-goal.lua. JavaScript makelevel dispatches through makemaz/load_special to the new Wiz-goal entry in QUEST_LEVEL_LOADERS."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "C wizcmds.c:wiz_load_splua calls load_special; JavaScript wiz_load_splua uses the same shared loader registry."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-goal-level.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 206,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> nhlua.c:load_lua -> dat/Wiz-goal.lua"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The complete dat/Wiz-goal.lua program executes through the production special-level registry. The replay now matches screens, cursors, and RNG through zero-based step 206; it next diverges on the separate quest pager path when C initializes questpgr.c:com_pager_core and JS does not reproduce that pager Lua state initialization. That later dialogue difference is outside the Wiz-goal program port.",
+        "entryPoints": [
+          {
+            "name": "Wizard Quest goal-level generation",
+            "functions": [
+              "Wiz-goal.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 206,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> nhlua.c:load_lua -> dat/Wiz-goal.lua"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
