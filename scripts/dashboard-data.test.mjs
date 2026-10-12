@@ -342,6 +342,75 @@ test('unmeasured challenge cases remain visible in the remaining filter', () => 
     assert.match(rendered.get('challengeTable').innerHTML, /Incomplete metrics/u);
 });
 
+test('excluded cases leave pending work but retain raw scores and reasons in all sessions', () => {
+    const data = sourceDashboardData();
+    // One unmatched screen represents build provenance; a cursor-only loss
+    // represents the damaged recorder. The third case still needs source work.
+    const full = { matched: 3, total: 3 };
+    const screenLoss = { passed: false, screens: { matched: 2, total: 3 }, rng: full, cursors: full };
+    data.challenges.cases = [
+        { batch: 'v32', id: 'version', title: 'Version identity', current: screenLoss },
+        { batch: 'v35', id: 'recorder', title: 'Damaged recorder',
+            current: { passed: false, screens: full, rng: full, cursors: { matched: 2, total: 3 } } },
+        { batch: 'v35', id: 'work', title: 'Portable behavior', current: screenLoss },
+    ];
+    const before = JSON.stringify(data.challenges);
+    const queue = { sessions: [], excluded: [
+        { session: 'synthetic/v32/version', resolution: { reason: 'Different <platform> labels.' } },
+        { session: 'synthetic/v35/recorder', resolution: { reason: 'Corrupted cursor evidence.' } },
+    ] };
+    const rendered = renderDashboard(data, queue);
+    assert.match(rendered.get('sessionSummary').textContent, /1 of 1 synthetic sessions remaining · 2 excluded/u);
+    assert.doesNotMatch(rendered.get('challengeTable').innerHTML, /Version identity|Damaged recorder/u);
+    assert.match(rendered.get('challengeTable').innerHTML, /Portable behavior/u);
+    const showAll = rendered.get('sessionShowAll');
+    showAll.checked = true;
+    showAll.listeners.change[0]();
+    assert.match(rendered.get('challengeTable').innerHTML,
+        /Version identity[\s\S]*Different &lt;platform&gt; labels\.[\s\S]*<td>2<\/td><td>3<\/td>[\s\S]*Excluded/u);
+    assert.match(rendered.get('challengeCards').innerHTML, /Corrupted cursor evidence\.[\s\S]*Excluded|Excluded[\s\S]*Corrupted cursor evidence\./u);
+    showAll.checked = false;
+    showAll.listeners.change[0]();
+    assert.doesNotMatch(rendered.get('challengeTable').innerHTML, /Version identity|Damaged recorder/u);
+    assert.equal(JSON.stringify(data.challenges), before, 'filtering never changes scores');
+    data.challenges.cases.pop();
+    const onlyExcluded = renderDashboard(data, queue);
+    assert.match(onlyExcluded.get('challengeTable').innerHTML, /No remaining sessions/u);
+    assert.doesNotMatch(onlyExcluded.get('challengeTable').innerHTML, /All sessions match/u);
+    assert.match(onlyExcluded.get('sessionSummary').textContent, /0 of 0 synthetic sessions remaining · 2 excluded/u);
+});
+
+test('batches with only excluded mismatches default off without claiming a full match', () => {
+    const data = sourceDashboardData();
+    // Equal case IDs across batches ensure exclusions use full session identity.
+    const full = { matched: 3, total: 3 };
+    const result = { passed: false, screens: { matched: 2, total: 3 }, rng: full, cursors: full };
+    data.challenges.batches = ['v32', 'v35'].map(batch => ({ batch, status: 'measured' }));
+    data.challenges.cases = ['v32', 'v35'].map(batch => ({ batch, id: 'version', current: result }));
+    data.scoreHistory = [data.scoreHistory[0], ...['v32', 'v35'].map(batch => ({
+        id: 'syntheticHoldout-' + batch, title: batch,
+        // A single recorded point is sufficient to exercise chart visibility.
+        points: [{ utc: '2026-01-01T00:00:00Z', screens: 2, screensTotal: 3 }],
+    }))];
+    const rendered = renderDashboard(data, { sessions: [], excluded: [
+        { session: 'synthetic/v32/version', resolution: { reason: 'Build identity.' } },
+    ] });
+    assert.equal(rendered.get('challengePlot1').hidden, true);
+    assert.equal(rendered.get('challengePlot2').hidden, false);
+    assert.match(rendered.get('historyBatchOptions').innerHTML, /v32<\/span><small>No pending work/u);
+    assert.match(rendered.get('historyBatchOptions').innerHTML, /v35<\/span><small>Unresolved/u);
+    rendered.get('historyBatchOptions').listeners.change[0]({
+        target: { dataset: { series: 'syntheticHoldout-v32' }, checked: true },
+    });
+    assert.equal(rendered.get('challengePlot1').hidden, false, 'raw history remains available');
+    // Missing authoritative exclusions must not silently suppress strict losses.
+    assert.equal(renderDashboard(data).get('challengePlot1').hidden, false);
+    data.challenges.batches[0].status = 'stale';
+    assert.equal(renderDashboard(data, { sessions: [], excluded: [
+        { session: 'synthetic/v32/version', resolution: { reason: 'Build identity.' } },
+    ] }).get('challengePlot1').hidden, false, 'an exclusion does not hide stale evidence');
+});
+
 test('score rows expose named development and local holdout measures', t => {
     const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-scores-'));
     t.after(() => rmSync(fixture, { recursive: true, force: true }));

@@ -1041,7 +1041,10 @@ const challengeCaseMatches = item => {
       && Number.isFinite(result[metric]?.total)
       && result[metric].matched === result[metric].total);
 };
-const remainingChallengeCases = challengeCases.filter(item => !challengeCaseMatches(item));
+// The operational queue validates investigation provenance before excluding a
+// case. Keep its disposition separate from the unchanged strict score.
+const challengeExclusions = new Map((QUEUE?.excluded || []).map(row => [row.session, row.resolution]));
+const challengeExclusion = item => challengeExclusions.get('synthetic/' + (item.batch || 'unknown') + '/' + item.id);
 document.getElementById('stats').innerHTML = [
   ['Development set', scores.fixedDevelopment],
   ['Synthetic local holdout', { ...challengeData, ...challengeData.totals }],
@@ -1097,15 +1100,19 @@ document.getElementById('stats').innerHTML = [
       total: item.current?.screens?.total ?? item.first?.screens?.total ?? item.screenCount,
       change: item.delta == null ? null : item.delta,
       complete: metricComplete(item.current) && !queueById.has(id),
+      exclusion: challengeExclusion(item),
       queue: queueById.get(id), result: item.current, outcome: item.outcome,
     };
   });
   const sessions = [...development, ...synthetic];
   const remainingDevelopment = development.filter(row => !row.complete).length;
-  const remainingSynthetic = synthetic.filter(row => !row.complete).length;
+  const actionableSynthetic = synthetic.filter(row => !row.exclusion);
+  const excludedCount = synthetic.length - actionableSynthetic.length;
+  const remainingSynthetic = actionableSynthetic.filter(row => !row.complete).length;
   document.getElementById('sessionSummary').textContent = remainingDevelopment + ' of '
     + development.length + ' development sessions remaining · '
-    + remainingSynthetic + ' of ' + synthetic.length + ' synthetic sessions remaining'
+    + remainingSynthetic + ' of ' + actionableSynthetic.length + ' synthetic sessions remaining'
+    + (excludedCount ? ' · ' + excludedCount + ' excluded' : '')
     + (DATA.developmentSessions ? ' · development measured at '
       + DATA.developmentSessions.executionCommit.slice(0, 8) : '');
   const notices = [];
@@ -1133,6 +1140,8 @@ document.getElementById('stats').innerHTML = [
     '<p class="table-note">' + esc(notice) + '</p>').join('');
 
   const detail = row => {
+    if (row.exclusion) return '<p>Excluded from implementation work: '
+      + esc(row.exclusion.reason) + '</p>';
     const q = row.queue;
     if (!q) return row.outcome ? '<p>' + esc(row.outcome) + '</p>' : '';
     const finding = q.investigation?.result?.summary;
@@ -1144,12 +1153,15 @@ document.getElementById('stats').innerHTML = [
       + (finding ? '<p>' + esc(finding) + '</p>' : '') + '</div>';
   };
   const render = () => {
-    const rows = (showAll.checked ? sessions : sessions.filter(row => !row.complete))
-      .sort((a, b) => Number(a.complete) - Number(b.complete)
+    const rows = (showAll.checked ? sessions : sessions.filter(row => !row.complete && !row.exclusion))
+      .sort((a, b) => Number(Boolean(a.exclusion)) - Number(Boolean(b.exclusion))
+        || Number(a.complete) - Number(b.complete)
         || Number(b.set === 'Development') - Number(a.set === 'Development')
         || a.set.localeCompare(b.set) || a.name.localeCompare(b.name));
     if (!rows.length) {
-      const message = sessions.length ? 'All sessions match.' : 'No session results available.';
+      const message = sessions.length
+        ? excludedCount ? 'No remaining sessions; excluded cases are available under Show all sessions.' : 'All sessions match.'
+        : 'No session results available.';
       table.innerHTML = '<tbody><tr><td>' + message + '</td></tr></tbody>';
       cards.innerHTML = '<p class="table-note">' + message + '</p>';
       return;
@@ -1160,7 +1172,8 @@ document.getElementById('stats').innerHTML = [
     rows.forEach(row => {
       const values = [fmtN(row.initial), fmtN(row.current), fmtN(row.total),
         row.change == null ? '—' : fmtDelta(row.change)];
-      const status = row.complete ? '<span role="img" aria-label="Matched">✅</span>'
+      const status = row.exclusion ? 'Excluded'
+        : row.complete ? '<span role="img" aria-label="Matched">✅</span>'
         : '<span role="img" aria-label="Remaining">🔧</span>';
       const details = detail(row);
       const name = details
@@ -1264,16 +1277,17 @@ document.getElementById('stats').innerHTML = [
   const queueSessions = new Set((QUEUE?.sessions || []).map(row => row.session));
   const batchId = entry => entry.id.startsWith('syntheticHoldout-')
     ? entry.id.slice('syntheticHoldout-'.length) : entry.id;
-  const isResolved = entry => {
+  const batchWorkStatus = entry => {
     const id = batchId(entry), cases = challengeCases.filter(item => item.batch === id);
-    return batchStates.get(id)?.status === 'measured' && cases.length > 0
-      && cases.every(item => challengeCaseMatches(item)
-        && !queueSessions.has('synthetic/' + id + '/' + item.id));
+    if (batchStates.get(id)?.status !== 'measured' || !cases.length
+        || cases.some(item => queueSessions.has('synthetic/' + id + '/' + item.id)
+          || (!challengeCaseMatches(item) && !challengeExclusion(item)))) return 'Unresolved';
+    return cases.some(item => challengeExclusion(item)) ? 'No pending work' : 'Resolved';
   };
-  const selectedBatches = new Set(series.slice(1).filter(entry => !isResolved(entry)).map(entry => entry.id));
+  const selectedBatches = new Set(series.slice(1).filter(entry => batchWorkStatus(entry) === 'Unresolved').map(entry => entry.id));
   batchOptions.innerHTML = series.slice(1).map(entry => '<label><input type="checkbox" data-series="'
     + escScoreText(entry.id) + '"' + (selectedBatches.has(entry.id) ? ' checked' : '') + '><span>'
-    + escScoreText(batchId(entry)) + '</span><small>' + (isResolved(entry) ? 'Resolved' : 'Unresolved')
+    + escScoreText(batchId(entry)) + '</span><small>' + batchWorkStatus(entry)
     + '</small></label>').join('');
   const visibleSeries = () => series.filter((entry, index) => index === 0 || selectedBatches.has(entry.id));
   const minimap = document.getElementById('progressMinimap');

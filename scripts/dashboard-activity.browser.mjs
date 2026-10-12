@@ -16,6 +16,29 @@ try {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   assert.equal((await page.goto(url)).status(), 200);
+  const excludedCases = await page.evaluate(() => challengeCases
+    .filter(item => challengeExclusion(item))
+    .map(item => ({ name: item.title || item.id, reason: challengeExclusion(item).reason })));
+  if (excludedCases.length) {
+    const sessionNames = () => page.locator('#challengeTable tbody tr').evaluateAll(rows =>
+      rows.map(row => row.cells[0]?.innerText.split('\n')[0]));
+    const pending = await sessionNames();
+    for (const item of excludedCases) assert.ok(!pending.includes(item.name), item.name);
+    const showAll = page.locator('#sessionShowAll');
+    await showAll.focus();
+    await showAll.press('Space');
+    const all = await sessionNames();
+    for (const item of excludedCases) assert.ok(all.includes(item.name), item.name);
+    const excludedRows = page.locator('#challengeTable tbody tr').filter({ hasText: 'Excluded' });
+    assert.equal(await excludedRows.count(), excludedCases.length);
+    await excludedRows.first().locator('summary').click();
+    assert.ok((await excludedRows.first().innerText()).includes(excludedCases[0].reason));
+    await showAll.focus();
+    await showAll.press('Space');
+    assert.ok(await showAll.evaluate(element => document.activeElement === element));
+    assert.equal(await excludedRows.count(), 0);
+    console.log('Excluded cases: hidden from pending work, available with raw scores and reasons, keyboard toggle passed.');
+  }
   const plot = page.locator('#timeline');
   const readout = page.locator('#timelineReadout');
   await plot.evaluate(element => window.scrollTo(0, scrollY + element.getBoundingClientRect().top - 450));
