@@ -277,7 +277,9 @@ import {
     remove_achievement,
     UnsupportedEnlightenmentError,
 } from './insight.js';
-import { dodiscovered, UnsupportedDiscoveryDisplayError } from './o_init.js';
+import {
+    doclassdisco, dodiscovered, UnsupportedDiscoveryDisplayError,
+} from './o_init.js';
 import { donameFresh, UnsupportedObjectNameError } from './objnam.js';
 import {
     doset,
@@ -3091,6 +3093,24 @@ async function runKnownCommand(key, state) {
     }));
 }
 
+// C ref: o_init.c doclassdisco(), reached by cmd.c #knownclass.
+async function runKnownClassCommand(key, state) {
+    return failClosedCommand(key, state, () => doclassdisco(state, {
+        message: ttyPline,
+        textWindow: (lines) => displayTtyTextWindow(
+            state,
+            lines.map((line) => (line.heading
+                ? {
+                    ...line,
+                    attr: menuTitleStyle(state).titleAttr,
+                    color: menuTitleStyle(state).titleColor,
+                }
+                : line)),
+        ),
+        yesNo: yn_function,
+    }));
+}
+
 // C ref: insight.c doattributes().
 async function runAttributesCommand(key, state) {
     return failClosedCommand(key, state, () => doattributes(state, {
@@ -5111,6 +5131,8 @@ async function doextcmd(key, state, onSelectedEntry = null) {
             return await runShowspellsCommand(key, state);
         case 'dodiscovered':
             return await runKnownCommand(key, state) ? ECMD_TIME : ECMD_OK;
+        case 'doclassdisco':
+            return await runKnownClassCommand(key, state);
         case 'dosearch':
             return await runSearchCommand(key, state);
         case 'doterrain':

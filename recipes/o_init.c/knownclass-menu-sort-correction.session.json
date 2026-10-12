@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for o_init.c:doclassdisco() with #reqmenu prefix, exercising choose_disco_sort(2) and the #knownclass class chooser.",
+  "segments": [
+    {
+      "seed": 98122032,
+      "datetime": "20591105121900",
+      "nethackrc": "OPTIONS=name:KnownClassCorrection,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " m#knownclass\rca"
+    }
+  ]
+}

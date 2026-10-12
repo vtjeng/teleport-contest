@@ -4,20 +4,29 @@
 import { disp_artifact_discoveries } from './artifacts.js';
 import { exercise_nonphysical } from './attrib.js';
 import { game } from './gstate.js';
-import { encodeUtf8ByteString, strstri, strsubst, truncateByteString } from './hacklib.js';
 import {
-    let_to_name, preflight_update_inventory, update_inventory,
+    encodeUtf8ByteString, strncmpi, strstri, strsubst, truncateByteString,
+} from './hacklib.js';
+import {
+    _getobjInternals, let_to_name, preflight_update_inventory,
+    update_inventory,
 } from './invent.js';
 import { PM_SAMURAI } from './monsters.js';
 import { obj_typename } from './objnam.js';
 import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
 import { rn2 } from './rng.js';
+import { note_unported } from './unported.js';
 import { append_price_quote } from './shk.js';
-import { A_WIS, BUFSZ, HALLUC, HALLUC_RES, PICK_ONE } from './const.js';
+import {
+    A_WIS, BUFSZ, ECMD_OK, HALLUC, HALLUC_RES, MENU_COMBINATION,
+    MENU_PARTIAL, MENU_TRADITIONAL, PICK_ONE,
+} from './const.js';
 import { select_menu } from './windows.js';
 import { ttyPline } from './tty_message.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { add_menu_heading } from './windows.js';
+import { def_char_to_objclass } from './drawing.js';
+import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
 import {
     AMULET_CLASS,
     AMULET_OF_YENDOR,
@@ -60,6 +69,7 @@ import {
     WOODEN_HARP,
     OBJ_DESCR,
     OBJ_NAME,
+    SLIME_MOLD,
     objects_globals_init,
 } from './objects.js';
 
@@ -605,6 +615,205 @@ export async function choose_disco_sort(mode, state = game) {
         state.flags.discosort = choice;
     }
     return count;
+}
+
+// C refs: o_init.c discovered_cmp(), sortloot_descr(), and oclass_to_name().
+export function discovered_cmp(first, second) {
+    return strncmpi(first.slice(2), second.slice(2), -1);
+}
+
+export function sortloot_descr(otyp, state = game) {
+    const type = state.objects[otyp];
+    const obj = {
+        otyp,
+        oclass: type.oc_class,
+        dknown: true,
+        known: Boolean(type.oc_name_known || !type.oc_uses_known),
+        corpsenm: -1, // NON_PM suppresses statue and figurine details.
+        spe: otyp === SLIME_MOLD ? state.svc?.context?.current_fruit : 0,
+    };
+    const sortItem = { obj: null, str: null };
+    _getobjInternals.loot_classify(sortItem, obj, state);
+    return String(sortItem.orderclass).padStart(2, '0')
+        + String(sortItem.subclass).padStart(2, '0')
+        + String(sortItem.disco) + ' ';
+}
+
+export function oclass_to_name(oclass) {
+    return let_to_name(oclass, false, false).toLowerCase();
+}
+
+function classSymbol(oclass) {
+    return String.fromCharCode(DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass]);
+}
+
+// C ref: o_init.c doclassdisco() (891-1115), the #knownclass command.
+// The command owns menu and text-window creation in this port.
+export async function doclassdisco(state = game, {
+    message = ttyPline,
+    textWindow,
+    yesNo,
+} = {}) {
+    if (typeof textWindow !== 'function' || typeof yesNo !== 'function')
+        throw new TypeError('doclassdisco needs textWindow and yesNo owners');
+
+    if (!state.flags.discosort || !DISCO_ORDER_LET.includes(state.flags.discosort))
+        state.flags.discosort = 'o';
+    if (state.iflags?.menu_requested
+        && await choose_disco_sort(2, state) < 0)
+        return ECMD_OK;
+
+    const alphabetized = state.flags.discosort === 'a'
+        || state.flags.discosort === 'c';
+    const lootsort = state.flags.discosort === 's';
+    const traditional = state.flags.menu_style === MENU_TRADITIONAL
+        || state.flags.menu_style === MENU_COMBINATION;
+    const classes = [...(state.flags.inv_order ?? [])];
+    if (!classes.includes(VENOM_CLASS)) classes.push(VENOM_CLASS);
+
+    const discoveredSymbols = [];
+    for (const uidx of UNIQ_OBJS) {
+        const type = state.objects[uidx];
+        if (type.oc_name_known
+            || (type.oc_encountered && uidx !== AMULET_OF_YENDOR)) {
+            discoveredSymbols.push('u');
+            break;
+        }
+    }
+    if (disp_artifact_discoveries(state) > 0) discoveredSymbols.push('a');
+    for (const oclass of classes) {
+        const symbol = classSymbol(oclass);
+        for (let i = state.svb.bases[oclass]; i < NUM_OBJECTS
+            && state.objects[i].oc_class === oclass; ++i) {
+            const dis = state.svd.disco[i];
+            if (dis && interesting_to_discover(dis, state)) {
+                if (!discoveredSymbols.includes(symbol))
+                    discoveredSymbols.push(symbol);
+                break;
+            }
+        }
+    }
+
+    if (!discoveredSymbols.length) {
+        await message("You haven't discovered any items yet.", state);
+        return ECMD_OK;
+    }
+
+    let selectedClass = '\0';
+    if (traditional) {
+        const accepted = [...classes.map(classSymbol), 'a', 'u', 'r'];
+        const additional = [];
+        for (const symbol of accepted) {
+            if (!discoveredSymbols.includes(symbol)) {
+                if (!additional.includes('\x1b')) additional.push('\x1b');
+                if (!additional.includes(symbol)) additional.push(symbol);
+            }
+        }
+        selectedClass = await yesNo(
+            'View discoveries for which sort of objects?',
+            [...discoveredSymbols, ...additional].join(''), '\0', true, state,
+        );
+    } else if (discoveredSymbols.length === 1
+        && state.flags.menu_style === MENU_PARTIAL) {
+        [selectedClass] = discoveredSymbols;
+    } else {
+        const items = [];
+        let selector = 'a';
+        for (const symbol of discoveredSymbols) {
+            const oclass = classes.find((candidate) =>
+                classSymbol(candidate) === symbol);
+            items.push({
+                value: symbol,
+                selector,
+                groupSelector: symbol === 'u' ? 'r'
+                    : oclass ? symbol : undefined,
+                label: symbol === 'u' ? 'unique items or relics'
+                    : symbol === 'a' ? 'artifacts' : oclass_to_name(oclass),
+            });
+            selector = String.fromCharCode(selector.charCodeAt(0) + 1);
+        }
+        const selected = await select_menu(state, {
+            title: 'View discoveries for which sort of objects?',
+            items,
+            how: PICK_ONE,
+            cancelValue: null,
+            overlay: state.iflags?.menu_overlay !== false,
+        });
+        selectedClass = selected ?? '\0';
+    }
+    if (!selectedClass || selectedClass === '\0') return ECMD_OK;
+
+    const lines = [];
+    const putstr = (text, heading = false) => lines.push({ text, heading });
+    let count = 0;
+    switch (selectedClass) {
+    case 'u':
+    case 'r':
+        putstr('Unique items or relics', true);
+        for (const uidx of UNIQ_OBJS) {
+            const type = state.objects[uidx];
+            if (type.oc_name_known
+                || (type.oc_encountered && uidx !== AMULET_OF_YENDOR)) {
+                ++count;
+                putstr(disco_fmt_uniq(uidx, state));
+            }
+        }
+        if (!count)
+            await message("You haven't discovered any unique items or relics yet.", state);
+        break;
+    case 'a':
+        if (state.wizard && await yesNo(
+            'Dump information about all artifacts?', 'yn', 'n', false, state,
+        ) === 'y') {
+            // The C dump helper has a void return; doclassdisco only tests a
+            // local nonzero count after it returns.
+            note_unported('artifact.c dump_artifact_info');
+            return ECMD_OK;
+        }
+        count = disp_artifact_discoveries(state, (heading, text) =>
+            putstr(text, heading));
+        if (!count)
+            await message("You haven't discovered any artifacts yet.", state);
+        break;
+    default: {
+        const oclass = def_char_to_objclass(selectedClass);
+        if (oclass === MAXOCLASSES) {
+            note_unported('pline.c impossible');
+            return ECMD_OK;
+        }
+        const order = state.flags.discosort === 'o' ? 'order of discovery'
+            : state.flags.discosort === 's' ? "'sortloot' order"
+                : 'alphabetical order';
+        putstr('Discovered ' + let_to_name(oclass, false, false) + ' in ' + order);
+        const sorted = [];
+        for (let i = state.svb.bases[oclass]; i < state.svb.bases[oclass + 1]; ++i) {
+            const dis = state.svd.disco[i];
+            if (!dis || !interesting_to_discover(dis, state)) continue;
+            ++count;
+            const prefix = state.objects[dis].oc_encountered ? '  ' : '* ';
+            const line = prefix + (lootsort ? sortloot_descr(dis, state) : '')
+                + disco_append_typename('', dis, state);
+            if (!alphabetized && !lootsort) putstr(line);
+            else sorted.push(line);
+        }
+        if (!count) {
+            await message("You haven't discovered any "
+                + oclass_to_name(oclass) + ' yet.', state);
+        } else if (sorted.length) {
+            sorted.sort(discovered_cmp);
+            for (let line of sorted) {
+                if (lootsort) {
+                    line = line.slice(0, 6) + line[0] + line.slice(7);
+                    line = line.slice(6);
+                }
+                putstr(line);
+            }
+        }
+        break;
+    }
+    }
+    if (count) await textWindow(lines, state);
+    return ECMD_OK;
 }
 
 // C ref: o_init.c disco_typename():661–689. Explain Japanese names before
