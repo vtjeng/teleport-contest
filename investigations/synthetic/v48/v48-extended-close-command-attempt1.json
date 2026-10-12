@@ -1,0 +1,87 @@
+{
+  "session": "synthetic/v48/v48-extended-close-command-attempt1",
+  "remainingScreens": 2,
+  "recordedSteps": 9,
+  "corpus": "synthetic",
+  "batch": "v48",
+  "caseId": "v48-extended-close-command-attempt1",
+  "manifestPath": "challenges/manifests/v48.json",
+  "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+  "recordingSha256": "c941fd73aa8b43b62c0dcbdf52c30ca9a7aa83e324a8a9d09e82dfcc79ddcd6a",
+  "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+  "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+  "status": "complete",
+  "commit": "287e9b4b37171ec7c5ac250ffef6e24f36e51a57",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v48",
+    "caseId": "v48-extended-close-command-attempt1",
+    "session": "synthetic/v48/v48-extended-close-command-attempt1",
+    "manifestPath": "challenges/manifests/v48.json",
+    "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+    "recording": "challenges/cases/v48/v48-extended-close-command-attempt1.session.json",
+    "recordingPath": "challenges/cases/v48/v48-extended-close-command-attempt1.session.json",
+    "recordingSha256": "c941fd73aa8b43b62c0dcbdf52c30ca9a7aa83e324a8a9d09e82dfcc79ddcd6a",
+    "recipe": "challenges/cases/v48/v48-extended-close-command-attempt1.recipe.session.json",
+    "recipeSha256": "68431a73b46b260c68f53386beb9aa3a28ea5f8307c542742279524e57f97abb",
+    "replayInputSha256": "6acb7d6362e2ad6534f53d5ba74f7ebf8bd4ffe5c65489b7ea0e3e2ee16e6352",
+    "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+    "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+    "evaluationArtifact": "challenges/evaluations/baseline-b353fb527-v48.json",
+    "evaluationUtc": "2026-10-12T02:22:10.552Z",
+    "remainingScreens": 2,
+    "recordedSteps": 9,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 7,
+        "total": 9
+      },
+      "rng": {
+        "matched": 2382,
+        "total": 2382
+      },
+      "cursors": {
+        "matched": 7,
+        "total": 9
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: doclose() for the extended command 'close' is not ported",
+      "step": 7
+    },
+    "step": 7,
+    "kind": "stop",
+    "sourceFile": "lock.c",
+    "function": "doclose",
+    "message": "unsupported hero command: doclose() for the extended command 'close' is not ported",
+    "cFile": "lock.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "This extended-command case reaches the same missing function-name dispatch in js/cmd.js:doextcmd() as the other four v48 extended-command failures. C's cmd.c:doextcmd() invokes the selected extcmdlist function pointer; this row maps to doclose(), but the JS switch falls through to its generic unsupported-command refusal. The command handler itself is already implemented.",
+  "source": {
+    "file": "cmd.c",
+    "branch": "The player selects the #close command extended command. Upstream cmd.c resolves the extcmdlist row, accepts it, and invokes its ef_funct pointer. The JS doextcmd() maps ef_funct names through a switch, but the doclose arm is absent and the generic default refuses before the existing handler runs.",
+    "functions": [
+      "doextcmd"
+    ],
+    "callers": [
+      "cmd.c:rhack dispatches '#' to doextcmd(); the selected extcmdlist row maps to doclose(), and doextcmd() invokes its function pointer (cmd.c:493-519).",
+      "js/cmd.js:rhack dispatches '#' to doextcmd(); js/cmd.js:doextcmd routes the selected ef_funct through its switch; the doclose handler already exists in the JavaScript command modules."
+    ],
+    "dependencies": [
+      "This is the same general missing extended-command handler mapping as the other four selected v48 rows; no handler implementation or shared-state change is needed."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The v48 baseline evaluation identifies synthetic/v48/v48-extended-close-command-attempt1, with 2 unmatched screen(s), at step 7: unsupported hero command: doclose() for the extended command 'close' is not ported",
+    "Upstream cmd.c:doextcmd() invokes the ef_funct pointer selected by the extended-command row. The JavaScript dispatcher falls through to its generic unsupported-command branch because doclose is not mapped there.",
+    "js/cmd.js imports or defines the existing doclose handler, and the matching key-command path already dispatches that same function. This row therefore shares the general dispatch-wiring defect rather than missing handler behavior."
+  ]
+}

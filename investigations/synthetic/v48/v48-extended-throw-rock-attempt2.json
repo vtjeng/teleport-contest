@@ -1,0 +1,87 @@
+{
+  "session": "synthetic/v48/v48-extended-throw-rock-attempt2",
+  "remainingScreens": 3,
+  "recordedSteps": 24,
+  "corpus": "synthetic",
+  "batch": "v48",
+  "caseId": "v48-extended-throw-rock-attempt2",
+  "manifestPath": "challenges/manifests/v48.json",
+  "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+  "recordingSha256": "a2eef1e4acfde71a6c81201651aa50be8462221b4b1fae978b8902480fa3113f",
+  "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+  "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+  "status": "complete",
+  "commit": "287e9b4b37171ec7c5ac250ffef6e24f36e51a57",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v48",
+    "caseId": "v48-extended-throw-rock-attempt2",
+    "session": "synthetic/v48/v48-extended-throw-rock-attempt2",
+    "manifestPath": "challenges/manifests/v48.json",
+    "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+    "recording": "challenges/cases/v48/v48-extended-throw-rock-attempt2.session.json",
+    "recordingPath": "challenges/cases/v48/v48-extended-throw-rock-attempt2.session.json",
+    "recordingSha256": "a2eef1e4acfde71a6c81201651aa50be8462221b4b1fae978b8902480fa3113f",
+    "recipe": "challenges/cases/v48/v48-extended-throw-rock-attempt2.recipe.session.json",
+    "recipeSha256": "7693b7ddfbf1fac6284e1cf8703e6d869e7fa8aa65cec3eb1755f4b6910ed608",
+    "replayInputSha256": "6acb7d6362e2ad6534f53d5ba74f7ebf8bd4ffe5c65489b7ea0e3e2ee16e6352",
+    "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+    "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+    "evaluationArtifact": "challenges/evaluations/baseline-b353fb527-v48.json",
+    "evaluationUtc": "2026-10-12T02:22:10.552Z",
+    "remainingScreens": 3,
+    "recordedSteps": 24,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 21,
+        "total": 24
+      },
+      "rng": {
+        "matched": 3503,
+        "total": 3510
+      },
+      "cursors": {
+        "matched": 21,
+        "total": 24
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: dothrow() for the extended command 'throw' is not ported",
+      "step": 21
+    },
+    "step": 21,
+    "kind": "stop",
+    "sourceFile": "dothrow.c",
+    "function": "dothrow",
+    "message": "unsupported hero command: dothrow() for the extended command 'throw' is not ported",
+    "cFile": "dothrow.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "This extended-command case reaches the same missing function-name dispatch in js/cmd.js:doextcmd() as the other four v48 extended-command failures. C's cmd.c:doextcmd() invokes the selected extcmdlist function pointer; this row maps to dothrow(), but the JS switch falls through to its generic unsupported-command refusal. The command handler itself is already implemented.",
+  "source": {
+    "file": "cmd.c",
+    "branch": "The player selects the #throw rock extended command. Upstream cmd.c resolves the extcmdlist row, accepts it, and invokes its ef_funct pointer. The JS doextcmd() maps ef_funct names through a switch, but the dothrow arm is absent and the generic default refuses before the existing handler runs.",
+    "functions": [
+      "doextcmd"
+    ],
+    "callers": [
+      "cmd.c:rhack dispatches '#' to doextcmd(); the selected extcmdlist row maps to dothrow(), and doextcmd() invokes its function pointer (cmd.c:493-519).",
+      "js/cmd.js:rhack dispatches '#' to doextcmd(); js/cmd.js:doextcmd routes the selected ef_funct through its switch; the dothrow handler already exists in the JavaScript command modules."
+    ],
+    "dependencies": [
+      "This is the same general missing extended-command handler mapping as the other four selected v48 rows; no handler implementation or shared-state change is needed."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The v48 baseline evaluation identifies synthetic/v48/v48-extended-throw-rock-attempt2, with 3 unmatched screen(s), at step 21: unsupported hero command: dothrow() for the extended command 'throw' is not ported",
+    "Upstream cmd.c:doextcmd() invokes the ef_funct pointer selected by the extended-command row. The JavaScript dispatcher falls through to its generic unsupported-command branch because dothrow is not mapped there.",
+    "js/cmd.js imports or defines the existing dothrow handler, and the matching key-command path already dispatches that same function. This row therefore shares the general dispatch-wiring defect rather than missing handler behavior."
+  ]
+}

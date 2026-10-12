@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v48/v48-extended-fight-command-attempt1",
+  "remainingScreens": 2,
+  "recordedSteps": 35,
+  "corpus": "synthetic",
+  "batch": "v48",
+  "caseId": "v48-extended-fight-command-attempt1",
+  "manifestPath": "challenges/manifests/v48.json",
+  "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+  "recordingSha256": "a47f71e8e3da9ce2bc640364ccfbb15052e1a237ce4b1d1d3a4775dbc024313b",
+  "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+  "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+  "status": "complete",
+  "commit": "287e9b4b37171ec7c5ac250ffef6e24f36e51a57",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v48",
+    "caseId": "v48-extended-fight-command-attempt1",
+    "session": "synthetic/v48/v48-extended-fight-command-attempt1",
+    "manifestPath": "challenges/manifests/v48.json",
+    "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+    "recording": "challenges/cases/v48/v48-extended-fight-command-attempt1.session.json",
+    "recordingPath": "challenges/cases/v48/v48-extended-fight-command-attempt1.session.json",
+    "recordingSha256": "a47f71e8e3da9ce2bc640364ccfbb15052e1a237ce4b1d1d3a4775dbc024313b",
+    "recipe": "challenges/cases/v48/v48-extended-fight-command-attempt1.recipe.session.json",
+    "recipeSha256": "c969682fa3c958d14ec346e3f9ab76ee9fa330de93d246a41ffcb85f91ddfd27",
+    "replayInputSha256": "6acb7d6362e2ad6534f53d5ba74f7ebf8bd4ffe5c65489b7ea0e3e2ee16e6352",
+    "evaluationPath": "challenges/evaluations/baseline-b353fb527-v48.json",
+    "evaluationCommit": "b353fb527021b5029c39f3bed77bd385fb88f4ba",
+    "evaluationArtifact": "challenges/evaluations/baseline-b353fb527-v48.json",
+    "evaluationUtc": "2026-10-12T02:22:10.552Z",
+    "remainingScreens": 2,
+    "recordedSteps": 35,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 33,
+        "total": 35
+      },
+      "rng": {
+        "matched": 2054,
+        "total": 2062
+      },
+      "cursors": {
+        "matched": 33,
+        "total": 35
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: do_fight() for the extended command 'fight' is not ported",
+      "step": 33
+    },
+    "step": 33,
+    "kind": "stop",
+    "sourceFile": "cmd.c",
+    "function": "do_fight",
+    "message": "unsupported hero command: do_fight() for the extended command 'fight' is not ported",
+    "cFile": "cmd.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "This extended-command case reaches the same missing function-name dispatch in js/cmd.js:doextcmd() as the other four v48 extended-command failures. C's cmd.c:doextcmd() invokes the selected extcmdlist function pointer; this row maps to do_fight(), but the JS switch falls through to its generic unsupported-command refusal. The handler exists. The selected #fight row also carries PREFIXCMD, so cmd.c:rhack() consumes the following movement command after do_fight() returns.",
+  "source": {
+    "file": "cmd.c",
+    "branch": "The player selects the #fight extended command. Upstream cmd.c:doextcmd() invokes the selected extcmdlist function pointer and publishes that row through ge.ext_tlist. This row maps to do_fight() and carries PREFIXCMD; cmd.c:rhack() reads ge.ext_tlist after the handler returns, records the selected command, and then consumes the next command as the force-fight prefix. The JS switch had no do_fight arm, while its caller had no selected-row handoff.",
+    "functions": [
+      "doextcmd",
+      "rhack"
+    ],
+    "callers": [
+      "cmd.c:rhack dispatches '#' to doextcmd(); cmd.c:doextcmd invokes the selected do_fight function pointer and publishes the row through ge.ext_tlist (493-519). cmd.c:rhack consumes the published row, honors PREFIXCMD, and reads the next command (3748-3777).",
+      "js/cmd.js:rhack dispatches '#' to doextcmd(); js/cmd.js:doextcmd maps the selected ef_funct and returns its row through the callback; rhack uses the row flags for the prefix handoff."
+    ],
+    "dependencies": [
+      "This row shares the missing doextcmd ef_funct mapping with #fire/dofire, #throw/dothrow, #close/doclose, and #wield/dowield; all five existing handlers are wired in one dispatcher repair.",
+      "Because #fight carries PREFIXCMD, the selected-row handoff through rhack is required to consume its following command. The repair does not claim that all doextcmd or rhack branches are ported."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The v48 baseline evaluation identifies synthetic/v48/v48-extended-fight-command-attempt1, with 2 unmatched screen(s), at step 33: unsupported hero command: do_fight() for the extended command 'fight' is not ported",
+    "Upstream cmd.c:doextcmd() invokes the selected ef_funct and stores its row in ge.ext_tlist; the #fight extcmdlist row has PREFIXCMD, which cmd.c:rhack() consumes at 3748-3777.",
+    "The JavaScript command module already implements do_fight and its ordinary key path handles fight prefixes. The missing behavior is the extended-command mapping and selected-row handoff, not a new do_fight implementation."
+  ]
+}
