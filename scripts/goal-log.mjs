@@ -787,7 +787,7 @@ export function goalFromWorkerContext(task, context) {
         options.function = context.function ?? functions[0];
         options.session = task.seed ?? context.sessions?.[0];
     }
-    if (context.requiredFunctions?.length)
+    if (context.kind !== 'divergence-fix' && context.requiredFunctions?.length)
         options['required-functions'] = context.requiredFunctions.map(entry =>
             typeof entry === 'string' ? entry : `${entry.sourceFile}:${entry.name}`).join(',');
     return newGoal(options);
