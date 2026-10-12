@@ -12,6 +12,7 @@ import { preflightDelivery, resolveEventCommits, submitDelivery, syncMain, verif
 import { admittedBatchIds } from './challenge-results.mjs';
 import { acceptedMain, acceptedDependency, batchWakeups, pendingMainWork, workerWork, savedQueueIssues } from './worker-backlog.mjs';
 import { readRows } from './score-log.mjs';
+import { publicationConfirmations } from './worker-publication.mjs';
 
 export const USAGE = `Usage (run from the coordinator or assigned worker checkout root):
   node scripts/worker-state.mjs init --run <run-id> [--file <ledger.json>]
@@ -19,6 +20,7 @@ export const USAGE = `Usage (run from the coordinator or assigned worker checkou
   node scripts/worker-state.mjs status [--file <ledger.json>]
   node scripts/worker-state.mjs accepted-main [--file <ledger.json>]
   node scripts/worker-state.mjs next [--queue <saved-work-queue.json>] [--file <ledger.json>]
+  node scripts/worker-state.mjs reconcile-publications [--apply] [--file <ledger.json>]
   node scripts/worker-state.mjs submit --task <id> --context <task-context.json> \\
     --evidence <task-evidence.json> --checks <checks.json> [--base <revision>] \\
     [--head <revision>] [--dependencies <SHA,...|none>] --file <absolute-shared-ledger.json>
@@ -32,6 +34,12 @@ pilot's manual JSON is not migrated: preserve it and reconcile its workers/WIP
 before initializing a new ledger at a different --file path.
 accepted-main is a compact read-only worker sync target. It returns the latest
 accepted integration (or its published report commit), never an active candidate.
+reconcile-publications previews accepted deliveries covered by an already
+recorded push. --apply appends known-by observations without inventing a first
+publication time. It never pushes, changes scores, or touches the integration slot.
+Every normal published event also confirms older accepted deliveries covered
+by that push, in the same atomic ledger update. Manual publication uses this
+same path; no separate acknowledgment is needed for each older task.
 
 Every event needs a stable id and type. Retrying the exact same id and payload
 is a no-op; reusing an id with different data fails. Timestamps are supplied
@@ -155,7 +163,9 @@ const FIELDS = {
     feedback: ['task', 'delivery', 'reason'],
     integrating: ['task', 'integration'],
     validated: ['task', 'passed', 'checkpoint'],
-    accepted: ['task'], published: ['task', 'commit'], park: ['task', 'reason'], resume: ['task'],
+    accepted: ['task'], published: ['task', 'commit'],
+    'publication-confirmed': ['task', 'commit', 'knownBy', 'evidenceTask'],
+    park: ['task', 'reason'], resume: ['task'],
 };
 const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span'], published: ['supplementalCheckpoint'],
     turn: ['summary'] };
@@ -353,7 +363,7 @@ function applyEvent(state, event, at) {
         else task.activity = { phase: event.phase, reason: event.reason, at };
         return;
     }
-    if (['integrating', 'feedback', 'validated', 'accepted', 'published', 'park'].includes(type))
+    if (['integrating', 'feedback', 'validated', 'accepted', 'published', 'publication-confirmed', 'park'].includes(type))
         delete task.activity;
     const requireStatus = (...statuses) => check(statuses.includes(task.status),
         `${type} requires ${statuses.join(' or ')} task; ${task.id} is ${task.status}`);
@@ -440,9 +450,19 @@ function applyEvent(state, event, at) {
     } else if (type === 'published') {
         requireStatus('accepted'); sha(event.commit, 'commit');
         if (event.supplementalCheckpoint !== undefined) absolute(event.supplementalCheckpoint, 'supplementalCheckpoint');
-        check(!delivery.publishedAt, 'delivery already published');
+        check(!delivery.publishedCommit, 'delivery already published');
         Object.assign(delivery, { publishedAt: at, publishedCommit: event.commit,
             ...(event.supplementalCheckpoint ? { supplementalCheckpoint: event.supplementalCheckpoint } : {}) });
+    } else if (type === 'publication-confirmed') {
+        requireStatus('accepted'); sha(event.commit, 'commit'); identifier(event.evidenceTask, 'evidence task');
+        check(Number.isFinite(Date.parse(event.knownBy)) && event.knownBy >= delivery.acceptedAt
+            && event.knownBy <= at, 'publication bound must be between acceptance and observation');
+        const proof = Object.values(state.deliveries).find(entry => entry.task === event.evidenceTask
+            && entry.publishedCommit === event.commit && entry.publishedAt === event.knownBy);
+        check(proof, 'publication evidence must identify a previously recorded push');
+        check(!delivery.publishedCommit, 'delivery already published');
+        Object.assign(delivery, { publishedCommit: event.commit, publicationKnownBy: event.knownBy,
+            publicationEvidenceTask: event.evidenceTask, publicationConfirmedAt: at });
     } else if (type === 'park') {
         requireStatus('working', 'ready', 'validated', 'changes-required');
         string(event.reason, 'reason');
@@ -597,21 +617,41 @@ export function main(argv = process.argv.slice(2)) {
     const [command, ...args] = argv;
     const allowed = {
         init: ['--run'], event: ['--json'], status: [], 'accepted-main': [], next: ['--queue'],
+        'reconcile-publications': ['--apply'],
         submit: ['--task', '--context', '--evidence', '--checks', '--base', '--head', '--dependencies'],
         preflight: ['--task', '--commit', '--previous-checkpoint'], 'sync-main': ['--commit'],
     };
     check(Object.hasOwn(allowed, command), USAGE);
     const options = {};
-    for (let i = 0; i < args.length; i += 2) {
-        const key = args[i];
-        check(['--file', ...allowed[command]].includes(key) && !Object.hasOwn(options, key) && args[i + 1] && !args[i + 1].startsWith('--'), USAGE);
-        options[key] = args[i + 1];
+    for (let i = 0; i < args.length;) {
+        const key = args[i++];
+        check(['--file', ...allowed[command]].includes(key) && !Object.hasOwn(options, key), USAGE);
+        if (command === 'reconcile-publications' && key === '--apply') options[key] = true;
+        else {
+            check(args[i] && !args[i].startsWith('--'), USAGE);
+            options[key] = args[i++];
+        }
     }
     const git = spawnSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' });
     check(git.status === 0, git.error?.message || git.stderr || 'not in a Git checkout');
     const root = realpathSync(git.stdout.trim());
     check(realpathSync(process.cwd()) === root, 'run worker-state from the actual worktree root');
     const file = resolve(root, options['--file'] || '.cache/worker-state.json');
+    if (command === 'reconcile-publications') {
+        const plan = ledger => {
+            check(root === ledger?.coordinatorRoot, 'only coordinator may reconcile publication');
+            return publicationConfirmations(root, summarizeLedger(ledger));
+        };
+        let events;
+        if (options['--apply']) updateLedger(file, root, current => {
+            events = plan(current);
+            for (const event of events) current = recordEvent(current,
+                verifyEvent(root, summarizeLedger(current), event));
+            return current;
+        });
+        else events = plan(JSON.parse(readFileSync(file, 'utf8')));
+        return console.log(JSON.stringify({ applied: Boolean(options['--apply']), count: events.length, events }, null, 2));
+    }
     if (['status', 'accepted-main', 'next', 'preflight', 'sync-main'].includes(command)) {
         const state = summarizeLedger(JSON.parse(readFileSync(file, 'utf8')));
         let result = { file, ...state };
@@ -653,7 +693,12 @@ export function main(argv = process.argv.slice(2)) {
             dependencies: options['--dependencies'] === 'none' ? [] : options['--dependencies']?.split(',') })
             : current.events.some(event => event.id === input.id)
                 ? resolveEventCommits(root, input) : verifyEvent(root, state, input);
-        return recordEvent(current, event);
+        let next = recordEvent(current, event);
+        if (event.type === 'published') {
+            for (const confirmed of publicationConfirmations(root, summarizeLedger(next)))
+                next = recordEvent(next, verifyEvent(root, summarizeLedger(next), confirmed));
+        }
+        return next;
     }, input);
     // status may read an explicitly selected coordinator ledger from a worker.
     console.log(JSON.stringify({ file: relative(root, file), ...summarizeLedger(ledger) }, null, 2));

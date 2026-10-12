@@ -12,7 +12,7 @@ import { admittedBatchIds } from './challenge-results.mjs';
 
 const EVENT_TYPES = new Set([
   'assign', 'implement', 'ready', 'received', 'feedback', 'resume', 'park',
-  'integrating', 'validated', 'accepted', 'published', 'activity', 'turn', 'register', 'observe',
+  'integrating', 'validated', 'accepted', 'published', 'publication-confirmed', 'activity', 'turn', 'register', 'observe',
 ]);
 
 export function activityFromLedger(ledger) {
@@ -34,6 +34,7 @@ export function activityFromLedger(ledger) {
       ...(event.delivery ? { delivery: event.delivery } : {}),
       ...(event.integration ? { integration: event.integration } : {}),
       ...(event.commit ? { commit: event.commit } : {}),
+      ...(event.knownBy ? { knownBy: event.knownBy } : {}),
       ...(event.passed !== undefined ? { passed: event.passed } : {}),
       ...(event.phase ? { phase: event.phase } : {}),
       ...(event.state ? { state: event.state } : {}),

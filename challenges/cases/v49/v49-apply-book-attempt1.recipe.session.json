@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: apply.c:doapply, SPBOOK_CLASS calls flip_through_book. Expected C observation: apply prompt and eligible-tool inventory. Seed 49000101 is the next deterministic value in a prechosen v49 range; it is not selected using JavaScript results.",
+  "segments": [
+    {
+      "seed": 49000101,
+      "datetime": "20581117132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#apply\n?\u001b"
+    }
+  ]
+}

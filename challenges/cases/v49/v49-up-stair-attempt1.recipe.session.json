@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: do.c:doup, D:1 upstairs escape confirmation declined. Expected C observation: leave dungeon confirmation or unavailable upward branch. Seed 49000115 is the next deterministic value in a prechosen v49 range; it is not selected using JavaScript results.",
+  "segments": [
+    {
+      "seed": 49000115,
+      "datetime": "20581117132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#up\nn"
+    }
+  ]
+}

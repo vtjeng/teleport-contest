@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first resource-enabled continuation: polyself.c:dobreathe; level-raised dragon breath directed at self reaches ubreatheu. New seed 49000401 is selected by ordinal in a declared v49 range. Source dobreathe/dogaze need 15 energy and domindblast needs 10; levelchange supplies that state before polymorph.",
+  "segments": [
+    {
+      "seed": 49000401,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n    #wizgenesis\nhostile giant\n    #polyself\nred dragon\n                    #monster\n.      "
+    }
+  ]
+}

@@ -105,6 +105,26 @@ test('events supply timestamps and exact duplicate notifications preserve them',
     assert.throws(() => recordEvent(once, { ...event, id: 'backdate', at: 'yesterday' }), /unexpected/);
 });
 
+test('publication recovery records a known-by bound without fabricating its duration', () => {
+    const f = fixture();
+    f.assign(); f.ready(); f.accept();
+    f.assign('two'); f.ready('two', SECOND); f.accept('two');
+    const published = f.send({ type: 'published', task: 'two', commit: INTEGRATION });
+    const knownBy = published.deliveries[SECOND].publishedAt;
+    const event = { type: 'publication-confirmed', task: 'one', commit: INTEGRATION,
+        evidenceTask: 'two', knownBy };
+    assert.throws(() => f.send({ ...event, evidenceTask: 'missing' }), /publication evidence/);
+    // A different SHA cannot borrow another task's successful publication.
+    assert.throws(() => f.send({ ...event, commit: SECOND }), /publication evidence/);
+    f.assign('three'); // Recovery must not disturb the worker's newer task.
+    const state = f.send(event);
+    assert.equal(state.deliveries[FIRST].publicationKnownBy, knownBy);
+    assert.equal(state.deliveries[FIRST].publishedCommit, INTEGRATION);
+    assert.equal(state.deliveries[FIRST].publishedAt, undefined);
+    assert.equal(state.tasks.three.status, 'working');
+    assert.throws(() => f.send(event), /already published/);
+});
+
 test('accepting an older delivery preserves the same worker’s next reservation', () => {
     const f = fixture();
     f.assign();

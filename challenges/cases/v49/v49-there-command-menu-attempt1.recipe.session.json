@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first expanded mission: cmd.c:dotherecmdmenu, getdir selects adjacent east cell then there_cmd_menu. C reachability observation: direction prompt then adjacent-square commands. Seed 49000206 chosen as next value in a predeclared v49 source exploration range.",
+  "segments": [
+    {
+      "seed": 49000206,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#therecmdmenu\nl\u001b"
+    }
+  ]
+}
