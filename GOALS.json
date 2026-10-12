@@ -278557,6 +278557,59 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-dise-pest-v47-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port Pestilence and disease monster attack branches.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist"
+      ],
+      "selectionReason": "Seed continuation selected synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist. Source trace places the first cause in uhitm.c:mhitm_ad_pest calling mhitm_ad_dise: the disease helper must suppress damage to the S_FUNGUS Red Mold before passive attack handling. Port both whole functions and wire the existing AD_DISE dispatcher arm.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_pest",
+          "line": 3808,
+          "endLine": 3836,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3808,
+        "to": 3836
+      },
+      "requiredFunctions": [
+        {
+          "name": "mhitm_ad_dise",
+          "line": 4593,
+          "endLine": 4622,
+          "declared": false,
+          "sourceFile": "uhitm.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist": {
+          "session": "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+          "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+          "evaluationPath": "challenges/evaluations/accepted-47b7ce458965199c8f97771a983240cc8d0f0e21-v47.json",
+          "evaluationCommit": "47b7ce458965199c8f97771a983240cc8d0f0e21"
+        }
+      }
     }
   ]
 }
