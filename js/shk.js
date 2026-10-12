@@ -90,7 +90,7 @@ import { acurr, adjalign } from './attrib.js';
 import { arti_cost } from './artifacts.js';
 import { yn_function } from './cmd.js';
 import { bot, map_invisible } from './display.js';
-import { assign_level, depth, on_level } from './dungeon.js';
+import { assign_level, depth, mapseen_room, on_level } from './dungeon.js';
 import { um_dist } from './apply.js';
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
@@ -521,7 +521,7 @@ export function inside_shop(x, y, state = game) {
     const location = state.level?.at(x, y);
     const roomno = location?.roomno ?? 0;
     const room = roomno >= ROOMOFFSET
-        ? state.level.rooms?.[roomno - ROOMOFFSET]
+        ? mapseen_room(roomno - ROOMOFFSET, state)
         : null;
     return room && !location.edge && room.rtype >= SHOPBASE ? roomno : 0;
 }
@@ -530,7 +530,7 @@ export function inside_shop(x, y, state = game) {
 // any missing surcharge before the caller reads the shop's state.
 export function shop_keeper(roomno, state = game) {
     if (roomno < ROOMOFFSET) return null;
-    const resident = state.level?.rooms?.[roomno - ROOMOFFSET]?.resident;
+    const resident = mapseen_room(roomno - ROOMOFFSET, state)?.resident;
     if (resident) {
         if (!resident.mextra?.eshk) {
             note_unported('pline.c impossible');
@@ -1061,7 +1061,7 @@ async function deserted_shop(
     { message = ttyPline } = {},
 ) {
     const roomno = Math.trunc(enterstring?.[0] ?? 0);
-    const room = state.level.rooms[roomno - ROOMOFFSET];
+    const room = mapseen_room(roomno - ROOMOFFSET, state);
     let sensed = 0;
     let total = 0;
 
@@ -2737,7 +2737,7 @@ export async function u_entered_shop(
         return true;
     }
 
-    const room = state.level.rooms[roomno - ROOMOFFSET];
+    const room = mapseen_room(roomno - ROOMOFFSET, state);
     const shopName = SHTYPES[room.rtype - SHOPBASE].name;
     if (!NOTANGRY(shopkeeper)) {
         if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {

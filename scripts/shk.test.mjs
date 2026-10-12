@@ -7,6 +7,7 @@ import {
     HUNGRY,
     MS_HUMANOID,
     MS_SELL,
+    MAXNROFROOMS,
     OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_INVENT,
@@ -39,6 +40,7 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { newObject } from '../js/obj.js';
+import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -51,6 +53,7 @@ import {
     get_pricing_units,
     getprice,
     gem_learned,
+    inside_shop,
     find_objowner,
     inhishop,
     is_unpaid,
@@ -65,6 +68,7 @@ import {
     shopdig,
     Shk_Your,
     shk_your,
+    u_entered_shop,
 } from '../js/shk.js';
 import { hidden_gold } from '../js/vault.js';
 import {
@@ -160,6 +164,55 @@ test('shop_keeper applies the anger surcharge once to active bill entries', () =
     assert.deepEqual(bill.map((entry) => entry.price), [2, 4, 6, 9]);
     assert.equal(shop_keeper(ROOMOFFSET, state), keeper);
     assert.deepEqual(bill.map((entry) => entry.price), [2, 4, 6, 9]);
+});
+
+test('nested shop identity reaches keeper and deserted-shop handling', async () => {
+    // C stores subrooms after MAXNROFROOMS; this shop identity exercises the
+    // nested-room resolver in inside_shop(), shop_keeper(), and the
+    // u_entered_shop() -> deserted_shop() production path.
+    const state = {
+        level: new GameMap(),
+        u: {
+            // These adjacent positions model entering from outside at a
+            // normal interior square in the child shop.
+            ux: 12, uy: 6, ux0: 10, uy0: 6,
+            ushops: [0, 0, 0, 0, 0],
+        },
+    };
+    // C allocates subrooms after MAXNROFROOMS; offset three avoids colliding
+    // with the ordinary room indices in this synthetic fixture.
+    const roomIndex = MAXNROFROOMS + 3;
+    const roomno = roomIndex + ROOMOFFSET;
+    const subroom = {
+        roomnoidx: roomIndex,
+        // SHOPBASE + 1 selects a concrete shop type for C's shop test.
+        rtype: SHOPBASE + 1,
+        // This rectangle contains (12, 6), the hero's fixture square.
+        lx: 12, hx: 13, ly: 6, hy: 7,
+    };
+    const parent = {
+        roomnoidx: 0,
+        rtype: 0,
+        nsubrooms: 1,
+        sbrooms: [subroom],
+    };
+    state.level.rooms = [parent];
+    state.level.at(12, 6).roomno = roomno;
+    const keeper = billShopkeeper(roomno, []);
+    keeper.mpeaceful = true;
+    subroom.resident = keeper;
+
+    assert.equal(inside_shop(12, 6, state), roomno);
+    assert.equal(shop_keeper(roomno, state), keeper);
+
+    // Removing the resident reaches deserted_shop() through the same entry
+    // helper; the message proves it read the child room's coordinates.
+    subroom.resident = null;
+    const messages = [];
+    await u_entered_shop([roomno], state, {
+        message: async (text) => messages.push(text),
+    });
+    assert.deepEqual(messages, ['This shop is deserted.']);
 });
 
 test('restshk pacifies a ghostly keeper for a different customer', () => {
