@@ -6,6 +6,7 @@ import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { activityUtilization } from './dashboard-activity.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // The history and per-case challenge data can exceed execSync's 1 MiB default.
@@ -27,7 +28,8 @@ export function injectDashboardData(template, data, queueData, commit) {
   // replacement-pattern sequences that String.replace() would interpret.
   const html = template
     .replace('/*DATA_PLACEHOLDER*/null', () => escapeJsonForScript(data))
-    .replace('/*QUEUE_PLACEHOLDER*/null', () => escapeJsonForScript(queueData));
+    .replace('/*QUEUE_PLACEHOLDER*/null', () => escapeJsonForScript(queueData))
+    .replace('/*UTILIZATION_PLACEHOLDER*/null', () => activityUtilization.toString());
   if (commit === undefined) return html;
   if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Expected a full dashboard commit SHA');
   // The template omits explicit head/body tags. Prefix metadata rather than
