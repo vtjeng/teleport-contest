@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent v50 C-first dohide: Polymorphed mimic changes appearance and then repeats already-hiding command.",
+  "segments": [
+    {
+      "seed": 50000504,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #polyself\nlarge mimic\n                    #monster\n    #monster\n    "
+    }
+  ]
+}

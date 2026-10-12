@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v50 mission: dat/Bar-goal.lua:Bar-goal.lua, Thoth Amon, Heart of Ahriman, noncoaligned altar, object/trap/monster generation. C observation: C loads Bar-goal.lua, then wizmap shows Thoth Amon, Heart of Ahriman, noncoaligned altar, object/trap/monster generation; source RNG annotations identify program execution.. Seed 50000104 is chosen by ordinal in the predeclared 50000101/50000201 source exploration ranges, before JavaScript comparisons.",
+  "segments": [
+    {
+      "seed": 50000104,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nBar-goal.lua\n          #wizmap\n"
+    }
+  ]
+}

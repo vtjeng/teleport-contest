@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v50 mission: dat/air.lua:air.lua, air map, split teleport regions, fire portal, elemental/vortex population. C observation: C loads air.lua, then wizmap shows air map, split teleport regions, fire portal, elemental/vortex population; source RNG annotations identify program execution.. Seed 50000108 is chosen by ordinal in the predeclared 50000101/50000201 source exploration ranges, before JavaScript comparisons.",
+  "segments": [
+    {
+      "seed": 50000108,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nair.lua\n          #wizmap\n"
+    }
+  ]
+}

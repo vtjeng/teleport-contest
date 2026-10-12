@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "New independent C-first mission: apply.c:use_camera -> dothrow.c:release_camera_demon, apply cursed camera reaches charge consumption and cursed backfire/demon release source path. C camera leaks darkness or reveals source demon/backfire response after apply direction. Seeds50000401-50000404 are a declared source-exploration range; hatch continuations will wait210 turns, just beyond source MAX_EGG_HATCH_TIME200, after C verifies setup and input boundaries.",
+  "segments": [
+    {
+      "seed": 50000404,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed expensive camera (5)\ni"
+    }
+  ]
+}

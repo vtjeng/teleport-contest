@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v50 mission: dat/fire.lua:fire.lua, fire-trap field, lava map, water portal, fire-themed monster generation. C observation: C loads fire.lua, then wizmap shows fire-trap field, lava map, water portal, fire-themed monster generation; source RNG annotations identify program execution.. Seed 50000107 is chosen by ordinal in the predeclared 50000101/50000201 source exploration ranges, before JavaScript comparisons.",
+  "segments": [
+    {
+      "seed": 50000107,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nfire.lua\n          #wizmap\n"
+    }
+  ]
+}

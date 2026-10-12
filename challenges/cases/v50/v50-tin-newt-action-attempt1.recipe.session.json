@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v50 mission: apply.c:use_tinning_kit, carried nutritious newt corpse creates homemade tin. C observation: C grants setup wishes and inventory identifies tool/target letters before its action continuation is designed.. Seed 50000201 is chosen by ordinal in the predeclared 50000101/50000201 source exploration ranges, before JavaScript comparisons. Final action chosen from C-observed wished-object letters. carried nutritious newt corpse creates homemade tin. No JavaScript comparison was used to choose this continuation.",
+  "segments": [
+    {
+      "seed": 50000201,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017blessed tinning kit (5)\n\u0017newt corpse\nano"
+    }
+  ]
+}
