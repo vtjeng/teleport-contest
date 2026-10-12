@@ -279701,7 +279701,7 @@
     {
       "id": "port-dungeon-rm-mapseen-v47-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port dungeon.c rm_mapseen and wire its replacement-level caller.",
       "cFile": "dungeon.c",
       "sessions": [
@@ -279715,8 +279715,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bbed9236788ed585d4a6bfe887bb307954dff29d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "rm_mapseen",
@@ -280043,6 +280046,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "bbed9236788ed585d4a6bfe887bb307954dff29d",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

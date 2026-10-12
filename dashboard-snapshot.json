@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T01:32:17.650Z",
+  "capturedAt": "2026-10-12T01:57:44.389Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -91049,22 +91049,76 @@
         "worker": "B",
         "state": "idle",
         "reason": "Idle: after see-invisible acceptance, all four remaining v47 cases are active, parked, or submitted under A2/C ownership."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-C-rm-mapseen-2ff78e6a-20261012",
+        "type": "activity",
+        "at": "2026-10-12T01:34:31.440Z",
+        "task": "C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011",
+        "phase": "review",
+        "reason": "Reviewing current v47 identity, whole dungeon.c:rm_mapseen scope, caller wiring, and saved replay evidence before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-rm-mapseen-45032873f53f",
+        "type": "integrating",
+        "at": "2026-10-12T01:36:07.451Z",
+        "task": "C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011",
+        "integration": "45032873f53f43e826185d63d8e532be51bcd094"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-rm-mapseen-bbed9236788e",
+        "type": "integrating",
+        "at": "2026-10-12T01:36:58.213Z",
+        "task": "C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011",
+        "integration": "bbed9236788ed585d4a6bfe887bb307954dff29d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-rm-mapseen-bbed9236788e",
+        "type": "validated",
+        "at": "2026-10-12T01:48:12.033Z",
+        "task": "C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-90449d4f8c80a597d0c8d04fc54909d2bc8fe97c",
+        "type": "ready",
+        "at": "2026-10-12T01:50:31.656Z",
+        "task": "A2-v47-mhitm-ad-elec-zap-destroy-items-20261012",
+        "delivery": "90449d4f8c80a597d0c8d04fc54909d2bc8fe97c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-ad-elec-90449d4f-20261012",
+        "type": "received",
+        "at": "2026-10-12T01:51:05.748Z",
+        "task": "A2-v47-mhitm-ad-elec-zap-destroy-items-20261012",
+        "delivery": "90449d4f8c80a597d0c8d04fc54909d2bc8fe97c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-after-mhitm-ad-elec-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T01:51:21.178Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Idle after AD_ELEC submission: the saved v47 candidates are parked, owned by C, or already delivered by A2; select again after Main and queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011-bbed9236788ed585d4a6bfe887bb307954dff29d-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T01:57:00.264Z",
+        "task": "C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011",
-        "worker": "C",
-        "goal": "port-dungeon-rm-mapseen-v47-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "2ff78e6ae37d2aea82161b68ebad572bd7ebf16c",
-        "since": "2026-10-11T23:02:44.179Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "Prep12",
         "worker": "Prep",
@@ -91073,6 +91127,17 @@
         "status": "ready",
         "delivery": "1813695dbf7ba989b9ed27fede1672a232443f50",
         "since": "2026-10-11T23:02:56.257Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-v47-mhitm-ad-elec-zap-destroy-items-20261012",
+        "worker": "A2",
+        "goal": "port-uhitm-mhitm-ad-elec-zap-destroy-items-v47-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "90449d4f8c80a597d0c8d04fc54909d2bc8fe97c",
+        "since": "2026-10-12T01:50:31.656Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -91480,8 +91545,8 @@
     ]
   },
   "development": {
-    "executionCommit": "589dba120616b39955a49d02450b8f9d3cdf5d2c",
-    "measuredAt": "2026-10-12T01:23:01.376Z",
+    "executionCommit": "bbed9236788ed585d4a6bfe887bb307954dff29d",
+    "measuredAt": "2026-10-12T01:48:01.505Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
