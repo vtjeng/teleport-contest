@@ -282660,7 +282660,7 @@
     {
       "id": "port-mhitm-xdrainenergym-v47-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monster energy drain and its shared attack resolver",
       "cFile": "mhitm.c",
       "sessions": [
@@ -282674,8 +282674,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "50a39b94d0ec3785717011e652bd75a1ed47941a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "xdrainenergym",
@@ -283176,6 +283179,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "50a39b94d0ec3785717011e652bd75a1ed47941a",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

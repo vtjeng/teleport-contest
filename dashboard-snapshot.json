@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T07:29:16.053Z",
+  "capturedAt": "2026-10-12T07:45:30.266Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -93187,22 +93187,168 @@
         "type": "accepted",
         "at": "2026-10-12T07:27:56.992Z",
         "task": "B-investigation-v48-getpos-monster-menu-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8255f7b092517a83dc6faeec5e78330a99ef7537",
+        "type": "ready",
+        "at": "2026-10-12T07:29:20.763Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "delivery": "8255f7b092517a83dc6faeec5e78330a99ef7537"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v48-getpos-monster-menu-20261012-f871a1957cd08e190e7ad3fb904701b0bebe5b92",
+        "type": "published",
+        "at": "2026-10-12T07:29:30.942Z",
+        "task": "B-investigation-v48-getpos-monster-menu-20261012",
+        "commit": "f871a1957cd08e190e7ad3fb904701b0bebe5b92"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-v50-vrock-8255f7b-20261012",
+        "type": "received",
+        "at": "2026-10-12T07:30:05.810Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "delivery": "8255f7b092517a83dc6faeec5e78330a99ef7537"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v50-selftouch-monster-transition-20261012",
+        "type": "assign",
+        "at": "2026-10-12T07:32:04.767Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep16-more-compares-20261012",
+        "type": "turn",
+        "at": "2026-10-12T07:32:12.616Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep is comparing additional v52 game paths and investigating a source-traced novel-reading error."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v50-selftouch-monster-transition-20261012",
+        "type": "implement",
+        "at": "2026-10-12T07:33:18.537Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "goal": "B-v50-selftouch-monster-transition"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-drain-50a39b94d-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T07:35:12.539Z",
+        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
+        "integration": "50a39b94d0ec3785717011e652bd75a1ed47941a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-07d6ac95bd1f0702693a4e4e26f5639bcdd25796",
+        "type": "ready",
+        "at": "2026-10-12T07:36:15.001Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "delivery": "07d6ac95bd1f0702693a4e4e26f5639bcdd25796"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A2-drain-checkpoint-wait-20261012",
+        "type": "activity",
+        "at": "2026-10-12T07:36:31.583Z",
+        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
+        "phase": "waiting",
+        "reason": "Verified two whole source units and matching runtime evidence; combined candidate passed preflight, focused checks, lint and quality. Waiting on exact-commit hosted checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-selftouch-delivery-20261012",
+        "type": "turn",
+        "at": "2026-10-12T07:37:29.323Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Selftouch caller fix is ready for merge. No independently assignable admitted case is available while current source reservations remain active."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-v50-selftouch-07d6ac95-20261012",
+        "type": "received",
+        "at": "2026-10-12T07:38:12.295Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "delivery": "07d6ac95bd1f0702693a4e4e26f5639bcdd25796"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1eca93cb1068ff481271b35f49de5497934ef095",
+        "type": "ready",
+        "at": "2026-10-12T07:38:43.008Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "1eca93cb1068ff481271b35f49de5497934ef095"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-v50-combat-1eca93cb-20261012",
+        "type": "received",
+        "at": "2026-10-12T07:40:03.804Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "1eca93cb1068ff481271b35f49de5497934ef095"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v50-demonpet-melee-action-20261012",
+        "type": "assign",
+        "at": "2026-10-12T07:40:31.047Z",
+        "task": "B-investigation-v50-demonpet-melee-action-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v50-blacklight-monster-combat-attempt3-20261012",
+        "type": "assign",
+        "at": "2026-10-12T07:41:31.851Z",
+        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-drain-50a39b94d-20261012",
+        "type": "validated",
+        "at": "2026-10-12T07:42:08.477Z",
+        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v50-blacklight-ad-halu-20261012",
+        "type": "implement",
+        "at": "2026-10-12T07:43:49.923Z",
+        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012",
+        "goal": "port-uhitm-mhitm-ad-halu-v50-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011-50a39b94d0ec3785717011e652bd75a1ed47941a-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T07:44:18.314Z",
+        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v50-demonpet-melee-action-20261012",
+        "type": "implement",
+        "at": "2026-10-12T07:45:15.185Z",
+        "task": "B-investigation-v50-demonpet-melee-action-20261012",
+        "goal": "B-v50-demonpet-melee-action"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
-        "worker": "A2",
-        "goal": "port-mhitm-xdrainenergym-v47-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "fc3ecd318125731e144a4d4ea78736e3179f6854",
-        "since": "2026-10-12T02:49:01.758Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B-investigation-v48-inventtype-weapons-20261012",
         "worker": "B",
@@ -93244,9 +93390,7 @@
         "status": "ready",
         "delivery": "47c76762a620fb7fe297dfdfc06b6f7efee883db",
         "since": "2026-10-12T06:05:50.604Z",
-        "blockedBy": [
-          "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -93269,6 +93413,44 @@
         "delivery": "04090e5d4d10ec3cd49565ed5439fa8469ffb20e",
         "batch": "v51",
         "since": "2026-10-12T07:08:47.370Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "worker": "B",
+        "goal": "file-port-monmove-monflee-v50-gas-cloud-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "8255f7b092517a83dc6faeec5e78330a99ef7537",
+        "since": "2026-10-12T07:29:20.763Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "worker": "B",
+        "goal": "B-v50-selftouch-monster-transition",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "07d6ac95bd1f0702693a4e4e26f5639bcdd25796",
+        "since": "2026-10-12T07:36:15.001Z",
+        "blockedBy": [
+          "B-investigation-v48-inventtype-weapons-20261012",
+          "B-investigation-v49-apply-book-attempt2-20261012",
+          "B-investigation-v48-name-floor-object-self-20261012",
+          "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "worker": "C",
+        "goal": "port-mhitm-mattackm-v50-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "1eca93cb1068ff481271b35f49de5497934ef095",
+        "since": "2026-10-12T07:38:43.008Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -93722,8 +93904,8 @@
     ]
   },
   "development": {
-    "executionCommit": "ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3",
-    "measuredAt": "2026-10-12T07:24:33.686Z",
+    "executionCommit": "50a39b94d0ec3785717011e652bd75a1ed47941a",
+    "measuredAt": "2026-10-12T07:40:03.435Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
