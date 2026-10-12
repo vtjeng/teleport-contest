@@ -94,6 +94,7 @@ import {
 import { emits_light, sticks, thick_skinned } from '../js/mondata.js';
 import { new_light_source } from '../js/light.js';
 import { newMonster, place_monster, remove_monster } from '../js/monst.js';
+import { make_blinded } from '../js/potion.js';
 import {
     monst_globals_init,
     AD_CONF,
@@ -1409,6 +1410,29 @@ test('an ice vortex swallows, freezes, and expels an ordinary hero',
     // mon.c:unstuck() raises the flag before docrt(), whose
     // vision_recalc(0) clears it again (vision.c:532).
     assert.equal(state.vision_full_recalc, 0);
+});
+
+test('gulpmu uses the blind-aware source pronoun for its engulfer', async () => {
+    const state = await meleeHero(MELEE_DATETIME, 'Wizard');
+    await make_blinded(5, false, state);
+    const vortex = meleeAttacker(state, PM_ICE_VORTEX, 1, 0, {
+        m_lev: 5,
+        mhp: 20,
+        mhpmax: 20,
+    });
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    const attack = meleeEnv(state, [1, 9], {
+        urgentMessage: async (text) => attack.lines.push(text),
+    });
+
+    assert.equal(await mattacku(vortex, attack.env), false);
+    assert.deepEqual(attack.lines, [
+        'It engulfs you!',
+        'You are freezing to death!',
+    ]);
+    assert.deepEqual(attack.bounds, [
+        'rnd(20)', 'd(1,6)', 'rnd(10)', 'rn2(2)',
+    ]);
 });
 
 test('mattacku widens the to-hit die for each later attack', async () => {
