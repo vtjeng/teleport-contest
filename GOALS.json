@@ -290611,7 +290611,7 @@
     {
       "id": "div-use-offensive-bhito-callback-v51-20261012",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Await the monster wand floor-object callback",
       "cFile": "muse.c",
       "sessions": [],
@@ -290623,8 +290623,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "use_offensive",
       "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
       "step": 139,
@@ -290897,7 +290900,13 @@
           "luaFile": null,
           "line": 1469
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

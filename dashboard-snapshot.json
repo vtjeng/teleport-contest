@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T16:53:17.454Z",
+  "capturedAt": "2026-10-12T17:12:18.444Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -96110,22 +96110,77 @@
         "type": "accepted",
         "at": "2026-10-12T16:52:46.109Z",
         "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-4d889-queue-refresh-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:54:13.591Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v51-fireelemental-sink-metamorphosis-20261012-dd035751313e38f48f51727ed60744500f69a237",
+        "type": "published",
+        "at": "2026-10-12T16:54:27.091Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
+        "commit": "dd035751313e38f48f51727ed60744500f69a237"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "pyrolisk-bounded-integration-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T16:56:49.441Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "phase": "review",
+        "reason": "Integrate the oldest dependency-ready delivery: await the source-backed mbhit object callback with the complete state and random environment. Bounded caller repair with no new whole-function credit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "pyrolisk-integrating-51f8698c-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T17:00:46.679Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "integration": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-validated",
+        "type": "validated",
+        "at": "2026-10-12T17:10:44.858Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-recovered-c-boundary-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:10:47.199Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v57: recovered completed C recordings; continuing source actions and comparisons."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T17:11:19.005Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-active-C-after-pyrolisk-acceptance-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:11:58.060Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Accepted pyrolisk Main merged; waiting for the refreshed queue before selecting independent work."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
-        "worker": "C",
-        "goal": "div-use-offensive-bhito-callback-v51-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "ba6dad22346f0b8b7cba2fbfe509abe87ad3141f",
-        "since": "2026-10-12T08:55:05.948Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
         "worker": "A2",
@@ -96703,8 +96758,8 @@
     ]
   },
   "development": {
-    "executionCommit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
-    "measuredAt": "2026-10-12T16:50:42.251Z",
+    "executionCommit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+    "measuredAt": "2026-10-12T17:05:39.758Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
