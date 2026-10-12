@@ -1272,7 +1272,7 @@ export async function mon_wield_item(monster, env = {}) {
 // C ref: weapon.c possibly_unwield() (747-795). This is called after a
 // monster's form or inventory changes; it either schedules a weapon check or
 // drops a still-owned weapon when the new form cannot use weapons.
-export async function possibly_unwield(monster, polyspot = false, env = {}) {
+export function possibly_unwield(monster, polyspot = false, env = {}) {
     if (!monster.mw) return;
     const weapon = monster.mw;
     const state = env.state ?? game;
@@ -1281,33 +1281,37 @@ export async function possibly_unwield(monster, polyspot = false, env = {}) {
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
         if (obj !== weapon) continue;
         if (!attacktype(monster.data, AT_WEAP)) {
-            await setmnotwielded(monster, weapon, { ...env, state });
-            monster.weapon_check = NO_WEAPON_WANTED;
-            if (canSee(monster.mx, monster.my, state)) {
-                const monsterName = Monnam(monster, state, env);
-                const name = distant_name(weapon, donameFresh, state);
-                await pline_mon(
-                    monster,
-                    `${monsterName} drops ${name}.`,
-                    state,
-                    { ...env, message },
-                );
-                (env.newsym ?? newsym)(monster.mx, monster.my, state);
-            }
-            obj_extract_self(weapon, { ...env, state });
-            const { flooreffects } = await import('./do.js');
-            if (!await flooreffects(
-                weapon,
-                monster.mx,
-                monster.my,
-                'drop',
-                { ...env, state },
-            )) {
-                if (polyspot) bypass_obj(weapon, state);
-                place_object(weapon, monster.mx, monster.my, { ...env, state });
-                stackobj(weapon, { ...env, state });
-            }
-            return;
+            // The C helper is synchronous for its no-change and weapon-check
+            // branches. Only dropping a weapon needs to wait for output,
+            // artifact-light cleanup, and floor effects.
+            return (async () => {
+                await setmnotwielded(monster, weapon, { ...env, state });
+                monster.weapon_check = NO_WEAPON_WANTED;
+                if (canSee(monster.mx, monster.my, state)) {
+                    const monsterName = Monnam(monster, state, env);
+                    const name = distant_name(weapon, donameFresh, state);
+                    await pline_mon(
+                        monster,
+                        `${monsterName} drops ${name}.`,
+                        state,
+                        { ...env, message },
+                    );
+                    (env.newsym ?? newsym)(monster.mx, monster.my, state);
+                }
+                obj_extract_self(weapon, { ...env, state });
+                const { flooreffects } = await import('./do.js');
+                if (!await flooreffects(
+                    weapon,
+                    monster.mx,
+                    monster.my,
+                    'drop',
+                    { ...env, state },
+                )) {
+                    if (polyspot) bypass_obj(weapon, state);
+                    place_object(weapon, monster.mx, monster.my, { ...env, state });
+                    stackobj(weapon, { ...env, state });
+                }
+            })();
         }
         if (!(mwelded(weapon, env.state ?? game)
             && monster.weapon_check === NO_WEAPON_WANTED)) {

@@ -485,9 +485,12 @@ test('mon_wield_item keeps same-type and empty selection branches actionless', a
     assert.equal(subject.weapon_check, NEED_WEAPON);
 });
 
-test('possibly_unwield handles retained, missing, and unusable weapons', async () => {
+test('possibly_unwield keeps no-drop branches synchronous and awaits drops', async () => {
     const state = makeState();
     state.level = new GameMap();
+    const empty = monster(state, PM_HILL_ORC);
+    assert.equal(possibly_unwield(empty, false, { state }), undefined);
+
     const sword = object(state, LONG_SWORD, {
         owornmask: W_WEP,
         where: OBJ_MINVENT,
@@ -501,12 +504,14 @@ test('possibly_unwield handles retained, missing, and unusable weapons', async (
     });
     sword.ocarry = subject;
 
-    await possibly_unwield(subject, false, { state, canSee: () => false });
+    assert.equal(possibly_unwield(subject, false, { state, canSee: () => false }),
+        undefined);
     assert.equal(subject.mw, sword);
     assert.equal(subject.weapon_check, NEED_WEAPON);
 
     subject.minvent = null;
-    await possibly_unwield(subject, false, { state, canSee: () => false });
+    assert.equal(possibly_unwield(subject, false, { state, canSee: () => false }),
+        undefined);
     assert.equal(subject.mw, null);
     assert.equal(subject.weapon_check, NEED_WEAPON);
 
@@ -522,7 +527,9 @@ test('possibly_unwield handles retained, missing, and unusable weapons', async (
         weapon_check: NEED_WEAPON,
     });
     dropped.ocarry = bug;
-    await possibly_unwield(bug, true, { state, canSee: () => false });
+    const drop = possibly_unwield(bug, true, { state, canSee: () => false });
+    assert.ok(drop instanceof Promise);
+    await drop;
     assert.equal(bug.mw, null);
     assert.equal(bug.weapon_check, NO_WEAPON_WANTED);
     assert.equal(dropped.where, OBJ_FLOOR);
@@ -543,12 +550,14 @@ test('possibly_unwield handles retained, missing, and unusable weapons', async (
     const lines = [];
     const redraws = [];
     const visibleOps = visibleMessages(state, lines);
-    await possibly_unwield(visibleBug, false, {
+    const visibleDrop = possibly_unwield(visibleBug, false, {
         state,
         canSee: () => true,
         message: visibleOps.message,
         newsym: (x, y) => redraws.push([x, y]),
     });
+    assert.ok(visibleDrop instanceof Promise);
+    await visibleDrop;
     assert.ok(lines.some((line) => line.includes('drops')));
     assert.deepEqual(redraws, [[6, 6]]);
     assert.equal(visibleSword.where, OBJ_FLOOR);
