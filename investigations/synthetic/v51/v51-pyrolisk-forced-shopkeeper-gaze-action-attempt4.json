@@ -1,0 +1,74 @@
+{
+  "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+  "corpus": "synthetic",
+  "batch": "v51",
+  "caseId": "v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+  "manifestPath": "challenges/manifests/v51.json",
+  "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+  "recordingPath": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+  "recordingSha256": "3f020a9440e49ec648f85299b1df65d1d23a678291d1271adbf0f826596320f3",
+  "recipePath": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.recipe.session.json",
+  "recipeSha256": "b842a4e3d785041ca632e7a10d5c70fbdf99540f1e78aa91086436f30a9d7",
+  "evaluationPath": "challenges/evaluations/baseline-v51-admission-20261012.json",
+  "evaluationCommit": "1429fa3c893c4798ccb2117707b507dee4bacd33",
+  "remainingScreens": 9,
+  "recordedSteps": 149,
+  "status": "complete",
+  "commit": "73145779d67eefeadf19aaaca9fe4cdc92b62fc0",
+  "mismatch": {
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "obj_resists",
+    "line": 1469,
+    "step": 139,
+    "message": null,
+    "firstMismatch": {
+      "screen": {
+        "index": 140,
+        "location": { "segmentIndex": 0, "stepIndex": 140, "key": " " },
+        "kind": "ch",
+        "row": 0,
+        "column": 44,
+        "cCell": { "ch": "m", "color": 8, "attr": 0, "decgfx": 0 },
+        "jsCell": { "ch": "h", "color": 8, "attr": 0, "decgfx": 0 }
+      },
+      "rng": {
+        "index": 2542,
+        "cEntry": "rn2(100)=52",
+        "cCaller": "obj_resists(zap.c:1469)",
+        "jsEntry": "rn2(5)=2",
+        "location": { "segmentIndex": 0, "stepIndex": 139, "key": " " },
+        "stepIndex": 139
+      },
+      "cursor": {
+        "index": 140,
+        "location": { "segmentIndex": 0, "stepIndex": 140, "key": " " },
+        "cCursor": [63, 0, 1],
+        "jsCursor": [61, 0, 1]
+      }
+    }
+  },
+  "summary": "The pyrolisk's AD_FIRE gaze at step 138 completes first. On step 139 the shopkeeper selects MUSE_WAN_STRIKING. C muse.c:use_offensive() passes zap.c:bhito as mbhit's floor-object callback; the source path reaches dothrow.c:breaks()/breaktest() and zap.c:obj_resists(), consuming two rn2(100) draws on floor objects. The existing JS js/muse.js:use_offensive() passes null for that callback and records note_unported('zap.c bhito'), so both object-resistance draws are skipped; the next JS draw is rn2(5)=2 from distfleeck(). This is a bounded callback-wiring divergence fix in the existing offensive wand arm, not a claim that use_offensive() or bhito() is newly ported in full.",
+  "source": {
+    "file": "muse.c",
+    "functions": ["use_offensive"],
+    "branch": "The shared MUSE_WAN_TELEPORTATION, MUSE_WAN_UNDEAD_TURNING, and MUSE_WAN_STRIKING wand arm calls mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp). For the admitted case's MUSE_WAN_STRIKING selection, JS currently passes null in the bhito callback slot and records zap.c bhito as unported. Restore the existing bhito callback at this source-aligned mbhit call; keep use_offensive and bhito completion credit unchanged.",
+    "callers": [
+      "monmove.c:dochug -> muse.c:find_offensive/use_offensive",
+      "muse.c:use_offensive -> mbhit -> fhito_loc -> zap.c:bhito(WAN_STRIKING) -> dothrow.c:breaks/breaktest -> zap.c:obj_resists"
+    ],
+    "dependencies": [
+      "zap.c:bhito (existing JS implementation js/zap.js; callback-compatible mbhit input)",
+      "zap.c:obj_resists (existing JS implementation js/bury.js; source helper used by floor-object resistance checks)",
+      "dothrow.c:breaks",
+      "dothrow.c:breaktest"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted baseline reports the first mismatch at segment 0 step 139: C rn2(100)=52 @ obj_resists(zap.c:1469), JS rn2(5)=2; screen and cursor diverge at step 140.",
+    "C nethack-c/upstream/src/muse.c:1844-1889 routes the MUSE_WAN_STRIKING wand through mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp). C zap.c:2119-2427 defines bhito's WAN_STRIKING floor-object path, which calls the existing dothrow break checks; that path reaches obj_resists at zap.c:1469.",
+    "JS js/muse.js:2694-2705 groups the same three wand types but calls mbhit(..., mbhitm, null, ...), preceded by note_unported('zap.c bhito'). The complete existing js/zap.js:bhito implementation accepts the callback signature expected by js/zap.js:mbhit and already owns the floor-object branches.",
+    "The immutable admitted recipe identifies the case as polyself.c:dogaze followed by muse.c:use_offensive1884 -> mbhit1734 -> fhito_loc -> zap.c:bhito WAN_STRIKING -> dothrow.c:breaks/breaktest -> obj_resists. The step-138 gaze is not the source of the first mismatch; the first missing draws occur on the following shopkeeper wand action."
+  ]
+}
