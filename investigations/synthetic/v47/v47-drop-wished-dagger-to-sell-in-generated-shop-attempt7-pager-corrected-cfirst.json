@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v47.json",
   "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
   "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
-  "evaluationPath": "challenges/evaluations/accepted-bcec557f6844ad95efb413b7662c31a6304f69d7-v47.json",
-  "evaluationCommit": "bcec557f6844ad95efb413b7662c31a6304f69d7",
-  "status": "partial",
-  "commit": "072d8ea95f0ca08b1ac45d83a5a26d934a6c9912",
+  "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+  "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+  "status": "complete",
+  "commit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v47",
@@ -24,11 +24,11 @@
     "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
     "recipe": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json",
     "recipeSha256": "d2da34f57daaaafb38866d452b63d8dbd42ee7fa80471edb5d112ef3dd69aec0",
-    "replayInputSha256": "35107552484d876c9658bb0910bead433eb72fff681d6eed96ac9f960da0ce83",
-    "evaluationPath": "challenges/evaluations/accepted-bcec557f6844ad95efb413b7662c31a6304f69d7-v47.json",
-    "evaluationCommit": "bcec557f6844ad95efb413b7662c31a6304f69d7",
-    "evaluationArtifact": "challenges/evaluations/accepted-bcec557f6844ad95efb413b7662c31a6304f69d7-v47.json",
-    "evaluationUtc": "2026-10-12T02:35:28.805Z",
+    "replayInputSha256": "3de827a8175a5ea26f4f85ac8f14e5ade189ff44426f770b7a62909bdc2fe001",
+    "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+    "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+    "evaluationArtifact": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+    "evaluationUtc": "2026-10-12T09:18:08.866Z",
     "remainingScreens": 3,
     "recordedSteps": 51,
     "previousScreensMatched": 48,
@@ -63,13 +63,14 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The v47 shop drop reached the missing shk.c:sellobj path. The implementation scope covers its used-return dependencies, full active callers in drop, projectile, container, trap, and kick paths, plus the sounds.c shop chat route and its stock-price quote behavior.",
+  "summary": "Dropping an object on a costly shop square stops before C shop selling. Port whole sellobj and its sale, container, credit, quote and keeper-chat helpers, plus is_izchak and projectile shop accounting. Wire the active drop, container, trap, kick, throw and chat callers in source order.",
   "source": {
     "file": "shk.c",
+    "branch": "A non-swallowed object lands on a costly shop square with its keeper present. C computes an offer and handles the deliberate-sale response; JavaScript currently rejects that path before placement.",
     "functions": [
       "sellobj",
-      "special_stock",
       "dropped_container",
+      "special_stock",
       "donate_gold",
       "shop_object",
       "price_quote",
@@ -79,62 +80,24 @@
       "dothrow.c:check_shop_obj",
       "dothrow.c:throw_gold"
     ],
-    "branch": "When an ordinary non-swallowed object is dropped on a costly spot in a shop whose keeper is present, C sellobj() computes its offer and handles the sale response; this recipe reaches the deliberate-sale query for a wished +5 dagger.",
     "callers": [
-      "src/do.c:dropz -> sellobj",
-      "src/dothrow.c:check_shop_obj -> sellobj (six callers)",
-      "src/dothrow.c:throw_gold -> sellobj",
-      "src/pickup.c:in_container -> sellobj (two branches)",
-      "src/trap.c:cnv_trap_obj -> sellobj",
-      "src/dokick.c:kick_object -> donate_gold",
-      "src/shk.c:sellobj -> special_stock -> is_izchak",
-      "src/sounds.c:dochat -> shop_object -> price_quote -> shk_embellish",
-      "src/sounds.c:dochat -> domonnoise -> shk_chat -> is_izchak"
+      "do.c:dropz -> sellobj",
+      "dothrow.c:throwit/thitmonst/gem_accept/breakobj -> check_shop_obj",
+      "dothrow.c:throw_obj -> throw_gold -> sellobj",
+      "pickup.c:in_container -> sellobj",
+      "trap.c:cnv_trap_obj -> sellobj",
+      "dokick.c:kick_object -> donate_gold",
+      "sounds.c:dochat -> shop_object/price_quote; domonnoise -> shk_chat"
     ],
-    "dependencies": [
-      "src/shk.c:special_stock is the used-return dependency of sellobj and is included whole.",
-      "src/shk.c:dropped_container is the recursive ownership updater used by sellobj and is included whole.",
-      "src/shk.c:donate_gold is called by sellobj, check_shop_obj, and dokick.c:kick_object; it is included whole.",
-      "src/shk.c:price_quote is the active sounds.c:dochat stock-square path; it uses the existing get_cost(), contained_cost(), doname(), and currency() ports and is included whole.",
-      "src/shk.c:shk_embellish is a random, return-valued helper called by price_quote() and is included whole.",
-      "src/shknam.c:is_izchak is a return-valued dependency of special_stock and shk_chat; it is included whole with a source-pinned pure test.",
-      "src/dothrow.c:check_shop_obj is included whole and wired at all six active source call sites in throwit, thitmonst, gem_accept, and breakobj.",
-      "src/sounds.c:dochat calls shop_object/price_quote before requesting a direction when the hero stands on stock; otherwise its active domonnoise route reaches shk_chat. Both paths are wired."
-    ],
-    "callerAudit": {
-      "sellobjDirectCallers": [
-        "src/do.c:dropz line 836",
-        "src/dothrow.c:check_shop_obj sellobj call at line 1210; helper has callers at lines 1813, 1836, 2131, 2222, 2372, 2545",
-        "src/dothrow.c:throw_gold line 2727",
-        "src/pickup.c:in_container lines 2641 and 2702",
-        "src/trap.c:cnv_trap_obj line 5362"
-      ],
-      "isIzchakCallers": [
-        "src/shk.c:special_stock line 3112; active seller path",
-        "src/shk.c:shk_chat line 5594; sounds.c:domonnoise calls it at line 735 from the sounds.c:dochat path"
-      ],
-      "sourceScopeDecision": "The mismatch and complete source scope are claimed atomically. The scope includes sellobj(), special_stock(), dropped_container(), donate_gold(), price_quote(), shk_embellish(), shk_chat(), the pure is_izchak() helper, check_shop_obj(), and throw_gold(), plus source-aligned wiring at each active drop/pickup/trap/dothrow/sounds/dokick call site.",
-      "checkShopObjCallers": [
-        "src/dothrow.c:throwit lines 1813 and 1836; both pass broken=FALSE",
-        "src/dothrow.c:thitmonst lines 2131 and 2222; they pass broken=FALSE and TRUE respectively",
-        "src/dothrow.c:gem_accept line 2372; passes broken=TRUE",
-        "src/dothrow.c:breakobj line 2545; passes broken=TRUE"
-      ]
-    }
+    "dependencies": []
   },
   "evidence": [
     "Saved queue entry at challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json identifies the stop at segment 0, step 48, with 3 remaining screens; step 48 key `o` displays “You drop a dagger.--More--”, step 49 space displays the shopkeeper offer, and step 50 `y` records the sale.",
     "The immutable recipe challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json independently sets up a wizard, creates a shop, wishes a +5 dagger, then drops it and accepts the sale.",
-    "C source src/do.c:dropx (786-797) extracts inventory, checks shipping and altar effects, then calls dropy(); dropz (806-843) places the object and calls sellobj(obj, u.ux, u.uy) for shop levels before stackobj(). Before implementation, JavaScript preflight_dropx() rejected costly_spot() at :1956 before ordinary placement, and dropzAdmitted() recorded the shk.c:sellobj gap only inside its withImpact branch at :2205-2209.",
-    "C source src/shk.c:sellobj() (3927-4194) is a void shop-sale function with ordinary costly-spot eligibility, sale pricing, shopkeeper state, offer and confirmation branches, and payment/billing effects. At investigation start, js/shk.js had no sellobj() declaration; the implementation added it alongside existing costly_spot(), saleable(), set_cost(), record_price_quote(), and sellobj_state() helpers.",
-    "The complete direct-caller scan `rg -n 'check_shop_obj\\(' nethack-c/upstream/src/dothrow.c` found six active call sites: throwit at 1813 and 1836, thitmonst at 2131 and 2222, gem_accept at 2372, and breakobj at 2545.",
-    "Fresh C/JavaScript differential for the corrected v47 recipe matched all 51 recorded steps, screens, cursor states, and random calls after the seller implementation.",
-    "The independently generated bookstore recipe recipes/sounds.c/shk-chat-bookstore-keeper-chat.session.json has a matching C recording in recordings/sounds.c/shk-chat-bookstore-keeper-chat.session.json. Its step 19 enters sounds.c:dochat, then step 20 reaches shk.c:shk_chat through domonnoise and prints the keeper bill for 120 zorkmids.",
-    "The separate recipe recipes/sounds.c/shk-price-quote-generated-bookstore.session.json and recording recordings/sounds.c/shk-price-quote-generated-bookstore.session.json match fresh C. Step 12 quotes the single paperback book, draws rn2(3) in shk.c:shk_embellish, and prints the price line.",
-    "The independent recording recordings/dothrow.c/throw-worthless-shop-object.session.json reaches the zero-offer sellobj path through throwit -> check_shop_obj; step 49 prints “Cahersiveen seems uninterested,” after special_stock returns FALSE.",
-    "The independent recording recordings/dothrow.c/throw-gold-generated-bookstore-probe.session.json reaches dothrow.c:throw_gold -> sellobj -> donate_gold; step 34 confirms 100 zorkmids of credit.",
-    "The independent recording recordings/shk.c/sell-large-box-contents-generated-shop.session.json reaches do.c:dropz -> sellobj -> dropped_container; step 39 confirms the contents sale.",
-    "The independent recording recordings/pickup.c/floor-shop-container-put-probe.session.json reaches pickup.c:in_container -> sellobj during a costly floor-container insertion; step 49 confirms the put-in action.",
-    "The independent recording recordings/sounds.c/shk-price-quote-generated-bookstore.session.json reaches dochat -> shop_object -> price_quote -> shk_embellish; step 12 quotes the paperback book. recordings/sounds.c/shk-chat-bookstore-keeper-chat.session.json reaches dochat -> domonnoise(MS_SELL) -> shk_chat at step 20."
-  ]
+    "C source src/do.c:dropx (786-797) extracts inventory, checks shipping and altar effects, then calls dropy(); dropz (806-843) places the object and calls sellobj(obj, u.ux, u.uy) for shop levels before stackobj(). The JavaScript preflight_dropx() at js/do.js:1897-2100 rejects costly_spot() at :1956 before ordinary placement; dropzAdmitted() records the shk.c:sellobj gap only inside its withImpact branch at :2205-2209.",
+    "C source src/shk.c:sellobj() (3927-4194) is a void shop-sale function with ordinary costly-spot eligibility, sale pricing, shopkeeper state, offer and confirmation branches, and payment/billing effects. The current js/shk.js has no sellobj() declaration; rg confirmed existing related helpers including costly_spot(), saleable(), set_cost(), record_price_quote(), and sellobj_state().",
+    "Complete source/caller audit: sellobj() spans shk.c:3927-4194 and has six direct C callsites across do.c:dropz, dothrow.c:check_shop_obj/throw_gold, pickup.c:in_container (two branches), and trap.c:cnv_trap_obj. check_shop_obj() at dothrow.c:1181-1214 has six active projectile callers at :1813, :1836, :2131, :2222, :2372, and :2545. special_stock() at shk.c:3103-3144 is the active used-return dependency. is_izchak() at shknam.c:908-924 is pure and has two active C callers: special_stock() and shk_chat(). shk_chat() at shk.c:5521-5601 is reached by sounds.c:dochat -> domonnoise() at sounds.c:735; JS domonnoise currently records note_unported there. The implementation claim includes both the chat source function and its actual JS dispatch wiring.",
+    "Current saved evaluation challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json stops at step 48 with 48/51 screens and cursors and 5396/5406 RNG values. Complete source scope comprises 11 functions; caller-only edits receive no enclosing-function credit. The corrected throw_gold source includes count-split recovery and swallowed gold naming/transfer through existing source owners."
+  ],
+  "goalKind": "file-port"
 }

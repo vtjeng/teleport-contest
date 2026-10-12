@@ -2889,8 +2889,8 @@ export async function u_entered_shop(
 }
 
 // C ref: shk.c sellobj_state() (3913-3924). Switches the shopkeeper's billing
-// mode. SELL_NORMAL resets auto-credit and sell_response; other values prime
-// sell_response to 'a' so the next accidental drop is auto-sold.
+// mode. SELL_NORMAL primes sell_response to 'a' for automatic selling; other
+// values clear it so the next deliberate sale can ask for a response.
 // use_container() calls sellobj_state(SELL_NORMAL) at containerdone to restore
 // the default state after in_container() may have changed it.
 export function sellobj_state(deliberate, state = game) {

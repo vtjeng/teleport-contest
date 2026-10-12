@@ -145,3 +145,22 @@ triage decisions or fix references.
 - Friction: the coordinator inspected the delivery's base-to-head diff, then merged its full branch without inspecting all commits missing from Main. The staged list contained 17 paths, including unrelated pending fixes, but the combined shell command committed before the coordinator reviewed that list.
 - Outcome: the unpushed merge is preserved at `recovery/mon-to-stone-merge-20261012`. Main returned to the prior commit; only the explicitly named accidental-merge paths were restored. Cherry-picking the submitted source commit produced the intended two-file repair. No validation or public push used the accidental merge.
 - Follow-up: inspect both missing ancestry and the actual staged paths before committing a worker integration. Keep the stage inspection and commit as separate operations.
+
+### 2026-10-12 — failed history candidate isolated to free ready dependency work
+
+- Context: TTY history candidate `b3f99748`, hosted run `38234021440`.
+- Friction: the combined gate found 32 failed tests, 16 failed regression
+  recordings, and nine fixed sessions with screen/cursor losses. Keeping the
+  unaccepted source on Main would prevent an independent ready shop delivery
+  from receiving a clean combined gate while A corrected history.
+- Evidence: the failed summary and stage logs are preserved under
+  `.cache/history-failed-checkpoint-38234021440/`; all 792838 fixed RNG values
+  still match. The earlier report import also needed its historical parent
+  before the exact report patch could pass delivery verification.
+- Reason: `.agents/loop.md` requires correcting regressions and integrating
+  independent ready deliveries without waiting for an unfinished goal.
+- Outcome: preserved the complete failed candidate at
+  `integration-history-v48-failed-20261012` and its remote checkpoint branch,
+  restored only its 43 named changed paths to the accepted game plus the
+  approved priority, and requeued history without accepted completion credit.
+  A owns the correction; Root is integrating shop to release C's caller.

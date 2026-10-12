@@ -283857,8 +283857,8 @@
           "name": "sellobj",
           "line": 3927,
           "endLine": 4196,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -283870,25 +283870,25 @@
           "name": "dropped_container",
           "line": 3064,
           "endLine": 3084,
-          "declared": false,
+          "declared": true,
           "sourceFile": "shk.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "special_stock",
           "line": 3103,
           "endLine": 3147,
-          "declared": false,
+          "declared": true,
           "sourceFile": "shk.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "donate_gold",
           "line": 3877,
           "endLine": 3912,
-          "declared": false,
+          "declared": true,
           "sourceFile": "shk.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "shop_object",
@@ -283896,47 +283896,47 @@
           "endLine": 5405,
           "declared": true,
           "sourceFile": "shk.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "price_quote",
           "line": 5406,
           "endLine": 5467,
-          "declared": false,
+          "declared": true,
           "sourceFile": "shk.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "shk_embellish",
           "line": 5468,
           "endLine": 5520,
-          "declared": false,
+          "declared": true,
           "sourceFile": "shk.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "shk_chat",
           "line": 5521,
           "endLine": 5605,
-          "declared": false,
+          "declared": true,
           "sourceFile": "shk.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "is_izchak",
           "line": 908,
           "endLine": 929,
-          "declared": false,
+          "declared": true,
           "sourceFile": "shknam.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "check_shop_obj",
           "line": 1181,
           "endLine": 1219,
-          "declared": false,
+          "declared": true,
           "sourceFile": "dothrow.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "throw_gold",
@@ -283944,7 +283944,7 @@
           "endLine": 2736,
           "declared": true,
           "sourceFile": "dothrow.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -284125,7 +284125,392 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "sellobj",
+            "implementation": "js/shk.js",
+            "symbol": "sellobj",
+            "sourceReview": "Read shk.c:sellobj in full (3927-4195). Compared all shop/keeper/cost guards, offer and container accounting, unpaid/gold branches, keeper voice gates, prompt choices, RNG and mutation order. The six check_shop_obj call sites and do.c:dropz, pickup.c:in_container, trap.c:cnv_trap_obj callers are wired. No source callee result is replaced by note_unported.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropzAdmitted",
+                "source": "do.c:dropz -> sellobj"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "check_shop_obj",
+                "source": "dothrow.c:check_shop_obj -> sellobj"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_gold",
+                "source": "dothrow.c:throw_gold -> sellobj"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "in_container",
+                "source": "pickup.c:in_container -> sellobj"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "cnv_trap_obj",
+                "source": "trap.c:cnv_trap_obj -> sellobj"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk-sellobj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/shk.c/sell-large-box-contents-generated-shop.session.json",
+              "recordings/dothrow.c/throw-shop-object-probe.session.json",
+              "recordings/dothrow.c/throw-gold-generated-bookstore-probe.session.json",
+              "recordings/pickup.c/floor-shop-container-put-probe.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 50,
+                "source": "do.c:dropz -> shk.c:sellobj; sell confirmation and object sale"
+              }
+            ],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "dropped_container",
+            "implementation": "js/shk.js",
+            "symbol": "dropped_container",
+            "sourceReview": "Read shk.c:dropped_container in full (3064-3090), including recursion over nested contents and coin skipping; compared sale and no-sale no_charge updates and ordering.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "sellobj",
+                "source": "shk.c:sellobj -> dropped_container"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/shk.c/sell-large-box-contents-generated-shop.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "special_stock",
+            "implementation": "js/shk.js",
+            "symbol": "special_stock",
+            "sourceReview": "Read shk.c:special_stock in full (3103-3144). Compared the candle-shop/Candelabrum and Izchak dialogue conditions, mute/deaf branches, messages and TRUE/FALSE result.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "sellobj",
+                "source": "shk.c:sellobj no-value/no-gold branch -> special_stock"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/dothrow.c/throw-worthless-shop-object.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "donate_gold",
+            "implementation": "js/shk.js",
+            "symbol": "donate_gold",
+            "sourceReview": "Read shk.c:donate_gold in full (3877-3915). Compared debt/loan clearing, residual credit arithmetic, first-versus-later credit messages, and selling-dependent re-credit wording.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_gold",
+                "source": "dothrow.c:throw_gold places shop gold then calls shk.c:sellobj -> donate_gold"
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "really_kick_object",
+                "source": "dokick.c:kick_object -> shk.c:donate_gold for contained gold"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk-sellobj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throw-gold-generated-bookstore-probe.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "shop_object",
+            "implementation": "js/shk.js",
+            "symbol": "shop_object",
+            "sourceReview": "Read shk.c:shop_object in full (5386-5404). Confirmed current-shop/floor-pile selection order, shopkeeper state conditions, and that the helper reads state without RNG, output or mutation.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "dochat",
+                "source": "sounds.c:dochat -> shop_object"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/chat-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "price_quote",
+            "implementation": "js/shk.js",
+            "symbol": "price_quote",
+            "sourceReview": "Read shk.c:price_quote in full (5406-5466). Compared object iteration, contained goods handling, message construction, price recording and display order.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "dochat",
+                "source": "sounds.c:dochat -> shop_object -> price_quote"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/chat-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sounds.c/shk-price-quote-generated-bookstore.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "shk_embellish",
+            "implementation": "js/shk.js",
+            "symbol": "shk_embellish",
+            "sourceReview": "Read shk.c:shk_embellish in full (5468-5505). Compared the source phrase branches and rn2 draw order used to select embellishment.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "price_quote",
+                "source": "shk.c:price_quote -> shk_embellish"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/sounds.c/shk-price-quote-generated-bookstore.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "shk_chat",
+            "implementation": "js/shk.js",
+            "symbol": "shk_chat",
+            "sourceReview": "Read shk.c:shk_chat in full (5521-5604), comparing bill, debit, credit, keeper identity, hallucination, mute/deaf and speech branches.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:domonnoise MS_SELL -> shk_chat"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/sounds.c/shk-chat-bookstore-keeper-chat.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "is_izchak",
+            "implementation": "js/shknam.js",
+            "symbol": "is_izchak",
+            "sourceReview": "Read shknam.c:is_izchak in full (908-924). Compared hallucination override, shopkeeper/town gates, plus-prefixed names, and the exact keeper-name equality; the function reads state only.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "special_stock",
+                "source": "shk.c:special_stock -> shknam.c:is_izchak"
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "shk_chat",
+                "source": "shk.c:shk_chat -> shknam.c:is_izchak"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/shknam-is-izchak.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "shknam.c",
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "check_shop_obj",
+            "implementation": "js/dothrow.js",
+            "symbol": "check_shop_obj",
+            "sourceReview": "Read dothrow.c:check_shop_obj in full (1181-1214). Traced all six call sites; matched costly-room selection, broken/thrown/unpaid branches, contained-gold credit, and sale dispatch.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit -> check_shop_obj"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "dothrow.c:thitmonst -> check_shop_obj"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "gem_accept",
+                "source": "dothrow.c:gem_accept -> check_shop_obj"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "breakobj",
+                "source": "dothrow.c:breakobj -> check_shop_obj"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk-sellobj.test.mjs",
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throw-shop-object-probe.session.json",
+              "recordings/dothrow.c/throw-worthless-shop-object.session.json"
+            ],
+            "sourceFile": "dothrow.c",
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "throw_gold",
+            "implementation": "js/dothrow.js",
+            "symbol": "throw_gold",
+            "sourceReview": "Read dothrow.c:throw_gold in full (2655-2731). Compared self-targeted count-split recovery through mkobj.c:unsplitobj, swallowed-monster naming and digest predicate, gold transfer through mkobj.c:add_to_minv, floor-effect, range, throw/catch/ship, landing and shop-sale ordering. Focused dothrow tests exercise the self-split merge and both digester/non-digester swallowed inventory paths; the independent generated-bookstore gold recording covers the production throw/shop entry path.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_obj",
+                "source": "dothrow.c:throw_obj coin-class dispatch -> throw_gold"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throw-gold-generated-bookstore-probe.session.json"
+            ],
+            "sourceFile": "dothrow.c",
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          }
+        ],
+        "entryPointReview": "Source review traced the selected shk.c service functions and their production dispatch. Active paths include do.c:dropz -> sellobj; dothrow.c:throw_gold and throwit -> check_shop_obj/sellobj; pickup.c:in_container -> sellobj; shk.c:sellobj -> dropped_container/special_stock/donate_gold; sounds.c:dochat -> shop_object -> price_quote -> shk_embellish; and sounds.c:dochat -> domonnoise(MS_SELL) -> shk_chat. The throw, drop, put-in, quote and keeper-chat records below reach the cited callees. Caller-only integrations in dokick.c:kick_object -> donate_gold and trap.c:cnv_trap_obj -> sellobj are source-wired but are not claimed as separately replay-covered entry points or as whole enclosing-function ports.",
+        "entryPoints": [
+          {
+            "name": "drop goods and sell nested container contents",
+            "functions": [
+              "sellobj",
+              "dropped_container"
+            ],
+            "recordings": [
+              "recordings/shk.c/sell-large-box-contents-generated-shop.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 50,
+                "source": "do.c:dropz -> shk.c:sellobj"
+              }
+            ]
+          },
+          {
+            "name": "throw worthless object through shop landing",
+            "functions": [
+              {
+                "sourceFile": "dothrow.c",
+                "name": "check_shop_obj"
+              },
+              "sellobj",
+              "special_stock"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throw-worthless-shop-object.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "throw gold into generated shop",
+            "functions": [
+              {
+                "sourceFile": "dothrow.c",
+                "name": "throw_gold"
+              },
+              "sellobj",
+              "donate_gold"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throw-gold-generated-bookstore-probe.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "chat while standing on shop goods",
+            "functions": [
+              "shop_object",
+              "price_quote",
+              "shk_embellish"
+            ],
+            "recordings": [
+              "recordings/sounds.c/shk-price-quote-generated-bookstore.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "chat with shopkeeper",
+            "functions": [
+              "shk_chat",
+              {
+                "sourceFile": "shknam.c",
+                "name": "is_izchak"
+              }
+            ],
+            "recordings": [
+              "recordings/sounds.c/shk-chat-bookstore-keeper-chat.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "put inventory object in floor container on costly square",
+            "functions": [
+              "sellobj"
+            ],
+            "recordings": [
+              "recordings/pickup.c/floor-shop-container-put-probe.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }

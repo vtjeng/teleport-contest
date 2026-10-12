@@ -3097,8 +3097,8 @@ async function in_container(obj, state) {
 
     // Gold in container always needs to be added to credit (C: 2701-2702).
     if (floor_container && obj.oclass === COIN_CLASS) {
-        // C discards sellobj()'s result and handles shop gold after the put-in
-        // message; retain the source position while its billing body is open.
+        // C handles shop gold after the put-in message and before adding the
+        // object to the floor container.
         await sellobj(obj, state.gc.current_container.ox,
             state.gc.current_container.oy, state);
     }
