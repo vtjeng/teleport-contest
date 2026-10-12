@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T21:37:44.900Z",
+  "capturedAt": "2026-10-12T21:49:45.783Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -98275,6 +98275,55 @@
         "type": "accepted",
         "at": "2026-10-12T21:35:13.097Z",
         "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v52-novel-read-tribute-action-attempt2-20261012-445f9b0ddc47b6eba5746d827fc95e64f16ac078",
+        "type": "published",
+        "at": "2026-10-12T21:37:57.135Z",
+        "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
+        "commit": "445f9b0ddc47b6eba5746d827fc95e64f16ac078"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-last-three-queue-v52-20261012",
+        "type": "turn",
+        "at": "2026-10-12T21:38:42.639Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "No independent case is open for B. The two actionable v52 sessions belong to C, and the v48 version case remains held. Waiting for a new admitted batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrate-saddle-f6d9b6e0dc32799bf0b4bf7173d5357e3cdf4f69",
+        "type": "integrating",
+        "at": "2026-10-12T21:40:17.611Z",
+        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+        "integration": "f6d9b6e0dc32799bf0b4bf7173d5357e3cdf4f69"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012-f6d9b6e0dc32799bf0b4bf7173d5357e3cdf4f69-validated",
+        "type": "validated",
+        "at": "2026-10-12T21:47:39.789Z",
+        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012-f6d9b6e0dc32799bf0b4bf7173d5357e3cdf4f69-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T21:48:09.523Z",
+        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-idle-after-saddle-accepted-f6d9b6e0-20261012",
+        "type": "turn",
+        "at": "2026-10-12T21:48:43.717Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted saddle Main is merged. The saved queue predates it and has no independent eligible case; waiting for Main refresh and newcham integration. The v48 version-profile case remains held."
       }
     ]
   },
@@ -98335,17 +98384,6 @@
           "Prep19",
           "Prep20"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
-        "worker": "C",
-        "goal": "C-v52-steed-use-saddle-stoning-caller-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "2ac40434589f38f5e67dfcdde02ef0ec03f37db0",
-        "since": "2026-10-12T19:49:08.131Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -98876,8 +98914,8 @@
     ]
   },
   "development": {
-    "executionCommit": "69ca4a7e4581fca6ab57835fa512cde4f10ec2d2",
-    "measuredAt": "2026-10-12T21:31:38.031Z",
+    "executionCommit": "f6d9b6e0dc32799bf0b4bf7173d5357e3cdf4f69",
+    "measuredAt": "2026-10-12T21:45:45.585Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

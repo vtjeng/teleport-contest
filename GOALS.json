@@ -293668,7 +293668,7 @@
     {
       "id": "C-v52-steed-use-saddle-stoning-caller-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore petrification when saddling a cockatrice",
       "cFile": "steed.c",
       "sessions": [
@@ -293678,10 +293678,74 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "f6d9b6e0dc32799bf0b4bf7173d5357e3cdf4f69",
       "delivered": null,
       "function": "use_saddle",
-      "session": "synthetic/v52/v52-saddle-cockatrice-touch-action-attempt2"
+      "session": "synthetic/v52/v52-saddle-cockatrice-touch-action-attempt2",
+      "closeStanding": {
+        "sha": "f6d9b6e0dc32799bf0b4bf7173d5357e3cdf4f69",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "69ca4a7e4581fca6ab57835fa512cde4f10ec2d2",
+        "target": "synthetic/v52/v52-saddle-cockatrice-touch-action-attempt2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/f6d9b6e0dc32799bf0b4bf7173d5357e3cdf4f69/run-hosted-rr4ZCo/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "use_saddle",
+            "symbol": "use_saddle",
+            "implementation": "js/steed.js",
+            "pure": false,
+            "sourceReview": "Bounded repair to the source call site only. C steed.c:use_saddle checks touch_petrifies, gloves and Stone_resistance, tries the source poly_when_stoned/polymon branch, builds the killer text, then calls trap.c:instapetrify before later saddle checks. JS now calls the existing helper with state and env at that point. This does not claim whole use_saddle or trap.c:instapetrify completion; the separate can_ride caller is outside scope.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply dispatches the SADDLE case to use_saddle."
+              }
+            ],
+            "tests": [
+              "scripts/mount-steed.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-saddle-cockatrice-touch-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 113,
+                "source": "Final bridge candidate replay: apply.c:doapply SADDLE -> steed.c:use_saddle -> trap.c:instapetrify -> end.c:done; all 114 recorded steps and input boundary match."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The bounded use_saddle caller repair is exercised by the assigned v52 case on the final accepted-Main bridge candidate. The baseline first mismatched at step 103; after the repair, a fresh scan on that candidate matches all 114 recorded steps and the input boundary. The single-case scorer previously measured 114/114 screens, 3151/3151 RNG calls, 114/114 cursors and passed=true with no runner error; the same source patch is present in the final candidate. No whole use_saddle or instapetrify completion is claimed. The separate can_ride instapetrify caller remains a named gap outside this session and source scope.",
+        "entryPoints": [
+          {
+            "name": "Apply a saddle to a visible, unprotected cockatrice",
+            "functions": [
+              "use_saddle"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-saddle-cockatrice-touch-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 113,
+                "source": "Final bridge candidate replay: apply.c:doapply -> steed.c:use_saddle -> trap.c:instapetrify -> end.c:done"
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": []
+      }
     }
   ]
 }
