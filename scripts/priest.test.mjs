@@ -56,6 +56,30 @@ test('priest.c intemple uses Monnam after suppressing the priest title', () => {
         { canSpotMonster: () => true }), 'The high priestess');
 });
 
+test('untended intemple awaits ghost creation with the complete RNG provider', () => {
+    // C's rn2(5) ghost gate is a source condition; the matching runtime path
+    // must keep the complete core RNG family when it enters makemon().
+    const cStart = PRIEST_C_SOURCE.indexOf('intemple(int roomno)');
+    const cEnd = PRIEST_C_SOURCE.indexOf('\n}\n', cStart);
+    const intempleC = PRIEST_C_SOURCE.slice(cStart, cEnd);
+    const jsStart = PRIEST_JS_SOURCE.indexOf(
+        'export async function intemple(',
+    );
+    const jsEnd = PRIEST_JS_SOURCE.indexOf(
+        '// C ref: priest.c priest_talk()', jsStart,
+    );
+    const intempleJs = PRIEST_JS_SOURCE.slice(jsStart, jsEnd);
+
+    assert.match(intempleC,
+        /if \(!rn2\(5\)\s*&&\s*\(mtmp = makemon\(&mons\[PM_GHOST\], u\.ux, u\.uy, MM_NOMSG\)\)/u);
+    assert.match(intempleJs,
+        /const creationRandom = \{\s*d,\s*rn1,\s*rn2,\s*rnd,\s*rne,/u);
+    assert.match(intempleJs,
+        /await makemon_runtime\([\s\S]*?MM_NOMSG,[\s\S]*?random: creationRandom/u);
+    assert.doesNotMatch(intempleJs,
+        /const mtmp = makemon\([\s\S]*?PM_GHOST/u);
+});
+
 const RECIPE = JSON.parse(readFileSync(
     new URL('../recordings/priest.c/roamer-sanctum-gnome-wizard.session.json',
         import.meta.url),
