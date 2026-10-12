@@ -279495,6 +279495,37 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-mhitu-missmu-see-invisible-v47-20261011",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Allow miss messages for invisible monsters the hero can see.",
+      "cFile": "mhitu.c",
+      "sessions": [],
+      "selectionReason": "The current v47 case stops at mhitu.c:missmu when an invisible grid bug is spotted through See Invisible. C names the monster and prints the miss; JavaScript has an artificial refusal before its existing naming path.",
+      "detail": "Remove the spotted-invisible refusal from js/mhitu.js:missmu while preserving C hit-message reset, conditional map_invisible, pline_mon name formatting, and stop-occupation order across all three mattacku miss callers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "missmu",
+      "session": "synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104",
+      "step": 67,
+      "syntheticProvenance": {
+        "synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104": {
+          "session": "synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-see-invisible-grid-bug-missmu-seed47100104",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.session.json",
+          "recordingSha256": "500a4474ecfbd3e1db8eb7b0cd3e0330c37054f2c598231a142c5c7af16c6eed",
+          "evaluationPath": "challenges/evaluations/accepted-d2148725fc8c59ebc1b6c06947ec0e2b93730813-v47.json",
+          "evaluationCommit": "d2148725fc8c59ebc1b6c06947ec0e2b93730813"
+        }
+      }
     }
   ]
 }
