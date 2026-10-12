@@ -10,7 +10,7 @@
   "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
   "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
   "status": "complete",
-  "commit": "1f5be5da8",
+  "commit": "1f5be5da814459ea37dd112835c4b72c653c62fe",
   "summary": "The down-zap path reaches dig.c:dighole on a magical trap. C rolls d(3,6), calls explode with TRAP_EXPLODE and EXPL_MAGICAL, then deletes the trap and redraws the map. The original JS branch recorded note_unported and skipped the blast; the correction now calls the existing js/explode.js helper with the source damage roll and preserves deletion/redraw order. The full 206-step recording matches.",
   "source": {
     "file": "dig.c",
