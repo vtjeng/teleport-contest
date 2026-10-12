@@ -58,27 +58,29 @@
     },
     "replayCommit": "3b34371d46a47005b16613508fb9e4ce78e70b5a"
   },
-  "summary": "Partial: the earlier step-312 nested-shop exception is cleared by pending room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9. The next recorded C/JS difference is the More marker at column 67 after the shop-theft message, before the queued space input. The saved segment has no MSGTYPE rule; C pline.c:Norep defaults to MSGTYP_NOREP, while JavaScript emits the same message without More. The later RNG row points at muse.c:use_offensive only because the C More consumes the space and reaches the shopkeeper turn; JS treats that space as a command. The missing More cannot yet be assigned to a source-defined branch from the recorded options, and the C recorder may inherit NETHACKOPTIONS without serializing it. A separate source gap follows: C shk.c:stolen_value calls hot_pursuit, while JS records note_unported; that prevents the shopkeeper from becoming hostile and can explain why C later selects its offensive wand. Resolve the C-only prompt/config provenance before using this recording to validate that follow-up.",
+  "summary": "Partial: the earlier step-312 nested-shop exception is cleared by room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9. The step-572 More marker is source-defined overflow: record-session uses pipes without a PTY, TERM=xterm-256color supplies CO=80, and topl.c calls more() before the following wand message will not fit after the 67-character thief line. The next saved frame shows Y-crad’s wand message, and muse.c emits it before the first rn2(8). C shk.c:stolen_value calls hot_pursuit before the shopkeeper turn; JS currently records note_unported at that call, so the keeper remains peaceful and does not reach the wand message. Implement hot_pursuit and verify the exact admitted replay. This continuation depends on the room delivery.",
   "source": {
     "file": "shk.c",
-    "branch": "When theft makes an angry shopkeeper pursue the hero, stolen_value calls hot_pursuit, which calls rile_shk and sets customer/following before the shopkeeper acts.",
+    "branch": "When theft makes an angry shopkeeper pursue the hero, stolen_value calls hot_pursuit. The helper calls rile_shk, copies the player name into customer, sets following, clears floor no_charge flags, and clears pet-carried no_charge flags before the monster turn.",
     "functions": [
       "stolen_value",
       "hot_pursuit",
       "rile_shk"
     ],
-    "callers": [],
+    "callers": [
+      "shk.c:stolen_value -> hot_pursuit",
+      "The following monster turn reaches muse.c:use_offensive after hot_pursuit changes the shopkeeper from peaceful to angry."
+    ],
     "dependencies": [
       "pending room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9"
     ]
   },
   "evidence": [
-    "The fresh focused replay is /tmp/A2-v52-minetown-muse-scan.json at commit 3b34371d46a47005b16613508fb9e4ce78e70b5a; its recording, manifest and recipe hashes match the admitted v52 input.",
-    "The immutable C screen at step 572 reads `The giant mimic vanishes!  Y-crad booms: \"wizard, you are a thief!\"--More--`; JS emits the same line without the marker. The mismatch is exactly C `-` versus JS blank at row 0 column 67. The next input is space; JS reports `Unknown command ' '` while C consumes it at More and runs the monster turn.",
-    "C shk.c:stolen_value 3857-3869 issues Norep and then calls hot_pursuit; C pline.c:Norep 326-335 sets PLINE_NOREPEAT and C options.c:msgtype_type 7797-7809 defaults it to MSGTYP_NOREP when no rule matches. The saved nethackrc contains no MSGTYPE rule, and the JS replay has an empty gp.plinemsg_types list.",
-    "C shk.c:hot_pursuit 1449-1463 calls rile_shk, copies the customer, sets following, clears no_charge floor objects, and clears pet-carried no_charge. JS shk.js:stolen_value currently calls note_unported('shk.c hot_pursuit') at 3745. C shk.c:rile_shk 1362-1377 sets the shopkeeper angry and applies the surcharge; JS already has this helper.",
-    "The C RNG entry at index 7055 is rn2(8) from muse.c:use_offensive 1884, after the missing More boundary. It is downstream evidence, not the first mismatch owner.",
-    "Prior committed investigation aa2012dddd3ac0cb6b6078f29973b7c5ab0d094c established the old step-312 failure in shk.c room lookup; keep that diagnosis in the immutable Minetown delivery. The current step-572 follow-up depends on the pending room delivery named above.",
-    "Next probe: establish whether the C recording process had a MSGTYPE stop rule outside the saved nethackrc. scripts/record-session.mjs inherits process.env while writing only the segment nethackrc into its temporary home; inspect the original recording provenance/config before changing source or session data."
+    "Fresh focused replay before correction: /tmp/A2-v52-minetown-muse-scan.json at commit 3b34371d46a47005b16613508fb9e4ce78e70b5a; the recording, manifest, recipe hashes match the admitted v52 input.",
+    "The immutable C screen at step 572 reads `The giant mimic vanishes!  Y-crad booms: \"wizard, you are a thief!\"--More--`; JS emits the same line without the marker. The mismatch is C `-` versus JS blank at row 0 column 67. A read-only recorder/source probe confirmed record-session uses stdin/stdout pipes without a PTY, sets TERM=xterm-256color, and falls back to termcap co#80. C topl.c:262-279 calls more() before appending a next message that cannot fit after the 67-character line with its eight-column margin.",
+    "Step 573 records Y-crad’s wand message. C muse.c:1877-1884 emits that message before the first rn2(8), so the C-only More is the expected wait before that next message.",
+    "C shk.c:stolen_value issues Norep, then calls hot_pursuit and angry_guards(FALSE). Norep defaults to MSGTYP_NOREP and does not itself force More; topline overflow before the next monster message causes the wait.",
+    "C shk.c:hot_pursuit calls rile_shk, copies svp.plname into customer, sets following, clears no_charge on fobj, and calls clear_no_charge_pets. JS shk.js:stolen_value currently records note_unported('shk.c hot_pursuit'). Existing JS helpers rile_shk, clear_no_charge, and clear_no_charge_pets implement the dependencies; clear_no_charge_pets was previously closed under port-shk-clear-no-charge-pets.",
+    "The implementation scope is shk.c:hot_pursuit and its active shk.c:stolen_value caller. Other hot_pursuit gaps at unrelated caller sites remain outside this task. The exact recording has not yet been replayed with the correction."
   ]
 }
