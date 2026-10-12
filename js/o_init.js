@@ -13,10 +13,10 @@ import { obj_typename } from './objnam.js';
 import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
 import { rn2 } from './rng.js';
 import { append_price_quote } from './shk.js';
-import { A_WIS, BUFSZ, HALLUC, HALLUC_RES, PICK_ONE } from './const.js';
+import { A_WIS, BUFSZ, HALLUC, HALLUC_RES } from './const.js';
 import { ttyPline } from './tty_message.js';
 import { menuTitleStyle } from './tty_menu.js';
-import { add_menu_heading, select_menu } from './windows.js';
+import { add_menu_heading } from './windows.js';
 import {
     AMULET_CLASS,
     AMULET_OF_YENDOR,
