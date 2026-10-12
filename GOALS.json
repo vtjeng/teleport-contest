@@ -293832,7 +293832,7 @@
     {
       "id": "fix-monstone-object-rng-environment-v53-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Fix monstone's default object-generation random environment so statue creation uses the complete source-compatible random provider.",
       "cFile": "mon.c",
       "sessions": [
@@ -293842,10 +293842,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
       "delivered": null,
       "function": "monstone",
-      "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6"
+      "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
+      "closeStanding": {
+        "sha": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "27c23fb69c1e28dd0552d4d77e78bb9a01944b06",
+        "target": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/0ddbafd22e56dbc0365fbc0355c9dac9352cba43/run-hosted-ZsIOMe/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "monstone",
+            "implementation": "js/mon.js",
+            "symbol": "monstone",
+            "sourceReview": "Compared the complete C mon.c:monstone (3287-3374) with js/mon.js:monstone. C uses process-global random functions for monstone's branch and calls mkcorpstat without carrying a partial provider. JavaScript used an rn2-only fallback for its own branch, then passed that object into mkcorpstat, mksobj_at, and other object-generation helpers. obj.js:sourceRandom requires rn2, rnd, rn1, and rne for an injected provider, which caused the production path to throw. The fix keeps the local rn2 fallback for the monstone branch and constructs one objectGenerationEnv from the original caller env and state, preserving complete explicit providers and leaving defaults to obj.js. Read and verified the existing mkobj.c:mkcorpstat/mksobj_at contract; neither callee is edited or claimed. Other monstone branches and callers remain covered by their existing evidence.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "xkilled",
+                "source": "mon.c:xkilled calls monstone when the stoned state is set; js/mon.js:xkilled takes that branch after the corpse's minstapetrify call."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "dropz",
+                "source": "do.c:dropz calls engulfer_digests_food while the hero is swallowed; its cockatrice branch reaches monstone through trap.c:minstapetrify and mon.c:xkilled."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-stone-migration.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 262,
+                "source": "do.c:dropz -> engulfer_digests_food -> trap.c:minstapetrify -> mon.c:xkilled -> monstone"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected production entry point is a swallowed purple worm digesting a dropped cockatrice corpse. C do.c:dropz calls engulfer_digests_food, whose petrifying branch calls trap.c:minstapetrify with byplayer true; mon.c:xkilled then calls monstone after setting the stoned state. The bounded fix supplies mkcorpstat's object-generation helpers with the complete default RNG provider while preserving any explicit provider. The baseline evaluator lost all segment output when JS threw, so its 0/290 totals do not establish the location of the first matching prefix. After the fix, a fresh strict differential directly established matching output through boundary 262; it then diverges at boundary 264 on the separate monmove.c:distfleeck path. This evidence covers monstone's exercised stoning/statue path and does not claim that the full recording matches.",
+        "entryPoints": [
+          {
+            "name": "swallowed purple worm digests a dropped cockatrice corpse",
+            "functions": [
+              "monstone"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 262,
+                "source": "do.c:dropz -> engulfer_digests_food -> trap.c:minstapetrify -> mon.c:xkilled -> monstone -> mkobj.c:mkcorpstat"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
