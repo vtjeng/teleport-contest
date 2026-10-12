@@ -1,0 +1,94 @@
+{
+  "session": "synthetic/v53/v53-ring-shop-wall-digging-damage-action3",
+  "corpus": "synthetic",
+  "batch": "v53",
+  "caseId": "v53-ring-shop-wall-digging-damage-action3",
+  "manifestPath": "challenges/manifests/v53.json",
+  "manifestSha256": "dd39b86ed28491087b5b7fc15cdb512bd375b0e5b359ac58f70dbb6bf321dcd7",
+  "recordingPath": "challenges/cases/v53/v53-ring-shop-wall-digging-damage-action3.session.json",
+  "recordingSha256": "36cd0c5a67add5e101979ecabf292962dcc20db0153dd9b7aa991805bc7a866b",
+  "evaluationPath": "challenges/evaluations/accepted-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-v53.json",
+  "evaluationCommit": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
+  "status": "complete",
+  "commit": "897c1ffc7db3a1db8321e7df56e99d9b566afbbf",
+  "summary": "On the admitted v53 case, horizontal wand digging breaks a shop wall and C bills the accumulated damage through shk.c:pay_for_damage; the JS zap_dig branch currently records note_unported and skips the call. The saved preparation trace identifies the resulting missing shopkeeper move and billing messages at the first divergence. The bounded source task is the whole pay_for_damage function and its existing C callers, with dig.c:dig and dokick.c:really_kick_object held until their current owners are accepted.",
+  "source": {
+    "file": "shk.c",
+    "branch": "When hero-caused wall or door damage has a live damage-list cost and an in-shop keeper, pay_for_damage chooses the nearest affected keeper, performs source-ordered movement and payment/hostility behavior, and may request payment; this case reaches zap_dig’s shopwall tail and the keeper relocation/payment path.",
+    "functions": [
+      "pay_for_damage"
+    ],
+    "callers": [
+      "apply.c:do_break_wand",
+      "explode.c:explode",
+      "dokick.c:really_kick_object",
+      "zap.c:bhit",
+      "zap.c:dobuzz",
+      "dig.c:dig",
+      "dig.c:digactualhole",
+      "dig.c:zap_dig",
+      "hack.c:still_chewing"
+    ],
+    "dependencies": [
+      "Existing js/shk.js:shop_keeper, inhishop, money2mon, check_credit, home_shk, pacify_shk, hot_pursuit, and cad implementations are direct dependencies.",
+      "Existing js/mon.js:mnexto and mnearto provide shopkeeper relocation.",
+      "shk.c:getcad is called with its result discarded; where its behavior is not ported, retain the explicit note_unported gap and skip it.",
+      "Caller ownership dependencies: B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012 owns dig.c:dig; A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012 owns dokick.c:really_kick_object."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted v53 evaluation challenges/evaluations/accepted-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-v53.json records 266/295 screens, 4555/4617 RNG calls, and 292/295 cursors matched for this case, with error null and 29 screens remaining.",
+    "The immutable v53 manifest sourceTrace for this case states the input breaks an ordinary main-room ring-shop wall with a charged digging wand; C follows zap.c:dozap to dig.c:zap_dig, bills 200 zorkmids through shk.c:pay_for_damage, and moves Gheel beside the damaged wall. The first screen divergence is at step 266.",
+    "C source nethack-c/upstream/src/dig.c:1548-1759 accumulates shopwall damage and calls pay_for_damage(shopdoor ? \"destroy\" : \"dig into\", FALSE) after the digging loop. nethack-c/upstream/src/shk.c:5174-5358 implements keeper selection, movement, billing and response. The call is absent in js/zap.js:6089-6318, which currently records note_unported('shk.c pay_for_damage').",
+    "Direct callers were enumerated with rg -n \"pay_for_damage\\(\" nethack-c/upstream/src/{apply,explode,zap,dig,hack,dokick}.c. Their JS gaps were found with rg -n \"pay_for_damage\" js/{apply,explode,zap,dig,hack,dokick}.js. B owns the separate dig.c:dig caller; A2 owns dokick.c:really_kick_object. Neither reservation overlaps the selected zap_dig caller or shk.c callee."
+  ],
+  "remainingScreens": 29,
+  "recordedSteps": 295,
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v53",
+    "caseId": "v53-ring-shop-wall-digging-damage-action3",
+    "session": "synthetic/v53/v53-ring-shop-wall-digging-damage-action3",
+    "manifestPath": "challenges/manifests/v53.json",
+    "manifestSha256": "dd39b86ed28491087b5b7fc15cdb512bd375b0e5b359ac58f70dbb6bf321dcd7",
+    "recordingPath": "challenges/cases/v53/v53-ring-shop-wall-digging-damage-action3.session.json",
+    "recordingSha256": "36cd0c5a67add5e101979ecabf292962dcc20db0153dd9b7aa991805bc7a866b",
+    "evaluationPath": "challenges/evaluations/accepted-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-v53.json",
+    "evaluationCommit": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
+    "remainingScreens": 29,
+    "recordedSteps": 295,
+    "previousScreensMatched": 266,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 266,
+        "total": 295
+      },
+      "rng": {
+        "matched": 4555,
+        "total": 4617
+      },
+      "cursors": {
+        "matched": 292,
+        "total": 295
+      }
+    },
+    "firstMismatch": {
+      "segmentIndex": 0,
+      "stepIndex": 266,
+      "key": "screen",
+      "sourceFile": "dig.c",
+      "function": "zap_dig",
+      "cRng": null,
+      "jsRng": null
+    },
+    "step": 266,
+    "kind": "screen",
+    "sourceFile": "dig.c",
+    "function": "zap_dig",
+    "message": "C calls shk.c:pay_for_damage after shop-wall digging; JS records the gap and skips the keeper response."
+  }
+}
