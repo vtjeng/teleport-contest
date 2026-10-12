@@ -278561,7 +278561,7 @@
     {
       "id": "port-uhitm-mhitm-ad-dise-pest-v47-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port Pestilence and disease monster attack branches.",
       "cFile": "uhitm.c",
       "sessions": [
@@ -278575,8 +278575,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_pest",
@@ -279037,6 +279040,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
