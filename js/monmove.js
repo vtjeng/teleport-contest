@@ -2078,11 +2078,16 @@ export async function monflee(
     const releaseHero = monster === state.u?.ustuck
         ? (env.releaseHero ?? ((mon, e) => release_hero(mon, e)))
         : null;
+    // monmove.c:monflee() calls canseemon() and pline_mon() directly. Keep
+    // injected operations for tests and higher-level callers, while making
+    // those source-owned defaults available to production callers that pass
+    // only the shared state/random environment.
     const canSeeMonster = checksMessage
-        ? requireFleeOperation(env, 'canSeeMonster')
+        ? (env.canSeeMonster ?? ((mon, e) => canseemon(mon, e.state)))
         : null;
     const fleeMessage = checksMessage
-        ? requireFleeOperation(env, 'fleeMessage')
+        ? (env.fleeMessage
+            ?? ((mon, detail, e) => monfleeMessage(mon, detail, e)))
         : null;
     const createGasCloud = createsGas
         ? (env.createGasCloud === undefined
