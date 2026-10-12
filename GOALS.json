@@ -293499,6 +293499,24 @@
         ],
         "incompleteFunctions": []
       }
+    },
+    {
+      "id": "fix-pray-blindness-caller-v52-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement fix_worst_trouble from undefined",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v52/v52-prayer-unicorn-alignment-blindness-action-attempt9"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "fix_worst_trouble",
+      "session": "synthetic/v52/v52-prayer-unicorn-alignment-blindness-action-attempt9"
     }
   ]
 }
