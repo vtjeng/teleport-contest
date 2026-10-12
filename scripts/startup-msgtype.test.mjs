@@ -926,7 +926,6 @@ test('custompline refuses every unsupported flag before effects', async () => {
     for (const flags of [
         0,
         PLINE_NOREPEAT,
-        SUPPRESS_HISTORY,
         URGENT_MESSAGE,
         PLINE_VERBALIZE,
         PLINE_SPEECH,

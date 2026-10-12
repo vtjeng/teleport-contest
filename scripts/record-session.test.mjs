@@ -5,6 +5,8 @@ import test from 'node:test';
 import {
     installDirTooLong,
     NETHACKDIR_MAX_LENGTH,
+    successfulTerminalExit,
+    terminalInputKey,
 } from './record-session.mjs';
 
 test('the NETHACKDIR limit is BUFSZ / 2 from the C source', () => {
@@ -29,4 +31,46 @@ test('installDirTooLong flags only paths nh_getenv() would discard', () => {
     assert.equal(installDirTooLong(
         '/home/vtjeng/development/vtjeng/teleport-contest/.claude/worktrees/recorder-wizards/nethack-c/recorder/install/games/lib/nethackdir',
     ), true);
+});
+
+test('terminal-input intent names exactly the recipe final key', () => {
+    assert.equal(terminalInputKey({ moves: '#save\ny', terminalInputKey: 'y' }), 'y');
+    assert.equal(terminalInputKey({ moves: '#save\ny' }), null);
+    assert.throws(
+        () => terminalInputKey({ moves: '#save\ny', terminalInputKey: 'n' }),
+        /must match the segment final input key/u,
+    );
+    assert.throws(
+        () => terminalInputKey({ moves: '#save\ny', terminalInputKey: 'yes' }),
+        /must match the segment final input key/u,
+    );
+});
+
+test('explicit terminal input accepts only successful natural process closure with real boundaries', () => {
+    const expected = {
+        exitCode: 0,
+        signal: null,
+        terminalKey: 'y',
+        moves: '#save\ny',
+        nextKeyIndex: 7,
+        stepCount: 8,
+        expectedSteps: 8,
+    };
+    assert.equal(successfulTerminalExit(expected), true);
+    assert.equal(successfulTerminalExit({
+        ...expected,
+        stepCount: 7,
+    }), true);
+
+    for (const invalid of [
+        { terminalKey: null },
+        { exitCode: 1 },
+        { exitCode: null, signal: 'SIGTERM' },
+        { nextKeyIndex: 6 },
+        { moves: '#save\nn' },
+        { stepCount: 0 },
+        { stepCount: 6 },
+    ]) {
+        assert.equal(successfulTerminalExit({ ...expected, ...invalid }), false);
+    }
 });

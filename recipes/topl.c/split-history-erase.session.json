@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Exercises topl.c:removetopl through invent.c:adjust_split when a counted yes/no prompt erases the first quantity digit before accepting a replacement.",
+  "segments": [
+    {
+      "seed": 450207,
+      "datetime": "20310406070829",
+      "nethackrc": "OPTIONS=name:SplitHistory,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  #wizwish\n3 food ration\nmiaI32 z\u001b"
+    }
+  ]
+}

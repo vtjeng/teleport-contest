@@ -37,7 +37,7 @@
 // while the cycle remains.
 import { yn_function } from './cmd.js';
 import {
-    ECMD_OK, FULL_MOON, LFILE_EXISTS, RANGE_LEVEL, VISITED,
+    BUFSZ, ECMD_OK, FULL_MOON, LFILE_EXISTS, RANGE_LEVEL, VISITED,
 } from './const.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
@@ -52,6 +52,7 @@ import { clearTtyMessageWindow, displayPendingTtyMessageWindow, ttyPline } from 
 import { tty_raw_print } from './tty_rawprint.js';
 import { save_waterlevel } from './mkmaze.js';
 import { save_oracles } from './rumors.js';
+import { tty_getmsghistory } from './topl.js';
 
 // ── Level-local timer and light source capture ──
 //
@@ -202,6 +203,18 @@ export function savelev(ledger, state = game, options = {}) {
 // path suffices.
 export const SAVE_FILE_PATH = 'nhsave';
 
+// C ref: save.c save_msghistory(). Its callback strings follow every other
+// serialized game field and preserve the ring's oldest-first order.
+export function save_msghistory(state = game) {
+    const messages = [];
+    let first = true;
+    for (let message; (message = tty_getmsghistory(first, state)) != null;
+        first = false) {
+        messages.push(message.slice(0, BUFSZ - 1));
+    }
+    return messages;
+}
+
 // C ref: save.c dosave():43-70, the #save command. Prompts "Really save?";
 // on a yes answer, serializes the game state via dosave0(), prints "Be
 // seeing you..." through the exit_nhwindows path, and ends the segment.
@@ -326,6 +339,7 @@ function serializeGameState(state) {
     const snapshot = {
         // C ref: savegamestate() fields in save.c:265-333 order
         nhuuid: state.svn.nhuuid,
+        msghistory: save_msghistory(state),
         moves: state.moves,
         hero_seq: state.hero_seq,
         flags: state.flags,

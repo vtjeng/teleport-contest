@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Blocked under the default recorder profile: its configured /usr/bin/compress is unavailable here, so this C run fails in files.c:nh_compress() before a complete save trace. The raw failure remains under investigations/topl.c; two-segment save/restore parity is recorded separately with upstream-supported COMPRESS=/usr/bin/gzip and COMPRESS_EXTENSION=.gz in save-message-history-gzip-profile.session.json.",
+  "segments": [
+    {
+      "seed": 17471068,
+      "datetime": "20640520102133",
+      "nethackrc": "OPTIONS=name:HistorySave,role:Tourist,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#save\ny ",
+      "recorderIsDst": true
+    }
+  ]
+}

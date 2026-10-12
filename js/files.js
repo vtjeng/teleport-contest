@@ -234,9 +234,8 @@ export async function read_tribute(
         const displayTextWindow = env.displayTextWindow
             ?? (await import('./tty_menu.js')).displayTtyMenuTextWindow;
         await displayTextWindow(state, passageLines);
-        // putmsghistory() is a window-port-only chronicle side effect whose
-        // current JavaScript owner is absent; its result is discarded in C.
-        if (state === game) note_unported('pline.c putmsghistory');
+        const { tty_putmsghistory } = await import('./topl.js');
+        tty_putmsghistory(lastline, false, state);
         return true;
     }
     const message = env.message

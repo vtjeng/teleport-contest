@@ -43,6 +43,37 @@ export function installDirTooLong(installDir) {
     return installDir.length > NETHACKDIR_MAX_LENGTH;
 }
 
+export function terminalInputKey(segment) {
+    if (!Object.hasOwn(segment, 'terminalInputKey')) return null;
+    const key = segment.terminalInputKey;
+    if (typeof key !== 'string' || key.length !== 1
+        || !segment.moves || segment.moves.at(-1) !== key) {
+        throw new Error(
+            'terminalInputKey must match the segment final input key',
+        );
+    }
+    return key;
+}
+
+export function successfulTerminalExit({
+    exitCode,
+    signal,
+    terminalKey,
+    moves,
+    nextKeyIndex,
+    stepCount,
+    expectedSteps,
+}) {
+    return terminalKey !== null
+        && exitCode === 0
+        && signal === null
+        && moves.at(-1) === terminalKey
+        && nextKeyIndex === moves.length
+        && stepCount > 0
+        && (stepCount === expectedSteps
+            || stepCount === expectedSteps - 1);
+}
+
 const RECORDER_TIME_ZONE = 'America/New_York';
 export const USAGE = 'Usage: node scripts/record-session.mjs <input.session.json> [output.session.json]';
 const RECORDER_TIME_FORMAT = new Intl.DateTimeFormat(
@@ -500,6 +531,7 @@ async function recordSegment({
     } else {
         expectedSteps = moves.length + 1;
     }
+    const terminalKey = terminalInputKey(seg);
     const steps = [];
     let lastRngBytes = 0;
     let nextKeyIdx = 0;
@@ -604,7 +636,15 @@ async function recordSegment({
             steps.push(step);
 
             if (steps.length >= expectedSteps) {
-                finish();
+                if (terminalKey !== null && nextKeyIdx === moves.length) {
+                    // A successful game-ending input emits its last real
+                    // frame before the process finishes. Let NetHack reach
+                    // its own successful exit instead of racing it with
+                    // SIGTERM.
+                    armTimeout(10000, 'awaiting successful terminal exit');
+                } else {
+                    finish();
+                }
                 return;
             }
             if (nextKeyIdx < moves.length) {
@@ -659,7 +699,16 @@ async function recordSegment({
                     `recorder exited with ${exitDescription} after `
                     + `${steps.length}/${expectedSteps} input boundaries`);
             }
-            if (steps.length !== expectedSteps) {
+            const terminalExit = successfulTerminalExit({
+                exitCode: code,
+                signal,
+                terminalKey,
+                moves,
+                nextKeyIndex: nextKeyIdx,
+                stepCount: steps.length,
+                expectedSteps,
+            });
+            if (steps.length !== expectedSteps && !terminalExit) {
                 throw new Error(
                     `recorder exited before recording all input boundaries: `
                     + `got ${steps.length}, expected ${expectedSteps} (${exitDescription})`);
@@ -669,12 +718,18 @@ async function recordSegment({
             if (signal && !expectedTerminationSignal) {
                 throw new Error(`recorder exited unexpectedly with ${exitDescription}`);
             }
-            resolveDone();
+            resolveDone({
+                steps: steps.slice(0, expectedSteps),
+                terminalExit: terminalExit ? {
+                    key: terminalKey,
+                    exitCode: code,
+                    finalBoundaryCaptured: steps.length === expectedSteps,
+                } : null,
+            });
         }).catch(rejectDone);
     });
 
-    await done;
-    return steps.slice(0, expectedSteps);
+    return done;
 }
 
 // ---------------------------------------------------------------------------
@@ -738,7 +793,7 @@ async function main() {
         for (let i = 0; i < session.segments.length; i++) {
             const seg = session.segments[i];
             console.error(`[seg ${i + 1}/${session.segments.length}] seed=${seg.seed} moves=${(seg.moves || '').length}`);
-            const steps = await recordSegment({
+            const result = await recordSegment({
                 seg,
                 isFirstSegment: i === 0,
                 binary,
@@ -753,8 +808,9 @@ async function main() {
                 nethackrc: seg.nethackrc,
                 moves: seg.moves,
                 recorderIsDst,
-                steps,
+                steps: result.steps,
             };
+            if (result.terminalExit) out.terminalExit = result.terminalExit;
             // Preserve any extra per-segment fields (e.g. checkpoints) that
             // existed in the input — we only overwrite steps.
             for (const k of Object.keys(seg)) {

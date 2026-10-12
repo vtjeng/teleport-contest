@@ -15,7 +15,9 @@
 // autocompletion arms below are the ones that write the expansion ahead of an
 // unmoved cursor and erase a stale expansion in place.
 
-import { BUFSZ, COLNO, quitchars } from './const.js';
+import {
+    BUFSZ, COLNO, TOPLINE_SPECIAL_PROMPT, quitchars,
+} from './const.js';
 import {
     ECM_EXACTMATCH,
     ECM_IGNOREAC,
@@ -32,7 +34,6 @@ import { flush_screen } from './display.js';
 import { game } from './gstate.js';
 import { mungspaces, visctrl } from './hacklib.js';
 import { nhgetch } from './input.js';
-import { NO_COLOR } from './terminal.js';
 import {
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
@@ -40,15 +41,13 @@ import {
     dismissPendingTtyMessage,
     ttyPline,
 } from './tty_message.js';
-
-// A getlin path this port has not reached yet.
-export class UnsupportedGetlinBoundaryError extends Error {
-    constructor(reason) {
-        super(`unsupported getlin input: ${reason}`);
-        this.name = 'UnsupportedGetlinBoundaryError';
-        this.reason = reason;
-    }
-}
+import {
+    putsyms,
+    remember_topl,
+    show_topl,
+    topl_putsym,
+    tty_doprev_message,
+} from './topl.js';
 
 // sys/share/unixtty.c gettty() copies these from the terminal.  Recorder
 // patch 006 synthesizes the conventional pair when there is no controlling
@@ -81,31 +80,6 @@ let suppress_history = false;
 // docorner() repair: both are wrapped-prompt
 // rendering and neither can be validated against a C recording without the
 // other.
-function topl_putsym(display, ch) {
-    if (ch === '\b') {
-        if (display.cursorCol === 0 && display.cursorRow > 0) {
-            display.setCursor(display.cols - 1, display.cursorRow - 1);
-        }
-        if (display.cursorCol > 0) {
-            display.setCursor(display.cursorCol - 1, display.cursorRow);
-        }
-        return;
-    }
-    if (ch === '\n') {
-        display.clearToEol();
-        display.setCursor(0, display.cursorRow + 1);
-        return;
-    }
-    if (display.cursorCol === display.cols - 1) topl_putsym(display, '\n');
-    display.setCell(display.cursorCol, display.cursorRow, ch, NO_COLOR, 0);
-    display.setCursor(display.cursorCol + 1, display.cursorRow);
-}
-
-// C ref: win/tty/topl.c putsyms().
-function putsyms(display, text) {
-    for (const ch of text) topl_putsym(display, ch);
-}
-
 // C ref: win/tty/wintty.c tty_clear_nhwindow(WIN_MESSAGE).  home() and
 // cl_end() clear the top row; docorner() repairs the map rows a wrapped
 // prompt overwrote, which only a prompt longer than one terminal row reaches.
@@ -114,15 +88,6 @@ function clearMessageWindow(display) {
     for (let row = 0; row <= lastRow && row < display.rows; ++row)
         display.clearRow(row);
     display.setCursor(0, 0);
-}
-
-// C ref: win/tty/topl.c show_topl(), which pline.c putmesg() reaches because
-// custompline()'s SUPPRESS_HISTORY becomes ATR_NOHISTORY and win/tty/wintty.c
-// advertises WC2_SUPPRESS_HIST: home(); cl_end(); addtopl(str).
-function show_topl(display, text) {
-    display.clearRow(0);
-    display.setCursor(0, 0);
-    putsyms(display, text);
 }
 
 // C ref: win/tty/getline.c hooked_tty_getlin().  Returns the buffer as C
@@ -155,13 +120,15 @@ async function hooked_tty_getlin(query, hook, state) {
     display.inread = (display.inread ?? 0) + 1;
     let text = '';
     let pos = 0;
+    let doprev = false;
     try {
         // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s ", query).  vpline()
-        // flushes the map first; remember_topl() then moves whatever the top line
-        // held into history and empties gt.toplines before show_topl() repaints.
+        // flushes the map first; remember_topl() moves the old line into
+        // history before show_topl() repaints.
         if (state.u?.ux) await flush_screen(1);
-        state._ttyToplines = '';
-        show_topl(display, `${query} `);
+        remember_topl(state);
+        show_topl(`${query} `, state);
+        state._ttyToplines = `${query} `;
         state._pending_message = '';
         // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
         display.toplin = TOPLINE_NEED_MORE;
@@ -195,28 +162,60 @@ async function hooked_tty_getlin(query, hook, state) {
                     text = '';
                     pos = 0;
                     clearMessageWindow(display);
-                    putsyms(display, `${query} `);
+                    putsyms(`${query} `, state);
                     continue;
                 }
                 text = '\x1B';
                 break;
             }
             if (c === CTRL_P) {
-                // ctrl-P replays message history through tty_doprev_message(),
-                // which nothing in this port owns yet.
-                throw new UnsupportedGetlinBoundaryError(
-                    'ctrl-P recalls message history at a getlin prompt',
+                                const mode = state.iflags?.prevmsg_window ?? 's';
+                if (mode === 's' || (mode === 'c' && !doprev)) {
+                    const savedInread = display.inread;
+                    display.inread = 0;
+                    if (!doprev) await tty_doprev_message(state);
+                    await tty_doprev_message(state);
+                    display.inread = savedInread;
+                    doprev = true;
+                    continue;
+                }
+                const savedInread = display.inread;
+                display.inread = 0;
+                await tty_doprev_message(state);
+                display.inread = savedInread;
+                clearMessageWindow(display);
+                state._ttyToplines = `${query} ${text}`;
+                display.toplines = state._ttyToplines;
+                show_topl(state._ttyToplines, state);
+                pos = Math.min(pos, text.length);
+                display.setCursor(
+                    Math.min(display.cols - 1, query.length + 1 + pos), 0,
                 );
+                text = text.slice(0, pos);
+                doprev = false;
+                continue;
+            }
+            if (doprev) {
+                clearMessageWindow(display);
+                state._ttyToplines = `${query} ${text}`;
+                display.toplines = state._ttyToplines;
+                show_topl(state._ttyToplines, state);
+                display.setCursor(
+                    Math.min(display.cols - 1, query.length + 1 + pos), 0,
+                );
+                text = text.slice(0, pos);
+                doprev = false;
+                continue;
             }
             if (c === ERASE_CHAR || c === BACKSPACE) {
                 if (pos) {
                     --pos;
-                    topl_putsym(display, '\b');
+                    topl_putsym('\b', state);
                     // Blank whatever the hook painted past the new insertion
                     // point, then step the cursor back over those blanks.
                     const painted = text.length - pos;
-                    for (let i = 0; i < painted; ++i) topl_putsym(display, ' ');
-                    for (let i = 0; i < painted; ++i) topl_putsym(display, '\b');
+                    for (let i = 0; i < painted; ++i) topl_putsym(' ', state);
+                    for (let i = 0; i < painted; ++i) topl_putsym('\b', state);
                     text = text.slice(0, pos);
                 }
                 // tty_nhbell() otherwise, which writes no cell.
@@ -228,29 +227,29 @@ async function hooked_tty_getlin(query, hook, state) {
                 // before *bufp = c truncates the buffer at the insertion point.
                 const priorEnd = text.length;
                 text = text.slice(0, pos) + String.fromCharCode(c);
-                putsyms(display, text.slice(pos));
+                putsyms(text.slice(pos), state);
                 ++pos;
                 const expansion = hook ? hook(text) : null;
                 if (expansion !== null) {
                     text = expansion;
-                    putsyms(display, text.slice(pos));
+                    putsyms(text.slice(pos), state);
                     // Pointer and cursor left where they were.
                     for (let i = pos; i < text.length; ++i)
-                        topl_putsym(display, '\b');
+                        topl_putsym('\b', state);
                 } else if (priorEnd > pos) {
                     // Erase the rest of the prior guess.
                     for (let i = pos; i < priorEnd; ++i)
-                        topl_putsym(display, ' ');
+                        topl_putsym(' ', state);
                     for (let i = pos; i < priorEnd; ++i)
-                        topl_putsym(display, '\b');
+                        topl_putsym('\b', state);
                 }
                 continue;
             }
             if (c === KILL_CHAR || c === 0x7F) {
                 // This test comes last because '@' can be the kill character.
-                for (let i = pos; i < text.length; ++i) topl_putsym(display, ' ');
+                for (let i = pos; i < text.length; ++i) topl_putsym(' ', state);
                 for (pos = text.length; pos > 0; --pos)
-                    putsyms(display, '\b \b');
+                    putsyms('\b \b', state);
                 text = '';
             }
             // tty_nhbell() for anything else.
@@ -287,7 +286,7 @@ async function hooked_tty_getlin(query, hook, state) {
 //   a set holding an uppercase letter, which suppresses lowc() on the answer;
 //   a set holding <esc>, whose tail names responses the prompt hides.
 // The ctrl-P reprompt inside the loop stops as well, for the same reason
-// hooked_tty_getlin()'s does: tty_doprev_message() has no port.
+    // hooked_tty_getlin() also routes Ctrl-P through tty_doprev_message().
 //
 // `def` is unread on the unrestricted arm; C names it because clean_up is
 // shared, and on the restricted arm quitchars and Escape resolve to it.
@@ -303,10 +302,9 @@ export async function tty_yn_function(query, resp, def, state = game) {
         await dismissPendingTtyMessage(state);
     // topl.c:391 clears WIN_STOP and WIN_NOSTOP whether or not more() ran.
     state._ttyMessageStopped = false;
-    // topl.c:392 then assigns ttyDisplay->toplin = TOPLINE_SPECIAL_PROMPT and
-    // topl.c:393 raises ttyDisplay->inread. This yn reader still omits those
-    // wrapped-prompt/history states; hooked_tty_getlin models inread for its
-    // physical-screen-preserving prompt flush.
+    // topl.c:392-393 marks a special prompt and raises inread.
+    display.toplin = TOPLINE_SPECIAL_PROMPT;
+    display.inread = (display.inread ?? 0) + 1;
 
     // Both arms end in the same
     // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s", prompt); they
@@ -317,11 +315,6 @@ export async function tty_yn_function(query, resp, def, state = game) {
     if (resp !== null) {
         /* normally we force lowercase, but if any uppercase letters
            are present in the allowed response, preserve case */
-        if (preserveCase) {
-            throw new UnsupportedGetlinBoundaryError(
-                'tty_yn_function() preserving case in the answer',
-            );
-        }
         // C ref: topl.c:412-413. Characters after the first ESC in resp are
         // accepted but not shown in the prompt bracket. The displayed portion
         // is everything before the ESC; the full resp (without the ESC itself)
@@ -343,10 +336,11 @@ export async function tty_yn_function(query, resp, def, state = game) {
         prompt = `${query} `;
     }
     if (state.u?.ux && !state._bonesRestorePrompt) await flush_screen(1);
-    // remember_topl() moves whatever the top line held into history and
-    // empties gt.toplines; show_topl() then repaints from column zero.
-    state._ttyToplines = '';
-    show_topl(display, prompt);
+    // custompline(SUPPRESS_HISTORY) remembers the old line, then draws this
+    // prompt without adding it to history yet.
+    remember_topl(state);
+    show_topl(prompt, state);
+    state._ttyToplines = prompt;
     state._pending_message = '';
     // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
     display.toplin = TOPLINE_NEED_MORE;
@@ -356,21 +350,42 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // arm; `def` arrives as the one-character string its callers spell.
     const defByte = def ? def.charCodeAt(0) : 0;
     let q;
+    let doprev = false;
     if (resp === null) {
         q = await readchar(state);
     } else {
         do { /* loop until we get valid input */
             q = await readchar(state);
             /* !preserve_case */
-            if (q >= 0x41 && q <= 0x5A) q |= 0x20; /* lowc() */
+            if (!preserveCase && q >= 0x41 && q <= 0x5A) q |= 0x20;
             if (q === CTRL_P) {
-                // Both ctrl-P arms replay message history through
-                // tty_doprev_message() and then repaint the prompt; neither is
-                // ported.  `doprev` is only ever set inside them, so the
-                // `else if (doprev)` reprompt below cannot be reached either.
-                throw new UnsupportedGetlinBoundaryError(
-                    'ctrl-P recalls message history at a yn prompt',
-                );
+                const mode = state.iflags?.prevmsg_window ?? 's';
+                if (mode !== 's') {
+                    const savedInread = display.inread;
+                    display.inread = 0;
+                    await tty_doprev_message(state);
+                    display.inread = savedInread;
+                    clearMessageWindow(display);
+                    show_topl(prompt, state);
+                    state._ttyToplines = prompt;
+                    display.toplines = prompt;
+                    display.toplin = TOPLINE_NEED_MORE;
+                } else {
+                    if (!doprev) await tty_doprev_message(state);
+                    await tty_doprev_message(state);
+                    doprev = true;
+                }
+                q = 0;
+                continue;
+            } else if (doprev) {
+                clearMessageWindow(display);
+                show_topl(prompt, state);
+                state._ttyToplines = prompt;
+                display.toplines = prompt;
+                display.toplin = TOPLINE_NEED_MORE;
+                doprev = false;
+                q = 0;
+                continue;
             }
             if (q === ESC) {
                 if (resp.includes('q')) q = 'q'.charCodeAt(0);
@@ -462,6 +477,8 @@ export async function tty_yn_function(query, resp, def, state = game) {
         state._pending_message = prompt;
         display.toplin = TOPLINE_NON_EMPTY;
     }
+    display.inread = Math.max(0, display.inread - 1);
+    if (display.intr) --display.intr;
     return q;
 }
 

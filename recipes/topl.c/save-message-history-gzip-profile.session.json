@@ -1,0 +1,22 @@
+{
+  "version": 5,
+  "comment": "Save and restore message-history capture with a two-segment C recorder built from upstream 16ff59115315917b93185d026aeefea06db9b0f4 and the seven repository recorder patches. Isolated include/config.h uses the upstream-supported COMPRESS=/usr/bin/gzip and COMPRESS_EXTENSION=.gz profile; all seed, datetime, RNG logging, and game source/patches remain unchanged. terminalInputKey records the explicit final save confirmation; the recorder stores only actual emitted screens, RNG calls, and cursors. Build identity: investigations/topl.c/save-compression-gzip-profile.json.",
+  "segments": [
+    {
+      "seed": 17471068,
+      "datetime": "20640520102133",
+      "nethackrc": "OPTIONS=name:HistorySave,role:Tourist,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#save\ny",
+      "recorderIsDst": true,
+      "terminalInputKey": "y"
+    },
+    {
+      "seed": 17471068,
+      "datetime": "20640520102133",
+      "nethackrc": "OPTIONS=name:HistorySave,role:Tourist,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#save\ny",
+      "recorderIsDst": true,
+      "terminalInputKey": "y"
+    }
+  ]
+}

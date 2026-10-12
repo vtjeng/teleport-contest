@@ -8,6 +8,8 @@ import {
     NHW_BASE,
     NHW_MAP,
     NHW_MESSAGE,
+    NHW_MENU,
+    NHW_TEXT,
     ROWNO,
     WIN_ERR,
 } from './const.js';
@@ -79,6 +81,8 @@ export function tty_create_nhwindow(type, state = game) {
         cols,
         maxrow: 0,
         maxcol: 0,
+        data: null,
+        datlen: null,
     };
     if (type === NHW_BASE) {
         window.rows = rows;
@@ -91,13 +95,23 @@ export function tty_create_nhwindow(type, state = game) {
             Math.max(20, history),
         );
         window.rows = state.iflags.msg_history;
-        window.maxrow = window.rows;
+        // wintty.c allocates rows slots, then uses maxrow as the next history
+        // slot (zero for an empty ring).
+        window.maxrow = 0;
+        window.maxcol = 0;
+        window.data = Array(window.rows).fill(null);
+        window.datlen = Array(window.rows).fill(0);
+        wt.messageWindow = id;
     } else if (type === NHW_MAP) {
         // wintty.c:914-924.  The map is unbuffered; display.js owns its
         // glyph grid, while this descriptor retains the source coordinates.
         window.offy = 1;
         window.rows = ROWNO;
         window.cols = COLNO;
+    } else if (type === NHW_MENU || type === NHW_TEXT) {
+        window.rows = 0;
+        window.offx = 0;
+        window.offy = 0;
     } else {
         throw new Error(
             'tty_create_nhwindow() only ports the NHW_MESSAGE and NHW_MAP startup branches',

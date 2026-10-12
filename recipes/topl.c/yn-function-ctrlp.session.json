@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Exercises Ctrl-P recall while tty_yn_function handles the debug quit confirmation, then declines to quit.",
+  "segments": [
+    {
+      "seed": 17471067,
+      "datetime": "20640519102133",
+      "nethackrc": "OPTIONS=name:PromptCancel,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "Q\u0010n",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -54,6 +54,15 @@ import { initrack } from './track.js';
 import { _uInitInternals } from './u_init.js';
 import { select_menu } from './windows.js';
 import { TTY_STARTUP_BANNER } from './tty_startup.js';
+import { tty_putmsghistory } from './topl.js';
+
+// C ref: restore.c restore_msghistory(). The callback buffers messages in
+// order, then the null terminator asks the window port to restore the ring.
+export function restore_msghistory(messages, state = game) {
+    const saved = Array.isArray(messages) ? messages : [];
+    for (const message of saved) tty_putmsghistory(message, true, state);
+    if (saved.length) tty_putmsghistory(null, true, state);
+}
 
 // C ref: files.c get_saved_games(). The browser save layer has one stable
 // `nhsave` path rather than C's uid-and-name-derived files, so the one JSON
@@ -346,6 +355,7 @@ export async function dorestore(state = game) {
         vfsDeleteFile(SAVE_FILE_PATH);
     }
 
+    restore_msghistory(snapshot.msghistory, state);
     return true;
 }
 

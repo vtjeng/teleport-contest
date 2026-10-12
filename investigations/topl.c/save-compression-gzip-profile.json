@@ -1,0 +1,107 @@
+{
+  "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+  "purpose": "Record the isolated C save/restore recorder profile and observed terminal-input boundary.",
+  "build": {
+    "worktree": "/tmp/a2-recorder-gzip",
+    "upstreamCommit": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "recorderPatches": [
+      [
+        "001-deterministic-runtime.patch",
+        "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58"
+      ],
+      [
+        "002-deterministic-qsort.patch",
+        "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425"
+      ],
+      [
+        "003-rng-log-core.patch",
+        "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9"
+      ],
+      [
+        "004-rng-log-lua-context.patch",
+        "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36"
+      ],
+      [
+        "005-rng-display-logging.patch",
+        "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966"
+      ],
+      [
+        "006-nomux-capture.patch",
+        "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95"
+      ],
+      [
+        "007-stable-pointer-format.patch",
+        "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+      ]
+    ],
+    "hintsProfile": "sys/unix/hints/linux-minimal",
+    "compiler": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+    "buildEnvironment": {
+      "CC": "clang",
+      "SYSCFLAGS": "-DLUA_USE_POSIX",
+      "SOURCE_DATE_EPOCH": "1777723200",
+      "make": "make -j2; make install with the documented sysconf copy/install arguments"
+    },
+    "onlyRecorderConfigurationDifference": {
+      "file": "include/config.h",
+      "defines": [
+        "#define COMPRESS \"/usr/bin/gzip\"",
+        "#define COMPRESS_EXTENSION \".gz\""
+      ],
+      "source": "The same upstream-supported compressor settings used by sys/unix/hints/linux.500; applied only in the isolated temporary build."
+    },
+    "gameSourceAndPatchChanges": "None; fresh copy of the upstream gitlink at the listed commit plus the seven listed recorder patches.",
+    "installedSysconfMatchesSource": true,
+    "installedData": "Installed from this build; recorder executable at install/games/lib/nethackdir/nethack.",
+    "standardRecorderSetup": {
+      "sysconf": [
+        "Disabled GDBPATH/PANICTRACE_GDB because the configured debugger is unavailable.",
+        "Replaced GREPPATH only if the upstream path was unavailable.",
+        "Set WIZARDS=* as build-recorder.sh does for debug recipes.",
+        "Installed sysconf matches the isolated source tree."
+      ],
+      "smoke": {
+        "status": "pass",
+        "output": "[ok] recorder smoke: 2870 core RNG calls"
+      }
+    }
+  },
+  "recipeInputs": {
+    "seed": 17471068,
+    "datetime": "20640520102133",
+    "originalMoves": "#save\\ny ",
+    "proposedRestorePairMoves": [
+      "#save\\ny",
+      "#save\\ny"
+    ],
+    "nethackrc": "OPTIONS=name:HistorySave,role:Tourist,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\\n"
+  },
+  "result": {
+    "status": "strict C/JavaScript parity for two-segment save/restore",
+    "diagnostic": "The initial isolated build omitted build-recorder.sh post-install sysconf repairs; C exited 1 in options.c:initoptions_init before saving or invoking gzip. Applying the documented repairs resolved this; no compressor or input/exit guard was bypassed.",
+    "recipe": "recipes/topl.c/save-message-history-gzip-profile.session.json",
+    "recording": "recordings/topl.c/save-message-history-gzip-profile.session.json",
+    "recordingTotals": {
+      "segments": 2,
+      "rng": 2504,
+      "screens": 16,
+      "cursors": 16,
+      "animations": 0
+    },
+    "diffReceipt": "/tmp/teleport-validation-1000/run-xwbaDG/receipt.json",
+    "diffResult": "PRNG values, all screens/cells/attributes, cursors, and animation frame counts match.",
+    "saveArtifact": {
+      "path": "/tmp/a2-recorder-gzip/install/games/lib/nethackdir/save/1000HistorySave.gz",
+      "bytes": 9413
+    },
+    "terminalInputContract": "Each recipe segment explicitly names terminalInputKey=\"y\". C exits with code 0 naturally after save, and the recorder preserves all eight emitted boundaries, including the actual terminal boundary with key y. No missing marker or screen is synthesized.",
+    "noOutputNormalization": true,
+    "successfulTerminalExitRequirements": [
+      "Explicit final input key equals the last recipe move.",
+      "C exits naturally with code 0 and no signal.",
+      "Every recipe key has been sent.",
+      "The trace has either its full expected boundary count or exactly one missing final boundary.",
+      "Timeouts, signals, nonzero exits, early exit, and larger boundary gaps remain failures."
+    ]
+  }
+}
