@@ -293750,7 +293750,7 @@
     {
       "id": "C-v52-use-misc-newcham-caller-binding-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Wire monster polymorph item and trap actions",
       "cFile": "muse.c",
       "sessions": [
@@ -293760,10 +293760,74 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "704273f10edfb0f1a59d6440631956df440d1403",
       "delivered": null,
       "function": "use_misc",
-      "session": "synthetic/v52/v52-monster-deliberate-polymorph-trap-action-attempt3"
+      "session": "synthetic/v52/v52-monster-deliberate-polymorph-trap-action-attempt3",
+      "closeStanding": {
+        "sha": "704273f10edfb0f1a59d6440631956df440d1403",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f6d9b6e0dc32799bf0b4bf7173d5357e3cdf4f69",
+        "target": "synthetic/v52/v52-monster-deliberate-polymorph-trap-action-attempt3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/704273f10edfb0f1a59d6440631956df440d1403/run-hosted-u8FUhB/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "use_misc",
+            "symbol": "use_misc",
+            "implementation": "js/muse.js",
+            "pure": false,
+            "sourceReview": "Bounded repair to the three polymorph callers only. C muse.c:use_misc calls newcham after mzapwand and muse_newcham_mon with NC_VIA_WAND_OR_SPELL | NC_SHOW_MSG for a wand; after potion consumption and the visible mutation message, it calls muse_newcham_mon and newcham with NC_SHOW_MSG for a potion; and after trap reveal, message, relocation and redraw, it calls newcham with a NULL target and NC_SHOW_MSG. The C return is discarded. JS now awaits the existing newcham implementation with the same target, flags, state and caller environment; it removes all three mon.c:newcham gap markers. muse_newcham_mon and newcham/select_newcham_form already exist and are reused. No whole muse.c:use_misc, mon.c:newcham or muse_newcham_mon completion is claimed.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "The production monster action adapter calls find_misc then passes the selected action, state and environment to use_misc; C monmove.c:m_move has the matching find_misc/use_misc order."
+              }
+            ],
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-monster-deliberate-polymorph-trap-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 189,
+                "source": "monmove.c:m_move -> muse.c:find_misc/use_misc MUSE_POLY_TRAP -> existing mon.c:newcham -> select_newcham_form; full recorded segment matches, including trap relocation, shape selection and subsequent monster action"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This is a bounded caller repair, not source completion for use_misc or newcham. The selected v52 session reaches the MUSE_POLY_TRAP entry through monmove.c:m_move and now matches all 190 recorded steps. The wand and potion call sites in the same source function are also bound in C order; scripts/muse.test.mjs pins their target and flags and the trap path's actual NULL-target runtime call.",
+        "entryPoints": [
+          {
+            "name": "Monster deliberately enters a polymorph trap and changes form",
+            "functions": [
+              "use_misc"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-monster-deliberate-polymorph-trap-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 189,
+                "source": "monmove.c:m_move -> muse.c:find_misc/use_misc MUSE_POLY_TRAP -> mon.c:newcham with a NULL target"
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": []
+      }
     }
   ]
 }
