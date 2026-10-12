@@ -389,11 +389,11 @@ export function verifyPublicationChanges(root, tested, published) {
         const investigation = INVESTIGATION_PATH.exec(path);
         const evaluation = /^challenges\/evaluations\/[a-z0-9][a-z0-9.-]*\.json$/u.test(path);
         check(investigation || evaluation, `published commit has unvalidated changes: ${path}`);
-        const entry = git(root, 'ls-tree', '-z', published, '--', path);
-        check(entry.startsWith('100644 blob '), `publication report must be a regular non-executable file: ${path}`);
         if (investigation) {
             verifyInvestigationReport(root, tested, published, path, investigation[1]);
         } else {
+            const entry = git(root, 'ls-tree', '-z', published, '--', path);
+            check(entry.startsWith('100644 blob '), `publication report must be a regular non-executable file: ${path}`);
             const report = json(root, published, path);
             check(!git(root, 'ls-tree', '-z', tested, '--', path), `challenge evaluations are immutable: ${path}`);
             // A report may describe an intermediate candidate, not the final one.
