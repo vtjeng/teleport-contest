@@ -281247,8 +281247,8 @@
           "name": "rename_disco",
           "line": 1131,
           "endLine": 1209,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -281500,7 +281500,58 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rename_disco",
+            "implementation": "js/o_init.js",
+            "symbol": "rename_disco",
+            "sourceReview": "Read all of o_init.c:1131-1206 in order. The loop walks flags.inv_order, scans each class from svb.bases to the class boundary, increments ct before checking objtyp_is_callable, groups callable rows with one class heading, then distinguishes no discoveries, no callable discoveries, and menu selection. Selection maps to a zeroobj-derived temporary with otyp, oclass, quan=1, known=!oc_uses_known, and dknown=true before docall. No RNG or durable game-state write occurs in rename_disco itself; messages, menu drawing/input, and docall make it impure. Existing callees were inspected: interesting_to_discover and disco_append_typename in o_init.c, objtyp_is_callable and docall in do_name.c, and add_menu_heading/select_menu through windows.c. Their JavaScript implementations are reused; no unported return-valued callee remains.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "docallcmd",
+                "source": "do_name.c:docallcmd() case 'd' calls rename_disco() (C source line 594). cmd.c registers both 'call' and 'name' commands to docallcmd()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v48",
+                "caseId": "v48-name-discovered-object-type-attempt2",
+                "segment": 0,
+                "fromStep": 7,
+                "throughStep": 16,
+                "source": "cmd.c extcmdlist 'name' -> do_name.c:docallcmd() case 'd' -> o_init.c:rename_disco() -> do_name.c:docall()"
+              }
+            ],
+            "checkedAt": "e1a9ff18f9ef902e8df48864b3c9a7dafa408cec"
+          }
+        ],
+        "entryPointReview": "The active entry point is the extended #name/#call command choosing the discovery-list option. cmd.c registers both command names to do_name.c:docallcmd(); its case 'd' calls o_init.c:rename_disco(), which reaches do_name.c:docall() after a type is selected. The patched C recorder includes this path, and the admitted v48 recipe uses #name to select a discovered armor type and assign its alias. No compile-time-disabled caller branch was found for rename_disco().",
+        "entryPoints": [
+          {
+            "name": "Extended #name/#call command selects and names a discovered object type",
+            "functions": [
+              "rename_disco"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v48",
+                "caseId": "v48-name-discovered-object-type-attempt2",
+                "segment": 0,
+                "fromStep": 7,
+                "throughStep": 16,
+                "source": "cmd.c extcmdlist 'name' -> do_name.c:docallcmd() case 'd' -> o_init.c:rename_disco() -> do_name.c:docall()"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
