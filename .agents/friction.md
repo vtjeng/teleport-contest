@@ -118,3 +118,13 @@ triage decisions or fix references.
 
 - Friction: an evidence-only Prep14 correction could not submit an empty commit because the ledger requires a changed path.
 - Outcome: Prep preserved the original 124 files and added an input-identical cobra recipe copy with corrected source and coverage metadata. Its new packet keeps twelve cases and excludes twenty-eight redundant controls; no C replay was repeated.
+
+### 2026-10-12 — targeting-menu intake and repeated merge syntax
+
+- Context: B delivery `801cda8f8eab1e9f801f8b4dbf21baf7e745fcf9`, combined candidate `ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3`.
+- Friction: goal selection rejected the original investigation because `mismatch.session` and `mismatch.remainingScreens` were missing. The intake monitor measured about 72 seconds for the rejected queue/open command and about 115 seconds for its corrected retry.
+- Reason: the existing investigation validator requires identity and count inside the mismatch object. The coordinator imported the original report before running `readInvestigation` against its saved queue entry.
+- Outcome: separate coordinator commits retained the worker report and added current provenance and required mismatch fields; selection and hosted validation passed. The next queued inventtype report was checked before import and has the same missing fields.
+
+- Friction: `git merge --trailer` failed again with exit 129, repeating the Prep13 mistake already recorded here.
+- Outcome: merge used `--no-commit`, then `git commit --trailer`; the report-only conflict retained the verified current diagnosis.

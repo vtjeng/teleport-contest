@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c:use_grapple Skilled grappling chooses visible floor item and pulls it; skill/range decides target choices.",
+  "segments": [
+    {
+      "seed": 51000107,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V51Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017grappling hook\n\u0017newt corpse\ndp    wo    ao .          .          "
+    }
+  ]
+}

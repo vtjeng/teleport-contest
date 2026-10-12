@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source mission cmd.c:domonability -> potion.c:split_mon: Fountain gremlin special ability calls cloneu and halves monster-form HP and maxHP; dryup follows.",
+  "segments": [
+    {
+      "seed": 51000201,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V51Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #polyself\ngremlin\n                    l\u0017fountain\n#monster\n                    n          "
+    }
+  ]
+}

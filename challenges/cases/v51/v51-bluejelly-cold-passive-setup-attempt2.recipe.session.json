@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mhitu.c:passiveum; Hero blue jelly gets armed dwarf strike; AD_COLD passive damages attacker, restores jelly HP, may split_mon when exceeding threshold.",
+  "segments": [
+    {
+      "seed": 51000802,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V51Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #polyself\nblue jelly\n                    #wizgenesis\nhostile dwarf\n         #wizmap\n"
+    }
+  ]
+}

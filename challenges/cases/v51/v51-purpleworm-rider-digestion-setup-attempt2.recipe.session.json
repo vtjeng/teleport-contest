@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first uhitm.c:gulpum; Purple worm AD_DGST against live Rider enters fatal digestion message and done(DIED), separately from touch-petrifying fatal gulp.",
+  "segments": [
+    {
+      "seed": 51000803,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V51Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #polyself\npurple worm\n                    #wizgenesis\nhostile Death\ny         #wizmap\n"
+    }
+  ]
+}

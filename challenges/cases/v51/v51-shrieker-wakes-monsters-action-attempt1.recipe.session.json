@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source mission cmd.c:domonability -> wizard.c:aggravate: Shriek clears sleeping/waiting flags for same tower region.",
+  "segments": [
+    {
+      "seed": 51000202,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V51Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #polyself\nshrieker\n                    #wizgenesis\nhostile sleeping newt\n    #monster\n          m.          "
+    }
+  ]
+}

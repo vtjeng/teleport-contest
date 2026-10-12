@@ -8,8 +8,8 @@
   "manifestPath": "challenges/manifests/v47.json",
   "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
   "recordingSha256": "2090d05e3e3a8d98b6aa17a8f06df4cf7ca8ea5cccd480e9411adb66f5d03164",
-  "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
-  "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+  "evaluationPath": "challenges/evaluations/accepted-ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3-v47.json",
+  "evaluationCommit": "ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3",
   "status": "complete",
   "commit": "3999fd2ffbccd412c3be39dc8b69bf2a0c88df16",
   "mismatch": {
@@ -113,17 +113,17 @@
     "luaFile": null,
     "line": 1466
   },
-  "summary": "At segment 0 step 76, a polymorphed hero energy vortex engulfs the kobold shaman. C passes the successful AD_DREN roll from uhitm.c:gulpum() to mhitm.c:xdrainenergym(), which sees the target has an AT_MAGC attack and mspec_used below 20, adds d(2,2), and prints the lethargy message. JavaScript still skips that C helper. The complete direct-caller set also includes uhitm.c:mhitm_ad_dren(), reached through the AD_DREN arm of uhitm.c:mhitm_adtyping(); B accepted the earlier reservation, so this caller can now be claimed.",
+  "summary": "The admitted v47 case reaches uhitm.c:gulpum() at segment 0 step 76. Its successful AD_DREN roll calls mhitm.c:xdrainenergym(), which adds d(2,2) to the eligible kobold shaman and prints the lethargy message. The corrected M2M recording reaches uhitm.c:mhitm_ad_dren() at segment 0 step 74, but rn2(4)=2 fails its gate, so that recording does not call xdrainenergym(). The energy-vortex monster-to-hero engulf path is mhitu.c:gulpmu() and calls drain_en(); it is outside this source scope.",
   "source": {
     "file": "mhitm.c",
-    "branch": "mhitm.c:xdrainenergym() runs only when the target monster has mspec_used < 20 and has an AT_MAGC or AT_BREA attack. It adds d(2,2) to mspec_used and, when givemsg is true, calls pline_mon() with “seems lethargic.” C calls this helper directly from uhitm.c:gulpum() for an engulfing AD_DREN attack and from uhitm.c:mhitm_ad_dren() for hero-versus-monster and monster-versus-monster AD_DREN dispatch. The selected case reaches the gulpum() call; the mhitm_ad_dren() calls are routed through uhitm.c:mhitm_adtyping().",
+    "branch": "mhitm.c:xdrainenergym() checks mspec_used < 20 and AT_MAGC or AT_BREA, adds d(2,2), and calls pline_mon() when givemsg is true. Its direct calls include uhitm.c:gulpum() for hero polymorph engulfing and uhitm.c:mhitm_ad_dren() for hero-attacker and M2M AD_DREN attacks. mhitu.c:gulpmu() handles an energy-vortex monster engulfing the hero through drain_en(), not xdrainenergym().",
     "functions": [
       "xdrainenergym"
     ],
     "callers": [
-      "uhitm.c:gulpum() at lines 5174-5177 calls xdrainenergym(mdef, TRUE) after a successful rn2(4) roll for an AD_DREN engulf. The selected v47 range reaches this direct call at step 76. JavaScript uhitm.js:gulpum() currently replaces the helper with note_unported.",
-      "uhitm.c:mhitm_ad_dren() at lines 2418-2442 calls xdrainenergym() in its hero-attacker and monster-attacker branches. The helper also handles the hero-defender branch by calling hitmsg() and drain_en(). Its direct caller is uhitm.c:mhitm_adtyping() case AD_DREN at line 4808; JavaScript currently refuses that arm.",
-      "uhitm.c:mhitm_adtyping() is called by uhitm.c:damageum(), mhitm.c:mdamagem(), and mhitu.c:hitmu(). Their existing JavaScript paths are uhitm.js:damageum(), mhitm.js:mdamagem(), and mhitu.js:hitmu(); all already dispatch through uhitm.js:mhitm_adtyping(). The task wires only its AD_DREN arm, plus the direct gulpum AD_DREN call."
+      "uhitm.c:gulpum() AD_DREN branch (5174-5177) calls xdrainenergym(mdef, TRUE) after a successful rn2(4); the admitted v47 prefix executes the helper at segment 0 step 76.",
+      "uhitm.c:mhitm_ad_dren() (2418-2442) calls xdrainenergym() for eligible hero-attacker and M2M AD_DREN hits. uhitm.c:mhitm_adtyping() dispatches AD_DREN to this helper. The matching M2M recording reaches the resolver at step 74 but rn2(4)=2 prevents the nested xdrainenergym() call.",
+      "uhitm.c:damageum(), mhitm.c:mdamagem(), and mhitu.c:hitmu() call uhitm.c:mhitm_adtyping(); their JavaScript equivalents retain this shared dispatcher. The energy-vortex monster-to-hero engulf path is mhitu.c:gulpmu() -> drain_en(), outside this selected helper path."
     ],
     "dependencies": [
       "mondata.c:attacktype() is a pure catalog helper implemented by js/mondata.js.",
@@ -140,7 +140,7 @@
         "line": 2418,
         "endLine": 2442,
         "jsFile": "js/uhitm.js",
-        "reason": "This whole helper contains two additional direct xdrainenergym call sites and is dispatched by the currently unported AD_DREN arm."
+        "reason": "The whole AD_DREN resolver makes two direct xdrainenergym calls and is dispatched by uhitm.c:mhitm_adtyping()."
       }
     ],
     "callerContracts": [
@@ -148,12 +148,12 @@
       "contract:uhitm-gulpum-AD_DREN-call"
     ],
     "entryPoints": [
-      "Hero polymorph attack: uhitm.c:hmonas() -> gulpum() -> xdrainenergym() for an AD_DREN engulf; admitted v47 step 76 exercises the call and true message branch.",
-      "Monster combat AD_DREN dispatch: mhitm_adtyping() -> mhitm_ad_dren() -> xdrainenergym() when the 25% roll succeeds and the target has a magical or breath attack.",
-      "Monster-to-hero AD_DREN dispatch: mhitu.c:hitmu() -> mhitm_adtyping() -> mhitm_ad_dren() -> drain_en(); included in the whole helper and to receive independent runtime evidence."
+      "Hero polymorph engulf attack: uhitm.c:hmonas() reaches gulpum(); the admitted v47 segment 0 step 76 prefix calls xdrainenergym() and matches through that boundary.",
+      "Monster-versus-monster AD_DREN: mhitm.c:mdamagem() reaches uhitm.c:mhitm_adtyping() and mhitm_ad_dren(); the independent M2M recording reaches mhitm_ad_dren() at segment 0 step 74, but the recorded rn2(4)=2 does not call xdrainenergym().",
+      "Monster-to-hero energy-vortex engulfing uses mhitu.c:gulpmu() and drain_en(); this caller is outside the selected xdrainenergym/mhitm_ad_dren scope."
     ],
     "callerBlockers": [],
-    "scopeDecision": "The previously parked source dependency is released: ledger reservations for source:uhitm.c:mhitm_adtyping, source:uhitm.c:mhitm_ad_dren, and the selected session are clear before resuming. Complete mhitm.c:xdrainenergym and uhitm.c:mhitm_ad_dren, then wire the existing gulpum and AD_DREN dispatcher caller branches. No return-valued unported dependency remains."
+    "scopeDecision": "The source scope is mhitm.c:xdrainenergym() and uhitm.c:mhitm_ad_dren(), including the uhitm.c:mhitm_adtyping() AD_DREN arm and the existing uhitm.c:gulpum() direct call. The accepted AD_ELEC dependency is present at the task base. The admitted v47 step 76 prefix supplies positive xdrainenergym runtime evidence; the independent M2M recording supplies strict parity evidence for mhitm_ad_dren() but not a successful nested helper call."
   },
   "goalKind": "file-port",
   "selectionReason": "Selected from fresh combined queue SHA-256 90fac9709e3b3e7fcc3c4fea739f87d074e6fd96a9fac0c6040306130ce71c6d, evaluated against accepted Main ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948. The v47 case remains at 85/92 screens, 2794/2873 RNG calls, and 89/92 cursors; its first mismatch is segment 0 step 76 at mhitm.c:xdrainenergym. The accepted B Pestilence task released the prior uhitm.c:mhitm_adtyping reservation, so the full direct-caller closure can now be claimed.",
@@ -167,9 +167,77 @@
   "blocker": null,
   "evaluationUtc": "2026-10-12T00:34:31.123Z",
   "evidencePlan": [
-    "Use the admitted v47 segment 0 step 76 prefix for the successful hero engulf path and xdrainenergym(givemsg=TRUE).",
-    "Create a new C-first recipe/recording under uhitm.c for a monster-to-monster AD_DREN hit that reaches mhitm_ad_dren() and xdrainenergym(givemsg=FALSE).",
-    "Create an independent C-first recipe/recording under uhitm.c for a hostile energy vortex attacking the hero through mhitu.c:hitmu() and the hero-defender branch of mhitm_ad_dren().",
-    "Source-pinned focused tests cover the inaccessible hero-attacker m_dren branch and all helper guards without claiming a runtime producer for that attack-table combination."
-  ]
+    "Use the admitted v47 segment 0 step 76 prefix for the successful uhitm.c:gulpum() -> mhitm.c:xdrainenergym(givemsg=TRUE) call. Its C RNG log includes d(2,2)=3 at xdrainenergym(mhitm.c:1466).",
+    "Use recordings/uhitm.c/xdrain-energy-vortex-monster-pair.session.json for strict parity through the M2M mhitm_ad_dren() resolver at segment 0 step 74. The rn2(4)=2 gate fails, so this recording is not positive xdrainenergym evidence.",
+    "The direct hero-defender resolver arm is covered by the source-pinned focused test; do not describe it as the energy-vortex engulf path. mhitu.c:gulpmu() calls drain_en() and is outside this source scope."
+  ],
+  "implementationStatus": "implemented; ready for worker validation and delivery",
+  "callerBlockers": [],
+  "scopeDecision": "The source scope is mhitm.c:xdrainenergym() and uhitm.c:mhitm_ad_dren(), including the uhitm.c:mhitm_adtyping() AD_DREN arm and the existing uhitm.c:gulpum() direct call. The accepted AD_ELEC dependency is present at the task base. The admitted v47 step 76 prefix supplies positive xdrainenergym runtime evidence; the independent M2M recording supplies strict parity evidence for mhitm_ad_dren() but not a successful nested helper call.",
+  "m2mDiagnosis": {
+    "recipe": "The independent M2M recipe is kobold shaman versus tame energy vortex, seed 47002118.",
+    "cObservation": "The matching recording reaches uhitm.c:mhitm_ad_dren() at segment 0 step 74 and logs rn2(4)=2. The gate fails before xdrainenergym(); this recording covers the resolver call path only.",
+    "positiveHelperEvidence": "The admitted v47 segment 0 step 76 record logs rn2(4)=0 at uhitm.c:gulpum(uhitm.c:5175), then d(2,2)=3 at xdrainenergym(mhitm.c:1466).",
+    "monsterToHero": "Energy-vortex engulfing of the hero runs mhitu.c:gulpmu() and calls drain_en(). It is not a caller of mhitm_ad_dren() or xdrainenergym()."
+  },
+  "currentEvaluationReview": {
+    "reviewedAt": "2026-10-12T07:32:25.311Z",
+    "remainingScreens": 7,
+    "firstMismatch": {
+      "screen": {
+        "index": 76,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 76,
+          "key": "b"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 47,
+        "cCell": {
+          "ch": "I",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2791,
+        "cEntry": "d(2,2)=3",
+        "cCaller": "xdrainenergym(mhitm.c:1466)",
+        "jsEntry": "rn2(3)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 76,
+          "key": "b"
+        },
+        "stepIndex": 76
+      },
+      "cursor": {
+        "index": 76,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 76,
+          "key": "b"
+        },
+        "cCursor": [
+          74,
+          0,
+          1
+        ],
+        "jsCursor": [
+          29,
+          6,
+          1
+        ]
+      }
+    },
+    "sourceDiagnosisUnchanged": true
+  }
 }

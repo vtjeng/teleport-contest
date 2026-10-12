@@ -111,6 +111,7 @@ import {
     is_elf,
     is_vampshifter,
     flaming,
+    attacktype,
     can_teleport,
     resists_magm,
     is_rider,
@@ -1547,6 +1548,26 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
             | (await grow_up(magr, mdef, env) ? 0 : M_ATTK_AGR_DIED);
     }
     return (mhm.hitflags === M_ATTK_AGR_DIED) ? M_ATTK_AGR_DIED : M_ATTK_HIT;
+}
+
+// C ref: mhitm.c xdrainenergym() (1461-1470). A successful energy-drain
+// attack weakens only monsters with a magical or breath attack while
+// mspec_used is below 20. Adding the two-die drain can take it above 20.
+export async function xdrainenergym(mon, givemsg, state = game, env = {}) {
+    const random = env.random ?? { d };
+    if ((mon.mspec_used ?? 0) < 20
+        && (attacktype(mon.data, AT_MAGC)
+            || attacktype(mon.data, AT_BREA))) {
+        mon.mspec_used = (mon.mspec_used ?? 0) + random.d(2, 2);
+        if (givemsg) {
+            await pline_mon(
+                mon,
+                `${Monnam(mon, state, env)} seems lethargic.`,
+                state,
+                env,
+            );
+        }
+    }
 }
 
 // C ref: mhitm.c mon_poly() (1122-1207). Return the remaining damage

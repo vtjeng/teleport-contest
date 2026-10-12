@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first polyself.c:dogaze AD_FIRE gaze destroys/ignites defender inventory after level-dependent rn2(20) test.; date source-derived phase1 avoids invalid startup input consumption.; materially different awake human target with source-derived potion inventory.",
+  "segments": [
+    {
+      "seed": 51000101,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                              #polyself\npyrolisk\n                    #wizgenesis\nhostile shopkeeper\ny    #wizmap\n#monster\n          "
+    }
+  ]
+}

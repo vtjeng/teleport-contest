@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47002118,
+      "datetime": "20570615161718",
+      "nethackrc": "OPTIONS=name:DrainPetPair,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile kobold shaman\n#wizgenesis\ntame energy vortex\n. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
+    }
+  ],
+  "comment": "Independent M2M probe for uhitm.c:mhitm_ad_dren. The matching recording reaches the AD_DREN resolver at segment 0 step 74, where rn2(4)=2 fails the one-in-four gate; it does not call mhitm.c:xdrainenergym. Keep this recording as strict parity coverage for the M2M resolver arm. Positive xdrainenergym evidence is the admitted v47 gulpum range at segment 0 step 76."
+}

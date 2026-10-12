@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c:use_whip Adjacent armed-monster branch handles yank weapon, proficiencies and inventory/drop.",
+  "segments": [
+    {
+      "seed": 51000106,
+      "datetime": "20591210131820",
+      "nethackrc": "OPTIONS=name:V51Prep,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017bullwhip\n#wizgenesis\nhostile Woodland-elf\n    #wizmap\n"
+    }
+  ]
+}
