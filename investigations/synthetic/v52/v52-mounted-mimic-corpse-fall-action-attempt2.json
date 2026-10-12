@@ -113,12 +113,12 @@
     "luaFile": null,
     "line": 543
   },
-  "summary": "When a mounted hero finishes eating a small mimic corpse, C prints the mimicry message and calls dismount_steed(DISMOUNT_FELL). JavaScript eat.js prints the same message but records the dismount as unported, leaving the hero on the steed. This skips the C landing_spot tie-break and fall processing; the later JavaScript rn2(5) draw is not a mismatching landing candidate count.",
+  "summary": "When a mounted hero finishes eating a small mimic corpse, C eat.c:cpostfx prints the mimicry message and calls dismount_steed(DISMOUNT_FELL). JavaScript eat.js:cpostfx prints the same message but previously recorded the dismount as unported, leaving the hero on the steed. This skipped the C landing_spot tie-break and fall processing; the later JavaScript rn2(5) draw was not a mismatching landing candidate count.",
   "source": {
     "file": "eat.c",
-    "branch": "The completed meal is a small, large, or giant mimic corpse; the hero is not already a mimic, is not unchanging, and is riding when fpostfx handles the corpse effect.",
+    "branch": "The completed corpse meal is a small, large, or giant mimic; the hero is not already a mimic, is not unchanging, and is mounted when eat.c:cpostfx handles the corpse effect.",
     "functions": [
-      "fpostfx"
+      "cpostfx"
     ],
     "callers": [
       "eat.c:done_eating"
@@ -131,8 +131,8 @@
   "goalKind": "divergence-fix",
   "evidence": [
     "The saved v52 evaluation identifies step 202 as the first RNG mismatch and step 203 as the first screen mismatch. C records rn2(3)=1 at steed.c:landing_spot line 543; JavaScript records rn2(5)=1 at the same input boundary, followed by a different screen and cursor.",
-    "Upstream eat.c:1200-1208 handles PM_GIANT_MIMIC, PM_LARGE_MIMIC, and PM_SMALL_MIMIC by printing the temptation message and calling dismount_steed(DISMOUNT_FELL) when u.usteed is set.",
-    "js/eat.js:fpostfx has the matching mimic-corpse branch and emits the same message, but when state.u.usteed exists it calls note_unported(\"steed.c dismount_steed\") instead of the existing dismount owner.",
+    "Upstream eat.c:1129-1319 handles PM_GIANT_MIMIC, PM_LARGE_MIMIC, and PM_SMALL_MIMIC by printing the temptation message and calling dismount_steed(DISMOUNT_FELL) when u.usteed is set.",
+    "js/eat.js:cpostfx has the matching mimic-corpse branch and emits the same message, but when state.u.usteed exists it previously called note_unported(\"steed.c dismount_steed\") instead of the existing dismount owner.",
     "A direct call to the existing JavaScript landing_spot on the replay state after the mimicry message yields rn2(3), matching the C bound. The divergence comes from the missing eat caller binding, not landing_spot candidate counting."
   ]
 }
