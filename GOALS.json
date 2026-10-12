@@ -283691,6 +283691,147 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "file-port-topl-message-history-v48-20261012",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the whole TTY message, prompt, and history family and wire active callers",
+      "cFile": "topl.c",
+      "sessions": [
+        "synthetic/v48/v48-previous-message-history-ctrlp"
+      ],
+      "selectionReason": "History remains queued for source correction while the ready shop dependency integrates.",
+      "detail": "Failed candidate b3f99748 is preserved at integration-history-v48-failed-20261012 and hosted run38234021440. Whole-function completion is not accepted: resolve nine fixed-session losses, sixteen regression recordings and thirty-two test failures. Preserve source scope and submitted commits; treat bounded tty_nhgetch caller repairs as wiring.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "tty_doprev_message",
+          "line": 20,
+          "endLine": 121,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "redotoplin",
+          "line": 122,
+          "endLine": 144,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "show_topl",
+          "line": 145,
+          "endLine": 169,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "remember_topl",
+          "line": 170,
+          "endLine": 193,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "addtopl",
+          "line": 194,
+          "endLine": 204,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "more",
+          "line": 205,
+          "endLine": 250,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "update_topl",
+          "line": 251,
+          "endLine": 304,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "topl_putsym",
+          "line": 305,
+          "endLine": 346,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "putsyms",
+          "line": 347,
+          "endLine": 353,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "removetopl",
+          "line": 354,
+          "endLine": 364,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "tty_yn_function",
+          "line": 365,
+          "endLine": 558,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "msghistory_snapshot",
+          "line": 559,
+          "endLine": 604,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "free_msghistory_snapshot",
+          "line": 605,
+          "endLine": 636,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "tty_getmsghistory",
+          "line": 637,
+          "endLine": 676,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "tty_putmsghistory",
+          "line": 677,
+          "endLine": 731,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 20,
+        "to": 731
+      },
+      "syntheticProvenance": {
+        "synthetic/v48/v48-previous-message-history-ctrlp": {
+          "session": "synthetic/v48/v48-previous-message-history-ctrlp",
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-previous-message-history-ctrlp",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recordingPath": "challenges/cases/v48/v48-previous-message-history-ctrlp.session.json",
+          "recordingSha256": "2f6a36be26eccf74bcf3432d2e5d91e867102d62e6d2e1b661b269eea2f78477",
+          "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v48.json",
+          "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3"
+        }
+      }
     }
   ]
 }
