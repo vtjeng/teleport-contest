@@ -93,6 +93,7 @@ import {
     mon_givit,
     mon_offmap,
     monkilled,
+    mondead,
     minliquid,
     mon_to_stone,
     monstone,

@@ -7353,6 +7353,36 @@ export async function mhitm_ad_dgst(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_halu() (3897-3921). Black-light contact confuses
+// an eyed, seeing monster when another uncancelled monster delivers it; the
+// hero attack directions only suppress damage.
+async function mhitm_ad_halu(magr, mdef, mhm, state = game, env = {}) {
+    if (magr === state.youmonst || mdef === state.youmonst) {
+        mhm.damage = 0;
+        return;
+    }
+
+    if (!magr.mcan && haseyes(mdef.data) && mdef.mcansee) {
+        if (state.gv?.vis && canseemon(mdef, state)) {
+            const message = requireAttackOperation(env, 'message');
+            const confusion = mdef.mconf ? 'more confused' : 'confused';
+            await message(
+                messageAt(
+                    `${Monnam(mdef, state, env)} looks ${confusion}.`,
+                    mdef.mx,
+                    mdef.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        }
+        mdef.mconf = 1;
+        mdef.mstrategy &= ~STRAT_WAITFORU;
+    }
+    mhm.damage = 0;
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -7487,7 +7517,9 @@ export async function mhitm_adtyping(
     case AD_DGST:
         await mhitm_ad_dgst(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_HALU: unported('mhitm_ad_halu'); break;
+    case AD_HALU:
+        await mhitm_ad_halu(magr, mdef, mhm, state, env);
+        break;
     default:
         mhm.damage = 0;
     }
