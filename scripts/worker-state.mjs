@@ -110,9 +110,10 @@ do not interrupt an active checkpoint or waive baseline/admission checks.
 wakeups lists idle/blocked workers whose last report predates a new admitted
 baseline. Refresh the saved queue when queueReady is false, then ask those
 workers to recheck. Their next turn or assignment clears the reminder; do not
-replace a current task or interrupt a running process. Ready preparation gets
-integration priority when idle or blocked workers lack independent work; existing preparation
-is listed instead of requesting another batch.
+replace a current task or interrupt a running process. Ready implementation
+deliveries take priority over preparation and admission. When no implementation
+delivery is ready, prioritize an existing prepared batch if workers lack
+independent work, rather than requesting another batch.
 Feed actual completion observations into turn events; saved state is not proof of
 liveness. Feedback waits for a safe task boundary. resume refuses to mix two
 working tasks on one worker. preflight reads committed files, reports omissions,
@@ -516,8 +517,10 @@ export function nextActions(state, admittedBatches = [], queue = null) {
         : preparing ? { action: 'finish-preparation', task: preparing.id,
             batch: preparing.reservations[0].split(':')[1] } : { action: 'prepare-more-work' };
     const readyImplementation = ready.find(row => row.kind !== 'challenge-preparation');
-    const preferred = short && !reserve && readyPrep ? readyPrep : readyImplementation ?? ready[0];
+    const preferred = readyImplementation ?? readyPrep;
     available.admission = available.candidateGroups === null ? { action: 'reassess-worker-work' }
+        : short && readyImplementation
+            ? { action: 'integrate-ready-implementation-first', task: readyImplementation.task }
         : short
             ? reserve ? { action: 'admit-at-next-safe-boundary', batch: reserve.batch, task: reserve.task }
                 : prepAction

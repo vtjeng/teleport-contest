@@ -114,9 +114,9 @@ At a clean task boundary, merge accepted main without changing submitted
 commits. Claim the next batch at that HEAD so its delivery contains only the
 new case paths; submission records dependencies on pending ancestor deliveries.
 
-Apply the admission priority in `.agents/selection.md` at each safe integration
-boundary. Preserve validation and baseline requirements. Continue assigning
-fixes from older batches.
+Apply the integration and admission priority in `.agents/selection.md` at each
+safe integration boundary. Preserve validation and baseline requirements.
+Continue assigning fixes from older batches.
 The preparation worker does not monitor implementation assignments. If it
 reports that it cannot find 12 locally mismatching sessions with distinct
 source-traced first mismatch behaviors after switching to other plausible

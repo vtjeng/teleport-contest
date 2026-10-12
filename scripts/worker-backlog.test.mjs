@@ -193,7 +193,7 @@ test('next lists batch admission priority separately from an active integration'
     assert.equal(unknown.workerWork.admission.action, 'reassess-worker-work');
 });
 
-test('worker starvation prioritizes the existing ready preparation rather than requesting another batch', () => {
+test('ready implementation precedes preparation even when workers lack independent work', () => {
     const state = availabilityFixture();
     const prep = add(state, 'prep-v48');
     state.tasks['prep-v48'].kind = 'challenge-preparation';
@@ -203,9 +203,9 @@ test('worker starvation prioritizes the existing ready preparation rather than r
     const source = add(state, 'dependency');
     add(state, 'dependent', 'ready', [source]);
     const next = nextActions(state, ['v47'], queue([]));
-    assert.equal(next.integration.task, 'prep-v48');
-    assert.deepEqual(next.workerWork.admission, { action: 'integrate-prepared-batch-next',
-        task: 'prep-v48', batch: 'v48' });
+    assert.equal(next.integration.task, 'dependency');
+    assert.deepEqual(next.workerWork.admission, { action: 'integrate-ready-implementation-first',
+        task: 'dependency' });
     state.tasks.dependency.status = 'integrating';
     assert.equal(nextActions(state, ['v47'], queue([])).integration.task, 'dependency',
         'a live checkpoint is not interrupted to integrate preparation');
@@ -214,6 +214,13 @@ test('worker starvation prioritizes the existing ready preparation rather than r
     assert.equal(nextActions(state, ['v47'], enough).integration.task, 'dependency',
         'normal dependency priority remains when three independent candidates exist');
     assert.equal(nextActions(state, ['v47']).workerWork.admission.action, 'reassess-worker-work');
+    state.tasks.dependency.status = 'accepted';
+    state.deliveries[source].acceptedAt = at(4); // Accepting the dependency makes its submitted dependent ready.
+    state.tasks.dependent.status = 'accepted';
+    assert.equal(nextActions(state, ['v47'], queue([])).integration.task, 'prep-v48',
+        'preparation supplies new work once the ready implementation backlog is drained');
+    assert.deepEqual(nextActions(state, ['v47'], queue([])).workerWork.admission,
+        { action: 'integrate-prepared-batch-next', task: 'prep-v48', batch: 'v48' });
 });
 
 test('active tasks count as worker work and ready implementation precedes preparation', () => {
@@ -223,7 +230,7 @@ test('active tasks count as worker work and ready implementation precedes prepar
     state.tasks['prep-first'].worker = 'Prep';
     state.tasks['prep-first'].reservations = ['challenge-batch:v48'];
     const implementation = add(state, 'fix');
-    state.deliveries[implementation].readyAt = at(3); // Prep is older; worker availability decides priority.
+    state.deliveries[implementation].readyAt = at(3); // Prep is older; ready implementation still takes priority.
     for (const worker of ['A', 'B', 'C']) {
         add(state, 'active-' + worker, 'working');
         state.tasks['active-' + worker].worker = worker;
@@ -233,8 +240,8 @@ test('active tasks count as worker work and ready implementation precedes prepar
     assert.equal(next.workerWork.workersNeedingWork, 0, 'each implementation worker has an active task');
     assert.equal(next.integration.task, 'fix', 'an older prepared batch does not displace ready fixes');
     state.workers.C.turn = 'blocked';
-    assert.equal(nextActions(state, ['v47'], queue([])).integration.task, 'prep-first',
-        'a blocked worker needs new work even when its task still says working');
+    assert.equal(nextActions(state, ['v47'], queue([])).integration.task, 'fix',
+        'a blocked worker does not displace an available implementation delivery');
     assert.equal(nextActions(state, ['v47'], queue([{ session: 'independent' }])).integration.task, 'fix',
         'one unreserved case supplies the single blocked worker');
     state.workers.C.turn = 'idle';
@@ -254,8 +261,11 @@ test('existing preparation is acknowledged and unmet dependencies never receive 
     state.tasks.prep.worker = 'Prep';
     state.tasks.prep.reservations = ['challenge-batch:v2'];
     assert.equal(nextActions(state, ['v1'], queue([])).integration.task, 'dependency');
-    assert.equal(nextActions(state, ['v1'], queue([])).workerWork.admission.action, 'finish-preparation');
+    assert.equal(nextActions(state, ['v1'], queue([])).workerWork.admission.action,
+        'integrate-ready-implementation-first', 'resolve the preparation dependency before admitting it');
     state.tasks.prep.status = 'working';
+    state.tasks.dependency.status = 'accepted';
+    state.deliveries[dependency].acceptedAt = at(3); // No ready implementation remains after this dependency is accepted.
     assert.equal(nextActions(state, ['v1'], queue([])).workerWork.admission.task, 'prep');
 });
 
