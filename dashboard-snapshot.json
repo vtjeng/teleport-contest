@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T21:15:39.622Z",
+  "capturedAt": "2026-10-12T21:24:23.910Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -98195,6 +98195,46 @@
         "task": "C-investigation-v48-short-version-command-20261012",
         "phase": "waiting",
         "reason": "Read-only build check confirmed that the recorder selects Linux or Darwin hints from its actual host and upstream sets MacOS PORT_ID only for Apple builds. No documented matching profile runs on this Linux host; strict version recording still requires a supported Darwin environment. Output normalization remains unapproved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-idle-after-drowning-accepted-12f580ce-20261012",
+        "type": "turn",
+        "at": "2026-10-12T21:15:40.344Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted drowning Main is merged. The saved queue predates it, so I’m waiting for Main’s refreshed queue before selecting work; v48 short-version remains held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012-200f9433034d7e5d8ec7d596ddbb1f3caba0f62f",
+        "type": "published",
+        "at": "2026-10-12T21:15:52.610Z",
+        "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
+        "commit": "200f9433034d7e5d8ec7d596ddbb1f3caba0f62f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrate-prayer-021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64",
+        "type": "integrating",
+        "at": "2026-10-12T21:16:49.418Z",
+        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
+        "integration": "021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012-021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64-validated",
+        "type": "validated",
+        "at": "2026-10-12T21:22:55.526Z",
+        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012-021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T21:23:20.960Z",
+        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012"
       }
     ]
   },
@@ -98255,17 +98295,6 @@
           "Prep19",
           "Prep20"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v52-prayer-unicorn-alignment-blindness-action-attempt9-20261012",
-        "worker": "B",
-        "goal": "fix-pray-blindness-caller-v52-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "42195423bd99f453747e4c233fb62b515ebe8dc4",
-        "since": "2026-10-12T19:26:55.144Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -98818,8 +98847,8 @@
     ]
   },
   "development": {
-    "executionCommit": "12f580ce1848f52ff276586e2556284911109965",
-    "measuredAt": "2026-10-12T21:12:18.267Z",
+    "executionCommit": "021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64",
+    "measuredAt": "2026-10-12T21:21:58.533Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -293340,7 +293340,7 @@
       "id": "fix-mhitu-passiveum-acid-corrosion-caller-v52-20261012",
       "kind": "divergence-fix",
       "status": "closed",
-      "summary": "Implement passiveum from undefined",
+      "summary": "Repair the acid passive armor-corrosion call",
       "cFile": "mhitu.c",
       "sessions": [
         "synthetic/v52/v52-acid-passive-yellowdragon-action-attempt3"
@@ -293503,8 +293503,8 @@
     {
       "id": "fix-pray-blindness-caller-v52-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
-      "summary": "Implement fix_worst_trouble from undefined",
+      "status": "closed",
+      "summary": "Restore the prayer blindness cure call",
       "cFile": "pray.c",
       "sessions": [
         "synthetic/v52/v52-prayer-unicorn-alignment-blindness-action-attempt9"
@@ -293513,10 +293513,75 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64",
       "delivered": null,
       "function": "fix_worst_trouble",
-      "session": "synthetic/v52/v52-prayer-unicorn-alignment-blindness-action-attempt9"
+      "session": "synthetic/v52/v52-prayer-unicorn-alignment-blindness-action-attempt9",
+      "closeStanding": {
+        "sha": "021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "12f580ce1848f52ff276586e2556284911109965",
+        "target": "synthetic/v52/v52-prayer-unicorn-alignment-blindness-action-attempt9",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/021a297e2a6aa20e1a2a5ab1dba52fde5b3fda64/run-hosted-lJOSl9/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "fix_worst_trouble",
+            "implementation": "js/pray.js",
+            "symbol": "fix_worst_trouble",
+            "sourceReview": "This task repairs only the TROUBLE_BLIND caller branch; it does not claim whole fix_worst_trouble completion. C pray.c:fix_worst_trouble (373-600), TROUBLE_BLIND at 555-575, clears u.ucreamed and calls make_blinded(0L,FALSE) at 566 before the optional deafness cure and composed message. JS had cleared cream but substituted note_unported('potion.c make_blinded'). The existing potion.c:make_blinded implementation is already imported in js/pray.js and clears only the timed blindness while preserving other sources; it also owns the sight-transition update. The caller now awaits it at the C source position with the same state and environment.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "pleased",
+                "source": "pray.c:pleased calls fix_worst_trouble for prayer action cases 1-5 (1139-1156); JS pleased calls at 2267-2283"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs",
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-prayer-unicorn-alignment-blindness-action-attempt9",
+                "segment": 0,
+                "fromStep": 236,
+                "throughStep": 236,
+                "source": "pray.c:pleased -> pray.c:fix_worst_trouble TROUBLE_BLIND -> potion.c:make_blinded"
+              }
+            ],
+            "sourceFile": "pray.c"
+          }
+        ],
+        "entryPointReview": "The production path is pray.c:pleased -> fix_worst_trouble(TROUBLE_BLIND). The selected v52 recording reaches the source call at segment 0, step 236 and now matches the full replay. The existing make_blinded dependency is source-checked and exercised by its existing focused test; it receives no new completion claim.",
+        "entryPoints": [
+          {
+            "name": "Prayer cures the hero's timed blindness",
+            "functions": [
+              "fix_worst_trouble"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-prayer-unicorn-alignment-blindness-action-attempt9",
+                "segment": 0,
+                "fromStep": 236,
+                "throughStep": 236,
+                "source": "pray.c:pleased -> pray.c:fix_worst_trouble TROUBLE_BLIND"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
