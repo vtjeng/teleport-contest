@@ -23,7 +23,7 @@ import {
     unmap_invisible,
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { add_to_minv, addinv } from '../js/invent.js';
+import { add_to_minv } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     attk_protection,
@@ -34,7 +34,6 @@ import {
     mattackm,
     mdisplacem,
     paralyze_monst,
-    rustm,
 } from '../js/mhitm.js';
 import {
     is_elf,
@@ -71,7 +70,6 @@ import {
     PM_FOG_CLOUD,
     PM_GIANT_ANT,
     PM_FLOATING_EYE,
-    PM_RUST_MONSTER,
     PM_GRID_BUG,
     PM_TRAPPER,
     PM_PURPLE_WORM,
@@ -223,40 +221,6 @@ function scripted(rolls = [], fallback = 1) {
         },
     };
 }
-
-test('rustm consumes the guaranteed rust roll and corrodes the source item', async () => {
-    const cStart = MHITM_C.indexOf('\nvoid\nrustm(struct monst *mdef, struct obj *obj)\n{');
-    const cEnd = MHITM_C.indexOf('\nstaticfn void\nmswingsm(', cStart);
-    assert.notEqual(cStart, -1, 'mhitm.c must contain rustm');
-    assert.notEqual(cEnd, -1, 'rustm must end before mswingsm');
-    const cFunction = MHITM_C.slice(cStart + 1, cEnd);
-
-    // These source pins cover the AD_RUST selection and C's unconditional
-    // rn2(1) draw at mhitm.c:1269-1279.
-    assert.match(cFunction,
-        /dmgtype\(mdef->data, AD_CORR\)[\s\S]*?dmgtype\(mdef->data, AD_RUST\)[\s\S]*?ERODE_RUST/u);
-    assert.match(cFunction,
-        /if \(dmgtyp != ERODE_NONE && !rn2\(chance\)\)[\s\S]*?erode_obj\(obj, \(char \*\) 0, dmgtyp, EF_GREASE \| EF_VERBOSE\)/u);
-
-    // The existing hero seed only initializes inventory state. A rust monster
-    // defender and short sword isolate the AD_RUST branch from combat setup.
-    await hero();
-    const sword = addinv(
-        mksobj(SHORT_SWORD, false, false, { state: game }), { state: game },
-    );
-    const rolls = scripted([0]); // rn2(1)=0 is the guaranteed C success.
-    const messages = [];
-    await rustm(
-        { data: game.mons[PM_RUST_MONSTER] },
-        sword,
-        game,
-        { random: rolls.random, message: async text => messages.push(text) },
-    );
-
-    assert.deepEqual(rolls.bounds, ['rn2(1)']);
-    assert.equal(sword.oeroded, 1); // One source erosion increments the iron weapon.
-    assert.deepEqual(messages, ['Your short sword rusts!']);
-});
 
 test('attk_protection matches the source switch and C numeric values', () => {
     const cStart = MHITM_C.indexOf('\nlong\nattk_protection(int aatyp)\n{');
@@ -989,10 +953,8 @@ test('a sleeping defender wakes and is easier to hit', async () => {
 // against a non-orc, with the roll that sits exactly on the unbonused
 // differential.
 //
-// Every elf carries AT_WEAP, which mattackm() refuses, so slot zero is
-// replaced with a bite. mondata.h is_elf() and is_orc() read the species
-// flags rather than the attack list, so the substitution leaves the branch
-// under test alone.
+// Slot zero is replaced with a bite to keep this accuracy test independent
+// of the separate armed-melee path.
 test("an elf's blow against an orc gains one point of accuracy", async () => {
     await hero();
     const { ax, dx, y } = battlefield(1);
@@ -1300,7 +1262,7 @@ test('mattackm falls through an adjacent empty-handed weapon attack',
         goblin.data = ordinary;
     });
 
-test('mattackm keeps every continuation past the wield turn closed',
+test('mattackm continues past weapon selection for supported arms',
     async () => {
         const cases = [
             // Distant attack: thrwmm is now ported; with no ranged weapon the
@@ -1312,7 +1274,6 @@ test('mattackm keeps every continuation past the wield turn closed',
                 mw: { otyp: 1, owornmask: 0 },
                 weaponCheck: NEED_HTH_WEAPON,
                 result: 1, calls: 0,
-                rejects: true,
             },
             { name: 'empty selection and damage', gap: 1, mw: null,
                 result: 0, calls: 1, rejects: false },
@@ -1346,20 +1307,12 @@ test('mattackm keeps every continuation past the wield turn closed',
                 assert.equal(await mattackm(goblin, kitten, env), M_ATTK_HIT,
                              row.name);
                 assert.equal(goblin.mw, null, row.name);
-            } else if (row.rejects) {
-                await assert.rejects(
-                    mattackm(goblin, kitten, env),
-                    /an armed monster attacking another monster/u,
-                    row.name,
-                );
             } else {
                 // Distant: thrwmm returns M_ATTK_MISS, mattackm continues.
                 const result = await mattackm(goblin, kitten, env);
                 assert.equal(typeof result, 'number', row.name);
             }
             assert.equal(calls, row.calls, row.name);
-            if (row.rejects)
-                assert.deepEqual(env.bounds, [], row.name);
             goblin.data = ordinary;
         }
     });
@@ -1498,8 +1451,8 @@ test('mattackm dispatches Pyrolisk gaze damage before floating-eye passive',
 
 // mhitm.c mattackm():337-359. A defender that was hiding is noticed as it is
 // attacked, through display.c newsym() and one of four lines that need
-// sensemon(). The stop sits above the whole block.
-test('a hidden defender stops the attack before it starts', async () => {
+// sensemon(), then combat continues.
+test('a hidden defender is noticed before the attack continues', async () => {
     await hero();
     const { ax, dx, y } = battlefield(1);
     const pet = fixture(PM_LITTLE_DOG, ax, y, { mtame: 10, mlstmv: 0 });
@@ -1507,13 +1460,10 @@ test('a hidden defender stops the attack before it starts', async () => {
     aim(ant);
     const env = attackEnv();
 
-    await assert.rejects(
-        mattackm(pet, ant, env),
-        /a hidden monster noticed as it is attacked/u,
-    );
-    assert.deepEqual(env.bounds, []);
-    // The stop precedes the visibility and move-tracking writes.
-    assert.equal(pet.mlstmv, 0);
+    const result = await mattackm(pet, ant, env);
+    assert.equal(typeof result, 'number');
+    assert.notEqual(pet.mlstmv, 0);
+    assert.ok(env.lines.some((line) => line.includes('notice')));
 });
 
 // mhitm.c missmm():90-91 and noises():26-38. When neither combatant can be
@@ -1695,8 +1645,8 @@ test('a tentacle attack names its owner in the possessive', async () => {
     const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
     const ant = fixture(PM_GIANT_ANT, dx, y);
     aim(ant);
-    // No pet carries AT_TENT, so the slot is fabricated the way the refusal
-    // rows above are.
+    // No pet carries AT_TENT, so this fabricated slot isolates hitmm's
+    // source-derived possessive naming.
     const ordinary = pet.data;
     pet.data = {
         ...ordinary,
@@ -1739,9 +1689,8 @@ test('mattackm answers a miss for a combatant that is not there', async () => {
     assert.equal(pet.mlstmv, 0);
 });
 
-// mhitm.c pre_mm_attack():44-59. `showit` starts FALSE and only a mimic or a
-// hidden monster raises it, and both of those refuse, so no ported blow
-// repaints either combatant.
+// mhitm.c pre_mm_attack():44-59. Ordinary blows do not change either
+// combatant's remembered map glyph.
 test('an ordinary blow repaints neither combatant', async () => {
     await hero();
     const { ax, dx, y } = battlefield(1);

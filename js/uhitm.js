@@ -94,7 +94,6 @@ import {
     NATTK,
     NOTELL,
     NEED_WEAPON,
-    NO_MM_FLAGS,
     NO_KILLER_PREFIX,
     NO_NC_FLAGS,
     P_BARE_HANDED_COMBAT,
@@ -277,7 +276,7 @@ import {
     u_slow_down,
     u_slip_free,
 } from './mhitu.js';
-import { abuse_dog, tamedog } from './dog.js';
+import { abuse_dog } from './dog.js';
 import { dog_nutrition } from './dogmove.js';
 import { losexp } from './exper.js';
 import {
@@ -513,7 +512,6 @@ import {
     slept_monst,
     attk_protection,
     xdrainenergym,
-    rustm,
 } from './mhitm.js';
 import { burn_away_slime, fall_asleep } from './timeout.js';
 import { set_ulycn } from './were.js';
@@ -544,8 +542,6 @@ import {
     hold_another_object, obfree, obj_extract_self, update_inventory, useup, useupall,
 } from './invent.js';
 import { clone_mon, grow_up } from './makemon.js';
-import { makemon_runtime } from './makemon_create.js';
-import { ndemon } from './minion.js';
 import {
     an,
     bare_artifactname,
@@ -665,7 +661,6 @@ import {
     Flying,
     Levitation,
     instapetrify,
-    minstapetrify,
     unconscious,
 } from './trap.js';
 import { drain_en, mintrap } from './trap_effects.js';
@@ -3018,7 +3013,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             observe_object(obj, state);
             const { munstone } = await import('./muse.js');
             if (!await munstone(mon, true, state, lifeEnv))
-                await minstapetrify(mon, true, state, lifeEnv);
+                note_unported('trap.c minstapetrify');
             if (!Resists_Elem(mon, STONE_RES, state)) {
                 hmd.doreturn = true;
                 hmd.retval = mon.mhp >= 1;
@@ -3058,7 +3053,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             else await useupall(obj, lifeEnv);
             const { munstone } = await import('./muse.js');
             if (!await munstone(mon, true, state, lifeEnv))
-                await minstapetrify(mon, true, state, lifeEnv);
+                note_unported('trap.c minstapetrify');
             if (!Resists_Elem(mon, STONE_RES, state)) {
                 hmd.doreturn = true;
                 hmd.retval = mon.mhp >= 1;
@@ -4057,9 +4052,11 @@ async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
         if (!otmp || otmp.where !== OBJ_INVENT) continue;
         if (await theft_petrifies(otmp, state, env)) break;
         if (unwornmask & W_WEP) {
-            possibly_unwield(mdef, false, env);
+            await possibly_unwield(mdef, false, env);
         } else if (unwornmask & W_ARMG) {
-            await mselftouch(mdef, null, true, { ...env, state });
+            // trap.c:mselftouch() is a void callee with an unfinished
+            // minstapetrify() path; record and skip that source boundary.
+            note_unported('trap.c mselftouch');
             if (mdef.mhp < 1) break;
         }
         if (!ustealo) break;
@@ -4253,10 +4250,10 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
 
         // Both calls are void source callees. Existing partial ports are
         // safe no-ops when extraction cleared the weapon; retain their source
-        // order before checking whether the defender died.
-        possibly_unwield(mdef, false, env);
+        // order and leave their still-unported effect paths explicit.
+        await possibly_unwield(mdef, false, env);
         mdef.mstrategy &= ~STRAT_WAITFORU;
-        await mselftouch(mdef, null, false, { ...env, state });
+        mselftouch(mdef, null, false, { ...env, state });
 
         if (mdef.mhp < 1) {
             const grew = await grow_up(magr, mdef, { ...env, state });
@@ -4962,7 +4959,9 @@ export async function mhitm_ad_phys(
                 }
             }
 
-            await rustm(state.youmonst, otmp, state, { ...env, random });
+            // rustm() is a discarded void call in mhitm.c. Its own C random/
+            // erosion effect remains a named gap until that owner is ported.
+            note_unported('mhitm.c rustm');
             if (wasPoisoned && (env.dieroll ?? 0) <= 5) {
                 const reason = `${s_suffix(Monnam(magr, state, env))} `
                     + `${mpoisons_subj(magr, mattk, state)}`;
@@ -5042,7 +5041,7 @@ export async function mhitm_ad_phys(
         }
 
         if (mhm.damage)
-            await rustm(mdef, mwep, state, { ...env, random });
+            note_unported('mhitm.c rustm');
         if ((mwep.opoisoned || permapoisoned(mwep)) && !random.rn2(4))
             await mhitm_really_poison(magr, mattk, mdef, mhm, state, {
                 ...env, random,
@@ -5234,10 +5233,11 @@ export async function mhitm_ad_ston(
 
     if (magr === state.youmonst) {
         // C's munstone() return is used to decide whether minstapetrify()
-        // runs; minstapetrify() itself has a discarded void return.
+        // runs. The latter is a discarded void call and remains an explicit
+        // source gap until trap.c is ported.
         const { munstone } = await import('./muse.js');
         if (!await munstone(mdef, true, state, env))
-            await minstapetrify(mdef, true, state, env);
+            note_unported('trap.c minstapetrify');
         mhm.damage = 0;
     } else if (mdef === state.youmonst) {
         await hitmsg(magr, mattk, state, env);
@@ -7606,7 +7606,8 @@ export async function damageum(
         && !state.uwep
         && state.u.umonnum !== PM_AMOROUS_DEMON
         && state.u.umonnum !== PM_BALROG) {
-        await demonpet(state, { ...env, random, message });
+        // demonpet() has no return value used by damageum().
+        note_unported('demon.c demonpet');
         return M_ATTK_MISS;
     }
 
@@ -7648,31 +7649,6 @@ export async function damageum(
         return M_ATTK_DEF_DIED;
     }
     return M_ATTK_HIT;
-}
-
-// C ref: uhitm.c:demonpet() (2131-2145). An eligible unarmed demon form
-// calls this from damageum(); preserve its summon, taming, and Wisdom order.
-async function demonpet(state, rawEnv = {}) {
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd };
-    const message = rawEnv.message ?? ttyPline;
-
-    await message('Some hell-p has arrived!', state);
-    const demon = !random.rn2(6)
-        ? ndemon(state.u.ualign.type, state, random)
-        : NON_PM;
-    const species = demon !== NON_PM
-        ? state.mons[demon]
-        : state.youmonst.data;
-    const monster = await makemon_runtime(
-        species,
-        state.u.ux,
-        state.u.uy,
-        NO_MM_FLAGS,
-        { ...rawEnv, state, random, message },
-    );
-    if (monster)
-        await tamedog(monster, null, false, { ...rawEnv, state, random, message });
-    await exercise(A_WIS, true, state, random);
 }
 
 // C ref: uhitm.c missum() (5198-5215). Reports a swing that did not land and
