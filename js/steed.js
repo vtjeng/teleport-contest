@@ -144,6 +144,7 @@ import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { enexto, teleds } from './teleport.js';
 import {
     float_down,
+    instapetrify,
     sokoban_guilt,
     t_at,
     trapname,
@@ -378,10 +379,8 @@ export async function use_saddle(otmp, state = game, env = {}) {
         await ttyPline(`You touch ${mon_nam(mtmp, state)}.`, state);
         if (!(poly_when_stoned(state.youmonst.data, state)
             && await polymon(PM_STONE_GOLEM, state))) {
-            // trap.c instapetrify() is a void death path and has no production
-            // port yet. Preserve the source call boundary without inventing
-            // its death state or messages.
-            note_unported('trap.c instapetrify');
+            const killer = `attempting to saddle ${an(pmname(mtmp.data, gender(mtmp)))}`;
+            await instapetrify(killer, state, env);
         }
     }
 
