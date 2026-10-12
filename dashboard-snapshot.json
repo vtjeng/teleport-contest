@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T20:01:54.322Z",
+  "capturedAt": "2026-10-12T20:31:28.618Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -97622,6 +97622,376 @@
         "worker": "B",
         "state": "idle",
         "reason": "B merged accepted Main and found no independent unreserved case. Waiting for the post-import queue refresh; the v48 short-version case remains held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-C-corrections-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:01:56.873Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Correcting six observed C prompt or state routes before independent replay and JavaScript comparison."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v52-endgame-mplayer-chat-attempt6-20261012-23d5645ed38779e9fd753caa8fe754907263532d",
+        "type": "published",
+        "at": "2026-10-12T20:02:07.715Z",
+        "task": "B-investigation-v52-endgame-mplayer-chat-attempt6-20261012",
+        "commit": "23d5645ed38779e9fd753caa8fe754907263532d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-investigation-v52-polymorph-newcham-continuation-20261012",
+        "type": "assign",
+        "at": "2026-10-12T20:02:40.536Z",
+        "task": "C-investigation-v52-polymorph-newcham-continuation-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-hot-pursuit-current-activity",
+        "type": "activity",
+        "at": "2026-10-12T20:02:47.329Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "phase": "review",
+        "reason": "Integrate the received hot-pursuit dependency before the submitted Minetown movement fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-active-newcham-continuation-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:02:51.237Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Continuing the polymorph-trap case beyond the accepted seetrap fix; checking the remaining source-traced form-selection mismatch and ownership."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-move-delivery-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:02:57.595Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-hot-pursuit-34c94c5a11aa142d89f38ba651fbd0cca8508ab7",
+        "type": "integrating",
+        "at": "2026-10-12T20:04:00.215Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "integration": "34c94c5a11aa142d89f38ba651fbd0cca8508ab7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-initial-replays-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:04:57.363Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Independently replaying twelve C candidates after preserving every setup and source correction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-newcham-implement-scope-20261012",
+        "type": "implement",
+        "at": "2026-10-12T20:05:01.457Z",
+        "task": "C-investigation-v52-polymorph-newcham-continuation-20261012",
+        "goal": "C-v52-use-misc-newcham-caller-binding-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-initial-JS-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:05:18.246Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Comparing twelve independently replayed game candidates at the accepted preparation boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-initial-comparisons-complete-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:06:33.988Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Twelve independently replayed cases produced one provisional first failure and eleven matches; expanding source missions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-expanded-C-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:09:49.577Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Exploring eight more C behaviors across traps, dialogue, polymorph interactions and terrain displays."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-expanded-actions-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:10:55.317Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Recording trap, dialogue, polymorph and terrain actions from the eight new C setups."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-expanded-replays-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:12:04.519Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Independently replaying eight additional C behavior candidates after completing their source routes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-hot-pursuit-cursor-regression-feedback-34c94c5a1",
+        "type": "feedback",
+        "at": "2026-10-12T20:12:10.150Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "delivery": "20763e5c8c468f81294b4648414e6ed942b786b0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-expanded-JS-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:12:40.208Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Comparing eight additional independently replayed C game behaviors at the retained preparation base."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-hot-cursor-correction-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:13:56.695Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-30e6e3c07c06f039188e465174c1b5a349c1dbc8",
+        "type": "ready",
+        "at": "2026-10-12T20:14:08.627Z",
+        "task": "C-investigation-v52-polymorph-newcham-continuation-20261012",
+        "delivery": "30e6e3c07c06f039188e465174c1b5a349c1dbc8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-hot-pursuit-correction-wait-34c94c5a1",
+        "type": "activity",
+        "at": "2026-10-12T20:14:24.713Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "phase": "waiting",
+        "reason": "A is combining the source-defined movement repair with hot-pursuit to remove the one-cursor regression before another exact checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-hot-cursor-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T20:14:31.953Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-magic-cover-C-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:14:49.349Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Exploring five more C magic and cover-state behaviors after two provisional failures in twenty comparisons."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-30e6e3c07c06f039188e465174c1b5a349c1dbc8",
+        "type": "received",
+        "at": "2026-10-12T20:14:53.373Z",
+        "task": "C-investigation-v52-polymorph-newcham-continuation-20261012",
+        "delivery": "30e6e3c07c06f039188e465174c1b5a349c1dbc8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-magic-cover-action-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:15:58.944Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Recording five further magic and cover-state routes from independently observed C setups."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-idle-after-accepted-main-23d5645e-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:16:46.758Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent unreserved case is available in the saved queue. Remaining cases are assigned or held, including the v48 short-version profile case. Waiting for Main to integrate ready implementation deliveries and refresh the queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-magic-replays-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:18:00.628Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Independently replaying five more reached C behaviors, including stomach piercing and hidden-cover polymorph."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-magic-JS-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:18:40.610Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Comparing five independently replayed magic and cover-state behaviors at the preserved preparation base."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-575ed936120c97ca622fcb161c94423596f6fb8a",
+        "type": "ready",
+        "at": "2026-10-12T20:19:49.535Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "delivery": "575ed936120c97ca622fcb161c94423596f6fb8a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-hot-cursor-correction-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:20:30.049Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent unreserved session is available. The hot-pursuit cursor correction is ready for Main CI; the overlapping movement delivery remains preserved pending that result."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-sink-trap-artifact-C-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:21:10.220Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Exploring six more C sink, trap, engraving and returning-artifact behaviors after four provisional failures."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-575ed936120c97ca622fcb161c94423596f6fb8a",
+        "type": "received",
+        "at": "2026-10-12T20:21:13.197Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "delivery": "575ed936120c97ca622fcb161c94423596f6fb8a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-hot-pursuit-correction-b656ad046d1e5a1cc595197a576bae8a175ca2eb",
+        "type": "integrating",
+        "at": "2026-10-12T20:21:47.689Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "integration": "b656ad046d1e5a1cc595197a576bae8a175ca2eb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-sink-trap-artifact-actions-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:22:36.294Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Recording six sink, trap, stone-text and returning-artifact actions from the latest C setups."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-sink-trap-artifact-replays-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:23:44.310Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Independently replaying six newly reached sink, trap, engraving and artifact-return behaviors."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-sink-trap-artifact-JS-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:24:09.302Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Comparing six independently replayed C sink, trap, engraving and returning-artifact behaviors."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-late-tools-C-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:27:27.047Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Exploring five further C tool, pet, hoard and dialogue behaviors before final overlap review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-late-tool-actions-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:28:19.797Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Recording five late tool, pet and dialogue action routes before the final source overlap review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v52-minetown-muse-continuation-20261012-b656ad046d1e5a1cc595197a576bae8a175ca2eb-validated",
+        "type": "validated",
+        "at": "2026-10-12T20:28:25.687Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v52-minetown-muse-continuation-20261012-b656ad046d1e5a1cc595197a576bae8a175ca2eb-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T20:28:50.518Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-late-tool-replays-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:29:30.108Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Independently replaying late C tool and pet probes and reviewing the observed dialogue target miss."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-superseded-minetown-movement-by-575ed936",
+        "type": "park",
+        "at": "2026-10-12T20:29:41.779Z",
+        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
+        "reason": "Superseded by accepted hot-pursuit correction 575ed936 at b656ad046. Its source-defined shk_move threshold change and full matching Minetown replay are preserved in the accepted correction; the original movement packet remains historical evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-hot-acceptance-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:29:47.959Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent unreserved case is available. The saved queue is stale after Minetown acceptance; waiting for coordinator parking of the overlapping movement delivery and an updated queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-late-tools-JS-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:30:31.151Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Comparing five late source/state probes after completing and preserving their independent C replays."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep23-v59-final-source-coverage-review-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:31:08.264Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Reviewing seven provisional failures and matching-control coverage after 96 preserved C attempts; all commands have finished."
       }
     ]
   },
@@ -97737,7 +98107,7 @@
         "delivery": "7e243d7c86f8a4ec52790acfc00d0baa27cdc00f",
         "since": "2026-10-12T19:29:11.203Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
@@ -97749,17 +98119,6 @@
         "since": "2026-10-12T19:34:45.173Z",
         "blockedBy": [],
         "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
-        "worker": "A2",
-        "goal": "A2-port-shk-hot-pursuit-v52-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "20763e5c8c468f81294b4648414e6ed942b786b0",
-        "since": "2026-10-12T19:48:34.290Z",
-        "blockedBy": [],
-        "unblocks": 1
       },
       {
         "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
@@ -97790,15 +98149,15 @@
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
-        "worker": "A2",
-        "goal": "A2-fix-shk-move-avoid-distance-v52-20261012",
+        "task": "C-investigation-v52-polymorph-newcham-continuation-20261012",
+        "worker": "C",
+        "goal": "C-v52-use-misc-newcham-caller-binding-20261012",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "ed46996e9a3d80d5c70c1d98c1849d8cf264b339",
-        "since": "2026-10-12T20:00:28.141Z",
+        "delivery": "30e6e3c07c06f039188e465174c1b5a349c1dbc8",
+        "since": "2026-10-12T20:14:08.627Z",
         "blockedBy": [
-          "A2-investigation-v52-minetown-muse-continuation-20261012"
+          "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012"
         ],
         "unblocks": 0
       }
@@ -98269,12 +98628,23 @@
         "since": "2026-10-12T11:30:34.791Z",
         "blockedBy": [],
         "reason": "Resolved by C-investigation-v48-discovery-sort-menu-20261012 accepted at 583ca5765128db23e1d43883d8faad7b0dbcdef6. Fresh bounded replay on B accepted Main 24cd67df72e04946883c4dad0b7185ebbbd77449 matched all 14 screens, RNG, and input boundaries; #knownclass reached with unported=[] and no refusal. Do not create duplicate implementation completion evidence."
+      },
+      {
+        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
+        "worker": "A2",
+        "goal": "A2-fix-shk-move-avoid-distance-v52-20261012",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": "ed46996e9a3d80d5c70c1d98c1849d8cf264b339",
+        "since": "2026-10-12T20:29:41.779Z",
+        "blockedBy": [],
+        "reason": "Superseded by accepted hot-pursuit correction 575ed936 at b656ad046. Its source-defined shk_move threshold change and full matching Minetown replay are preserved in the accepted correction; the original movement packet remains historical evidence."
       }
     ]
   },
   "development": {
-    "executionCommit": "ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f",
-    "measuredAt": "2026-10-12T19:58:58.424Z",
+    "executionCommit": "b656ad046d1e5a1cc595197a576bae8a175ca2eb",
+    "measuredAt": "2026-10-12T20:27:07.685Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -292926,7 +292926,7 @@
     {
       "id": "A2-port-shk-hot-pursuit-v52-20261012",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement hot_pursuit from shk.c",
       "cFile": "shk.c",
       "sessions": [
@@ -292936,7 +292936,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "b656ad046d1e5a1cc595197a576bae8a175ca2eb",
       "delivered": null,
       "functions": [
         {
@@ -292949,6 +292949,119 @@
       "range": {
         "from": 1449,
         "to": 1469
+      },
+      "closeStanding": {
+        "sha": "b656ad046d1e5a1cc595197a576bae8a175ca2eb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "ac084c9b7ed9ad3558d38854dedcb0ec4d419d0f",
+        "target": "synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/b656ad046d1e5a1cc595197a576bae8a175ca2eb/run-hosted-BZlEaC/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "hot_pursuit",
+            "implementation": "js/shk.js",
+            "symbol": "hot_pursuit",
+            "sourceReview": "Read all of shk.c:hot_pursuit() at 1449-1469. Preserve its immediate return for non-shopkeepers, then call rile_shk once, copy svp.plname with the PL_NSIZ bound, set ESHK.following, clear no_charge recursively from all fobj entries with a null shopkeeper, and clear pet inventory flags through clear_no_charge_pets. Verified the existing JavaScript callees against shk.c: rile_shk applies the active bill surcharge once; clear_no_charge preserves the C location/shopkeeper conditions when a shopkeeper is supplied; clear_no_charge_pets walks the current level monster list and only tame inventories. The JavaScript stolen_value caller invokes hot_pursuit after the thief Norep and before angry_guards, matching shk.c order. Other hot_pursuit call sites remain explicit outside-task frontiers and are not claimed here.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "mbag_item_gone",
+                "source": "pickup.c:mbag_item_gone is the active production caller that reaches shk.c:stolen_value for the admitted swallowed-shop theft path; it is existing caller wiring, not a changed function."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "stolen_value",
+                "source": "shk.c:stolen_value calls hot_pursuit(shkp) after the thief message and before angry_guards(FALSE)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-minetown-unpaid-tool-pickup-attempt12",
+                "segment": 0,
+                "fromStep": 572,
+                "throughStep": 583,
+                "source": "pickup.c:mbag_item_gone -> shk.c:stolen_value -> shk.c:hot_pursuit; the subsequent shopkeeper turn emits the muse wand message before its first attack RNG draw."
+              }
+            ]
+          },
+          {
+            "name": "shk_move",
+            "implementation": "js/shk.js",
+            "symbol": "shk_move",
+            "sourceReview": "The selected source branch is shk.c:shk_move's peaceful shopkeeper avoidance calculation at 4972. C computes (*u.ushops && distu(gtx,gty)>8), and hack.h:1531 defines distu as dist2. JS now compares its dist2 result to 8. In the admitted trace, the keeper and its target are at (55,14), the hero is at (55,6), u.ushops is nonempty, and square-distance is 64. C therefore passes avoid=true into priest.c:move_special; its NOTONL filter at priest.c:83 skips (55,15). The corrected JS branch now skips that candidate too, aligning the RNG stream with C's subsequent m_move candidate-selection draw. The active caller is monmove.c:m_move's special-mover dispatch. Required return-valued dependencies move_special and mfndpos are implemented in js/priest.js and js/monmove.js.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c:m_move:1806-1827 dispatches shopkeepers to shk_move, consumes its return code, and falls through to m_move's ordinary choice loop only for -1."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-minetown-unpaid-tool-pickup-attempt12",
+                "segment": 0,
+                "fromStep": 584,
+                "throughStep": 626,
+                "source": "monmove.c:m_move dispatches to shk.c:shk_move, which passes the C-compatible avoid flag through priest.c:move_special and mon.c:mfndpos."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted Minetown path starts at pickup.c:mbag_item_gone -> shk.c:stolen_value -> shk.c:hot_pursuit. The resulting shopkeeper turn reaches monmove.c:m_move -> shk.c:shk_move; the C distu()>8 avoidance threshold prevents an extra priest.c:move_special candidate. The exact v52 recording now matches through segment 0 step 626 after the bounded shk_move correction. The previous Main candidate had one cursor regression at step 618; the source-traced movement correction resolves it in the full fresh replay.",
+        "entryPoints": [
+          {
+            "name": "Stealing an object while swallowed in the Minetown shop",
+            "functions": [
+              "hot_pursuit"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-minetown-unpaid-tool-pickup-attempt12",
+                "segment": 0,
+                "fromStep": 572,
+                "throughStep": 583,
+                "source": "pickup.c:mbag_item_gone -> shk.c:stolen_value -> shk.c:hot_pursuit; the subsequent shopkeeper turn emits the muse wand message before its first attack RNG draw."
+              }
+            ]
+          },
+          {
+            "name": "Peaceful shopkeeper movement while the hero is in a shop",
+            "functions": [
+              "shk_move"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-minetown-unpaid-tool-pickup-attempt12",
+                "segment": 0,
+                "fromStep": 584,
+                "throughStep": 626,
+                "source": "monmove.c:m_move dispatches to shk.c:shk_move, which passes the C-compatible avoid flag through priest.c:move_special and mon.c:mfndpos."
+              }
+            ]
+          }
+        ]
       }
     }
   ]
