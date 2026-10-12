@@ -283479,6 +283479,49 @@
         "rng": 792838
       },
       "parkedReason": "Give the prepared batch priority at this safe pre-code boundary because C has no independent unreserved work; preserve B inventory correction for resumption."
+    },
+    {
+      "id": "B-v50-demonpet-melee-action",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port demon-pet creation and wire the hero attack caller",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v50/v50-demonpet-melee-action-attempt1"
+      ],
+      "selectionReason": "The admitted v50 hero attack reaches the missing whole demonpet function; preserve its RNG choice, monster creation, taming, and wisdom exercise in C order.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "demonpet",
+          "line": 2133,
+          "endLine": 2147,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2133,
+        "to": 2147
+      },
+      "syntheticProvenance": {
+        "synthetic/v50/v50-demonpet-melee-action-attempt1": {
+          "session": "synthetic/v50/v50-demonpet-melee-action-attempt1",
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-demonpet-melee-action-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recordingPath": "challenges/cases/v50/v50-demonpet-melee-action-attempt1.session.json",
+          "recordingSha256": "064cea947f1259f065488cc0c8c6f81bb1127ce7d2ddb71f3b726e0ce7202fc2",
+          "evaluationPath": "challenges/evaluations/accepted-50a39b94d0ec3785717011e652bd75a1ed47941a-v50.json",
+          "evaluationCommit": "50a39b94d0ec3785717011e652bd75a1ed47941a"
+        }
+      }
     }
   ]
 }
