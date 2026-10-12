@@ -1052,19 +1052,16 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
         const destinationInside = inside_region(region, x, y);
         if (currentlyInside === destinationInside) continue;
 
-        // C region.c m_in_out_region() permits callback-free membership
-        // changes for every monster. This boundary admits only the harmless
-        // gas-cloud regions whose transition callbacks therefore do no work;
-        // callback-bearing and harmful regions remain fail-closed until their
-        // complete movement paths are ported.
-        const callbackFreeHarmlessGas = region.inside_f
-            === 'inside_gas_cloud'
-            && Math.trunc(region.arg ?? 0) === 0
-            && transitionCallbackUnset(region.can_enter_f)
+        // C region.c m_in_out_region() only invokes these four transition
+        // callbacks. The region's inside_f (including a damaging gas-cloud
+        // callback) belongs to run_regions(), not monster movement, so any
+        // region with no transition callbacks only needs its membership list
+        // updated by the already-ported m_in_out_region().
+        const callbackFreeTransition = transitionCallbackUnset(region.can_enter_f)
             && transitionCallbackUnset(region.enter_f)
             && transitionCallbackUnset(region.can_leave_f)
             && transitionCallbackUnset(region.leave_f);
-        if (!callbackFreeHarmlessGas)
+        if (!callbackFreeTransition)
             unsupported('a region transition');
     }
     // Last, so that a destination another guard rejects prepares nothing.
@@ -1597,9 +1594,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                         fleeMessage: monfleeMessage,
                         message: fleeEnv.planning ? async () => {}
                             : (fleeEnv.message ?? ttyPline),
-                        // C discards create_gas_cloud's return. Its damaging
-                        // region callback remains a separate source gap.
-                        createGasCloud: () => note_unported('region.c create_gas_cloud'),
+                        createGasCloud: createMonsterGasCloud,
                     }),
                 questStatCheck: quest_stat_check,
                 // C ref: monmove.c:722 quest_talk(). The one place a monster's
@@ -1686,6 +1681,21 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
     });
 }
 
+function createMonsterGasCloud(x, y, size, damage, effectEnv) {
+    const { state, planning } = effectEnv;
+    if (planning) admitPlannedVisionChange(x, y, state);
+    return create_gas_cloud(x, y, size, damage, {
+        ...effectEnv,
+        blockPoint: (cloudX, cloudY) =>
+            block_point(cloudX, cloudY, state),
+        canSee: (cloudX, cloudY) => cansee(cloudX, cloudY, state),
+        newsym: planning ? () => {} : (cloudX, cloudY) =>
+            newsym(cloudX, cloudY),
+        message: planning ? async () => {}
+            : (effectEnv.message ?? ((text, target) => ttyPline(text, target))),
+    });
+}
+
 async function planningEveryTurnEffect(monster, env) {
     await m_everyturn_effect(monster, {
         ...env,
@@ -1696,18 +1706,7 @@ async function planningEveryTurnEffect(monster, env) {
         // paints nothing, and the planning wrapper restores that index from the
         // live map before returning. The live pass uses allmain.js's ordinary
         // region hooks and commits the same effects to the display and vision.
-        createGasCloud: (x, y, size, damage, effectEnv) => {
-            const { state } = effectEnv;
-            admitPlannedVisionChange(x, y, state);
-            return create_gas_cloud(x, y, size, damage, {
-                ...effectEnv,
-                blockPoint: (cloudX, cloudY) =>
-                    block_point(cloudX, cloudY, state),
-                canSee: (cloudX, cloudY) => cansee(cloudX, cloudY, state),
-                newsym: () => {},
-                message: async () => {},
-            });
-        },
+        createGasCloud: createMonsterGasCloud,
     });
 }
 
