@@ -103,3 +103,18 @@ triage decisions or fix references.
 - Evidence: the browser command reported `Cannot find module playwright`; an existing installation was found in the npm execution cache.
 - Reason: frontend-rigor requires browser interaction checks for a changed filter.
 - Outcome: the existing cached installation passed pointer, keyboard, exclusion disclosure, activity selection and responsive checks; no dependency was installed.
+
+### 2026-10-12 — dispatcher integration and correction packaging
+
+- Context: dispatcher delivery `09731e9aa0d118bc027c01ae959c88078fc9ac11` and hosted run `38210475750`.
+- Friction: importing its investigation reports before source selection split the later cherry-pick patch. Ledger integration and preflight rejected the combined patch identity despite identical source and test blobs.
+- Reason: selection requires committed findings; the ledger requires the submitted patches.
+- Outcome: Main merged the exact submitted commit after verifying that only the delivery and its accepted-base merge were missing from history. Preflight passed.
+
+- Friction: the hosted test shard failed a source-text assertion requiring the old two-argument `doextcmd` call. The new selected-command callback preserved the behavior that the assertion was meant to check.
+- Evidence: `scripts/cmd-span.test.mjs` failed at the wizard-kill dispatch assertion; all fixed sessions and regression recordings passed. The corrected assertion passed its focused check.
+- Reason: a failed validation requires a new worker delivery SHA before the ledger permits a retry. The worker must finish its current handoff, resume the earlier task, and package the integration correction.
+- Outcome: failed logs and summary retained; the correction is committed separately. The initial instruction did not identify the older dispatcher task explicitly, so the worker tried the newer ready task; the coordinator supplied the exact older task ID.
+
+- Friction: an evidence-only Prep14 correction could not submit an empty commit because the ledger requires a changed path.
+- Outcome: Prep preserved the original 124 files and added an input-identical cobra recipe copy with corrected source and coverage metadata. Its new packet keeps twelve cases and excludes twenty-eight redundant controls; no C replay was repeated.
