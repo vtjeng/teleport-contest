@@ -280079,7 +280079,7 @@
           "line": 2684,
           "endLine": 2741,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -280093,7 +280093,7 @@
           "endLine": 5964,
           "declared": true,
           "sourceFile": "zap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "destroy_items",
@@ -280101,7 +280101,7 @@
           "endLine": 6099,
           "declared": true,
           "sourceFile": "zap.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -280404,7 +280404,173 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_elec",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_elec",
+            "sourceReview": "Read uhitm.c:mhitm_ad_elec() (2684-2739) and compared the complete function in source order. The hero-to-monster arm performs magic cancellation, blind-gated zap text, electric resistance/defense, golem and shield effects, zeroes direct damage when resisted, then adds destroy_items() damage from entry orig_dmg. The monster-to-hero arm calls hitmsg(), applies cancellation, prints the zap and resistance response, records M_SEEN_ELEC or clears it, zeroes resisted damage, then always evaluates the m_lev > rn2(20) gate before the discarded-void destroy_items() call. The monster-to-monster arm returns on cancellation, gates visible text by gv.vis/canseemon, applies resistance/defense effects in C order, then adds destroy_items() using entry damage. JS preserves all three branches and the AD_ELEC dispatcher arm. Its only returned source dependency is zap.c:destroy_items(), included in this task. Existing source helpers hitmsg(), mhitm_mgc_atk_negated(), monstseesu(), monstunseesu(), shieldeff(), and golemeffects() remain wired; their discarded results are not substituted.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping() case AD_ELEC (4794)"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum() calls mhitm_adtyping(&gy.youmonst, ...) (4854)"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu() calls mhitm_adtyping(mtmp, ..., &gy.youmonst, ...) (1191)"
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem() calls mhitm_adtyping(magr, ..., mdef, ...) (1059)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-elec.test.mjs",
+              "scripts/mhitu.test.mjs",
+              "scripts/monster-melee-hit-elec.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-elec-electric-eel-hero-hostile-newt.session.json",
+              "recordings/uhitm.c/mhitm-ad-elec-tame-gridbug-hostile-newt.session.json",
+              "recordings/uhitm.c/mhitm-ad-elec-gridbug-hits-hero.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "1315c98d56365215282500f1576300e85825ba61"
+          },
+          {
+            "name": "maybe_destroy_item",
+            "implementation": "js/zap_destroy_items.js",
+            "symbol": "maybe_destroy_item",
+            "sourceReview": "Read the whole zap.c:maybe_destroy_item() definition (5798-5954), including the external-inventory resistance guard, cold/fire/electric switches, Book of the Dead skip, electric ring skip/recharge path, quantity and in-use adjustments, destruction messages and order, hero-only inventory side effects, carrier-specific useup calls, resistance damage result, and return value. C's default arm sets skip, calls discarded-void pline.c:impossible(), then breaks and continues; JS records note_unported('pline.c impossible') and continues. The function is internal to the JS zap_destroy_items.js owner and is called by the whole destroy_items() port in the C location/order. No UnsupportedItemDestructionError boundary remains.",
+            "callers": [
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "destroy_items",
+                "source": "zap.c:destroy_items() calls maybe_destroy_item() at 6088"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-destroy-items.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/hero-rebounded-lightning-ray.session.json"
+            ],
+            "sourceFile": "zap.c",
+            "synthetic": [],
+            "checkedAt": "1315c98d56365215282500f1576300e85825ba61"
+          },
+          {
+            "name": "destroy_items",
+            "implementation": "js/zap_destroy_items.js",
+            "symbol": "destroy_items",
+            "sourceReview": "Read and compared the whole zap.c:destroy_items() definition (5965-6097): initialization, damage-based cap, early return, bypass reset, eligible-stack reservoir selection, first source-chain tracking with discarded-void pline.c:impossible() handling, deferred item ordering, object-identity check, maybe_destroy_item() accumulation, final bypass reset and return. The two C calls to impossible() whose results are discarded are represented as note_unported('pline.c impossible') and execution continues; no exception or substitute game effect remains. The AD_ELEC mhitm_ad_elec() caller consumes the return value in the hero and monster defender arms and passes entry damage; the monster-to-hero and other already-active source callers continue to use the same JS owner. The helper remains in js/zap_destroy_items.js, corresponding to zap.c.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_elec",
+                "source": "uhitm.c:mhitm_ad_elec() adds destroy_items() in hero-to-monster and monster-to-monster arms and calls it for the hero after the monster level gate (2705, 2719, 2737)"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zhitu",
+                "source": "zap.c:zhitu() calls destroy_items() from its hero inventory damage path; the fixed wizard coverage session reaches it"
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "maybe_destroy_item",
+                "source": "zap.c:destroy_items() calls maybe_destroy_item() at 6088"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-destroy-items.test.mjs",
+              "scripts/uhitm-ad-elec.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-elec-electric-eel-hero-hostile-newt.session.json",
+              "recordings/uhitm.c/mhitm-ad-elec-tame-gridbug-hostile-newt.session.json",
+              "recordings/zap.c/hero-rebounded-lightning-ray.session.json"
+            ],
+            "sourceFile": "zap.c",
+            "synthetic": [],
+            "checkedAt": "1315c98d56365215282500f1576300e85825ba61"
+          }
+        ],
+        "entryPointReview": "The C mhitm_ad_elec() function is selected by uhitm.c:mhitm_adtyping() and reached through damageum(), hitmu(), and mdamagem(); the JS equivalents all retain that dispatcher path. The hero-to-monster electric-eel recipe reaches damageum -> mhitm_adtyping -> mhitm_ad_elec -> zap.c:destroy_items at segment 0 step 66. The tame-grid-bug/hostile-newt recording reaches the M2M arm through mdamagem at segment 0 steps 66, 68, and 72. The independent hostile-grid-bug recording reaches hitmu -> mhitm_adtyping -> mhitm_ad_elec at segment 0 steps 32-33 and 36. The fixed session seed0004-feeding-pony also corroborates the monster-to-hero branch at segment 0 steps 91-92. For the zap helper family, the fixed wizard coverage session reaches zap.c:zhitu -> destroy_items -> maybe_destroy_item at segment 0 step 103, including successful potion destruction; step 106 reaches another maybe_destroy_item item case. The independent rebounded-lightning recording under recordings/zap.c reaches zhitu at segment 0 step 34, then passes destroy_items and maybe_destroy_item, with strict C/JS parity. The Nazgul lightning-ray recipe remains only a blocked monster-inventory variation: JS stops earlier at zap.c:weffects, so it has no recording and is not claimed as passing evidence. No weffects code or behavior is included in this task.",
+        "entryPoints": [
+          {
+            "name": "Hero electric-eel melee hits and zaps a hostile monster",
+            "functions": [
+              "mhitm_ad_elec",
+              {
+                "sourceFile": "zap.c",
+                "name": "destroy_items"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-elec-electric-eel-hero-hostile-newt.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Tame grid bug uses an AD_ELEC monster-to-monster attack",
+            "functions": [
+              "mhitm_ad_elec",
+              {
+                "sourceFile": "zap.c",
+                "name": "destroy_items"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-elec-tame-gridbug-hostile-newt.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Grid bug shocks the hero",
+            "functions": [
+              "mhitm_ad_elec",
+              {
+                "sourceFile": "zap.c",
+                "name": "destroy_items"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-elec-gridbug-hits-hero.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard wand beam destroys carried inventory through zhitu",
+            "functions": [
+              {
+                "sourceFile": "zap.c",
+                "name": "destroy_items"
+              },
+              {
+                "sourceFile": "zap.c",
+                "name": "maybe_destroy_item"
+              }
+            ],
+            "recordings": [
+              "recordings/zap.c/hero-rebounded-lightning-ray.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
