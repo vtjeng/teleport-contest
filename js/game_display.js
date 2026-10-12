@@ -11,7 +11,13 @@
 //   // display.setCell, display.readKey etc. all delegate to terminal
 //   // display.topMessage, display.putstr_message are NetHack-specific
 
-import { Terminal, CLR_GRAY, ATR_INVERSE, ATR_UNDERLINE } from './terminal.js';
+import {
+    Terminal,
+    CLR_GRAY,
+    NO_COLOR,
+    ATR_INVERSE,
+    ATR_UNDERLINE,
+} from './terminal.js';
 
 const TOPLINE_EMPTY = 0;
 const TOPLINE_NEED_MORE = 1;
@@ -109,8 +115,19 @@ export class GameDisplay {
     setCell(col, row, ch, color, attr) { return this.terminal.setCell(col, row, ch, color, attr); }
     putstr(col, row, str, color, attr) { return this.terminal.putstr(col, row, str, color, attr); }
     setCursor(col, row) { return this.terminal.setCursor(col, row); }
-    clearScreen() { return this.terminal.clearScreen(); }
-    clearRow(row) { return this.terminal.clearRow(row); }
+    // C's TTY clear operations leave the terminal's default foreground active.
+    // The recorder shadow grid stores that as fg=7; its serializer emits no
+    // color change because 7 is the terminal's initial foreground. Store the
+    // same default explicitly here instead of Terminal's CLR_GRAY, which
+    // GameDisplay.serialize() would encode as an observable [37m transition.
+    clearScreen() {
+        for (let row = 0; row < this.rows; ++row) this.clearRow(row);
+        this.setCursor(0, 0);
+    }
+    clearRow(row) {
+        for (let column = 0; column < this.cols; ++column)
+            this.setCell(column, row, ' ', NO_COLOR, 0);
+    }
     scrollUp() { return this.terminal.scrollUp(); }
     moveCursor(x, y) { return this.terminal.moveCursor(x, y); }
     putChar(x, y, ch, attr) { return this.terminal.putChar(x, y, ch, attr); }

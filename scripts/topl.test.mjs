@@ -1,24 +1,35 @@
 // Source-pinned tests for the TTY message-history ring and its snapshot API.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { normalizeSession } from '../frozen/session_loader.mjs';
 import {
     NHW_MESSAGE,
     SUPPRESS_HISTORY,
     WIN_LOCKHISTORY,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
+import { ATR_INVERSE } from '../js/terminal.js';
 import { tty_create_nhwindow } from '../js/wintty.js';
 import {
     free_msghistory_snapshot,
     msghistory_snapshot,
+    more,
+    putsyms,
     remember_topl,
     tty_doprev_message,
     tty_getmsghistory,
     tty_putmsghistory,
 } from '../js/topl.js';
 import { ttyCustomPline } from '../js/tty_message.js';
+import { runSegment } from '../js/jsmain.js';
+
+const wrappedStartupRecording = normalizeSession(JSON.parse(readFileSync(
+    new URL('../recordings/topl.c/wrapped-startup-topline.session.json', import.meta.url),
+    'utf8',
+)));
 
 function historyState() {
     const state = {
@@ -145,4 +156,89 @@ test('non-single history is a no-op while the TTY is in a read', async () => {
     assert.equal(win.maxcol, 1);
     assert.equal(state.nhDisplay.dismiss_more, 7);
     assert.equal(state.nhDisplay.inputQueueLength, 1);
+});
+
+test('more always writes its marker and honors standout on a blank topline',
+    async () => {
+        const state = historyState();
+        state.flags = { standout: true };
+        state.nhDisplay.setCursor(3, 1);
+        state.nhDisplay.pushKey(32);
+
+        let markerFrame = null;
+        state._preNhgetchHook = () => {
+            markerFrame = state.nhDisplay.grid[1].slice(3, 11);
+        };
+        await more(state);
+
+        assert.deepEqual(markerFrame.map((cell) => cell.ch), [...'--More--']);
+        assert.ok(markerFrame.every((cell) => cell.attr === ATR_INVERSE));
+        assert.equal(state.nhDisplay.inmore, 0);
+        assert.equal(state.nhDisplay.toplin, 0);
+    });
+
+test('wrapped Escape more restores lower rows, homes, and keeps the stop state',
+    async () => {
+        const state = historyState();
+        const display = state.nhDisplay;
+        state.flags = { standout: false };
+        const message = 'wrapped TTY history message '.repeat(5);
+        state._pending_message = message;
+        state._ttyToplines = message;
+        display.toplines = message;
+        display.topMessage = message;
+        display.toplin = 1;
+        for (let column = 0; column < display.cols; ++column)
+            display.setCell(column, 1, 'M', 0, 0);
+        const preservedRow = display.grid[1].map((cell) => ({ ...cell }));
+        display.pushKey(27);
+
+        let markerCell = null;
+        state._preNhgetchHook = () => {
+            markerCell = display.grid[1].find((cell) => cell.ch === '-');
+        };
+        await more(state);
+
+        assert.equal(markerCell?.attr ?? 0, 0);
+        assert.deepEqual(display.grid[1], preservedRow);
+        assert.equal(display.cursorCol, 0);
+        assert.equal(display.cursorRow, 0);
+        assert.equal(display.inmore, 0);
+        assert.equal(display.toplin, 0);
+        assert.equal(state._ttyMessageStopped, true);
+    });
+
+test('putsyms stops at the first embedded NUL like the C byte-string loop', () => {
+    const state = historyState();
+    putsyms('ab\0cd', state);
+
+    assert.equal(state.nhDisplay.grid[0][0].ch, 'a');
+    assert.equal(state.nhDisplay.grid[0][1].ch, 'b');
+    assert.equal(state.nhDisplay.grid[0][2].ch, ' ');
+    assert.equal(state.nhDisplay.cursorCol, 2);
+});
+
+test('wrapped startup topline reproduces the committed C recording', async () => {
+    // This two-step C recording exposes a cleared blank between map glyphs;
+    // retaining its exact screens, cursors and RNG calls catches default-color
+    // drift that a newly recorded C recipe would not detect.
+    const [segment] = wrappedStartupRecording.segments;
+    const replay = await runSegment(segment);
+
+    assert.deepEqual(
+        replay.getScreens(),
+        segment.steps.map(({ screen }) => screen),
+    );
+    assert.deepEqual(
+        replay.getCursors(),
+        segment.steps.map(({ cursor }) => cursor),
+    );
+    const normalizeRng = (entry) => String(entry)
+        .replace(/\s*@\s.*$/u, '')
+        .replace(/^\d+\s+/u, '')
+        .trim();
+    assert.deepEqual(
+        replay.getRngLog().map(normalizeRng),
+        segment.steps.flatMap(({ rng }) => rng).map(normalizeRng),
+    );
 });

@@ -18,6 +18,8 @@ import {
     PLNMSG_UNKNOWN,
     SUPPRESS_HISTORY,
     URGENT_MESSAGE,
+    WIN_NOSTOP,
+    WIN_STOP,
 } from './const.js';
 import { flush_screen } from './display.js';
 import {
@@ -26,7 +28,7 @@ import {
 } from './hacklib.js';
 import { nhgetch } from './input.js';
 import { emitGlyphUpdateNotices } from './startup_a11y.js';
-import { NO_COLOR } from './terminal.js';
+import { ATR_NONE, NO_COLOR } from './terminal.js';
 import { vision_recalc } from './vision.js';
 import { msgtype_type } from './options.js';
 import { sound_speak } from './sounds.js';
@@ -113,14 +115,28 @@ function pendingTtyMessageLayout(state) {
 // Write the pending message and its source-owned More marker without waiting.
 // C's tty_wait_synch() map-window arm refreshes the map and leaves this marker
 // for the next tty_yn_function() read; it does not call getret().
-function writePendingTtyMessagePrompt(state, layout) {
+function writePendingTtyMessagePrompt(state, layout, promptAttr = ATR_NONE) {
     const { display, lines, promptRow, promptColumn } = layout;
     for (let row = 0; row < lines.length; ++row)
         writeRecorderTtyLine(display, row, lines[row]);
     if (state._ttyMixedFirstCell)
         display.setCell(0, 0, state._ttyMixedFirstCell, NO_COLOR, 0);
-    display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, 0);
+    display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, promptAttr);
     display.setCursor(promptColumn + MORE_PROMPT.length, promptRow);
+}
+
+function writeMorePromptAtCursor(display, promptAttr) {
+    let row = Math.min(display.cursorRow ?? 0, display.rows - 1);
+    let column = Math.min(display.cursorCol ?? 0, display.cols - 1);
+    if (display.toplin && column >= display.cols - MORE_PROMPT.length) {
+        row = Math.min(row + 1, display.rows - 1);
+        column = 0;
+    }
+    for (const ch of MORE_PROMPT) {
+        if (column >= display.cols) break;
+        display.setCell(column++, row, ch, NO_COLOR, promptAttr);
+    }
+    display.setCursor(column, row);
 }
 
 // C ref: wintty.c tty_display_nhwindow(WIN_MAP, FALSE) leaves an existing
@@ -190,16 +206,26 @@ export async function dismissPendingTtyMessage(
         dismissMore = 0,
         preventEscapeStop = false,
         returnResponse = false,
+        alwaysPrompt = false,
+        promptAttr = ATR_NONE,
     } = {},
 ) {
-    if (!state._pending_message) return false;
+    const hasPendingMessage = Boolean(state._pending_message);
+    if (!hasPendingMessage && !alwaysPrompt) return false;
     const display = state.nhDisplay;
     if (!display)
         throw new Error('tty message dismissal requires an initialized display');
 
-    const layout = pendingTtyMessageLayout(state);
+    const layout = hasPendingMessage
+        ? pendingTtyMessageLayout(state)
+        : {
+            display,
+            lines: [],
+            promptRow: Math.min(display.cursorRow ?? 0, display.rows - 1),
+            promptColumn: Math.min(display.cursorCol ?? 0, display.cols - 1),
+        };
     const { lines, promptRow, promptColumn } = layout;
-    const multiline = promptRow > 0;
+    const multiline = Boolean(display.toplin && promptRow > 0);
     const snapshot = multiline
         ? snapshotRows(display, promptRow + 1)
         : null;
@@ -214,11 +240,15 @@ export async function dismissPendingTtyMessage(
     // high-bit bytes, and calls cl_end() after every logical/physical line.
     // Do not clear the prefix first: skipped byte cells retain their prior
     // character, color, and attributes in the recorder shadow grid.
-    writePendingTtyMessagePrompt(state, layout);
+    if (hasPendingMessage)
+        writePendingTtyMessagePrompt(state, layout, promptAttr);
+    else
+        writeMorePromptAtCursor(display, promptAttr);
 
     // wintty.c tty_nhgetch() clears WIN_STOP before every key. more() restores
     // it only when this prompt's final response is Escape without WIN_NOSTOP.
     const response = await xwaitforspace(state, QUITCHARS, dismissMore);
+    display.morc = response;
 
     if (snapshot) {
         restoreRows(display, snapshot);
@@ -233,8 +263,13 @@ export async function dismissPendingTtyMessage(
     // sets WIN_STOP after tty_nhgetch() returns; subsequent plines update
     // that logical buffer without drawing until the next key wait.
     state._ttyToplines ??= lines.join('\n');
-    if ((response === 0 || response === 27) && !preventEscapeStop)
+    const messageWin = state.wintty?.wins?.[state.wintty.messageWindow];
+    if ((response === 0 || response === 27)
+        && !preventEscapeStop
+        && !(messageWin?.flags & WIN_NOSTOP)) {
+        if (messageWin) messageWin.flags |= WIN_STOP;
         state._ttyMessageStopped = true;
+    }
     display.topMessage = state._ttyToplines;
     display.toplines = state._ttyToplines;
     display.toplin = TOPLINE_EMPTY;

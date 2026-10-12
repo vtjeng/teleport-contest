@@ -20,6 +20,22 @@ function put(target, col, row, text, color, attr) {
         target.setCell(col + i, row, text[i], color, attr);
 }
 
+test('TTY clears restore the default foreground after colored glyphs', () => {
+    const disp = display();
+    // These in-range cells use colored glyph sentinels so both C clear paths
+    // must reset the foreground and attribute before capturing blanks.
+    disp.setCell(4, 2, 'X', CLR_RED, ATR_BOLD);
+    disp.clearRow(2);
+    assert.deepEqual(disp.grid[2][4], { ch: ' ', color: NO_COLOR, attr: 0 });
+
+    // Row 3 checks an interior cell; row 20, column 79 checks the last cell
+    // in the recorder's 24-by-80 frame after full-screen clearing.
+    disp.setCell(6, 3, 'Y', CLR_RED, ATR_UNDERLINE);
+    disp.clearScreen();
+    assert.deepEqual(disp.grid[3][6], { ch: ' ', color: NO_COLOR, attr: 0 });
+    assert.deepEqual(disp.grid[20][79], { ch: ' ', color: NO_COLOR, attr: 0 });
+});
+
 test('serialize keeps inverse video on spaces before the first glyph', () => {
     // The spell-menu column header from davidbau/teleport-contest#18: four
     // inverse spaces at columns 20-23, then "Name". More than four leading
