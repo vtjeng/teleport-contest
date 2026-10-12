@@ -294179,6 +294179,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-dighole-magical-trap-explosion-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dighole from dig.c",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v53/v53-dig-magic-trap-explosion-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v53-dig-magic-trap-explosion-action2-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dighole",
+      "session": "synthetic/v53/v53-dig-magic-trap-explosion-action2"
     }
   ]
 }
