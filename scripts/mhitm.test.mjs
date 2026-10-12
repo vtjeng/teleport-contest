@@ -98,7 +98,7 @@ import { mksobj } from '../js/obj.js';
 import { cansee } from '../js/vision.js';
 import { mon_wield_item } from '../js/weapon.js';
 import { find_mac } from '../js/worn.js';
-import { APPLE, SHORT_SWORD } from '../js/objects.js';
+import { APPLE, CLUB, SHORT_SWORD } from '../js/objects.js';
 import { S_hcdoor } from '../js/symbols.js';
 import {
     loadUnseenPetFightRecipe,
@@ -1319,6 +1319,60 @@ test('mattackm continues past weapon selection for supported arms',
 
 // mhitm.c mattackm() gates automatic HUGS by earlier successful slots and
 // prevents point-blank breath/spit. The fabricated slots isolate each gate.
+test('mswingsm supplies the canonical pronoun visibility owner', async () => {
+    const cStart = MHITM_C.indexOf('\nstaticfn void\nmswingsm(');
+    const cEnd = MHITM_C.indexOf('\n/*\n * Passive responses', cStart);
+    assert.notEqual(cStart, -1, 'mhitm.c must contain mswingsm');
+    assert.notEqual(cEnd, -1, 'mswingsm must end before passive responses');
+    const cFunction = MHITM_C.slice(cStart + 1, cEnd);
+    assert.match(cFunction,
+        /if \(flags\.verbose && !Blind && mon_visible\(magr\)\)[\s\S]*?mhis\(magr\)/u);
+
+    for (const injectedOwner of [undefined, () => true]) {
+        await hero();
+        game.flags.verbose = true;
+        const { ax, dx, y } = battlefield(1);
+        const club = mksobj(CLUB, false, false, { state: game });
+        const goblin = fixture(PM_HILL_ORC, ax, y, {
+            m_lev: 0,
+            weapon_check: NEED_HTH_WEAPON,
+            mw: club,
+        });
+        add_to_minv(goblin, club, { state: game });
+        const kitten = fixture(PM_KITTEN, dx, y);
+        aim(kitten);
+        const ordinary = goblin.data;
+        goblin.data = {
+            ...ordinary,
+            mattk: [
+                { aatyp: AT_WEAP, adtyp: AD_PHYS, damn: 1, damd: 4 },
+                ...ordinary.mattk.slice(1),
+            ],
+        };
+
+        // A blunt club skips mswings_verb's optional rn2(2); 20 then makes
+        // this low-level attack miss after the visible weapon message.
+        const env = attackEnv([20]);
+        const ownerSubjects = [];
+        if (injectedOwner) {
+            env.canSpotMonster = (monster, state) => {
+                ownerSubjects.push(monster);
+                assert.equal(state, game);
+                return injectedOwner(monster, state);
+            };
+        }
+
+        assert.equal(await mattackm(goblin, kitten, env), M_ATTK_MISS);
+        assert.equal(game.gv.vis, true);
+        assert.equal(game.flags.verbose, true);
+        assert.ok(goblin.mw);
+        assert.match(env.lines.join('\n'), /hill orc swings his club at the kitten/u);
+        assert.deepEqual(env.bounds, ['rnd(20)', 'rn2(3)']);
+        if (injectedOwner) assert.ok(ownerSubjects.includes(goblin));
+        goblin.data = ordinary;
+    }
+});
+
 test('mattackm gates HUGS by prior hits and ranged attacks by distance',
     async () => {
         await hero();

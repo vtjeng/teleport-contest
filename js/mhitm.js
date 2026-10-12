@@ -1328,10 +1328,14 @@ async function mswingsm(magr, mdef, otemp, env) {
         && otemp.oartifact !== ART_SNICKERSNEE
         && dist2(magr.mx, magr.my, mdef.mx, mdef.my) <= 2;
     const message = requireAttackOperation(env, 'message');
+    const pronounEnv = {
+        ...env,
+        canSpotMonster: env.canSpotMonster ?? canspotmon,
+    };
     await message(
         `${Monnam(magr, state, env)} `
             + `${mswings_verb(otemp, bash, { ...env, state, random })} `
-            + `${otemp.quan > 1 ? 'one of ' : ''}${mhis(magr, env)} `
+            + `${otemp.quan > 1 ? 'one of ' : ''}${mhis(magr, pronounEnv)} `
             + `${xnameFresh(otemp, state)} at ${mon_nam(mdef, state, env)}.`,
         state,
         env,
