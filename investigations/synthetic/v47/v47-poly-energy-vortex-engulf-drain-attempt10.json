@@ -8,8 +8,8 @@
   "manifestPath": "challenges/manifests/v47.json",
   "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
   "recordingSha256": "2090d05e3e3a8d98b6aa17a8f06df4cf7ca8ea5cccd480e9411adb66f5d03164",
-  "evaluationPath": "challenges/evaluations/accepted-47ce6cdb703dac648a39587abe9512daf2ee2e50-v47.json",
-  "evaluationCommit": "47ce6cdb703dac648a39587abe9512daf2ee2e50",
+  "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+  "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
   "status": "complete",
   "commit": "3999fd2ffbccd412c3be39dc8b69bf2a0c88df16",
   "mismatch": {
@@ -113,7 +113,7 @@
     "luaFile": null,
     "line": 1466
   },
-  "summary": "At segment 0, step 76, polymorphed hero combat reaches uhitm.c:gulpum() and then mhitm.c:xdrainenergym(). The kobold shaman has a magic attack and has mspec_used below 20, so C adds d(2,2), updates mspec_used, and prints the lethargy message. JavaScript draws the preceding 1-in-4 check, then replaces xdrainenergym() with note_unported(), which omits that draw, state update, and message. Full caller wiring also reaches uhitm.c:mhitm_ad_dren() through the AD_DREN arm of mhitm_adtyping(); B currently reserves that dispatcher, so this implementation must wait until B releases the source scope.",
+  "summary": "At segment 0 step 76, a polymorphed hero energy vortex engulfs the kobold shaman. C passes the successful AD_DREN roll from uhitm.c:gulpum() to mhitm.c:xdrainenergym(), which sees the target has an AT_MAGC attack and mspec_used below 20, adds d(2,2), and prints the lethargy message. JavaScript still skips that C helper. The complete direct-caller set also includes uhitm.c:mhitm_ad_dren(), reached through the AD_DREN arm of uhitm.c:mhitm_adtyping(); B accepted the earlier reservation, so this caller can now be claimed.",
   "source": {
     "file": "mhitm.c",
     "branch": "mhitm.c:xdrainenergym() runs only when the target monster has mspec_used < 20 and has an AT_MAGC or AT_BREA attack. It adds d(2,2) to mspec_used and, when givemsg is true, calls pline_mon() with “seems lethargic.” C calls this helper directly from uhitm.c:gulpum() for an engulfing AD_DREN attack and from uhitm.c:mhitm_ad_dren() for hero-versus-monster and monster-versus-monster AD_DREN dispatch. The selected case reaches the gulpum() call; the mhitm_ad_dren() calls are routed through uhitm.c:mhitm_adtyping().",
@@ -121,25 +121,55 @@
       "xdrainenergym"
     ],
     "callers": [
-      "uhitm.c:gulpum() (around line 5176) calls xdrainenergym(mdef, TRUE) after its AD_DREN 1-in-4 check. hmonas() selects gulpum() for the energy vortex AT_ENGL attack (around line 5769). The current JavaScript owner is uhitm.js:gulpum(), whose AD_DREN branch draws rn2(4) and then calls note_unported(\"mhitm.c xdrainenergym\").",
-      "uhitm.c:mhitm_ad_dren() calls xdrainenergym() in its hero-attacker and monster-attacker branches (around lines 2427 and 2438). uhitm.c:mhitm_adtyping() dispatches AD_DREN to mhitm_ad_dren() (around line 4808); the corresponding JavaScript AD_DREN arm remains unported at uhitm.js around line 7390. B reserves source:uhitm.c:mhitm_adtyping for its active Pestilence task, so this caller cannot be wired by A2 until that reservation is released."
+      "uhitm.c:gulpum() at lines 5174-5177 calls xdrainenergym(mdef, TRUE) after a successful rn2(4) roll for an AD_DREN engulf. The selected v47 range reaches this direct call at step 76. JavaScript uhitm.js:gulpum() currently replaces the helper with note_unported.",
+      "uhitm.c:mhitm_ad_dren() at lines 2418-2442 calls xdrainenergym() in its hero-attacker and monster-attacker branches. The helper also handles the hero-defender branch by calling hitmsg() and drain_en(). Its direct caller is uhitm.c:mhitm_adtyping() case AD_DREN at line 4808; JavaScript currently refuses that arm.",
+      "uhitm.c:mhitm_adtyping() is called by uhitm.c:damageum(), mhitm.c:mdamagem(), and mhitu.c:hitmu(). Their existing JavaScript paths are uhitm.js:damageum(), mhitm.js:mdamagem(), and mhitu.js:hitmu(); all already dispatch through uhitm.js:mhitm_adtyping(). The task wires only its AD_DREN arm, plus the direct gulpum AD_DREN call."
     ],
     "dependencies": [
-      "mondata.c:attacktype() is a pure catalog helper already implemented by js/mondata.js.",
-      "rng.c:d() is provided by js/rng.js.",
-      "pline.c:pline_mon() is provided by js/pline.js.",
-      "uhitm.c:mhitm_ad_dren() depends on the existing JavaScript mhitm_mgc_atk_negated() and trap.c:drain_en() implementations.",
-      "Complete xdrainenergym caller wiring requires the AD_DREN arm of uhitm.c:mhitm_adtyping(); B currently reserves that whole source function."
-    ]
+      "mondata.c:attacktype() is a pure catalog helper implemented by js/mondata.js.",
+      "rng.c:d() and rn2() are implemented by js/rng.js.",
+      "pline.c:pline_mon() is implemented by js/pline.js and carries the target monster location.",
+      "uhitm.c:mhitm_mgc_atk_negated() returns the cancellation result used by mhitm_ad_dren(); js/uhitm.js already implements it.",
+      "trap.c:drain_en() is called only in the hero-defender branch of mhitm_ad_dren(); js/trap_effects.js implements it.",
+      "uhitm.c:hitmsg() and display.c:canspotmon() are already wired in js/uhitm.js and js/display.js."
+    ],
+    "requiredSourceUnits": [
+      {
+        "sourceFile": "uhitm.c",
+        "name": "mhitm_ad_dren",
+        "line": 2418,
+        "endLine": 2442,
+        "jsFile": "js/uhitm.js",
+        "reason": "This whole helper contains two additional direct xdrainenergym call sites and is dispatched by the currently unported AD_DREN arm."
+      }
+    ],
+    "callerContracts": [
+      "contract:uhitm-adtyping-AD_DREN-dispatch-arm",
+      "contract:uhitm-gulpum-AD_DREN-call"
+    ],
+    "entryPoints": [
+      "Hero polymorph attack: uhitm.c:hmonas() -> gulpum() -> xdrainenergym() for an AD_DREN engulf; admitted v47 step 76 exercises the call and true message branch.",
+      "Monster combat AD_DREN dispatch: mhitm_adtyping() -> mhitm_ad_dren() -> xdrainenergym() when the 25% roll succeeds and the target has a magical or breath attack.",
+      "Monster-to-hero AD_DREN dispatch: mhitu.c:hitmu() -> mhitm_adtyping() -> mhitm_ad_dren() -> drain_en(); included in the whole helper and to receive independent runtime evidence."
+    ],
+    "callerBlockers": [],
+    "scopeDecision": "The previously parked source dependency is released: ledger reservations for source:uhitm.c:mhitm_adtyping, source:uhitm.c:mhitm_ad_dren, and the selected session are clear before resuming. Complete mhitm.c:xdrainenergym and uhitm.c:mhitm_ad_dren, then wire the existing gulpum and AD_DREN dispatcher caller branches. No return-valued unported dependency remains."
   },
   "goalKind": "file-port",
-  "selectionReason": "Selected from combined queue SHA-256 188a7c5a196444733f454016c73ff5587f9bf9ce71a94c48b17d3683d62422df, evaluated against accepted commit 47ce6cdb703dac648a39587abe9512daf2ee2e50. A2 owns the earthquake and shop-drop cases; C owns hallucinated monster missile naming; B owns the Pestilence/red-mold case. The source trace identifies mhitm.c:xdrainenergym, but complete caller wiring also uses B's reserved uhitm.c:mhitm_adtyping(), so this investigation is parked until that ownership is released.",
+  "selectionReason": "Selected from fresh combined queue SHA-256 90fac9709e3b3e7fcc3c4fea739f87d074e6fd96a9fac0c6040306130ce71c6d, evaluated against accepted Main ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948. The v47 case remains at 85/92 screens, 2794/2873 RNG calls, and 89/92 cursors; its first mismatch is segment 0 step 76 at mhitm.c:xdrainenergym. The accepted B Pestilence task released the prior uhitm.c:mhitm_adtyping reservation, so the full direct-caller closure can now be claimed.",
   "evidence": [
-    "The saved evaluation challenges/evaluations/accepted-47ce6cdb703dac648a39587abe9512daf2ee2e50-v47.json records 85/92 screens, 2794/2873 RNG calls, and 89/92 cursors. Its first mismatch is segment 0 step 76 on key “b”: C reports d(2,2)=3 at xdrainenergym(mhitm.c:1466), while JavaScript next reports rn2(3)=1. The C screen has “I” at row 0 column 47 and JavaScript has “Y”.",
-    "The recorded v47 input first uses #polyself to become an energy vortex, then fights a hostile kobold shaman. The session reaches the engulf AD_DREN branch in uhitm.c:gulpum(); xdrainenergym() is called after the successful rn2(4) check at C step 76.",
-    "Upstream mhitm.c:1459-1470 contains the complete xdrainenergym() body: it checks mspec_used < 20 and attacktype(mon->data, AT_MAGC) || attacktype(mon->data, AT_BREA), adds d(2,2), and emits the message only when givemsg is true. The target kobold shaman satisfies the magic-attack condition, so the C call consumes the extra two-die draw and changes monster state before the next screen.",
-    "The JavaScript gulpum() AD_DREN arm at uhitm.js:1741-1743 matches C through rn2(4), but success reaches note_unported(\"mhitm.c xdrainenergym\") instead of adding the d(2,2) result to mdef.mspec_used and emitting pline_mon(). This explains the RNG, message, and target-state mismatch from the selected step.",
-    "The other direct callers are uhitm.c:mhitm_ad_dren() at lines 2427 and 2438; its AD_DREN dispatch is uhitm.c:mhitm_adtyping() line 4808. The JavaScript dispatcher still has unported(\"mhitm_ad_dren\") at uhitm.js:7390. The shared ledger assigns B source:uhitm.c:mhitm_adtyping, so A2 will not edit or claim that caller while B owns it. The source task must include this wiring after B releases the reservation; splitting xdrainenergym from an active caller would leave the port incomplete."
+    "Fresh accepted evaluation challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json records v47-poly-energy-vortex-engulf-drain-attempt10 at 85/92 screens, 2794/2873 RNG calls, and 89/92 cursors; its first mismatch remains at segment 0 step 76.",
+    "The C recording at challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json records d(2,2)=3 at xdrainenergym(mhitm.c:1466) on step 76 after the AD_DREN 1-in-4 roll in uhitm.c:gulpum(). The target kobold shaman has an AT_MAGC attack and mspec_used below 20.",
+    "Upstream mhitm.c:1461-1470 has one guard: mspec_used must be below 20 and attacktype must find AT_MAGC or AT_BREA. On success it adds d(2,2) and calls pline_mon() only when givemsg is true.",
+    "The second direct-call family is whole uhitm.c:mhitm_ad_dren() at lines 2418-2442, dispatched by the AD_DREN switch arm in uhitm.c:mhitm_adtyping(). Its other production dispatch callers are mhitm.c:mdamagem(), mhitu.c:hitmu(), and uhitm.c:damageum(); each has an existing JavaScript route to uhitm.js:mhitm_adtyping().",
+    "Accepted Main ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948 published B Pestilence task acceptance and released the previous source:uhitm.c:mhitm_adtyping reservation. The fresh queue SHA is 90fac9709e3b3e7fcc3c4fea739f87d074e6fd96a9fac0c6040306130ce71c6d."
   ],
-  "blocker": "Complete file-port scope is source-blocked by B’s active reservation source:uhitm.c:mhitm_adtyping. Keep the selected session parked until B’s task releases this dispatcher; do not claim only xdrainenergym plus gulpum wiring."
+  "blocker": null,
+  "evaluationUtc": "2026-10-12T00:34:31.123Z",
+  "evidencePlan": [
+    "Use the admitted v47 segment 0 step 76 prefix for the successful hero engulf path and xdrainenergym(givemsg=TRUE).",
+    "Create a new C-first recipe/recording under uhitm.c for a monster-to-monster AD_DREN hit that reaches mhitm_ad_dren() and xdrainenergym(givemsg=FALSE).",
+    "Create an independent C-first recipe/recording under uhitm.c for a hostile energy vortex attacking the hero through mhitu.c:hitmu() and the hero-defender branch of mhitm_ad_dren().",
+    "Source-pinned focused tests cover the inaccessible hero-attacker m_dren branch and all helper guards without claiming a runtime producer for that attack-table combination."
+  ]
 }
