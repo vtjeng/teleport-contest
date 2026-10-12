@@ -279051,7 +279051,7 @@
     {
       "id": "port-eatmupdate-v47-20261011",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port active mimic appearance updates when hallucination changes.",
       "cFile": "eat.c",
       "sessions": [
@@ -279059,8 +279059,12 @@
       ],
       "selectionReason": "Selected from the saved v47 queue after its source trace identified eat.c:eatmupdate and the sole potion.c:make_hallucinated caller. Port the whole helper and wire that caller; an independent recording supplies matching runtime evidence because the selected case retains a separate cpostfx display scheduling gap.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "7b71dbccdbac41deb365dd79b84cbb663b4c80dd",
+      "openStanding": {
+        "sha": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -279089,7 +279093,280 @@
           "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
           "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingPath": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+          "recipe": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.recipe.session.json",
+          "recipeSha256": "39fd145127f7f4c41052613646c6eef92950924fc166825b6900382218052a41",
+          "replayInputSha256": "11b19f5c9dc01eb89e6d8bf0ad6c4ab05bb24b572c9629a58d33f7c0319a6d53",
+          "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+          "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+          "evaluationArtifact": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+          "evaluationUtc": "2026-10-12T00:34:31.123Z",
+          "remainingScreens": 2,
+          "recordedSteps": 54,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2272,
+              "total": 2667
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 6,
+              "column": 31,
+              "cCell": {
+                "ch": "(",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "$",
+                "color": 11,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2258,
+              "cEntry": "rn2(1)=0",
+              "cCaller": "m_move(monmove.c:1978)",
+              "jsEntry": "rn2(12)=8",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "stepIndex": 53
+            },
+            "cursor": {
+              "index": 53,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "cCursor": [
+                28,
+                5,
+                1
+              ],
+              "jsCursor": [
+                39,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.json",
+            "result": {
+              "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+              "remainingScreens": 2,
+              "recordedSteps": 54,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+              "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+              "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+              "status": "complete",
+              "commit": "7aa1bbc2856d5c2e2aee47c10d3dd73807bb3cf0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+                "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+                "recordingPath": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+                "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+                "recipe": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.recipe.session.json",
+                "recipeSha256": "39fd145127f7f4c41052613646c6eef92950924fc166825b6900382218052a41",
+                "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+                "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+                "remainingScreens": 2,
+                "recordedSteps": 54,
+                "previousScreensMatched": 52,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 54
+                  },
+                  "rng": {
+                    "matched": 2272,
+                    "total": 2667
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 54
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 6,
+                    "column": 31,
+                    "cCell": {
+                      "ch": "(",
+                      "color": 3,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "$",
+                      "color": 11,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2258,
+                    "cEntry": "rn2(1)=0",
+                    "cCaller": "m_move(monmove.c:1978)",
+                    "jsEntry": "rn2(12)=8",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "stepIndex": 53
+                  },
+                  "cursor": {
+                    "index": 53,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      28,
+                      5,
+                      1
+                    ],
+                    "jsCursor": [
+                      39,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 52,
+                "kind": "screen",
+                "sourceFile": "eat.c",
+                "function": "eatmupdate",
+                "message": null,
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": 181
+              },
+              "summary": "At zero-based segment 0, step 52 in the current accepted evaluation, the admitted v47 candidate enters the timeout-clear branch while the hero is mimicking a small mimic corpse. The eat.c:eatmupdate() source unit is now implemented and wired from potion.c:make_hallucinated(); an independent recording verifies the active orange-to-gold appearance update. The selected case still differs at this boundary because C eat.c:cpostfx() blocks in display_nhwindow(WIN_MAP, TRUE) after starting mimicry, while JS cpostfx() records note_unported('windows.c display_nhwindow') and returns. That cpostfx/window scheduling gap delays C's next captured screen; it is a separate source task and remains out of this goal.",
+              "source": {
+                "file": "eat.c",
+                "functions": [
+                  "eatmupdate"
+                ],
+                "functionRange": "181-213",
+                "branch": "The selected path enters the active ge.eatmbuf/gn.nomovemsg guard, recognizes M_AP_OBJECT with mappearance ORANGE after Hallucination clears, replaces the finish-mimicking text and appearance with GOLD_PIECE, and redraws the hero. The full function also includes the source's GOLD_PIECE-to-ORANGE branch when hallucination starts.",
+                "callers": [
+                  "The only direct C caller is potion.c:make_hallucinated() at line 418, on its changed && !Hallucination branch. js/potion.js:make_hallucinated() now calls js/eat.js:eatmupdate() on the same branch. C discards the helper's void result."
+                ],
+                "dependencies": [
+                  "monst.h:is_obj_mappear() and M_AP_TYPE are macros, not separate C functions to port; they test m_ap_type and mappearance.",
+                  "display.c:newsym() is an existing screen-update helper. eatmupdate() consumes no return-valued unported dependency and makes no random draw.",
+                  "ge.eatmbuf and gn.nomovemsg are already represented as state.eatmbuf and state.nomovemsg by js/eat.js corpse-mimic handling; state.youmonst.mappearance is the hero's C mappearance. The two message references must be replaced together as in C's buffer copy."
+                ],
+                "javascriptGap": "Resolved for the assigned source unit: js/eat.js:eatmupdate() implements the whole C function, and js/potion.js:make_hallucinated() wires it at the direct caller. The selected synthetic case retains a distinct cpostfx/display_nhwindow scheduling mismatch.",
+                "proposedImplementationScope": {
+                  "sourceReservations": [
+                    "source:eat.c:eatmupdate"
+                  ],
+                  "callerWiring": [
+                    "potion.c:make_hallucinated() -> js/potion.js:make_hallucinated()"
+                  ],
+                  "paths": [
+                    "js/eat.js",
+                    "js/potion.js",
+                    "scripts/eat.test.mjs",
+                    "scripts/potion.test.mjs",
+                    "recipes/eat.c/",
+                    "recordings/eat.c/",
+                    ".cache/"
+                  ],
+                  "entryPointEvidence": "The independent recording recipes/eat.c/eatmupdate-hallucination-mimic-47000135.session.json reaches the active orange-to-gold transition and strictly matches C at all 55 screens, RNG values, and cursor positions. The admitted v47 case remains evidence of the caller route through cpostfx, but its timeout boundary is delayed by C's blocking display_nhwindow(WIN_MAP, TRUE), so it does not verify the transition at the same screen step."
+                }
+              },
+              "goalKind": "file-port",
+              "selectionReason": "Selected as the first unreserved independent candidate in saved combined queue SHA-256 90fac9709e3b3e7fcc3c4fea739f87d074e6fd96a9fac0c6040306130ce71c6d, after skipping C/B-owned sessions, A2's already claimed shop and gremlin cases, and the earlier poly-energy session which was parked on B's uhitm.c:mhitm_adtyping reservation. This candidate's source diagnosis remains eat.c:eatmupdate, with no active eat.c or potion.c reservation.",
+              "evidence": [
+                "The v47 manifest identity SHA-256 is b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608. The admitted candidate is v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst, with 54 steps, 52/54 screens, 2272/2667 RNG calls, and 53/54 cursors in the accepted ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948 v47 evaluation. Its recipe and recording hashes are recorded above.",
+                "The recipe independently uses seed 47000134, date/time 20571111111214, debug Wizard, no pet, and moves `#wizwish` for a small mimic corpse, `#wizintrinsic` with `10h` to set a 10-turn hallucination timeout, then eats the corpse from slot p and dismisses the resulting pages. C reaches cpostfx(PM_SMALL_MIMIC) while hallucinating, starts orange-object mimicry, then clears hallucination during the active mimic state.",
+                "The source function is eat.c:eatmupdate() at lines 181-213. It returns before work unless ge.eatmbuf is nonnull and gn.nomovemsg points to that same active mimic completion buffer. For an orange object appearance after hallucination ends, it selects `You now prefer mimicking yourself.` and GOLD_PIECE, copies the new text into the active buffer, sets mappearance, and calls newsym().",
+                "The sole direct C caller is potion.c:make_hallucinated() line 418 under changed && !Hallucination. The JavaScript implementation now wires this caller to eatmupdate(). No other eatmupdate() call exists in upstream C, and the relevant appearance predicate is a header macro.",
+                "The assigned source changes are verified by the independent recipe and recording hashes 18858150dbc3344478489c22e20932705811ded3bc8c9233832f731b54dbe0a4 and 9a1914394cbfc9727a52dd7f2588fa5da33119d39fbfcb98a2f1d4251b7bf0b5. Fresh differential run gYZuGU matched all 55 screens, 2751 RNG calls, 55 cursors, and all animation frames.",
+                "Fresh differential of the admitted v47 case after implementation had 53/54 screens, 2667/2667 RNG values, 54/54 cursors, and 3/3 animation frames. Its accepted pre-change evaluation had 52/54 screens, 2272/2667 RNG calls, and 53/54 cursors, so the source change improves the case and introduces no metric regression. The remaining first screen difference at boundary 53 is C's hallucinated hero glyph % versus JS's gold piece $.",
+                "C eat.c:cpostfx() lines 1129-1319 handles PM_SMALL_MIMIC, calls nomul(-tmp), sets the active mimic message and appearance, then calls display_nhwindow(WIN_MAP, TRUE) at line 1224. That call blocks through the TTY message window while a pending --More-- remains. JS js/eat.js:cpostfx() has the same mimic setup but calls note_unported('windows.c display_nhwindow') at line 2764, then returns without the blocking read. The timeout owners otherwise align: timeout.c:nh_timeout() case HALLUC sets HHallucination to 1, calls make_hallucinated(0L, TRUE, 0L), and stops occupation when Hallucination clears; js/timeout.js:decrement_property_timeouts() does the same. Completing cpostfx is a separate whole-function task because it is large and contains other partial branches."
+              ],
+              "blocker": "The selected v47 boundary still needs a separate complete eat.c:cpostfx()/blocking-window source task. Its active JS branch skips windows.c:display_nhwindow(WIN_MAP, TRUE), changing when the hallucination timeout transition is captured; that scope is outside this eatmupdate goal."
+            }
+          }
+        }
+      ]
     }
   ]
 }
