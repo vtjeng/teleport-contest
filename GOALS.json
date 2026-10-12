@@ -279051,7 +279051,7 @@
     {
       "id": "port-eatmupdate-v47-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port active mimic appearance updates when hallucination changes.",
       "cFile": "eat.c",
       "sessions": [
@@ -279065,8 +279065,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d2148725fc8c59ebc1b6c06947ec0e2b93730813",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "eatmupdate",
@@ -279406,6 +279409,91 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingPath": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+          "recipe": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.recipe.session.json",
+          "recipeSha256": "39fd145127f7f4c41052613646c6eef92950924fc166825b6900382218052a41",
+          "replayInputSha256": "6d1e0de9632d24bba33c393e040001ed96a4bb6d06cbeeca3b9a94fd834b11a4",
+          "evaluationPath": "challenges/evaluations/accepted-d2148725fc8c59ebc1b6c06947ec0e2b93730813-v47.json",
+          "evaluationCommit": "d2148725fc8c59ebc1b6c06947ec0e2b93730813",
+          "evaluationArtifact": "challenges/evaluations/accepted-d2148725fc8c59ebc1b6c06947ec0e2b93730813-v47.json",
+          "evaluationUtc": "2026-10-12T01:01:46.610Z",
+          "remainingScreens": 1,
+          "recordedSteps": 54,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 53,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2667,
+              "total": 2667
+            },
+            "cursors": {
+              "matched": 54,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 5,
+              "column": 28,
+              "cCell": {
+                "ch": "%",
+                "color": 9,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "$",
+                "color": 11,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.json",
+            "previousRemainingScreens": 2
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "d2148725fc8c59ebc1b6c06947ec0e2b93730813",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
