@@ -279072,8 +279072,8 @@
           "name": "eatmupdate",
           "line": 181,
           "endLine": 216,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -279366,7 +279366,47 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "eatmupdate",
+            "implementation": "js/eat.js",
+            "symbol": "eatmupdate",
+            "sourceReview": "Read the complete eat.c:eatmupdate() definition (181-213) and checked its guard and branch order. C returns immediately unless ge.eatmbuf exists and gn.nomovemsg points to that same buffer. It then checks ORANGE plus !Hallucination before GOLD_PIECE plus Hallucination; when either branch matches, it replaces the active message, updates gy.youmonst.mappearance, and calls newsym(u.ux,u.uy), in that order. JS implements the entire function in js/eat.js:eatmupdate(), uses the same guard and branch order, updates state.eatmbuf and state.nomovemsg together, updates mappearance, then invokes the caller-supplied redraw. The only callees are macro/state predicates and the existing newsym display update; there is no unported return-valued dependency and no random-number call.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "make_hallucinated",
+                "source": "potion.c:make_hallucinated calls eatmupdate() when the hallucination change succeeds and Hallucination is false; C discards its void result. The JS caller now invokes eatmupdate(state,{redraw}) under the same condition."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/eatmupdate-hallucination-mimic-47000135.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "945ea1c014580397294045fd02ec972a49f91710"
+          }
+        ],
+        "entryPointReview": "The only active C production caller is potion.c:make_hallucinated() at line 418, which calls eatmupdate() after a successful change when Hallucination is false. The independent eat.c recording reaches this caller while the hero has the active orange-object mimic message; clearing Hallucination changes the appearance to GOLD_PIECE and replaces the pending message. The function’s GOLD_PIECE-to-ORANGE branch is retained and source-pinned, but the direct production caller does not invoke eatmupdate() when Hallucination is true, so that branch is not claimed as an independent runtime entry point. The admitted v47 case routes through the same mimic and timeout behavior, but its boundary remains mismatched because C eat.c:cpostfx() blocks in display_nhwindow(WIN_MAP,TRUE) while the JS branch records an unported display gap; the selected case is therefore not used as matching completion evidence.",
+        "entryPoints": [
+          {
+            "name": "Hallucination ends while the hero has an active orange-object mimic message",
+            "functions": [
+              "eatmupdate"
+            ],
+            "recordings": [
+              "recordings/eat.c/eatmupdate-hallucination-mimic-47000135.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
