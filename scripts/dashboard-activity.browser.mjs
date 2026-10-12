@@ -70,11 +70,16 @@ try {
         === (group === 'preparation')).at(-1);
       const width = document.getElementById('integrationDurationChart').getBoundingClientRect().width;
       const max = Math.max(1, ...points.flatMap(row => [row.durationMs, row.rollingMeanMs]).map(ms => ms / 60000));
-      const magnitude = 10 ** Math.floor(Math.log10(max / 3));
-      const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= max / 3);
+      const previous = Object.values(mainIntegrationDurations(DATA.activity)).flatMap(rows => {
+        const before = rows.filter(row => Date.parse(row.end) < start).at(-1);
+        return before ? [before.rollingMeanMs / 60000] : [];
+      });
+      const ceilingMax = Math.max(max, ...previous);
+      const magnitude = 10 ** Math.floor(Math.log10(ceilingMax / 3));
+      const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= ceilingMax / 3);
       // Match the canvas's documented plot padding and 180 px fixed frame.
       return { x: 44 + (Date.parse(point.end) - start) / (end - start) * (width - 56),
-        y: 152 - point.durationMs / 60000 / (Math.ceil(max / step) * step) * 140 };
+        y: 152 - point.durationMs / 60000 / (Math.ceil(ceilingMax / step) * step) * 140 };
     }, group);
     await chart.click({ position: clickPosition });
     assert.match(await durationDetails.innerText(), /attempt \d+[\s\S]*Rolling mean/u);
@@ -179,8 +184,12 @@ try {
   await page.setViewportSize({ width: 1440, height: 1200 });
   await page.locator('#activityWindow').selectOption('6');
   await page.emulateMedia({ colorScheme: 'dark' });
-  await page.waitForFunction(() => document.getElementById('integrationDurationChart').getContext('2d').fillStyle
-    === getComputedStyle(document.documentElement).getPropertyValue('--integration-orange').trim());
+  await page.waitForFunction(() => {
+    const style = getComputedStyle(document.documentElement);
+    const fill = document.getElementById('integrationDurationChart').getContext('2d').fillStyle;
+    return ['--integration-blue', '--integration-orange', '--ink-secondary']
+      .some(key => fill === style.getPropertyValue(key).trim());
+  });
   for (const theme of ['dark', 'light']) {
     await page.emulateMedia({ colorScheme: theme });
     const contrast = await page.evaluate(() => {

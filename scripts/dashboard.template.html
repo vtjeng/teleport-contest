@@ -970,7 +970,7 @@ canvas {
         <p class="integration-duration-series"><span class="integration-duration-key" aria-hidden="true"></span>Implementation: <span id="integrationDurationSummary"></span></p>
         <p class="integration-duration-series"><span class="integration-duration-key prep" aria-hidden="true"></span>Prep: <span id="prepIntegrationDurationSummary"></span></p>
       </div>
-      <p class="activity-note">Main’s elapsed integration and checks, including CI wait; excludes acceptance, publication and Prep’s case generation. Marks show completed attempts, including retries. Each line averages its series’ last 10 attempts. Open stages are excluded; summaries show window means.</p>
+      <p class="activity-note">Main’s elapsed integration and checks, including CI wait; excludes acceptance, publication and Prep’s case generation. Marks show completed attempts, including retries. Each stepped line averages its series’ last 10 completed attempts, including earlier history. Open stages are excluded; summaries show window means.</p>
       <canvas id="integrationDurationChart" tabindex="0" aria-label="Main integration duration. Blue circles: implementation; orange squares: Prep. Select a point to pin task details; arrow keys move between attempts, Home and End jump, Escape clears the selection."></canvas>
       <div class="integration-duration-readout" id="integrationDurationReadout" aria-live="polite"></div>
     </div>
@@ -1832,6 +1832,7 @@ document.getElementById('stats').innerHTML = [
   }
   function drawDurations(start, end) {
     const series = durationSeries.map(row => ({ ...row,
+      before: row.points.filter(point => Date.parse(point.end) < start).at(-1),
       visible: row.points.filter(point => Date.parse(point.end) >= start && Date.parse(point.end) <= end) }));
     for (const row of series) {
       const average = row.visible.reduce((sum, point) => sum + point.durationMs, 0) / row.visible.length;
@@ -1847,7 +1848,8 @@ document.getElementById('stats').innerHTML = [
     const style = getComputedStyle(document.documentElement);
     const color = key => style.getPropertyValue(key).trim();
     const pad = { left: 44, right: 12, top: 12, bottom: 28 };
-    const max = Math.max(1, ...visible.flatMap(point => [point.durationMs, point.rollingMeanMs]).map(ms => ms / 60000));
+    const max = Math.max(1, ...visible.flatMap(point => [point.durationMs, point.rollingMeanMs]).map(ms => ms / 60000),
+      ...series.flatMap(row => row.before ? [row.before.rollingMeanMs / 60000] : []));
     const magnitude = 10 ** Math.floor(Math.log10(max / 3));
     const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= max / 3);
     const ceiling = Math.ceil(max / step) * step;
@@ -1873,16 +1875,17 @@ document.getElementById('stats').innerHTML = [
       ctx.strokeStyle = color(row.color); ctx.lineWidth = 2;
       ctx.setLineDash(row.prep ? [6, 4] : []);
       ctx.beginPath();
-      row.visible.forEach((point, index) => {
-        if (index === 0) ctx.moveTo(x(point.end), y(point.rollingMeanMs));
-        else ctx.lineTo(x(point.end), y(point.rollingMeanMs));
-      });
-      // A single visible sample still needs a mark for its rolling mean.
-      if (row.visible.length === 1) {
-        const point = row.visible[0];
-        ctx.moveTo(x(point.end) - 4, y(point.rollingMeanMs));
-        ctx.lineTo(x(point.end) + 4, y(point.rollingMeanMs));
+      let mean = row.before?.rollingMeanMs;
+      if (mean !== undefined) ctx.moveTo(pad.left, y(mean));
+      for (const point of row.visible) {
+        if (mean === undefined) ctx.moveTo(x(point.end), y(point.rollingMeanMs));
+        else {
+          ctx.lineTo(x(point.end), y(mean));
+          ctx.lineTo(x(point.end), y(point.rollingMeanMs));
+        }
+        mean = point.rollingMeanMs;
       }
+      if (mean !== undefined) ctx.lineTo(width - pad.right, y(mean));
       ctx.stroke(); ctx.setLineDash([]);
       for (const point of row.visible) {
         const dot = { point, x: x(point.end), y: y(point.durationMs) };
@@ -1898,7 +1901,7 @@ document.getElementById('stats').innerHTML = [
     }
     plottedDurations.sort((a, b) => Date.parse(a.point.end) - Date.parse(b.point.end) || a.point.sourceIndex - b.point.sourceIndex);
     durationChart.setAttribute('aria-label', 'Main integration time. ' + series.map(row => row.label + ': ' + row.summary.textContent).join('. ')
-      + '. Blue circles and solid line: implementation. Orange squares and dashed line: Prep. Each line is its own last-ten-attempt mean. Arrow keys select attempts.');
+      + '. Blue circles and solid line: implementation. Orange squares and dashed line: Prep. Each stepped line is its own last-ten-attempt mean, including history before the window. Arrow keys select attempts.');
     describeDuration(pinnedDuration);
   }
   function nearestDuration(event) {
