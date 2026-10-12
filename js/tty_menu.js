@@ -47,7 +47,6 @@ import {
 } from './roles.js';
 import {
     ATR_INVERSE,
-    CLR_GRAY,
     NO_COLOR,
 } from './terminal.js';
 import { menuitem_invert_test, select_menu, ttyMenuColorAttribute } from './windows.js';
@@ -169,14 +168,14 @@ function copyRegion(display, firstColumn, rowCount) {
 function clearRegion(display, firstColumn, rowCount) {
     for (let row = 0; row < rowCount; row++) {
         for (let column = firstColumn; column < display.cols; column++) {
-            display.setCell(column, row, ' ', CLR_GRAY, 0);
+            display.setCell(column, row, ' ', NO_COLOR, 0);
         }
     }
 }
 
 function clearRowFrom(display, firstColumn, row) {
     for (let column = firstColumn; column < display.cols; ++column)
-        display.setCell(column, row, ' ', CLR_GRAY, 0);
+        display.setCell(column, row, ' ', NO_COLOR, 0);
 }
 
 function restoreRegion(display, firstColumn, snapshot) {

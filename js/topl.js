@@ -11,8 +11,7 @@ import {
     quitchars,
 } from './const.js';
 import { game } from './gstate.js';
-import { nhgetch } from './input.js';
-import { NO_COLOR } from './terminal.js';
+import { ATR_INVERSE, ATR_NONE, NO_COLOR } from './terminal.js';
 import {
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
@@ -196,39 +195,22 @@ export async function redotoplin(text, state = game) {
         await more(state);
 }
 
-// C ref: topl.c more(), with xwaitforspace()'s TTY key acceptance.
+// C ref: topl.c more(). tty_message.js owns the shared More prompt rendering,
+// wait, wrapped-row repair, and Escape cleanup used by the TTY message window.
 export async function more(state = game) {
     const display = state.nhDisplay;
     if (!display || state.iflags?.debug_fuzzer || display.inmore) return;
     display.inmore = (display.inmore ?? 0) + 1;
-    const row = Math.min(display.cursorRow ?? 0, display.rows - 1);
-    let column = Math.min(display.cursorCol ?? 0, display.cols - 1);
-    if (display.toplin) {
-        if (column >= display.cols - 8) {
-            display.setCursor(0, Math.min(row + 1, display.rows - 1));
-            column = 0;
-        }
-        const marker = '--More--';
-        for (const ch of marker) {
-            if (column >= display.cols) break;
-            display.setCell(column++, display.cursorRow, ch, NO_COLOR, 0);
-        }
+    try {
+        await dismissPendingTtyMessage(state, {
+            alwaysPrompt: true,
+            dismissMore: display.dismiss_more ?? 0,
+            promptAttr: state.flags?.standout ? ATR_INVERSE : ATR_NONE,
+            returnResponse: true,
+        });
+    } finally {
+        display.inmore = 0;
     }
-    const dismissMore = display.dismiss_more ?? 0;
-    let key;
-    for (;;) {
-        key = await nhgetch(state);
-        if (key === 10 || key === 13) break;
-        if (state.iflags?.cbreak
-            && (key === ESC || key === 32
-                || (dismissMore && key === dismissMore))) break;
-        if (state.iflags?.cbreak) continue;
-    }
-    display.morc = key;
-    if (key === ESC && !(messageWindow(state)?.flags & WIN_NOSTOP))
-        messageWindow(state).flags |= WIN_STOP;
-    display.toplin = TOPLINE_EMPTY;
-    display.inmore = 0;
 }
 
 // C ref: win/tty/topl.c update_topl(). ttyPlineCore() handles vpline() and
@@ -327,7 +309,8 @@ export function topl_putsym(ch, state = game) {
 }
 
 export function putsyms(text, state = game) {
-    for (const ch of String(text)) topl_putsym(ch, state);
+    // C's putsyms(const char *) stops at the first NUL byte.
+    for (const ch of String(text).split('\0', 1)[0]) topl_putsym(ch, state);
 }
 
 export function removetopl(count, state = game) {

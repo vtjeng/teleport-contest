@@ -15,6 +15,7 @@ import { parseNethackrc } from '../js/options.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
 import { tty_getlin } from '../js/getline.js';
 import { tty_yn_function } from '../js/topl.js';
+import { NO_COLOR } from '../js/terminal.js';
 import {
     clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
@@ -605,7 +606,7 @@ test('gameplay corner dismissal keeps the C-cleared status suffix blank',
                 state.nhDisplay.grid[statusRow][staleStatusColumn].color,
                 state.nhDisplay.grid[statusRow][staleStatusColumn].attr,
             ],
-            [' ', 7, 0],
+            [' ', NO_COLOR, 0],
         );
         assert.deepEqual(
             [
@@ -613,13 +614,16 @@ test('gameplay corner dismissal keeps the C-cleared status suffix blank',
                 state.nhDisplay.grid[secondStatusRow][staleStatusColumn].color,
                 state.nhDisplay.grid[secondStatusRow][staleStatusColumn].attr,
             ],
-            [' ', 7, 0],
+            [' ', NO_COLOR, 0],
         );
         for (const row of [statusRow, secondStatusRow]) {
             const before = state.nhDisplay.grid[row][layout.repairColumn - 1];
             const first = state.nhDisplay.grid[row][layout.repairColumn];
             assert.deepEqual([before.ch, before.color, before.attr], ['B', 2, 1]);
-            assert.deepEqual([first.ch, first.color, first.attr], [' ', 7, 0]);
+            assert.deepEqual(
+                [first.ch, first.color, first.attr],
+                [' ', NO_COLOR, 0],
+            );
         }
         assert.equal(state.nhDisplay.grid[5][60].ch, '@');
         assert.equal(state.disp.botlx, true);
@@ -808,16 +812,16 @@ test('a full-screen gameplay menu restores its map and repaints its status',
             ],
             ['@', 3, 1],
         );
-        // CLR_GRAY (7) and no attribute are what Terminal.clearRow() leaves.
-        // This reset game has no hero, so bot() lays out two empty status
-        // rows and column 30 keeps the blank.
+        // C's screen clear leaves terminal-default foreground, represented by
+        // NO_COLOR in GameDisplay. This reset game has no hero, so bot() lays
+        // out two empty status rows and column 30 keeps the blank.
         assert.deepEqual(
             [
                 state.nhDisplay.grid[22][30].ch,
                 state.nhDisplay.grid[22][30].color,
                 state.nhDisplay.grid[22][30].attr,
             ],
-            [' ', 7, 0],
+            [' ', NO_COLOR, 0],
         );
         // bot() ran, so it spent the disp.botlx that docrt_flags() set.
         assert.equal(state.disp.botlx, false);
