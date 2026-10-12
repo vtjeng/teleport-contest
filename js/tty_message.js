@@ -16,6 +16,7 @@ import {
     PLINE_SPEECH,
     PLINE_VERBALIZE,
     PLNMSG_UNKNOWN,
+    SUPPRESS_HISTORY,
     URGENT_MESSAGE,
 } from './const.js';
 import { flush_screen } from './display.js';
@@ -29,6 +30,7 @@ import { NO_COLOR } from './terminal.js';
 import { vision_recalc } from './vision.js';
 import { msgtype_type } from './options.js';
 import { sound_speak } from './sounds.js';
+import { remember_topl, show_topl } from './topl.js';
 
 // C ref: win/tty/wintty.c defmorestr[], the prompt both more() and dmore()
 // print when no window supplies its own.
@@ -436,6 +438,7 @@ function rememberSuppressedMessage(state, message, columns) {
     const current = state._ttyToplines ?? '';
     const sharesTopline = current
         && fitsOnTtyTopline(current, next, columns);
+    if (current && !sharesTopline) remember_topl(state);
     const toplines = sharesTopline ? `${current}  ${next}` : next;
     state._ttyToplines = toplines;
     const display = state.nhDisplay;
@@ -520,6 +523,30 @@ async function ttyPlineCore(
         stoppedAtEntry = false;
         current = '';
     }
+    if (pflags & SUPPRESS_HISTORY) {
+        // C win/tty/wintty.c: tty_putstr(WIN_MESSAGE, ATR_NOHISTORY, ...)
+        // remembers the old gt.toplines, then show_topl() paints this message
+        // without making it the new history line. In particular, Ctrl-P
+        // recalls the message before this one, not this transient feedback.
+        if (state._ttyToplines) remember_topl(state);
+        if (!stoppedAtEntry) {
+            const display = state.nhDisplay;
+            if (display) {
+                if (show_topl(next, state)) {
+                    display.topMessage = next;
+                    state._pending_message = next;
+                }
+            }
+        }
+        state._ttyToplines = '';
+        if (state.nhDisplay) state.nhDisplay.toplines = '';
+        state._ttyPreviousMessage = normalizedMessage;
+        if (resetLastMessage) {
+            state.iflags ??= {};
+            state.iflags.last_msg = PLNMSG_UNKNOWN;
+        }
+        return;
+    }
     if (pflags & (PLINE_VERBALIZE | PLINE_SPEECH))
         sound_speak(normalizedMessage, state);
     // "You die" is update_topl()'s exception to WIN_STOP.  Other messages
@@ -584,6 +611,9 @@ async function ttyPlineCore(
     if (deathComparisonReached) state._ttyMessageStopped = false;
     if (acknowledgedTopline)
         redrawTtyTopline(state, next, mixedFirstCell);
+    // C update_topl() remembers the previous logical line after its More
+    // wait and before replacing gt.toplines with this message.
+    if (state._ttyToplines) remember_topl(state);
     rememberPendingMessage(state, next, mixedFirstCell);
     state._ttyPreviousMessage = normalizedMessage;
     // redotoplin() immediately invokes more() when update_topl() wrapped the
@@ -634,16 +664,14 @@ export async function ttyNorep(message, state = game) {
 
 export class UnsupportedCustomPlineFlagsError extends Error {
     constructor(pflags) {
-        super(`custompline() flags ${pflags} outside OVERRIDE_MSGTYPE`);
+        super(`custompline() flags ${pflags} are not ported`);
         this.name = 'UnsupportedCustomPlineFlagsError';
     }
 }
 
-// C ref: pline.c custompline(). This API admits the sole operation its current
-// consumer needs. Every other flag stops before glyph notices, output, state,
-// or input because its distinct source effect is not ported at this boundary.
+// C ref: pline.c custompline().
 export async function ttyCustomPline(message, pflags, state = game) {
-    if (pflags !== OVERRIDE_MSGTYPE)
+    if (![SUPPRESS_HISTORY, OVERRIDE_MSGTYPE].includes(pflags))
         throw new UnsupportedCustomPlineFlagsError(pflags);
     return ttyPlineCore(message, state, pflags);
 }

@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Blocked source limit: win/tty/getline.c Ctrl-P -> wintty.c:tty_doprev_message history owner is unported. Getlin inread cleanup is verified by a focused abort test; this recipe does not establish history completion.",
+  "comment": "Historical Ctrl-P regression input, now covered by the topl.c source port. cmd.c:rhack SUPPRESS_HISTORY feedback must remain visible but stay out of topl.c:tty_doprev_message history; see recipes/topl.c/menu-search-history-invalid-command.session.json.",
   "segments": [
     {
       "seed": 17471067,

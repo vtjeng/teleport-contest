@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Exercises cmd.c:rhack SUPPRESS_HISTORY followed by Ctrl-P in topl.c:tty_doprev_message. The transient unknown-command feedback must be visible but excluded from recalled history.",
+  "segments": [
+    {
+      "seed": 17471067,
+      "datetime": "20640519102133",
+      "nethackrc": "OPTIONS=name:PromptCancel,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizintrinsic\n:\u0010",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -135,13 +135,12 @@ test('cmdq_add_dir/userinput/int, shift, copy, and reverse preserve source order
     assert.equal(state.command_queue[0][2].typ, CMDQ_USER_INPUT);
 });
 
-test('doprev_message records the discarded window-port gap and keeps time', () => {
-    // C ref: cmd.c doprev_message():164-169. nh_doprev_message() returns a
-    // value that C discards, so the command remains ECMD_OK while the port
-    // records the missing window helper.
+test('doprev_message invokes the TTY history callback and keeps time', async () => {
+    // C ref: cmd.c doprev_message():164-169. The callback result is discarded,
+    // so even an empty history leaves the command at ECMD_OK without a turn.
     game.unported = new Set();
-    assert.equal(doprev_message(game), ECMD_OK);
-    assert.deepEqual([...game.unported], ['nhwindows.c nh_doprev_message']);
+    assert.equal(await doprev_message(game), ECMD_OK);
+    assert.deepEqual([...game.unported], []);
 });
 
 test('movement wrappers pin direction and source run modes', () => {

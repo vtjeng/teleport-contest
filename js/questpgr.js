@@ -431,10 +431,8 @@ async function comPagerCore(
     // synopsis so it appears in the message window and --More-- recall.
     if (synopsis) {
         const converted = convertLine(synopsis, state);
-        // putmsghistory equivalent: add to message history without
-        // displaying.  The port doesn't have a separate message history
-        // yet, so this is a no-op for now.
-        // TODO: implement putmsghistory
+        const { tty_putmsghistory } = await import('./topl.js');
+        tty_putmsghistory(converted, false, state);
     }
 
     return true;

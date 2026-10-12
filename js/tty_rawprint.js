@@ -151,6 +151,15 @@ export async function tty_wait_synch(state = game) {
         if (state.nhDisplay.nomuxRaw)
             state.nhDisplay.nomuxRaw.rawprint = 0;
         showPendingTtyMessage(state);
+        // wintty.c tty_wait_synch(): when an interrupted read is still live,
+        // recall twice so the first single-mode redraw does not consume the
+        // prompt transition as the displayed history item.
+        if ((state.nhDisplay?.inread ?? 0) > Number(state.program_state?.gameover ?? 0)) {
+            const { tty_doprev_message } = await import('./topl.js');
+            await tty_doprev_message(state);
+            await tty_doprev_message(state);
+            state.nhDisplay.intr = (state.nhDisplay.intr ?? 0) + 1;
+        }
         return;
     }
     await getret(state);
