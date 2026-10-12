@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T01:06:39.065Z",
+  "capturedAt": "2026-10-12T01:32:17.650Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -90963,22 +90963,97 @@
         "type": "accepted",
         "at": "2026-10-12T01:05:48.299Z",
         "task": "A2-investigation-v47-mimic-hallucination-timeout-eatmupdate-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-review-see-invisible-20261011",
+        "type": "activity",
+        "at": "2026-10-12T01:10:35.673Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
+        "phase": "review",
+        "reason": "Reviewing the submitted see-invisible monster miss correction and current v47 evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-poly-energy-blocked-20261012",
+        "type": "turn",
+        "at": "2026-10-12T01:11:52.516Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "A2 has a recoverable AD_DREN implementation. Waiting for the coordinator to park it on the M2M AD_ELEC and destroy_items dependency before resuming."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-park-poly-energy-ad-elec-20261011",
+        "type": "park",
+        "at": "2026-10-12T01:11:54.782Z",
+        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
+        "reason": "Matching mhitm_ad_dren entry evidence is blocked by the partial uhitm.c:mhitm_ad_elec monster-to-monster arm and its return-valued electric zap.c:destroy_items dependency; current-scope work is recoverable at 88e87512c103a05a6b4d8f320056fb65cd26e44a."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-poly-parked-idle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T01:12:06.924Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 is idle with a recoverable AD_DREN implementation. The parked task resumes after the M2M AD_ELEC and electric destroy_items source dependency is accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-integrating-see-invisible-20261011-589dba12",
+        "type": "integrating",
+        "at": "2026-10-12T01:13:17.192Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
+        "integration": "589dba120616b39955a49d02450b8f9d3cdf5d2c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-v47-mhitm-ad-elec-20261012",
+        "type": "turn",
+        "at": "2026-10-12T01:19:56.818Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Starting the independent electric AD_ELEC source task on accepted Main 2673f6b2; source scope is being claimed before edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v47-mhitm-ad-elec-zap-destroy-items-20261012",
+        "type": "assign",
+        "at": "2026-10-12T01:20:10.197Z",
+        "task": "A2-v47-mhitm-ad-elec-zap-destroy-items-20261012",
+        "worker": "A2",
+        "goal": "port-uhitm-mhitm-ad-elec-zap-destroy-items-v47-20261012",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-see-invisible-v47-589dba120616b",
+        "type": "validated",
+        "at": "2026-10-12T01:23:21.581Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011-589dba120616b39955a49d02450b8f9d3cdf5d2c-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T01:31:06.480Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-no-free-v47-candidates-after-589-20261012",
+        "type": "turn",
+        "at": "2026-10-12T01:31:46.849Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Idle: after see-invisible acceptance, all four remaining v47 cases are active, parked, or submitted under A2/C ownership."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
-        "worker": "B",
-        "goal": "fix-mhitu-missmu-see-invisible-v47-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "a79a138a0d95f86d19e949896a09b3e6ce77de50",
-        "since": "2026-10-11T23:00:51.906Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011",
         "worker": "C",
@@ -91390,12 +91465,23 @@
         "since": "2026-10-11T23:08:54.777Z",
         "blockedBy": [],
         "reason": "Parked after committing corrected source findings e546f3c39. The current queue boundary at step 48 is behind the do.c:dropz costly-shop preflight refusal. A whole shk.c:sellobj port is not independently bounded: direct dothrow.c:check_shop_obj ownership and its six throwit callers must be included, and return-valued special_stock -> shknam.c:is_izchak must be ported with its active shk_chat caller. No game code was edited."
+      },
+      {
+        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
+        "worker": "A2",
+        "goal": "port-mhitm-xdrainenergym-v47-20261012",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-12T01:11:54.782Z",
+        "blockedBy": [],
+        "reason": "Matching mhitm_ad_dren entry evidence is blocked by the partial uhitm.c:mhitm_ad_elec monster-to-monster arm and its return-valued electric zap.c:destroy_items dependency; current-scope work is recoverable at 88e87512c103a05a6b4d8f320056fb65cd26e44a."
       }
     ]
   },
   "development": {
-    "executionCommit": "d2148725fc8c59ebc1b6c06947ec0e2b93730813",
-    "measuredAt": "2026-10-12T00:56:20.802Z",
+    "executionCommit": "589dba120616b39955a49d02450b8f9d3cdf5d2c",
+    "measuredAt": "2026-10-12T01:23:01.376Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

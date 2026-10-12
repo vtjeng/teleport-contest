@@ -279499,7 +279499,7 @@
     {
       "id": "fix-mhitu-missmu-see-invisible-v47-20261011",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Allow miss messages for invisible monsters the hero can see.",
       "cFile": "mhitu.c",
       "sessions": [],
@@ -279511,8 +279511,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "589dba120616b39955a49d02450b8f9d3cdf5d2c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "missmu",
       "session": "synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104",
       "step": 67,
@@ -279687,7 +279690,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "589dba120616b39955a49d02450b8f9d3cdf5d2c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
