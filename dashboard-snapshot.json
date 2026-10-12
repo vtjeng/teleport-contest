@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T03:21:13.655Z",
+  "capturedAt": "2026-10-12T05:18:02.979Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -92205,6 +92205,210 @@
         "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
         "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
         "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v47-shop-source-trace-20261012",
+        "type": "resume",
+        "at": "2026-10-12T05:00:27.770Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-Prep13-resume-20261012",
+        "type": "activity",
+        "at": "2026-10-12T05:00:32.898Z",
+        "task": "Prep13",
+        "phase": "review",
+        "reason": "Verify independent C replay evidence and immutable v49 case hashes before integration; admission has priority because only two unreserved candidates remain for three implementation workers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep14-active-v50-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:00:36.507Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep is preparing v50 from new C source behaviors; v49 remains preserved as an immutable delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep14-v50-20261012",
+        "type": "assign",
+        "at": "2026-10-12T05:00:44.566Z",
+        "task": "Prep14",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v50"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resumed-knownclass-reservation-check-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:01:05.742Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Merged accepted Main; checking v48 knownclass candidate against current source reservations before claiming."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v48-name-floor-object-attempt5-20261012",
+        "type": "assign",
+        "at": "2026-10-12T05:01:34.847Z",
+        "task": "C-investigation-v48-name-floor-object-attempt5-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-active-v48-name-floor-object-attempt5-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:01:44.746Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Tracing the v48 floor-object naming mismatch from its existing namefloorobj caller."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep13-952e284d-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T05:01:47.744Z",
+        "task": "Prep13",
+        "integration": "952e284d1885ab4da3be6155484a96bf2a955a1d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v48-knownclass-attempt3-20261012",
+        "type": "assign",
+        "at": "2026-10-12T05:02:15.786Z",
+        "task": "B-investigation-v48-knownclass-attempt3-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B-knownclass-overlap-C-discovery-sort-20261012",
+        "type": "park",
+        "at": "2026-10-12T05:04:52.628Z",
+        "task": "B-investigation-v48-knownclass-attempt3-20261012",
+        "reason": "Fresh replay confirms #knownclass reaches unported o_init.c:doclassdisco, but its whole-function port, choose_disco_sort dependency, and required js/cmd.js:doextcmd wiring overlap C-investigation-v48-discovery-sort-menu-20261012 reservations. Partial source finding is committed as 9dcfe610f. Resume after C delivery acceptance or explicit ownership resolution, then refresh the accepted baseline and replay before defining remaining scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-shop-source-claim-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:06:04.078Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "The v47 shop mismatch reaches missing sellobj; complete caller scope is traced and ready for an atomic source claim."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-park-v48-name-floor-getpos-blocker-20261012",
+        "type": "park",
+        "at": "2026-10-12T05:06:09.795Z",
+        "task": "C-investigation-v48-name-floor-object-attempt5-20261012",
+        "reason": "Fresh source trace identifies getpos.c:getpos() at @/NHKF_GETPOS_SELF as the first mismatch. Its whole source function is reserved by B-investigation-v48-getpos-monster-menu-20261012. Preserved investigations/synthetic/v48/v48-name-floor-object-attempt5.json; resume after B delivery is accepted or releases the source reservation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v47-shop-sellobj-callers-20261012",
+        "type": "implement",
+        "at": "2026-10-12T05:06:16.062Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "goal": "div-shk-sellobj-v47-shop-drop-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-parked-floor-name-check-independent-work-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:06:18.396Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-no-independent-v48-candidates-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:07:28.244Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "No independent unclaimed case remains in the current v48 queue; waiting for the prepared baseline and refreshed candidates."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep13-952e284d1885ab4da3be6155484a96bf2a955a1d-validated",
+        "type": "validated",
+        "at": "2026-10-12T05:08:28.724Z",
+        "task": "Prep13",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep13-952e284d1885ab4da3be6155484a96bf2a955a1d-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T05:08:31.031Z",
+        "task": "Prep13"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "baseline-Prep13-v49-1462b295-20261012",
+        "type": "activity",
+        "at": "2026-10-12T05:09:43.253Z",
+        "task": "Prep13",
+        "phase": "baseline",
+        "reason": "Admitted v49 with 57 independently replayed cases; save its first JavaScript evaluation before assigning new failures."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v49-apply-book-attempt2-20261012",
+        "type": "assign",
+        "at": "2026-10-12T05:12:25.161Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v49-apply-book-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:13:09.875Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the admitted v49 apply-book Escape mismatch; source scope and implementation claim will follow diagnosis."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v49-quaff-remove-swap-investigation-20261012",
+        "type": "assign",
+        "at": "2026-10-12T05:13:29.787Z",
+        "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v49-extcmd-routes-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T05:13:55.742Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v49-extcmd-quaff-remove-swap-20261012",
+        "type": "implement",
+        "at": "2026-10-12T05:14:03.155Z",
+        "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
+        "goal": "divergence-fix-cmd-doextcmd-quaff-remove-swap-v49-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v49-apply-book-escape-20261012",
+        "type": "implement",
+        "at": "2026-10-12T05:16:11.949Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "goal": "div-getobj-menu-escape-v49-20261012"
       }
     ]
   },
@@ -92231,18 +92435,6 @@
         "since": "2026-10-12T02:44:40.516Z",
         "blockedBy": [],
         "unblocks": 1
-      },
-      {
-        "task": "Prep13",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "6a8f53c60d81ec8229481514495ec6a1ae8d5312",
-        "batch": "v49",
-        "since": "2026-10-12T02:48:14.601Z",
-        "blockedBy": [],
-        "unblocks": 0
       },
       {
         "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
@@ -92694,21 +92886,32 @@
         "reason": "Partial source investigation saved at investigations/synthetic/v48/v48-previous-message-history-ctrlp.json. The first mismatch is rejected in cmd.js:rhack admission (source:cmd.c:rhack), which is reserved by C; the actual missing TTY callback is win/tty/topl.c:tty_doprev_message with absent WIN_MESSAGE history state. Resume after the command-admission owner resolves or releases the scope so the full callback path can be verified without conflicting edits."
       },
       {
-        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
-        "worker": "A2",
+        "task": "B-investigation-v48-knownclass-attempt3-20261012",
+        "worker": "B",
         "goal": null,
         "kind": "investigation",
         "status": "parked",
         "delivery": null,
-        "since": "2026-10-12T03:03:55.328Z",
+        "since": "2026-10-12T05:04:52.628Z",
         "blockedBy": [],
-        "reason": "Safe reload pause requested before implementation. Partial source finding is saved in investigations/synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.json; the refusal reaches missing shk.c:sellobj after the earlier dodrop fix. No game code or tests were changed or started."
+        "reason": "Fresh replay confirms #knownclass reaches unported o_init.c:doclassdisco, but its whole-function port, choose_disco_sort dependency, and required js/cmd.js:doextcmd wiring overlap C-investigation-v48-discovery-sort-menu-20261012 reservations. Partial source finding is committed as 9dcfe610f. Resume after C delivery acceptance or explicit ownership resolution, then refresh the accepted baseline and replay before defining remaining scope."
+      },
+      {
+        "task": "C-investigation-v48-name-floor-object-attempt5-20261012",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-12T05:06:09.795Z",
+        "blockedBy": [],
+        "reason": "Fresh source trace identifies getpos.c:getpos() at @/NHKF_GETPOS_SELF as the first mismatch. Its whole source function is reserved by B-investigation-v48-getpos-monster-menu-20261012. Preserved investigations/synthetic/v48/v48-name-floor-object-attempt5.json; resume after B delivery is accepted or releases the source reservation."
       }
     ]
   },
   "development": {
-    "executionCommit": "3ea76d57966d229dd179e23568cf83f2dcb42b0f",
-    "measuredAt": "2026-10-12T03:19:39.205Z",
+    "executionCommit": "8e3e7c6d12940b179f4b92fd0981987d2b118cea",
+    "measuredAt": "2026-10-12T05:16:15.814Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -78,3 +78,28 @@ triage decisions or fix references.
 - Outcome: local and remote main were compared directly at
   `ea95cf8538fefc7bf235fb2a0b67b6f6b7f56705`, and the publication event passed.
   The documented sync step remains unusable at its ordered position.
+
+### 2026-10-12 — preparation integration and ledger inspection retries
+
+- Context: Prep13/v49 integration at `952e284d1885ab4da3be6155484a96bf2a955a1d`.
+- Friction: `git merge --trailer` is unsupported; the first attempt exited 129 without changing the checkout. The attributed merge used `--no-commit`, followed by `git commit --trailer`.
+- Evidence: the merge error was `unknown option trailer`; the successful candidate contains exactly 198 v49 case paths.
+- Reason: integration preserves the submitted commit and requires the Codex attribution trailer.
+- Outcome: the corrected merge and preflight passed; hosted checkpoint 38206234389 passed.
+
+- Friction: B interpreted a transient ledger lock with an absent PID as potentially stale while the coordinator command handle remained live.
+- Evidence: coordinator session 78133 completed its integration/preflight write; the lock then disappeared naturally. No lock was deleted.
+- Reason: worker claims and coordinator transitions share the ledger lock.
+- Outcome: B retried its claim after the writer completed. A PID check alone did not establish a stopped writer.
+
+- Friction: Prep13 stores `missionPlan` as serialized JSON text. Enumerating it before checking its type generated hundreds of thousands of character-index keys in tool output.
+- Reason: the coordinator verifies mission and overlap evidence before acceptance.
+- Outcome: parsing the field as JSON allowed bounded summaries of its actual fields; all 57 independent replay hashes and 198 preserved attempt-file hashes passed.
+
+### 2026-10-12 — dashboard browser module lookup
+
+- Context: excluded-case dashboard validation at `452b6825c2f1cddb188e4df073c788211e080c87`.
+- Friction: `NODE_PATH=$(npm root -g)` could not load Playwright.
+- Evidence: the browser command reported `Cannot find module playwright`; an existing installation was found in the npm execution cache.
+- Reason: frontend-rigor requires browser interaction checks for a changed filter.
+- Outcome: the existing cached installation passed pointer, keyboard, exclusion disclosure, activity selection and responsive checks; no dependency was installed.
