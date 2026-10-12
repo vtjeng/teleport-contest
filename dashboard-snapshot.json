@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T18:43:11.099Z",
+  "capturedAt": "2026-10-12T18:46:56.758Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -96604,6 +96604,122 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep22/v58 is recording runtime-option and held-trap gameplay continuations; prior 49 attempts remain preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-carried-timer-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:43:11.996Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is recording a carried figurine timer expiry with verified C runtime settings; 52 earlier attempts remain preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep16-v52-baseline-published-771540ca7-20261012",
+        "type": "activity",
+        "at": "2026-10-12T18:44:02.845Z",
+        "task": "Prep16",
+        "phase": "done",
+        "reason": "Published v52 baseline and user-approved CI acceptance workflow at 771540ca7 after passing exact-candidate hosted run 38292091033; all 44 fixed and 1540 older synthetic results unchanged."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-door-healing-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:44:10.289Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 continues C gameplay recordings after reaching carried figurine expiry and held-trap release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v52-selection-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:44:29.342Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-reached-healing-door-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:45:05.714Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is recording NPC healing and a witnessed Minetown door kick after verifying positions from C output."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v52-cursed-wand-investigation-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:45:09.451Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating an admitted v52 cursed-wand mismatch; source scope will follow the C trace."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-active-C-v52-steed-investigation-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:45:16.159Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the v52 mounted-steed landing mismatch from C source."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v52-mounted-pony-kick-throw-attempt9-20261012",
+        "type": "assign",
+        "at": "2026-10-12T18:45:23.881Z",
+        "task": "C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-independent-replays-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:45:45.360Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is independently replaying eleven C gameplay candidates before JavaScript comparison; all 57 attempts remain preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v52-cursed-wand-20261012",
+        "type": "assign",
+        "at": "2026-10-12T18:45:55.615Z",
+        "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v52-prayer-crowning-gem-investigation-20261012",
+        "type": "assign",
+        "at": "2026-10-12T18:46:11.223Z",
+        "task": "A2-investigation-v52-prayer-crowning-gem-luck-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-first-js-comparison-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:46:14.309Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 has eleven byte-identical independent C replays and is comparing their JavaScript outputs."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-first-js-handle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:46:26.247Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is comparing eleven independently replayed C gameplay recordings in an isolated JavaScript workspace."
       }
     ]
   },
