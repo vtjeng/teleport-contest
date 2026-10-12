@@ -283832,6 +283832,300 @@
           "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3"
         }
       }
+    },
+    {
+      "id": "div-shk-sellobj-v47-shop-drop-20261012",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port shop sales, accounting, quotes and keeper chat with active callers",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst"
+      ],
+      "selectionReason": "Integrate the corrected ready shop dependency while the failed history source port is isolated for correction.",
+      "detail": "Eleven whole source units including complete throw_gold self-split and swallowed branches. Caller-only drop, pickup, trap, kick, projectile and chat repairs receive no enclosing-function credit. Preserve the original submitted goal ID with file-port classification.",
+      "openedAt": "4ab2c8d4c192cd64fa1b1288f5cc83a17b2b6016",
+      "openStanding": {
+        "sha": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "sellobj",
+          "line": 3927,
+          "endLine": 4196,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3927,
+        "to": 4196
+      },
+      "requiredFunctions": [
+        {
+          "name": "dropped_container",
+          "line": 3064,
+          "endLine": 3084,
+          "declared": false,
+          "sourceFile": "shk.c",
+          "complete": false
+        },
+        {
+          "name": "special_stock",
+          "line": 3103,
+          "endLine": 3147,
+          "declared": false,
+          "sourceFile": "shk.c",
+          "complete": false
+        },
+        {
+          "name": "donate_gold",
+          "line": 3877,
+          "endLine": 3912,
+          "declared": false,
+          "sourceFile": "shk.c",
+          "complete": false
+        },
+        {
+          "name": "shop_object",
+          "line": 5386,
+          "endLine": 5405,
+          "declared": true,
+          "sourceFile": "shk.c",
+          "complete": false
+        },
+        {
+          "name": "price_quote",
+          "line": 5406,
+          "endLine": 5467,
+          "declared": false,
+          "sourceFile": "shk.c",
+          "complete": false
+        },
+        {
+          "name": "shk_embellish",
+          "line": 5468,
+          "endLine": 5520,
+          "declared": false,
+          "sourceFile": "shk.c",
+          "complete": false
+        },
+        {
+          "name": "shk_chat",
+          "line": 5521,
+          "endLine": 5605,
+          "declared": false,
+          "sourceFile": "shk.c",
+          "complete": false
+        },
+        {
+          "name": "is_izchak",
+          "line": 908,
+          "endLine": 929,
+          "declared": false,
+          "sourceFile": "shknam.c",
+          "complete": false
+        },
+        {
+          "name": "check_shop_obj",
+          "line": 1181,
+          "endLine": 1219,
+          "declared": false,
+          "sourceFile": "dothrow.c",
+          "complete": false
+        },
+        {
+          "name": "throw_gold",
+          "line": 2656,
+          "endLine": 2736,
+          "declared": true,
+          "sourceFile": "dothrow.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst": {
+          "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+          "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+          "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3"
+        }
+      },
+      "activeStanding": {
+        "sha": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+          "recipe": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "d2da34f57daaaafb38866d452b63d8dbd42ee7fa80471edb5d112ef3dd69aec0",
+          "replayInputSha256": "3de827a8175a5ea26f4f85ac8f14e5ade189ff44426f770b7a62909bdc2fe001",
+          "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+          "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+          "evaluationArtifact": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+          "evaluationUtc": "2026-10-12T09:18:08.866Z",
+          "remainingScreens": 3,
+          "recordedSteps": 51,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 51
+            },
+            "rng": {
+              "matched": 5396,
+              "total": 5406
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: a costly shop spot",
+            "step": 48
+          },
+          "step": 48,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: a costly shop spot",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.json",
+            "result": {
+              "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+              "remainingScreens": 3,
+              "recordedSteps": 51,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+              "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+              "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+              "status": "complete",
+              "commit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+                "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+                "recordingPath": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+                "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+                "recipe": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json",
+                "recipeSha256": "d2da34f57daaaafb38866d452b63d8dbd42ee7fa80471edb5d112ef3dd69aec0",
+                "replayInputSha256": "3de827a8175a5ea26f4f85ac8f14e5ade189ff44426f770b7a62909bdc2fe001",
+                "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+                "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+                "evaluationArtifact": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+                "evaluationUtc": "2026-10-12T09:18:08.866Z",
+                "remainingScreens": 3,
+                "recordedSteps": 51,
+                "previousScreensMatched": 48,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 48,
+                    "total": 51
+                  },
+                  "rng": {
+                    "matched": 5396,
+                    "total": 5406
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 51
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported drop: a costly shop spot",
+                  "step": 48
+                },
+                "step": 48,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported drop: a costly shop spot",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Dropping an object on a costly shop square stops before C shop selling. Port whole sellobj and its sale, container, credit, quote and keeper-chat helpers, plus is_izchak and projectile shop accounting. Wire the active drop, container, trap, kick, throw and chat callers in source order.",
+              "source": {
+                "file": "shk.c",
+                "branch": "A non-swallowed object lands on a costly shop square with its keeper present. C computes an offer and handles the deliberate-sale response; JavaScript currently rejects that path before placement.",
+                "functions": [
+                  "sellobj",
+                  "dropped_container",
+                  "special_stock",
+                  "donate_gold",
+                  "shop_object",
+                  "price_quote",
+                  "shk_embellish",
+                  "shk_chat",
+                  "shknam.c:is_izchak",
+                  "dothrow.c:check_shop_obj",
+                  "dothrow.c:throw_gold"
+                ],
+                "callers": [
+                  "do.c:dropz -> sellobj",
+                  "dothrow.c:throwit/thitmonst/gem_accept/breakobj -> check_shop_obj",
+                  "dothrow.c:throw_obj -> throw_gold -> sellobj",
+                  "pickup.c:in_container -> sellobj",
+                  "trap.c:cnv_trap_obj -> sellobj",
+                  "dokick.c:kick_object -> donate_gold",
+                  "sounds.c:dochat -> shop_object/price_quote; domonnoise -> shk_chat"
+                ],
+                "dependencies": []
+              },
+              "evidence": [
+                "Saved queue entry at challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json identifies the stop at segment 0, step 48, with 3 remaining screens; step 48 key `o` displays “You drop a dagger.--More--”, step 49 space displays the shopkeeper offer, and step 50 `y` records the sale.",
+                "The immutable recipe challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json independently sets up a wizard, creates a shop, wishes a +5 dagger, then drops it and accepts the sale.",
+                "C source src/do.c:dropx (786-797) extracts inventory, checks shipping and altar effects, then calls dropy(); dropz (806-843) places the object and calls sellobj(obj, u.ux, u.uy) for shop levels before stackobj(). The JavaScript preflight_dropx() at js/do.js:1897-2100 rejects costly_spot() at :1956 before ordinary placement; dropzAdmitted() records the shk.c:sellobj gap only inside its withImpact branch at :2205-2209.",
+                "C source src/shk.c:sellobj() (3927-4194) is a void shop-sale function with ordinary costly-spot eligibility, sale pricing, shopkeeper state, offer and confirmation branches, and payment/billing effects. The current js/shk.js has no sellobj() declaration; rg confirmed existing related helpers including costly_spot(), saleable(), set_cost(), record_price_quote(), and sellobj_state().",
+                "Complete source/caller audit: sellobj() spans shk.c:3927-4194 and has six direct C callsites across do.c:dropz, dothrow.c:check_shop_obj/throw_gold, pickup.c:in_container (two branches), and trap.c:cnv_trap_obj. check_shop_obj() at dothrow.c:1181-1214 has six active projectile callers at :1813, :1836, :2131, :2222, :2372, and :2545. special_stock() at shk.c:3103-3144 is the active used-return dependency. is_izchak() at shknam.c:908-924 is pure and has two active C callers: special_stock() and shk_chat(). shk_chat() at shk.c:5521-5601 is reached by sounds.c:dochat -> domonnoise() at sounds.c:735; JS domonnoise currently records note_unported there. The implementation claim includes both the chat source function and its actual JS dispatch wiring.",
+                "Current saved evaluation challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json stops at step 48 with 48/51 screens and cursors and 5396/5406 RNG values. Complete source scope comprises 11 functions; caller-only edits receive no enclosing-function credit. The corrected throw_gold source includes count-split recovery and swallowed gold naming/transfer through existing source owners."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ]
     }
   ]
 }
