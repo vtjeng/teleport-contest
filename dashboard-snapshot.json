@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T03:10:21.553Z",
+  "capturedAt": "2026-10-12T03:21:13.655Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -91828,6 +91828,383 @@
         "type": "accepted",
         "at": "2026-10-12T03:09:14.066Z",
         "task": "B-investigation-v48-name-discovered-object-type-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v48-name-discovered-object-type-20261012-5fd6d49c24e85637785c2b9d467d7554a40c7ceb",
+        "type": "published",
+        "at": "2026-10-12T03:10:31.923Z",
+        "task": "B-investigation-v48-name-discovered-object-type-20261012",
+        "commit": "5fd6d49c24e85637785c2b9d467d7554a40c7ceb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A104-8435ff6e81b59e4fed5c19959cb2825c87805a9b",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:30.487Z",
+        "task": "A104",
+        "commit": "8435ff6e81b59e4fed5c19959cb2825c87805a9b",
+        "knownBy": "2026-10-06T13:00:48.731Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C150-b7b43442f1cd7263558ec5b4748e017760073133",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:31.286Z",
+        "task": "C150",
+        "commit": "b7b43442f1cd7263558ec5b4748e017760073133",
+        "knownBy": "2026-10-08T17:45:49.579Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-Prep3-36b60128a46d0543843cf2ae661eef92ecb5d696",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:32.012Z",
+        "task": "Prep3",
+        "commit": "36b60128a46d0543843cf2ae661eef92ecb5d696",
+        "knownBy": "2026-10-10T06:37:52.518Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v43-mon-arrive-losedogs-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:32.755Z",
+        "task": "A2-investigation-v43-mon-arrive-losedogs-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-Prep9-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:33.496Z",
+        "task": "Prep9",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:34.244Z",
+        "task": "B-investigation-v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v45-sanctum-no-carry-teleport-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:35.052Z",
+        "task": "A2-investigation-v45-sanctum-no-carry-teleport-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v45-stealamulet-wizard-demon-attempt10-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:35.823Z",
+        "task": "B-investigation-v45-stealamulet-wizard-demon-attempt10-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-v45-leash-sleep-wand-strain-cfirst-corrected-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:36.904Z",
+        "task": "C-v45-leash-sleep-wand-strain-cfirst-corrected-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:38.447Z",
+        "task": "B-investigation-v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v45-punished-iron-ball-throw-long-lane-attempt13-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:39.565Z",
+        "task": "C-investigation-v45-punished-iron-ball-throw-long-lane-attempt13-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v45-camera-wielded-northwest-result-attempt9-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:40.326Z",
+        "task": "B-investigation-v45-camera-wielded-northwest-result-attempt9-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:41.063Z",
+        "task": "B-investigation-v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:41.814Z",
+        "task": "B-investigation-v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:42.529Z",
+        "task": "B-investigation-v45-sanctum-intemple-next-stop-attempt28-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v45-vault-cursed-whistle-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:43.265Z",
+        "task": "A2-investigation-v45-vault-cursed-whistle-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:44.026Z",
+        "task": "C-investigation-v45-quest-finish-thrown-artifact-cfirst-corrected-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v45-sanctum-approach-intemple-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:44.761Z",
+        "task": "A2-investigation-v45-sanctum-approach-intemple-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:45.505Z",
+        "task": "B-investigation-v45-sanctum-makemon-next-stop-attempt28-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:46.663Z",
+        "task": "B-investigation-v45-sanctum-morgue-graveyard-finalize-attempt28-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-Prep10-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:47.812Z",
+        "task": "Prep10",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v46-shopkeeper-make-happy-scroll-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:48.555Z",
+        "task": "A2-investigation-v46-shopkeeper-make-happy-scroll-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:49.288Z",
+        "task": "C-investigation-v46-prayer-region-safety-attempt11-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v46-troll-meal-corrected-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:50.037Z",
+        "task": "A2-investigation-v46-troll-meal-corrected-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v46-crystal-ball-furniture-attempt10-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:50.837Z",
+        "task": "C-investigation-v46-crystal-ball-furniture-attempt10-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v46-lit-candle-split-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:51.571Z",
+        "task": "A2-investigation-v46-lit-candle-split-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:52.309Z",
+        "task": "B-investigation-v46-stone-to-flesh-statue-mimic-cast-attempt11-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:53.051Z",
+        "task": "B-investigation-v46-random-swamp-room-depth16-seed46101100-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v46-succubus-steals-monster-item-attempt2-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:53.788Z",
+        "task": "C-investigation-v46-succubus-steals-monster-item-attempt2-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v46-sokoban-earth-guilt-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:54.983Z",
+        "task": "A2-investigation-v46-sokoban-earth-guilt-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-Prep11-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:56.240Z",
+        "task": "Prep11",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v47-wizard-death-wizdeadorgone-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:57.037Z",
+        "task": "C-investigation-v47-wizard-death-wizdeadorgone-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v47-itemactions-adjust-stack-egg-split-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:58.406Z",
+        "task": "B-investigation-v47-itemactions-adjust-stack-egg-split-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v47-earthquake-desecrates-generated-altar-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:20:59.320Z",
+        "task": "A2-investigation-v47-earthquake-desecrates-generated-altar-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v47-shop-wished-dagger-sellobj-state-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:21:00.040Z",
+        "task": "A2-investigation-v47-shop-wished-dagger-sellobj-state-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v47-hallucinated-monster-missile-name-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:21:00.782Z",
+        "task": "C-investigation-v47-hallucinated-monster-missile-name-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v47-gremlin-pool-split-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:21:01.515Z",
+        "task": "A2-investigation-v47-gremlin-pool-split-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:21:02.273Z",
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v47-hero-level-teleport-trap-cfirst-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:21:03.010Z",
+        "task": "C-investigation-v47-hero-level-teleport-trap-cfirst-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v47-mimic-hallucination-timeout-eatmupdate-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:21:03.730Z",
+        "task": "A2-investigation-v47-mimic-hallucination-timeout-eatmupdate-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011-0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T03:21:04.477Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
+        "commit": "0e5f954b4a0c1df58ce858bbe994d84f3dc5ac6a",
+        "knownBy": "2026-10-12T01:57:59.267Z"
       }
     ]
   },
@@ -92330,8 +92707,8 @@
     ]
   },
   "development": {
-    "executionCommit": "1cefd15ca83512eb920105c96202699a1b04a8e0",
-    "measuredAt": "2026-10-12T03:04:29.607Z",
+    "executionCommit": "3ea76d57966d229dd179e23568cf83f2dcb42b0f",
+    "measuredAt": "2026-10-12T03:19:39.205Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
