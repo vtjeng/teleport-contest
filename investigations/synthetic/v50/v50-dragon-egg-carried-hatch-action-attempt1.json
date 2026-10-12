@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
-  "remainingScreens": 303,
+  "remainingScreens": 0,
   "recordedSteps": 1755,
   "corpus": "synthetic",
   "batch": "v50",
@@ -9,10 +9,10 @@
   "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
   "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
   "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
-  "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
-  "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+  "evaluationPath": "challenges/evaluations/accepted-760f1a9820a68a5a7265e8192e4ebf2263990329-v50.json",
+  "evaluationCommit": "760f1a9820a68a5a7265e8192e4ebf2263990329",
   "status": "complete",
-  "commit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+  "commit": "760f1a9820a68a5a7265e8192e4ebf2263990329",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v50",
@@ -26,35 +26,31 @@
     "recipe": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.recipe.session.json",
     "recipeSha256": "4d6edba497a07c6ee550413811cf168d0c90fd358b1f6d72428759417e445d99",
     "replayInputSha256": "118313fa7a6adf8442fa37c8bebfee4cbc61b06986458e15dd81143fe68a3a58",
-    "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
-    "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
-    "evaluationArtifact": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
-    "evaluationUtc": "2026-10-12T15:12:36.544Z",
-    "remainingScreens": 303,
+    "evaluationPath": "challenges/evaluations/accepted-760f1a9820a68a5a7265e8192e4ebf2263990329-v50.json",
+    "evaluationCommit": "760f1a9820a68a5a7265e8192e4ebf2263990329",
+    "evaluationArtifact": "challenges/evaluations/accepted-760f1a9820a68a5a7265e8192e4ebf2263990329-v50.json",
+    "evaluationUtc": "2026-10-12T15:30:24.080Z",
+    "remainingScreens": 0,
     "recordedSteps": 1755,
     "previousScreensMatched": 1452,
     "regression": false,
-    "passed": false,
+    "passed": true,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 1452,
+        "matched": 1755,
         "total": 1755
       },
       "rng": {
-        "matched": 7573,
+        "matched": 10005,
         "total": 10005
       },
       "cursors": {
-        "matched": 1452,
+        "matched": 1755,
         "total": 1755
       }
     },
-    "firstMismatch": {
-      "kind": "stop",
-      "message": "simple monster action requires an armed monster attacking another monster",
-      "step": 1452
-    },
+    "firstMismatch": null,
     "step": 1452,
     "kind": "stop",
     "sourceFile": null,
@@ -68,7 +64,7 @@
       "path": "investigations/synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1.json"
     }
   },
-  "summary": "The egg hatches successfully. The first mismatch is the later adjacent armed monster attack at step1452. Complete mattackm and its reveal, hit-message, weapon-swing, passive-result, and weapon-state helpers. The missing weapon route also blocks the parked Rustm monster-pair recording.",
+  "summary": "The original failure was an adjacent armed monster attack at step 1452 after the egg hatched. The whole combat fix implements the weapon route and its required helpers. The accepted replay now matches all 1,755 steps.",
   "source": {
     "file": "mhitm.c",
     "branch": "Adjacent armed AT_WEAP attack in whole mattackm, including hidden defender reveal, source hit/passive results, silver-weapon messages, and post-hit pudding splitting; required weapon.c:possibly_unwield and its existing callers.",
@@ -187,5 +183,25 @@
       "testLog": "/tmp/c-combat-pudding-focused.log",
       "testLogSha256": "a6bb08e8e51e5ba5a118030bc26fa82d7e7b568dc2fec2f72271d3d49ff8b1c9"
     }
+  },
+  "runtimeVerification": {
+    "commit": "760f1a9820a68a5a7265e8192e4ebf2263990329",
+    "casePassed": true,
+    "metrics": {
+      "screens": {
+        "matched": 1755,
+        "total": 1755
+      },
+      "rng": {
+        "matched": 10005,
+        "total": 10005
+      },
+      "cursors": {
+        "matched": 1755,
+        "total": 1755
+      }
+    },
+    "evidence": "challenges/evaluations/accepted-760f1a9820a68a5a7265e8192e4ebf2263990329-v50.json",
+    "completionGoal": "port-mhitm-mattackm-v50-20261012"
   }
 }

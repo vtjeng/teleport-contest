@@ -288727,7 +288727,7 @@
     {
       "id": "port-mhitm-mattackm-v50-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete monster weapon attacks and combat helpers",
       "cFile": "mhitm.c",
       "sessions": [
@@ -288741,8 +288741,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "760f1a9820a68a5a7265e8192e4ebf2263990329",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mattackm",
@@ -289241,6 +289244,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "760f1a9820a68a5a7265e8192e4ebf2263990329",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T15:18:06.813Z",
+  "capturedAt": "2026-10-12T15:37:48.863Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -95640,6 +95640,78 @@
         "type": "accepted",
         "at": "2026-10-12T15:16:25.084Z",
         "task": "B-investigation-v49-apply-book-attempt2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-669-score-queue-review-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:18:09.104Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v49-apply-book-attempt2-20261012-fb65275e5de6b1c3f7590f319cae303869598d5d",
+        "type": "published",
+        "at": "2026-10-12T15:19:01.730Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "commit": "fb65275e5de6b1c3f7590f319cae303869598d5d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "combat-review-rustm-blocker-20261012",
+        "type": "activity",
+        "at": "2026-10-12T15:19:33.856Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "phase": "review",
+        "reason": "Ready whole monster-combat correction directly unblocks the parked Rustm monster-pair entry. Whole-source/caller review and final correction logs are complete; importing the investigation and registering its scope at accepted Main."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-two-confirmed-source-owners-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:23:11.499Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: two provisional first defects; checking further independent spell missions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "combat-integrating-760f1a982-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T15:26:11.614Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "integration": "760f1a9820a68a5a7265e8192e4ebf2263990329"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v50-dragon-egg-carried-hatch-action-20261012-760f1a9820a68a5a7265e8192e4ebf2263990329-validated",
+        "type": "validated",
+        "at": "2026-10-12T15:34:25.188Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v50-dragon-egg-carried-hatch-action-20261012-760f1a9820a68a5a7265e8192e4ebf2263990329-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T15:35:57.477Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-rustm-after-combat-acceptance-20261012",
+        "type": "resume",
+        "at": "2026-10-12T15:37:19.357Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-active-C-rustm-after-combat-acceptance-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:37:23.064Z",
+        "worker": "C",
+        "state": "active"
       }
     ]
   },
@@ -95801,17 +95873,6 @@
         "status": "ready",
         "delivery": "13de69eeb69c8ba8c401afccb03f1778437a6096",
         "since": "2026-10-12T15:04:24.193Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
-        "worker": "C",
-        "goal": "port-mhitm-mattackm-v50-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "7881760a25253c587faf0552ad78ff1e9d26859e",
-        "since": "2026-10-12T15:05:23.824Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -96270,23 +96331,12 @@
         "since": "2026-10-12T11:30:34.791Z",
         "blockedBy": [],
         "reason": "Resolved by C-investigation-v48-discovery-sort-menu-20261012 accepted at 583ca5765128db23e1d43883d8faad7b0dbcdef6. Fresh bounded replay on B accepted Main 24cd67df72e04946883c4dad0b7185ebbbd77449 matched all 14 screens, RNG, and input boundaries; #knownclass reached with unported=[] and no refusal. Do not create duplicate implementation completion evidence."
-      },
-      {
-        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
-        "worker": "C",
-        "goal": "port-mhitm-rustm-v51-20261012",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": "74ffc7380822a138acbeb651e419255c8bdd1b40",
-        "since": "2026-10-12T15:02:41.615Z",
-        "blockedBy": [],
-        "reason": "Hosted38266346302 failed only the new independent M2M recording,148/157steps; armed mattackm refuses at148 before rustm155. C full-combat delivery owns the blocker and is correcting its missing pudding-split branch. Preserve Rustm commits/recording; resume after full combat acceptance. Fixed44 and all older1967 recordings still pass."
       }
     ]
   },
   "development": {
-    "executionCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
-    "measuredAt": "2026-10-12T15:13:19.049Z",
+    "executionCommit": "760f1a9820a68a5a7265e8192e4ebf2263990329",
+    "measuredAt": "2026-10-12T15:31:46.210Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
