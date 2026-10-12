@@ -294260,6 +294260,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-dig-earth-blessed-pick-cave-area-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Repair the two Earth-level mkcavearea caller branches in dig.c:dig and implement the whole missing rm_waslit, mkcavepos, and mkcavearea helpers.",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v53/v53-earth-remote-blessed-pick-cave-action10"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dig",
+      "session": "synthetic/v53/v53-earth-remote-blessed-pick-cave-action10"
     }
   ]
 }
