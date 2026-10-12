@@ -878,6 +878,30 @@ test('in_trouble() hit-point arm ignores Unchanging on an unpolymorphed hero',
         assert.equal(in_trouble(game), 0);
     });
 
+test('fix_worst_trouble clears timed blindness through make_blinded', async () => {
+    const state = await startedGame();
+    const blinded = state.u.uprops[BLINDED];
+    blinded.intrinsic = 5;
+    state.u.ucreamed = 1;
+    state.disp.botl = false;
+
+    await fix_worst_trouble(TROUBLE_BLIND, state);
+
+    assert.equal(blinded.intrinsic, 0);
+    assert.equal(state.u.ucreamed, 0);
+    assert.equal(state._pending_message, 'Your eyes feel better.');
+    assert.match(
+        PRAY_C,
+        /case TROUBLE_BLIND:[\s\S]*?u\.ucreamed = 0;[\s\S]*?make_blinded\(0L, FALSE\);/u,
+    );
+
+    // make_blinded clears the timeout while preserving an independent
+    // permanent blindness source, just as its C timeout helper does.
+    blinded.intrinsic = FROMOUTSIDE | 5;
+    await fix_worst_trouble(TROUBLE_BLIND, state);
+    assert.equal(blinded.intrinsic, FROMOUTSIDE);
+});
+
 // pray.c:383 delegates the cure to potion.c:222-240. Five remaining turns
 // make a live timeout; FROMOUTSIDE checks that set_itimeout keeps upper bits.
 test('prayer petrification cure clears timeout and delayed killer without RNG', async () => {
