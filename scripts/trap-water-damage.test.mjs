@@ -576,7 +576,7 @@ test('water_damage recurses through real contained items by default', async () =
     });
 });
 
-test('drown uses canonical leash counting and preserves the disrobe gap',
+test('drown preserves emergency disrobe drop order',
     async () => {
         const cTrap = await readFile(
             new URL('../nethack-c/upstream/src/trap.c', import.meta.url),
@@ -608,8 +608,8 @@ test('drown uses canonical leash counting and preserves the disrobe gap',
         );
         assert.match(cDisrobe, /dropx\(otmp\);\s*invc--;/u);
         assert.match(jsDisrobe,
-            /lostsome\.value = true;[\s\S]*?note_unported\('do\.c dropx'\);\s*--invc;/u);
-        assert.doesNotMatch(jsDisrobe, /await dropx\(/u);
+            /lostsome\.value = true;[\s\S]*?await dropx\(selected, dropCommandEnv\(state\)\);\s*--invc;/u);
+        assert.doesNotMatch(jsDisrobe, /note_unported\('do\.c dropx'\)/u);
         assert.match(jsTrap,
             /import \{ check_leash, number_leashed, unleash_all \} from '\.\/apply\.js';/u);
         assert.match(jsTrap, /const leashed = number_leashed\(state\);/u);
