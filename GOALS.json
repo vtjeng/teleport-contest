@@ -279047,6 +279047,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-eatmupdate-v47-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port active mimic appearance updates when hallucination changes.",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst"
+      ],
+      "selectionReason": "Selected from the saved v47 queue after its source trace identified eat.c:eatmupdate and the sole potion.c:make_hallucinated caller. Port the whole helper and wire that caller; an independent recording supplies matching runtime evidence because the selected case retains a separate cpostfx display scheduling gap.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "eatmupdate",
+          "line": 181,
+          "endLine": 216,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 181,
+        "to": 216
+      },
+      "syntheticProvenance": {
+        "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst": {
+          "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+          "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+          "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948"
+        }
+      }
     }
   ]
 }
