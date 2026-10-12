@@ -487,6 +487,15 @@ canvas {
 .activity-utilization .utilization-work { font-weight: 600; }
 .activity-utilization-help { margin: 0 0 12px; color: var(--ink-muted); font-size: 11px; }
 .activity-note { margin: 0 0 14px; font-size: 11px; color: var(--ink-muted); }
+.integration-duration { margin: 18px 0; }
+.integration-duration-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; min-height: 40px; }
+.integration-duration-heading h3 { font-size: 12px; font-weight: 600; }
+.integration-duration-heading p { font-size: 12px; color: var(--ink-secondary); font-variant-numeric: tabular-nums; }
+.integration-duration canvas { display: block; width: 100%; height: 180px; }
+.integration-duration canvas:focus-visible { outline: 2px solid var(--goal-file-port); outline-offset: 2px; }
+.integration-duration-readout { height: 64px; overflow-y: auto; scrollbar-gutter: stable;
+  font-size: 12px; color: var(--ink-secondary); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.integration-duration-readout strong { color: var(--ink-primary); }
 .activity-timeline { cursor: grab; touch-action: pan-y; user-select: none; }
 .activity-timeline.is-panning, .activity-timeline.is-panning .activity-bar { cursor: grabbing; }
 .activity-timeline:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 3px; }
@@ -941,6 +950,12 @@ canvas {
   <div class="chart-wrap">
     <div id="activityMetrics" aria-label="Recorded worker utilization in the visible time window"></div>
     <p class="activity-utilization-help">Rounded shares of plotted worker-time in this window. Work means assigned or running stages, not CPU use. Unknown means unrecorded; it is not counted as idle.</p>
+    <div class="integration-duration">
+      <div class="integration-duration-heading"><h3>Main integration time</h3><p id="integrationDurationSummary"></p></div>
+      <p class="activity-note">Elapsed integration and checks, including CI wait; excludes acceptance and publication. Dots: implementation; squares: Prep. Line: mean of the last 10 completed attempts, including retries. Open stages are excluded.</p>
+      <canvas id="integrationDurationChart" tabindex="0" aria-label="Main integration duration. Select a dot to pin task details; arrow keys move between attempts, Home and End jump, Escape clears the selection."></canvas>
+      <div class="integration-duration-readout" id="integrationDurationReadout" aria-live="polite"></div>
+    </div>
     <p class="activity-note">One row per agent. Blocks and parked tasks show recorded reasons; pending deliveries stay in task history, not worker rows. Idle and unrecorded time are distinct from blocks. Assigned work does not prove continuous activity. Hover to inspect; select to pin details. Arrow edges mark stages continuing outside the window. Stage details scroll.</p>
     <div class="legend" id="timelineLegend"></div>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
@@ -975,6 +990,7 @@ canvas {
 <script>
 const DATA = /*DATA_PLACEHOLDER*/null;
 const activityUtilization = /*UTILIZATION_PLACEHOLDER*/null;
+const mainIntegrationDurations = /*INTEGRATION_DURATION_PLACEHOLDER*/null;
 const QUEUE = /*QUEUE_PLACEHOLDER*/null;
 
 // --- Helpers ---
@@ -1691,11 +1707,16 @@ document.getElementById('stats').innerHTML = [
   const container = document.getElementById('timeline');
   const readout = document.getElementById('timelineReadout');
   const metrics = document.getElementById('activityMetrics');
+  const durationChart = document.getElementById('integrationDurationChart');
+  const durationReadout = document.getElementById('integrationDurationReadout');
+  const durationSummary = document.getElementById('integrationDurationSummary');
   const windowLabel = document.getElementById('activityWindowLabel');
   const windowSelect = document.getElementById('activityWindow');
   const latestButton = document.getElementById('activityLatest');
   const activity = DATA.activity || { segments: [], tasks: [] };
   const history = activity.segments || [];
+  const durationPoints = mainIntegrationDurations(activity);
+  let plottedDurations = [], pinnedDuration = null;
   const segments = activity.stages || history.filter(row => row.phase !== 'queued');
   const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -1732,6 +1753,8 @@ document.getElementById('stats').innerHTML = [
   }
   if (!history.length) {
     utilization(0, 0);
+    durationSummary.textContent = 'No completed attempts';
+    durationReadout.textContent = 'Integration time is unavailable until completed stages are recorded.';
     container.textContent = 'No worker activity snapshot is available.';
     return;
   }
@@ -1757,6 +1780,9 @@ document.getElementById('stats').innerHTML = [
       bar.classList.toggle('selected', Number(bar.dataset.segment) === selectedIndex);
     });
     describe(index, source);
+    const historyIndex = source === history ? index : source[index]?.sourceIndex ?? history.indexOf(source[index]);
+    pinnedDuration = durationPoints.find(point => point.sourceIndex === historyIndex) ?? null;
+    drawDurations(viewEnd - hours * hourMs, viewEnd);
   }
   let panning = null;
   let suppressClickUntil = 0;
@@ -1767,6 +1793,100 @@ document.getElementById('stats').innerHTML = [
   const duration = segment => (Date.parse(segment.end) - Date.parse(segment.start)) / 60000;
   const name = segment => taskById.get(segment.task)?.label
     || (segment.label ? displayLane(segment.label) : segment.task);
+  function describeDuration(point) {
+    if (!point) {
+      durationReadout.textContent = 'Hover to inspect; select to pin. Arrow keys move between completed attempts.';
+      return;
+    }
+    const stage = history[point.sourceIndex];
+    durationReadout.innerHTML = '<strong>' + esc(name(stage)) + '</strong> · attempt ' + point.attempt
+      + (stage.kind === 'challenge-preparation' ? ' · Preparation' : ' · Implementation')
+      + '<br>' + stamp(point.start) + ' – ' + stamp(point.end)
+      + ' · ' + (point.durationMs / 60000).toFixed(1) + ' min'
+      + ' · Rolling mean ' + (point.rollingMeanMs / 60000).toFixed(1) + ' min (' + point.sampleSize + ' attempts)';
+  }
+  function drawDurations(start, end) {
+    const visible = durationPoints.filter(point => Date.parse(point.end) >= start && Date.parse(point.end) <= end);
+    const average = visible.reduce((sum, point) => sum + point.durationMs, 0) / visible.length;
+    durationSummary.textContent = visible.length ? 'Window mean ' + (average / 60000).toFixed(1)
+      + ' min · ' + visible.length + ' attempts' : 'No completed attempts in this window';
+    const width = durationChart.getBoundingClientRect().width || 1000, height = 180;
+    const dpr = window.devicePixelRatio || 1;
+    durationChart.width = width * dpr; durationChart.height = height * dpr;
+    const ctx = durationChart.getContext('2d');
+    ctx.scale(dpr, dpr); ctx.clearRect(0, 0, width, height);
+    const style = getComputedStyle(document.documentElement);
+    const color = key => style.getPropertyValue(key).trim();
+    const pad = { left: 44, right: 12, top: 12, bottom: 28 };
+    const max = Math.max(1, ...visible.flatMap(point => [point.durationMs, point.rollingMeanMs]).map(ms => ms / 60000));
+    const magnitude = 10 ** Math.floor(Math.log10(max / 3));
+    const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= max / 3);
+    const ceiling = Math.ceil(max / step) * step;
+    const x = time => pad.left + (Date.parse(time) - start) / (end - start) * (width - pad.left - pad.right);
+    const y = ms => height - pad.bottom - ms / 60000 / ceiling * (height - pad.top - pad.bottom);
+    ctx.font = "11px 'Inter', sans-serif";
+    ctx.textAlign = 'right'; ctx.fillStyle = color('--ink-secondary');
+    for (let value = 0; value <= ceiling; value += step) {
+      const at = y(value * 60000);
+      ctx.strokeStyle = color('--gridline'); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.left, at); ctx.lineTo(width - pad.right, at); ctx.stroke();
+      ctx.fillText(String(Number(value.toFixed(2))), pad.left - 8, at + 4);
+    }
+    ctx.textAlign = 'left'; ctx.fillText('min', 0, 10);
+    for (let tick = 0; tick <= 3; tick++) {
+      const at = start + (end - start) * tick / 3;
+      ctx.textAlign = tick === 0 ? 'left' : tick === 3 ? 'right' : 'center';
+      ctx.fillText(hours === 168 ? new Date(at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
+        : shortStamp(at), x(new Date(at).toISOString()), height - 6);
+    }
+    ctx.strokeStyle = color('--ink-primary'); ctx.lineWidth = 2;
+    ctx.beginPath();
+    visible.forEach((point, index) => {
+      if (index === 0) ctx.moveTo(x(point.end), y(point.rollingMeanMs));
+      else ctx.lineTo(x(point.end), y(point.rollingMeanMs));
+    });
+    ctx.stroke();
+    plottedDurations = visible.map(point => ({ point, x: x(point.end), y: y(point.durationMs) }));
+    for (const dot of plottedDurations) {
+      ctx.strokeStyle = color('--goal-divergence'); ctx.fillStyle = color('--goal-divergence');
+      ctx.lineWidth = 1.5;
+      if (history[dot.point.sourceIndex].kind === 'challenge-preparation') {
+        ctx.strokeRect(dot.x - 3.5, dot.y - 3.5, 7, 7);
+      } else {
+        ctx.beginPath(); ctx.arc(dot.x, dot.y, 3.5, 0, Math.PI * 2); ctx.fill();
+      }
+      if (dot.point.sourceIndex === pinnedDuration?.sourceIndex) {
+        ctx.strokeStyle = color('--ink-primary');
+        ctx.beginPath(); ctx.arc(dot.x, dot.y, 6, 0, Math.PI * 2); ctx.stroke();
+      }
+    }
+    durationChart.setAttribute('aria-label', 'Main integration time. ' + durationSummary.textContent
+      + '. Circles are implementation; squares are preparation; line is the last-ten-attempt mean. Arrow keys select attempts.');
+    describeDuration(pinnedDuration);
+  }
+  function nearestDuration(event) {
+    const rect = durationChart.getBoundingClientRect();
+    const distances = plottedDurations.map(dot => ({ ...dot,
+      distance: Math.hypot(event.clientX - rect.left - dot.x, event.clientY - rect.top - dot.y) }));
+    const nearest = distances.sort((a, b) => a.distance - b.distance)[0];
+    return nearest?.distance <= 16 ? nearest.point : null;
+  }
+  function selectDuration(point) {
+    if (!point) return;
+    pin(point.sourceIndex, history);
+  }
+  durationChart.addEventListener('pointermove', event => { if (!pinnedDuration) describeDuration(nearestDuration(event)); });
+  durationChart.addEventListener('pointerleave', () => { if (!pinnedDuration) describeDuration(null); });
+  durationChart.addEventListener('click', event => selectDuration(nearestDuration(event)));
+  durationChart.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End', 'Escape', 'Enter', ' '].includes(event.key)) return;
+    event.preventDefault();
+    if (event.key === 'Escape') { pinnedDuration = null; drawDurations(viewEnd - hours * hourMs, viewEnd); return; }
+    const index = plottedDurations.findIndex(dot => dot.point.sourceIndex === pinnedDuration?.sourceIndex);
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? plottedDurations.length - 1
+      : event.key === 'ArrowLeft' ? Math.max(0, index - 1) : Math.min(plottedDurations.length - 1, index + 1);
+    selectDuration(plottedDurations[next]?.point);
+  });
   const isBlock = segment => ['blocked', 'parked'].includes(segment.phase);
   const isWait = segment => isBlock(segment) || ['idle', 'unrecorded'].includes(segment.phase);
   const batch = segment => taskById.get(segment.task)?.batch || segment.batch;
@@ -1832,6 +1952,7 @@ document.getElementById('stats').innerHTML = [
       .sort((a, b) => duration(b.segment) - duration(a.segment));
     const blocks = waits.filter(({ segment }) => isBlock(segment));
     utilization(start, viewEnd);
+    drawDurations(start, viewEnd);
     windowLabel.textContent = stamp(start) + ' – ' + stamp(viewEnd);
     latestButton.disabled = viewEnd >= latest;
     if (!pinnedStage && !shown.some(row => row.index === selectedIndex)) {
@@ -1881,6 +2002,7 @@ document.getElementById('stats').innerHTML = [
     render();
   });
   window.addEventListener('resize', render);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
   latestButton.addEventListener('click', () => { viewEnd = latest; render(); });
   container.addEventListener('pointerdown', event => {
     if (event.button !== 0) return;

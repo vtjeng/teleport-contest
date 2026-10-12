@@ -2,8 +2,37 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 
-import { activityTimeline, activityUtilization, agentStages, syntheticGainByCommit } from './dashboard-activity.mjs';
+import { activityTimeline, activityUtilization, mainIntegrationDurations, agentStages, syntheticGainByCommit } from './dashboard-activity.mjs';
 import { activityFromLedger, developmentFromCheckpoint, mergeActivity } from './dashboard-snapshot.mjs';
+
+test('integration timing retains retries and outliers but excludes open and unknown endpoints', () => {
+  // The first attempt ends in feedback; the second passes. Both spent Main time.
+  const at = minutes => new Date(Date.UTC(2026, 9, 10) + minutes * 60000).toISOString();
+  const row = (task, start, end, extra = {}) => ({ task, lane: 'Main', phase: 'integrating',
+    start: at(start), end: at(end), ...extra });
+  const activity = { segments: [row('A1', 0, 5), row('A1', 10, 20),
+    row('outage', 20, 740), // Twelve hours is retained, not silently capped or trimmed.
+    row('open', 740, 750, { ongoing: true }), row('unknown', 750, 750, { durationUnknown: true }),
+    row('other', 760, 765, { phase: 'acceptance' }), row('invalid', 780, 770),
+    row('missing-end', 790, 790, { superseded: true })] };
+  const points = mainIntegrationDurations(activity);
+  assert.deepEqual(points.map(point => point.durationMs / 60000), [5, 10, 720]);
+  assert.deepEqual(points.map(point => point.attempt), [1, 2, 1]);
+  assert.equal(points[1].rollingMeanMs / 60000, 7.5, 'early means use the two available samples');
+  assert.deepEqual(mainIntegrationDurations({ segments: [] }), []);
+});
+
+test('integration rolling mean uses the last ten complete attempts before the visible window', () => {
+  // Eleven attempts replace the oldest duration in a ten-attempt mean.
+  const segments = Array.from({ length: 11 }, (_, index) => ({ task: `task-${index}`, lane: 'Main',
+    phase: 'integrating', start: new Date(index * 3600000).toISOString(),
+    end: new Date(index * 3600000 + (index + 1) * 60000).toISOString() }));
+  const points = mainIntegrationDurations({ segments: [...segments].reverse() });
+  assert.equal(points.at(-1).sampleSize, 10);
+  assert.equal(points.at(-1).rollingMeanMs / 60000, 6.5, 'mean of durations 2 through 11');
+  assert.equal(points.at(-1).durationMs / 60000, 11, 'display filtering never clips a stage duration');
+  assert.equal(points.at(-1).sourceIndex, 0, 'point selection retains the original history index');
+});
 
 test('utilization pools clipped agent-stage time and keeps idle, blocked and unknown distinct', () => {
   // A and B each cover ten minutes; C joins for five. Pool worker-minutes,

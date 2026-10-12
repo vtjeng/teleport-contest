@@ -207,6 +207,13 @@ function sourceDashboardData(workGoals = []) {
     };
 }
 
+test('missing integration history is unavailable, not a zero-time average', () => {
+    const rendered = renderDashboard(sourceDashboardData());
+    assert.equal(rendered.get('integrationDurationSummary').textContent, 'No completed attempts');
+    assert.match(rendered.get('integrationDurationReadout').textContent, /unavailable/u);
+    assert.doesNotMatch(rendered.get('integrationDurationSummary').textContent, /0\.0 min/u);
+});
+
 test('score cards share one format and show commit ages without hashes', () => {
     const data = sourceDashboardData();
     data.scores = {
@@ -657,6 +664,17 @@ test('activity distinguishes pending deliveries from reported waits and shows ut
     }));
     data.activity = activityTimeline({ runId: 'loop-20260925', events }, at('11:15'));
     const rendered = renderDashboard(data);
+    // The visible six-hour window has ten- and twenty-minute attempts. The
+    // older thirty-minute attempt affects the rolling mean, not this window mean.
+    assert.equal(rendered.get('integrationDurationSummary').textContent, 'Window mean 15.0 min · 2 attempts');
+    const durationChart = rendered.get('integrationDurationChart');
+    durationChart.listeners.keydown[0]({ key: 'End', preventDefault() {} });
+    const pinnedDuration = rendered.get('integrationDurationReadout').innerHTML;
+    assert.match(pinnedDuration, /A1[\s\S]*20\.0 min[\s\S]*Rolling mean 20\.0 min \(3 attempts\)/u);
+    durationChart.listeners.pointermove[0]({ clientX: 857, clientY: 82 });
+    assert.equal(rendered.get('integrationDurationReadout').innerHTML, pinnedDuration,
+        'hover cannot replace a deliberately selected attempt');
+    assert.match(rendered.get('timelineReadout').innerHTML, /A1/u, 'duration selection selects the same stage in task history');
     assert.match(rendered.get('activityMetrics').innerHTML, /A\/B\/C[\s\S]*Prep[\s\S]*Main/u);
     assert.doesNotMatch(rendered.get('activityMetrics').innerHTML, /Ready → integration|activity-metric|Longest block/u);
     assert.match(rendered.get('timeline').innerHTML, /activity-row main/u);
