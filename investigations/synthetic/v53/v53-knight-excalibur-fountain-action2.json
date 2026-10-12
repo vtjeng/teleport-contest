@@ -1,0 +1,65 @@
+{
+  "session": "synthetic/v53/v53-knight-excalibur-fountain-action2",
+  "remainingScreens": 179,
+  "recordedSteps": 300,
+  "corpus": "synthetic",
+  "batch": "v53",
+  "caseId": "v53-knight-excalibur-fountain-action2",
+  "manifestPath": "challenges/manifests/v53.json",
+  "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+  "recordingPath": "challenges/cases/v53/v53-knight-excalibur-fountain-action2.session.json",
+  "recordingSha256": "ff5532f2de25540d41ed020895544c86bc72cfd0ae5fcad68087b99587eadb78",
+  "recipePath": "challenges/cases/v53/v53-knight-excalibur-fountain-action2.recipe.session.json",
+  "recipeSha256": "748dba3d31f0ceab62413b1ddf0474ccc44a5b8d4621c893eb63f1476f729359",
+  "replayInputSha256": "6b503ce89bc2ca9038f2c7e0fbc47cbd55ade2ca8401f664aaef7214b91b1214",
+  "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
+  "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
+  "status": "complete",
+  "mismatch": {
+    "step": 121,
+    "kind": "screen",
+    "message": "C begins the Excalibur blessing message; JS exits through UnsupportedFountainError"
+  },
+  "summary": "The admitted lawful Knight level-7 session dips a single rusty nonartifact long sword into a fountain. At step 121 C succeeds in dipfountain's Excalibur branch after rn2(6)=0 and displays the Lady of the Lake message; JS consumes the same draw but throws UnsupportedFountainError before any branch effect. Implement the complete fountain.c:dipfountain function and keep its existing potion.c:dodip production call aligned; do not claim the entire fountain.c file.",
+  "source": {
+    "file": "fountain.c",
+    "functions": ["dipfountain"],
+    "callers": ["potion.c:dodip"],
+    "branch": "fountain.c:dipfountain 404-447: LONG_SWORD, u.ulevel >= 5, successful role-dependent rn2, quan==1, nonartifact and no existing Excalibur. A lawful hero receives the artifact; a nonlawful hero is denied and cursed. Both outcomes update inventory, remove the fountain, redraw it, optionally anger town guards, and return. The selected case reaches the lawful Knight success branch.",
+    "dependencies": [
+      "artifact.c:exist_artifact",
+      "artifact.c:artiname",
+      "do_name.c:oname",
+      "artifact.c:discover_artifact",
+      "obj.c:bless",
+      "attrib.c:exercise",
+      "invent.c:update_inventory",
+      "terrain.c:set_levltyp",
+      "display.c:newsym",
+      "hack.c:in_town",
+      "mon.c:angry_guards"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The admitted v53 manifest identifies the route as fountain.c:dipfountain through potion.c:dodip:404-447, with a lawful Knight at level 7 dipping a single nonartifact long sword.",
+    "The saved accepted baseline hosted-38314809018-1-v53.json records 121/300 screens, 3112/3259 RNG values and 121/300 cursors matched. The immutable recording's step 121 is the first unmatched screen and includes rn2(6)=0 @ dipfountain(fountain.c:405); its C output begins 'From the murky depths, a hand reaches up to bless the sword.' The next C step begins 'As the hand retreats, the fountain disappears!'.",
+    "Upstream nethack-c/upstream/src/potion.c:dodip calls dipfountain(obj) after confirming the player accepted dipping into a fountain. The existing JS potion.js:dodip already calls dipfountain(obj,state,env).",
+    "Upstream nethack-c/upstream/src/fountain.c:404-447 contains both lawful-success and nonlawful-denial outcomes and the shared fountain-removal/update path. JS js/fountain.js:927-940 consumes the matching rn2 draw and then throws UnsupportedFountainError instead of executing those C outcomes.",
+    "The implementation task is a whole dipfountain function port because this is missing source behavior, not a defect in an otherwise implemented branch. Existing caller wiring is to be retained and verified; no whole-file fountain.c completion is claimed."
+  ],
+  "scorerComparison": {
+    "scorer": "accepted synthetic baseline hosted-38314809018-1-v53.json",
+    "recordingSha256": "ff5532f2de25540d41ed020895544c86bc72cfd0ae5fcad68087b99587eadb78",
+    "before": {
+      "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
+      "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
+      "metrics": {
+        "screens": {"matched": 121, "total": 300},
+        "rng": {"matched": 3112, "total": 3259},
+        "cursors": {"matched": 121, "total": 300}
+      },
+      "error": null
+    }
+  }
+}
