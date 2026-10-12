@@ -278595,9 +278595,9 @@
           "name": "mhitm_ad_dise",
           "line": 4593,
           "endLine": 4622,
-          "declared": false,
+          "declared": true,
           "sourceFile": "uhitm.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -278876,7 +278876,168 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_pest",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_pest",
+            "sourceReview": "Read the whole uhitm.c:mhitm_ad_pest definition (lines 3808-3834). Its source order is preserved: the hero-attacker goto shares AD_DISE monster-target logic; the monster-to-hero branch messages, calls diseasemu and then returns to ordinary damage; the monster-pair branch copies mattk, changes only adtyp to AD_DISE, calls mhitm_ad_dise, and discards its void result. Replaced the prior note_unported placeholder. The C source says no valid hero polymorph has AD_PEST.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping dispatches AD_PEST to mhitm_ad_pest; its existing JavaScript dispatcher now reaches this implementation."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem calls uhitm.c:mhitm_adtyping for monster-pair attacks; this existing caller reaches the AD_PEST branch when the attacker has that attack."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu calls uhitm.c:mhitm_adtyping for monster-to-hero attacks; this existing caller reaches the AD_PEST hero-defender branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-pest.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 149,
+                "source": "Pestilence's AD_PEST attack enters mhitm_adtyping -> mhitm_ad_pest; the copied AD_DISE reaches mhitm_ad_dise and preserves the Red Mold at the former step-138 mismatch, followed by the monster passive attack."
+              },
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "The monster action reaches hitmu -> mhitm_adtyping(AD_PEST) -> mhitm_ad_pest, whose hero-defender branch emits the source message and calls diseasemu. The entire 48-step C replay matches."
+              }
+            ],
+            "checkedAt": "8f5cf7c375796f01323a3bd2b64e3b59c8b85e8a"
+          },
+          {
+            "name": "mhitm_ad_dise",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_dise",
+            "sourceReview": "Read the whole uhitm.c:mhitm_ad_dise definition (lines 4593-4619). For a monster attacking the hero, it calls hitmsg, runs diseasemu and clears mhm.damage only when that helper returns false. For monster defenders, it clears damage for S_FUNGUS, exact PM_GHOUL, or defended(mdef, AD_DISE), preserving ordinary damage otherwise. The hero-attacker goto is retained; C comments that it cannot occur in a valid game because no monster with AD_DISE is a valid polymorph form. Existing JS hitmsg, diseasemu and defended helpers are reused; no unported callee remains in the selected branches.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_pest",
+                "source": "uhitm.c:mhitm_ad_pest copies the attack, changes adtyp to AD_DISE and calls mhitm_ad_dise in the monster-pair arm; its hero-attacker goto also shares that branch."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping directly calls mhitm_ad_dise in its AD_DISE switch arm; the former unported dispatcher case was replaced."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem calls mhitm_adtyping for monster-pair attacks; the direct Scorpius recording reaches the helper from this path."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu calls mhitm_adtyping for monster-to-hero attacks; the direct Scorpius recording reaches the helper's hero-defender branch from this path."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum calls mhitm_adtyping for hero-to-monster attacks. The call is wired, but the AD_DISE arm has no valid runtime producer: Juiblex, Demogorgon and Scorpius are all M2_NOPOLY, and C comments that the hero cannot polymorph into a monster with AD_DISE. The otherwise unreachable source branch is source-pinned by the focused test."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-pest.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-dise-monster-pair-scorpius-stone-golem-v47.session.json",
+              "recordings/uhitm.c/mhitm-ad-dise-monster-to-hero-scorpius-v47.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 149,
+                "source": "The AD_PEST caller changes the copied attack to AD_DISE and reaches the S_FUNGUS guard before the later passive RNG."
+              }
+            ],
+            "checkedAt": "8f5cf7c375796f01323a3bd2b64e3b59c8b85e8a"
+          }
+        ],
+        "entryPointReview": "The active production entry points in the selected functions are monster-pair AD_PEST (including the S_FUNGUS guard), monster-to-hero AD_PEST disease processing, direct monster-pair AD_DISE dispatch, and direct monster-to-hero AD_DISE processing. They are covered respectively by the admitted v47 Pestilence/Red Mold range, admitted v20 Pestilence/Wizard range, and two new C-first Scorpius recordings. The existing JS production callers mhitm.c:mdamagem/js/mhitm.js:mdamagem, mhitu.c:hitmu/js/mhitu.js:hitmu and uhitm.c:damageum/js/uhitm.js:damageum remain wired to mhitm_adtyping. The hero-to-monster AD_DISE branch is not a valid production entry: the only source monster definitions with AD_DISE are Juiblex, Demogorgon and Scorpius, each M2_NOPOLY, and uhitm.c explicitly states that a hero cannot polymorph into one. The focused source-pinned test exercises that source branch without claiming runtime reachability. No other unported callee is hidden in the selected source range.",
+        "entryPoints": [
+          {
+            "name": "Pestilence monster-pair disease effect against fungus",
+            "functions": [
+              "mhitm_ad_pest",
+              "mhitm_ad_dise"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 149,
+                "source": "mhitm.c:mdamagem -> uhitm.c:mhitm_adtyping(AD_PEST) -> mhitm_ad_pest -> mhitm_ad_dise(S_FUNGUS guard) -> mhitm.c:passivemm."
+              }
+            ]
+          },
+          {
+            "name": "Pestilence monster-to-hero disease effect",
+            "functions": [
+              "mhitm_ad_pest"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping(AD_PEST) -> mhitm_ad_pest -> diseasemu."
+              }
+            ]
+          },
+          {
+            "name": "Direct monster-pair AD_DISE dispatch",
+            "functions": [
+              "mhitm_ad_dise"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-dise-monster-pair-scorpius-stone-golem-v47.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Direct monster-to-hero AD_DISE disease processing",
+            "functions": [
+              "mhitm_ad_dise"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-dise-monster-to-hero-scorpius-v47.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
