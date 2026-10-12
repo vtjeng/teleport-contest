@@ -19,7 +19,6 @@ import {
     SUPPRESS_HISTORY,
     URGENT_MESSAGE,
     WIN_NOSTOP,
-    WIN_STOP,
 } from './const.js';
 import { flush_screen } from './display.js';
 import {
@@ -267,7 +266,7 @@ export async function dismissPendingTtyMessage(
     if ((response === 0 || response === 27)
         && !preventEscapeStop
         && !(messageWin?.flags & WIN_NOSTOP)) {
-        if (messageWin) messageWin.flags |= WIN_STOP;
+        // _ttyMessageStopped is the single JS owner of C's WIN_STOP bit.
         state._ttyMessageStopped = true;
     }
     display.topMessage = state._ttyToplines;
@@ -439,12 +438,16 @@ async function ttyPlineCore(
     // before tty_putstr() invokes update_topl(): its clear_nhwindow(WIN_MESSAGE)
     // removes the stale physical line and clears WIN_STOP. Do the same at
     // this stage, then let the urgent line take the ordinary replacement path.
+    const messageWin = state.wintty?.wins?.[state.wintty.messageWindow];
     if (urgentMessage && stoppedAtEntry) {
         clearTtyMessageWindow(state);
         state._ttyMessageStopped = false;
         stoppedAtEntry = false;
         current = '';
     }
+    // wintty.c:2277-2300 sets the one-shot WIN_NOSTOP for every urgent
+    // message, after clearing persistent WIN_STOP and before update_topl().
+    if (urgentMessage && messageWin) messageWin.flags |= WIN_NOSTOP;
     if (pflags & SUPPRESS_HISTORY) {
         // C win/tty/wintty.c: tty_putstr(WIN_MESSAGE, ATR_NOHISTORY, ...)
         // remembers the old gt.toplines, then show_topl() paints this message
@@ -467,6 +470,8 @@ async function ttyPlineCore(
             state.iflags ??= {};
             state.iflags.last_msg = PLNMSG_UNKNOWN;
         }
+        if (urgentMessage && messageWin)
+            messageWin.flags &= ~WIN_NOSTOP;
         return;
     }
     if (pflags & (PLINE_VERBALIZE | PLINE_SPEECH))
@@ -496,6 +501,9 @@ async function ttyPlineCore(
             dismissPendingTtyMessage,
         },
     });
+    // wintty.c clears the one-shot after the source-selected write path.
+    if (urgentMessage && messageWin)
+        messageWin.flags &= ~WIN_NOSTOP;
 }
 
 export async function ttyPline(message, state = game) {

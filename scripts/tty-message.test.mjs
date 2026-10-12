@@ -1,10 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { PLNMSG_CAUGHT_IN_EXPLOSION, PLNMSG_UNKNOWN } from '../js/const.js';
+import {
+    PLNMSG_CAUGHT_IN_EXPLOSION,
+    PLNMSG_UNKNOWN,
+    WIN_NOSTOP,
+    WIN_STOP,
+} from '../js/const.js';
 import { msgtype_parse_add } from '../js/options.js';
+import { show_topl } from '../js/topl.js';
 
 import { GameDisplay } from '../js/game_display.js';
+import { nhgetch } from '../js/input.js';
 import { NO_COLOR } from '../js/terminal.js';
 import {
     dismissPendingTtyMessage,
@@ -144,6 +151,7 @@ test('urgent output clears Escape suppression before updating history',
             'It is mildly chilly.  Something casts a spell at you!',
             TOPLINE_NEED_MORE,
         );
+        state.wintty = { messageWindow: 0, wins: [{ flags: 0 }] };
         state.nhDisplay.pushKey(27);
         await dismissPendingTtyMessage(state);
         assert.equal(state._ttyMessageStopped, true);
@@ -154,8 +162,38 @@ test('urgent output clears Escape suppression before updating history',
         // replacing it; an ordinary pline would keep this message hidden.
         await ttyUrgentPline('You return to human form!', state);
         assert.equal(state._ttyMessageStopped, false);
+        assert.equal(state.wintty.wins[0].flags & WIN_NOSTOP, 0);
         assert.equal(state._pending_message, 'You return to human form!');
         assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
+    });
+
+test('show_topl consumes WIN_NOSTOP while allowing a stopped message', () => {
+    const state = messageState('', TOPLINE_NEED_MORE);
+    state.wintty = { messageWindow: 0, wins: [{ flags: WIN_NOSTOP }] };
+    state._ttyMessageStopped = true;
+
+    assert.equal(show_topl('urgent status', state), true);
+    assert.equal(state._ttyMessageStopped, false);
+    assert.equal(state.wintty.wins[0].flags & WIN_NOSTOP, 0);
+    assert.match(rowText(state), /urgent status/u);
+});
+
+test('tty_nhgetch clears the sole WIN_STOP representation before reading',
+    async () => {
+        // wintty.c:tty_nhgetch clears WIN_STOP before consuming the next key.
+        // A short message keeps the More prompt on row zero; `x` is an
+        // ordinary follow-up byte that must reach the read boundary.
+        const state = messageState('message', TOPLINE_NEED_MORE);
+        state.wintty = { messageWindow: 0, wins: [{ flags: 0 }] };
+        state.nhDisplay.pushKey(27);
+        await dismissPendingTtyMessage(state);
+        assert.equal(state._ttyMessageStopped, true);
+        assert.equal(state.wintty.wins[0].flags & WIN_STOP, 0);
+
+        state.nhDisplay.pushKey('x'.charCodeAt(0));
+        assert.equal(await nhgetch(state), 'x'.charCodeAt(0));
+        assert.equal(state._ttyMessageStopped, false);
+        assert.equal(state.wintty.wins[0].flags & WIN_STOP, 0);
     });
 
 // pline.c:vpline clears iflags.last_msg after putmesg, before MSGTYP_STOP,

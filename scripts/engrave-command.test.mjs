@@ -1,10 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {
-    ADMITTED_COMMANDS,
-    UnsupportedHeroCommandBoundaryError,
-} from '../js/cmd.js';
+import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
     AIR,
     CLOUD,
@@ -312,25 +309,19 @@ test('a one-x signature preserves illiterate conduct', async () => {
     }
 });
 
-test('a refused engraving line restores status redraw ownership', async () => {
+test('Ctrl-P history in an engraving line restores status redraw ownership', async () => {
     const segment = loadEngraveFingertipDustRecipe().segments[0];
-    let boundary;
+    let boundary = null;
     await runSegment({
         ...segment,
-        // Ctrl-P is getline.c's first unsupported editing key. It throws
-        // while windows.c getlin() owns gb.bot_disabled.
-        moves: `${ENGRAVE_SETUP}${ENGRAVE_KEY}${FINGERTIP_KEY} \u0010`,
+        // getline.c:106-131 opens message history, restores the prompt, then
+        // accepts newline. The next command boundary is intentionally absent.
+        moves: `${ENGRAVE_SETUP}${ENGRAVE_KEY}${FINGERTIP_KEY} \u0010 \n`,
     }, { onBoundary: (error) => { boundary = error; } });
 
-    assert.equal(
-        boundary instanceof UnsupportedHeroCommandBoundaryError,
-        true,
-    );
-    // cmdq stores command keys as character codes; 69 is uppercase E.
-    assert.equal(
-        game.context.pendingCommand?.key,
-        ENGRAVE_KEY.charCodeAt(0),
-    );
+    assert.equal(boundary, null);
+    assert.equal(game.context.pendingCommand, undefined);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
     assert.equal(game.gb.bot_disabled, false);
 });
 

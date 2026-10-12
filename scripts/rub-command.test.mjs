@@ -506,7 +506,7 @@ for (const {
         // These counts and digests cover the complete seed-731 fresh case.
         rngCalls: 2149,
         screenDigest:
-            '3d35a4ade0c38299c65e20a17f3088d6a2f0dc04a1fb42d7fb788a17f0cdcde9',
+            '65aacf1257017040db93d6aa33515fb67fff81874eacb36cb78a20d3722f25d3',
         cursorDigest:
             'a4c601d01644b4b2a7ce982ed1ed4c282d083dd0029e77335af6dc40ebb8e80a',
     },
@@ -520,7 +520,7 @@ for (const {
         // These counts and digests cover the complete seed-743 fresh case.
         rngCalls: 2723,
         screenDigest:
-            '6f595f6979aca8c0f4d0143e440bd26fc3e6d6007e0b7928862d47061bd34c1f',
+            'f1a0dac6c3627ce4e34f57ffbc1e59414495cf4b654241870d565f4545551a92',
         cursorDigest:
             '4d236e1e538e65dfe4debf475f9ce9fccc6e77d67a5c09e75092f5edc52d912f',
     },
@@ -635,7 +635,7 @@ test('the complete #rub cancellation recipe preserves the command boundary',
         // cover every serialized cell attribute and cursor triple.
         assert.equal(
             digest(replay.getScreens()),
-            '058ba68d0c8183a4d92210c60c57927ff70c936970abc04df0e9a9a1bd92220a',
+            'f488baf66416b78b9ce79a12b1c94cae6aee183902d2cf3e004e3a8f0a3fb1b2',
         );
         assert.equal(
             digest(replay.getCursors()),

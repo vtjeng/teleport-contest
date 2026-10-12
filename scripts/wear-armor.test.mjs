@@ -3850,7 +3850,7 @@ test('yn_function with NUL default omits the default display', async () => {
     // C ref: topl.c:415 `if (def)` tests the char value; NUL (0) is falsy and
     // suppresses the " (X)" suffix. In JS, def arrives as a one-character
     // string, so '\0' must be tested by code point, not truthiness. The fix is
-    // in getline.js tty_yn_function.
+    // in topl.js tty_yn_function.
     //
     // The finger prompt "Which ring-finger, Right or Left? [rl] " must not
     // end with " (\0) " (which would be 4 characters wider than the C output).

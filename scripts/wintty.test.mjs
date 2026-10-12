@@ -76,6 +76,8 @@ test('tty_create_nhwindow keeps the unbuffered map geometry', () => {
         cols: COLNO,
         maxrow: 0,
         maxcol: 0,
+        data: null,
+        datlen: null,
     });
 });
 

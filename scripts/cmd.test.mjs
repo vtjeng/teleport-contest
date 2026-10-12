@@ -151,7 +151,7 @@ import {
     getRngLog,
     initRng,
 } from '../js/rng.js';
-import { CLR_GRAY } from '../js/terminal.js';
+import { NO_COLOR } from '../js/terminal.js';
 import { seenv_matrix } from '../js/vision.js';
 import {
     clearTtyMessageWindow,
@@ -2943,7 +2943,7 @@ test('parseCommand clears the physical message row but retains the final Count t
     assert.deepEqual(
         state.nhDisplay.grid[0],
         Array.from({ length: state.nhDisplay.cols }, () => ({
-            ch: ' ', color: CLR_GRAY, attr: 0,
+            ch: ' ', color: NO_COLOR, attr: 0,
         })),
     );
     assert.deepEqual(
@@ -4060,6 +4060,12 @@ test('reqmenu rejects non-prefix commands and Escape cancels silently',
         ]) {
             const { state } = resetSafeWaitTestGame('OPTIONS=!cmdassist');
             const grid = structuredClone(state.nhDisplay.grid);
+            // Source redraws this synthetic, map-free screen before the
+            // command result returns. Recorder patch 006 uses terminal
+            // default fg 7 for the cleared cells (NO_COLOR in the port).
+            const clearedGrid = grid.map((row) => row.map(() => (
+                { ch: ' ', color: NO_COLOR, attr: 0 }
+            )));
             state.nhDisplay.pushKey(commandKeyCode('m'));
             state.nhDisplay.pushKey(commandKeyCode(key));
 
@@ -4069,7 +4075,7 @@ test('reqmenu rejects non-prefix commands and Escape cancels silently',
                 state._pending_message,
                 `The ${description} command does not accept 'm' prefix.`,
             );
-            assert.deepEqual(state.nhDisplay.grid, grid);
+            assert.deepEqual(state.nhDisplay.grid, clearedGrid);
             assert.equal(state.context.move, 0);
             assert.equal(state.iflags.menu_requested, false);
             assert.equal(state.nhDisplay.inputQueueLength, 0);
@@ -4078,13 +4084,16 @@ test('reqmenu rejects non-prefix commands and Escape cancels silently',
         for (const cancel of [0, 0xFF, 0x1B]) {
             const { state } = resetSafeWaitTestGame('OPTIONS=!cmdassist');
             const grid = structuredClone(state.nhDisplay.grid);
+            const clearedGrid = grid.map((row) => row.map(() => (
+                { ch: ' ', color: NO_COLOR, attr: 0 }
+            )));
             state.nhDisplay.pushKey(commandKeyCode('m'));
             state.nhDisplay.pushKey(cancel);
 
             await rhack(0, state);
 
             assert.equal(state._pending_message, '');
-            assert.deepEqual(state.nhDisplay.grid, grid);
+            assert.deepEqual(state.nhDisplay.grid, clearedGrid);
             assert.equal(state.context.move, 0);
             assert.equal(state.iflags.menu_requested, false);
             assert.equal(state.nhDisplay.inputQueueLength, 0);
@@ -4099,6 +4108,9 @@ test('a doubled reqmenu prefix cancels without leaking into the next command',
         ]) {
             const { state, monster } = resetSafeWaitTestGame(configuration);
             const grid = structuredClone(state.nhDisplay.grid);
+            const clearedGrid = grid.map((row) => row.map(() => (
+                { ch: ' ', color: NO_COLOR, attr: 0 }
+            )));
             state.nhDisplay.pushKey(commandKeyCode(prefix));
             state.nhDisplay.pushKey(commandKeyCode(prefix));
 
@@ -4106,7 +4118,7 @@ test('a doubled reqmenu prefix cancels without leaking into the next command',
 
             assert.equal(state._pending_message,
                 `Double ${prefix} prefix, canceled.`);
-            assert.deepEqual(state.nhDisplay.grid, grid);
+            assert.deepEqual(state.nhDisplay.grid, clearedGrid);
             assert.equal(state.context.move, 0);
             assert.equal(state.iflags.menu_requested, false);
             assert.equal(state.context.pendingCommand, undefined);

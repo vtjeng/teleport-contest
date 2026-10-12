@@ -509,7 +509,7 @@ test('newgame preserves the initial three-line tty refresh at welcome More', asy
     );
     assert.equal(
         gridDigest(grids[0]),
-        '412b8be3e01df5be71abc0a9a6aa7d0805bb79afeadf4301f8e1cf7ba295306a',
+        '57a72a187649ee3bb8b77b4e369a681a9f165d5e03b1830bf6a74d0b0cf2764a',
     );
 });
 
@@ -561,10 +561,10 @@ test('startup accessibility notices preserve complete command-boundary state', a
     assert.deepEqual(
         mentionMap.grids.map(gridDigest),
         [
-            '26761a4b8bc034e2aaa178a256b55a8e57c692bbed2465277f47082634547771',
-            '55eb309a151cb0caa43582df46794074e5e505559b97e171873e1dd336dfb270',
-            '2b71514063bf4bd2ac632b778fb8d76c178ca9180855e851a09ac81442d255a5',
-            'adab195ce177dbe6ad043be8076f29ebdeb1bb3b379882f4bbbc0c011d60a036',
+            '9ac872ea96029e604e7f9bec93836897ca2a27a8679a1e2acc37eafc7840b699',
+            '703c3a041f047d162db175353d96bfe4eeb48c4b97c23c074b8ff04db13e3e44',
+            '52c1b0f93647ca47c734ef764cc7b44fce15efba4047d12ec2532caa979364db',
+            'c44b074746620086c9e3c02421b3b5960bcab53d61245f3a8875f6368f7a3653',
         ],
     );
     assert.deepEqual(mentionMap.session.getCursors(), [
@@ -609,8 +609,8 @@ test('startup accessibility notices preserve complete command-boundary state', a
         ],
     );
     assert.deepEqual(spotMonsters.grids.map(gridDigest), [
-        'd8a005ec5b92054c616921ebd4ab0477ae3e4d5caed90afd57c6a0f9ab5918ef',
-        'c92bec3884be65e2f5b9816a2a7d1f69d17305a03eb609996398c11cbad40858',
+        'e437b6c1c42d1dc2df0c45adbfb3bf0a4438df9c6df4033452eeae1f334e0d20',
+        '7ab76ed268ae0b5f825f0ab743be7d0a856b2b6ca080df3c4fbeff3b3a7eae65',
     ]);
     assert.deepEqual(spotMonsters.session.getCursors(), [
         [77, 0, 1], [57, 4, 1],
@@ -640,10 +640,10 @@ test('startup accessibility notices use configured non-default coordinates', asy
                 '<24,6>: closed door.',
             ],
             digests: [
-                '26761a4b8bc034e2aaa178a256b55a8e57c692bbed2465277f47082634547771',
-                'dedf0f6a1e7e87396a35dadb3d02b18c79243338312fe379630fe41b7990220d',
-                'a4ec3f0e8ba302a03e20ce9c51fa615152c9cc4958752cc1dfc0440e966c1780',
-                '9220a48d8f6301f779cd6f104b231746cf92ea6d08028535e95907337700088b',
+                '9ac872ea96029e604e7f9bec93836897ca2a27a8679a1e2acc37eafc7840b699',
+                '1e741e020255cbcf1598b94dfe7fff1c232735930781b276dde1eeab1981df9f',
+                '9432a78dee9d548d6c551e46be842ba5694eeddb079206c9c84765798313be0d',
+                '7c62eafe812d691bad143b5602616e01551bb1bd56b326b78c0ee4a70717218e',
             ],
         },
         {
@@ -657,10 +657,10 @@ test('startup accessibility notices use configured non-default coordinates', asy
                 '[07,23]: doorway.  [08,24]: closed door.',
             ],
             digests: [
-                '26761a4b8bc034e2aaa178a256b55a8e57c692bbed2465277f47082634547771',
-                'b0d560e2fe0361468b1c2e670b442138ba2e32588530cdca569ae1d1a431b19d',
-                '3df4c903ca3b2337f37f14e1581d3e67b518ec76e5aa12ee30d727cd16214004',
-                '7d82e89962d46e52686e18a05456eb05d77c981930139c870460cc60f8c985f6',
+                '9ac872ea96029e604e7f9bec93836897ca2a27a8679a1e2acc37eafc7840b699',
+                '37a3d8ac588cb765a407f36bdbc213cf517aeadf7cc079531d1769a71a9e5881',
+                '31476f1a7ffe6e4bd7e73f8a5bca3c7c7e6b6091ad475e4c2e9ebaedd12056b4',
+                '4d12e00e343dd0d1db0b0d6dd056a052281be5ac81da50c4c88d52f59a1b2ab2',
             ],
         },
     ];
@@ -989,11 +989,11 @@ test('configured tutorial choices skip the query or reach its first command', as
     ));
 
     assert.deepEqual(grids.map(gridDigest), [
-        'e268bfa55cc344a11b395fdd79858af7614280e7fbf954c96698958e985a912f',
-        'd6bd4a8019da48e3501315e89ae71e5f8872ca2ba5cc24f0f2689a93103f1243',
-        '9e26d011d64cbfeb01f8337933cccb3fa0f292d105b6f2bda3e885c099d0cb8e',
-        '04aa492b4331633fa6cf04d81a09fc9a5c7e48b54d28a001e8f4035239709729',
-        '45a6eec8dd96b00ed1591e6a70ea9384426e3dc598fab389020fd42833a89ce0',
+        'f85f3056939cc4b6fbfa7f079cfc9b254e414aca7affcb565acebccccfa13eef',
+        'd0b80d7e7f5bb41354c16e48e45628c82bc18007d7f2bd55f0aede6ce3b71aa8',
+        '83049d228a7de6aa67a58f1588008e8fc315f67a8ce96c4d14c26ee004d1bb86',
+        'e5260fb9422028139a8b9a3f801ec04983c3b38490a746d2316a017aed06e0ec',
+        '0489254e553448e627bc2b8ff317e0721a676b526378821bdf19a90959f600b1',
     ]);
     assert.deepEqual(
         entered.getRngSlices().map((slice) => [

@@ -116,7 +116,7 @@
         "monsterCount": 2,
         "pet": null,
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "9e7a9a8f2bc50137df40ade31afe6e2a77ea4a80045c97a9106ba0c53a349fb3",
+        "stateDigest": "50a4c63d7d4ad6d14a5ea971d8732d1f5a12f985e8ab238febd8654af0300d36",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [8, 19, 1], [8, 19, 1]],
@@ -124,7 +124,7 @@
           "rngCount": 2679,
           "rngDigest": "fa3f1be45cb47f3acd0b0e3364eddf637e68ad462652ba7cb3d1e93272d52ba5",
           "screenCount": 3,
-          "screenDigest": "6bfee9ed221b04a38db5c4390692f3044ef7a8a38b4921db7e190141be74463c"
+          "screenDigest": "2be1dc0992ac1aef717faabe491dfdb016a857d8c90f3e5144d845de18c7057e"
         }
       }
     },
@@ -136,7 +136,7 @@
         "monsterCount": 2,
         "pet": null,
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "c136e120a0f48a8f24c6d6e235962a41f9b0d2f86505aa28abe65d5b63b76bfd",
+        "stateDigest": "0c0d4c73d4c1c86b65ffc9b05ee32ada4263d177812e48c2d0316a7152f3465d",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [8, 19, 1], [7, 19, 1]],
@@ -144,7 +144,7 @@
           "rngCount": 2679,
           "rngDigest": "fa3f1be45cb47f3acd0b0e3364eddf637e68ad462652ba7cb3d1e93272d52ba5",
           "screenCount": 3,
-          "screenDigest": "02c57a2b05965a14b5bf78a89c8a8e47b9be7e3027a0bcfe88fda3e00e7f069a"
+          "screenDigest": "c4e509ec9c45de0ba4e7087f88432dd4c42da46d3e445eb179c2372f54e55f08"
         }
       }
     },
@@ -156,7 +156,7 @@
         "monsterCount": 2,
         "pet": null,
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "db12775db9cde0733106f1480c1e7833def63dc39225217bc75ec42d3c04abcb",
+        "stateDigest": "6af7fc6c049fc1fed0a1ddedd78205dc8d463b1ad387cbd02bd77ee3a547767e",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [7, 19, 1], [7, 19, 1]],
@@ -164,7 +164,7 @@
           "rngCount": 2679,
           "rngDigest": "fa3f1be45cb47f3acd0b0e3364eddf637e68ad462652ba7cb3d1e93272d52ba5",
           "screenCount": 3,
-          "screenDigest": "4ea5cb670dd2d3f5b6aabd2db2f3cb142847121fa0943e9f90c66c06e8e8e148"
+          "screenDigest": "80a0f86f0cea0b45e19dd6dfc60d3f10d6194e68e8648b87b21dc7f13ca421ee"
         }
       }
     },
@@ -176,7 +176,7 @@
         "monsterCount": 2,
         "pet": null,
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "7a7214fb3000c4a7ee2aca331b7edb2bf3375d9f1ba3b9539de9ee6319e269ac",
+        "stateDigest": "00f36f7426a82d504a375ba4b82d1c4d8491cd9d5158b6f2afb75ae7409102da",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [7, 19, 1], [6, 19, 1]],
@@ -184,7 +184,7 @@
           "rngCount": 2679,
           "rngDigest": "fa3f1be45cb47f3acd0b0e3364eddf637e68ad462652ba7cb3d1e93272d52ba5",
           "screenCount": 3,
-          "screenDigest": "ded54c2044f7c4be265af7300e0bd7dd5d44cad9f89d950e1a926b7e5a005bbe"
+          "screenDigest": "171ce0fbdd0387bea02cc4dbf633ca9291dfecf5df1f1394d344fc0fae34681f"
         }
       }
     },
@@ -196,7 +196,7 @@
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 16, "meverseen": 1 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "0651830fdc8c9b93e9ff6c836f9d63a273b6efb49c7b75e3113a563268a4331a",
+        "stateDigest": "44c95690f10afd69651a8ae95dcb476c1b450d822bb832f7d9675aa800fa74be",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [41, 13, 1]],
@@ -204,7 +204,7 @@
           "rngCount": 2975,
           "rngDigest": "9ffa4b0cde8d8f921a56385228c19f38bab2293b2b12b92474ea731b6fd65fc9",
           "screenCount": 3,
-          "screenDigest": "b0febfe387c919913561d92bb9e4507a703747b42f000dac19699daa750a079e"
+          "screenDigest": "3c4e2dcb3bd0fd908a656b1eb30bbea842bab4ecdf266e5b6c66fb9f08ec0769"
         }
       }
     },
@@ -216,7 +216,7 @@
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 14, "pmidx": 16, "meverseen": 1 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "8bdf6c6c07a53274c4f90df8ceddf599c3c3524745e92d92e940b49c0347a9f8",
+        "stateDigest": "1d974b53db1b8ebd71d88a19db5c34caa9a4d19b1509c6a42c7ea09b5c7f32f0",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [41, 14, 1]],
@@ -224,7 +224,7 @@
           "rngCount": 2976,
           "rngDigest": "fae0019347bb0d0eb8d57e046d328edd0302bccbe40036f65a3844ebdbc7a2d2",
           "screenCount": 3,
-          "screenDigest": "1625abfd28887c4cdd34e1ea91a58a16876ee8544b3ac533636a5dfa81449eeb"
+          "screenDigest": "ea844f64d02ddba33dfcb4e6aec581be2448a01e2e75c3702c00b21676c892f7"
         }
       }
     },
@@ -236,7 +236,7 @@
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 16, "meverseen": 1 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "9fa0d2a6620c28fa733ae154a331fc7a3cb212808f0cfca792ca09c4e02d7291",
+        "stateDigest": "638b9f21c290926d6f1bfc6d9d5da109e4486015b3c6886cf378a4161552ae27",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [42, 13, 1], [42, 13, 1]],
@@ -244,7 +244,7 @@
           "rngCount": 2975,
           "rngDigest": "9ffa4b0cde8d8f921a56385228c19f38bab2293b2b12b92474ea731b6fd65fc9",
           "screenCount": 3,
-          "screenDigest": "d8104c180f01167af924cc2d0f14ba8dff2248e065c6dbe67787705eeaf2ffc7"
+          "screenDigest": "6e6b49aaad9076c7bfea0dce7406667f41efc7edf74b36e1285fb5db77152f11"
         }
       }
     },
@@ -256,7 +256,7 @@
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 16, "meverseen": 1 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "a68654d747fec731564bda9bf31e2069fc0c95e5e8ae28356d2b662314c8be1c",
+        "stateDigest": "1e9f9f18a9cca7c8e7a06d46ee33cc30cc31d4d6263d29ecc45beffb3d6dc804",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [42, 14, 1], [43, 15, 1]],
@@ -264,7 +264,7 @@
           "rngCount": 2975,
           "rngDigest": "9ffa4b0cde8d8f921a56385228c19f38bab2293b2b12b92474ea731b6fd65fc9",
           "screenCount": 3,
-          "screenDigest": "2605e252a4deb53c150bbd9a8faebb938d648910ff9c60963162e4cc9cd3a313"
+          "screenDigest": "ef9ed39877674bb75d2cbb392d8f3f11ecf43f67bff50f6800dbfcd68d0cbe58"
         }
       }
     },
@@ -276,7 +276,7 @@
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 32, "meverseen": 1 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "7163809c398ba54ab76c3cf01a7b45a54580b3247fc65214de536ede87afd346",
+        "stateDigest": "b6c3d5375d656c44aaeed0d003c2b4604ada25db898f5162e9b4a2d3f6f30f55",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [41, 13, 1]],
@@ -284,7 +284,7 @@
           "rngCount": 2976,
           "rngDigest": "48cd09c7c06dd9b8a4939c7c348d7ba6311df85353ca4994e0cd79fb2d1ae8f7",
           "screenCount": 3,
-          "screenDigest": "89d413c4cc1604819fdb17d5660277775ca9a9c017f6a1417a1b271b70eea946"
+          "screenDigest": "0bdaecab497394ee93be4db306f5cb40ad67f8ef2856045550020fd36924d4a4"
         }
       }
     },
@@ -296,7 +296,7 @@
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 12, "mx": 42, "my": 14, "pmidx": 32, "meverseen": 1 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "b6ec825b7fe81c1a184789f0665bee4e337a400bad5b7bdebd0c8cd04cf52343",
+        "stateDigest": "5cb7ffd5bd776a8199e2bcd4a7bb536b2576299c73b9371f54757ff8528a184d",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [41, 14, 1]],
@@ -304,7 +304,7 @@
           "rngCount": 2977,
           "rngDigest": "9493a5fe2d0474a14596b33a1b088471d1aa884664543668ec55ab8dcd8c61ec",
           "screenCount": 3,
-          "screenDigest": "ca6b60aa96564f193ccac40f56ea6576db8211cd6e1e2c80bbae364323481645"
+          "screenDigest": "25583c27def19f668aa626f32d2af279aca2916892084784ef9ce553bb35fe40"
         }
       }
     },
@@ -316,7 +316,7 @@
         "monsterCount": 4,
         "pet": { "id": 38, "movement": 24, "mx": 11, "my": 17, "pmidx": 100, "meverseen": 1 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "7d5e2f66dd3eb56268a4c90c19006fabbfe4ff6ec52f0564be3d576a5d17bdab",
+        "stateDigest": "d19bbdf1a67edba365b727cfb81b89c0d930db08f044d536945c8e5c2ef83ed3",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[15, 1, 1], [9, 19, 1], [9, 18, 1], [9, 18, 1]],
@@ -324,7 +324,7 @@
           "rngCount": 2650,
           "rngDigest": "06824c90f4bf15ba3d1002556ae407633f58f27d49611f7fb332b991e81effc3",
           "screenCount": 4,
-          "screenDigest": "cd7b6628ec144edaae06cc01efb969b78def5ef66a92396604291f0686d8d846"
+          "screenDigest": "d13b4f239241b0b4c36617944dc1cb223c7a49cc2e60d3cce16052da89637b18"
         }
       }
     },
@@ -336,7 +336,7 @@
         "monsterCount": 4,
         "pet": { "id": 42, "movement": 0, "mx": 10, "my": 2, "pmidx": 32, "meverseen": 1 },
         "scheduler": { "purgeMonsters": null, "somebodyCanMove": null, "visionFullRecalc": 0 },
-        "stateDigest": "ae1c87f9b11c9771e899389316fe2a24955f5a40f98c445e9b622d6277f238bc",
+        "stateDigest": "87b02bd63cb0ab5124f1106719eb00871adc62c261b1cecf0bd1f405f45fb96b",
         "turn": { "commandDispatchCount": 2, "heroSeq": 8, "moves": 1 },
         "output": {
           "cursors": [[10, 3, 1], [10, 3, 1], [10, 3, 1]],
@@ -344,7 +344,7 @@
           "rngCount": 2598,
           "rngDigest": "4ca8c619f561db40d9efefb081be09a0656d608d4cd236686e2c96239695c057",
           "screenCount": 3,
-          "screenDigest": "105c6548206d7a664fceacb6b98ef3d7084821561e5f02883d76700e66815e6e"
+          "screenDigest": "2482299eafae9792b2dac43c1c522cf682b1250c254e62273b4a681680d63a7c"
         }
       }
     },
@@ -356,7 +356,7 @@
         "monsterCount": 4,
         "pet": { "id": 42, "movement": 24, "mx": 10, "my": 2, "pmidx": 32, "meverseen": 1 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "3ecf0d8dcf92bf32267747ab15c12d39a17d378ca09e315aa1a366c96e73716b",
+        "stateDigest": "8b81706a9021c4c01e272323cb4257c883610ef9971d077cf90d3a2f6ac57a70",
         "turn": { "commandDispatchCount": 2, "heroSeq": 17, "moves": 2 },
         "output": {
           "cursors": [[10, 3, 1], [10, 3, 1], [11, 3, 1]],
@@ -364,7 +364,7 @@
           "rngCount": 2606,
           "rngDigest": "d0fc6de77e671f19d11077f3453bb086a75894096219e2e98dc8342044ea67ee",
           "screenCount": 3,
-          "screenDigest": "c291305661762ad618ade90071aa8c2f8fe536f3ddf3c3229f109f5f805429f1"
+          "screenDigest": "b2ed9e60b1098e10cd1be0212166f3fa85945a363aa06c10236f807337a2347f"
         }
       }
     },
@@ -376,7 +376,7 @@
         "monsterCount": 2,
         "pet": { "id": 42, "movement": 24, "mx": 6, "my": 7, "pmidx": 16, "meverseen": 1 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "7ab59002244b90a23f1fb707ae332be52a8fe31253fdc2e85e8ed53c3976af81",
+        "stateDigest": "c739624e469b62640edc0a6fcfb9703db6523e5600ac55508ab31e8e5e7b9468",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[5, 9, 1], [4, 9, 1], [4, 8, 1]],
@@ -384,7 +384,7 @@
           "rngCount": 2207,
           "rngDigest": "c0d436cf2d05a56521f852f0139d1717d7805b385ab02cb469fa95747f182056",
           "screenCount": 3,
-          "screenDigest": "ac323cfbca9d80b37566cbf8555be6c060ba4935f9a534eabb2592c85746cc5e"
+          "screenDigest": "6edf3f213f21ec49b9268dc40484d7b459003f4191ef5b7e257135fc4c565547"
         }
       }
     },
@@ -396,7 +396,7 @@
         "monsterCount": 6,
         "pet": { "id": 35, "movement": 12, "mx": 34, "my": 10, "pmidx": 100, "meverseen": 1 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "7336c7cac34595c21c821de0ef40f6cfab1a8fca911c4400592e0e95869f2942",
+        "stateDigest": "0a3ca016cec25d1a692fbe39160880ddec0c07b0aa5ef7c7b43e04dfefa8fb3d",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[15, 1, 1], [33, 10, 1], [33, 10, 1], [33, 10, 1]],
@@ -404,7 +404,7 @@
           "rngCount": 2889,
           "rngDigest": "b433482e77791fc643023ff80f88e0dfe3eb76630605bf129608b0140535cad3",
           "screenCount": 4,
-          "screenDigest": "b7f07b6a4258338ffe33bd3084e32eaf1cd4eb04e1e23a1662b3aee6fb178b8e"
+          "screenDigest": "bfa6a5f624d524a6a8a59cfc18f922710e96ef96cb682e6fde97d4f565c224ac"
         }
       }
     },
@@ -416,7 +416,7 @@
         "monsterCount": 4,
         "pet": { "id": 43, "movement": 12, "mx": 51, "my": 5, "pmidx": 16, "meverseen": 1 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "ab5b37043c2ed1f2f2d4142678211d5c68de608bf289ade7a7a6028c3a49a95a",
+        "stateDigest": "8a1fa11b866b1476da832cab71cb5a55e1cdefe117e890a20c6049de06c363e8",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[52, 4, 1], [52, 5, 1], [52, 5, 1]],
@@ -424,7 +424,7 @@
           "rngCount": 2287,
           "rngDigest": "03296438253e8a6e3fb41c98bd2b5eacf9e4825b6ff3a2cd6941a97d1af7d253",
           "screenCount": 3,
-          "screenDigest": "75cb2c300d9600c55636102f2e66ddd88b231829ae56dd7bb2829b6995a9c1ef"
+          "screenDigest": "843e47af2b10bebdedeb72e76b1534aecbd5f187bdc0aa4f82d37d9a9c1dd21b"
         }
       }
     },
@@ -436,7 +436,7 @@
         "monsterCount": 3,
         "pet": { "id": 34, "movement": 24, "mx": 59, "my": 3, "pmidx": 16, "meverseen": 1 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "c5380422a8cc9a25d5b67aba3433396f4460a323d6c5a6cc921d3e2929e4c455",
+        "stateDigest": "0098955b0395b5a88c6fde1f372defa0fa6f104f88392a169ba63e6dabfdec82",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[15, 1, 1], [57, 4, 1], [57, 4, 1], [57, 4, 1]],
@@ -444,7 +444,7 @@
           "rngCount": 2448,
           "rngDigest": "9bab796c9c78990860d3ca91ced905eac3df23b8c9d77deea85ddcbd16d44982",
           "screenCount": 4,
-          "screenDigest": "6ae05bb055da98a8f0093bb147e0b926892e2a722f20bc13a5c56db28cbdc0f4"
+          "screenDigest": "b00ed7f6fa1b9905267fcb5bb2bc947cf21edff343f72371c189cb218e76fa48"
         }
       }
     }

@@ -7,7 +7,6 @@ import {
     TOPLINE_SPECIAL_PROMPT,
     WIN_LOCKHISTORY,
     WIN_NOSTOP,
-    WIN_STOP,
     quitchars,
 } from './const.js';
 import { game } from './gstate.js';
@@ -75,6 +74,10 @@ export function addtopl(text, state = game) {
     let column = start;
     for (const ch of String(text)) {
         if (column >= display.cols - 1) {
+            // topl_putsym() advances the terminal cursor as it prints. Our
+            // grid writes use setCell(), so move the cursor to the same
+            // logical byte before cl_end() clears the wrapped row tail.
+            display.setCursor(column, display.cursorRow ?? 0);
             display.clearToEol();
             display.setCursor(0, (display.cursorRow ?? 0) + 1);
             column = 0;
@@ -274,7 +277,9 @@ export async function update_topl(message, state = game, context = {}) {
         });
     }
     if (deathComparisonReached) state._ttyMessageStopped = false;
-    if (acknowledgedTopline) redrawTtyTopline(state, next, mixedFirstCell);
+    if (acknowledgedTopline) {
+        redrawTtyTopline(state, next, mixedFirstCell);
+    }
     if (state._ttyToplines) remember_topl(state);
     rememberPendingMessage(state, next, mixedFirstCell);
     state._ttyPreviousMessage = context.normalizedMessage ?? message;
@@ -505,6 +510,8 @@ export async function tty_yn_function(query, resp, def, state = game) {
         await dismissPendingTtyMessage(state);
     // topl.c:391 clears WIN_STOP and WIN_NOSTOP whether or not more() ran.
     state._ttyMessageStopped = false;
+    const win = messageWindow(state);
+    if (win) win.flags &= ~WIN_NOSTOP;
     // topl.c:392-393 marks a special prompt and raises inread.
     display.toplin = TOPLINE_SPECIAL_PROMPT;
     display.inread = (display.inread ?? 0) + 1;
@@ -692,9 +699,11 @@ export function show_topl(text, state = game) {
     const display = state.nhDisplay;
     if (!display) return;
     const win = messageWindow(state);
-    const flags = win?.flags ?? 0;
-    if ((flags & (WIN_STOP | WIN_NOSTOP)) === WIN_STOP) return false;
-    if (win) win.flags &= ~(WIN_STOP | WIN_NOSTOP);
+    // _ttyMessageStopped is the single JS owner of C's WIN_STOP bit. Keep
+    // WIN_NOSTOP in the message window descriptor, where C stores that bit.
+    if (state._ttyMessageStopped && !(win?.flags & WIN_NOSTOP)) return false;
+    state._ttyMessageStopped = false;
+    if (win) win.flags &= ~WIN_NOSTOP;
     const oldToplin = display.toplin;
     if (display.cursorRow && oldToplin === TOPLINE_NON_EMPTY) {
         display.clearRow(0);

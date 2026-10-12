@@ -528,7 +528,7 @@ test('yn_function stops on a query too long for QBUFSZ', async () => {
     );
 });
 
-test('the response sets tty_yn_function parse counts before the case boundary',
+test('tty_yn_function parses counts and preserves case when the response requests it',
     async () => {
     await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
     cmdq_clear(CQ_REPEAT, game);
@@ -543,14 +543,14 @@ test('the response sets tty_yn_function parse counts before the case boundary',
     );
     assert.equal(game.yn_number, 2);
 
-    // Uppercase-preserving responses remain a named boundary and are checked
-    // before show_topl().
+    // C preserves response case when any allowed letter is uppercase.
     const row = topLine();
-    await assert.rejects(
-        yn_function('Force the mount to succeed?', 'yN', 'n', false, game),
-        /preserving case/u,
+    game.nhDisplay.pushKey('N'.charCodeAt(0));
+    assert.equal(
+        await yn_function('Force the mount to succeed?', 'yN', 'n', false, game),
+        'N'.charCodeAt(0),
     );
-    assert.equal(topLine(), row);
+    assert.notEqual(topLine(), row);
     // "yn" itself carries neither, so it gets past them and fails at
     // the spent input queue instead.
     await assert.rejects(

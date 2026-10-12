@@ -326,7 +326,7 @@ test('the natural pet-swap arrival replay pins the TTY handoff',
         assert.equal(replay.getCursors().length, 26);
         assert.equal(
             digest(replay.getScreens()),
-            '09fd58f0c661ff1028b4fa4202d349d956c36dcfed27dcba5ffbbc0a12006ad4',
+            '7badabae0a67d7440f29f047028d41f58178c3e284835e212e20f47b9b901f05',
         );
         assert.equal(
             digest(replay.getCursors()),

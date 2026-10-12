@@ -178,7 +178,7 @@ import { heroIsBlind } from '../js/startup_a11y.js';
 import { S_altar, S_room } from '../js/symbols.js';
 import { create_region } from '../js/region.js';
 import { start_timer, timeout_globals_init } from '../js/timeout.js';
-import { CLR_GRAY, NO_COLOR } from '../js/terminal.js';
+import { NO_COLOR } from '../js/terminal.js';
 import { welded } from '../js/wield.js';
 import {
     APPLY_KEY,
@@ -2495,7 +2495,7 @@ test('its_dead selects the uppermost dead object in a mixed pile', async () => {
         game.nhDisplay.grid[0],
         [...statueMessage.padEnd(80)].map((ch, index) => ({
             ch,
-            color: index < statueMessage.length ? NO_COLOR : CLR_GRAY,
+            color: NO_COLOR,
             attr: 0,
         })),
     );
@@ -2630,7 +2630,7 @@ test('a Healer hears remarkable health from a filled selected statue',
             game.nhDisplay.grid[0],
             [...message.padEnd(80)].map((ch, index) => ({
                 ch,
-                color: index < message.length ? NO_COLOR : CLR_GRAY,
+                color: NO_COLOR,
                 attr: 0,
             })),
         );
@@ -2705,7 +2705,7 @@ test('a Healer hears mostly dead for a corpse with a revival timer',
         game.nhDisplay.grid[0],
         [...message.padEnd(80)].map((ch, index) => ({
             ch,
-            color: index < message.length ? NO_COLOR : CLR_GRAY,
+            color: NO_COLOR,
             attr: 0,
         })),
     );
@@ -3084,7 +3084,7 @@ test('hallucinated dead objects speak and always charge the listen',
         game.nhDisplay.grid[0],
         [...statueMessage.padEnd(80)].map((ch, index) => ({
             ch,
-            color: index < statueMessage.length ? NO_COLOR : CLR_GRAY,
+            color: NO_COLOR,
             attr: 0,
         })),
     );
@@ -3397,7 +3397,7 @@ test('a levitating Healer reports a non-tiny statue below a tiny one',
             game.nhDisplay.grid[0],
             [...message.padEnd(80)].map((ch, index) => ({
                 ch,
-                color: index < message.length ? NO_COLOR : CLR_GRAY,
+                color: NO_COLOR,
                 attr: 0,
             })),
         );
@@ -3427,7 +3427,7 @@ test('a levitating Healer reports a non-tiny statue below a tiny one',
             game.nhDisplay.grid[0],
             [...message.padEnd(80)].map((ch, index) => ({
                 ch,
-                color: index < message.length ? NO_COLOR : CLR_GRAY,
+                color: NO_COLOR,
                 attr: 0,
             })),
         );

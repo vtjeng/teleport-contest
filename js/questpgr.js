@@ -302,6 +302,13 @@ export function convertLine(line, state) {
 export const QUEST_PAGER_OUTPUT = Object.freeze({
     pline: ttyPline,
     window: displayTtyTextWindow,
+    // C com_pager_core() writes synopsis history only on the live pager path.
+    // The monster-turn planner supplies a silent output without this callback,
+    // so speculative conversations cannot mutate the live TTY history/window.
+    history: async (message, state) => {
+        const { tty_putmsghistory } = await import('./topl.js');
+        tty_putmsghistory(message, false, state);
+    },
 });
 
 // C ref: questpgr.c deliver_by_pline().  Splits multi-line text at
@@ -427,12 +434,10 @@ async function comPagerCore(
     }
 
     // C ref: questpgr.c com_pager_core() 597-609.  Synopsis goes into
-    // message history via putmsghistory().  The port uses ttyPline for the
-    // synopsis so it appears in the message window and --More-- recall.
+    // message history via putmsghistory() without delivering another message.
     if (synopsis) {
         const converted = convertLine(synopsis, state);
-        const { tty_putmsghistory } = await import('./topl.js');
-        tty_putmsghistory(converted, false, state);
+        await output.history?.(converted, state);
     }
 
     return true;

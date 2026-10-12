@@ -8013,7 +8013,7 @@ test('tutorial overflow shrinking preserves complete status grids and attributes
                     }
                     return column < text.length
                         ? { color: NO_COLOR, attr: ATR_NONE }
-                        : { color: CLR_GRAY, attr: ATR_NONE };
+                        : { color: NO_COLOR, attr: ATR_NONE };
                 }),
                 `${lines}-line row ${screenRow}`,
             );

@@ -15,6 +15,7 @@ import {
     LEATHER_GLOVES,
     WAN_SECRET_DOOR_DETECTION,
 } from '../js/objects.js';
+import { TOPLINE_NEED_MORE } from '../js/const.js';
 import { splev_chr2typ } from '../js/mklev.js';
 import { SYMBOL_SET_DEFINITIONS } from '../js/symbol_data.js';
 import { ThemeroomSelection } from '../js/themerooms.js';
@@ -180,6 +181,9 @@ test('pending welcome uses tty More before the tutorial menu', async () => {
     // More prompt, so topl.c places the prompt at the start of row two.
     const welcome = 'Hello TutorialNo, welcome to NetHack!  You are a neutral male human Healer.';
     const state = tutorialState('x n', { _pending_message: welcome });
+    // A pending physical topline from pline() reaches more() with C's
+    // TOPLINE_NEED_MORE state already set.
+    state.nhDisplay.toplin = TOPLINE_NEED_MORE;
     state.nhDisplay.setCell(0, 1, 'Z', 3, 0);
     const boundaries = [];
     state._preNhgetchHook = () => boundaries.push({

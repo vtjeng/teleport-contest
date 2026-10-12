@@ -14,6 +14,7 @@ import { GameDisplay } from '../js/game_display.js';
 import { ATR_INVERSE } from '../js/terminal.js';
 import { tty_create_nhwindow } from '../js/wintty.js';
 import {
+    addtopl,
     free_msghistory_snapshot,
     msghistory_snapshot,
     more,
@@ -25,11 +26,24 @@ import {
 } from '../js/topl.js';
 import { ttyCustomPline } from '../js/tty_message.js';
 import { runSegment } from '../js/jsmain.js';
+import { QUEST_PAGER_OUTPUT } from '../js/questpgr.js';
 
 const wrappedStartupRecording = normalizeSession(JSON.parse(readFileSync(
     new URL('../recordings/topl.c/wrapped-startup-topline.session.json', import.meta.url),
     'utf8',
 )));
+const TOPL_C = readFileSync(
+    new URL('../nethack-c/upstream/win/tty/topl.c', import.meta.url), 'utf8',
+);
+const QUESTPGR_C = readFileSync(
+    new URL('../nethack-c/upstream/src/questpgr.c', import.meta.url), 'utf8',
+);
+const QUESTPGR_JS = readFileSync(
+    new URL('../js/questpgr.js', import.meta.url), 'utf8',
+);
+const MONSTER_ACTIONS_JS = readFileSync(
+    new URL('../js/unported_monster_actions.js', import.meta.url), 'utf8',
+);
 
 function historyState() {
     const state = {
@@ -41,6 +55,16 @@ function historyState() {
     tty_create_nhwindow(NHW_MESSAGE, state);
     return state;
 }
+
+test('quest pager sends synopsis history only through the live output route', () => {
+    assert.match(QUESTPGR_C, /putmsghistory\(out_line, FALSE\)/u);
+    assert.match(TOPL_C,
+        /ttyDisplay->toplin == TOPLINE_NEED_MORE\)[\s\S]*?ttyDisplay->toplin = TOPLINE_NON_EMPTY/u);
+    assert.match(QUESTPGR_JS, /await output\.history\?\.\(converted, state\)/u);
+    assert.equal(typeof QUEST_PAGER_OUTPUT.history, 'function');
+    assert.match(MONSTER_ACTIONS_JS,
+        /const SILENT_QUEST_PAGER = Object\.freeze\(\{\s*pline:\s*async \(\) => \{\},\s*window:\s*async \(\) => \{\},\s*\}\)/u);
+});
 
 test('remember_topl advances the C message ring and respects its lock', () => {
     const state = historyState();
@@ -57,6 +81,23 @@ test('remember_topl advances the C message ring and respects its lock', () => {
     remember_topl(state);
     assert.equal(win.data[1], null);
     assert.equal(state._ttyToplines, 'locked');
+});
+
+test('addtopl keeps the terminal cursor aligned while wrapping', () => {
+    const state = historyState();
+    const text = 'x'.repeat(81);
+
+    addtopl(text, state);
+
+    assert.deepEqual(state.nhDisplay.grid[0].slice(0, 79)
+        .map((cell) => cell.ch), Array(79).fill('x'));
+    assert.deepEqual(state.nhDisplay.grid[1].slice(0, 2)
+        .map((cell) => cell.ch), ['x', 'x']);
+    assert.deepEqual(
+        [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow], [2, 1],
+    );
+    assert.match(TOPL_C, /if \(ttyDisplay->curx == CO - 1\)\s*topl_putsym\('\\n'\)/u);
+    assert.match(TOPL_C, /void\s+addtopl\(const char \*s\)\s*\{[^}]*tty_curs\(BASE_WINDOW, cw->curx \+ 1, cw->cury\);[^}]*putsyms\(s\);[^}]*cl_end\(\);/su);
 });
 
 test('save snapshots read oldest first and restore puts prior-session lines first', () => {

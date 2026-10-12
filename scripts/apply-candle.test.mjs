@@ -18,13 +18,13 @@ test('use_candle compares the numeric no answer before delegating to use_lamp', 
     const noBranch = body.indexOf("=== 'n'.charCodeAt(0)");
     assert.ok(noBranch < body.indexOf('splitobj('));
     assert.ok(noBranch < body.indexOf('await useupall('));
-    // hack.h:1329 supplies default n. getline.js maps quitchars to defByte
+    // hack.h:1329 supplies default n. topl.js maps quitchars to defByte
     // and returns its numeric readchar value, so a string comparison fails.
     assert.match(source('../nethack-c/upstream/include/hack.h'),
         /#define y_n\(query\) yn_function\(query, ynchars, 'n', TRUE\)/u);
     assert.match(source('../js/cmd.js'),
         /export async function y_n\(query, state = game\) \{\s*return yn_function\(query, ynchars, 'n', true, state\);/u);
-    assert.match(source('../js/getline.js'),
+    assert.match(source('../js/topl.js'),
         /const defByte = def \? def\.charCodeAt\(0\) : 0;/u);
 });
 
