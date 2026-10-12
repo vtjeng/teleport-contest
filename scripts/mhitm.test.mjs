@@ -23,7 +23,7 @@ import {
     unmap_invisible,
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { add_to_minv } from '../js/invent.js';
+import { add_to_minv, addinv } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     attk_protection,
@@ -34,6 +34,7 @@ import {
     mattackm,
     mdisplacem,
     paralyze_monst,
+    rustm,
 } from '../js/mhitm.js';
 import {
     is_elf,
@@ -70,6 +71,7 @@ import {
     PM_FOG_CLOUD,
     PM_GIANT_ANT,
     PM_FLOATING_EYE,
+    PM_RUST_MONSTER,
     PM_GRID_BUG,
     PM_TRAPPER,
     PM_PURPLE_WORM,
@@ -221,6 +223,40 @@ function scripted(rolls = [], fallback = 1) {
         },
     };
 }
+
+test('rustm consumes the guaranteed rust roll and corrodes the source item', async () => {
+    const cStart = MHITM_C.indexOf('\nvoid\nrustm(struct monst *mdef, struct obj *obj)\n{');
+    const cEnd = MHITM_C.indexOf('\nstaticfn void\nmswingsm(', cStart);
+    assert.notEqual(cStart, -1, 'mhitm.c must contain rustm');
+    assert.notEqual(cEnd, -1, 'rustm must end before mswingsm');
+    const cFunction = MHITM_C.slice(cStart + 1, cEnd);
+
+    // These source pins cover the AD_RUST selection and C's unconditional
+    // rn2(1) draw at mhitm.c:1269-1279.
+    assert.match(cFunction,
+        /dmgtype\(mdef->data, AD_CORR\)[\s\S]*?dmgtype\(mdef->data, AD_RUST\)[\s\S]*?ERODE_RUST/u);
+    assert.match(cFunction,
+        /if \(dmgtyp != ERODE_NONE && !rn2\(chance\)\)[\s\S]*?erode_obj\(obj, \(char \*\) 0, dmgtyp, EF_GREASE \| EF_VERBOSE\)/u);
+
+    // The existing hero seed only initializes inventory state. A rust monster
+    // defender and short sword isolate the AD_RUST branch from combat setup.
+    await hero();
+    const sword = addinv(
+        mksobj(SHORT_SWORD, false, false, { state: game }), { state: game },
+    );
+    const rolls = scripted([0]); // rn2(1)=0 is the guaranteed C success.
+    const messages = [];
+    await rustm(
+        { data: game.mons[PM_RUST_MONSTER] },
+        sword,
+        game,
+        { random: rolls.random, message: async text => messages.push(text) },
+    );
+
+    assert.deepEqual(rolls.bounds, ['rn2(1)']);
+    assert.equal(sword.oeroded, 1); // One source erosion increments the iron weapon.
+    assert.deepEqual(messages, ['Your short sword rusts!']);
+});
 
 test('attk_protection matches the source switch and C numeric values', () => {
     const cStart = MHITM_C.indexOf('\nlong\nattk_protection(int aatyp)\n{');
