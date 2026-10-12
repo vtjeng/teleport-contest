@@ -511,6 +511,7 @@ import {
     sleep_monst,
     slept_monst,
     attk_protection,
+    xdrainenergym,
 } from './mhitm.js';
 import { burn_away_slime, fall_asleep } from './timeout.js';
 import { set_ulycn } from './were.js';
@@ -662,7 +663,7 @@ import {
     instapetrify,
     unconscious,
 } from './trap.js';
-import { mintrap } from './trap_effects.js';
+import { drain_en, mintrap } from './trap_effects.js';
 import { mselftouch } from './trap_effects.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { destroy_items } from './zap_destroy_items.js';
@@ -981,9 +982,8 @@ function requireAttackOperation(env, name) {
 // C ref: uhitm.c mhitm_mgc_atk_negated() (74-98). Whether the defender's
 // magic cancellation thwarts the attack before its damage type is applied.
 //
-// `verbosely` is C's. Every ported call site passes TRUE, and so do most of
-// C's; mhitm_ad_dren():2422 and mhitm_ad_stck():3310 are arms that pass FALSE
-// and remain outside this span.
+// `verbosely` is C's. Most call sites pass TRUE; mhitm_ad_dren():2422 and
+// mhitm_ad_stck():3310 pass FALSE and preserve the silent negation check.
 //
 // The draw is unconditional once the attacker is uncancelled, so a defender
 // with no cancellation at all still spends it: `rn2(10) >= 0` is always true,
@@ -1740,7 +1740,11 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
                 } else damage = 0;
                 break;
             case AD_DREN:
-                if (!random.rn2(4)) note_unported('mhitm.c xdrainenergym');
+                if (!random.rn2(4)) {
+                    await xdrainenergym(mdef, true, state, {
+                        ...env, random, message,
+                    });
+                }
                 damage = 0;
                 break;
             default:
@@ -7353,6 +7357,55 @@ export async function mhitm_ad_dgst(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_dren() (2418-2442). This is the complete AD_DREN
+// resolver shared by polymorphed-hero and monster-versus-monster attacks.
+export async function mhitm_ad_dren(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2 };
+    const message = requireAttackOperation(env, 'message');
+    const negated = await mhitm_mgc_atk_negated(
+        magr,
+        mdef,
+        false,
+        state,
+        { ...env, random, message },
+    );
+
+    if (magr === state.youmonst) {
+        if (!negated && !random.rn2(4)) {
+            await xdrainenergym(mdef, true, state, {
+                ...env, random, message,
+            });
+        }
+        mhm.damage = 0;
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, { ...env, random, message });
+        if (!negated && !random.rn2(4)) {
+            await drain_en(mhm.damage, false, state, {
+                ...env, random, message,
+            });
+        }
+        mhm.damage = 0;
+    } else {
+        if (!negated && !random.rn2(4)) {
+            await xdrainenergym(
+                mdef,
+                Boolean(state.gv?.vis && canspotmon(mdef, state)
+                    && mattk.aatyp !== AT_ENGL),
+                state,
+                { ...env, random, message },
+            );
+        }
+        mhm.damage = 0;
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -7433,7 +7486,9 @@ export async function mhitm_adtyping(
     case AD_DCAY:
         await mhitm_ad_dcay(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_DREN: unported('mhitm_ad_dren'); break;
+    case AD_DREN:
+        await mhitm_ad_dren(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_DRST:
     case AD_DRDX:
     case AD_DRCO:
