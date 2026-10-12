@@ -1435,6 +1435,32 @@ test('gulpmu uses the blind-aware source pronoun for its engulfer', async () => 
     ]);
 });
 
+for (const [senseName, property, source] of [
+    ['see invisible', SEE_INVIS, { intrinsic: 1 }],
+    ['monster detection', DETECT_MONSTERS, { extrinsic: 1 }],
+]) {
+    test(`gulpmu preserves ${senseName} when naming an invisible engulfer`, async () => {
+        const state = await meleeHero(MELEE_DATETIME, 'Wizard');
+        state.u.uprops[property] = source;
+        const vortex = meleeAttacker(state, PM_ICE_VORTEX, 1, 0, {
+            m_lev: 5,
+            mhp: 20,
+            mhpmax: 20,
+            minvis: true,
+        });
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+        const attack = meleeEnv(state, [1, 9], {
+            urgentMessage: async (text) => attack.lines.push(text),
+        });
+
+        assert.equal(await mattacku(vortex, attack.env), false);
+        assert.equal(attack.lines[0], 'The invisible ice vortex engulfs you!');
+        assert.deepEqual(attack.bounds, [
+            'rnd(20)', 'd(1,6)', 'rnd(10)', 'rn2(2)',
+        ]);
+    });
+}
+
 test('mattacku widens the to-hit die for each later attack', async () => {
     // mhitu.c:806, `rnd(20 + i)`. A soldier ant has AT_BITE at index 0 and
     // AT_STNG at index 1, so one turn draws both bounds in order. No

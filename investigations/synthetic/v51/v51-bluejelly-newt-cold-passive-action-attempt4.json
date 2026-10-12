@@ -127,5 +127,10 @@
     "nethack-c/upstream/src/mhitu.c:1334-1338 calls Monnam(mtmp) for the initial non-steed swallow line. nethack-c/upstream/src/do_name.c:863-865 sets do_it when !canspotmon(mtmp), yielding “it”; this branch runs before u.uswallow changes.",
     "js/mhitu.js:2325-2328 injects canSpotMonster: () => !mtmp.minvis && !mtmp.mundetected, overriding the canonical visibility owner and incorrectly treating a blind hero as spotting the monster. js/do_name.js:973-982 trusts that injected owner. Keep the nonblind occupied-square workaround while giving blind heroes and explicit caller owners the C-equivalent visibility decision."
   ],
-  "recordedSteps": 349
+  "recordedSteps": 349,
+  "followupSourceReview": {
+    "correctionOf": "0446506ab274dcdc34a51592de51018a5e19eef9",
+    "summary": "The first correction fixed blindness but still used a sighted predicate that omitted See_invisible and sensing. The bounded naming owner now uses canspotmon(monster, state), plus the occupied-hero-square physical-visibility case only when the hero is not blind and mon_visible(monster, state) accepts the monster. This retains SEE_INVIS and hidden-monster rules while canspotmon retains detection, telepathy, and warning senses.",
+    "source": "mhitu.c:1300-1338 removes and places the engulfer at u.ux/u.uy before Monnam; include/vision.h:28 defines cansee from IN_SIGHT; vision.c:663 and :672 mark the hero square IN_SIGHT for a sighted hero; display.h mon_visible applies See_invisible and mundetected; display.c canspotmon adds sensemon."
+  }
 }

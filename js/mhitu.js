@@ -2327,14 +2327,16 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
             const engulferName = capitalizedMonsterName(mtmp, state,
                 injectedSpotOwner ? rawEnv : {
                     ...rawEnv,
-                    // C names the attacker after it moves onto the hero's
-                    // square, which the JS sight grid omits. Preserve that
-                    // source visibility for sighted heroes, while blind
-                    // heroes still use canspotmon (including telepathy).
+                    // C calls Monnam after placing the attacker on the
+                    // hero's square. JS omits that occupied square from the
+                    // sight grid, so restore only its physical visibility
+                    // through mon_visible; canspotmon retains sensing rules.
                     canSpotMonster: (monster, ownerState) =>
-                        heroIsBlind(ownerState)
-                            ? canspotmon(monster, ownerState)
-                            : !monster.minvis && !monster.mundetected,
+                        canspotmon(monster, ownerState)
+                        || (!heroIsBlind(ownerState)
+                            && monster.mx === ownerState.u?.ux
+                            && monster.my === ownerState.u?.uy
+                            && mon_visible(monster, ownerState)),
                 });
             const verb = digests(mtmp.data) ? 'swallows you whole'
                 : enfolds(mtmp.data) ? 'folds itself around you' : 'engulfs you';
