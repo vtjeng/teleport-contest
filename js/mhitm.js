@@ -1,6 +1,6 @@
 // Monster-versus-monster attacks.
 // C ref: mhitm.c -- noises(), pre_mm_attack(), missmm(), mattackm(),
-// failed_grab(), hitmm(), mdamagem() and passivemm(). Unported neighbours
+// failed_grab(), hitmm(), mdamagem(), rustm() and passivemm(). Unported neighbours
 // remain named at their source boundaries while supported arms continue.
 
 import {
@@ -24,6 +24,11 @@ import {
     CONFLICT,
     DEAF,
     ERODE_CORRODE,
+    ERODE_BURN,
+    ERODE_NONE,
+    ERODE_RUST,
+    EF_GREASE,
+    EF_VERBOSE,
     FIRE_RES,
     engulfing_u,
     IRONBARS,
@@ -129,6 +134,7 @@ import {
     noncorporeal,
     poly_when_stoned,
     defended,
+    dmgtype,
     haseyes,
     perceives,
     resists_blnd,
@@ -140,7 +146,9 @@ import { m_at, place_monster, remove_monster } from './monst.js';
 import { update_monster_region } from './region.js';
 import {
     AD_ACID,
+    AD_CORR,
     AD_RBRE,
+    AD_RUST,
     AD_DGST,
     AD_DRIN,
     AD_ENCH,
@@ -173,6 +181,7 @@ import {
     NON_PM,
     PM_GRID_BUG,
     PM_SHADE,
+    PM_STEAM_VORTEX,
     PM_ARCHON,
     PM_FLOATING_EYE,
     PM_GREEN_SLIME,
@@ -224,7 +233,7 @@ import { you_unwere, you_were } from './were.js';
 import { goodpos, rloc, tele, tele_restrict } from './teleport.js';
 import { t_at } from './trap.js';
 import { mintrap } from './trap_effects.js';
-import { acid_damage } from './trap_erode_obj.js';
+import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import { simpleonames, xnameFresh } from './objnam.js';
 import { strsubst } from './hacklib.js';
 import { heroIsBlind } from './startup_a11y.js';
@@ -1315,6 +1324,33 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
     }
 
     return mdamagem(magr, mdef, mattk, mwep, dieroll, env);
+}
+
+// C ref: mhitm.c rustm() (1260-1280). Defender attack types erode the striking
+// object after a source-ordered chance draw, even when the chance is one.
+export async function rustm(mdef, obj, state = game, env = {}) {
+    if (!mdef || !obj) return;
+
+    let dmgtyp = ERODE_NONE;
+    let chance = 1;
+    if (dmgtype(mdef.data, AD_CORR)) {
+        dmgtyp = ERODE_CORRODE;
+    } else if (dmgtype(mdef.data, AD_RUST)) {
+        dmgtyp = ERODE_RUST;
+    } else if (dmgtype(mdef.data, AD_FIRE)
+        && mdef.data !== state.mons?.[PM_STEAM_VORTEX]) {
+        dmgtyp = ERODE_BURN;
+        chance = 6;
+    }
+
+    const random = env.random ?? { rn2 };
+    if (dmgtyp !== ERODE_NONE && !random.rn2(chance)) {
+        await erode_obj(obj, null, dmgtyp, EF_GREASE | EF_VERBOSE, {
+            ...env,
+            state,
+            random,
+        });
+    }
 }
 
 // C ref: mhitm.c mswingsm() (1283-1301). Announce a visible adjacent weapon
