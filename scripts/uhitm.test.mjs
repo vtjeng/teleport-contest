@@ -203,6 +203,19 @@ test('demonpet preserves its C summon and Wisdom order through damageum', () => 
     assert.doesNotMatch(UHITM_JS, /note_unported\('demon\.c demonpet'\)/u);
 });
 
+test('monster seduction forwards the active state and RNG to monflee', () => {
+    const source = UHITM_JS.match(
+        /async function mhitm_ad_sedu\([\s\S]*?\n\}/u,
+    )?.[0];
+    assert.ok(source, 'uhitm.js defines the complete mhitm_ad_sedu helper');
+    assert.match(UHITM_C,
+        /monflee\(magr, 0, FALSE, FALSE\);/u);
+    assert.match(source,
+        /await monflee\(magr, 0, false, false, \{ \.\.\.env, state, random \}\);/u);
+    assert.doesNotMatch(source,
+        /await monflee\(magr, 0, false, false, state, env\)/u);
+});
+
 function petRc({
     role = 'Tourist',
     gender = 'male',

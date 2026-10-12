@@ -92,13 +92,14 @@ import {
     PM_SEWER_RAT,
     PM_WATER_NYMPH,
     PM_WOODLAND_ELF,
+    PM_BROWN_PUDDING,
 } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj, objectType } from '../js/obj.js';
 import { cansee } from '../js/vision.js';
 import { mon_wield_item } from '../js/weapon.js';
 import { find_mac } from '../js/worn.js';
-import { APPLE, CLUB, SHORT_SWORD } from '../js/objects.js';
+import { APPLE, CLUB, SHORT_SWORD, IRON, METAL } from '../js/objects.js';
 import { S_hcdoor } from '../js/symbols.js';
 import {
     loadUnseenPetFightRecipe,
@@ -114,6 +115,9 @@ import {
 
 const MHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitm.c', import.meta.url), 'utf8',
+);
+const MHITM_JS = readFileSync(
+    new URL('../js/mhitm.js', import.meta.url), 'utf8',
 );
 const MHITU_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8',
@@ -1260,6 +1264,115 @@ test('mattackm falls through an adjacent empty-handed weapon attack',
         assert.deepEqual(env.bounds, ['rnd(20)', 'rn2(3)']);
         assert.deepEqual(env.lines, ['The hill orc misses the kitten.']);
         goblin.data = ordinary;
+    });
+
+// mhitm.c mattackm():455-471 runs after hitmm(): an iron or metal weapon
+// divides a living, uncancelled pudding, then messages before mintrap().
+test('a metal weapon splits a pudding after hitmm and before mintrap',
+    async () => {
+        const cBranch = MHITM_C.slice(
+            MHITM_C.indexOf('res[i] = hitmm(magr, mdef, mattk, mwep, dieroll);'),
+            MHITM_C.indexOf('\n            } else\n                missmm(magr, mdef, mattk);'),
+        );
+        assert.match(cBranch,
+            /res\[i\] = hitmm\([\s\S]*?clone_mon\(mdef, 0, 0\)[\s\S]*?gv\.vis && canspotmon\(mdef\)[\s\S]*?mintrap\(mclone, NO_TRAP_FLAGS\)[\s\S]*?DEADMONSTER\(magr\)[\s\S]*?M_ATTK_AGR_DIED/u);
+        const jsBranch = MHITM_JS.slice(
+            MHITM_JS.indexOf('const mclone = await clone_mon(mdef, 0, 0, state, {'),
+            MHITM_JS.indexOf('\n                }\n            } else {\n                await missmm',
+                MHITM_JS.indexOf('const mclone = await clone_mon(mdef, 0, 0, state, {')),
+        );
+        assert.match(jsBranch,
+            /clone_mon\([\s\S]*?requireAttackOperation\(env, 'message'\)[\s\S]*?await mintrap\(mclone, NO_TRAP_FLAGS[\s\S]*?magr\.mhp < 1[\s\S]*?M_ATTK_AGR_DIED/u);
+
+        await hero();
+        const { ax, dx, y } = battlefield(1);
+        // Level 20 guarantees the armed strike lands; 12 HP survives it and
+        // exercises clone_mon()'s source half-current-HP split.
+        const attacker = fixture(PM_KITTEN, ax, y, { mtame: 10, m_lev: 20 });
+        const pudding = fixture(PM_BROWN_PUDDING, dx, y, {
+            mhp: 12,
+            mhpmax: 12,
+        });
+        aim(pudding);
+        const ordinary = attacker.data;
+        attacker.data = {
+            ...ordinary,
+            mattk: [
+                { aatyp: AT_WEAP, adtyp: AD_PHYS, damn: 0, damd: 0 },
+                ...ordinary.mattk.slice(1),
+            ],
+        };
+        const weapon = mksobj(SHORT_SWORD, false, false, { state: game });
+        add_to_minv(attacker, weapon, { state: game });
+        attacker.mw = weapon;
+        assert.ok([IRON, METAL].includes(objectType(weapon, game).oc_material));
+
+        const beforeIds = new Set();
+        for (let mon = game.level.monlist; mon; mon = mon.nmon)
+            beforeIds.add(mon.m_id);
+        const env = attackEnv([1], 1);
+        const result = await mattackm(attacker, pudding, env);
+        const newMonsters = [];
+        for (let mon = game.level.monlist; mon; mon = mon.nmon) {
+            if (!beforeIds.has(mon.m_id)) newMonsters.push(mon);
+        }
+
+        assert.equal(result, M_ATTK_HIT);
+        assert.equal(newMonsters.length, 1);
+        assert.equal(newMonsters[0].mhp, Math.trunc(pudding.mhp));
+        const hit = env.lines.findIndex(line => line.includes('hits the brown pudding'));
+        const divided = env.lines.findIndex(line => line.includes('divides as'));
+        assert.ok(hit >= 0, 'hitmm reports the strike');
+        assert.ok(divided > hit, 'the split message follows the hit message');
+        attacker.data = ordinary;
+    });
+
+test('mattackm does not split a non-metal hit, a last-HP pudding, or a canceled pudding',
+    async () => {
+        const cases = [
+            { name: 'wooden weapon', weaponType: CLUB },
+            { name: 'one hit point', weaponType: SHORT_SWORD, hp: 1 },
+            { name: 'canceled pudding', weaponType: SHORT_SWORD, mcan: 1 },
+        ];
+        let seed = 7710100; // Independent clean starts for each source gate.
+        for (const scenario of cases) {
+            await hero(seed++);
+            const { ax, dx, y } = battlefield(1);
+            const attacker = fixture(PM_KITTEN, ax, y, {
+                mtame: 10,
+                m_lev: 20,
+            });
+            const pudding = fixture(PM_BROWN_PUDDING, dx, y, {
+                mhp: scenario.hp ?? 12,
+                mhpmax: scenario.hp ?? 12,
+                mcan: scenario.mcan ?? 0,
+            });
+            aim(pudding);
+            const ordinary = attacker.data;
+            attacker.data = {
+                ...ordinary,
+                mattk: [
+                    { aatyp: AT_WEAP, adtyp: AD_PHYS, damn: 0, damd: 0 },
+                    ...ordinary.mattk.slice(1),
+                ],
+            };
+            const weapon = mksobj(scenario.weaponType, false, false, {
+                state: game,
+            });
+            add_to_minv(attacker, weapon, { state: game });
+            attacker.mw = weapon;
+            const beforeIds = new Set();
+            for (let mon = game.level.monlist; mon; mon = mon.nmon)
+                beforeIds.add(mon.m_id);
+
+            await mattackm(attacker, pudding, attackEnv([1], 1));
+
+            const afterIds = new Set();
+            for (let mon = game.level.monlist; mon; mon = mon.nmon)
+                afterIds.add(mon.m_id);
+            assert.equal(afterIds.size, beforeIds.size, scenario.name);
+            attacker.data = ordinary;
+        }
     });
 
 test('mattackm continues past weapon selection for supported arms',

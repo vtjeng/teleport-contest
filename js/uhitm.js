@@ -4175,7 +4175,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
                     state,
                 );
             }
-            await monflee(magr, 0, false, false, state, env);
+            await monflee(magr, 0, false, false, { ...env, state, random });
             mhm.hitflags = M_ATTK_AGR_DONE;
             mhm.done = true;
             return;

@@ -80,7 +80,7 @@ import {
     s_suffix,
     truncateByteString,
 } from './hacklib.js';
-import { grow_up } from './makemon.js';
+import { clone_mon, grow_up } from './makemon.js';
 import {
     could_seduce,
     getmattk,
@@ -179,13 +179,15 @@ import {
     PM_MEDUSA,
     PM_NURSE,
     PM_WRAITH,
+    PM_BLACK_PUDDING,
+    PM_BROWN_PUDDING,
     G_UNIQ,
     S_MIMIC,
     S_TROLL,
 } from './monsters.js';
 import { ART_SNICKERSNEE, ART_TROLLSBANE } from './artifacts.js';
 import { objectType } from './obj.js';
-import { SILVER, WAND_CLASS } from './objects.js';
+import { IRON, METAL, SILVER, WAND_CLASS } from './objects.js';
 import { makeplural } from './fruit.js';
 import { heroUnaware, pline_mon } from './pline.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
@@ -883,6 +885,37 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
                     break;
                 }
                 res[i] = await hitmm(magr, mdef, mattk, mwep, dieroll, env);
+                // C mhitm.c:455-471 splits a living, uncancelled black or
+                // brown pudding after a successful iron/metal weapon hit.
+                // hitmm() has completed first; clone_mon()'s result is
+                // consumed by the visibility message and mintrap() call.
+                if ((mdef.data === state.mons[PM_BLACK_PUDDING]
+                     || mdef.data === state.mons[PM_BROWN_PUDDING])
+                    && mwep
+                    && (objectType(mwep, state).oc_material === IRON
+                        || objectType(mwep, state).oc_material === METAL)
+                    && mdef.mhp > 1 && !mdef.mcan) {
+                    const mclone = await clone_mon(mdef, 0, 0, state, {
+                        ...env,
+                        state,
+                    });
+                    if (mclone) {
+                        if (state.gv.vis && canspotmon(mdef, state)) {
+                            await requireAttackOperation(env, 'message')(
+                                `${Monnam(mdef, state, env)} divides as `
+                                    + `${mon_nam(magr, state, env)} hits it!`,
+                                state,
+                                env,
+                            );
+                        }
+                        await mintrap(mclone, NO_TRAP_FLAGS, {
+                            ...env,
+                            state,
+                        });
+                        if (magr.mhp < 1) // C's DEADMONSTER(magr).
+                            res[i] |= M_ATTK_AGR_DIED;
+                    }
+                }
             } else {
                 await missmm(magr, mdef, mattk, env);
             }
