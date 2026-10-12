@@ -2045,13 +2045,14 @@ test('mhitm_ad_ston preserves each source direction and gate draws',
     assert.ok(game.unported.has('potion.c make_stoned'));
 
     // In the hero-to-monster direction C always clears damage after the
-    // source munstone() result, even when the discarded minstapetrify() arm
-    // remains unported. This path consumes no attack RNG.
+    // source munstone() result. The stone-golem defender returns from
+    // minstapetrify() through the innate-resistance branch.
     await runSegment({
         seed: 7710058, datetime: DATETIME, nethackrc: RC, moves: '',
     });
     const defender = {
-        data: game.mons[PM_RAVEN],
+        data: game.mons[PM_STONE_GOLEM],
+        mextrinsics: 1 << (STONE_RES - 1),
         m_id: 92006,
         mcan: false,
         mx: game.u.ux + 1,
@@ -2072,7 +2073,7 @@ test('mhitm_ad_ston preserves each source direction and gate draws',
     );
     assert.equal(reverse.damage, 0);
     assert.equal(reverse.done, false);
-    assert.ok(game.unported.has('trap.c minstapetrify'));
+    assert.ok(!game.unported.has('trap.c minstapetrify'));
 
     // The monster-to-monster arm skips the helper for a cancelled attacker.
     // An uncancelled AD_STON blow calls do_stone_mon, whose stone-resistant

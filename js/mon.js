@@ -3023,10 +3023,16 @@ function* apply_newcham_steps(
         state,
         random,
     });
-    if (!(monster.misc_worn_check & W_ARMG))
-        // C discards trap.c mselftouch()'s result.  Its full trap-side effect
-        // is not in this source span, so preserve the named source boundary.
-        note_unported('trap.c mselftouch');
+    if (!(monster.misc_worn_check & W_ARMG)) {
+        // mon.c passes !mon_moving so a hero-caused shape change keeps kill
+        // credit; mselftouch()'s void result is discarded.
+        yield import('./trap_effects.js').then(({ mselftouch }) => mselftouch(
+            monster,
+            'No longer petrify-resistant, ',
+            !state.context?.mon_moving,
+            { ...normalized, state },
+        ));
+    }
     check_gear_next_turn(monster);
 
     if (monster.minvent && !throws_rocks(target)) {

@@ -10,7 +10,7 @@
 // disarm_squeaky_board(), disarm_shooting_trap(), try_lift(),
 // help_monster_out(), disarm_box(), untrap_box(), untrap(),
 // openholdingtrap(), closeholdingtrap(), openfallingtrap(), chest_trap(),
-// instapetrify(), selftouch().
+// instapetrify(), minstapetrify(), selftouch().
 
 import {
     A_CON,
@@ -134,6 +134,7 @@ import {
     STAIRS,
     STATUE_TRAP,
     STONE,
+    STONE_RES,
     STONING,
     STUNNED,
     SWIMMING,
@@ -168,6 +169,7 @@ import {
     WEB,
     WWALKING,
     WT_TOOMUCH_DIAGONAL,
+    XKILL_NOMSG,
     W_SADDLE,
     W_AMUL,
     W_ARMOR,
@@ -269,7 +271,10 @@ import { water_damage_chain } from './trap_water_damage.js';
 import { Is_box, stumble_on_door_mimic, ynq } from './lock.js';
 import { rndmonnum_adj, set_malign } from './makemon.js';
 import { makemon, makemon_runtime } from './makemon_create.js';
-import { killed, mongone, set_ustuck, wake_nearby, wakeup, seemimic } from './mon.js';
+import {
+    killed, mongone, mon_to_stone, monstone, set_ustuck, vamp_stone,
+    wake_nearby, wakeup, seemimic, xkilled,
+} from './mon.js';
 import {
     amorphous, amphibious, attacktype, breathless, can_teleport, flaming,
     ceiling_hider, is_clinger, is_floater,
@@ -343,7 +348,7 @@ import {
     unblock_point, recalc_block_point, vision_recalc, cansee, couldsee,
 } from './vision.js';
 import { welded, uwepgone, uswapwepgone } from './wield.js';
-import { bimanual } from './worn.js';
+import { bimanual, mon_adjust_speed } from './worn.js';
 import { newsym, bot, shieldeff } from './display.js';
 import { m_next2u } from './mhitu.js';
 import { linedup } from './mthrowu.js';
@@ -384,6 +389,30 @@ export async function instapetrify(str, state = game, env = {}) {
         throw error;
     }
     await done(STONING, state, env);
+}
+
+// C ref: trap.c minstapetrify() (3858-3882). Monster petrification delegates
+// stone-form changes, lifesaving, speed changes, death credit, and statue
+// creation to their existing source owners in C order.
+export async function minstapetrify(mon, byplayer, state = game, env = {}) {
+    if (Resists_Elem(mon, STONE_RES, state)) return;
+    if (poly_when_stoned(mon.data, state)) {
+        await mon_to_stone(mon, state, env);
+        return;
+    }
+    if (!await vamp_stone(mon, state, env)) return;
+
+    await mon_adjust_speed(mon, -3, null, state, env);
+    if (cansee(mon.mx, mon.my, state))
+        await (env.message ?? ttyPline)(
+            `${Monnam(mon, state, env)} turns to stone.`, state, env,
+        );
+    if (byplayer) {
+        state.gs.stoned = true;
+        await xkilled(mon, XKILL_NOMSG, state, env);
+    } else {
+        await monstone(mon, state, env);
+    }
 }
 
 // C ref: trap.c selftouch() (3883-3910). A wielded cockatrice corpse still

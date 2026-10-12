@@ -378,6 +378,7 @@ import {
     Levitation,
     clamp_hole_destination,
     float_down,
+    minstapetrify,
     reset_utrap,
     t_at,
     uescaped_shaft,
@@ -2296,7 +2297,7 @@ async function engulfer_digests_food(obj, state = game) {
             { state, ncflags: couldSlime ? NC_SHOW_MSG : NO_NC_FLAGS },
         );
     } else if (couldPetrify) {
-        note_unported('trap.c minstapetrify');
+        await minstapetrify(swallower, true, state);
     } else if (couldGrow) {
         // C discards grow_up()'s pointer here, but the HP, level and form
         // changes still finish before the swallowed object is deleted.

@@ -109,6 +109,7 @@ import {
 } from './dothrow.js';
 import { m_carrying, mondied, seemimic, setmangry, xkilled } from './mon.js';
 import { m_at } from './monst.js';
+import { minstapetrify } from './trap.js';
 import { down_gate, ship_object } from './dokick.js';
 import {
     amorphous,
@@ -759,7 +760,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
         if (otmp.otyp === EGG
             && touch_petrifies(state.mons[otmp.corpsenm])) {
             if (!await munstone(mtmp, false, state, env))
-                note_unported('trap.c minstapetrify'); /* minstapetrify(mtmp, FALSE) */
+                await minstapetrify(mtmp, false, state, env);
             if (Resists_Elem(mtmp, STONE_RES, state))
                 damage = 0;
         }

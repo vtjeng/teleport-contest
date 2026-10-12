@@ -51,6 +51,7 @@ import {
     Flying, Levitation, maketrap, reset_utrap, set_utrap,
     t_at,
 } from './trap.js';
+import { mselftouch } from './trap_effects.js';
 import { sleep_monst, slept_monst } from './mhitm.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
@@ -300,7 +301,7 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
                     if (heard) await message(heard, state);
                 }
             }
-            note_unported('trap.c mselftouch'); // C's void call; keep its point.
+            await mselftouch(mtmp, 'Falling, ', true, env);
             if (mtmp.mhp >= 1) {
                 mtmp.mhp -= random.rnd(alreadyTrapped ? 4 : 6);
                 if (mtmp.mhp < 1) {

@@ -127,7 +127,7 @@ import { attach_fig_transform_timeout } from './timeout.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { cansee } from './vision.js';
 import {
-    Flying, Levitation, openholdingtrap, unconscious,
+    Flying, Levitation, minstapetrify, openholdingtrap, unconscious,
 } from './trap.js';
 import { is_fainted, maybe_finished_meal } from './eat.js';
 import {
@@ -841,9 +841,7 @@ export async function steal(
     mpickobj(mtmp, otmp, { state });
 
     if (couldPetrify && !(mtmp.misc_worn_check & W_ARMG)) {
-        // mon.c minstapetrify() is void and remains unported; keep the call
-        // boundary explicit while preserving steal()'s -1 result.
-        note_unported('mon.c minstapetrify');
+        await minstapetrify(mtmp, true, state, env);
         return -1;
     }
 

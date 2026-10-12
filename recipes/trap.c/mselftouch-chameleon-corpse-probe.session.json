@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent runtime witness for mon.c:newcham -> trap.c:mselftouch. #wizgenesis creates a hostile chameleon and #wizwish places a cockatrice corpse on the floor; after the hero moves, the chameleon changes into an ice troll. C newcham calls mselftouch after the form change, but the monster has no corpse weapon, so mselftouch returns through its no-wielded-corpse guard. This matching recording covers the call entry and early return only; the corpse-contact branch is not exercised.",
+  "segments": [
+    {
+      "seed": 81005137,
+      "datetime": "20301012103000",
+      "nethackrc": "OPTIONS=name:StoneProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": " .#wizgenesis\nhostile chameleon\n#wizwish\ncockatrice corpse\njm.m.m.m."
+    }
+  ]
+}

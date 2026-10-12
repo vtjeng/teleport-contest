@@ -662,6 +662,7 @@ import {
     Flying,
     Levitation,
     instapetrify,
+    minstapetrify,
     unconscious,
 } from './trap.js';
 import { drain_en, mintrap } from './trap_effects.js';
@@ -3014,7 +3015,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             observe_object(obj, state);
             const { munstone } = await import('./muse.js');
             if (!await munstone(mon, true, state, lifeEnv))
-                note_unported('trap.c minstapetrify');
+                await minstapetrify(mon, true, state, lifeEnv);
             if (!Resists_Elem(mon, STONE_RES, state)) {
                 hmd.doreturn = true;
                 hmd.retval = mon.mhp >= 1;
@@ -3054,7 +3055,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             else await useupall(obj, lifeEnv);
             const { munstone } = await import('./muse.js');
             if (!await munstone(mon, true, state, lifeEnv))
-                note_unported('trap.c minstapetrify');
+                await minstapetrify(mon, true, state, lifeEnv);
             if (!Resists_Elem(mon, STONE_RES, state)) {
                 hmd.doreturn = true;
                 hmd.retval = mon.mhp >= 1;
@@ -4055,9 +4056,7 @@ async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
         if (unwornmask & W_WEP) {
             await possibly_unwield(mdef, false, env);
         } else if (unwornmask & W_ARMG) {
-            // trap.c:mselftouch() is a void callee with an unfinished
-            // minstapetrify() path; record and skip that source boundary.
-            note_unported('trap.c mselftouch');
+            await mselftouch(mdef, null, true, { ...env, state });
             if (mdef.mhp < 1) break;
         }
         if (!ustealo) break;
@@ -4251,10 +4250,10 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
 
         // Both calls are void source callees. Existing partial ports are
         // safe no-ops when extraction cleared the weapon; retain their source
-        // order and leave their still-unported effect paths explicit.
+        // order before checking whether the defender died.
         await possibly_unwield(mdef, false, env);
         mdef.mstrategy &= ~STRAT_WAITFORU;
-        mselftouch(mdef, null, false, { ...env, state });
+        await mselftouch(mdef, null, false, { ...env, state });
 
         if (mdef.mhp < 1) {
             const grew = await grow_up(magr, mdef, { ...env, state });
@@ -5232,11 +5231,10 @@ export async function mhitm_ad_ston(
 
     if (magr === state.youmonst) {
         // C's munstone() return is used to decide whether minstapetrify()
-        // runs. The latter is a discarded void call and remains an explicit
-        // source gap until trap.c is ported.
+        // runs; minstapetrify() itself has a discarded void return.
         const { munstone } = await import('./muse.js');
         if (!await munstone(mdef, true, state, env))
-            note_unported('trap.c minstapetrify');
+            await minstapetrify(mdef, true, state, env);
         mhm.damage = 0;
     } else if (mdef === state.youmonst) {
         await hitmsg(magr, mattk, state, env);

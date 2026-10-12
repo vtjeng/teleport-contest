@@ -268,6 +268,7 @@ import { heroIsBlind, messageAt } from './startup_a11y.js';
 import {
     t_at,
     reset_utrap,
+    minstapetrify,
 } from './trap.js';
 import { drain_en } from './trap_effects.js';
 import {
@@ -2353,11 +2354,11 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
 
         if (touch_petrifies(state.youmonst.data)
             && !Resists_Elem(mtmp, STONE_RES, state)) {
-            // trap.c minstapetrify() has no result consumed here and remains
-            // outside this task. Keep the source relocation around that gap.
+            // C relocates the engulfing monster around the discarded-void
+            // minstapetrify() call before unbinding the hero.
             remove_monster(mtmp.mx, mtmp.my, state);
             place_monster(mtmp, omx, omy, state);
-            note_unported('trap.c minstapetrify');
+            await minstapetrify(mtmp, true, state, env);
             if (Punished(state)) await placebc(state, rawEnv);
             set_ustuck(null, state);
             return mtmp.mhp > 0 ? M_ATTK_MISS : M_ATTK_AGR_DIED;
