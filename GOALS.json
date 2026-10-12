@@ -286564,6 +286564,297 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "div-sit-throne-effect-court-summon-v51-20261012",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Wire ordinary throne court summoning",
+      "cFile": "sit.c",
+      "sessions": [],
+      "selectionReason": "Ready caller repair unblocks queued dependent work after its history dependency was accepted. Current v51 evidence first mismatches at segment 0 step 47; the source-traced investigation identifies omitted makemon invocation after courtmon in sit.c throne_sit_effect case 7. Use existing makemon_runtime without claiming whole throne_sit_effect completion.",
+      "detail": "At accepted12c, the immutable v51 case matches47/73 screens and first diverges in the court-summoning loop. C sit.c112-125 calls makemon(courtmon(), saved hero tx/ty, NO_MM_FLAGS) once per rnd(10) attempt; js/sit.js currently evaluates courtmon and skips creation. Repair only that caller binding and preserve RNG and message order. See investigations/synthetic/v51/v51-throne-court-summon-selected-action-attempt2.json.",
+      "openedAt": "2ac7900bba2dc8b2a000b418e2669fb655accd27",
+      "openStanding": {
+        "sha": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "throne_sit_effect",
+      "session": "synthetic/v51/v51-throne-court-summon-selected-action-attempt2",
+      "step": 47,
+      "syntheticProvenance": {
+        "synthetic/v51/v51-throne-court-summon-selected-action-attempt2": {
+          "session": "synthetic/v51/v51-throne-court-summon-selected-action-attempt2",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-throne-court-summon-selected-action-attempt2",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.session.json",
+          "recordingSha256": "8cbcc893f746e6e41f23dc8726640e9f0265e1834436ab65b135b44ea85f3296",
+          "evaluationPath": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
+          "evaluationCommit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba"
+        }
+      },
+      "activeStanding": {
+        "sha": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-throne-court-summon-selected-action-attempt2",
+          "session": "synthetic/v51/v51-throne-court-summon-selected-action-attempt2",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.session.json",
+          "recordingPath": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.session.json",
+          "recordingSha256": "8cbcc893f746e6e41f23dc8726640e9f0265e1834436ab65b135b44ea85f3296",
+          "recipe": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.recipe.session.json",
+          "recipeSha256": "cc1a9d5d65001c0538e9ca8578a9a21528d776daffa9e760ac0c3bc219e4f95b",
+          "replayInputSha256": "ec87e2802e283d81d8a6817b5ed4b751d0fd39498a69f63092959777e15f3e9b",
+          "evaluationPath": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
+          "evaluationCommit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+          "evaluationArtifact": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
+          "evaluationUtc": "2026-10-12T12:38:17.754Z",
+          "remainingScreens": 26,
+          "recordedSteps": 73,
+          "previousScreensMatched": 47,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 47,
+              "total": 73
+            },
+            "rng": {
+              "matched": 2961,
+              "total": 3661
+            },
+            "cursors": {
+              "matched": 59,
+              "total": 73
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 47,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 59,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2961,
+              "cEntry": "rn2(8)=1",
+              "cCaller": "collect_coords(teleport.c:700)",
+              "jsEntry": "rn2(60)=9",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": "\n"
+              },
+              "stepIndex": 47
+            },
+            "cursor": {
+              "index": 47,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": "\n"
+              },
+              "cCursor": [
+                67,
+                0,
+                1
+              ],
+              "jsCursor": [
+                58,
+                13,
+                1
+              ]
+            }
+          },
+          "step": 47,
+          "kind": "rng",
+          "sourceFile": "teleport.c",
+          "function": "collect_coords",
+          "message": null,
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": 700,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-throne-court-summon-selected-action-attempt2.json",
+            "result": {
+              "session": "synthetic/v51/v51-throne-court-summon-selected-action-attempt2",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-throne-court-summon-selected-action-attempt2",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingPath": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.session.json",
+              "recordingSha256": "8cbcc893f746e6e41f23dc8726640e9f0265e1834436ab65b135b44ea85f3296",
+              "recipePath": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.recipe.session.json",
+              "recipeSha256": "cc1a9d5d65001c0538e9ca8578a9a21528d776daffa9e760ac0c3bc219e4f95b",
+              "evaluationPath": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
+              "evaluationCommit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+              "evaluationUtc": "2026-10-12T12:38:17.754Z",
+              "status": "complete",
+              "summary": "At zero-based segment 0 step 47, the wizard has selected ordinary throne effect 7. C begins the court-summoning loop; JavaScript calls courtmon() but records note_unported('makemon.c makemon') instead of creating the selected monster. C therefore consumes the monster-placement and creation calls, produces a monster, and updates the screen, while JavaScript skips all of those effects. The queue labels C's next RNG entry collect_coords(teleport.c:700), a downstream placement helper; the source defect is the skipped makemon call in sit.c:throne_sit_effect.",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-throne-court-summon-selected-action-attempt2",
+                "session": "synthetic/v51/v51-throne-court-summon-selected-action-attempt2",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.session.json",
+                "recordingPath": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.session.json",
+                "recordingSha256": "8cbcc893f746e6e41f23dc8726640e9f0265e1834436ab65b135b44ea85f3296",
+                "recipe": "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.recipe.session.json",
+                "recipeSha256": "cc1a9d5d65001c0538e9ca8578a9a21528d776daffa9e760ac0c3bc219e4f95b",
+                "replayInputSha256": "ec87e2802e283d81d8a6817b5ed4b751d0fd39498a69f63092959777e15f3e9b",
+                "evaluationPath": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
+                "evaluationCommit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+                "evaluationArtifact": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
+                "evaluationUtc": "2026-10-12T12:38:17.754Z",
+                "remainingScreens": 26,
+                "recordedSteps": 73,
+                "previousScreensMatched": 47,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 47,
+                    "total": 73
+                  },
+                  "rng": {
+                    "matched": 2961,
+                    "total": 3661
+                  },
+                  "cursors": {
+                    "matched": 59,
+                    "total": 73
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 47,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 59,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2961,
+                    "cEntry": "rn2(8)=1",
+                    "cCaller": "collect_coords(teleport.c:700)",
+                    "jsEntry": "rn2(60)=9",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": "\n"
+                    },
+                    "stepIndex": 47
+                  },
+                  "cursor": {
+                    "index": 47,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      67,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      58,
+                      13,
+                      1
+                    ]
+                  }
+                },
+                "step": 47,
+                "kind": "rng",
+                "sourceFile": "teleport.c",
+                "function": "collect_coords",
+                "message": null,
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "line": 700
+              },
+              "source": {
+                "file": "sit.c",
+                "functions": [
+                  "throne_sit_effect"
+                ],
+                "branch": "C sit.c:throne_sit_effect() case 7 sets cnt=rnd(10), emits the throne voice, then repeats (void)makemon(courtmon(), tx, ty, NO_MM_FLAGS) while cnt--. This is an ordinary throne effect, after the wizard selected effect 7; the chosen throne is not a special Vlad's Tower throne.",
+                "callers": [
+                  "C sit.c:dosit() calls throne_sit_effect() for an ordinary throne. JavaScript js/sit.js:dosit reaches throne_sit_effect() through the same sitting command path.",
+                  "C mkroom.c:courtmon() selects and returns each court monster type. JavaScript js/mkroom.js:courtmon() already implements this selector and preserves its two source RNG calls.",
+                  "C makemon.c:makemon() receives the selected type at the hero's coordinates with NO_MM_FLAGS and relocates that request through enexto_core(). JavaScript js/makemon_create.js:makemon_runtime() wraps the existing makemon() implementation and supports this explicit-species, explicit-coordinate, no-flags runtime shape."
+                ],
+                "dependencies": [
+                  "The current JavaScript branch already has the matching courtmon() result and the makemon_runtime() helper is already implemented for explicit-species creation at the hero square with NO_MM_FLAGS. The missing behavior is the caller invocation in throne_sit_effect; no collect_coords or courtmon implementation change is indicated by this trace.",
+                  "The prior TTY-history delivery 04d8cf96fb539e0c0b6333f88d7576ce447f699e changes the same js/sit.js module's tty_yn_function import. This v51 work is based on that submitted code and must declare the delivery as an actual dependency."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The admitted v51 baseline reports first mismatch at step 47 with 47/73 screens, 2961/3661 RNG calls, and 59/73 cursors matched. Evaluation metadata binds it to manifest SHA 6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c and recording SHA 8cbcc893f746e6e41f23dc8726640e9f0265e1834436ab65b135b44ea85f3296.",
+                "A fresh strict C/JavaScript diff of the admitted recipe reproduces the same first mismatch at boundary 48 (one-based): C has 3661 RNG calls and JavaScript 3035; the first missing C RNG entry is rn2(8)=1 at collect_coords, while JavaScript's next entry is rn2(60)=9. The C screen has a monster marker at row 0 column 59 where JavaScript has a blank. The full output is retained at /tmp/teleport-validation-1000/run-hH1Gjv/stdout.log, receipt /tmp/teleport-validation-1000/run-hH1Gjv/receipt.json.",
+                "Upstream nethack-c/upstream/src/sit.c:114-123 confirms case 7 performs courtmon() followed by makemon() for each of rnd(10) attempts. js/sit.js:468-476 performs courtmon() but skips makemon(), recording note_unported('makemon.c makemon'). The 626-call RNG gap and missing monster are consequences of this omitted call, not a collect_coords defect.",
+                "Upstream nethack-c/upstream/src/makemon.c:1147-1200 confirms explicit-species placement at the hero square with NO_MM_FLAGS relocates through enexto_core(). Existing js/makemon_create.js:1280-1305 admits that exact call shape, and js/makemon_create.js:3348-3394 awaits the creation runtime tail. The implementation should invoke that helper once per loop iteration with the selected species, hero coordinates, state, random source, and message operation."
+              ],
+              "commit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+              "remainingScreens": 26,
+              "recordedSteps": 73
+            }
+          }
+        }
+      ]
     }
   ]
 }
