@@ -42,7 +42,7 @@
     "recordingMatched": true,
     "inputBoundaryMatched": true
   },
-  "remainingScreens": 0,
+  "remainingScreens": 29,
   "recordedSteps": 206,
   "mismatch": {
     "corpus": "synthetic",
@@ -55,31 +55,39 @@
     "recordingSha256": "14f3bb3d4680b6910a003e95bdf52a4b9cb98d4cb1f9a0c0f2044e5ee969f5cd",
     "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
     "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
-    "remainingScreens": 0,
+    "remainingScreens": 29,
     "recordedSteps": 206,
-    "previousScreensMatched": 206,
+    "previousScreensMatched": 177,
     "regression": false,
-    "passed": true,
+    "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 206,
+        "matched": 177,
         "total": 206
       },
       "rng": {
-        "matched": 2945,
+        "matched": 2736,
         "total": 2945
       },
       "cursors": {
-        "matched": 206,
+        "matched": 204,
         "total": 206
       }
     },
-    "firstMismatch": null,
-    "step": null,
-    "kind": null,
-    "sourceFile": null,
-    "function": null,
-    "message": null
+    "firstMismatch": {
+      "segmentIndex": 0,
+      "stepIndex": 177,
+      "key": ">",
+      "sourceFile": "dig.c",
+      "function": "dighole",
+      "cRng": "d(3,6)=12 @ dighole(dig.c:919)",
+      "jsRng": null
+    },
+    "step": 177,
+    "kind": "rng",
+    "sourceFile": "dig.c",
+    "function": "dighole",
+    "message": "C enters the magical trap explosion branch; JS previously skipped the d(3,6) roll and blast."
   }
 }
