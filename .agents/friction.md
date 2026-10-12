@@ -314,3 +314,21 @@ triage decisions or fix references.
   submitted report also lacked the required source object fields; Root rebuilt
   them from the reviewed C function and current saved queue before registration.
   The goal remains queued until exact-candidate hosted evidence permits opening.
+
+### 2026-10-12 — saved-score ordering and pending source trees
+
+- Black-light registration finished at the preserved pre-import code boundary.
+  Goal opening then required current synthetic score records, while the
+  acceptance helper required an open goal. After reviewing all 51 imported
+  evaluations, Root recorded those saved results first, opened the goal, verified
+  its source evidence, and used normal acceptance. No corpus was rerun.
+- The later demon-pet goal was opened from the accepted saved fixed scan before
+  importing its source patch, avoiding that ordering problem.
+- A bounded caller survey found that combat evidence attributed pre_mm_attack
+  directly to mattackm instead of missmm/hitmm and claimed a longer runtime
+  range than its correction logs verified. C is correcting the attribution
+  and checking the complete correction tree.
+- The earlier petrification ancestry bridge retained pending combat commits
+  while deliberately using Main's tree. Ancestry alone therefore does not
+  prove those unaccepted source bodies are present. Preserve and combine the
+  intact delivery tree with accepted Main before recording new evidence.
