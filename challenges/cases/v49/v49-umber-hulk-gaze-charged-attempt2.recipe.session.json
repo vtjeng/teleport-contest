@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first resource-enabled continuation: polyself.c:dogaze; level-raised gaze spends energy and examines visible hostile giant. New seed 49000402 is selected by ordinal in a declared v49 range. Source dobreathe/dogaze need 15 energy and domindblast needs 10; levelchange supplies that state before polymorph. C-only correction uses level 7, with ten spaces to clear promotion More boundaries before continuing monster setup; this supplies enough energy with fewer boundaries.",
+  "segments": [
+    {
+      "seed": 49000402,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #wizgenesis\nhostile giant\n    #polyself\number hulk\n                    #monster\n      "
+    }
+  ]
+}

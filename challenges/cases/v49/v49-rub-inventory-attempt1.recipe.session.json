@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first expanded mission: apply.c:dorub, getobj rub filters tool and gem classes. C reachability observation: rub inventory selector. Seed 49000212 chosen as next value in a predeclared v49 source exploration range.",
+  "segments": [
+    {
+      "seed": 49000212,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#rub\n\u001b"
+    }
+  ]
+}

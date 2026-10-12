@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: invent.c:doprinuse, display all worn and wielded equipment. Expected C observation: cloak and staff equipment menu. Seed 49000121 is the next deterministic value in a prechosen v49 range; it is not selected using JavaScript results.",
+  "segments": [
+    {
+      "seed": 49000121,
+      "datetime": "20581117132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#seeall\n\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first monster-ability mission: polyself.c:dohide, cmd.c:domonability dispatch for lurker above to dohide. Expected C observation: ceiling concealment toggled. Seed 49000306 chosen in a new predeclared v49 range. C-first correction: twenty spaces clear transformation More boundaries before issuing #monster; the shorter polymorph probe is preserved outside the manifest.",
+  "segments": [
+    {
+      "seed": 49000306,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\nlurker above\n                    #monster\n"
+    }
+  ]
+}

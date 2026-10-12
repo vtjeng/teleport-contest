@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup for apply.c:use_cream_pie; item selection comes from this C inventory, before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 49000353,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed cream pie\ni"
+    }
+  ]
+}

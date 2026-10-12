@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first monster-ability mission: polyself.c:doremove, cmd.c:domonability dispatch for wood nymph to doremove. Expected C observation: not chained feedback. Seed 49000308 chosen in a new predeclared v49 range.",
+  "segments": [
+    {
+      "seed": 49000308,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\nwood nymph\n#monster\n"
+    }
+  ]
+}

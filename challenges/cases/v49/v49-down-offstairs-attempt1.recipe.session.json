@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: do.c:dodown, no staircase or trap returns no descent. Expected C observation: no-down-stairs feedback. Seed 49000116 is the next deterministic value in a prechosen v49 range; it is not selected using JavaScript results.",
+  "segments": [
+    {
+      "seed": 49000116,
+      "datetime": "20581117132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#down\n"
+    }
+  ]
+}

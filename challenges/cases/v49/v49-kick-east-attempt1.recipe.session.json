@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: dokick.c:dokick, adjacent kick performs terrain/object/monster selection. Expected C observation: kick direction and outcome. Seed 49000112 is the next deterministic value in a prechosen v49 range; it is not selected using JavaScript results.",
+  "segments": [
+    {
+      "seed": 49000112,
+      "datetime": "20581117132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#kick\nl"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first monster-ability mission: polyself.c:dopoly, cmd.c:domonability dispatch for vampire to dopoly. Expected C observation: vampire form transformation choice. Seed 49000311 chosen in a new predeclared v49 range. C-first correction: twenty spaces clear transformation More boundaries before issuing #monster; the shorter polymorph probe is preserved outside the manifest.",
+  "segments": [
+    {
+      "seed": 49000311,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\nvampire\n                    #monster\n\u001b"
+    }
+  ]
+}

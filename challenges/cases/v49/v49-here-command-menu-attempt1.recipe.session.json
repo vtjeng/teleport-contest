@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first expanded mission: cmd.c:doherecmdmenu, here_cmd_menu offers actions at upstairs cell. C reachability observation: context menu at current position. Seed 49000205 chosen as next value in a predeclared v49 source exploration range.",
+  "segments": [
+    {
+      "seed": 49000205,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#herecmdmenu\n\u001b"
+    }
+  ]
+}

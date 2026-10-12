@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first expanded mission: pager.c:dohelp, menu lists help targets; cancel leaves game unchanged. C reachability observation: help target menu. Seed 49000201 chosen as next value in a predeclared v49 source exploration range.",
+  "segments": [
+    {
+      "seed": 49000201,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#help\n\u001b"
+    }
+  ]
+}
