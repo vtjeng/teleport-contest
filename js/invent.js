@@ -1237,7 +1237,12 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
 
                 const picked = await display_pickinv(
                     allowed_choices, handsbuf, menuquery,
-                    allownone, true, state, { allowcnt },
+                    allownone, true, state, {
+                        allowcnt,
+                        // invent.c:getobj() distinguishes display_pickinv's
+                        // Escape result from an ordinary uncommitted menu.
+                        cancelValue: '\x1b',
+                    },
                 );
                 if (!picked) {
                     // C:1983-1985 -- a forced menu is one-shot; an ordinary
@@ -1830,7 +1835,12 @@ export async function display_pickinv(
     allowxtra,
     want_reply,
     state = game,
-    { menu, allowcnt = false, permanent = false } = {},
+    {
+        menu,
+        allowcnt = false,
+        permanent = false,
+        cancelValue = null,
+    } = {},
 ) {
     const requestedLets = lets && String(lets).length ? String(lets) : null;
     const wizid = Boolean(state.wizard && state.iflags?.override_ID);
@@ -1898,7 +1908,7 @@ export async function display_pickinv(
         items,
         how,
         returnCount: Boolean(allowcnt),
-        cancelValue: null,
+        cancelValue,
         overlay: state.iflags?.menu_overlay !== false,
     }));
 
