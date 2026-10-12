@@ -12,13 +12,26 @@
   "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
   "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
   "before": {
-    "admittedFirstMismatch": {
+    "admittedEvaluation": {
+      "screens": {
+        "matched": 0,
+        "total": 290
+      },
+      "rng": {
+        "matched": 0,
+        "total": 2694
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 290
+      },
+      "error": "random injection requires rn2, rnd, rn1, and rne"
+    },
+    "manifestTrace": {
       "step": 262,
       "owner": "do.c:engulfer_digests_food",
       "cRng": "rnd(2)=2 @ next_ident(mkobj.c:521)",
-      "jsRng": "rn2(100)=71",
-      "screensMatched": 262,
-      "screensTotal": 290
+      "jsRng": "rn2(100)=71"
     },
     "workerReplayAtAcceptedSource": {
       "commit": "57db3186aeb0cd6cef9072e4c29c56af541fb298",
@@ -61,7 +74,7 @@
     "repair": "Forward dropz's normalized state/operation environment through engulfer digestion and its source callees. Preserve any injected stopObjectTimers owner, supplying the existing obj_stop_timers implementation when the hook is absent."
   },
   "status": "resolved",
-  "summary": "The admitted baseline first diverged in do.c:engulfer_digests_food at step 262. On the accepted source in the worker checkout, that petrification path already executes; the remaining screens stopped at step 263 because delobj lacked the timeout owner for the corpse timer. The bounded caller repair forwards the timer owner while retaining the source call order. A final saved replay verifies all 290 steps.",
+  "summary": "The admitted hosted baseline recorded a runtime error before output because monstone supplied an incomplete random provider; that prior issue is preserved in history. The manifest source trace also pointed to swallowed corpse digestion at step 262. On the accepted source currently present in C’s worktree, the petrification path executes and creates the statue, but the replay then stopped at step 263 because delobj lacked the timeout owner for the corpse timer. The bounded caller repair forwards the timer owner while retaining C call order. A final saved replay verifies all 290 steps.",
   "history": [
     {
       "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
@@ -119,7 +132,7 @@
     }
   ],
   "after": {
-    "replayCommit": "562c606e0",
+    "replayCommit": "562c606e07538025a0aa57f463523619595e61cb",
     "replayInputSha256": "05fda928c04c6287b9d47faa0501d0f511b5b17e7d2f0eddb7301f6d38f90c32",
     "screensEmitted": 290,
     "recordedSteps": 290,
