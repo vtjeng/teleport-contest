@@ -289684,7 +289684,7 @@
           "line": 462,
           "endLine": 532,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -289956,7 +289956,80 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "monflee",
+            "implementation": "js/monmove.js",
+            "symbol": "monflee",
+            "sourceReview": "Compared complete monmove.c:monflee 462–532 in source order: dead-monster return, held hero release, first/flee gates, untimed fear preservation, duration accumulation and clamp, visible undisguised message gate, immobile and light/unaware/deaf branches with rn2 ordering, Vrock cooldown 75+rn2(25), cloud creation before mflee, and tracking clear even when first skips refresh. JS supplies the existing gas-cloud/region state owner and now defaults canseemon and monfleeMessage for ordinary callers. Explicit injected operations remain authoritative. Read release_hero and message formatting helpers; no concrete discrepancy found. The minimal C build has no integrated sound backend, so its SetVoice macro is empty under sndprocs.h. Required cloud return is discarded in C; current region behavior remains delegated to the existing implementation.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "distfleeck",
+                "source": "monmove.c:distfleeck calls monflee after the source-ordered rnd/rn2 fear duration. JS distfleeck awaits its monFlee operation, supplied by the production monster action adapter and bound to canonical monflee with shared state/random."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_weapon_melee",
+                "source": "uhitm.c:hmon_hitmon_weapon_melee (1010) calls monflee(mon,d(2,3),TRUE,TRUE); JS passes {...env,state,random} and leaves canSeeMonster/fleeMessage to monflee."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_misc_obj",
+                "source": "uhitm.c:hmon_hitmon_misc_obj (1261) calls monflee(mon,d(2,4),FALSE,TRUE); JS passes lifeEnv with shared state/random and no dedicated adapters."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "Mb_hit",
+                "source": "artifact.c:arti_hit (1371) calls monflee(mdef,3,FALSE,mdef->mhp > *dmgptr); JS passes state/random through env without dedicated visibility/message adapters."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "garlic_breath",
+                "source": "eat.c:garlic_breath (2088) calls monflee(mtmp,0,FALSE,FALSE); showMessage is false, so the C function skips the message branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monmove.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-vrock-flee-cloud-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 119,
+                "source": "mon.c:dochugw -> monmove.c:distfleeck -> monmove.c:monflee -> region.c:create_gas_cloud; same-turn movement -> region.c:m_in_out_region"
+              }
+            ],
+            "checkedAt": "fac888c90d5e02ca4f17f8f399d24a1e62d1379c"
+          }
+        ],
+        "entryPointReview": "Read whole monmove.c:monflee and its active caller routes: hero release, flee timers, visibility-dependent messages and RNG, Vrock gas cloud, flee flag, and tracking reset. The admitted v50 movement-fear case verifies the helper through the complete recording. The source-backed region, visibility, and message defaults also serve ordinary command callers; focused tests pin those omitted-provider contracts and preserve explicit injected operations. Separate C combat correction owns the seduction caller environment forwarding.",
+        "entryPoints": [
+          {
+            "name": "Monster fear response during movement",
+            "functions": [
+              "monflee"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-vrock-flee-cloud-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 119,
+                "source": "mon.c:dochugw -> monmove.c:distfleeck -> monmove.c:monflee -> region.c:create_gas_cloud; same-turn movement -> region.c:m_in_out_region"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

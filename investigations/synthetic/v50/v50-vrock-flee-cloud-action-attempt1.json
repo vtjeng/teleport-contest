@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v50.json",
   "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
   "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
-  "evaluationPath": "challenges/evaluations/baseline-e4c7bc56e-v50.json",
-  "evaluationCommit": "e4c7bc56eb850377811e089788227269b277950d",
+  "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+  "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
   "remainingScreens": 18,
   "recordedSteps": 120,
   "status": "complete",
-  "commit": "d04662db8639248cf24e718a515429f528149e63",
+  "commit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v50",
@@ -24,14 +24,14 @@
     "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
     "recipe": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.recipe.session.json",
     "recipeSha256": "450c5a05696172d8a8c8c721174077e368d70b8a2eedaf57b18370351f8ba102",
-    "replayInputSha256": "dca791bb47e6b4fd74b977954882c5e42f59c3d36deee74712cf4c72c227b055",
-    "evaluationPath": "challenges/evaluations/baseline-e4c7bc56e-v50.json",
-    "evaluationCommit": "e4c7bc56eb850377811e089788227269b277950d",
-    "evaluationArtifact": "challenges/evaluations/baseline-e4c7bc56e-v50.json",
-    "evaluationUtc": "2026-10-12T07:04:49.761Z",
+    "replayInputSha256": "b987c8c4ded0a327e8db5d6cd9cfcbde2ed520d74430d05d7a1d5e5644a2f913",
+    "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+    "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+    "evaluationArtifact": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+    "evaluationUtc": "2026-10-12T16:06:42.167Z",
     "remainingScreens": 18,
     "recordedSteps": 120,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 102,
     "regression": false,
     "passed": false,
     "error": null,
@@ -113,15 +113,16 @@
     "luaFile": null,
     "line": 1255
   },
-  "summary": "The admitted v50 case first diverged at step 102 when monmove.c:monflee reached the Vrock cloud branch. The correction routes monflee through the existing region.c:create_gas_cloud port by default and removes the note_unported stand-in from the uhitm.c:known_hitum caller. The full movement recording now matches all 120 steps.",
+  "summary": "The original monster-turn failure omitted the Vrock gas cloud environment and subsequent region transition. This delivery completes the whole monflee function with canonical gas-cloud, visibility and message defaults and preserves existing production caller environments.",
   "source": {
     "file": "monmove.c",
-    "branch": "A live, newly established flight branch (!first || !mtmp->mflee) for PM_VROCK with mspec_used == 0; after the source fear message and before mflee is set, assign 75 + rn2(25), create the radius-5 damage-8 cloud, then set mflee and clear recent-space tracking.",
+    "branch": "Whole monmove.c:monflee (462–532), including fear timers/messages, Vrock cooldown and cloud, and tracking reset; production callers delegate region transitions to the existing region.c owner.",
     "functions": [
       "monflee"
     ],
     "callers": [
-      "monmove.c:distfleeck -> monflee at lines 564-568; production JavaScript action adapter in js/unported_monster_actions.js supplies monFlee to the ordinary monster action path."
+      "mon.c:dochugw -> monmove.c:distfleeck -> monflee on movement fear.",
+      "uhitm.c weapon shatter and garlic, artifact.c fear, and eat.c garlic breath reuse monflee with their existing shared state/random environment."
     ],
     "dependencies": [
       "region.c:create_gas_cloud is already implemented in js/region.js; its discarded C return does not make its RNG, region, vision, or message side effects optional."
