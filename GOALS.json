@@ -293918,7 +293918,7 @@
     {
       "id": "fix-v53-untended-temple-ghost-creation-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement intemple from priest.c",
       "cFile": "priest.c",
       "sessions": [
@@ -293928,10 +293928,75 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "27121df96ceb22f30703b42264d03ecb3d439095",
       "delivered": null,
       "function": "intemple",
-      "session": "synthetic/v53/v53-crown-priest-auto-leader-adjust-action3"
+      "session": "synthetic/v53/v53-crown-priest-auto-leader-adjust-action3",
+      "closeStanding": {
+        "sha": "27121df96ceb22f30703b42264d03ecb3d439095",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
+        "target": "synthetic/v53/v53-crown-priest-auto-leader-adjust-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/27121df96ceb22f30703b42264d03ecb3d439095/run-hosted-zjF1Vn/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "intemple",
+            "sourceFile": "priest.c",
+            "implementation": "js/priest.js",
+            "symbol": "intemple",
+            "pure": false,
+            "sourceReview": "Bounded untended-temple ghost-creation correction. C calls makemon for PM_GHOST with MM_NOMSG after rn2(5) succeeds, then consumes the returned monster. JavaScript now supplies the complete game RNG provider and awaits makemon_runtime so its explicit-coordinate runtime continuation finishes before intemple consumes the result. Other intemple branches are outside this correction; no whole-function completion is claimed.",
+            "callers": [
+              {
+                "path": "js/rooms.js",
+                "symbol": "check_special_room",
+                "source": "C do.c:goto_level reaches hack.c:check_special_room after level arrival, and the TEMPLE branch calls priest.c:intemple. JavaScript rooms.js:check_special_room calls priest.js:intemple for the same room entry."
+              }
+            ],
+            "tests": [
+              "scripts/priest.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-crown-priest-auto-leader-adjust-action3",
+                "segment": 0,
+                "fromStep": 86,
+                "throughStep": 86,
+                "source": "do.c:goto_level -> hack.c:check_special_room TEMPLE -> priest.c:intemple untended branch; C step 86 consumes ghost-generation RNG and prints the ghost appearance."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This bounded correction addresses the ordinary temple-entry path where the untended intemple branch creates a ghost. The admitted v53 case reaches the branch at segment 0 step 86 and now matches the full 222-step recording. Tended-temple behavior and other intemple branches are unchanged and are not claimed complete.",
+        "entryPoints": [
+          {
+            "name": "Untended temple ghost creation on level arrival",
+            "functions": [
+              "intemple"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-crown-priest-auto-leader-adjust-action3",
+                "segment": 0,
+                "fromStep": 86,
+                "throughStep": 86,
+                "source": "do.c:goto_level -> hack.c:check_special_room -> priest.c:intemple."
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": []
+      }
     }
   ]
 }

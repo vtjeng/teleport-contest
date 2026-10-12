@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T22:32:15.829Z",
+  "capturedAt": "2026-10-12T22:40:28.296Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -98620,6 +98620,103 @@
         "at": "2026-10-12T22:31:57.140Z",
         "task": "C-investigation-v53-knight-excalibur-fountain-action2-20261012",
         "delivery": "6c334890a6c3527b34167bd1aa20aac6caf6058a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012-d87d8a0b7924552d8b880a7f5b6ba6ad2d4a5b71",
+        "type": "published",
+        "at": "2026-10-12T22:32:28.884Z",
+        "task": "B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "commit": "d87d8a0b7924552d8b880a7f5b6ba6ad2d4a5b71"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-priest53-integrating-27121df96-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T22:33:03.893Z",
+        "task": "A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012",
+        "integration": "27121df96ceb22f30703b42264d03ecb3d439095"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v53-dig-magic-trap-20261012",
+        "type": "implement",
+        "at": "2026-10-12T22:33:20.636Z",
+        "task": "A2-investigation-v53-dig-magic-trap-explosion-action2-20261012",
+        "goal": "fix-dighole-magical-trap-explosion-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0e69089682403caa9489fdcc9d71a333991ca98b",
+        "type": "ready",
+        "at": "2026-10-12T22:33:32.107Z",
+        "task": "B-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "delivery": "0e69089682403caa9489fdcc9d71a333991ca98b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v53-mounted-dragon-engulf-20261012",
+        "type": "assign",
+        "at": "2026-10-12T22:34:03.277Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-v53-wiz-goal-0e690896-20261012",
+        "type": "received",
+        "at": "2026-10-12T22:34:19.019Z",
+        "task": "B-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "delivery": "0e69089682403caa9489fdcc9d71a333991ca98b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v53-earth-remote-blessed-pick-cave-action10-20261012-r1",
+        "type": "assign",
+        "at": "2026-10-12T22:35:19.854Z",
+        "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-v53-dig-explosion-implementing-20261012",
+        "type": "turn",
+        "at": "2026-10-12T22:36:00.215Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v53-engulf-dismount-implement-20261012",
+        "type": "implement",
+        "at": "2026-10-12T22:36:51.081Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "goal": "C-fix-mounted-engulf-steed-dismount-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-earth-blessed-pick-cave-v53-20261012",
+        "type": "implement",
+        "at": "2026-10-12T22:38:10.872Z",
+        "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012",
+        "goal": "fix-dig-earth-blessed-pick-cave-area-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012-27121df96ceb22f30703b42264d03ecb3d439095-validated",
+        "type": "validated",
+        "at": "2026-10-12T22:39:05.426Z",
+        "task": "A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012-27121df96ceb22f30703b42264d03ecb3d439095-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T22:39:35.877Z",
+        "task": "A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012"
       }
     ]
   },
@@ -98700,17 +98797,6 @@
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012",
-        "worker": "A2",
-        "goal": "fix-v53-untended-temple-ghost-creation-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "7ee52fc942253e1d17d5143e8e94ffbbd2f13e33",
-        "since": "2026-10-12T22:28:48.512Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "C-investigation-v53-knight-excalibur-fountain-action2-20261012",
         "worker": "C",
         "goal": "C-file-port-fountain-dipfountain-excalibur-v53-20261012",
@@ -98718,6 +98804,17 @@
         "status": "ready",
         "delivery": "6c334890a6c3527b34167bd1aa20aac6caf6058a",
         "since": "2026-10-12T22:31:24.467Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "worker": "B",
+        "goal": "port-wiz-goal-v53-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "0e69089682403caa9489fdcc9d71a333991ca98b",
+        "since": "2026-10-12T22:33:32.107Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -99203,8 +99300,8 @@
     ]
   },
   "development": {
-    "executionCommit": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
-    "measuredAt": "2026-10-12T22:28:58.389Z",
+    "executionCommit": "27121df96ceb22f30703b42264d03ecb3d439095",
+    "measuredAt": "2026-10-12T22:37:54.902Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
