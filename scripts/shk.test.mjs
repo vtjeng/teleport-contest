@@ -23,6 +23,8 @@ import {
     COIN_CLASS,
     objects_globals_init,
     POT_WATER,
+    DIAMOND,
+    RUBY,
     DART,
     CORPSE,
     CHAIN_MAIL,
@@ -33,6 +35,7 @@ import {
     WAN_SLEEP,
     SACK,
     LEASH,
+    STRANGE_OBJECT,
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { newObject } from '../js/obj.js';
@@ -47,6 +50,7 @@ import {
     get_cost,
     get_pricing_units,
     getprice,
+    gem_learned,
     find_objowner,
     inhishop,
     is_unpaid,
@@ -434,6 +438,54 @@ function costState(charisma = 11) {
     state.urole = { mnum: -1 };
     return state;
 }
+
+test('gem_learned reprices matching bill entries and all gems for STRANGE_OBJECT', () => {
+    // C shk.c:gem_learned() walks each bill-bearing live shopkeeper, resolves
+    // bo_id with find_oid(), and updates each matching bill price.
+    const state = costState();
+    const diamond = pricedObject(state, DIAMOND, { o_id: 41 });
+    const ruby = pricedObject(state, RUBY, { o_id: 42 });
+    const potion = pricedObject(state, POT_HEALING, { o_id: 43 });
+    diamond.nobj = ruby;
+    ruby.nobj = potion;
+    state.invent = diamond;
+
+    const bill = [
+        { bo_id: 41, price: 900 },
+        { bo_id: 42, price: 901 },
+        { bo_id: 43, price: 902 },
+        { bo_id: 44, price: 903 },
+        { bo_id: 41, price: 904 }, // outside billct
+    ];
+    const keeper = billShopkeeper(ROOMOFFSET, bill);
+    keeper.mextra.eshk.billct = 4;
+    state.level = {
+        monlist: keeper,
+        objlist: null,
+        buriedobjlist: null,
+    };
+
+    state.objects[DIAMOND].oc_name_known = 1;
+    const identifiedDiamondPrice = get_cost(diamond, keeper, state);
+    gem_learned(DIAMOND, state);
+    assert.equal(bill[0].price, identifiedDiamondPrice);
+    assert.equal(bill[1].price, 901);
+    assert.equal(bill[2].price, 902);
+    assert.equal(bill[3].price, 903); // The missing final id leaves C's pointer there.
+    assert.equal(bill[4].price, 904);
+
+    state.objects[RUBY].oc_name_known = 1;
+    const identifiedRubyPrice = get_cost(ruby, keeper, state);
+    gem_learned(STRANGE_OBJECT, state);
+    assert.equal(bill[0].price, identifiedDiamondPrice);
+    assert.equal(bill[1].price, identifiedRubyPrice);
+    assert.equal(bill[2].price, 902);
+    assert.equal(bill[4].price, 904);
+
+    const cBody = sourceBody(C_SHK, '\ngem_learned(int oindx)');
+    assert.match(cBody,
+        /for \(shkp = next_shkp\(fmon, TRUE\); shkp;[\s\S]*?obj = find_oid\(bp->bo_id\);[\s\S]*?if \(!obj\)[\s\S]*?continue;[\s\S]*?oindx != STRANGE_OBJECT[\s\S]*?obj->oclass == GEM_CLASS[\s\S]*?bp->price = get_cost\(obj, shkp\);[\s\S]*?\+\+bp;/u);
+});
 
 test('ordinary charge helpers preserve source quantity and id partitions',
     () => {

@@ -2,7 +2,7 @@
 // bill-object lifecycle, remembered-price queries, and shopkeeper movement.
 // C refs: shk.c inhishop(), inside_shop(), shop_keeper(), u_entered_shop(),
 // u_left_shop(), call_kops(), makekops(), getprice(), get_cost(),
-// get_cost_of_shop_item(),
+// get_cost_of_shop_item(), gem_learned(),
 // append_price_quote(), contained_gold(), check_unpaid(), costly_spot(),
 // shop_object(), shk_owns(), mon_owns(), shk_your(), shk_move(),
 // shk_fixes_damage(), and the end-of-game cleanup chain next_shkp(),
@@ -3460,6 +3460,27 @@ function next_shkp(shopkeeper, withbill, state) {
         if (!shkp.mextra.eshk.surcharge) rile_shk(shkp);
     }
     return shkp;
+}
+
+// C ref: shk.c gem_learned() (3198-3236). Identifying or forgetting one gem
+// reprices matching unpaid objects on every live shopkeeper's bill.
+export function gem_learned(oindx, state = game) {
+    for (let shkp = next_shkp(state.level?.monlist ?? null, true, state); shkp;
+        shkp = next_shkp(shkp.nmon, true, state)) {
+        const eshk = shkp.mextra.eshk;
+        let ct = eshk.billct;
+        let bpIndex = 0;
+        while (--ct >= 0) {
+            const bp = eshk.bill_p[bpIndex];
+            const obj = find_oid(bp.bo_id, state);
+            if (!obj) continue; // C's `continue` leaves bp at the same bill row.
+            if (oindx !== STRANGE_OBJECT
+                ? obj.otyp === oindx : obj.oclass === GEM_CLASS) {
+                bp.price = get_cost(obj, shkp, state);
+            }
+            ++bpIndex;
+        }
+    }
 }
 
 // C ref: shk.c onbill() (1135-1155). C returns the bill entry; this returns it
