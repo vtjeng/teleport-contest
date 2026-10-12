@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v50 mission: dat/bigrm-1.lua:bigrm-1.lua, random terrain lines/snake, 15 objects, six traps and 28 monsters. C observation: C loads bigrm-1.lua, then wizmap shows random terrain lines/snake, 15 objects, six traps and 28 monsters; source RNG annotations identify program execution.. Seed 50000101 is chosen by ordinal in the predeclared 50000101/50000201 source exploration ranges, before JavaScript comparisons.",
+  "segments": [
+    {
+      "seed": 50000101,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nbigrm-1.lua\n          #wizmap\n"
+    }
+  ]
+}

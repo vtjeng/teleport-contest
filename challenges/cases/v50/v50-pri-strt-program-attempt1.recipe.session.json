@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v50 mission: dat/Pri-strt.lua:Pri-strt.lua, temple, Arch Priest inventory, acolytes, zombies in floodfilled outside region. C observation: C loads Pri-strt.lua, then wizmap shows temple, Arch Priest inventory, acolytes, zombies in floodfilled outside region; source RNG annotations identify program execution.. Seed 50000105 is chosen by ordinal in the predeclared 50000101/50000201 source exploration ranges, before JavaScript comparisons.",
+  "segments": [
+    {
+      "seed": 50000105,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Priest,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nPri-strt.lua\n          #wizmap\n"
+    }
+  ]
+}

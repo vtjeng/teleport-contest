@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v50 mission: dat/astral.lua:astral.lua, random opened wings, shuffled sanctum alignments, three Riders and cleric/Angel factions. C observation: C loads astral.lua, then wizmap shows random opened wings, shuffled sanctum alignments, three Riders and cleric/Angel factions; source RNG annotations identify program execution.. Seed 50000110 is chosen by ordinal in the predeclared 50000101/50000201 source exploration ranges, before JavaScript comparisons.",
+  "segments": [
+    {
+      "seed": 50000110,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nastral.lua\n          #wizmap\n"
+    }
+  ]
+}

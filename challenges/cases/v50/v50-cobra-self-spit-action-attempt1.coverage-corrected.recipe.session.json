@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first cobra zero-vector spit control: polyself.c:dospit1450-1477 calls dothrow.c:throwit1510 at1475. Select self dot; C venom lands and breaks at the hero square with Splash. Closest saved coverage v49/v49-cobra-spit-attempt2 and recipes/polyself.c/monster-spit-cobra.session.json select east and traverse the outward projectile path. This copy corrects source metadata; original recipe, input segments and C recording remain unchanged.",
+  "segments": [
+    {
+      "seed": 50000602,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          #polyself\ncobra\n                    #monster\n.          "
+    }
+  ]
+}

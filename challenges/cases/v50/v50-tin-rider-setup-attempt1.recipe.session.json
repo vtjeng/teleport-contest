@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v50 mission: apply.c:use_tinning_kit, Rider corpse revives and tinning exits without creating tin. C observation: C grants setup wishes and inventory identifies tool/target letters before its action continuation is designed.. Seed 50000202 is chosen by ordinal in the predeclared 50000101/50000201 source exploration ranges, before JavaScript comparisons.",
+  "segments": [
+    {
+      "seed": 50000202,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed tinning kit (5)\n\u0017Death corpse\ni"
+    }
+  ]
+}

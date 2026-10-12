@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v50 mission: dat/Bar-strt.lua:Bar-strt.lua, river/forest random terrain, branch arrival, Pelias inventory, ogre floodfill placement. C observation: C loads Bar-strt.lua, then wizmap shows river/forest random terrain, branch arrival, Pelias inventory, ogre floodfill placement; source RNG annotations identify program execution.. Seed 50000103 is chosen by ordinal in the predeclared 50000101/50000201 source exploration ranges, before JavaScript comparisons.",
+  "segments": [
+    {
+      "seed": 50000103,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizloaddes\nBar-strt.lua\n          #wizmap\n"
+    }
+  ]
+}

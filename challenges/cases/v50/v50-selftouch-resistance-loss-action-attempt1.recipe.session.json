@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-directed mission: polyself.c:polymon -> trap.c:selftouch. Stone-golem hero is petrification-resistant while acquiring a corpse; C inventory determines wield slot, then transformation to a hand-bearing susceptible form.. Expected observation: C selftouch after retouch_equipment notices held cockatrice corpse and initiates petrification when resistance is lost.. Seed 50000302 chosen before C exploration or JavaScript comparison, by ordinal in a new source-mission range. Follow-up inputs derive from C-observed slots/positions: horned devil (&) to wood golem (apostrophe) is southeast (n); cockatrice corpse slot o; scare scroll slot o; see-invisible potion o and conflict ring p. No JS comparison has selected these inputs.",
+  "segments": [
+    {
+      "seed": 50000302,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\nstone golem\n                    \u0017cockatrice corpse\nwo  #polyself\nhuman\n                    "
+    }
+  ]
+}

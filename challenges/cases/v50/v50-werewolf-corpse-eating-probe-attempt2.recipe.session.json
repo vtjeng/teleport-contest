@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Human werewolf corpse imparts lycanthropy via set_ulycn; polyself then allows own werebeast form.",
+  "segments": [
+    {
+      "seed": 50000502,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V50Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          \u0017human werewolf corpse\ney                  #polyself\nwerewolf\n                    #monster\n          "
+    }
+  ]
+}
