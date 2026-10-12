@@ -1,0 +1,54 @@
+{
+  "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
+  "corpus": "synthetic",
+  "batch": "v53",
+  "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+  "manifestPath": "challenges/manifests/v53.json",
+  "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+  "recordingSha256": "7d5478eeb058306ce8137558c77749734899fe1905b5c494291a11e6e66a5622",
+  "evaluationPath": "challenges/evaluations/hosted-38314809018-1-v53.json",
+  "evaluationCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
+  "remainingScreens": 290,
+  "recordedSteps": 290,
+  "status": "complete",
+  "commit": "fc097328d0c04166dffb6efb052177044a3cb488",
+  "mismatch": {
+    "kind": "runtime-error",
+    "corpus": "synthetic",
+    "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
+    "sourceFile": "mon.c",
+    "cFile": "mon.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6"
+    ],
+    "remainingScreens": 290,
+    "remainingScreensUpperBound": null,
+    "earliestStep": null,
+    "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+    "batch": "v53",
+    "recordingPath": "challenges/cases/v53/v53-worm-dropped-cockatrice-stoning-action6.session.json",
+    "error": "random injection requires rn2, rnd, rn1, and rne"
+  },
+  "summary": "When a purple worm digests a dropped cockatrice corpse while the hero is swallowed, C petrifies the worm and constructs its statue. JavaScript reaches the same monstone path but supplies object creation with an rn2-only random override; obj.js rejects the incomplete provider before mksobj_at can finish. Repair mon.c:monstone's default random environment while preserving explicit injected providers and the source call order.",
+  "source": {
+    "file": "mon.c",
+    "branch": "After do.c:engulfer_digests_food identifies a swallowed cockatrice corpse and calls minstapetrify(u.ustuck, TRUE), the nonresistant purple worm reaches xkilled with gs.stoned set. xkilled calls monstone; because the purple worm is larger than tiny, monstone takes the statue branch, constructs the statue with mkcorpstat, and object initialization consumes C's global random stream.",
+    "functions": [
+      "monstone"
+    ],
+    "callers": [
+      "C do.c:dropz -> engulfer_digests_food -> trap.c:minstapetrify -> mon.c:xkilled -> monstone. JS js/do.js:dropz -> engulfer_digests_food calls js/trap.js:minstapetrify; its byplayer path calls js/mon.js:xkilled, which calls monstone when state.gs.stoned is true.",
+      "C mon.c:monstone calls mkobj.c:mkcorpstat for the statue, which calls mksobj_at and mksobj. JS mon.js:monstone passes objectGenerationEnv({ ...env, state, random }) to js/corpstat.js:mkcorpstat; mkcorpstat forwards it to js/obj.js:mksobj_at."
+    ],
+    "dependencies": [
+      "mkobj.c:mkcorpstat and mksobj_at use C's global random functions during statue creation. Their existing JS implementations validate an injected provider in obj.js:sourceRandom; verify this contract, but do not claim or edit those source functions."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved admitted baseline challenges/evaluations/hosted-38314809018-1-v53.json records the selected case as 0/290 screens, 0/2694 RNG calls, and 0/290 cursors with error 'random injection requires rn2, rnd, rn1, and rne'. Its canonical manifest digest is fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39; the recording SHA-256 is 7d5478eeb058306ce8137558c77749734899fe1905b5c494291a11e6e66a5622.",
+    "A private C/JS differential using the independent recipe reproduced that runtime exception. The differential cannot establish a matching prefix because runSegment throws before returning its captured output. A direct runSegment trace locates the throw at js/obj.js:sourceRandom, called by mksobj_at -> mkcorpstat -> monstone -> xkilled -> minstapetrify -> engulfer_digests_food -> dropz.",
+    "C mon.c:monstone (3287-3374) uses global rn2 for its own branch and calls mkcorpstat without a random argument; mkobj.c:mkcorpstat (2067 onward) calls mksobj_at, whose implementation calls mksobj. JavaScript mon.js:monstone defaults its local random provider to { rn2 } and passes that partial object through objectGenerationEnv to mkcorpstat, where obj.js:sourceRandom requires rn2, rnd, rn1, and rne. This is the source divergence; the existing monstone completion record covers the function generally but did not cover this omitted-provider path."
+  ]
+}
