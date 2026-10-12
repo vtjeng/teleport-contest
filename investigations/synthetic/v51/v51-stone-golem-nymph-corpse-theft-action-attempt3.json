@@ -1,0 +1,77 @@
+{
+  "session": "synthetic/v51/v51-stone-golem-nymph-corpse-theft-action-attempt3",
+  "corpus": "synthetic",
+  "batch": "v51",
+  "caseId": "v51-stone-golem-nymph-corpse-theft-action-attempt3",
+  "manifestPath": "challenges/manifests/v51.json",
+  "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+  "recordingPath": "challenges/cases/v51/v51-stone-golem-nymph-corpse-theft-action-attempt3.session.json",
+  "recordingSha256": "33eec8085ef54f9e8c2ca9caa4921f6a7f30b18421f6ce1d318bea6e9acfb973",
+  "recipePath": "challenges/cases/v51/v51-stone-golem-nymph-corpse-theft-action-attempt3.recipe.session.json",
+  "recipeSha256": "4d38fb49f86e26e4d32b82b9622a8ae44220d9d5116f5ab939a33c2c9d737c4d",
+  "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v51.json",
+  "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+  "remainingScreens": 45,
+  "recordedSteps": 275,
+  "status": "complete",
+  "commit": "ff0a8c3ff5c2205a68e2e3add3f52b0e0c7e97d8",
+  "mismatch": {
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "line": null,
+    "step": 230,
+    "message": null,
+    "firstMismatch": {
+      "screen": {
+        "index": 230,
+        "location": { "segmentIndex": 0, "stepIndex": 230, "key": " " },
+        "kind": "ch",
+        "row": 0,
+        "column": 36,
+        "cCell": { "ch": "w", "color": 8, "attr": 0, "decgfx": 0 },
+        "jsCell": { "ch": "g", "color": 8, "attr": 0, "decgfx": 0 }
+      },
+      "rng": {
+        "index": 2727,
+        "cEntry": "rn2(100)=95",
+        "cCaller": "obj_resists(zap.c:1469)",
+        "jsEntry": "rn2(3)=0",
+        "location": { "segmentIndex": 0, "stepIndex": 231, "key": " " },
+        "stepIndex": 231
+      },
+      "cursor": {
+        "index": 230,
+        "location": { "segmentIndex": 0, "stepIndex": 230, "key": " " },
+        "cCursor": [71, 0, 1],
+        "jsCursor": [76, 0, 1]
+      }
+    }
+  },
+  "summary": "A hostile wood nymph steals the hero's wielded cockatrice corpse at step 229. At step 230 C enters trap.c:minstapetrify through steal.c:steal after the nymph fails its glove check, then displays the slowing-down effect; JS records the stale note_unported('mon.c minstapetrify') and returns -1 without applying the helper. This is the same missing trap.c:minstapetrify implementation as the grouped ogre case, reached through a different production caller.",
+  "source": {
+    "file": "trap.c",
+    "functions": ["minstapetrify"],
+    "branch": "In steal.c:steal, a stolen cockatrice corpse with no gloves calls minstapetrify(mtmp, TRUE). The helper performs the same stone-resistance and vampire/form checks as the grouped hero-cockatrice ogre case, then lowers monster speed, displays its transformation when visible, and credits the hero with xkilled. The recorded nymph reaches the speed/message branch.",
+    "callers": [
+      "steal.c:steal -> minstapetrify(mtmp, TRUE) after mpickobj",
+      "trap.c:minstapetrify shared with the grouped v51 cockatrice-versus-ogre case via uhitm.c:mhitm_ad_ston"
+    ],
+    "dependencies": [
+      "monst.h:resists_ston",
+      "mondata.c:poly_when_stoned",
+      "mon.c:mon_to_stone",
+      "mon.c:vamp_stone",
+      "mon.c:mon_adjust_speed",
+      "mon.c:xkilled",
+      "mon.c:monstone"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The admitted v51 baseline matches through segment 0 step 229. At step 230 C's first changed screen shows the nymph's slowing-down effect and the cursor moves to [71,0,1]; JS still shows the nymph at [76,0,1]. The first RNG difference is at step 231, after the helper should have run.",
+    "The admitted recipe source pointer is steal.c:steal -> trap.c:minstapetrify(mtmp, TRUE). nethack-c/upstream/src/steal.c:343-617 contains the corpse theft branch at line 610; nethack-c/upstream/src/trap.c:3858-3882 defines the missing helper.",
+    "js/steal.js:846 currently records note_unported('mon.c minstapetrify') after mpickobj and preserves steal's -1 result. The marker names the wrong C owner: the call resolves to trap.c:minstapetrify.",
+    "This admitted case and v51-cockatrice-levitation-ogre-action-attempt2 both fail because the same trap.c function is absent. The cases exercise separate active callers (steal.c:steal and uhitm.c:mhitm_ad_ston), so they are grouped in one helper port rather than counted as separate implementation tasks."
+  ]
+}
