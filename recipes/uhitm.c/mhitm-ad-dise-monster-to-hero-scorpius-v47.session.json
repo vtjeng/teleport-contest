@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47001075,
+      "datetime": "20580914172112",
+      "nethackrc": "OPTIONS=name:B47ScorpiusHero,role:Healer,race:human,gender=male,align=neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizgenesis\nhostile Scorpius\ny.\n."
+    }
+  ]
+}

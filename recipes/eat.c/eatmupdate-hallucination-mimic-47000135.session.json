@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent eatmupdate recording. Seed 47000135 and datetime 20571112111214 differ from the admitted v47 case. An 11-turn Hallucination timeout leaves the transition after the cpostfx mimic-start boundary; ESC dismisses C’s blocking map-window message without spending a JavaScript game turn, then space advances the timeout into the active mimic branch.",
+  "segments": [
+    {
+      "seed": 47000135,
+      "datetime": "20571112111214",
+      "nethackrc": "OPTIONS=name:EatMimicTimeoutProbe,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nsmall mimic corpse\n#wizintrinsic\n11h\n ep  \u001b "
+    }
+  ]
+}

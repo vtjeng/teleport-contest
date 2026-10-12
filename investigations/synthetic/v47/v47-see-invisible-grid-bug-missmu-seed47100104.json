@@ -1,0 +1,96 @@
+{
+  "session": "synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104",
+  "corpus": "synthetic",
+  "batch": "v47",
+  "caseId": "v47-see-invisible-grid-bug-missmu-seed47100104",
+  "manifestPath": "challenges/manifests/v47.json",
+  "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+  "recordingPath": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.session.json",
+  "recordingSha256": "500a4474ecfbd3e1db8eb7b0cd3e0330c37054f2c598231a142c5c7af16c6eed",
+  "recipePath": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.recipe.session.json",
+  "recipeSha256": "e943ff3e5b40eb6195855280f54cb90019d65660716e5db3602ce274b7a74ca6",
+  "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+  "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+  "queueSha256": "46b5891629d3d59e5e62550cd812381e88752c80574406c65acffb4f4fed55cb",
+  "remainingScreens": 2,
+  "recordedSteps": 69,
+  "status": "complete",
+  "commit": "8c45ad858da4aa9b8642096beffbf18c0d8af8e2",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v47",
+    "caseId": "v47-see-invisible-grid-bug-missmu-seed47100104",
+    "session": "synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104",
+    "manifestPath": "challenges/manifests/v47.json",
+    "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+    "recording": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.session.json",
+    "recordingPath": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.session.json",
+    "recordingSha256": "500a4474ecfbd3e1db8eb7b0cd3e0330c37054f2c598231a142c5c7af16c6eed",
+    "recipe": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.recipe.session.json",
+    "recipeSha256": "e943ff3e5b40eb6195855280f54cb90019d65660716e5db3602ce274b7a74ca6",
+    "replayInputSha256": "13d87b260326cb87a3ad759ed31ce3e2d081c9a02c6302da26841e1cdd214c4e",
+    "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+    "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+    "evaluationArtifact": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+    "evaluationUtc": "2026-10-11T22:24:39.664Z",
+    "remainingScreens": 2,
+    "recordedSteps": 69,
+    "previousScreensMatched": 67,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 67,
+        "total": 69
+      },
+      "rng": {
+        "matched": 2967,
+        "total": 3005
+      },
+      "cursors": {
+        "matched": 67,
+        "total": 69
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires a miss by an invisible monster the hero can see",
+      "step": 67
+    },
+    "step": 67,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "simple monster action requires a miss by an invisible monster the hero can see",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The step-67 stop is an artificial JavaScript refusal in mhitu.js:missmu, not an unreachable game state. The C missmu path calls pline_mon with Monnam(mtmp); because the hero has a see-invisible ring, canspotmon is true while mtmp->minvis is also true, so do_name.c:x_monnam names the visible species with its invisible adjective. JavaScript already implements that formatter, but missmu throws before calling it. Remove the refusal and let the existing naming and miss-message path complete.",
+  "source": {
+    "file": "mhitu.c",
+    "branch": "At a monster attack miss, missmu clears hit-message state, calls map_invisible only when canspotmon is false, chooses the seduction or ordinary miss line with Monnam(mtmp), and then stops the hero occupation. Here the ring makes canspotmon true while the grid bug remains minvis, so C renders its name and the invisible adjective.",
+    "functions": [
+      "missmu"
+    ],
+    "callers": [
+      "mhitu.c:mattacku calls missmu in the physical claw/kick/bite/sting/touch/butt/tent miss arm at line 814; the existing JS caller is js/mhitu.js:mattacku at line 1908.",
+      "mhitu.c:mattacku calls missmu in the polearm miss arm at line 854; the existing JS caller is js/mhitu.js:mattacku at line 1955.",
+      "mhitu.c:mattacku calls missmu in the weapon miss arm at line 915; the existing JS caller is js/mhitu.js:mattacku at line 2042."
+    ],
+    "dependencies": [
+      "do_name.c:Monnam and do_name.c:x_monnam are already implemented by js/do_name.js:Monnam and js/do_name.js:x_monnam; x_monnam handles the source do_invis adjective branch for a spotted invisible monster.",
+      "pline.c:pline_mon is already implemented by js/pline.js:pline_mon; it preserves the source monster-coordinate message attribution.",
+      "The existing mattacku stop-occupation path represents mhitu.c:stop_occupation and remains after the miss message."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v47 queue (SHA-256 46b5891629d3d59e5e62550cd812381e88752c80574406c65acffb4f4fed55cb) selects synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104. The admitted recording first stops at zero-based step 67 after the adjacent hostile grid bug misses; the action's C path enters mhitu.c:mattacku and calls missmu.",
+    "The C recording uses an uncursed ring of see invisible and wizard genesis to create an invisible hostile grid bug. See Invisible makes canspotmon(mtmp) true while the monster retains minvis, which is the exact condition rejected by the JavaScript guard.",
+    "Upstream mhitu.c:missmu (lines 85-100) sets hitmsg_mid and hitmsg_prev to zero/null, conditionally calls map_invisible when canspotmon is false, then calls pline_mon with either a seduction message or “%s %smisses!” using Monnam(mtmp), and finally calls stop_occupation().",
+    "Upstream do_name.c:x_monnam (lines 827-1032) computes do_invis as mtmp->minvis unless SUPPRESS_INVISIBLE is set, suppresses the “it” arm when canspotmon is true, and prefixes “invisible ” before the species name. The existing js/do_name.js:x_monnam has the same branch; the mismatch comes from js/mhitu.js:missmu throwing before reaching it.",
+    "The three source call sites are mhitu.c:mattacku lines 814, 854 and 915. Existing JS calls at js/mhitu.js lines 1908, 1955 and 2042 already route those miss branches to missmu, so the correction can stay within missmu and its focused test."
+  ]
+}

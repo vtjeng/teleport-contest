@@ -470,6 +470,7 @@ import {
     PM_IRON_GOLEM,
     PM_MEDUSA,
     PM_FAMINE,
+    PM_GHOUL,
     PM_PESTILENCE,
     PM_PAPER_GOLEM,
     PM_PYROLISK,
@@ -6619,8 +6620,7 @@ export async function mhitm_ad_famn(
 
 // C ref: uhitm.c mhitm_ad_pest() (3808-3834). Snapshot the attacker's form
 // before the awaited name/message path. The valid build has no hero form with
-// AD_PEST; monster-to-monster disease effects remain at the exact discarded
-// void call until mhitm_ad_dise() is ported.
+// AD_PEST; that source arm still shares the AD_DISE monster-target logic.
 export async function mhitm_ad_pest(
     magr,
     mattk,
@@ -6631,11 +6631,13 @@ export async function mhitm_ad_pest(
 ) {
     const pa = magr.data;
 
-    if (magr === state.youmonst) {
+    if (magr === state.youmonst || mdef !== state.youmonst) {
         // uhitm.c documents that no valid polymorph form can select this arm.
-        // Preserve the source's goto into the AD_DISE case at its void gap.
-        note_unported('uhitm.c mhitm_ad_dise');
-    } else if (mdef === state.youmonst) {
+        // Both this goto and the monster-pair arm copy the attack, change its
+        // type to AD_DISE, and apply the same helper.
+        const altAttk = { ...mattk, adtyp: AD_DISE };
+        await mhitm_ad_dise(magr, altAttk, mdef, mhm, state, env);
+    } else {
         const message = requireAttackOperation(env, 'message');
         await message(
             `${Monnam(magr, state, env)} reaches out, and you feel fever and chills.`,
@@ -6645,10 +6647,6 @@ export async function mhitm_ad_pest(
         // C discards diseasemu's Boolean here; its disease mutation is the
         // effect, and hitmu() still applies the ordinary attack damage.
         await diseasemu(pa, { ...env, state });
-    } else {
-        // uhitm.c copies mattk, changes adtyp to AD_DISE and discards the
-        // mhitm_ad_dise result. Keep its unported effect at that call boundary.
-        note_unported('uhitm.c mhitm_ad_dise');
     }
 }
 
@@ -6671,6 +6669,33 @@ export async function mhitm_ad_samu(
         if (!random.rn2(20))
             await stealamulet(magr, { ...env, state });
     } else {
+        mhm.damage = 0;
+    }
+}
+
+// C ref: uhitm.c mhitm_ad_dise() (4593-4619). The hero-attacker case jumps to
+// the monster-pair guard; a monster attacking the hero instead emits hitmsg
+// and keeps damage only when diseasemu succeeds.
+export async function mhitm_ad_dise(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const pa = magr.data;
+    const pd = mdef.data;
+
+    if (magr !== state.youmonst && mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        if (!await diseasemu(pa, { ...env, state }))
+            mhm.damage = 0;
+        return;
+    }
+
+    if (pd.mlet === S_FUNGUS || pd === state.mons[PM_GHOUL]
+        || defended(mdef, AD_DISE, state)) {
         mhm.damage = 0;
     }
 }
@@ -7423,7 +7448,9 @@ export async function mhitm_adtyping(
     case AD_POLY:
         await mhitm_ad_poly(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_DISE: unported('mhitm_ad_dise'); break;
+    case AD_DISE:
+        await mhitm_ad_dise(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_SAMU:
         await mhitm_ad_samu(magr, mattk, mdef, mhm, state, env);
         break;

@@ -278168,7 +278168,7 @@
     {
       "id": "port-hero-level-teleport-trap-v47-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port hero level-teleport trap activation and command dispatch.",
       "cFile": "teleport.c",
       "sessions": [
@@ -278182,8 +278182,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "47b7ce458965199c8f97771a983240cc8d0f0e21",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dotele",
@@ -278545,6 +278548,1499 @@
             "recordings": [
               "recordings/trap.c/monster-trapdoor-migration.session.json"
             ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "47b7ce458965199c8f97771a983240cc8d0f0e21",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-dise-pest-v47-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port Pestilence and disease monster attack branches.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist"
+      ],
+      "selectionReason": "Seed continuation selected synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist. Source trace places the first cause in uhitm.c:mhitm_ad_pest calling mhitm_ad_dise: the disease helper must suppress damage to the S_FUNGUS Red Mold before passive attack handling. Port both whole functions and wire the existing AD_DISE dispatcher arm.",
+      "detail": "",
+      "openedAt": "09a4344088fda2f9553acb8f5c6c997734d9ceb6",
+      "openStanding": {
+        "sha": "47b7ce458965199c8f97771a983240cc8d0f0e21",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mhitm_ad_pest",
+          "line": 3808,
+          "endLine": 3836,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3808,
+        "to": 3836
+      },
+      "requiredFunctions": [
+        {
+          "name": "mhitm_ad_dise",
+          "line": 4593,
+          "endLine": 4622,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist": {
+          "session": "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+          "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+          "evaluationPath": "challenges/evaluations/accepted-47b7ce458965199c8f97771a983240cc8d0f0e21-v47.json",
+          "evaluationCommit": "47b7ce458965199c8f97771a983240cc8d0f0e21"
+        }
+      },
+      "activeStanding": {
+        "sha": "47b7ce458965199c8f97771a983240cc8d0f0e21",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+          "session": "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+          "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+          "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+          "recipe": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.recipe.session.json",
+          "recipeSha256": "71d1a4f2d140f88a7a658b3a44ef6b7913e10ecb21ed7dc61f84beb43d3533df",
+          "replayInputSha256": "5f6f8324654388e7d4e9c301e7ba25a0b89e9345315374925087438cb9431e02",
+          "evaluationPath": "challenges/evaluations/accepted-47b7ce458965199c8f97771a983240cc8d0f0e21-v47.json",
+          "evaluationCommit": "47b7ce458965199c8f97771a983240cc8d0f0e21",
+          "evaluationArtifact": "challenges/evaluations/accepted-47b7ce458965199c8f97771a983240cc8d0f0e21-v47.json",
+          "evaluationUtc": "2026-10-12T00:04:42.700Z",
+          "remainingScreens": 12,
+          "recordedSteps": 150,
+          "previousScreensMatched": 138,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 138,
+              "total": 150
+            },
+            "rng": {
+              "matched": 2663,
+              "total": 2669
+            },
+            "cursors": {
+              "matched": 138,
+              "total": 150
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 138,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 138,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "P",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2663,
+              "cEntry": "d(2,4)=2",
+              "cCaller": "passivemm(mhitm.c:1326)",
+              "jsEntry": "rn2(3)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 138,
+                "key": "."
+              },
+              "stepIndex": 138
+            },
+            "cursor": {
+              "index": 138,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 138,
+                "key": "."
+              },
+              "cCursor": [
+                70,
+                0,
+                1
+              ],
+              "jsCursor": [
+                14,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 138,
+          "kind": "rng",
+          "sourceFile": "mhitm.c",
+          "function": "passivemm",
+          "message": null,
+          "cFile": "mhitm.c",
+          "luaFile": null,
+          "line": 1326,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.json",
+            "result": {
+              "session": "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+              "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+              "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+              "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+              "remainingScreens": 12,
+              "recordedSteps": 150,
+              "status": "complete",
+              "commit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "session": "synthetic/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+                "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+                "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+                "recipe": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.recipe.session.json",
+                "recipeSha256": "71d1a4f2d140f88a7a658b3a44ef6b7913e10ecb21ed7dc61f84beb43d3533df",
+                "replayInputSha256": "13d87b260326cb87a3ad759ed31ce3e2d081c9a02c6302da26841e1cdd214c4e",
+                "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+                "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+                "evaluationArtifact": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+                "evaluationUtc": "2026-10-11T22:24:39.664Z",
+                "remainingScreens": 12,
+                "recordedSteps": 150,
+                "previousScreensMatched": 138,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 138,
+                    "total": 150
+                  },
+                  "rng": {
+                    "matched": 2663,
+                    "total": 2669
+                  },
+                  "cursors": {
+                    "matched": 138,
+                    "total": 150
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 138,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 138,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 34,
+                    "cCell": {
+                      "ch": "P",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2663,
+                    "cEntry": "d(2,4)=2",
+                    "cCaller": "passivemm(mhitm.c:1326)",
+                    "jsEntry": "rn2(3)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 138,
+                      "key": "."
+                    },
+                    "stepIndex": 138
+                  },
+                  "cursor": {
+                    "index": 138,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 138,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      70,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      14,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 138,
+                "kind": "rng",
+                "sourceFile": "mhitm.c",
+                "function": "passivemm",
+                "message": null,
+                "cFile": "mhitm.c",
+                "luaFile": null,
+                "line": 1326
+              },
+              "summary": "The first mismatch was caused by the missing uhitm.c:mhitm_ad_dise effect at the monster-to-monster AD_PEST path. mhitm_ad_pest copies Pestilence’s attack, changes it to AD_DISE, and calls the helper; the helper zeroes damage against S_FUNGUS, Ghouls, and monsters defended against disease. The port now reaches that guard, preserving the Red Mold and restoring the later passive RNG. The later corpse_chance and passivemm differences were downstream consequences, not passivemm defects.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "For a monster-pair hit, mhitm_ad_dise uses the monster defender’s data: S_FUNGUS, PM_GHOUL, or defended(mdef, AD_DISE) sets mhm.damage to zero; all other defenders take normal damage. A hero attacker goes to this same branch, although the source comment says it is unreachable because every AD_DISE species (Juiblex, Demogorgon, and Scorpius) has M2_NOPOLY. The separate monster-attacks-hero arm emits hitmsg and retains normal damage only when diseasemu succeeds. The dispatcher’s active monster-pair and monster-to-hero callers are mdamagem and hitmu; damageum reaches its hero-attacker arm only for a valid polymorph, which the source monster table excludes.",
+                "functions": [
+                  "mhitm_ad_pest",
+                  "mhitm_ad_dise"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_ad_pest: the monster-pair branch copies mattk, sets alt_attk.adtyp=AD_DISE, and calls mhitm_ad_dise; the monster-to-hero branch emits the fever-and-chills message and calls diseasemu.",
+                  "uhitm.c:mhitm_adtyping: the AD_DISE switch case directly calls mhitm_ad_dise and the AD_PEST case calls mhitm_ad_pest.",
+                  "mhitm.c:mdamagem at line 1059 calls uhitm.c:mhitm_adtyping for monster-pair attacks; js/mhitm.js:mdamagem is already wired to the same dispatcher.",
+                  "mhitu.c:hitmu at line 1191 calls uhitm.c:mhitm_adtyping for monster-to-hero attacks; js/mhitu.js:hitmu is already wired to the same dispatcher.",
+                  "uhitm.c:damageum at line 4854 calls uhitm.c:mhitm_adtyping for hero-to-monster attacks; js/uhitm.js:damageum is already wired to the same dispatcher, but no valid hero polymorph can select AD_DISE because all source species with that attack are M2_NOPOLY."
+                ],
+                "dependencies": [
+                  "uhitm.c:mhitm_ad_pest source caller branch must call the JS helper instead of note_unported.",
+                  "uhitm.c:mhitm_adtyping AD_DISE switch arm must call the JS helper instead of unported.",
+                  "Existing JS defended(..., AD_DISE) preserves the C monster-defense predicate.",
+                  "Existing JS diseasemu() and hitmsg() implement the helper’s non-monster-pair source arm."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved v47 queue entry: C and JS first disagree at zero-based step 138, screen index 138. C shows Pestilence touching the Red Mold and the monster remains alive; JS shows the tourist glyph at that map position after the target dies. At that action C next logs d(2,4)=2 in passivemm(mhitm.c:1326), while JS next logs rn2(3)=2 from corpse_chance after the Red Mold was killed. This places the causative difference before passivemm.",
+                "Upstream uhitm.c:4593-4619 defines the entire missing helper. Its monster-pair arm sets mhm.damage=0 for S_FUNGUS, PM_GHOUL, or defended(mdef, AD_DISE), and leaves ordinary damage unchanged otherwise.",
+                "Upstream uhitm.c:3808-3833 shows mhitm_ad_pest’s exact call: it copies mattk, changes adtyp to AD_DISE, then discards the void helper result. JS uhitm.js:mhitm_ad_pest currently substitutes note_unported in this monster-pair arm.",
+                "Upstream uhitm.c:4782-4825 contains the direct AD_DISE caller in mhitm_adtyping. JS uhitm.js currently stops that arm at unported(\"mhitm_ad_dise\"). The complete source task must wire both existing callers.",
+                "The selected v47 recipe places a forced hostile Pestilence and hostile Red Mold under Conflict, then waits for the adjacent monster fight. Its full replay now matches and reaches mhitm_ad_pest -> mhitm_ad_dise before the Red Mold passive attack.",
+                "The admitted v20 pestilence-touches-wizard-v20-more-corrected case is a distinct matching monster-to-hero entry to mhitm_ad_pest; a fresh differential matches its full 48-step segment.",
+                "New independent C-first recordings cover direct AD_DISE dispatcher entries: Scorpius versus a stone golem exercises mdamagem -> mhitm_adtyping -> mhitm_ad_dise through 156 steps, and Scorpius versus the hero exercises hitmu -> mhitm_adtyping -> mhitm_ad_dise through the disease action at step 79 in an 80-step replay. Both fresh differentials match completely.",
+                "The AD_DISE hero-attacker branch is source-tested but has no valid runtime producer: monsters.h defines Juiblex, Demogorgon, and Scorpius as M2_NOPOLY, and uhitm.c explicitly comments that a hero cannot polymorph into a monster with this attack."
+              ],
+              "queueSha256": "46b5891629d3d59e5e62550cd812381e88752c80574406c65acffb4f4fed55cb"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_pest",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_pest",
+            "sourceReview": "Read the whole uhitm.c:mhitm_ad_pest definition (lines 3808-3834). Its source order is preserved: the hero-attacker goto shares AD_DISE monster-target logic; the monster-to-hero branch messages, calls diseasemu and then returns to ordinary damage; the monster-pair branch copies mattk, changes only adtyp to AD_DISE, calls mhitm_ad_dise, and discards its void result. Replaced the prior note_unported placeholder. The C source says no valid hero polymorph has AD_PEST.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping dispatches AD_PEST to mhitm_ad_pest; its existing JavaScript dispatcher now reaches this implementation."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem calls uhitm.c:mhitm_adtyping for monster-pair attacks; this existing caller reaches the AD_PEST branch when the attacker has that attack."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu calls uhitm.c:mhitm_adtyping for monster-to-hero attacks; this existing caller reaches the AD_PEST hero-defender branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-pest.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 149,
+                "source": "Pestilence's AD_PEST attack enters mhitm_adtyping -> mhitm_ad_pest; the copied AD_DISE reaches mhitm_ad_dise and preserves the Red Mold at the former step-138 mismatch, followed by the monster passive attack."
+              },
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "The monster action reaches hitmu -> mhitm_adtyping(AD_PEST) -> mhitm_ad_pest, whose hero-defender branch emits the source message and calls diseasemu. The entire 48-step C replay matches."
+              }
+            ],
+            "checkedAt": "8f5cf7c375796f01323a3bd2b64e3b59c8b85e8a"
+          },
+          {
+            "name": "mhitm_ad_dise",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_dise",
+            "sourceReview": "Read the whole uhitm.c:mhitm_ad_dise definition (lines 4593-4619). For a monster attacking the hero, it calls hitmsg, runs diseasemu and clears mhm.damage only when that helper returns false. For monster defenders, it clears damage for S_FUNGUS, exact PM_GHOUL, or defended(mdef, AD_DISE), preserving ordinary damage otherwise. The hero-attacker goto is retained; C comments that it cannot occur in a valid game because no monster with AD_DISE is a valid polymorph form. Existing JS hitmsg, diseasemu and defended helpers are reused; no unported callee remains in the selected branches.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_pest",
+                "source": "uhitm.c:mhitm_ad_pest copies the attack, changes adtyp to AD_DISE and calls mhitm_ad_dise in the monster-pair arm; its hero-attacker goto also shares that branch."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping directly calls mhitm_ad_dise in its AD_DISE switch arm; the former unported dispatcher case was replaced."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem calls mhitm_adtyping for monster-pair attacks; the direct Scorpius recording reaches the helper from this path."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu calls mhitm_adtyping for monster-to-hero attacks; the direct Scorpius recording reaches the helper's hero-defender branch from this path."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum calls mhitm_adtyping for hero-to-monster attacks. The call is wired, but the AD_DISE arm has no valid runtime producer: Juiblex, Demogorgon and Scorpius are all M2_NOPOLY, and C comments that the hero cannot polymorph into a monster with AD_DISE. The otherwise unreachable source branch is source-pinned by the focused test."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-pest.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-dise-monster-pair-scorpius-stone-golem-v47.session.json",
+              "recordings/uhitm.c/mhitm-ad-dise-monster-to-hero-scorpius-v47.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 149,
+                "source": "The AD_PEST caller changes the copied attack to AD_DISE and reaches the S_FUNGUS guard before the later passive RNG."
+              }
+            ],
+            "checkedAt": "8f5cf7c375796f01323a3bd2b64e3b59c8b85e8a"
+          }
+        ],
+        "entryPointReview": "The active production entry points in the selected functions are monster-pair AD_PEST (including the S_FUNGUS guard), monster-to-hero AD_PEST disease processing, direct monster-pair AD_DISE dispatch, and direct monster-to-hero AD_DISE processing. They are covered respectively by the admitted v47 Pestilence/Red Mold range, admitted v20 Pestilence/Wizard range, and two new C-first Scorpius recordings. The existing JS production callers mhitm.c:mdamagem/js/mhitm.js:mdamagem, mhitu.c:hitmu/js/mhitu.js:hitmu and uhitm.c:damageum/js/uhitm.js:damageum remain wired to mhitm_adtyping. The hero-to-monster AD_DISE branch is not a valid production entry: the only source monster definitions with AD_DISE are Juiblex, Demogorgon and Scorpius, each M2_NOPOLY, and uhitm.c explicitly states that a hero cannot polymorph into one. The focused source-pinned test exercises that source branch without claiming runtime reachability. No other unported callee is hidden in the selected source range.",
+        "entryPoints": [
+          {
+            "name": "Pestilence monster-pair disease effect against fungus",
+            "functions": [
+              "mhitm_ad_pest",
+              "mhitm_ad_dise"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 149,
+                "source": "mhitm.c:mdamagem -> uhitm.c:mhitm_adtyping(AD_PEST) -> mhitm_ad_pest -> mhitm_ad_dise(S_FUNGUS guard) -> mhitm.c:passivemm."
+              }
+            ]
+          },
+          {
+            "name": "Pestilence monster-to-hero disease effect",
+            "functions": [
+              "mhitm_ad_pest"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping(AD_PEST) -> mhitm_ad_pest -> diseasemu."
+              }
+            ]
+          },
+          {
+            "name": "Direct monster-pair AD_DISE dispatch",
+            "functions": [
+              "mhitm_ad_dise"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-dise-monster-pair-scorpius-stone-golem-v47.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Direct monster-to-hero AD_DISE disease processing",
+            "functions": [
+              "mhitm_ad_dise"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-dise-monster-to-hero-scorpius-v47.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-eatmupdate-v47-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port active mimic appearance updates when hallucination changes.",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst"
+      ],
+      "selectionReason": "Selected from the saved v47 queue after its source trace identified eat.c:eatmupdate and the sole potion.c:make_hallucinated caller. Port the whole helper and wire that caller; an independent recording supplies matching runtime evidence because the selected case retains a separate cpostfx display scheduling gap.",
+      "detail": "",
+      "openedAt": "7b71dbccdbac41deb365dd79b84cbb663b4c80dd",
+      "openStanding": {
+        "sha": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "d2148725fc8c59ebc1b6c06947ec0e2b93730813",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "eatmupdate",
+          "line": 181,
+          "endLine": 216,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 181,
+        "to": 216
+      },
+      "syntheticProvenance": {
+        "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst": {
+          "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+          "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+          "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948"
+        }
+      },
+      "activeStanding": {
+        "sha": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingPath": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+          "recipe": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.recipe.session.json",
+          "recipeSha256": "39fd145127f7f4c41052613646c6eef92950924fc166825b6900382218052a41",
+          "replayInputSha256": "11b19f5c9dc01eb89e6d8bf0ad6c4ab05bb24b572c9629a58d33f7c0319a6d53",
+          "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+          "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+          "evaluationArtifact": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+          "evaluationUtc": "2026-10-12T00:34:31.123Z",
+          "remainingScreens": 2,
+          "recordedSteps": 54,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2272,
+              "total": 2667
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 6,
+              "column": 31,
+              "cCell": {
+                "ch": "(",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "$",
+                "color": 11,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2258,
+              "cEntry": "rn2(1)=0",
+              "cCaller": "m_move(monmove.c:1978)",
+              "jsEntry": "rn2(12)=8",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "stepIndex": 53
+            },
+            "cursor": {
+              "index": 53,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "cCursor": [
+                28,
+                5,
+                1
+              ],
+              "jsCursor": [
+                39,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.json",
+            "result": {
+              "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+              "remainingScreens": 2,
+              "recordedSteps": 54,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+              "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+              "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+              "status": "complete",
+              "commit": "7aa1bbc2856d5c2e2aee47c10d3dd73807bb3cf0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+                "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+                "recordingPath": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+                "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+                "recipe": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.recipe.session.json",
+                "recipeSha256": "39fd145127f7f4c41052613646c6eef92950924fc166825b6900382218052a41",
+                "evaluationPath": "challenges/evaluations/accepted-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-v47.json",
+                "evaluationCommit": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948",
+                "remainingScreens": 2,
+                "recordedSteps": 54,
+                "previousScreensMatched": 52,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 54
+                  },
+                  "rng": {
+                    "matched": 2272,
+                    "total": 2667
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 54
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 6,
+                    "column": 31,
+                    "cCell": {
+                      "ch": "(",
+                      "color": 3,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "$",
+                      "color": 11,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2258,
+                    "cEntry": "rn2(1)=0",
+                    "cCaller": "m_move(monmove.c:1978)",
+                    "jsEntry": "rn2(12)=8",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "stepIndex": 53
+                  },
+                  "cursor": {
+                    "index": 53,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      28,
+                      5,
+                      1
+                    ],
+                    "jsCursor": [
+                      39,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 52,
+                "kind": "screen",
+                "sourceFile": "eat.c",
+                "function": "eatmupdate",
+                "message": null,
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": 181
+              },
+              "summary": "At zero-based segment 0, step 52 in the current accepted evaluation, the admitted v47 candidate enters the timeout-clear branch while the hero is mimicking a small mimic corpse. The eat.c:eatmupdate() source unit is now implemented and wired from potion.c:make_hallucinated(); an independent recording verifies the active orange-to-gold appearance update. The selected case still differs at this boundary because C eat.c:cpostfx() blocks in display_nhwindow(WIN_MAP, TRUE) after starting mimicry, while JS cpostfx() records note_unported('windows.c display_nhwindow') and returns. That cpostfx/window scheduling gap delays C's next captured screen; it is a separate source task and remains out of this goal.",
+              "source": {
+                "file": "eat.c",
+                "functions": [
+                  "eatmupdate"
+                ],
+                "functionRange": "181-213",
+                "branch": "The selected path enters the active ge.eatmbuf/gn.nomovemsg guard, recognizes M_AP_OBJECT with mappearance ORANGE after Hallucination clears, replaces the finish-mimicking text and appearance with GOLD_PIECE, and redraws the hero. The full function also includes the source's GOLD_PIECE-to-ORANGE branch when hallucination starts.",
+                "callers": [
+                  "The only direct C caller is potion.c:make_hallucinated() at line 418, on its changed && !Hallucination branch. js/potion.js:make_hallucinated() now calls js/eat.js:eatmupdate() on the same branch. C discards the helper's void result."
+                ],
+                "dependencies": [
+                  "monst.h:is_obj_mappear() and M_AP_TYPE are macros, not separate C functions to port; they test m_ap_type and mappearance.",
+                  "display.c:newsym() is an existing screen-update helper. eatmupdate() consumes no return-valued unported dependency and makes no random draw.",
+                  "ge.eatmbuf and gn.nomovemsg are already represented as state.eatmbuf and state.nomovemsg by js/eat.js corpse-mimic handling; state.youmonst.mappearance is the hero's C mappearance. The two message references must be replaced together as in C's buffer copy."
+                ],
+                "javascriptGap": "Resolved for the assigned source unit: js/eat.js:eatmupdate() implements the whole C function, and js/potion.js:make_hallucinated() wires it at the direct caller. The selected synthetic case retains a distinct cpostfx/display_nhwindow scheduling mismatch.",
+                "proposedImplementationScope": {
+                  "sourceReservations": [
+                    "source:eat.c:eatmupdate"
+                  ],
+                  "callerWiring": [
+                    "potion.c:make_hallucinated() -> js/potion.js:make_hallucinated()"
+                  ],
+                  "paths": [
+                    "js/eat.js",
+                    "js/potion.js",
+                    "scripts/eat.test.mjs",
+                    "scripts/potion.test.mjs",
+                    "recipes/eat.c/",
+                    "recordings/eat.c/",
+                    ".cache/"
+                  ],
+                  "entryPointEvidence": "The independent recording recipes/eat.c/eatmupdate-hallucination-mimic-47000135.session.json reaches the active orange-to-gold transition and strictly matches C at all 55 screens, RNG values, and cursor positions. The admitted v47 case remains evidence of the caller route through cpostfx, but its timeout boundary is delayed by C's blocking display_nhwindow(WIN_MAP, TRUE), so it does not verify the transition at the same screen step."
+                }
+              },
+              "goalKind": "file-port",
+              "selectionReason": "Selected as the first unreserved independent candidate in saved combined queue SHA-256 90fac9709e3b3e7fcc3c4fea739f87d074e6fd96a9fac0c6040306130ce71c6d, after skipping C/B-owned sessions, A2's already claimed shop and gremlin cases, and the earlier poly-energy session which was parked on B's uhitm.c:mhitm_adtyping reservation. This candidate's source diagnosis remains eat.c:eatmupdate, with no active eat.c or potion.c reservation.",
+              "evidence": [
+                "The v47 manifest identity SHA-256 is b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608. The admitted candidate is v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst, with 54 steps, 52/54 screens, 2272/2667 RNG calls, and 53/54 cursors in the accepted ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948 v47 evaluation. Its recipe and recording hashes are recorded above.",
+                "The recipe independently uses seed 47000134, date/time 20571111111214, debug Wizard, no pet, and moves `#wizwish` for a small mimic corpse, `#wizintrinsic` with `10h` to set a 10-turn hallucination timeout, then eats the corpse from slot p and dismisses the resulting pages. C reaches cpostfx(PM_SMALL_MIMIC) while hallucinating, starts orange-object mimicry, then clears hallucination during the active mimic state.",
+                "The source function is eat.c:eatmupdate() at lines 181-213. It returns before work unless ge.eatmbuf is nonnull and gn.nomovemsg points to that same active mimic completion buffer. For an orange object appearance after hallucination ends, it selects `You now prefer mimicking yourself.` and GOLD_PIECE, copies the new text into the active buffer, sets mappearance, and calls newsym().",
+                "The sole direct C caller is potion.c:make_hallucinated() line 418 under changed && !Hallucination. The JavaScript implementation now wires this caller to eatmupdate(). No other eatmupdate() call exists in upstream C, and the relevant appearance predicate is a header macro.",
+                "The assigned source changes are verified by the independent recipe and recording hashes 18858150dbc3344478489c22e20932705811ded3bc8c9233832f731b54dbe0a4 and 9a1914394cbfc9727a52dd7f2588fa5da33119d39fbfcb98a2f1d4251b7bf0b5. Fresh differential run gYZuGU matched all 55 screens, 2751 RNG calls, 55 cursors, and all animation frames.",
+                "Fresh differential of the admitted v47 case after implementation had 53/54 screens, 2667/2667 RNG values, 54/54 cursors, and 3/3 animation frames. Its accepted pre-change evaluation had 52/54 screens, 2272/2667 RNG calls, and 53/54 cursors, so the source change improves the case and introduces no metric regression. The remaining first screen difference at boundary 53 is C's hallucinated hero glyph % versus JS's gold piece $.",
+                "C eat.c:cpostfx() lines 1129-1319 handles PM_SMALL_MIMIC, calls nomul(-tmp), sets the active mimic message and appearance, then calls display_nhwindow(WIN_MAP, TRUE) at line 1224. That call blocks through the TTY message window while a pending --More-- remains. JS js/eat.js:cpostfx() has the same mimic setup but calls note_unported('windows.c display_nhwindow') at line 2764, then returns without the blocking read. The timeout owners otherwise align: timeout.c:nh_timeout() case HALLUC sets HHallucination to 1, calls make_hallucinated(0L, TRUE, 0L), and stops occupation when Hallucination clears; js/timeout.js:decrement_property_timeouts() does the same. Completing cpostfx is a separate whole-function task because it is large and contains other partial branches."
+              ],
+              "blocker": "The selected v47 boundary still needs a separate complete eat.c:cpostfx()/blocking-window source task. Its active JS branch skips windows.c:display_nhwindow(WIN_MAP, TRUE), changing when the hallucination timeout transition is captured; that scope is outside this eatmupdate goal."
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "eatmupdate",
+            "implementation": "js/eat.js",
+            "symbol": "eatmupdate",
+            "sourceReview": "Read the complete eat.c:eatmupdate() definition (181-213) and checked its guard and branch order. C returns immediately unless ge.eatmbuf exists and gn.nomovemsg points to that same buffer. It then checks ORANGE plus !Hallucination before GOLD_PIECE plus Hallucination; when either branch matches, it replaces the active message, updates gy.youmonst.mappearance, and calls newsym(u.ux,u.uy), in that order. JS implements the entire function in js/eat.js:eatmupdate(), uses the same guard and branch order, updates state.eatmbuf and state.nomovemsg together, updates mappearance, then invokes the caller-supplied redraw. The only callees are macro/state predicates and the existing newsym display update; there is no unported return-valued dependency and no random-number call.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "make_hallucinated",
+                "source": "potion.c:make_hallucinated calls eatmupdate() when the hallucination change succeeds and Hallucination is false; C discards its void result. The JS caller now invokes eatmupdate(state,{redraw}) under the same condition."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/eatmupdate-hallucination-mimic-47000135.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "945ea1c014580397294045fd02ec972a49f91710"
+          }
+        ],
+        "entryPointReview": "The only active C production caller is potion.c:make_hallucinated() at line 418, which calls eatmupdate() after a successful change when Hallucination is false. The independent eat.c recording reaches this caller while the hero has the active orange-object mimic message; clearing Hallucination changes the appearance to GOLD_PIECE and replaces the pending message. The function’s GOLD_PIECE-to-ORANGE branch is retained and source-pinned, but the direct production caller does not invoke eatmupdate() when Hallucination is true, so that branch is not claimed as an independent runtime entry point. The admitted v47 case routes through the same mimic and timeout behavior, but its boundary remains mismatched because C eat.c:cpostfx() blocks in display_nhwindow(WIN_MAP,TRUE) while the JS branch records an unported display gap; the selected case is therefore not used as matching completion evidence.",
+        "entryPoints": [
+          {
+            "name": "Hallucination ends while the hero has an active orange-object mimic message",
+            "functions": [
+              "eatmupdate"
+            ],
+            "recordings": [
+              "recordings/eat.c/eatmupdate-hallucination-mimic-47000135.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "session": "synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingPath": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+          "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+          "recipe": "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.recipe.session.json",
+          "recipeSha256": "39fd145127f7f4c41052613646c6eef92950924fc166825b6900382218052a41",
+          "replayInputSha256": "6d1e0de9632d24bba33c393e040001ed96a4bb6d06cbeeca3b9a94fd834b11a4",
+          "evaluationPath": "challenges/evaluations/accepted-d2148725fc8c59ebc1b6c06947ec0e2b93730813-v47.json",
+          "evaluationCommit": "d2148725fc8c59ebc1b6c06947ec0e2b93730813",
+          "evaluationArtifact": "challenges/evaluations/accepted-d2148725fc8c59ebc1b6c06947ec0e2b93730813-v47.json",
+          "evaluationUtc": "2026-10-12T01:01:46.610Z",
+          "remainingScreens": 1,
+          "recordedSteps": 54,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 53,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2667,
+              "total": 2667
+            },
+            "cursors": {
+              "matched": 54,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 5,
+              "column": 28,
+              "cCell": {
+                "ch": "%",
+                "color": 9,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "$",
+                "color": 11,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.json",
+            "previousRemainingScreens": 2
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "d2148725fc8c59ebc1b6c06947ec0e2b93730813",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-mhitu-missmu-see-invisible-v47-20261011",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Allow miss messages for invisible monsters the hero can see.",
+      "cFile": "mhitu.c",
+      "sessions": [],
+      "selectionReason": "The current v47 case stops at mhitu.c:missmu when an invisible grid bug is spotted through See Invisible. C names the monster and prints the miss; JavaScript has an artificial refusal before its existing naming path.",
+      "detail": "Remove the spotted-invisible refusal from js/mhitu.js:missmu while preserving C hit-message reset, conditional map_invisible, pline_mon name formatting, and stop-occupation order across all three mattacku miss callers.",
+      "openedAt": "c8a6321be25f5c75a47552e861a62240f143e1f3",
+      "openStanding": {
+        "sha": "d2148725fc8c59ebc1b6c06947ec0e2b93730813",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "589dba120616b39955a49d02450b8f9d3cdf5d2c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "missmu",
+      "session": "synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104",
+      "step": 67,
+      "syntheticProvenance": {
+        "synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104": {
+          "session": "synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-see-invisible-grid-bug-missmu-seed47100104",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.session.json",
+          "recordingSha256": "500a4474ecfbd3e1db8eb7b0cd3e0330c37054f2c598231a142c5c7af16c6eed",
+          "evaluationPath": "challenges/evaluations/accepted-d2148725fc8c59ebc1b6c06947ec0e2b93730813-v47.json",
+          "evaluationCommit": "d2148725fc8c59ebc1b6c06947ec0e2b93730813"
+        }
+      },
+      "activeStanding": {
+        "sha": "d2148725fc8c59ebc1b6c06947ec0e2b93730813",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-see-invisible-grid-bug-missmu-seed47100104",
+          "session": "synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.session.json",
+          "recordingPath": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.session.json",
+          "recordingSha256": "500a4474ecfbd3e1db8eb7b0cd3e0330c37054f2c598231a142c5c7af16c6eed",
+          "recipe": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.recipe.session.json",
+          "recipeSha256": "e943ff3e5b40eb6195855280f54cb90019d65660716e5db3602ce274b7a74ca6",
+          "replayInputSha256": "6d1e0de9632d24bba33c393e040001ed96a4bb6d06cbeeca3b9a94fd834b11a4",
+          "evaluationPath": "challenges/evaluations/accepted-d2148725fc8c59ebc1b6c06947ec0e2b93730813-v47.json",
+          "evaluationCommit": "d2148725fc8c59ebc1b6c06947ec0e2b93730813",
+          "evaluationArtifact": "challenges/evaluations/accepted-d2148725fc8c59ebc1b6c06947ec0e2b93730813-v47.json",
+          "evaluationUtc": "2026-10-12T01:01:46.610Z",
+          "remainingScreens": 2,
+          "recordedSteps": 69,
+          "previousScreensMatched": 67,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 67,
+              "total": 69
+            },
+            "rng": {
+              "matched": 2967,
+              "total": 3005
+            },
+            "cursors": {
+              "matched": 67,
+              "total": 69
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a miss by an invisible monster the hero can see",
+            "step": 67
+          },
+          "step": 67,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a miss by an invisible monster the hero can see",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104.json",
+            "result": {
+              "session": "synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104",
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-see-invisible-grid-bug-missmu-seed47100104",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingPath": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.session.json",
+              "recordingSha256": "500a4474ecfbd3e1db8eb7b0cd3e0330c37054f2c598231a142c5c7af16c6eed",
+              "recipePath": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.recipe.session.json",
+              "recipeSha256": "e943ff3e5b40eb6195855280f54cb90019d65660716e5db3602ce274b7a74ca6",
+              "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+              "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+              "queueSha256": "46b5891629d3d59e5e62550cd812381e88752c80574406c65acffb4f4fed55cb",
+              "remainingScreens": 2,
+              "recordedSteps": 69,
+              "status": "complete",
+              "commit": "8c45ad858da4aa9b8642096beffbf18c0d8af8e2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-see-invisible-grid-bug-missmu-seed47100104",
+                "session": "synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.session.json",
+                "recordingPath": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.session.json",
+                "recordingSha256": "500a4474ecfbd3e1db8eb7b0cd3e0330c37054f2c598231a142c5c7af16c6eed",
+                "recipe": "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.recipe.session.json",
+                "recipeSha256": "e943ff3e5b40eb6195855280f54cb90019d65660716e5db3602ce274b7a74ca6",
+                "replayInputSha256": "13d87b260326cb87a3ad759ed31ce3e2d081c9a02c6302da26841e1cdd214c4e",
+                "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+                "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+                "evaluationArtifact": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+                "evaluationUtc": "2026-10-11T22:24:39.664Z",
+                "remainingScreens": 2,
+                "recordedSteps": 69,
+                "previousScreensMatched": 67,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 67,
+                    "total": 69
+                  },
+                  "rng": {
+                    "matched": 2967,
+                    "total": 3005
+                  },
+                  "cursors": {
+                    "matched": 67,
+                    "total": 69
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a miss by an invisible monster the hero can see",
+                  "step": 67
+                },
+                "step": 67,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a miss by an invisible monster the hero can see",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The step-67 stop is an artificial JavaScript refusal in mhitu.js:missmu, not an unreachable game state. The C missmu path calls pline_mon with Monnam(mtmp); because the hero has a see-invisible ring, canspotmon is true while mtmp->minvis is also true, so do_name.c:x_monnam names the visible species with its invisible adjective. JavaScript already implements that formatter, but missmu throws before calling it. Remove the refusal and let the existing naming and miss-message path complete.",
+              "source": {
+                "file": "mhitu.c",
+                "branch": "At a monster attack miss, missmu clears hit-message state, calls map_invisible only when canspotmon is false, chooses the seduction or ordinary miss line with Monnam(mtmp), and then stops the hero occupation. Here the ring makes canspotmon true while the grid bug remains minvis, so C renders its name and the invisible adjective.",
+                "functions": [
+                  "missmu"
+                ],
+                "callers": [
+                  "mhitu.c:mattacku calls missmu in the physical claw/kick/bite/sting/touch/butt/tent miss arm at line 814; the existing JS caller is js/mhitu.js:mattacku at line 1908.",
+                  "mhitu.c:mattacku calls missmu in the polearm miss arm at line 854; the existing JS caller is js/mhitu.js:mattacku at line 1955.",
+                  "mhitu.c:mattacku calls missmu in the weapon miss arm at line 915; the existing JS caller is js/mhitu.js:mattacku at line 2042."
+                ],
+                "dependencies": [
+                  "do_name.c:Monnam and do_name.c:x_monnam are already implemented by js/do_name.js:Monnam and js/do_name.js:x_monnam; x_monnam handles the source do_invis adjective branch for a spotted invisible monster.",
+                  "pline.c:pline_mon is already implemented by js/pline.js:pline_mon; it preserves the source monster-coordinate message attribution.",
+                  "The existing mattacku stop-occupation path represents mhitu.c:stop_occupation and remains after the miss message."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved v47 queue (SHA-256 46b5891629d3d59e5e62550cd812381e88752c80574406c65acffb4f4fed55cb) selects synthetic/v47/v47-see-invisible-grid-bug-missmu-seed47100104. The admitted recording first stops at zero-based step 67 after the adjacent hostile grid bug misses; the action's C path enters mhitu.c:mattacku and calls missmu.",
+                "The C recording uses an uncursed ring of see invisible and wizard genesis to create an invisible hostile grid bug. See Invisible makes canspotmon(mtmp) true while the monster retains minvis, which is the exact condition rejected by the JavaScript guard.",
+                "Upstream mhitu.c:missmu (lines 85-100) sets hitmsg_mid and hitmsg_prev to zero/null, conditionally calls map_invisible when canspotmon is false, then calls pline_mon with either a seduction message or “%s %smisses!” using Monnam(mtmp), and finally calls stop_occupation().",
+                "Upstream do_name.c:x_monnam (lines 827-1032) computes do_invis as mtmp->minvis unless SUPPRESS_INVISIBLE is set, suppresses the “it” arm when canspotmon is true, and prefixes “invisible ” before the species name. The existing js/do_name.js:x_monnam has the same branch; the mismatch comes from js/mhitu.js:missmu throwing before reaching it.",
+                "The three source call sites are mhitu.c:mattacku lines 814, 854 and 915. Existing JS calls at js/mhitu.js lines 1908, 1955 and 2042 already route those miss branches to missmu, so the correction can stay within missmu and its focused test."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "589dba120616b39955a49d02450b8f9d3cdf5d2c",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-dungeon-rm-mapseen-v47-20261011",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port dungeon.c rm_mapseen and wire its replacement-level caller.",
+      "cFile": "dungeon.c",
+      "sessions": [
+        "synthetic/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst"
+      ],
+      "selectionReason": "The current v47 queue has one remaining overview screen after #wizmakemap; source tracing identifies the missing dungeon.c rm_mapseen call.",
+      "detail": "Port whole dungeon.c:rm_mapseen, replace the cmd.c:makemap_prepost(TRUE) gap, preserve first-match ledger removal, and verify both #wizmakemap and #wizloaddes production routes.",
+      "openedAt": "87861e41e8c761f108822be8262e2a228979125c",
+      "openStanding": {
+        "sha": "589dba120616b39955a49d02450b8f9d3cdf5d2c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rm_mapseen",
+          "line": 2665,
+          "endLine": 2694,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2665,
+        "to": 2694
+      },
+      "syntheticProvenance": {
+        "synthetic/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst": {
+          "session": "synthetic/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.session.json",
+          "recordingSha256": "1a058a4b18dcbf2754b4cca6cc2be1abec82a6f36a99e1a419423611a9b7790d",
+          "evaluationPath": "challenges/evaluations/accepted-589dba120616b39955a49d02450b8f9d3cdf5d2c-v47.json",
+          "evaluationCommit": "589dba120616b39955a49d02450b8f9d3cdf5d2c"
+        }
+      },
+      "activeStanding": {
+        "sha": "589dba120616b39955a49d02450b8f9d3cdf5d2c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+          "session": "synthetic/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.session.json",
+          "recordingPath": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.session.json",
+          "recordingSha256": "1a058a4b18dcbf2754b4cca6cc2be1abec82a6f36a99e1a419423611a9b7790d",
+          "recipe": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.recipe.session.json",
+          "recipeSha256": "f43201b07f4e41b11b03ebbcf1802ccf164cd2b0a373d9e89f69bb6682a84390",
+          "replayInputSha256": "fe164c3bfa467126cbc5b5517d82cbd0f71b2eb1676d9d3226a6e8bdcef7bf6a",
+          "evaluationPath": "challenges/evaluations/accepted-589dba120616b39955a49d02450b8f9d3cdf5d2c-v47.json",
+          "evaluationCommit": "589dba120616b39955a49d02450b8f9d3cdf5d2c",
+          "evaluationArtifact": "challenges/evaluations/accepted-589dba120616b39955a49d02450b8f9d3cdf5d2c-v47.json",
+          "evaluationUtc": "2026-10-12T01:28:28.265Z",
+          "remainingScreens": 1,
+          "recordedSteps": 24,
+          "previousScreensMatched": 23,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 23,
+              "total": 24
+            },
+            "rng": {
+              "matched": 5031,
+              "total": 5031
+            },
+            "cursors": {
+              "matched": 23,
+              "total": 24
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 23,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 23,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 2,
+              "column": 41,
+              "cCell": {
+                "ch": "(",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 23,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 23,
+                "key": "\n"
+              },
+              "cCursor": [
+                47,
+                2,
+                1
+              ],
+              "jsCursor": [
+                47,
+                3,
+                1
+              ]
+            }
+          },
+          "step": 23,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.json",
+            "result": {
+              "session": "synthetic/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+              "remainingScreens": 1,
+              "recordedSteps": 24,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingSha256": "1a058a4b18dcbf2754b4cca6cc2be1abec82a6f36a99e1a419423611a9b7790d",
+              "evaluationPath": "challenges/evaluations/accepted-589dba120616b39955a49d02450b8f9d3cdf5d2c-v47.json",
+              "evaluationCommit": "589dba120616b39955a49d02450b8f9d3cdf5d2c",
+              "status": "complete",
+              "commit": "412f06390d65ab0fe18f374e6c212b25acfaabda",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+                "session": "synthetic/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.session.json",
+                "recordingPath": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.session.json",
+                "recordingSha256": "1a058a4b18dcbf2754b4cca6cc2be1abec82a6f36a99e1a419423611a9b7790d",
+                "recipe": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.recipe.session.json",
+                "recipeSha256": "f43201b07f4e41b11b03ebbcf1802ccf164cd2b0a373d9e89f69bb6682a84390",
+                "replayInputSha256": "fe164c3bfa467126cbc5b5517d82cbd0f71b2eb1676d9d3226a6e8bdcef7bf6a",
+                "evaluationPath": "challenges/evaluations/accepted-589dba120616b39955a49d02450b8f9d3cdf5d2c-v47.json",
+                "evaluationCommit": "589dba120616b39955a49d02450b8f9d3cdf5d2c",
+                "evaluationArtifact": "challenges/evaluations/accepted-589dba120616b39955a49d02450b8f9d3cdf5d2c-v47.json",
+                "evaluationUtc": "2026-10-12T01:28:28.265Z",
+                "remainingScreens": 1,
+                "recordedSteps": 24,
+                "previousScreensMatched": 23,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 23,
+                    "total": 24
+                  },
+                  "rng": {
+                    "matched": 5031,
+                    "total": 5031
+                  },
+                  "cursors": {
+                    "matched": 23,
+                    "total": 24
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 23,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 23,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 2,
+                    "column": 41,
+                    "cCell": {
+                      "ch": "(",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 23,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 23,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      47,
+                      2,
+                      1
+                    ],
+                    "jsCursor": [
+                      47,
+                      3,
+                      1
+                    ]
+                  }
+                },
+                "step": 23,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The mismatch is the missing dungeon.c:rm_mapseen call in cmd.c:makemap_prepost(TRUE). C unlinks and discards the old current-level overview node before replacing the level; JS records note_unported and leaves it in state.svm.mapseenchn, then init_mapseen appends another D:1 node. The #overview command consequently renders a duplicate Level 1 row after #wizmakemap.",
+              "source": {
+                "file": "dungeon.c",
+                "branch": "When a level is replaced, find the first mapseen node whose dungeon ledger_start plus dlevel equals the requested ledger number; if found, release its custom annotation and final-resting-place chain, then unlink it from the mapseen list. If no node matches, return without changing the list.",
+                "functions": [
+                  "rm_mapseen"
+                ],
+                "callers": [
+                  "cmd.c:makemap_prepost(TRUE) -> dungeon.c:rm_mapseen(ledger_no(&u.uz))",
+                  "wizcmds.c:wiz_makemap -> cmd.c:makemap_prepost(TRUE)",
+                  "wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level(NULL) -> cmd.c:makemap_prepost(TRUE)",
+                  "cmd.js:command dispatch (#wizmakemap/#wizloaddes) -> wizcmds.js -> cmd.js:makemap_prepost"
+                ],
+                "dependencies": []
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved v47 queue identifies the exact remaining-screen mismatch at segment 0, step 23, the #overview boundary: 5,031/5,031 RNG calls match, while the C overview contains one Level 1 row and JS contains a duplicate. See challenges/manifests/v47.json case v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst and the matching case recording SHA in the saved queue.",
+                "Upstream dungeon.c:2665-2691 defines all of rm_mapseen: traverse svm.mapseenchn by ledger_start + dlevel; return if absent; free custom annotation; walk/free final_resting_place; unlink the matched node from the head or predecessor. It makes no random calls and writes no output; its game-state effect is removal of that remembered level node.",
+                "The only direct C caller is cmd.c:993 in makemap_prepost(TRUE), after makemap_remove_mons and before replacement-level generation. Its already ported JavaScript caller in js/cmd.js:2561-2570 computes ledger_no then currently records note_unported(\"dungeon.c rm_mapseen\") without removing the node. js/dungeon.js:init_mapseen (2364-2387) inserts a new D:1 node in sorted order, accounting for the duplicate.",
+                "The production #wizmakemap command reaches the pre path through wizcmds.c:wiz_makemap (161-166) and js/wizcmds.js:wiz_makemap. The separate active #wizloaddes path calls sp_lev.c:lspo_reset_level(NULL) from wizcmds.c:wiz_load_splua (388), which also reaches makemap_prepost(TRUE); existing recording recordings/wizcmds.c/wiz-load-des-explicit.session.json covers that caller route. The v47 case is the runtime evidence for the overview-observable removal behavior.",
+                "Upstream sp_lev.c labels lspo_reset_level as testing-only; the second active game entry is the explicit wizcmds.c:wiz_load_splua(NULL) call, whose runtime path is also present in recordings/wizcmds.c/wiz-load-des-explicit.session.json. The C makemap_prepost(FALSE) calls in wiz_makemap and lspo_finalize_level are post-generation paths and do not call rm_mapseen."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rm_mapseen",
+            "implementation": "js/dungeon.js",
+            "symbol": "rm_mapseen",
+            "sourceReview": "Read all of dungeon.c:rm_mapseen (2665-2691). It walks mapseenchn in order, computes each ledger number as the owning dungeon's ledger_start plus the recorded dlevel, stops at the first match, and returns unchanged when there is no match. For a match it frees the custom annotation and every final_resting_place node, then unlinks the mapseen node through either its predecessor or the list head. The JS array splice performs the unlink and allows the node and owned nested values to be reclaimed. This mutates bookkeeping state but makes no random call or output; there are no unported callees.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "makemap_prepost",
+                "source": "cmd.c:makemap_prepost(TRUE) calls rm_mapseen(ledger_no(&u.uz)); active production caller chain: cmd.c wizard command dispatch -> wizcmds.c:wiz_makemap -> cmd.c:makemap_prepost(TRUE)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "makemap_prepost",
+                "source": "wizcmds.c:wiz_load_splua calls sp_lev.c:lspo_reset_level(NULL) -> cmd.c:makemap_prepost(TRUE) -> dungeon.c:rm_mapseen."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dungeon.test.mjs",
+              "scripts/sp-lev-reset-finalize-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wiz-load-des-explicit.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c wizard dispatch -> wizcmds.c:wiz_makemap -> cmd.c:makemap_prepost(TRUE) -> dungeon.c:rm_mapseen"
+              }
+            ],
+            "checkedAt": "45032873f53f43e826185d63d8e532be51bcd094"
+          }
+        ],
+        "entryPointReview": "The selected source range contains one direct caller, cmd.c:makemap_prepost(TRUE), and no other calls to rm_mapseen. Active production entry route 1 is #wizmakemap: cmd.c wizard dispatch -> wizcmds.c:wiz_makemap -> makemap_prepost(TRUE); its matching runtime evidence is the admitted v47 range below. Active production entry route 2 is #wizloaddes: wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level(NULL) -> makemap_prepost(TRUE); its matching independent recording is recordings/wizcmds.c/wiz-load-des-explicit.session.json. makemap_prepost(FALSE) does not call rm_mapseen. The old dungeon.c rm_mapseen note_unported marker is removed from this production path.",
+        "entryPoints": [
+          {
+            "name": "#wizmakemap",
+            "functions": [
+              "rm_mapseen"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c wizard dispatch -> wizcmds.c:wiz_makemap -> cmd.c:makemap_prepost(TRUE) -> dungeon.c:rm_mapseen"
+              }
+            ]
+          },
+          {
+            "name": "#wizloaddes",
+            "functions": [
+              "rm_mapseen"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wiz-load-des-explicit.session.json"
+            ],
+            "synthetic": []
           }
         ]
       }

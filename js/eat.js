@@ -2,7 +2,8 @@
 // creation and naming share.
 // C refs: src/eat.c is_edible(), gethungry(), newuhs(), unfaint(), eat_brains(), nonrotting_corpse(),
 //         vegan(), vegetarian(), tin_variety(), set_tin_variety(),
-//         tin_details(), opentin(), Popeye(), eat_ok(), floorfood(), doeat(),
+//         tin_details(), opentin(), Popeye(), eatmdone(), eatmupdate(),
+//         eat_ok(), floorfood(), doeat(),
 //         and vomit().
 
 import {
@@ -73,6 +74,7 @@ import {
     MAGICAL_BREATHING,
     M_AP_NOTHING,
     M_AP_OBJECT,
+    M_AP_TYPE,
     M_ATTK_AGR_DIED,
     M_ATTK_HIT,
     M_ATTK_MISS,
@@ -2596,6 +2598,43 @@ export function eatmdone(state = game, env = {}) {
             (env.redraw ?? newsym)(state.u.ux, state.u.uy, state);
     }
     return 0;
+}
+
+// C ref: eat.c eatmupdate() (181-213). Hallucination can change the object
+// appearance and the pending completion message while corpse mimicry is active.
+export function eatmupdate(state = game, env = {}) {
+    if (!state.eatmbuf || state.nomovemsg !== state.eatmbuf) return;
+
+    let altmsg = null;
+    let altapp = 0;
+    if (M_AP_TYPE(state.youmonst) === M_AP_OBJECT
+        && state.youmonst.mappearance === ORANGE
+        && !Hallucination(state)) {
+        // Revert the hallucinatory orange appearance to mimicked gold.
+        altmsg = 'You now prefer mimicking yourself.';
+        altapp = GOLD_PIECE;
+    } else if (M_AP_TYPE(state.youmonst) === M_AP_OBJECT
+        && state.youmonst.mappearance === GOLD_PIECE
+        && Hallucination(state)) {
+        // C retains this branch although normal callers end mimicry before
+        // starting hallucination during the immobilized occupation.
+        altmsg = 'Your rind escaped intact.';
+        altapp = ORANGE;
+    }
+
+    if (altmsg) {
+        // C copies the replacement into ge.eatmbuf and points nomovemsg at
+        // that same buffer; these two state fields represent those references.
+        state.eatmbuf = altmsg;
+        state.nomovemsg = state.eatmbuf;
+        state.youmonst.mappearance = altapp;
+
+        // newsym() updates the live map. Planning callers inject a silent
+        // redraw, and isolated states without a redraw must not repaint game.
+        const redraw = env.redraw
+            ?? (env.planning || state !== game ? null : newsym);
+        redraw?.(state.u.ux, state.u.uy, state);
+    }
 }
 
 // C ref: eat.c cpostfx() (1127-1319), called after completely consuming a

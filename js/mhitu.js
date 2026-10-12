@@ -308,7 +308,7 @@ import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { burn_away_slime } from './timeout.js';
 import { note_unported } from './unported.js';
-import { heroDeaf, heroUnaware, verbalize } from './pline.js';
+import { heroDeaf, heroUnaware, pline_mon, verbalize } from './pline.js';
 import { growl_sound, set_voice } from './sounds.js';
 import { were_summon } from './were.js';
 import { canseemon, canspotmon, mon_visible } from './display.js';
@@ -1348,7 +1348,6 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
 // message. capitalizedMonsterName() produces "It" when canspotmon() is false.
 async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
     const message = requireMattackuOperation(rawEnv, 'message');
     const markInvisible = requireMattackuOperation(rawEnv, 'markInvisible');
     const spotMonster = rawEnv.canSpotMonster ?? canspotmon;
@@ -1362,22 +1361,25 @@ async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     const spotted = spotMonster(mtmp, state);
     if (!spotted)
         markInvisible(mtmp.mx, mtmp.my);
-    // do_name.c x_monnam() adds the invisible adjective for a spotted
-    // invisible monster and can spend display RNG while hallucinating. Keep
-    // that naming branch fail-closed without blocking the unspotted "It" arm.
-    if (mtmp.minvis && spotted)
-        unsupported('a miss by an invisible monster the hero can see');
+    // C calls pline_mon() with Monnam() even when the hero can see an
+    // invisible monster. x_monnam() supplies the invisible adjective in that
+    // case; the unspotted path instead names the attacker "It".
+    const messageEnv = { ...rawEnv, message };
     if (could_seduce(mtmp, state.youmonst, mattk, rawEnv) && !mtmp.mcan) {
-        await message(
+        await pline_mon(
+            mtmp,
             `${capitalizedMonsterName(mtmp, state, rawEnv)} `
             + 'pretends to be friendly.',
             state,
+            messageEnv,
         );
     } else {
-        await message(
+        await pline_mon(
+            mtmp,
             `${capitalizedMonsterName(mtmp, state, rawEnv)} `
             + `${(nearmiss && state.flags?.verbose) ? 'just ' : ''}misses!`,
             state,
+            messageEnv,
         );
     }
 

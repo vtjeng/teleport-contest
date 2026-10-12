@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-11T22:52:17.587Z",
+  "capturedAt": "2026-10-12T01:32:17.650Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -90609,55 +90609,471 @@
         "type": "accepted",
         "at": "2026-10-11T22:51:52.891Z",
         "task": "A2-investigation-v47-shop-wished-dagger-sellobj-state-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c-turn-v47-rm-mapseen-20261011-1",
+        "type": "turn",
+        "at": "2026-10-11T22:52:41.948Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is available on accepted Main and starting the remaining unreserved v47 mapseen diagnosis."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v47-rm-mapseen-after-wizmakemap-20261011",
+        "type": "assign",
+        "at": "2026-10-11T22:52:47.306Z",
+        "task": "C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-projectile-b43246ec1-20261011",
+        "type": "integrating",
+        "at": "2026-10-11T22:56:15.314Z",
+        "task": "C-investigation-v47-hallucinated-monster-missile-name-cfirst-20261011",
+        "integration": "b43246ec1a9272603cd098324ed32ef2d3054292"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-eatmupdate-delivery-20261011",
+        "type": "turn",
+        "at": "2026-10-11T22:56:25.994Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 completed and is validating the eatmupdate port; the selected v47 case still depends on separate cpostfx window handling."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v47-rm-mapseen-20261011",
+        "type": "implement",
+        "at": "2026-10-11T22:57:16.755Z",
+        "task": "C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011",
+        "goal": "port-dungeon-rm-mapseen-v47-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d0c959a62a9a48500c17e4a15dab4480fd414c9d",
+        "type": "ready",
+        "at": "2026-10-11T22:58:18.298Z",
+        "task": "A2-investigation-v47-mimic-hallucination-timeout-eatmupdate-20261011",
+        "delivery": "d0c959a62a9a48500c17e4a15dab4480fd414c9d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-v47-shop-sellobj-continuation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T23:00:07.229Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is continuing the accepted shop-sale seed to diagnose its downstream mismatch after the dodrop fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v47-shop-sellobj-followthrough-20261011",
+        "type": "assign",
+        "at": "2026-10-11T23:00:33.904Z",
+        "task": "A2-investigation-v47-shop-sellobj-followthrough-20261011",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a79a138a0d95f86d19e949896a09b3e6ce77de50",
+        "type": "ready",
+        "at": "2026-10-11T23:00:51.906Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
+        "delivery": "a79a138a0d95f86d19e949896a09b3e6ce77de50"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-v48-final-validation-20261011",
+        "type": "turn",
+        "at": "2026-10-11T23:01:23.021Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v48 has thirteen approved distinct C-first mismatches; replay and differential hashes validate, and case-only delivery is being staged."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-see-invisible-ready-20261011",
+        "type": "turn",
+        "at": "2026-10-11T23:02:36.436Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Idle: no source-distinct v47 queue candidate is currently free; B has a missmu delivery queued and the next candidate’s caller overlaps B’s pending uhitm.js scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2ff78e6ae37d2aea82161b68ebad572bd7ebf16c",
+        "type": "ready",
+        "at": "2026-10-11T23:02:44.179Z",
+        "task": "C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011",
+        "delivery": "2ff78e6ae37d2aea82161b68ebad572bd7ebf16c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1813695dbf7ba989b9ed27fede1672a232443f50",
+        "type": "ready",
+        "at": "2026-10-11T23:02:56.257Z",
+        "task": "Prep12",
+        "delivery": "1813695dbf7ba989b9ed27fede1672a232443f50"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-v47-after-rm-mapseen-20261011",
+        "type": "turn",
+        "at": "2026-10-11T23:03:29.758Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C has submitted the v47 mapseen fix. All remaining v47 queue cases are reserved by C, B, or A2; available for independent work after the next accepted-main queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-projectile-b43246ec1-20261011",
+        "type": "validated",
+        "at": "2026-10-11T23:06:59.087Z",
+        "task": "C-investigation-v47-hallucinated-monster-missile-name-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-sellobj-source-audit-20261011",
+        "type": "turn",
+        "at": "2026-10-11T23:08:17.045Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Shop-sale source diagnosis is current and committed; complete caller and return-dependency scope is mapped before any implementation claim."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-v47-shop-sellobj-followthrough-20261011",
+        "type": "park",
+        "at": "2026-10-11T23:08:54.777Z",
+        "task": "A2-investigation-v47-shop-sellobj-followthrough-20261011",
+        "reason": "Parked after committing corrected source findings e546f3c39. The current queue boundary at step 48 is behind the do.c:dropz costly-shop preflight refusal. A whole shk.c:sellobj port is not independently bounded: direct dothrow.c:check_shop_obj ownership and its six throwit callers must be included, and return-valued special_stock -> shknam.c:is_izchak must be ported with its active shk_chat caller. No game code was edited."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-shop-sellobj-parked-20261011",
+        "type": "turn",
+        "at": "2026-10-11T23:09:29.627Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 has a parked v47 shop investigation; source closure requires missing throw/shop and Izchak caller families, so no independent implementation scope is available pending Main queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v47-hallucinated-monster-missile-name-cfirst-20261011-b43246ec1a9272603cd098324ed32ef2d3054292-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T23:15:11.208Z",
+        "task": "C-investigation-v47-hallucinated-monster-missile-name-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-v47-after-b432-sync-20261011",
+        "type": "turn",
+        "at": "2026-10-11T23:17:09.095Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C synced accepted Main b43246ec. All eight v47 queue cases are reserved or blocked by current source paths; mapseen remains behind C level-teleport delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-eatmupdate-d0c959a6-20261011",
+        "type": "received",
+        "at": "2026-10-11T23:20:19.400Z",
+        "task": "A2-investigation-v47-mimic-hallucination-timeout-eatmupdate-20261011",
+        "delivery": "d0c959a62a9a48500c17e4a15dab4480fd414c9d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-missmu-a79a138a-20261011",
+        "type": "received",
+        "at": "2026-10-11T23:20:21.076Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
+        "delivery": "a79a138a0d95f86d19e949896a09b3e6ce77de50"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-mapseen-2ff78e6a-20261011",
+        "type": "received",
+        "at": "2026-10-11T23:20:22.736Z",
+        "task": "C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011",
+        "delivery": "2ff78e6ae37d2aea82161b68ebad572bd7ebf16c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep12-1813695d-20261011",
+        "type": "received",
+        "at": "2026-10-11T23:20:24.408Z",
+        "task": "Prep12",
+        "delivery": "1813695dbf7ba989b9ed27fede1672a232443f50"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-gremlin-6bb984834-20261011",
+        "type": "integrating",
+        "at": "2026-10-11T23:24:07.919Z",
+        "task": "A2-investigation-v47-gremlin-pool-split-20261011",
+        "integration": "6bb984834630daf42b97272e584c999158fd328e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-gremlin-6bb984834-20261011",
+        "type": "validated",
+        "at": "2026-10-11T23:34:00.000Z",
+        "task": "A2-investigation-v47-gremlin-pool-split-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v47-gremlin-pool-split-20261011-6bb984834630daf42b97272e584c999158fd328e-accepted",
+        "type": "accepted",
+        "at": "2026-10-11T23:41:42.550Z",
+        "task": "A2-investigation-v47-gremlin-pool-split-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-post-gremlin-main-20261011",
+        "type": "turn",
+        "at": "2026-10-11T23:44:21.091Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 merged accepted Main 6bb984834 and is idle. Current queue SHA 671c87dd has no independent claim: B Pestilence delivery is ready and still holds mhitm_adtyping, other candidates are reserved or pending A2 deliveries, and the shop case is parked on a broader source closure."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-level-teleport-47b7ce458-20261011",
+        "type": "integrating",
+        "at": "2026-10-11T23:48:38.888Z",
+        "task": "C-investigation-v47-hero-level-teleport-trap-cfirst-20261011",
+        "integration": "47b7ce458965199c8f97771a983240cc8d0f0e21"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-investigation-v47-hero-level-teleport-trap-cfirst-20261011-47b7ce458",
+        "type": "validated",
+        "at": "2026-10-11T23:59:23.250Z",
+        "task": "C-investigation-v47-hero-level-teleport-trap-cfirst-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v47-hero-level-teleport-trap-cfirst-20261011-47b7ce458965199c8f97771a983240cc8d0f0e21-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T00:09:07.935Z",
+        "task": "C-investigation-v47-hero-level-teleport-trap-cfirst-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-mapseen-dependencies-released-20261012",
+        "type": "turn",
+        "at": "2026-10-12T00:09:57.726Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C synced accepted Main 47b7ce4. Mapseen delivery is fully unblocked and remains pending integration; other current candidates are reserved or source-blocked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011-ed0e0d6ba",
+        "type": "integrating",
+        "at": "2026-10-12T00:19:25.584Z",
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011",
+        "integration": "ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011-ed0e0d6ba",
+        "type": "validated",
+        "at": "2026-10-12T00:29:30.035Z",
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011-ed0e0d6ba2b4a0d038f0ac50cf4bb68433480948-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T00:37:13.107Z",
+        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-investigation-v47-poly-energy-vortex-engulf-drain-20261012",
+        "type": "resume",
+        "at": "2026-10-12T00:37:57.765Z",
+        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-poly-energy-vortex-20261012",
+        "type": "turn",
+        "at": "2026-10-12T00:38:04.286Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Active: Pestilence acceptance released the poly-energy-vortex xdrainenergym caller path; investigating the highest-priority remaining v47 mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-poly-energy-vortex-resumed-20261012",
+        "type": "turn",
+        "at": "2026-10-12T00:38:06.115Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 resumed the v47 poly-energy-vortex investigation after Pestilence acceptance released the AD_DREN dispatcher; source scope and caller closure are under recheck."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-ed0e-queue-20261012",
+        "type": "turn",
+        "at": "2026-10-12T00:38:39.696Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Idle after accepted Pestilence sync: all five current v47 candidates belong to active or parked A2/C work or B’s queued delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v47-xdrainenergym-20261012",
+        "type": "implement",
+        "at": "2026-10-12T00:43:33.323Z",
+        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
+        "goal": "port-mhitm-xdrainenergym-v47-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-integrating-eatmupdate-20261011-d2148725",
+        "type": "integrating",
+        "at": "2026-10-12T00:46:41.699Z",
+        "task": "A2-investigation-v47-mimic-hallucination-timeout-eatmupdate-20261011",
+        "integration": "d2148725fc8c59ebc1b6c06947ec0e2b93730813"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-validated-eatmupdate-20261011-d2148725",
+        "type": "validated",
+        "at": "2026-10-12T00:56:34.042Z",
+        "task": "A2-investigation-v47-mimic-hallucination-timeout-eatmupdate-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v47-mimic-hallucination-timeout-eatmupdate-20261011-d2148725fc8c59ebc1b6c06947ec0e2b93730813-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T01:05:48.299Z",
+        "task": "A2-investigation-v47-mimic-hallucination-timeout-eatmupdate-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-review-see-invisible-20261011",
+        "type": "activity",
+        "at": "2026-10-12T01:10:35.673Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
+        "phase": "review",
+        "reason": "Reviewing the submitted see-invisible monster miss correction and current v47 evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-poly-energy-blocked-20261012",
+        "type": "turn",
+        "at": "2026-10-12T01:11:52.516Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "A2 has a recoverable AD_DREN implementation. Waiting for the coordinator to park it on the M2M AD_ELEC and destroy_items dependency before resuming."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-park-poly-energy-ad-elec-20261011",
+        "type": "park",
+        "at": "2026-10-12T01:11:54.782Z",
+        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
+        "reason": "Matching mhitm_ad_dren entry evidence is blocked by the partial uhitm.c:mhitm_ad_elec monster-to-monster arm and its return-valued electric zap.c:destroy_items dependency; current-scope work is recoverable at 88e87512c103a05a6b4d8f320056fb65cd26e44a."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v47-poly-parked-idle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T01:12:06.924Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 is idle with a recoverable AD_DREN implementation. The parked task resumes after the M2M AD_ELEC and electric destroy_items source dependency is accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-integrating-see-invisible-20261011-589dba12",
+        "type": "integrating",
+        "at": "2026-10-12T01:13:17.192Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
+        "integration": "589dba120616b39955a49d02450b8f9d3cdf5d2c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-v47-mhitm-ad-elec-20261012",
+        "type": "turn",
+        "at": "2026-10-12T01:19:56.818Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Starting the independent electric AD_ELEC source task on accepted Main 2673f6b2; source scope is being claimed before edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v47-mhitm-ad-elec-zap-destroy-items-20261012",
+        "type": "assign",
+        "at": "2026-10-12T01:20:10.197Z",
+        "task": "A2-v47-mhitm-ad-elec-zap-destroy-items-20261012",
+        "worker": "A2",
+        "goal": "port-uhitm-mhitm-ad-elec-zap-destroy-items-v47-20261012",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-see-invisible-v47-589dba120616b",
+        "type": "validated",
+        "at": "2026-10-12T01:23:21.581Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011-589dba120616b39955a49d02450b8f9d3cdf5d2c-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T01:31:06.480Z",
+        "task": "B-investigation-v47-see-invisible-grid-bug-missmu-seed47100104-20261011"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-no-free-v47-candidates-after-589-20261012",
+        "type": "turn",
+        "at": "2026-10-12T01:31:46.849Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Idle: after see-invisible acceptance, all four remaining v47 cases are active, parked, or submitted under A2/C ownership."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C-investigation-v47-hallucinated-monster-missile-name-cfirst-20261011",
+        "task": "C-investigation-v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst-20261011",
         "worker": "C",
-        "goal": "div-monshoot-hallucinated-display-rng-v47-20261011",
+        "goal": "port-dungeon-rm-mapseen-v47-20261011",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "8152f46e6ad4e52097d5405d9ff5d4cd3afcd767",
-        "since": "2026-10-11T22:17:52.909Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
-        "task": "A2-investigation-v47-gremlin-pool-split-20261011",
-        "worker": "A2",
-        "goal": "divergence-v47-gremlin-pool-split-drown-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "cb45fe4ff6b9fbcde1437d8b155329c41c7d8115",
-        "since": "2026-10-11T22:31:20.798Z",
+        "delivery": "2ff78e6ae37d2aea82161b68ebad572bd7ebf16c",
+        "since": "2026-10-11T23:02:44.179Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v47-pestilence-red-mold-conflict-m2m-attempt6-tourist-20261011",
-        "worker": "B",
-        "goal": "port-uhitm-mhitm-ad-dise-pest-v47-20261011",
-        "kind": "implementation",
+        "task": "Prep12",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
         "status": "ready",
-        "delivery": "1a88e274ec5c3fba0ea64ffcd9cbd6bf6b4e9fff",
-        "since": "2026-10-11T22:41:53.167Z",
+        "delivery": "1813695dbf7ba989b9ed27fede1672a232443f50",
+        "since": "2026-10-11T23:02:56.257Z",
         "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v47-hero-level-teleport-trap-cfirst-20261011",
-        "worker": "C",
-        "goal": "port-hero-level-teleport-trap-v47-20261011",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "cadeea13d734ddb66f999005bc61156d8d470c53",
-        "since": "2026-10-11T22:49:53.297Z",
-        "blockedBy": [
-          "C-investigation-v47-hallucinated-monster-missile-name-cfirst-20261011"
-        ],
         "unblocks": 0
       }
     ],
@@ -91040,21 +91456,32 @@
         "reason": "Superseded by a same-goal correction task rooted directly at accepted Main because the immutable original assignment base was the parked mounted delivery. The rebuilt tree is preserved at aa14060e8 and contains only the blindness scope."
       },
       {
-        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
+        "task": "A2-investigation-v47-shop-sellobj-followthrough-20261011",
         "worker": "A2",
         "goal": null,
         "kind": "investigation",
         "status": "parked",
         "delivery": null,
-        "since": "2026-10-11T22:16:36.933Z",
+        "since": "2026-10-11T23:08:54.777Z",
         "blockedBy": [],
-        "reason": "The complete mhitm.c:xdrainenergym port must wire uhitm.c:mhitm_adtyping; B owns that source function in the active Pestilence task. Preserve the committed source trace and resume after B releases the caller."
+        "reason": "Parked after committing corrected source findings e546f3c39. The current queue boundary at step 48 is behind the do.c:dropz costly-shop preflight refusal. A whole shk.c:sellobj port is not independently bounded: direct dothrow.c:check_shop_obj ownership and its six throwit callers must be included, and return-valued special_stock -> shknam.c:is_izchak must be ported with its active shk_chat caller. No game code was edited."
+      },
+      {
+        "task": "A2-investigation-v47-poly-energy-vortex-engulf-drain-20261011",
+        "worker": "A2",
+        "goal": "port-mhitm-xdrainenergym-v47-20261012",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-12T01:11:54.782Z",
+        "blockedBy": [],
+        "reason": "Matching mhitm_ad_dren entry evidence is blocked by the partial uhitm.c:mhitm_ad_elec monster-to-monster arm and its return-valued electric zap.c:destroy_items dependency; current-scope work is recoverable at 88e87512c103a05a6b4d8f320056fb65cd26e44a."
       }
     ]
   },
   "development": {
-    "executionCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89",
-    "measuredAt": "2026-10-11T22:43:45.739Z",
+    "executionCommit": "589dba120616b39955a49d02450b8f9d3cdf5d2c",
+    "measuredAt": "2026-10-12T01:23:01.376Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
