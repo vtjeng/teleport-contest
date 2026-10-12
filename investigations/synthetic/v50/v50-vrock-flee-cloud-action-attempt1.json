@@ -1,0 +1,140 @@
+{
+  "session": "synthetic/v50/v50-vrock-flee-cloud-action-attempt1",
+  "corpus": "synthetic",
+  "batch": "v50",
+  "caseId": "v50-vrock-flee-cloud-action-attempt1",
+  "manifestPath": "challenges/manifests/v50.json",
+  "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+  "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
+  "evaluationPath": "challenges/evaluations/baseline-e4c7bc56e-v50.json",
+  "evaluationCommit": "e4c7bc56eb850377811e089788227269b277950d",
+  "remainingScreens": 18,
+  "recordedSteps": 120,
+  "status": "complete",
+  "commit": "d04662db8639248cf24e718a515429f528149e63",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v50",
+    "caseId": "v50-vrock-flee-cloud-action-attempt1",
+    "session": "synthetic/v50/v50-vrock-flee-cloud-action-attempt1",
+    "manifestPath": "challenges/manifests/v50.json",
+    "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+    "recording": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.session.json",
+    "recordingPath": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.session.json",
+    "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
+    "recipe": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.recipe.session.json",
+    "recipeSha256": "450c5a05696172d8a8c8c721174077e368d70b8a2eedaf57b18370351f8ba102",
+    "replayInputSha256": "dca791bb47e6b4fd74b977954882c5e42f59c3d36deee74712cf4c72c227b055",
+    "evaluationPath": "challenges/evaluations/baseline-e4c7bc56e-v50.json",
+    "evaluationCommit": "e4c7bc56eb850377811e089788227269b277950d",
+    "evaluationArtifact": "challenges/evaluations/baseline-e4c7bc56e-v50.json",
+    "evaluationUtc": "2026-10-12T07:04:49.761Z",
+    "remainingScreens": 18,
+    "recordedSteps": 120,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 102,
+        "total": 120
+      },
+      "rng": {
+        "matched": 2946,
+        "total": 2989
+      },
+      "cursors": {
+        "matched": 117,
+        "total": 120
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 102,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 102,
+          "key": "."
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 26,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2946,
+        "cEntry": "rn2(4)=3",
+        "cCaller": "create_gas_cloud(region.c:1255)",
+        "jsEntry": "rn2(5)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 102,
+          "key": "."
+        },
+        "stepIndex": 102
+      },
+      "cursor": {
+        "index": 102,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 102,
+          "key": "."
+        },
+        "cCursor": [
+          78,
+          0,
+          1
+        ],
+        "jsCursor": [
+          70,
+          5,
+          1
+        ]
+      }
+    },
+    "step": 102,
+    "kind": "rng",
+    "sourceFile": "region.c",
+    "function": "create_gas_cloud",
+    "message": null,
+    "cFile": "region.c",
+    "luaFile": null,
+    "line": 1255
+  },
+  "summary": "At synthetic/v50/v50-vrock-flee-cloud-action-attempt1 step 102, monster fear reaches monmove.c:monflee() for a Vrock with mflee clear and mspec_used zero. C sets mspec_used to 75 + rn2(25), calls create_gas_cloud(mx,my,5,8), then sets mflee and clears tracking. The JavaScript monflee() has the branch, but the production adapter in js/unported_monster_actions.js still supplies createGasCloud: () => note_unported(\"region.c create_gas_cloud\"). This skips the existing js/region.js:create_gas_cloud() implementation, its cloud-placement RNG, region/display state, and gas message. The C first unmatched draw is rn2(4)=3 from create_gas_cloud at global RNG index 2946; JavaScript has already advanced to distfleeck’s next rn2(5)=2. GOALS.json contains no whole-source evidence.functions entry for monflee; the earlier v33 adapter task explicitly retained create_gas_cloud as a gap and took no whole-function credit. Implement the complete monmove.c:monflee() source unit and wire its existing production adapter to region.create_gas_cloud, preserving planning/live state, cloud RNG and message order.",
+  "source": {
+    "file": "monmove.c",
+    "branch": "A live, newly established flight branch (!first || !mtmp->mflee) for PM_VROCK with mspec_used == 0; after the source fear message and before mflee is set, assign 75 + rn2(25), create the radius-5 damage-8 cloud, then set mflee and clear recent-space tracking.",
+    "functions": [
+      "monflee"
+    ],
+    "callers": [
+      "monmove.c:distfleeck -> monflee at lines 564-568; production JavaScript action adapter in js/unported_monster_actions.js supplies monFlee to the ordinary monster action path."
+    ],
+    "dependencies": [
+      "region.c:create_gas_cloud is already implemented in js/region.js; its discarded C return does not make its RNG, region, vision, or message side effects optional."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved queue entry: challenges/manifests/v50.json, manifest SHA-256 55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5; recording SHA-256 9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f; evaluation challenges/evaluations/baseline-e4c7bc56e-v50.json at e4c7bc56eb850377811e089788227269b277950d.",
+    "Baseline identifies first mismatch at segment 0, step 102, key \".\": C calls rn2(4)=3 from region.c:create_gas_cloud at global RNG index 2946; JavaScript calls the later rn2(5)=2 from monmove.c:distfleeck. C screen shows the Vrock flee and noxious gas cloud; JavaScript has no cloud and a different cursor.",
+    "nethack-c/upstream/src/monmove.c:462-532: read the complete monflee() body; its Vrock arm sets cooldown, calls create_gas_cloud(5,8), sets mflee, then clears tracking.",
+    "js/monmove.js:2054-2162: monflee() contains the source branch and awaits env.createGasCloud after assigning mspec_used.",
+    "js/unported_monster_actions.js:1593-1603: the production monFlee adapter replaces the cloud operation with note_unported(\"region.c create_gas_cloud\").",
+    "js/region.js:1012-1086 implements create_gas_cloud(), including breadth-first cloud coordinates, source-order shuffles and lifetime, and region/display effects; connect this existing function through the action adapter.",
+    "GOALS.json has only a historical monmove.c declaration for monflee, without verified evidence.functions. The closed v33 caller task records create_gas_cloud as a retained gap and expressly takes no whole-function credit, so complete and attest monmove.c:monflee rather than reporting a bounded caller-only divergence."
+  ]
+}
