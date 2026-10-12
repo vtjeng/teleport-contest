@@ -204,7 +204,6 @@ import { goodpos, rloc, tele, tele_restrict } from './teleport.js';
 import { t_at } from './trap.js';
 import { mintrap } from './trap_effects.js';
 import { acid_damage } from './trap_erode_obj.js';
-import { pline_mon } from './pline.js';
 
 // C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
 // that protects a target from the attack type. This is a pure source helper;
