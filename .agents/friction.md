@@ -360,3 +360,19 @@ triage decisions or fix references.
   paths still requiring injected visibility/message functions; B owns the
   source-backed defaults. The getpos correction preserves C's pointer lifetime,
   terrain scan outputs, numeric input bytes, and empty goal string.
+
+### 2026-10-12 — whole-combat completion and imports
+
+- Root retired the old hitmm completion claim because it retained the
+  silver-weapon message refusal. The new whole-combat task implements that
+  reachable branch and preserves the earlier seduction evidence as history.
+- The combat patch duplicated Main's existing pline_mon import and overlapped
+  the accepted mselftouch caller correction. Root prepared the canonical import
+  in a separate parent commit, preserved the exact worker patch, and kept the
+  accepted awaited mselftouch call. Three affected focused suites passed, and
+  all six source units verified against the matching v50 prefix through1754.
+- An inline Node check of the growing SCORE.tsv exceeded its default child
+  output buffer, then encountered the existing sandbox subprocess restriction.
+  A direct Git redirect and Python byte comparison verified the52 appended
+  rows without printing the historical score file. Use saved-file comparisons
+  for this publication check.

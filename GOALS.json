@@ -288749,7 +288749,7 @@
           "line": 293,
           "endLine": 596,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -288763,7 +288763,7 @@
           "endLine": 75,
           "declared": true,
           "sourceFile": "mhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "hitmm",
@@ -288771,15 +288771,15 @@
           "endLine": 735,
           "declared": true,
           "sourceFile": "mhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "mswingsm",
           "line": 1283,
           "endLine": 1303,
-          "declared": false,
+          "declared": true,
           "sourceFile": "mhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "passivemm",
@@ -288795,7 +288795,7 @@
           "endLine": 800,
           "declared": true,
           "sourceFile": "weapon.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -288979,7 +288979,269 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pre_mm_attack",
+            "implementation": "js/mhitm.js",
+            "symbol": "pre_mm_attack",
+            "sourceReview": "Read complete mhitm.c:41–72. Reveal defender and attacker mimics in source order, clear either undetected participant, preserve the accumulated showit flag, then mark invisible or redraw each participant according to canspotmon and visibility.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "missmm",
+                "source": "mhitm.c:missmm() directly calls pre_mm_attack() at line 81; mattackm() routes missed strikes through missmm() at lines 473 and 534."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "hitmm",
+                "source": "mhitm.c:hitmm() directly calls pre_mm_attack() at line 657; mattackm() routes successful strikes through hitmm() at lines 455 and 488."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "dogmove.c:dog_move -> mhitm.c:mattackm -> missmm or hitmm -> pre_mm_attack; segment 0 contains both an armed-strike miss and successful strikes."
+              }
+            ],
+            "checkedAt": "971516086056e12f257f2e71912dea9812e5bf2c"
+          },
+          {
+            "name": "mattackm",
+            "implementation": "js/mhitm.js",
+            "symbol": "mattackm",
+            "sourceReview": "Read mhitm.c:293-592 in full and traced the consumed returns. JavaScript preserves setup and attack-slot order, hidden-defender discovery, visibility and movement state, adjacent weapon selection and to-hit bonus, the physical strike fallthrough, damage/passive results, retaliation flags, and the remaining named delegated attack paths. AT_WEAP now reaches mswingsm, hitmm, and passivemm rather than refusing after weapon selection. The final correction also implements mhitm.c:455-471 after hitmm returns: eligible black/brown puddings struck by iron/metal weapons are cloned; the visible split message precedes mintrap, and the aggressor-death flag is added if mintrap leaves it dead. The clone_mon and mintrap return behavior is consumed in source order.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c:m_move() calls mattackm() for the covetous intruder and movement aggression paths."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move_aggress",
+                "source": "monmove.c:m_move_aggress() calls mattackm() for the initiating and return attacks."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c:dog_move() calls mattackm() for pet melee and retaliation."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "fightm",
+                "source": "mhitm.c:fightm() calls mattackm() for Conflict-driven monster combat."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku() calls mattackm() when monsters attack the steed and for the steed's return attack."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "pet_ranged_attk",
+                "source": "dogmove.c:pet_ranged_attk calls mattackm at923 and946 for attack/response; JS selects env.mattackm ?? mattackm. Production unported_monster_actions.js:runPetRangedAttack supplies the canonical mattackm operation and missile/weapon state."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "dogmove.c dog_move -> mhitm.c mattackm; hatchling melee and return attack"
+              }
+            ],
+            "checkedAt": "971516086056e12f257f2e71912dea9812e5bf2c"
+          },
+          {
+            "name": "hitmm",
+            "implementation": "js/mhitm.js",
+            "symbol": "hitmm",
+            "sourceReview": "Read mhitm.c:644-732 in full. JavaScript preserves hit and silver weapon messages, possessive tentacle naming, pre-hit reveal, damage dispatch and consumed return flags, and the source message branches for artifact and ordinary weapons.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm() calls hitmm() from its weapon and physical strike arms."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "dogmove.c dog_move -> mhitm.c mattackm -> hitmm"
+              }
+            ],
+            "checkedAt": "971516086056e12f257f2e71912dea9812e5bf2c"
+          },
+          {
+            "name": "mswingsm",
+            "implementation": "js/mhitm.js",
+            "symbol": "mswingsm",
+            "sourceReview": "Read mhitm.c:1283-1301 in full. JavaScript preserves the can-see/can-spot and blind gates, pole-arm bash behavior, source verb selection, and the message timing before the weapon strike. Correction review: C uses the global canspotmon owner in mhis(magr). JavaScript now supplies env.canSpotMonster ?? canspotmon while preserving the injected state and random source. The matching verbose armed M2M v50 replay was rechecked through segment 0 step 1754 on the merged final tree; the focused fixture separately exercises the non-hallucinating pronoun branch and confirms no extra random calls.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm() calls mswingsm() for a visible adjacent AT_WEAP attack with a wielded weapon."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "dogmove.c dog_move -> mhitm.c mattackm -> mswingsm"
+              }
+            ],
+            "checkedAt": "971516086056e12f257f2e71912dea9812e5bf2c"
+          },
+          {
+            "name": "passivemm",
+            "implementation": "js/mhitm.js",
+            "symbol": "passivemm",
+            "sourceReview": "Read mhitm.c:1304-1457 in full. JavaScript preserves passive-slot selection, defender and attacker death checks, attack/passive damage order, random bounds, and the returned flags consumed by mattackm; still-unported void effects are named and skipped at their source sites.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm() calls passivemm() after each source arm that reaches the loop tail."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "dogmove.c dog_move -> mhitm.c mattackm -> passivemm"
+              }
+            ],
+            "checkedAt": "971516086056e12f257f2e71912dea9812e5bf2c"
+          },
+          {
+            "name": "possibly_unwield",
+            "implementation": "js/weapon.js",
+            "symbol": "possibly_unwield",
+            "sourceReview": "Read weapon.c:747-795 in full. JavaScript preserves all C state, visibility, artifact-light, messaging, drop, and floor-effect order. The C function is void and returns synchronously for no MON_WEP, a weapon missing from minvent, and retained usable weapons. The JS function now has the same synchronous contract for those branches; only the retained weapon drop path returns a Promise while output, setmnotwielded cleanup, and flooreffects complete. Every C caller discards the return, so existing await/yield callers accept both the immediate void result and the active drop completion.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm() calls possibly_unwield() after the wield-selection attempt and before the adjacent weapon strike."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham",
+                "source": "mon.c:newcham() calls possibly_unwield(mtmp, polyspot) before mon_break_armor()."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "new_were",
+                "source": "were.c:new_were() calls possibly_unwield() after mon_break_armor()."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_whip",
+                "source": "apply.c:use_whip() calls possibly_unwield() after extracting a pulled weapon and before setmnotwielded()."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "steal_it",
+                "source": "uhitm.c:steal_it() calls possibly_unwield() after successful theft of a wielded item."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_sedu",
+                "source": "uhitm.c:mhitm_ad_sedu() calls possibly_unwield() after extracting and transferring a wielded item."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/weapon.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "weapon.c",
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "dogmove.c dog_move -> mhitm.c mattackm -> weapon.c possibly_unwield"
+              }
+            ],
+            "checkedAt": "971516086056e12f257f2e71912dea9812e5bf2c"
+          }
+        ],
+        "entryPointReview": "The selected mhitm.c range has one shared production entry, mattackm(), reached by dogmove.c:dog_move, monmove.c:m_move and m_move_aggress, mhitm.c:fightm, and mhitu.c:mattacku for steed combat. The v50 dragon-egg recording exercises the dog_move route through the adjacent armed attack and matches through segment 0 step 1754 on the merged final tree. pre_mm_attack is called directly by missmm() at C line 81 and hitmm() at line 657; mattackm() reaches it through its missmm() and hitmm() dispatches (lines 455, 473, 488, and 534), not through a direct call. The replay contains both missed and successful armed strikes. hitmm, mswingsm, and passivemm are reached from the same attack loop. The required weapon.c helper is wired at all five active C sites (mhitm.c, mon.c, were.c, apply.c, and uhitm.c); monmove.c has no possibly_unwield call. The caller modules are wiring-only changes and are not claimed as whole-function source ports. The scoped mswingsm correction passes scripts/mhitm.test.mjs for both the canonical fallback and an explicitly injected visibility owner; the blunt-weapon fixture preserves the source roll sequence rnd(20), rn2(3). The weapon.c helper contract test asserts no Promise on absent, stolen, retained, and weapon-check paths and a Promise only on actual drops; source callers accept both the immediate void result and active drop completion. Final correction tests source-pin mhitm.c:455-471 and exercise both the split and the non-metal, one-HP, and cancelled gates. A separate source-pinned uhitm.c caller check verifies the animal seduction path forwards its state and random object to monflee without claiming B’s monflee implementation.",
+        "entryPoints": [
+          {
+            "name": "pet melee and armed monster retaliation after the dragon-egg hatch",
+            "functions": [
+              "mattackm",
+              "pre_mm_attack",
+              "hitmm",
+              "mswingsm",
+              "passivemm",
+              {
+                "sourceFile": "weapon.c",
+                "name": "possibly_unwield"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1754,
+                "source": "allmain.c moveloop_core -> monmove.c movemon -> dogmove.c dog_move -> mhitm.c mattackm -> missmm/hitmm -> pre_mm_attack; armed weapon route also exercises mswingsm, hitmm, passivemm and weapon.c possibly_unwield through the complete matching segment."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
