@@ -251,3 +251,20 @@ triage decisions or fix references.
   base because the original assignment used another branch's ancestry. C
   preserves both histories with an ancestry merge whose tree equals the exact
   Main candidate, then reapplies only the two-file correction for submission.
+
+### 2026-10-12 — throne investigation schema and exact patch import
+
+- Context: ready throne caller delivery `def667038` after petrification acceptance.
+- Friction: its diagnosis used `verified`/`resolved` as investigation status
+  and omitted fields required by `readInvestigation`. Root preserved the
+  separate diagnosis commit and refreshed the schema and accepted evaluation
+  before selecting the goal. The source commit also edited the old report,
+  causing a conflict with that refresh.
+- Outcome: aborted only the conflicting cherry-pick, preserved the original
+  report parent, imported the exact three-file patch, then restored the
+  current canonical diagnosis with the worker's matching evidence retained.
+  Only the restored combined state enters checkpoint and public Main.
+- Earlier retry import: Root attempted to import `38249833613` after the
+  combined job passed while synthetic evidence cleanup still ran. The import
+  guard rejected it. Root waited for the retained watch to exit successfully,
+  then imported its complete evidence. Main remained at the exact candidate.
