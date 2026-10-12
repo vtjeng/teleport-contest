@@ -285795,8 +285795,8 @@
           "name": "minstapetrify",
           "line": 3858,
           "endLine": 3882,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -285810,7 +285810,7 @@
           "endLine": 3936,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -286358,7 +286358,203 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "minstapetrify",
+            "implementation": "js/trap.js",
+            "symbol": "minstapetrify",
+            "sourceReview": "Read the complete upstream trap.c:minstapetrify definition (3858-3882). Matched the resistance guard, poly_when_stoned/mon_to_stone early return, vamp_stone early return, speed reduction, visible message, and the byplayer xkilled versus monstone branch in source order. vamp_stone’s Boolean return controls completion; mon_to_stone’s void return is discarded. The state-changing mon.c:mon_to_stone callee is supplied by B’s accepted repair in Main8ae7e7de. Confirmed all active direct C call sites are wired. No whole-function completion is claimed for caller functions.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mselftouch",
+                "source": "trap.c:mselftouch:3927"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu:1366"
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "engulfer_digests_food",
+                "source": "do.c:engulfer_digests_food:876"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ohitmon",
+                "source": "mthrowu.c:ohitmon:446"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_misc_obj",
+                "source": "uhitm.c:hmon_hitmon_misc_obj:1161,1215"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_ston",
+                "source": "uhitm.c:mhitm_ad_ston:4210"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "steal_it",
+                "source": "uhitm.c:steal_it:2257"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_sedu",
+                "source": "uhitm.c:mhitm_ad_sedu:4728"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "hurtle_step",
+                "source": "dothrow.c:hurtle_step:879"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "mhurtle_step",
+                "source": "dothrow.c:mhurtle_step:1034,1040,1051"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "dothrow.c:thitmonst:2285"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-minstapetrify.test.mjs",
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-cockatrice-levitation-ogre-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 147,
+                "source": "uhitm.c:mhitm_ad_ston -> trap.c:minstapetrify; hero cockatrice contact petrifies the nonresistant ogre"
+              },
+              {
+                "batch": "v51",
+                "caseId": "v51-stone-golem-nymph-corpse-theft-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 231,
+                "source": "steal.c:steal -> trap.c:minstapetrify; corpse theft petrifies the nonresistant nymph"
+              }
+            ],
+            "checkedAt": "c28103bd01d6e4d331777ec811b5c7980d29d2d6"
+          },
+          {
+            "name": "mselftouch",
+            "implementation": "js/trap_effects.js",
+            "symbol": "mselftouch",
+            "sourceReview": "Read the complete upstream trap.c:mselftouch definition (3913-3936). Matched the wielded CORPSE/type check, touch_petrifies test, stone-resistance early return, void minstapetrify call with the caller-provided byplayer flag, and post-call survival/glove/resistance guards before mwepgone. Confirmed mselftouch’s result is discarded at every active call site. The independent matching recordings below reach mselftouch through no-wielded-corpse early returns; they establish production reachability, and this evidence does not claim that those recordings exercise active corpse contact.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham",
+                "source": "mon.c:newcham:5487"
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_pit",
+                "source": "trap.c:mintrap:2000"
+              },
+              {
+                "path": "js/music.js",
+                "symbol": "do_pit",
+                "source": "music.c:do_pit:274; production command path is do_play_instrument"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "steal_it",
+                "source": "uhitm.c:steal_it:2257"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_sedu",
+                "source": "uhitm.c:mhitm_ad_sedu:4728"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-minstapetrify.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/uhitm.test.mjs",
+              "scripts/music.test.mjs",
+              "scripts/mon-shape.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/mselftouch-chameleon-corpse-probe.session.json",
+              "recordings/trap.c/mintrap-pit-independent.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "c28103bd01d6e4d331777ec811b5c7980d29d2d6"
+          }
+        ],
+        "entryPointReview": "The recorder build includes all reviewed call sites. Positive minstapetrify behavior is covered through two active production paths: hero cockatrice contact via uhitm.c:mhitm_ad_ston and cockatrice-corpse theft via steal.c:steal. mselftouch production reachability is covered through mon.c:newcham and trap.c:mintrap pit fall by independent matching recordings; both take the documented no-wielded-corpse guard. The direct dothrow.c:hurtle_step, mhurtle_step, and thitmonst bindings are all source-ordered and dynamically exercised by scripts/dothrow.test.mjs, which checks hero-credit, byplayer=false statue, and engulfed-corpse cleanup behavior. Those caller functions are not claimed complete, and no separate recorded play is claimed for their bindings. The mselftouch active corpse-contact branch is source-reviewed but was not reached by the retained recordings.",
+        "entryPoints": [
+          {
+            "name": "Hero cockatrice contact petrifies a nonresistant monster",
+            "functions": [
+              "minstapetrify"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-cockatrice-levitation-ogre-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 147,
+                "source": "uhitm.c:mhitm_ad_ston -> trap.c:minstapetrify"
+              }
+            ]
+          },
+          {
+            "name": "Monster theft of a cockatrice corpse petrifies the thief",
+            "functions": [
+              "minstapetrify"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-stone-golem-nymph-corpse-theft-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 231,
+                "source": "steal.c:steal -> trap.c:minstapetrify"
+              }
+            ]
+          },
+          {
+            "name": "Shape change removes stone resistance and calls mselftouch",
+            "functions": [
+              "mselftouch"
+            ],
+            "recordings": [
+              "recordings/trap.c/mselftouch-chameleon-corpse-probe.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Pit fall dispatch calls mselftouch",
+            "functions": [
+              "mselftouch"
+            ],
+            "recordings": [
+              "recordings/trap.c/mintrap-pit-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }

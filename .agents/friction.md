@@ -216,3 +216,18 @@ triage decisions or fix references.
   38 focused tests, lint and quality checks pass. The new module retains
   its earlier commands-area assignment, which was preserved on the failed
   branch. The hosted retry must cover every earlier failed stage.
+
+### 2026-10-12 — petrification evidence extended past the pager
+
+- Context: C petrification delivery `fbfe1b901`.
+- Friction: the original positive ranges stopped at the slowdown More prompt,
+  before the helper's completed stoning/death path. Its packet base also
+  carried older pending source context.
+- Outcome: C preserved the packet and supplied extended matching checks from
+  the separate accepted-base candidate `2e38ab4ef`: ogre through step 147,
+  nymph through step 231. Root verified the log hash and reverified those
+  ranges on the combined Main implementation when recording source evidence.
+  The caller conflict retained Main's synchronous `possibly_unwield` body;
+  its whole asynchronous port remains a separate combat delivery. All 137
+  combined focused tests, lint, and quality checks pass. No pending combat
+  source is required by this candidate.
