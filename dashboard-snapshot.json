@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T18:46:56.758Z",
+  "capturedAt": "2026-10-12T18:57:00.118Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -96720,23 +96720,111 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep22/v58 is comparing eleven independently replayed C gameplay recordings in an isolated JavaScript workspace."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep17-saved-c-intake-20261012",
+        "type": "activity",
+        "at": "2026-10-12T18:48:14.174Z",
+        "task": "Prep17",
+        "phase": "review",
+        "reason": "No ready implementation delivery remains; checking the oldest pending preparation packet and saved independent C evidence while A, B, and C implement v52 fixes. v53 will remain unadmitted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v52-prayer-gem-diagnosis-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:49:12.010Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing the v52 gem-identification mismatch and defining its source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-zap-backfire-v52-20261012",
+        "type": "implement",
+        "at": "2026-10-12T18:49:15.877Z",
+        "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012",
+        "goal": "port-zap-backfire-v52-cursed-wand-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep17-5814725469a04a5cc2b68a4fd19de47137c4f7b1",
+        "type": "integrating",
+        "at": "2026-10-12T18:50:07.119Z",
+        "task": "Prep17",
+        "integration": "5814725469a04a5cc2b68a4fd19de47137c4f7b1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-port-shk-gem-learned-v52-prayer-gem-20261012",
+        "type": "implement",
+        "at": "2026-10-12T18:50:37.001Z",
+        "task": "A2-investigation-v52-prayer-crowning-gem-luck-20261012",
+        "goal": "A2-port-shk-gem-learned-v52-prayer-gem-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-expanded-c-source-search-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:51:11.929Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is recording seven additional source-planned gameplay behaviors after the initial independent comparisons."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-expansion-followups-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:52:26.261Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is completing three C-observed follow-ups and preserving the earlier setup attempts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v52-steed-dismount-caller-repair-20261012",
+        "type": "implement",
+        "at": "2026-10-12T18:53:38.657Z",
+        "task": "C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012",
+        "goal": "C-v52-steed-dismount-callers-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep22-v58-expanded-js-20261012",
+        "type": "turn",
+        "at": "2026-10-12T18:53:59.811Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep22/v58 is comparing seven additional independently replayed C routes; all 67 attempts remain preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep17-5814725469a04a5cc2b68a4fd19de47137c4f7b1-validated",
+        "type": "validated",
+        "at": "2026-10-12T18:56:24.509Z",
+        "task": "Prep17",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep17-5814725469a04a5cc2b68a4fd19de47137c4f7b1-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T18:56:29.661Z",
+        "task": "Prep17"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e9b25429ef94bf1bd5c73e30911f98c014eda81d",
+        "type": "ready",
+        "at": "2026-10-12T18:56:42.689Z",
+        "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012",
+        "delivery": "e9b25429ef94bf1bd5c73e30911f98c014eda81d"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "Prep17",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "4458b5ccea78f8f2c6e58468a554d04586a84616",
-        "batch": "v53",
-        "since": "2026-10-12T11:20:49.416Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "Prep18",
         "worker": "Prep",
@@ -96746,10 +96834,8 @@
         "delivery": "5e592fe939987281a297ea430289c96d4646e6d9",
         "batch": "v54",
         "since": "2026-10-12T13:14:00.608Z",
-        "blockedBy": [
-          "Prep17"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "Prep19",
@@ -96761,7 +96847,6 @@
         "batch": "v55",
         "since": "2026-10-12T14:44:34.053Z",
         "blockedBy": [
-          "Prep17",
           "Prep18"
         ],
         "unblocks": 0
@@ -96776,7 +96861,6 @@
         "batch": "v56",
         "since": "2026-10-12T16:37:35.940Z",
         "blockedBy": [
-          "Prep17",
           "Prep18",
           "Prep19"
         ],
@@ -96792,15 +96876,37 @@
         "batch": "v57",
         "since": "2026-10-12T17:57:01.432Z",
         "blockedBy": [
-          "Prep17",
           "Prep18",
           "Prep19",
           "Prep20"
         ],
         "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012",
+        "worker": "B",
+        "goal": "port-zap-backfire-v52-cursed-wand-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "e9b25429ef94bf1bd5c73e30911f98c014eda81d",
+        "since": "2026-10-12T18:56:42.689Z",
+        "blockedBy": [],
+        "unblocks": 0
       }
     ],
-    "preparedBatches": [],
+    "preparedBatches": [
+      {
+        "task": "Prep17",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "awaiting-admission",
+        "delivery": "4458b5ccea78f8f2c6e58468a554d04586a84616",
+        "batch": "v53",
+        "since": "2026-10-12T18:56:29.661Z",
+        "blockedBy": []
+      }
+    ],
     "parkedTasks": [
       {
         "task": "C42",
@@ -97258,8 +97364,8 @@
     ]
   },
   "development": {
-    "executionCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
-    "measuredAt": "2026-10-12T18:41:35.674Z",
+    "executionCommit": "5814725469a04a5cc2b68a4fd19de47137c4f7b1",
+    "measuredAt": "2026-10-12T18:55:14.790Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
