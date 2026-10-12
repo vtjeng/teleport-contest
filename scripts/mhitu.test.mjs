@@ -28,6 +28,7 @@ import {
     LS_MONSTER,
     M_SEEN_ACID,
     M_SEEN_COLD,
+    M_SEEN_ELEC,
     M_SEEN_FIRE,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
@@ -2969,34 +2970,36 @@ test('magic cancellation turns a bite aside at the roll C compares',
     assert.ok(bare.bounds.includes('rn2(10)'));
 });
 
-test('a shock attack stops where the hero resists or loses items',
+test('a shock attack records resistance and destroys items after the level roll',
     async () => {
     const state = await meleeHero();
     const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0);
 
-    // uhitm.c:2712-2716. mondata.c monstseesu() has no port, so the whole
-    // resistant arm stops rather than printing and forgetting the sighting.
+    // uhitm.c:2712-2716. Resistance records the observation, zeroes direct
+    // damage, and still reaches the level-gated destroy_items call.
     state.u.uprops[SHOCK_RES] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
-    await assert.rejects(
-        () => mattacku(bug, meleeEnv(state, [1]).env),
-        (error) => error.reason
-            === 'a shock-resistant hero shrugging off an attack',
-    );
+    state.invent = null;
+    const resisted = meleeEnv(state, [1], { rn2: (bound) => bound === 20 ? 0 : 1 });
+    assert.equal(await mattacku(bug, resisted.env), false);
+    assert.ok(bug.seen_resistance & M_SEEN_ELEC);
+    assert.ok(resisted.lines.includes("The zap doesn't shock you!"));
+    assert.ok(resisted.bounds.includes('rn2(20)'));
     state.u.uprops[SHOCK_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
 
     // uhitm.c:2719-2720, `(int) magr->m_lev > rn2(20)`. A level-zero grid bug
     // never wins that comparison, so the roll happens and destroy_items() does
     // not; one level up, the same roll reaches it.
-    const spared = meleeEnv(state, [1], { rn2: () => 0 });
+    const spared = meleeEnv(state, [1], { rn2: (bound) => bound === 20 ? 0 : 1 });
     assert.equal(await mattacku(bug, spared.env), false);
     assert.ok(spared.bounds.includes('rn2(20)'));
 
     bug.m_lev = 1;
-    await assert.rejects(
-        () => mattacku(bug, meleeEnv(state, [1], { rn2: () => 0 }).env),
-        (error) => error.reason
-            === "electricity destroying the hero's items",
-    );
+    const exposed = meleeEnv(state, [1], {
+        rn2: (bound) => bound === 20 || bound === 5 ? 0 : 1,
+    });
+    assert.equal(await mattacku(bug, exposed.env), false);
+    assert.deepEqual(exposed.bounds.filter((bound) => bound === 'rn2(5)'),
+        ['rn2(5)']); // destroy_items runs on the level-gate success.
     bug.m_lev = 0;
 });
 

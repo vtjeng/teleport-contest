@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-defined Val-fila.lua load retry after preserving the first LR_BRANCH setup probe. Seed 48050707 was the first successful seed in the bounded preselected JavaScript startup scan range recorded in .cache/prep48/seed-scan-startup.json; scan only checks pre-command game generation so #wizloaddes can reach this Lua target.",
+  "segments": [
+    {
+      "seed": 48050707,
+      "datetime": "20571014091017",
+      "nethackrc": "OPTIONS=name:V48Valkyrie,role:Valkyrie,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nVal-fila.lua\n#wizmap\n"
+    }
+  ]
+}

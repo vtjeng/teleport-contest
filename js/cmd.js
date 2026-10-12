@@ -183,7 +183,6 @@ import {
 } from './potion.js';
 import { dryup, UnsupportedFountainError } from './fountain.js';
 import { is_pool } from './dbridge.js';
-import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
 import {
     BOULDER,
     CREDIT_CARD,
@@ -234,6 +233,7 @@ import {
     ledger_no,
     on_level,
     recalc_mapseen,
+    rm_mapseen,
     u_on_rndspot,
 } from './dungeon.js';
 import {
@@ -2563,7 +2563,7 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
     if (pre) {
         await makemap_remove_mons(state);
         const ledger = ledger_no(state.u.uz, state);
-        note_unported('dungeon.c rm_mapseen');
+        rm_mapseen(ledger, state);
         state.context.achieveo ??= {};
         if (on_level(state.u.uz, state.mineend_level)) {
             if (remove_achievement(ACH_MINE_PRIZE, state))
@@ -2931,13 +2931,6 @@ export function failClosedCommandRefusals() {
         // across the map -- so the segment has to end on them rather than
         // lose the screens they matched.
         UnsupportedZapError,
-        // The two classes zhitu()'s destroy_items() call reaches below the
-        // zap effect boundary, each after the bolt has been drawn and the
-        // items it destroyed have been announced. zap.c maybe_destroy_item()
-        // raises the first from its AD_COLD and AD_ELEC cases and from a worn
-        // or wielded object; do_name.c docall() raises the second for an
-        // object type the hero has neither identified nor already called.
-        UnsupportedItemDestructionError,
         // potion.c dodrink()/dopotion()/peffects() still raises this for
         // unported potion-effect arms. dodrink()'s unported void helpers use
         // named note_unported gaps and continue in source order instead.

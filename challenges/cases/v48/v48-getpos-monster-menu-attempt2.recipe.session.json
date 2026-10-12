@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first probe for getpos.c:getpos_menu. Create one visible newt, enter #name's monster selection, enable target menus, open the monster target menu, and select its sole entry.",
+  "segments": [
+    {
+      "seed": 48071226,
+      "datetime": "20571022110000",
+      "nethackrc": "OPTIONS=name:V48MenuMonster,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nnewt\n#wizmap\n #name\nm  !m \nV48MenuNewt\n"
+    }
+  ]
+}

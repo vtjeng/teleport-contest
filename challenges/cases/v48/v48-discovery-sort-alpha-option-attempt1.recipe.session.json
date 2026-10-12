@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for o_init.c:disco_output_sorted without a menu prefix. Set the supported sortdiscoveries:a option at startup, then run the direct discoveries command so C enters its across-class alphabetical output branch.",
+  "segments": [
+    {
+      "seed": 48071234,
+      "datetime": "20571022110404",
+      "nethackrc": "OPTIONS=name:V48DiscoSort,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,sortdiscoveries:a,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\\"
+    }
+  ]
+}

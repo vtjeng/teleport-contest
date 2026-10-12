@@ -105,6 +105,10 @@ test('reset_level marks Lua testing, remakes the coder, and clears the level', a
         const painted = { x: des.frame.xstart, y: des.frame.ystart };
         assert.equal(game.level.at(painted.x, painted.y).typ, ROOM);
         assert.equal(des.frame.splevMap[painted.x][painted.y], 1);
+        const replacedMapseen = game.svm.mapseenchn.find(({ lev }) =>
+            lev.dnum === game.u.uz.dnum && lev.dlevel === game.u.uz.dlevel);
+        assert.ok(replacedMapseen,
+            'the starting level has one overview record before reset');
         const before = game.level;
         game.in_mklev = false;
 
@@ -118,7 +122,9 @@ test('reset_level marks Lua testing, remakes the coder, and clears the level', a
         assert.equal(game.unported.has('cmd.c makemap_prepost'), false);
         assert.equal(game.unported.has('wizcmds.c makemap_remove_mons'), false);
         assert.equal(game.unported?.has('dog.c keepdogs') ?? false, false);
-        assert.ok(game.unported.has('dungeon.c rm_mapseen'));
+        assert.equal(game.unported.has('dungeon.c rm_mapseen'), false);
+        assert.equal(game.svm.mapseenchn.includes(replacedMapseen), false,
+            'makemap_prepost(TRUE) removes the replaced level overview node');
         assert.equal(game.in_mklev, true);
         // clear_level_structures(): a fresh level with no rooms.
         assert.notEqual(game.level, before);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for pager.c:do_look choice 'e' -> look_engrs(TRUE). Use the Wizard's starting magic marker to create a short visible engraving, then inspect nearby seen or remembered engravings; v38's wand engraving only covers writing, not this pager listing path.",
+  "segments": [
+    {
+      "seed": 48071243,
+      "datetime": "20571022110740",
+      "nethackrc": "OPTIONS=name:V48WhatisEngr,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "i EmV48\n#whatis\ne"
+    }
+  ]
+}

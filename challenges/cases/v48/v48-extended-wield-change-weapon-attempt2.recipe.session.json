@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction to the #wield route. Selecting the observed second item slot attempts a real switch away from the currently wielded weapon, reaching wield.c:dowield beyond the already-wielded cancellation control.",
+  "segments": [
+    {
+      "seed": 48072007,
+      "datetime": "20571023110530",
+      "nethackrc": "OPTIONS=name:V48ExtendedWield2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wield\nb"
+    }
+  ]
+}

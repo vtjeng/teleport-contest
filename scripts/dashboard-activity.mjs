@@ -19,7 +19,7 @@ export function activityTimeline(activity, capturedAt) {
     const start = task.starts[phase];
     if (start && Date.parse(at) >= Date.parse(start)) {
       segments.push({ task: task.id, goal: task.goal, worker: task.worker,
-        kind: task.kind, phase, start, end: at, ...(ongoing ? { ongoing: true } : {}),
+        kind: task.kind, ...(task.batch ? { batch: task.batch } : {}), phase, start, end: at, ...(ongoing ? { ongoing: true } : {}),
         ...(phase === 'parked' ? { reason: task.parkedReason } : {}),
         lane: ['working', 'rework', 'queued', 'parked'].includes(phase) ? task.worker : 'Main' });
     }
@@ -32,6 +32,7 @@ export function activityTimeline(activity, capturedAt) {
     if (event.type === 'assign') {
       const task = { id: taskId, label: event.task, goal: event.goal ?? null,
         worker: event.worker, kind: event.kind ?? 'implementation',
+        ...(event.batch ? { batch: event.batch } : {}),
         assignedAt: event.at, starts: {}, status: 'working',
         integration: null, publishedAt: null };
       tasks.set(task.id, task);
@@ -61,6 +62,7 @@ export function activityTimeline(activity, capturedAt) {
       }
       if (event.phase !== 'done') coordinator.set(taskId, {
         task: taskId, worker: task.worker, kind: task.kind, goal: task.goal,
+        ...(task.batch ? { batch: task.batch } : {}),
         lane: 'Main', phase: event.phase, reason: event.reason, start: event.at,
       });
       continue;
@@ -195,6 +197,36 @@ export function activityTimeline(activity, capturedAt) {
     segments,
     stages: agentStages(segments, events),
   };
+}
+
+// Measure the disjoint stages actually drawn for each worker, clipped to the
+// visible window. Pool worker-time, not percentages. Unknown time stays in the
+// denominator; queue time is task history, not a blocked worker. This function
+// is also embedded in the buildless dashboard so the browser uses the same math.
+export function activityUtilization(stages, start, end) {
+  const work = new Set(['working', 'rework', 'review', 'integrating', 'acceptance', 'publication', 'admission', 'baseline']);
+  const groups = ['A/B/C', 'Prep', 'Main'].map(role => ({ role, workers: new Map() }));
+  for (const stage of stages) {
+    if (['queued', 'pending'].includes(stage.phase)) continue;
+    const role = stage.lane === 'Main' ? 'Main' : /^Prep\d*$/u.test(stage.lane) ? 'Prep'
+      : /^[ABC]\d*$/u.test(stage.lane) ? 'A/B/C' : null;
+    const group = groups.find(row => row.role === role);
+    const a = Math.max(start, Date.parse(stage.start)), b = Math.min(end, Date.parse(stage.end));
+    if (!group || !(b > a)) continue;
+    if (!group.workers.has(stage.lane)) group.workers.set(stage.lane,
+      { lane: stage.lane, total: 0, work: 0, blocked: 0, idle: 0, unknown: 0 });
+    const row = group.workers.get(stage.lane);
+    const state = work.has(stage.phase) ? 'work' : ['blocked', 'parked', 'waiting'].includes(stage.phase)
+      ? 'blocked' : stage.phase === 'idle' ? 'idle' : 'unknown';
+    row.total += b - a;
+    row[state] += b - a;
+  }
+  return groups.map(group => {
+    const result = { role: group.role, total: 0, work: 0, blocked: 0, idle: 0, unknown: 0,
+      workers: [...group.workers.values()].map(row => ({ ...row, utilization: row.work / row.total })) };
+    for (const row of result.workers) for (const key of ['total', 'work', 'blocked', 'idle', 'unknown']) result[key] += row[key];
+    return { ...result, utilization: result.total ? result.work / result.total : null };
+  });
 }
 
 // One row represents each agent's current stage. Delivery queue intervals are

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first distinct control candidate for insight.c:dogenocided through #genocided. A fresh run asks for the genocided/extinct list before any monsters have been removed from generation; require C to show the empty-list result.",
+  "segments": [
+    {
+      "seed": 48070032,
+      "datetime": "20571019120741",
+      "nethackrc": "OPTIONS=name:V48Geno,role:Valkyrie,race:human,gender=female,align=neutral,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#genocided\n"
+    }
+  ]
+}

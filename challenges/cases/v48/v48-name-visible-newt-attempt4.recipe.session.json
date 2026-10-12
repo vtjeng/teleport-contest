@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected monster naming target based on the generated map: after choosing `m` at #name, move getpos east to the adjacent newt and select the cursor, then name it. This distinguishes the initial direction/setup probes.",
+  "segments": [
+    {
+      "seed": 48071006,
+      "datetime": "20571020101519",
+      "nethackrc": "OPTIONS=name:V48NameMonster,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizgenesis\nnewt\n#wizmap\n #name\nml.V48Newt\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Matching-control candidate for the discoveries command: use the same direct backslash command as the sorted-output case but preserve the default order so C stays in dodiscovered's already ported unsorted path.",
+  "segments": [
+    {
+      "seed": 48071235,
+      "datetime": "20571022110435",
+      "nethackrc": "OPTIONS=name:V48DiscoDefault,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,sortdiscoveries:o,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\\"
+    }
+  ]
+}

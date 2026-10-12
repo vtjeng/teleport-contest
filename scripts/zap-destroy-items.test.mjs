@@ -10,8 +10,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { failClosedCommandRefusals } from '../js/cmd.js';
-
 import {
     BLINDED,
     CONFUSION,
@@ -58,7 +56,6 @@ import {
     WAN_NOTHING,
 } from '../js/objects.js';
 import {
-    UnsupportedItemDestructionError,
     burn_floor_objects,
     destroy_items,
     destroyable,
@@ -67,6 +64,9 @@ import {
 
 const ZAP_C = readFileSync(
     new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8',
+);
+const ZAP_JS = readFileSync(
+    new URL('../js/zap_destroy_items.js', import.meta.url), 'utf8',
 );
 
 function sourceBody(source, signature) {
@@ -1111,13 +1111,34 @@ test('worn fire resistance protects a stack before anything is drawn for it',
     game.u.uprops[FIRE_RES].extrinsic = 0;
 });
 
-test('the destruction refusal is one the command seam converts', () => {
-    // Raised under dozap() through zhitu(), so it has to be in the list js/cmd.js
-    // failClosedCommandRefusals() returns; without it the segment loses every
-    // screen the zap had already matched.
-    assert.ok(
-        failClosedCommandRefusals().includes(UnsupportedItemDestructionError),
+test('maybe_destroy_item records C impossible calls as discarded void gaps', () => {
+    // zap.c's default dmgtyp arm and mixed-chain check both call
+    // pline.c:impossible() for its discarded void result, then continue.
+    const cBody = ZAP_C.match(
+        /staticfn int\nmaybe_destroy_item\([\s\S]*?\n\}\n\n\/\* scaling factor/u,
+    )?.[0];
+    const cDestroyBody = ZAP_C.match(
+        /\nint\ndestroy_items\([\s\S]*?\n\}\n\nint\nresist/u,
+    )?.[0];
+    assert.ok(cBody);
+    assert.ok(cDestroyBody);
+    assert.match(cBody,
+        /default:\s*skip = 1;[\s\S]*?impossible\("maybe_destroy_item with unexpected dmgtyp %d", dmgtyp\);[\s\S]*?break;/u);
+    assert.match(cDestroyBody,
+        /else if \(where != obj->where\)\s*impossible\("destroy_item: items in multiple chains"\);/u);
+
+    const jsBody = ZAP_JS.slice(
+        ZAP_JS.indexOf('async function maybe_destroy_item('),
+        ZAP_JS.indexOf('export async function destroy_items('),
     );
+    const jsDestroyBody = ZAP_JS.slice(
+        ZAP_JS.indexOf('export async function destroy_items('),
+        ZAP_JS.indexOf('// Monster-caused floor fire'),
+    );
+    assert.match(jsBody,
+        /default:[\s\S]*?skip = 1;[\s\S]*?note_unported\('pline\.c impossible'\);[\s\S]*?break;/u);
+    assert.match(jsDestroyBody,
+        /else if \(where !== obj\.where\)\s*note_unported\('pline\.c impossible'\);/u);
 });
 
 test('the Book of the Dead survives the fire and says so', async () => {

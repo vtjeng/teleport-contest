@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first monster naming route corrected from attempt4's actual map: the newt is southeast, so select #name option m, move getpos southeast, select that square, and enter a name.",
+  "segments": [
+    {
+      "seed": 48071007,
+      "datetime": "20571021101519",
+      "nethackrc": "OPTIONS=name:V48NameMonster,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizgenesis\nnewt\n#wizmap\n #name\nmn.V48Newt\n"
+    }
+  ]
+}

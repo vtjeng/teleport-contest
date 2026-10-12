@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected #wield route: wish a long sword, then select its observed inventory letter through the named extended-command row. The preceding slot probes established that the Wizard's default item slots do not provide a second wieldable item.",
+  "segments": [
+    {
+      "seed": 48072008,
+      "datetime": "20571023110630",
+      "nethackrc": "OPTIONS=name:V48ExtendedWield3,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizwish\nlong sword\n#wield\no"
+    }
+  ]
+}

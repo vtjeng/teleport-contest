@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for the named #throw row: cmd.c:doextcmd resolves it to dothrow.c:dothrow and opens the throwing-object selector, where Escape returns without throwing. This checks a separate source command handler from #fight and #close.",
+  "segments": [
+    {
+      "seed": 48072004,
+      "datetime": "20571023110230",
+      "nethackrc": "OPTIONS=name:V48ExtendedThrow,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#throw\n\u001b"
+    }
+  ]
+}
