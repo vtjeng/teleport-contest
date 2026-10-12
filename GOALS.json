@@ -286868,7 +286868,7 @@
     {
       "id": "divergence-fix-cmd-doextcmd-quaff-remove-swap-v49-20261012",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire quaff remove and swap extended commands",
       "cFile": "cmd.c",
       "sessions": [
@@ -286884,8 +286884,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "98b22439c86389e89602ba6c6c2dff8b8032856e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doextcmd",
       "session": "synthetic/v49/v49-quaff-potion-attempt2",
       "step": 7,
@@ -287500,7 +287503,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "98b22439c86389e89602ba6c6c2dff8b8032856e",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
