@@ -9,7 +9,7 @@
   "evaluationPath": "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json",
   "evaluationCommit": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
   "status": "complete",
-  "commit": "ec477816056fdc8d518fa4cbc07feb48013b0462",
+  "commit": "e1ac11d0921001cee74cf5f63b577bc38ec2836c",
   "summary": "At segment 0 step 97, self-knowledge from a fountain displays the wrong blindness cause. C says the hero is deliberately blind because of the worn blindfold; JavaScript reports temporarily blind. The source mismatch is the Blindfolded_only predicate in insight.c:status_enlightenment, not the water-snake fountain outcome named by the case.",
   "source": {
     "file": "insight.c",
@@ -75,5 +75,23 @@
     "sourceFile": "insight.c",
     "function": "status_enlightenment",
     "message": "The C Blindfolded_only macro tests extrinsic blindfold blindness against Blinded (intrinsic blindness); JavaScript excluded the active blindfold from its own adjective predicate."
+  },
+  "observedReplay": {
+    "runId": "run-3Lk7uh",
+    "command": [
+      "node",
+      "scripts/scan-sessions.mjs",
+      "--json",
+      "--synthetic",
+      "v53/v53-blind-fountain-water-snakes-action2"
+    ],
+    "replayCommit": "e1ac11d0921001cee74cf5f63b577bc38ec2836c",
+    "screensEmitted": 203,
+    "recordedSteps": 203,
+    "divergence": null,
+    "recordingMatched": true,
+    "inputBoundaryMatched": true,
+    "unported": [],
+    "receipt": "/tmp/teleport-validation-1000/run-3Lk7uh/receipt.json"
   }
 }
