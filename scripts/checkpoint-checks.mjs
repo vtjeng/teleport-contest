@@ -45,6 +45,12 @@ export function checkpointCommands() {
         command: 'npm',
         args: ['test'],
     });
+    commands.push({
+        label: 'lint',
+        group: 'sources',
+        command: 'npm',
+        args: ['run', 'lint'],
+    });
     for (const check of GENERATED_CHECKS) {
         commands.push({
             label: `generated data (${check})`,

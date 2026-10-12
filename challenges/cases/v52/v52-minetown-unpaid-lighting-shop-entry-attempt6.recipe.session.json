@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first shk.c:check_unpaid_usage/use-fee via applying unpaid lighting stock in Minetown hardware shop. Source Cshop-stock/wizard named level warp used to scout shop and terminal coordinates; independent seed/route. Different transaction from unresolved ordinary floor-sale case. Named minetown is not accepted from Dungeons; Csource dat/dungeon.lua uses minetn. Inspect wizard level menu to choose Mines special level independently. C wizard menu second page identifies w=minetn. Warp to the observed branch and map terminal shop locations. C map hero42,11, candle-shop southdoor55,10. Independent walk goes northeast to bypass adjacent watchman, east across corridor then southeast to55,11, opens north and enters. Observe actual stock before pickup. C cursor proves prior eastern route hit candle-shop west wall51,10; finalhero53,11. Move twice east to55,11 then open/enter observed door55,10.",
+  "segments": [
+    {
+      "seed": 52002901,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>w                              #wizmap\nu          l          l          l          l          l          l          l          l          l          l          n          l          ok          k          k          :          l          l          ok          k          k          :          "
+    }
+  ]
+}

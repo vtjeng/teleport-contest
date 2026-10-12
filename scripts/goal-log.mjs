@@ -156,6 +156,29 @@ function writeGoals(store, path = DEFAULT_PATH) {
     writeFileSync(path, `${JSON.stringify(store, null, 2)}\n`);
 }
 
+/** Record an accepted delivery without certifying its selected source units. */
+export function recordTaskAcceptance(goal, summary, verdict, workerClaims) {
+    if ((verdict.target && !verdict.targetImproved) || verdict.reviewRequired
+        || verdict.candidate !== summary.commit)
+        throw new Error('task acceptance requires comparable results without regressions and any required target gain');
+    const closeStanding = checkpointClosingStanding(summary, verdict.candidate);
+    if (goal.status === 'closed') {
+        if (goal.closedAt !== verdict.candidate || (goal.acceptance && goal.acceptance.target !== verdict.target))
+            throw new Error('goal was closed by a different acceptance');
+        return;
+    }
+    if (!['queued', 'open', 'parked'].includes(goal.status)) throw new Error('goal is not available for acceptance');
+    goal.status = 'closed';
+    goal.closedAt = verdict.candidate;
+    goal.closeStanding = closeStanding;
+    goal.delivered = addDelivered(goal.progressBeforePark,
+        deliveredSince(goal.activeStanding ?? goal.openStanding, closeStanding));
+    goal.acceptance = { basis: verdict.target ? 'target-improvement' : 'non-target-delivery', baseline: verdict.baseline,
+        target: verdict.target, checkpoint: verdict.candidateCheckpoint };
+    // Claims stay outside goal.evidence: selection counts only verified evidence.
+    if (workerClaims) goal.workerClaims = workerClaims;
+}
+
 function repositoryHead() {
     return execFileSync('git', ['rev-parse', 'HEAD'],
         { encoding: 'utf8' }).trim();

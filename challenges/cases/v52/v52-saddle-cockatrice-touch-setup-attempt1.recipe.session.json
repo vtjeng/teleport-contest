@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first steed.c:use_saddle. Barehanded non-stone-resistant hero touches cockatrice before can_saddle species check, calling existing instapetrify (Csteed36-80, JSsteed384 skips it). Wizard with no gloves wishes a saddle and generates a live cockatrice; apply saddle toward observed adjacent location.",
+  "segments": [
+    {
+      "seed": 52002001,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          \u0017uncursed saddle\n          #wizgenesis\nhostile cockatrice\n         #wizmap\n"
+    }
+  ]
+}

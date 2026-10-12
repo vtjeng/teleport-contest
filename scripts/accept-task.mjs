@@ -1,26 +1,29 @@
 #!/usr/bin/env node
-// Orchestrator only, after source and per-case regression review.
+// Orchestrator only. Targeted fixes are accepted from saved CI results.
 // Consume saved validation; never merge, replay a corpus, publish, or dispatch workers.
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
+import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { readCheckpointResult } from './checkpoint-results.mjs';
 import { BOOKKEEPING_FILES } from './checkpoint-reuse.mjs';
 import { summarizeLedger } from './worker-state.mjs';
-import { validateHistoricalEvaluation } from './worker-delivery.mjs';
+import { readDelivery, validateHistoricalEvaluation } from './worker-delivery.mjs';
 import { appendRow, generateNote, readRows, standing } from './score-log.mjs';
 import { challengeInputSnapshot, evaluationBatch, readChallengeBatches, validateEvaluation } from './challenge-results.mjs';
 import { recordEvaluations } from './score-challenges.mjs';
 import { boundedMain } from './run-bounded.mjs';
+import { reviewTask } from './task-verdict.mjs';
+import { recordTaskAcceptance, validateGoals } from './goal-log.mjs';
 
 const USAGE = `Usage: node scripts/accept-task.mjs --task <id> --ledger <file> [--evaluations <directory>]
 
-Run only after source review, preflight, focused checks, and comparison of saved
-synthetic results with accepted evidence. Uses the passing checkpoint at HEAD.
-Imports reviewed synthetic evaluations (the hosted archive by default), closes
-the goal, appends its score, and records validation and acceptance. Preparation
+Run after preflight and a passing checkpoint at HEAD. Targeted fixes must improve
+their assigned session without fixed or synthetic per-case regressions. The
+helper compares saved artifacts itself; no source-certification gate is required.
+Imports synthetic evaluations, records the goal's outcome and score, and records
+validation and acceptance. Non-target deliveries require no regressions, not a target gain. Preparation
 tasks skip goal closure and synthetic import. Resume at the same HEAD after an
 interruption. No commits, pushes, batch admissions, or worker messages occur.
 On success, resume the idle submitting worker before publication.`;
@@ -55,8 +58,8 @@ export function acceptTask(options, root = process.cwd()) {
     if (checkpoint.commit !== commit || checkpoint.allPassed !== true)
         throw new Error('acceptance requires a passing checkpoint at HEAD');
     const checkpointPath = join(checkpoint.artifacts, 'summary.json');
-    // goal-log also reads latest.json. Do not mix its result with an earlier
-    // ledger validation; a replacement checkpoint requires task revalidation.
+    // A replacement checkpoint requires task revalidation; do not mix it with
+    // the earlier result recorded in the ledger.
     if (task.status === 'validated' && delivery.checkpoint !== checkpointPath)
         throw new Error('checkpoint changed after validation; revalidate the task before acceptance');
     const ensureHead = () => {
@@ -105,12 +108,13 @@ export function acceptTask(options, root = process.cwd()) {
         }
     }
     const evaluations = [];
-    let goal;
+    let goal, goals, verdict;
     if (!preparation) {
-        goal = JSON.parse(readFileSync(join(root, 'GOALS.json'), 'utf8')).goals
-            .find(entry => entry.id === task.goal);
-        if (!goal || !(goal.status === 'open' || (goal.status === 'closed' && goal.closedAt === commit)))
-            throw new Error('goal must be open or already closed at this candidate');
+        goals = JSON.parse(readFileSync(join(root, 'GOALS.json'), 'utf8'));
+        goal = goals.goals.find(entry => entry.id === task.goal);
+        if (!goal || !(['queued', 'parked'].includes(goal.status)
+            || goal.status === 'open' || (goal.status === 'closed' && goal.closedAt === commit)))
+            throw new Error('goal must be available or already closed at this candidate');
         const directory = options.evaluations ? resolve(root, options.evaluations)
             : join(checkpoint.artifacts, 'synthetic');
         for (const name of (batches.length ? readdirSync(directory) : []).filter(name => name.endsWith('.json'))) {
@@ -139,6 +143,16 @@ export function acceptTask(options, root = process.cwd()) {
         mkdirSync(join(root, '.cache'), { recursive: true });
         if (scanPath !== join(root, '.cache/scan-cache.json'))
             copyFileSync(scanPath, join(root, '.cache/scan-cache.json'));
+        verdict = reviewTask(options, root);
+        if (verdict.reviewRequired) throw new Error(`task acceptance blocked: ${JSON.stringify({
+            target: verdict.target, targetImproved: verdict.targetImproved,
+            issues: verdict.issues, regressions: verdict.regressions, fixed: verdict.fixed,
+        })}`);
+        const packet = readDelivery(delivery);
+        const claims = Object.fromEntries(['functions', 'entryPointReview', 'entryPoints', 'incompleteFunctions']
+            .filter(key => packet[key] !== undefined).map(key => [key, packet[key]]));
+        recordTaskAcceptance(goal, checkpoint, verdict, claims);
+        validateGoals(goals);
     }
     if (task.status === 'integrating') event({ type: 'validated', passed: true, checkpoint: checkpointPath });
     if (goal && task.status !== 'accepted') {
@@ -151,8 +165,7 @@ export function acceptTask(options, root = process.cwd()) {
         ensureHead();
         recordEvaluations(root, evaluations.map(entry => entry.relative).filter(path => !recorded.has(path)));
         ensureHead();
-        if (goal.status === 'open') run(['scripts/goal-log.mjs', 'close-goal', '--goal', task.goal,
-            '--development-scan', join(root, '.cache/scan-cache.json')]);
+        writeFileSync(join(root, 'GOALS.json'), `${JSON.stringify(goals, null, 2)}\n`);
         const rows = readRows(join(root, 'SCORE.tsv'));
         if (!rows.some(row => row.event === 'goal' && row.sha === checkpoint.executionCommit
             && row.note.startsWith(`${task.goal} closes.`))) {

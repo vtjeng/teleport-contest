@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first potion.c:peffect_water; Blessed water harms undead hero through d(2,6), contrasting living-human healing and vampire self-turning.. Required state/action history: Become vampire; quaff observed holy-water potion while undead.. Target observation: C undead burning damage and form/HP changes..",
+  "segments": [
+    {
+      "seed": 52001011,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          \u0017potion of holy water\ni"
+    }
+  ]
+}

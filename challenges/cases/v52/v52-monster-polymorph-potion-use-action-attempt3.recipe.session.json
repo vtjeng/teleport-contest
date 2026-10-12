@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first muse.c:find_misc POT_POLYMORPH and use_misc2508-2518. Weak intelligent kobold seeks floor polymorph potion, quaffs and calls newcham; monmove.c:searches_for_item permits this potion. Inventory and floor-placement scout. C inventory slot o is wished potion; drop it, move east, generate hostile kobold nearby and wait12 forced rests. Material variation: prior east movement was blocked by observed newt, leaving potion under hero and inaccessible. Move south off potion instead and use peaceful kobold to allow item-seeking without immediate hero combat;20forced rests total.",
+  "segments": [
+    {
+      "seed": 52002701,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l          \u0017uncursed potion of polymorph\n          i                    do          j          #wizgenesis\npeaceful kobold\n          #wizmap\nm.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          m.          "
+    }
+  ]
+}

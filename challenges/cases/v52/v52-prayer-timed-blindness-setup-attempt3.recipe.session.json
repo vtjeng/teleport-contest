@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pray.c:fix_worst_trouble; TROUBLE_BLIND branch calls make_blinded; C forced pleased prayer allows bounded minor-trouble repair search.. Required state/action history: Quaff observed cursed blindness potion, place neutral altar, pray and accept debug forced success.. Target observation: C restores eyesight through prayer after timed blindness, with occupation and map redraw..",
+  "segments": [
+    {
+      "seed": 52001002,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          \u0017cursed potion of blindness\ni qo          \u0017neutral altar\n          #pray\ny"
+    }
+  ]
+}

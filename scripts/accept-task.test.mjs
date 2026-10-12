@@ -39,7 +39,8 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     json('GOALS.json', { goals: [{ id: 'fixture-fix', kind: 'divergence-fix', status: 'open',
         summary: 'Transport fixture; no game correctness claim.', cFile: 'fixture.c',
         function: 'fixture', session: 'fixture-session', openStanding: { screens: 1, rng: 1 } }] });
-    write('js/fixture.js', 'export const fixture = true;\n');
+    write('js/fixture.js', 'export const fixture = false;\n');
+    json('.cache/evidence.json', { functions: [], entryPoints: [], entryPointReview: 'Transport fixture only.' });
     // Two boundaries match the partial-result denominator below; no replay runs here.
     const recipe = JSON.stringify({ version: 5, segments: [{ moves: 'i' }] });
     const recording = JSON.stringify({ version: 5, segments: [{ steps: [{ screen: 'start' }, { screen: 'inventory' }] }] });
@@ -57,13 +58,24 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     git('add', '.gitignore', 'package.json', 'SCORE.tsv', 'GOALS.json', 'js/fixture.js',
         'scripts/score-challenges.mjs', 'frozen/session_loader.mjs',
         'challenges/manifest.json', 'challenges/manifests/v2.json', entry.recipe, entry.recording);
+    git('commit', '-qm', 'Fixture baseline');
+    const baseline = git('rev-parse', 'HEAD');
+    write('js/fixture.js', 'export const fixture = true;\n');
+    git('add', 'js/fixture.js');
     git('commit', '-qm', 'Fixture candidate');
     const commit = git('rev-parse', 'HEAD');
     const artifacts = join(root, '.git/checkpoint-results', commit, 'fixture');
+    // Forty-four rows preserve the real fixed-workload shape; each has two matched boundaries.
+    const fixedResults = JSON.stringify({ results: Array.from({ length: 44 }, (_, index) => ({
+        session: `fixture-${index}.session.json`, passed: true,
+        metrics: Object.fromEntries(['screens', 'rngCalls', 'cursors'].map(key => [key, { matched: 2, total: 2 }])),
+    })) });
+    json(`.git/checkpoint-results/${commit}/fixture/session-results.json`, JSON.parse(fixedResults));
     const summary = { commit, executionCommit: commit, artifacts, allPassed: true,
+        artifactHashes: { 'session-results.json': digest(fixedResults) },
         recordings: { passed: true }, score: {
-            passing: 1, sessions: 1, screensMatched: 2, screensTotal: 2,
-            rngMatched: 2, rngTotal: 2, cursorsMatched: 2, cursorsTotal: 2,
+            passing: 44, sessions: 44, screensMatched: 88, screensTotal: 88,
+            rngMatched: 88, rngTotal: 88, cursorsMatched: 88, cursorsTotal: 88,
         } }; // Small counts distinguish the saved result from the goal's opening standing.
     json(`.git/checkpoint-results/${commit}/latest.json`, summary);
     json(`.git/checkpoint-results/${commit}/fixture/summary.json`, summary);
@@ -84,15 +96,34 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
         ...second, batch: 'v2', manifestPath: 'challenges/manifests/v2.json',
         inputsSha256: secondInputs.sha256, inputFiles: secondInputs.files.map(file => file.path),
     });
+    const baselineArtifacts = join(root, '.git/checkpoint-results', baseline, 'fixture');
+    const baselineSummary = { ...summary, commit: baseline, executionCommit: baseline, artifacts: baselineArtifacts };
+    json(`.git/checkpoint-results/${baseline}/fixture/summary.json`, baselineSummary);
+    json(`.git/checkpoint-results/${baseline}/fixture/session-results.json`, JSON.parse(fixedResults));
+    for (const batch of ['v1', 'v2']) {
+        const evaluation = JSON.parse(readFileSync(join(artifacts, `synthetic/ci-${batch}.json`), 'utf8'));
+        json(`.git/checkpoint-results/${baseline}/fixture/synthetic/ci-${batch}.json`, { ...evaluation, sha: baseline });
+    }
     let ledger = createLedger('acceptance-fixture', root);
     let sequence = 0;
     const send = event => { ledger = recordEvent(ledger, { id: `fixture-${++sequence}`, ...event }); };
     send({ type: 'register', worker: 'A', worktree: join(root, 'worker'), branch: 'worker/a',
         base: commit, handle: 'existing-worker' });
+    send({ type: 'assign', task: 'A0', worker: 'A', goal: 'earlier-task', seed: null,
+        base: baseline, reservations: ['source:fixture.c:earlier'], allowedPaths: ['js/fixture.js'] });
+    send({ type: 'ready', task: 'A0', delivery: baseline, base: baseline, commits: [baseline],
+        paths: ['js/fixture.js'], evidence: join(root, '.cache/evidence.json'), dependencies: [] });
+    send({ type: 'integrating', task: 'A0', integration: baseline });
+    send({ type: 'validated', task: 'A0', passed: true, checkpoint: join(baselineArtifacts, 'summary.json') });
+    send({ type: 'accepted', task: 'A0' });
     send({ type: 'assign', task: 'A1', worker: 'A', goal: 'fixture-fix', seed: null,
         base: commit, reservations: ['source:fixture.c:fixture'], allowedPaths: ['js/fixture.js'] });
+    const packet = JSON.stringify({ functions: [], entryPoints: [], entryPointReview: 'Transport fixture only.',
+        git: { head: commit, base: commit } });
+    const evidencePath = `.cache/${digest(packet)}.json`;
+    write(evidencePath, packet);
     send({ type: 'ready', task: 'A1', delivery: commit, base: commit, commits: [commit],
-        paths: ['js/fixture.js'], evidence: join(root, '.cache/evidence.json'), dependencies: [] });
+        paths: ['js/fixture.js'], evidence: join(root, evidencePath), dependencies: [] });
     send({ type: 'integrating', task: 'A1', integration: commit });
     json('.cache/ledger.json', ledger);
     const options = { task: 'A1', ledger: '.cache/ledger.json' };
@@ -140,15 +171,17 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
         assert.equal(readFileSync(join(root, options.ledger), 'utf8'), originalLedger);
         writeFileSync(path, bytes);
     }
-    // Fail the real goal command after import, then resume without duplicate scores/events.
+    // Invalid task accounting stops before importing results or recording validation.
     const brokenGoals = JSON.parse(originalGoals);
     brokenGoals.goals[0].summary = '';
     json('GOALS.json', brokenGoals);
     assert.throws(() => acceptTask(options, root), /needs a summary/u);
-    assert.deepEqual(readRows(join(root, 'SCORE.tsv')).map(row => row.event), ['challenge', 'challenge']);
+    assert.deepEqual(readRows(join(root, 'SCORE.tsv')), []);
     assert.equal(summarizeLedger(JSON.parse(readFileSync(join(root, '.cache/ledger.json'), 'utf8')))
-        .tasks.A1.status, 'validated');
+        .tasks.A1.status, 'integrating');
     write('GOALS.json', originalGoals);
+    send({ type: 'validated', task: 'A1', checkpoint: join(artifacts, 'summary.json'), passed: true });
+    json('.cache/ledger.json', ledger);
     const validatedLedger = readFileSync(join(root, options.ledger), 'utf8');
     const importedRows = readFileSync(join(root, 'SCORE.tsv'), 'utf8');
     for (const path of ['js/fixture.js', 'scripts/score-challenges.mjs']) {
@@ -178,7 +211,7 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), originalGoals);
     write('.cache/ledger.json', validatedLedger);
     const wrongIntegration = JSON.parse(validatedLedger);
-    wrongIntegration.events.find(event => event.type === 'integrating').integration = 'd'.repeat(40);
+    wrongIntegration.events.find(event => event.type === 'integrating' && event.task === 'A1').integration = 'd'.repeat(40);
     json('.cache/ledger.json', wrongIntegration);
     assert.throws(() => acceptTask(options, root), /integrated HEAD/u);
     assert.deepEqual(JSON.parse(readFileSync(join(root, options.ledger), 'utf8')), wrongIntegration);
@@ -201,7 +234,7 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
         'a missing observed turn is not proof that a worker is idle');
     const rows = readRows(join(root, 'SCORE.tsv'));
     assert.deepEqual(rows.map(row => row.event), ['challenge', 'challenge', 'goal']);
-    assert.equal(rows[2].screens_matched, '2');
+    assert.equal(rows[2].screens_matched, '88');
     assert.equal(challengeState(root, rows, commit).status, 'measured');
     const goal = JSON.parse(readFileSync(join(root, 'GOALS.json'), 'utf8')).goals[0];
     assert.equal(goal.status, 'closed');
@@ -229,12 +262,12 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
         rmSync(join(root, `challenges/evaluations/accepted-${commit}-${batch}.json`));
     json(`.git/checkpoint-results/${commit}/latest.json`, summary);
     const preparation = JSON.parse(originalLedger);
-    const assignment = preparation.events.find(event => event.type === 'assign');
+    const assignment = preparation.events.find(event => event.type === 'assign' && event.task === 'A1');
     delete assignment.goal;
     assignment.kind = 'challenge-preparation';
     assignment.reservations = ['challenge-batch:v3']; // v1 and v2 are already admitted.
     assignment.allowedPaths = ['challenges/cases/v3/'];
-    preparation.events.find(event => event.type === 'ready').paths = ['challenges/cases/v3/new.recipe.json'];
+    preparation.events.find(event => event.type === 'ready' && event.task === 'A1').paths = ['challenges/cases/v3/new.recipe.json'];
     json('.cache/ledger.json', preparation);
     for (const path of ['GOALS.json', 'SCORE.tsv']) {
         const before = readFileSync(join(root, path), 'utf8');

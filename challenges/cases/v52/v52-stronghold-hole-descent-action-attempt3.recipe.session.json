@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first do.c:dodown; Hole/trapdoor descent on Stronghold calls dungeon.c:goto_hell rather than ordinary next_level (C1281-1291); JSdo2530 skips that call.. Wizard warps to castle and places independent hole off arrival stairs; commanddescend through observed hole.",
+  "segments": [
+    {
+      "seed": 52002102,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\ncastle\n                                        #wizmap\n\u0017hole\n          >          "
+    }
+  ]
+}

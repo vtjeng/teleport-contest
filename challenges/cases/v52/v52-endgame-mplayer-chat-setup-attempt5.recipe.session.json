@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first sounds.c:domonnoise; MS_HUMANOID hostile mplayer in Endgame calls mplayer.c:mplayer_talk instead of generic threat.. Required state/action history: Debug warp to Astral; create a hostile monster player and chat from observed adjacent coordinate.. Target observation: C mplayer Talk? quote and rn2(3) selected class-specific line..",
+  "segments": [
+    {
+      "seed": 52001003,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>J          nothing\n          #wizgenesis\nhostile archeologist\n          #wizmap\n"
+    }
+  ]
+}

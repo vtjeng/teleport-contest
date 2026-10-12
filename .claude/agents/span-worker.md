@@ -124,7 +124,7 @@ acknowledgement. If another worker owns the cause, send it the findings and
 report path, park your investigation with the reason, and claim independent
 work. Ask the orchestrator only when ownership or a shared contract needs a
 decision. Commit the investigation separately before the code so the
-orchestrator can import it before goal selection; include both in the delivery.
+orchestrator can preserve the diagnosis separately from the fix; include both in the delivery.
 
 For an already diagnosed task, claim it with an `assign` event through
 `event --json`.
@@ -153,14 +153,16 @@ Omit each unverified function from `evidence.functions` and put it in
 `evidence.incompleteFunctions` with `name`, a source-based `reason`, and the
 path to a committed `blockedRecipe` under `recipes/<source-file>/`. The
 delivery needs either a verified function or a replay-verified entry point
-for one of the incomplete functions. The orchestrator records only verified
-functions and parks the goal with the remaining entry points named.
+for one of the incomplete functions. Acceptance preserves the worker's claims
+and blockers without certifying whole functions or requiring a second source
+review by the orchestrator.
 
 The orchestrator replies `QUEUED_FOR_MERGE`, then `ACCEPTED` after combined
 validation or `CHANGES_REQUIRED` with findings. Submission frees you to start
 independent work, but its reservations remain until acceptance or parking.
 Acceptance of an earlier task leaves your current task's reservations intact.
-Acceptance does not mean the work has been pushed or that CI has passed.
+Acceptance requires a passing combined checkpoint, but does not mean the work
+has been pushed or that publication CI has finished.
 
 If corrections are requested while you are working on another task, finish
 or deliberately park that task before making the correction. Use new commits
@@ -204,7 +206,8 @@ Pass every restriction in this document to each subagent you spawn.
   `.agents/validation.md`, "Source completion evidence". Identify source
   coverage, production callers, pure-function tests, impure-function
   recordings or synthetic ranges, and the entry-point coverage plan. The
-  orchestrator verifies and records it; do not edit `GOALS.json` yourself.
+  orchestrator preserves these claims without independently certifying them;
+  do not edit `GOALS.json` yourself.
 - Before handoff, reconcile each source unit in `.cache/task-context.json`
   against `evidence.functions` or `evidence.incompleteFunctions`, including
   required callees and production callers. For each active impure entry point,

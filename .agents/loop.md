@@ -21,7 +21,7 @@ to preparation. Finish an existing preparation assignment before transferring
 that role to Prep. Use fewer workers when work or resources cannot support
 four; ask before adding a fifth. Run workers on `gpt-6-luna`, as the project
 `.codex/config.toml` specifies for subagents. Workers test and submit commits;
-you review them, integrate accepted work into local `main`, run combined checks, and
+you integrate them into local `main`, run combined checks, accept, and
 publish. A worker may start independent work after submitting a task without
 waiting for a merge or for another worker.
 
@@ -67,7 +67,7 @@ task ledger records who owns work, submitted commits, and acceptance. Use
 `--help` for its commands; do not edit the JSON by hand. Workers record their
 connections, turns, tasks, scope changes, and submissions. You record receipt,
 integration, validation, acceptance, and publication. Keep accepted
-source-completion evidence in `GOALS.json`.
+task outcomes and worker source claims in `GOALS.json`.
 
 Record coordinator work before it starts with an `activity` event containing
 `task`, `phase` (`review`, `admission`, `baseline`, or `waiting`), and a short
@@ -153,12 +153,12 @@ only when every included commit belongs in the delivery; otherwise
 cherry-pick the required commits.
 
 While the current candidate's checkpoint runs, inspect the next queued
-delivery's immutable packet, diff, reservations, source evidence, and likely
-conflicts. This read-only preview can identify corrections or missing evidence
+delivery's immutable packet, diff, reservations, and likely conflicts. This
+read-only preview can identify concrete integration problems or missing evidence
 before the validation slot frees up. Keep the checkpoint process handle and
 collect its result promptly. Do not change `main`, start another aggregate
-check, or begin the next goal until the current candidate's evaluation and
-closure finish. Recheck the preview against the newly accepted `main` before
+check, or begin the next integration until the current candidate's evaluation and
+acceptance finish. Recheck the preview against the newly accepted `main` before
 integrating that delivery.
 
 Ask for corrections with `CHANGES_REQUIRED` and specific findings. Let the
@@ -180,41 +180,45 @@ or amend submitted delivery commits.
 
 ## Integration and publication
 
-Work directly on local `main`; push only accepted work. Handle one goal's
-integration, measurement, and closure at a time so its results are recorded
-separately from other goals.
+Work directly on local `main`; push only accepted work. Handle one candidate
+at a time. Workers own source review. Main integrates, runs exact-commit hosted
+CI, accepts, and publishes.
 
-1. Run `node scripts/goal-log.mjs --current --detail` and read its output. Finish or park the
-   current integration before opening another. Preserve queued deliveries.
-2. Check the delivery's task, reserved scope, selection reason, and existing
-   completion evidence. Validate a worker-owned investigation against the saved
-   queue entry and examined commit before importing it. Preserve its separate
-   report commit unchanged in integration history; import no game fix yet.
-   Recheck the report's count and recording identity against the current queue.
-   If stale, refresh it in a separate coordinator commit before goal selection.
-   If importing it replaces a newer diagnosis, restore that diagnosis in the
-   separate commit. The final report must retain useful source findings without
-   replacing newer evidence with an old count. For implementation work, open its goal under
-   `.agents/selection.md` or `.agents/divergence.md`, then commit those
-   records. A queued synthetic goal retains its source selection when the
-   submitted fix has already resolved that case; opening it still requires
-   complete current synthetic evidence. Reconcile work already completed; do
-   not close unrelated source units. For challenge preparation, verify the source-based mission plan,
-   hashes, and independent C replays without opening a goal.
-3. Integrate the submitted commits. For implementation work, check whole-source
-   coverage, production callers, and entry-point replay evidence under
-   `.agents/validation.md`; record verified source evidence. For preparation,
+Acceptance checks saved results: an assigned target must improve, and no fixed
+or synthetic case may regress. Deliveries without a target need no regressions,
+not a target gain. Preparation retains its independent C-evidence checks.
+
+Do not repeat source review, certify whole functions, or refresh historical
+investigation counts for acceptance. Preserve worker findings. Whole-source
+certification is outside the normal loop; do not start a background audit
+unless requested.
+
+CI runs the full test suite, lint, generated/static checks, and all session
+evaluations for each candidate. Main runs focused tests or replays locally only
+to test a merge-conflict resolution or integration edit, investigate a failed
+check, or verify a specific result it suspects is wrong. Do not repeat
+successful CI checks locally.
+
+1. Check the shared ledger. Finish or park the current integration before
+   starting another. Preserve queued deliveries.
+2. Check the delivery's task, reserved scope, selection reason, and dependencies.
+   Register its implementation goal from the preserved worker context if needed;
+   leave it queued. Do not run `open-goal` or repeat task selection for submitted
+   work. Preserve the worker's investigation commit and its original measurement.
+   If importing it replaces a newer diagnosis, retain the newer diagnosis too.
+   Do not rewrite historical counts to describe the current candidate.
+   For preparation, verify the saved source-based mission plan, hashes, and
+   independent C replays without opening a goal.
+3. Integrate the submitted commits and preserve worker source findings and
+   evidence. Do not independently certify their functions. For preparation,
    integrate only the case recipes and C recordings. Retain the prepared
    manifest in immutable delivery evidence, outside admitted manifests.
    Commit the combined candidate.
 4. Run `worker-state.mjs preflight --task <id>` and resolve its omissions.
-   Review the saved worker check logs and source evidence. Its `focusedTests`
-   list identifies affected tests, not a mandatory second local test run.
-   Run affected focused tests or fresh replays for integration edits, merge
-   conflicts, suspect evidence, or a prior failure; use the combined hosted checkpoint for the full test
-   suite. Run `npm run lint` and `npm run quality` on a combined candidate with
-   executable changes; the checkpoint does not enforce both. For preparation-only
-   deliveries, verify
+   Its `focusedTests` list identifies affected tests, not a mandatory second
+   local test run. Use local checks only for the specific problems above.
+   Preflight checks quality-area ownership; CI runs lint and reports review debt.
+   For preparation-only deliveries, verify
    the saved independent C replay results and committed manifest hashes.
    Rerun the C replay only when its inputs changed or the saved result is missing
    or suspect. Follow `.agents/review.md` to decide whether
@@ -237,37 +241,29 @@ separately from other goals.
    when a delivery is queued. If it fails, preserve the results and wait for
    the run to finish before integrating a correction and testing the new
    candidate.
-5. After an implementation task passes, refresh the fixed-workload mismatch
-   queue and evaluate all admitted synthetic batches under `.agents/scoring.md`.
-   Finish evidence, scores, and goal closure under `.agents/scoring.md` before
-   integrating unrelated work. Close a source goal only after its entry
-   points are verified, its required challenge evaluation is complete, and
-   its saved development scan is current. Compare saved synthetic results with
-   `node scripts/task-handoff.mjs review --task <id> --ledger <shared-ledger>`.
-   It uses the latest accepted checkpoint as the baseline; use `--baseline`
-   for another accepted checkpoint. Newly admitted batches use their saved
-   first complete baseline. Resolve regressions and missing or
-   incomparable evidence before accepting. After recording source evidence
-   and reviewing the comparison, run
+5. After importing a passing implementation checkpoint, run
    `node scripts/task-handoff.mjs accept --task <id> --ledger <shared-ledger>`
-   while HEAD still names the tested commit. The helper imports reviewed
-   evaluations, closes the goal, appends its score, and records acceptance.
+   while HEAD still names the tested commit. The helper compares saved fixed
+   and synthetic results with accepted evidence, requires improvement on an
+   assigned target, and rejects per-case regressions, new or changed non-null
+   errors, and missing or incomparable evidence. Newly admitted batches use
+   their saved first complete baseline. Do not remove a task's target to bypass
+   a rejected verdict. `task-handoff.mjs review` is optional diagnostic output,
+   not a separate acceptance step. The helper imports evaluations, records the
+   task outcome and worker claims without source certification, appends its
+   score, and records acceptance. It does not run `record-evidence`,
+   `close-goal`, or another aggregate evaluation.
    If it fails, diagnose the error and retry at the same tested commit.
-   Use manual closure commands only for a concrete helper limitation;
-   state that limitation and preserve every acceptance requirement.
    After acceptance, resume the idle worker as step 6 specifies, then
    publish the closure records, investigation updates, and new challenge reports
    together. Keep code and test-input changes in a separately validated delivery.
-   Record only the goal's active
-   intervals; park it before measuring another goal. Follow
-   `.agents/validation.md` for new evidence when later commits change inputs
+   Follow `.agents/validation.md` for new evidence when later commits change inputs
    to the checkpoint. After a challenge preparation task passes, leave its
    case files unadmitted and record no challenge score or mismatch-queue entry.
    Run the same acceptance helper; preparation tasks skip goal closure and
    synthetic import.
-   After importing a passing checkpoint, finish the required review and run
-   the acceptance helper next. For preparation, review the saved C mission
-   and replay evidence; skip implementation-only synthetic regression review.
+   For preparation, review the saved C mission and replay evidence; skip
+   implementation-only synthetic regression comparison.
    If acceptance cannot proceed, record the blocker.
    When the batch-admission gate in `.agents/selection.md` later passes, recheck
    every included case against unresolved admitted cases and earlier submitted

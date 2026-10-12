@@ -70,9 +70,11 @@ holdout provenance view.
 At loop entry, obtain complete saved evaluations for every admitted synthetic
 batch. Reuse an evaluation only when its game, scorer, and manifest inputs are
 unchanged. After each implementation goal's checkpoint, reassess every batch
-at the committed candidate before acceptance. Compare each unchanged case's
-screens, cursors, RNG calls, and errors with accepted evidence; resolve lost
-screen matches before accepting gains elsewhere.
+at the committed candidate before acceptance. Hosted CI saves these evaluations;
+`task-handoff.mjs accept` compares fixed and synthetic cases with accepted
+evidence and imports the results. Do not run another aggregate evaluation or
+make per-case comparisons by hand. Resolve the helper's reported regressions
+and missing or incomparable evidence before acceptance.
 
 Synthetic failures now drive goal selection under `.agents/selection.md`.
 Save each new batch’s first evaluation before using its JavaScript failures to
@@ -86,7 +88,7 @@ node scripts/score-challenges.mjs --record challenges/evaluations/<new-name>.jso
 
 The evaluator requires committed inputs, refuses to overwrite an artifact, and
 records runner failures without aggregate counts. The all-batch command prints
-one artifact path per batch. The acceptance helper imports reviewed batches
+one artifact path per batch. The acceptance helper checks and imports batches
 together; outside acceptance, import each with `--record`. New evaluations include
 a replay-input digest: report-only commits leave them current, while changed
 game, scorer, or manifest inputs require reassessment. Legacy artifacts remain
@@ -103,8 +105,8 @@ Compare gains and losses only on unchanged cases with the same scorer and
 denominators. Use
 `node scripts/compare-challenge-evaluations.mjs <baseline-sha> <candidate-sha> <baseline-directory> <candidate-directory>`
 with full measured SHAs and saved evaluation directories. Select an accepted
-baseline explicitly. Review the reported regressions, error changes, and
-missing or incomparable evidence before acceptance; the command does not
+baseline explicitly for a diagnostic comparison. Normal acceptance performs
+this comparison itself; no separate review command is required. The command does not
 replay games or record scores. Dashboard builds read saved evidence; they do not run challenge
 evaluations. A failed or older measurement retains its failure status or
 measured commit age. Synthetic failures have their own implementation queue;

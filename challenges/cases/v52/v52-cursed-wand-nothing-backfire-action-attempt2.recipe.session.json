@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first zap.c:dozap; cursed wand gate calls backfire2605. Wizard repeatedly zaps finite high-charge cursed wand with no-direction nonoffensive effects; bounded80 uses exercise backfire gate without combat or self-zap effects. Inventory scout. Action selected from observed C inventory; retain bounded repeated uses and all resulting prompts.",
+  "segments": [
+    {
+      "seed": 52002501,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed wand of nothing (0:80)\n          i                    zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          zok          "
+    }
+  ]
+}

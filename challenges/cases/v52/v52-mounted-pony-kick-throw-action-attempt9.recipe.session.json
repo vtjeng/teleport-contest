@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first steed.c:kick_steed; Mounted kick reduces mtame; when tame threshold fails or mtame reaches0, kick_steed402-450 calls dismount_steed(DISMOUNT_THROWN), skipped atJS735. Ten kicks bound the tame depletion route without seed search.. Previously C-confirmed mounted pony; command kick downward repeatedly until thrown dismount.",
+  "segments": [
+    {
+      "seed": 52001008,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          \u0017cursed saddle\ni          i          #wizgenesis\ntame pony\n         #wizmap\naib          #wizmap\n#ride\nby          #wizmap\n\u0004.          \u0004.          \u0004.          \u0004.          \u0004.          \u0004.          \u0004.          \u0004.          \u0004.          \u0004.          "
+    }
+  ]
+}

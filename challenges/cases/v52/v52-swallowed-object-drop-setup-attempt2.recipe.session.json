@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first do.c:drop. Swallowed hero drop transfers object to engulfer inventory; partial JSdrop refuses swallowed hero at1919. Distinct from unresolved costly-shop sale. Level20 human Wizard acquires ordinary rock before being swallowed by purple worm; drop observed rock inventory slot after confirmed swallow.",
+  "segments": [
+    {
+      "seed": 52002101,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V52Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                                                  \u0017uncursed rock\n          i          #wizgenesis\nhostile purple worm\n         m.          m.          m.          m.          "
+    }
+  ]
+}

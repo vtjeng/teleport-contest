@@ -191,8 +191,8 @@ the session. Recheck restrictions when the permission profile changes.
    definition order, including existing partial implementations. Select the
    whole function or self-contained family responsible for the current
    mismatch as `.agents/selection.md` specifies. A Lua port covers the whole
-   program, including top-level statements. Count a source unit as complete
-   after recorded source, caller, and validation evidence establish completion.
+   program, including top-level statements. Acceptance does not certify source
+   completeness; preserve existing certification separately from worker claims.
 2. Wire each ported function or Lua program where the source calls it, in
    the same task. Match every JavaScript function and caller to its source site.
    Keep each implementation and caller aligned with a corresponding source
@@ -285,17 +285,20 @@ An entry point is a command, monster action, level feature, or startup path the
 range implements. An admitted synthetic case may provide evidence when its
 recorded replay matches through the cited step range; a later divergence does
 not invalidate that range. Cite the batch, case, segment, zero-based steps,
-and C/Lua source path exercised. The orchestrator verifies the replay prefix
-and source attribution before closing the task. If no matching synthetic range
+and C/Lua source path exercised. The worker verifies its replay prefixes and
+source attribution before submission. If no matching synthetic range
 covers an entry point or impure function, create an independent recipe and a
 completely matching recording under `recipes/` and `recordings/`. Do not copy
 challenge cases into the regression corpus. Keep blocked recipes with a comment
 naming the source function that blocks their recording.
 
-Before closing a source task, record completion evidence with
-`goal-log.mjs record-evidence` as `.agents/validation.md`, "Source completion
-evidence", specifies. An isolated test does not establish production wiring.
-A blocked recipe does not establish entry-point completion.
+Workers submit source findings and runtime evidence as `.agents/validation.md`,
+"Source completion evidence", specifies. Main accepts from saved CI results
+under `.agents/loop.md`; it does not repeat source review or require
+`goal-log.mjs record-evidence` or `close-goal`. Whole-source certification is
+outside the normal loop and requires a user-requested audit. An isolated test
+does not establish production wiring; a blocked recipe does not establish
+entry-point completion.
 
 When a new recipe is needed:
 
