@@ -289658,6 +289658,305 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "file-port-monmove-monflee-v50-gas-cloud-20261012",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete monster fleeing and its gas-cloud caller routes",
+      "cFile": "monmove.c",
+      "sessions": [
+        "synthetic/v50/v50-vrock-flee-cloud-action-attempt1"
+      ],
+      "selectionReason": "The Vrock movement-fear case exposes missing production defaults for monflee gas cloud, visibility and messages. Complete the whole source helper and its caller environments before the waiting polymorph self-touch task.",
+      "detail": "",
+      "openedAt": "7ade973acaf50d973f4678da71980c76a24da393",
+      "openStanding": {
+        "sha": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "monflee",
+          "line": 462,
+          "endLine": 532,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 462,
+        "to": 532
+      },
+      "syntheticProvenance": {
+        "synthetic/v50/v50-vrock-flee-cloud-action-attempt1": {
+          "session": "synthetic/v50/v50-vrock-flee-cloud-action-attempt1",
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-vrock-flee-cloud-action-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recordingPath": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.session.json",
+          "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
+          "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+          "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec"
+        }
+      },
+      "activeStanding": {
+        "sha": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-vrock-flee-cloud-action-attempt1",
+          "session": "synthetic/v50/v50-vrock-flee-cloud-action-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recording": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.session.json",
+          "recordingPath": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.session.json",
+          "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
+          "recipe": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.recipe.session.json",
+          "recipeSha256": "450c5a05696172d8a8c8c721174077e368d70b8a2eedaf57b18370351f8ba102",
+          "replayInputSha256": "b987c8c4ded0a327e8db5d6cd9cfcbde2ed520d74430d05d7a1d5e5644a2f913",
+          "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+          "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+          "evaluationArtifact": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+          "evaluationUtc": "2026-10-12T16:06:42.167Z",
+          "remainingScreens": 18,
+          "recordedSteps": 120,
+          "previousScreensMatched": 102,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 102,
+              "total": 120
+            },
+            "rng": {
+              "matched": 2946,
+              "total": 2989
+            },
+            "cursors": {
+              "matched": 117,
+              "total": 120
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 102,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 102,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 26,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2946,
+              "cEntry": "rn2(4)=3",
+              "cCaller": "create_gas_cloud(region.c:1255)",
+              "jsEntry": "rn2(5)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 102,
+                "key": "."
+              },
+              "stepIndex": 102
+            },
+            "cursor": {
+              "index": 102,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 102,
+                "key": "."
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                70,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 102,
+          "kind": "rng",
+          "sourceFile": "region.c",
+          "function": "create_gas_cloud",
+          "message": null,
+          "cFile": "region.c",
+          "luaFile": null,
+          "line": 1255,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v50/v50-vrock-flee-cloud-action-attempt1.json",
+            "result": {
+              "session": "synthetic/v50/v50-vrock-flee-cloud-action-attempt1",
+              "corpus": "synthetic",
+              "batch": "v50",
+              "caseId": "v50-vrock-flee-cloud-action-attempt1",
+              "manifestPath": "challenges/manifests/v50.json",
+              "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+              "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
+              "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+              "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+              "remainingScreens": 18,
+              "recordedSteps": 120,
+              "status": "complete",
+              "commit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v50",
+                "caseId": "v50-vrock-flee-cloud-action-attempt1",
+                "session": "synthetic/v50/v50-vrock-flee-cloud-action-attempt1",
+                "manifestPath": "challenges/manifests/v50.json",
+                "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+                "recording": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.session.json",
+                "recordingPath": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.session.json",
+                "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
+                "recipe": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.recipe.session.json",
+                "recipeSha256": "450c5a05696172d8a8c8c721174077e368d70b8a2eedaf57b18370351f8ba102",
+                "replayInputSha256": "b987c8c4ded0a327e8db5d6cd9cfcbde2ed520d74430d05d7a1d5e5644a2f913",
+                "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+                "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+                "evaluationArtifact": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
+                "evaluationUtc": "2026-10-12T16:06:42.167Z",
+                "remainingScreens": 18,
+                "recordedSteps": 120,
+                "previousScreensMatched": 102,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 102,
+                    "total": 120
+                  },
+                  "rng": {
+                    "matched": 2946,
+                    "total": 2989
+                  },
+                  "cursors": {
+                    "matched": 117,
+                    "total": 120
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 102,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 102,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 26,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2946,
+                    "cEntry": "rn2(4)=3",
+                    "cCaller": "create_gas_cloud(region.c:1255)",
+                    "jsEntry": "rn2(5)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 102,
+                      "key": "."
+                    },
+                    "stepIndex": 102
+                  },
+                  "cursor": {
+                    "index": 102,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 102,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      78,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      70,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 102,
+                "kind": "rng",
+                "sourceFile": "region.c",
+                "function": "create_gas_cloud",
+                "message": null,
+                "cFile": "region.c",
+                "luaFile": null,
+                "line": 1255
+              },
+              "summary": "The original monster-turn failure omitted the Vrock gas cloud environment and subsequent region transition. This delivery completes the whole monflee function with canonical gas-cloud, visibility and message defaults and preserves existing production caller environments.",
+              "source": {
+                "file": "monmove.c",
+                "branch": "Whole monmove.c:monflee (462–532), including fear timers/messages, Vrock cooldown and cloud, and tracking reset; production callers delegate region transitions to the existing region.c owner.",
+                "functions": [
+                  "monflee"
+                ],
+                "callers": [
+                  "monmove.c:distfleeck -> monflee at lines 564-568; production JavaScript action adapter in js/unported_monster_actions.js supplies monFlee to the ordinary monster action path."
+                ],
+                "dependencies": [
+                  "region.c:create_gas_cloud is already implemented in js/region.js; its discarded C return does not make its RNG, region, vision, or message side effects optional."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved queue entry: challenges/manifests/v50.json, manifest SHA-256 55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5; recording SHA-256 9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f; evaluation challenges/evaluations/baseline-e4c7bc56e-v50.json at e4c7bc56eb850377811e089788227269b277950d.",
+                "Baseline identifies first mismatch at segment 0, step 102, key \".\": C calls rn2(4)=3 from region.c:create_gas_cloud at global RNG index 2946; JavaScript calls the later rn2(5)=2 from monmove.c:distfleeck. C screen shows the Vrock flee and noxious gas cloud; JavaScript has no cloud and a different cursor.",
+                "nethack-c/upstream/src/monmove.c:462-532: read the complete monflee() body; its Vrock arm sets cooldown, calls create_gas_cloud(5,8), sets mflee, then clears tracking.",
+                "js/monmove.js:2054-2162: monflee() contains the source branch and awaits env.createGasCloud after assigning mspec_used.",
+                "js/unported_monster_actions.js:1593-1603: the production monFlee adapter replaces the cloud operation with note_unported(\"region.c create_gas_cloud\").",
+                "js/region.js:1012-1086 implements create_gas_cloud(), including breadth-first cloud coordinates, source-order shuffles and lifetime, and region/display effects; connect this existing function through the action adapter.",
+                "GOALS.json has only a historical monmove.c declaration for monflee, without verified evidence.functions. The closed v33 caller task records create_gas_cloud as a retained gap and expressly takes no whole-function credit, so complete and attest monmove.c:monflee rather than reporting a bounded caller-only divergence."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
