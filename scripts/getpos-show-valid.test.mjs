@@ -50,6 +50,49 @@ test('getpos SHOWVALID always resumes targeting without a callback', async () =>
     assert.equal(game.nhDisplay.inputQueueLength, 0);
 });
 
+test('getpos menu key toggles menu mode in both directions and stays in target input', async () => {
+    await runSegment({ ...PROBE, moves: ' \u0014  $' });
+    game.iflags.getloc_usemenu = false;
+    const beforeInputs = [];
+    game._preNhgetchHook = async () => {
+        beforeInputs.push({
+            useMenu: game.iflags.getloc_usemenu,
+            message: game._ttyToplines,
+        });
+    };
+    game.nhDisplay.pushKey('!'.charCodeAt(0));
+    game.nhDisplay.pushKey('!'.charCodeAt(0));
+    game.nhDisplay.pushKey(0x1B);
+    try {
+        assert.equal(
+            await getpos(
+                { x: game.u.ux, y: game.u.uy }, false, 'desired location', game,
+            ),
+            -1,
+        );
+    } finally {
+        delete game._preNhgetchHook;
+    }
+
+    assert.deepEqual(beforeInputs.slice(1), [
+        {
+            useMenu: true,
+            message: "Using a menu to show possible targets for 'm|M', 'o|O', 'd|D', and 'x|X'.",
+        },
+        {
+            useMenu: false,
+            message: 'Not using a menu to show possible targets.',
+        },
+    ]);
+    const marker = '} else if (c == gc.Cmd.spkeys[NHKF_GETPOS_MENU])';
+    const start = C_SOURCE.indexOf(marker);
+    assert.notEqual(start, -1);
+    const end = C_SOURCE.indexOf('} else if', start + marker.length);
+    const branch = C_SOURCE.slice(start, end);
+    assert.match(branch, /getloc_usemenu = !iflags\.getloc_usemenu/u);
+    assert.ok(branch.indexOf('pline(') < branch.indexOf('goto nxtc;'));
+});
+
 test('getpos SHOWVALID retains the optional highlight callback', async () => {
     await runSegment({
         ...PROBE,

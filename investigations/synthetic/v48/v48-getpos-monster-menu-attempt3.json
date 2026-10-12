@@ -1,0 +1,132 @@
+{
+  "session": "synthetic/v48/v48-getpos-monster-menu-attempt3",
+  "remainingScreens": 2,
+  "recordedSteps": 52,
+  "corpus": "synthetic",
+  "batch": "v48",
+  "caseId": "v48-getpos-monster-menu-attempt3",
+  "manifestPath": "challenges/manifests/v48.json",
+  "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+  "recordingSha256": "1b8ef238025388974f8f8489c9a8836ca4f24a32c951f0bcf97f374dffd76a2d",
+  "evaluationPath": "challenges/evaluations/accepted-02f2d3c93e6d30843cc91ad3087f3f9c55829690-v48.json",
+  "evaluationCommit": "02f2d3c93e6d30843cc91ad3087f3f9c55829690",
+  "status": "complete",
+  "commit": "77e72da140b9f1c2eba3a651d66ee80680cd20d7",
+  "mismatch": {
+    "screen": {
+      "index": 36,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 36,
+        "key": "!"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 0,
+      "cCell": {
+        "ch": "U",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "C",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "rng": null,
+    "cursor": {
+      "index": 37,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 37,
+        "key": "m"
+      },
+      "cCursor": [
+        47,
+        3,
+        1
+      ],
+      "jsCursor": [
+        20,
+        5,
+        1
+      ]
+    },
+    "session": "synthetic/v48/v48-getpos-monster-menu-attempt3",
+    "remainingScreens": 2
+  },
+  "step": 36,
+  "kind": "screen",
+  "summary": "At segment 0 step 36, getpos.c:getpos() handles NHKF_GETPOS_MENU by toggling iflags.getloc_usemenu, printing the menu-mode message, and continuing the farlook loop. js/getpos.js:getpos() does not handle the configured getpos.menu key ('!'), so it falls through to the general command path. The resulting C message begins 'Using a menu to show possible targets…'; JavaScript enters the shell command instead. Port the missing whole branch and keep the cursor in getpos before the next input opens the monster target menu.",
+  "source": {
+    "file": "getpos.c",
+    "branch": "getpos() handles NHKF_GETPOS_MENU by toggling iflags.getloc_usemenu, printing the enabled/disabled message, marking msg_given, and jumping to nxtc.",
+    "functions": [
+      "getpos"
+    ],
+    "callers": [
+      "cmd.c:doextcmd() can reach #name, and do_name.c:docallcmd() case 'm' calls getpos() for a selected monster; js/cmd.js calls js/getpos.js:getpos() through the matching map-location selection path."
+    ],
+    "dependencies": [
+      "cmd.c initializes the NHKF_GETPOS_MENU key binding; js/command_bindings.js maps getpos.menu to '!'.",
+      "The existing getpos_menu() implementation in js/getpos.js handles the following target-menu selection once iflags.getloc_usemenu is enabled.",
+      "iflags.getloc_usemenu is the existing C state option exposed by the whatis_menu option and initialized false."
+    ]
+  },
+  "evidence": [
+    "The saved v48 baseline evaluation identifies this case at segment 0 step 36 on key '!': C screen cell 'U' and JavaScript cell 'C'; both have the same RNG count through the divergence.",
+    "The documented single-case scan at replay commit 77e72da reports first mismatch at step 36 and cursor divergence at step 37, with the command sequence #wizgenesis, #wizmap, #name followed by the monster target menu interaction.",
+    "nethack-c/upstream/src/getpos.c:getpos() contains the NHKF_GETPOS_MENU branch that toggles getloc_usemenu, prints the mode message, marks msg_given, then goes to nxtc; js/getpos.js:getpos() has no corresponding branch although js/command_bindings.js maps getpos.menu to '!'."
+  ],
+  "goalKind": "divergence-fix",
+  "currentEvaluationReview": {
+    "reviewedAt": "2026-10-12T07:13:01.334Z",
+    "remainingScreens": 2,
+    "step": 36,
+    "screen": {
+      "index": 36,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 36,
+        "key": "!"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 0,
+      "cCell": {
+        "ch": "U",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "C",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "cursor": {
+      "index": 37,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 37,
+        "key": "m"
+      },
+      "cCursor": [
+        47,
+        3,
+        1
+      ],
+      "jsCursor": [
+        20,
+        5,
+        1
+      ]
+    },
+    "sourceDiagnosisUnchanged": true
+  }
+}
