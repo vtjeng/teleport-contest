@@ -710,6 +710,36 @@ test('selected stage details stay pinned across hover, focus and time range chan
     assert.match(rendered.get('timelineReadout').innerHTML, /<strong>B1<\/strong>/u);
 });
 
+test('recovered publication details show the upper bound and never a fabricated elapsed time', () => {
+    const data = sourceDashboardData();
+    // The recorded observation is later than the known-public bound. Neither
+    // timestamp establishes a first-publication duration from acceptance.
+    const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
+    data.activity = activityTimeline({ events: [
+        { type: 'assign', task: 'C1', worker: 'C', at: at(0) },
+        { type: 'ready', task: 'C1', at: at(1) },
+        { type: 'integrating', task: 'C1', at: at(2) },
+        { type: 'accepted', task: 'C1', at: at(3) },
+        { type: 'publication-confirmed', task: 'C1', knownBy: at(8), at: at(9) },
+    ] }, at(10));
+    const rendered = renderDashboard(data);
+    const index = data.activity.stages.findIndex(row => row.task === 'C1' && row.phase === 'working');
+    rendered.get('timeline').listeners.click[0]({ target: { classList: { contains: value => value === 'activity-bar' },
+        dataset: { segment: String(index) } } });
+    const html = rendered.get('timelineReadout').innerHTML;
+    assert.match(html, /<dt>Published by<\/dt>/u);
+    assert.match(html, /exact time unknown/u);
+    assert.match(html, /Publication · duration unknown/u);
+    assert.doesNotMatch(html, /Publication · 5m|open at snapshot/u);
+    const sourceIndex = data.activity.segments.findIndex(row => row.durationUnknown);
+    const plot = rendered.get('timeline').innerHTML;
+    rendered.get('timelineReadout').listeners.click[0]({ target: { closest: () => ({
+        dataset: { history: String(sourceIndex) },
+    }) } });
+    assert.equal(rendered.get('timeline').innerHTML, plot);
+    assert.match(rendered.get('timelineReadout').innerHTML, /Publication · duration unknown · selected/u);
+});
+
 test('activity keeps one row per agent across panning and zooming', () => {
     const data = sourceDashboardData();
     // B1 remains pending while B2 and B3 are assigned. Queue history must

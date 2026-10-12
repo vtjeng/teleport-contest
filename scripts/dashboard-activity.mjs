@@ -126,6 +126,20 @@ export function activityTimeline(activity, capturedAt) {
         task.publishedAt = event.at;
         task.status = 'published';
         break;
+      case 'publication-confirmed':
+        // A historical upper bound establishes completion, not elapsed work.
+        // Remove any synthetic publication intervals for this task; retain a
+        // zero-duration history entry that cannot occupy the Main activity lane.
+        for (let index = segments.length - 1; index >= 0; index--)
+          if (segments[index].task === task.id && segments[index].phase === 'publication') segments.splice(index, 1);
+        task.starts.publication = null;
+        task.resumePublication = false;
+        task.publicationKnownBy = event.knownBy;
+        task.status = 'published';
+        segments.push({ task: task.id, goal: task.goal, worker: task.worker,
+          kind: task.kind, ...(task.batch ? { batch: task.batch } : {}), lane: 'Main',
+          phase: 'publication', start: event.knownBy, end: event.knownBy, durationUnknown: true });
+        break;
       case 'park':
         for (const phase of Object.keys(task.starts)) close(task, phase, event.at);
         task.status = 'parked';

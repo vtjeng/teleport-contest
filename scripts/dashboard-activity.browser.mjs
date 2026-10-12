@@ -40,6 +40,26 @@ try {
     await prep.click();
     assert.match(await readout.innerText(), /Synthetic local holdout v\d+/u);
   }
+  // Exercise a recovered historical endpoint when the preview contains one.
+  // These rows are history, not bars claiming measured publication work.
+  const recovered = await page.evaluate('DATA.activity.tasks.filter(task => task.publicationKnownBy).map(task => task.label).reverse()');
+  for (const label of recovered) {
+    const bar = page.locator('.activity-bar');
+    const index = await bar.evaluateAll((bars, name) => bars.findIndex(element => element.getAttribute('aria-label')?.includes(name)), label);
+    if (index < 0) continue;
+    await bar.nth(index).click();
+    const beforeHistory = await plot.boundingBox(), beforeScroll = await page.evaluate(() => scrollY);
+    const publication = readout.getByRole('button', { name: /Publication · duration unknown/u });
+    assert.equal(await publication.count(), 1);
+    assert.match(await readout.innerText(), /Published by[\s\S]*exact time unknown/u);
+    await publication.evaluate(element => element.focus({ preventScroll: true }));
+    await publication.press('Enter');
+    assert.match(await publication.innerText(), /duration unknown · selected/u);
+    assert.deepEqual(await plot.boundingBox(), beforeHistory);
+    assert.equal(await page.evaluate(() => scrollY), beforeScroll);
+    console.log('Recovered publication: known-by timestamp, unknown duration and stable keyboard selection passed.');
+    break;
+  }
   // Include a narrow phone width: fixed percentage columns must not overflow.
   for (const width of [1440, 900, 600, 390, 320]) {
     await page.setViewportSize({ width, height: 1200 });

@@ -432,6 +432,12 @@ export function verifyEvent(root, state, input) {
         const remote = git(root, 'ls-remote', '--exit-code', 'origin', 'refs/heads/main').split(/\s/u)[0];
         check(remote === event.commit, 'remote main does not match; publish successfully before recording publication');
     }
+    if (event.type === 'publication-confirmed') {
+        check(delivery?.acceptedAt && isAncestor(root, delivery.integration, event.commit),
+            'publication evidence must contain the accepted integration');
+        // The ledger transition checks the earlier verified push's task, commit
+        // and timestamp. This is historical observation, not permission to push.
+    }
     return event;
 }
 

@@ -456,7 +456,7 @@ for (const task of activity.tasks) {
     id: task.goal, kind: record?.kind ?? null,
     sourceFile: record?.luaFile ?? record?.cFile ?? null,
     status: record?.status ?? task.status,
-    assignedAt: task.assignedAt, publishedAt: null, workers: [],
+    assignedAt: task.assignedAt, publishedAt: null, publicationKnownBy: null, workers: [],
     developmentDelta: record?.delivered?.screens
       ?? record?.progressBeforePark?.screens ?? null,
     syntheticGained: 0, syntheticLost: 0, syntheticMeasured: false,
@@ -466,8 +466,10 @@ for (const task of activity.tasks) {
   if (task.publishedAt && (!row.publishedAt || task.publishedAt > row.publishedAt)) {
     row.publishedAt = task.publishedAt;
   }
+  if (task.publicationKnownBy && (!row.publicationKnownBy || task.publicationKnownBy > row.publicationKnownBy))
+    row.publicationKnownBy = task.publicationKnownBy;
   const gain = syntheticByCommit.get(task.integration);
-  if (gain && task.publishedAt) {
+  if (gain && (task.publishedAt || task.publicationKnownBy)) {
     row.syntheticGained += gain.gained;
     row.syntheticLost += gain.lost;
     row.syntheticMeasured = true;

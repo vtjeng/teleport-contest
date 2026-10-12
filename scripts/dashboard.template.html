@@ -1803,7 +1803,8 @@ document.getElementById('stats').innerHTML = [
       + (task ? '<dt>Status</dt><dd>' + esc(task.status) + '</dd>' : '')
       + (task?.goal ? '<dt>Goal</dt><dd>' + esc(task.goal) + '</dd>' : '')
       + (batch(segment) ? '<dt>Batch</dt><dd>Synthetic local holdout ' + esc(batch(segment)) + '</dd>' : '')
-      + (task?.publishedAt ? '<dt>Published</dt><dd>' + stamp(task.publishedAt) + '</dd>' : '') + '</dl>'
+      + (task?.publishedAt ? '<dt>Published</dt><dd>' + stamp(task.publishedAt) + '</dd>'
+        : task?.publicationKnownBy ? '<dt>Published by</dt><dd>' + stamp(task.publicationKnownBy) + ' · exact time unknown</dd>' : '') + '</dl>'
       + (segment.reason ? '<p><strong>' + reasonLabel + '</strong>' + esc(segment.reason) + '</p>' : '')
       + '</section><section><h4>' + (task ? 'Task lifespan' : 'Reported interval') + '</h4><ol class="activity-history">'
       + lifespan.map(({ row, sourceIndex }) => {
@@ -1812,8 +1813,9 @@ document.getElementById('stats').innerHTML = [
         return '<li' + (selected ? ' class="selected"' : '') + '><button'
             + (sourceIndex === undefined ? ' disabled' : ' data-history="' + sourceIndex + '"')
             + (selected ? ' aria-current="step"' : '') + '>'
-            + esc(displayLane(row.lane)) + ' · ' + phaseNames[row.phase] + ' · ' + fmt(duration(row))
-            + (selected ? ' · selected' : '') + '<br><time>' + stamp(row.start) + '</time> → <time>' + stamp(row.end) + '</time>'
+            + esc(displayLane(row.lane)) + ' · ' + phaseNames[row.phase] + ' · ' + (row.durationUnknown ? 'duration unknown' : fmt(duration(row)))
+            + (selected ? ' · selected' : '') + '<br>' + (row.durationUnknown ? 'Published by <time>' + stamp(row.end) + '</time>'
+              : '<time>' + stamp(row.start) + '</time> → <time>' + stamp(row.end) + '</time>')
             + (row.superseded ? ' · end event missing' : row.ongoing ? ' · open at snapshot' : '') + '</button></li>';
       }).join('') + '</ol></section>';
     readout.querySelectorAll?.(':scope > section').forEach((section, sectionIndex) => {
@@ -1972,7 +1974,8 @@ document.getElementById('stats').innerHTML = [
       + '</td><td>' + esc(row.workers.join(', ')) + '</td><td>'
       + fmtDelta(row.developmentDelta) + '</td><td>' + synthetic(row)
       + '</td><td>' + stamp(row.assignedAt) + '</td><td>'
-      + stamp(row.publishedAt) + '</td></tr>').join('') + '</tbody>';
+      + (row.publicationKnownBy ? 'By ' + stamp(row.publishedAt > row.publicationKnownBy ? row.publishedAt : row.publicationKnownBy)
+        : stamp(row.publishedAt)) + '</td></tr>').join('') + '</tbody>';
 })();
 
 // --- Unfinished source scope, separate from worker activity ---
