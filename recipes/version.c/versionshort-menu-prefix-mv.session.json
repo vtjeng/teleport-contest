@@ -1,5 +1,6 @@
 {
   "version": 5,
+  "comment": "The local patched-C build is Linux and prints Unix NetHack Version plus /dev/urandom, while the official recorder profile is Darwin and JavaScript prints MacOS NetHack Version plus /dev/random. The normalized fresh differential passes after those two documented build-host substitutions; this input is retained for that check and its raw Linux recording is not part of recordings/.",
   "segments": [
     {
       "seed": 617205,
