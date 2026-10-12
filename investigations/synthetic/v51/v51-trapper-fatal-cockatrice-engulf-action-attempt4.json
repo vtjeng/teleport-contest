@@ -6,13 +6,13 @@
   "manifestPath": "challenges/manifests/v51.json",
   "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
   "recordingSha256": "ece7fa4de510fa51b06f5630486b76f8fb74c3a4d8b9f6a55623a9c2714fa2f8",
-  "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
-  "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
-  "remainingScreens": 47,
+  "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+  "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
+  "remainingScreens": 0,
   "recordedSteps": 193,
   "status": "complete",
   "summary": "The saved admitted replay first diverges at segment 0 step 146. In uhitm.c:gulpum, the engulfing Trapper's fatal_gulp path for an unresisted cockatrice prints the engulf line, constructs the source killer text and calls instapetrify(kbuf). JavaScript prints the first line and records note_unported('trap.c instapetrify'), then continues combat. The existing trap.c:instapetrify implementation must be called here with the source-ordered killer string and the attack environment. This is another branch of the whole gulpum function; the related purple-worm Rider case also exposes the unported done(DIED) call, so both source calls belong in the complete function scope.",
-  "commit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+  "commit": "e55e82d8d3672e473005346e152386e6f78f4753",
   "goalKind": "file-port",
   "source": {
     "file": "uhitm.c",
@@ -41,87 +41,33 @@
     "recipe": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.recipe.session.json",
     "recipeSha256": "7cffb24fbb78b32652e12b891aa1b966f1840e921c41c7a5f512af1ebbce6824",
     "replayInputSha256": "86473216252a06dc9d6e4dc618e353b82fd1c8399511cd7938463f3ea1dc2889",
-    "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
-    "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
-    "evaluationArtifact": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
-    "evaluationUtc": "2026-10-12T17:19:32.076Z",
-    "remainingScreens": 47,
+    "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+    "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
+    "evaluationArtifact": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+    "evaluationUtc": "2026-10-12T17:29:23.594Z",
+    "remainingScreens": 0,
     "recordedSteps": 193,
     "previousScreensMatched": 146,
     "regression": false,
-    "passed": false,
+    "passed": true,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 146,
+        "matched": 193,
         "total": 193
       },
       "rng": {
-        "matched": 2764,
+        "matched": 3207,
         "total": 3207
       },
       "cursors": {
-        "matched": 168,
+        "matched": 193,
         "total": 193
       }
     },
-    "firstMismatch": {
-      "screen": {
-        "index": 146,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 146,
-          "key": "h"
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 32,
-        "cCell": {
-          "ch": "t",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": "e",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": {
-        "index": 2757,
-        "cEntry": "rn2(5)=2",
-        "cCaller": "distfleeck(monmove.c:538)",
-        "jsEntry": "rnd(21)=3",
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 148,
-          "key": " "
-        },
-        "stepIndex": 148
-      },
-      "cursor": {
-        "index": 146,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 146,
-          "key": "h"
-        },
-        "cCursor": [
-          56,
-          0,
-          1
-        ],
-        "jsCursor": [
-          62,
-          0,
-          1
-        ]
-      }
-    },
-    "step": 146,
-    "kind": "screen",
+    "firstMismatch": null,
+    "step": null,
+    "kind": null,
     "sourceFile": null,
     "function": null,
     "message": null,
@@ -137,5 +83,25 @@
   ],
   "recordingPath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
   "recipeSha256": "7cffb24fbb78b32652e12b891aa1b966f1840e921c41c7a5f512af1ebbce6824",
-  "recipePath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.recipe.session.json"
+  "recipePath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.recipe.session.json",
+  "runtimeVerification": {
+    "commit": "e55e82d8d3672e473005346e152386e6f78f4753",
+    "casePassed": true,
+    "metrics": {
+      "screens": {
+        "matched": 193,
+        "total": 193
+      },
+      "rng": {
+        "matched": 3207,
+        "total": 3207
+      },
+      "cursors": {
+        "matched": 193,
+        "total": 193
+      }
+    },
+    "evidence": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+    "completionGoal": "port-uhitm-gulpum-v51-fatal-engulf-20261012"
+  }
 }

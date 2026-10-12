@@ -6,13 +6,13 @@
   "manifestPath": "challenges/manifests/v51.json",
   "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
   "recordingSha256": "d548560245011f4fdf091e5062c3bbecd534f284196631afc3f6548aa6a51a40",
-  "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
-  "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
-  "remainingScreens": 14,
+  "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+  "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
+  "remainingScreens": 0,
   "recordedSteps": 172,
   "status": "complete",
   "summary": "The saved admitted replay first diverges at segment 0 step 114. In uhitm.c:gulpum, the hero's purple-worm AD_DGST Rider branch prints the fatal digestion message, ends engulfing, sets the killer and format, calls done(DIED), then returns M_ATTK_MISS. JavaScript currently records note_unported('end.c done') after the same preceding state changes and returns, so the next death-pager boundary and temporary worm glyph differ. The done result is discarded in C; wire the existing done implementation at this exact source position. This is one branch of the whole gulpum function, which has no verified source-completion evidence and also omits the fatal engulf instapetrify caller exercised by the related session.",
-  "commit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+  "commit": "e55e82d8d3672e473005346e152386e6f78f4753",
   "goalKind": "file-port",
   "source": {
     "file": "uhitm.c",
@@ -41,19 +41,19 @@
     "recipe": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.recipe.session.json",
     "recipeSha256": "59940034f76e92307f6c29d01c8b945c10d0b5cdf2be7cf7104ccd12b4e6b776",
     "replayInputSha256": "86473216252a06dc9d6e4dc618e353b82fd1c8399511cd7938463f3ea1dc2889",
-    "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
-    "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
-    "evaluationArtifact": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
-    "evaluationUtc": "2026-10-12T17:19:32.076Z",
-    "remainingScreens": 14,
+    "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+    "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
+    "evaluationArtifact": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+    "evaluationUtc": "2026-10-12T17:29:23.594Z",
+    "remainingScreens": 0,
     "recordedSteps": 172,
     "previousScreensMatched": 158,
     "regression": false,
-    "passed": false,
+    "passed": true,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 158,
+        "matched": 172,
         "total": 172
       },
       "rng": {
@@ -61,56 +61,13 @@
         "total": 2885
       },
       "cursors": {
-        "matched": 162,
+        "matched": 172,
         "total": 172
       }
     },
-    "firstMismatch": {
-      "screen": {
-        "index": 114,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 114,
-          "key": " "
-        },
-        "kind": "ch",
-        "row": 14,
-        "column": 37,
-        "cCell": {
-          "ch": "w",
-          "color": 5,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": "&",
-          "color": 13,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": null,
-      "cursor": {
-        "index": 115,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 115,
-          "key": " "
-        },
-        "cCursor": [
-          14,
-          0,
-          1
-        ],
-        "jsCursor": [
-          48,
-          0,
-          1
-        ]
-      }
-    },
-    "step": 114,
-    "kind": "screen",
+    "firstMismatch": null,
+    "step": null,
+    "kind": null,
     "sourceFile": null,
     "function": null,
     "message": null,
@@ -126,5 +83,25 @@
   ],
   "recordingPath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
   "recipeSha256": "59940034f76e92307f6c29d01c8b945c10d0b5cdf2be7cf7104ccd12b4e6b776",
-  "recipePath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.recipe.session.json"
+  "recipePath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.recipe.session.json",
+  "runtimeVerification": {
+    "commit": "e55e82d8d3672e473005346e152386e6f78f4753",
+    "casePassed": true,
+    "metrics": {
+      "screens": {
+        "matched": 172,
+        "total": 172
+      },
+      "rng": {
+        "matched": 2885,
+        "total": 2885
+      },
+      "cursors": {
+        "matched": 172,
+        "total": 172
+      }
+    },
+    "evidence": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+    "completionGoal": "port-uhitm-gulpum-v51-fatal-engulf-20261012"
+  }
 }

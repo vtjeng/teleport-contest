@@ -291260,7 +291260,7 @@
     {
       "id": "port-uhitm-gulpum-v51-fatal-engulf-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port whole hero engulf attack and fatal transitions",
       "cFile": "uhitm.c",
       "sessions": [
@@ -291275,8 +291275,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e55e82d8d3672e473005346e152386e6f78f4753",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "gulpum",
@@ -291861,6 +291864,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e55e82d8d3672e473005346e152386e6f78f4753",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
