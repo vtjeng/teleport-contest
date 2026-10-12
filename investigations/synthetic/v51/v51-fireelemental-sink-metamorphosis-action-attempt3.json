@@ -6,33 +6,127 @@
   "manifestPath": "challenges/manifests/v51.json",
   "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
   "recordingSha256": "1c17eee8a819cab8a36a0417ff16c54b4eab6275a0c7a61a06faf567a8f5d98e",
-  "evaluationPath": "challenges/evaluations/baseline-v51-admission-20261012.json",
-  "evaluationCommit": "1429fa3c893c4798ccb2117707b507dee4bacd33",
+  "evaluationPath": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v51.json",
+  "evaluationCommit": "710b9ba8695a51a07d975b237876da6a5a22f112",
   "remainingScreens": 244,
   "recordedSteps": 323,
   "status": "complete",
   "summary": "The fresh admitted replay first diverges at segment 0, step 79. In fountain.c:drinksink case 10, toxic waste followed by the freakish metamorphosis message calls polyself(POLY_NOFLAGS) unless Unchanging is active. JS fountain.js:drinksink instead records note_unported('polyself.c polyself') and skips the state transition and its RNG. The saved source completion evidence marks drinksink complete and retained that gap while polyself was unported; GOALS now records polyself.c:polyself as complete. This is a bounded caller divergence: wire the existing polyself implementation at the stale gap, preserving the source message and call order.",
-  "commit": "7a26d4e2f3d514ff046d87377a377857df3b9989",
+  "commit": "710b9ba8695a51a07d975b237876da6a5a22f112",
   "goalKind": "divergence-fix",
   "source": {
     "file": "fountain.c",
-    "functions": ["drinksink"],
+    "functions": [
+      "drinksink"
+    ],
     "branch": "The rn2(20) switch selects case 10, and Unchanging is false. C prints the toxic-waste message, prints the freakish-metamorphosis message, calls polyself(POLY_NOFLAGS), and discards its return. The JavaScript branch currently records note_unported('polyself.c polyself') instead of calling the now-implemented function.",
     "callers": [
       "potion.c:dodrink -> fountain.c:drinksink (reachable sink, can_reach_floor succeeds, and the hero accepts the drink prompt)"
     ],
-    "dependencies": ["polyself.c:polyself"]
+    "dependencies": [
+      "polyself.c:polyself"
+    ]
   },
   "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v51",
+    "caseId": "v51-fireelemental-sink-metamorphosis-action-attempt3",
     "session": "synthetic/v51/v51-fireelemental-sink-metamorphosis-action-attempt3",
+    "manifestPath": "challenges/manifests/v51.json",
+    "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+    "recording": "challenges/cases/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.session.json",
+    "recordingPath": "challenges/cases/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.session.json",
+    "recordingSha256": "1c17eee8a819cab8a36a0417ff16c54b4eab6275a0c7a61a06faf567a8f5d98e",
+    "recipe": "challenges/cases/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.recipe.session.json",
+    "recipeSha256": "d7909d856153d3b4dab6564f6b0d89c55baaf59fe01c2a94acb7e37b17f3107b",
+    "replayInputSha256": "74e89317a214b5c4a4449baec7d89878da54bbb6d1b49bc1114f7c28dab0a9a9",
+    "evaluationPath": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v51.json",
+    "evaluationCommit": "710b9ba8695a51a07d975b237876da6a5a22f112",
+    "evaluationArtifact": "challenges/evaluations/accepted-710b9ba8695a51a07d975b237876da6a5a22f112-v51.json",
+    "evaluationUtc": "2026-10-12T16:35:41.992Z",
     "remainingScreens": 244,
-    "kind": "rng",
+    "recordedSteps": 323,
+    "previousScreensMatched": 79,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 79,
+        "total": 323
+      },
+      "rng": {
+        "matched": 2231,
+        "total": 2619
+      },
+      "cursors": {
+        "matched": 303,
+        "total": 323
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 79,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 79,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 39,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2208,
+        "cEntry": "rn2(20)=2",
+        "cCaller": "polyself(polyself.c:490)",
+        "jsEntry": "rn2(12)=6",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 79,
+          "key": " "
+        },
+        "stepIndex": 79
+      },
+      "cursor": {
+        "index": 79,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 79,
+          "key": " "
+        },
+        "cCursor": [
+          71,
+          0,
+          1
+        ],
+        "jsCursor": [
+          43,
+          15,
+          1
+        ]
+      }
+    },
     "step": 79,
-    "screenIndex": 79,
-    "rngIndex": 2208,
-    "cEntry": "rn2(20)=2",
-    "cCaller": "polyself(polyself.c:490)",
-    "jsEntry": "rn2(12)=6"
+    "kind": "rng",
+    "sourceFile": "polyself.c",
+    "function": "polyself",
+    "message": null,
+    "cFile": "polyself.c",
+    "luaFile": null,
+    "line": 490
   },
   "evidence": [
     "Fresh replay: node scripts/scan-sessions.mjs --json --synthetic v51/v51-fireelemental-sink-metamorphosis-action-attempt3; first screen, cursor, and RNG mismatch is segment 0 step 79, with C rn2(20)=2 at polyself.c:490 and JS rn2(12)=6.",
@@ -40,5 +134,6 @@
     "JS source js/fountain.js:1254-1411 preserves the same sink switch; case 10 at line 1371 prints both messages and then records note_unported('polyself.c polyself') instead of invoking polyself.",
     "GOALS.json records fountain.c:drinksink as complete in goals 406 and 1076; its source evidence explicitly documents the old case-10 gap while polyself was unported. GOALS.json goal polyself-c marks polyself.c:polyself complete, and js/polyself.js exports the implementation.",
     "The existing production route remains potion.c:dodrink -> fountain.c:drinksink; js/potion.js already imports and awaits drinksink for the accepted sink prompt. No new dodrink wiring is needed."
-  ]
+  ],
+  "recordingPath": "challenges/cases/v51/v51-fireelemental-sink-metamorphosis-action-attempt3.session.json"
 }

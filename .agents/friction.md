@@ -385,3 +385,11 @@ triage decisions or fix references.
   recording hash and five-screen debt were unchanged. Root refreshed every
   identity field from the accepted queue, preserved the original delivery,
   and retried selection before importing the game change.
+
+### 2026-10-12 — publication ledger collision
+
+- The validated self-touch/tooling report commit reached public main, but its
+  publication event collided with a shared-ledger writer during worker updates.
+  The helper exited after the push. Root confirmed the transient lock had gone
+  and retried the same helper at the same report commit. It reused the saved
+  packet and checkpoint; no live lock was removed or validation repeated.
