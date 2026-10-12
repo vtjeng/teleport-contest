@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v50.json",
   "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
   "recordingSha256": "064cea947f1259f065488cc0c8c6f81bb1127ce7d2ddb71f3b726e0ce7202fc2",
-  "evaluationPath": "challenges/evaluations/accepted-8bd6dfafae1c66e19642bc3c49301daf5a90c816-v50.json",
-  "evaluationCommit": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
-  "remainingScreens": 46,
+  "evaluationPath": "challenges/evaluations/accepted-760f1a9820a68a5a7265e8192e4ebf2263990329-v50.json",
+  "evaluationCommit": "760f1a9820a68a5a7265e8192e4ebf2263990329",
+  "remainingScreens": 0,
   "recordedSteps": 180,
   "status": "complete",
-  "commit": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+  "commit": "760f1a9820a68a5a7265e8192e4ebf2263990329",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v50",
@@ -25,85 +25,31 @@
     "recipe": "challenges/cases/v50/v50-demonpet-melee-action-attempt1.recipe.session.json",
     "recipeSha256": "ce1ff267e2d339f4d521dfb1840b87ee0bb9a666792e8ddc17c9e421f37112bc",
     "replayInputSha256": "f1329a916e33dcd152496f727c26e264bf3acd45f6b9477e83ff04eb205ec571",
-    "evaluationPath": "challenges/evaluations/accepted-8bd6dfafae1c66e19642bc3c49301daf5a90c816-v50.json",
-    "evaluationCommit": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
-    "evaluationArtifact": "challenges/evaluations/accepted-8bd6dfafae1c66e19642bc3c49301daf5a90c816-v50.json",
-    "evaluationUtc": "2026-10-12T13:56:57.447Z",
-    "remainingScreens": 46,
+    "evaluationPath": "challenges/evaluations/accepted-760f1a9820a68a5a7265e8192e4ebf2263990329-v50.json",
+    "evaluationCommit": "760f1a9820a68a5a7265e8192e4ebf2263990329",
+    "evaluationArtifact": "challenges/evaluations/accepted-760f1a9820a68a5a7265e8192e4ebf2263990329-v50.json",
+    "evaluationUtc": "2026-10-12T15:30:24.080Z",
+    "remainingScreens": 0,
     "recordedSteps": 180,
     "previousScreensMatched": 134,
     "regression": false,
-    "passed": false,
+    "passed": true,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 134,
+        "matched": 180,
         "total": 180
       },
       "rng": {
-        "matched": 2847,
+        "matched": 3308,
         "total": 3308
       },
       "cursors": {
-        "matched": 150,
+        "matched": 180,
         "total": 180
       }
     },
-    "firstMismatch": {
-      "screen": {
-        "index": 134,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 134,
-          "key": " "
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 26,
-        "cCell": {
-          "ch": "S",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": "Y",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": {
-        "index": 2830,
-        "cEntry": "rn2(6)=3",
-        "cCaller": "demonpet(uhitm.c:2140)",
-        "jsEntry": "rn2(3)=0",
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 134,
-          "key": " "
-        },
-        "stepIndex": 134
-      },
-      "cursor": {
-        "index": 134,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 134,
-          "key": " "
-        },
-        "cCursor": [
-          58,
-          0,
-          1
-        ],
-        "jsCursor": [
-          34,
-          7,
-          1
-        ]
-      }
-    },
+    "firstMismatch": null,
     "step": 134,
     "kind": "rng",
     "sourceFile": "uhitm.c",
@@ -113,7 +59,7 @@
     "luaFile": null,
     "line": 2140
   },
-  "summary": "At step 134, the polymorphed hero's unarmed demon attack enters uhitm.c:damageum's demonpet branch when !rn2(13). C prints the arrival line, chooses the current demon form because rn2(6)=3, creates and tames a horned devil at the hero, and exercises Wisdom. The baseline JavaScript records note_unported('demon.c demonpet') and returns M_ATTK_MISS, skipping those effects. The implementation now ports demonpet and wires it through damageum.",
+  "summary": "The demon summoning helper and the later monster combat route are implemented. The accepted replay now matches all 180 steps; the whole combat task resolved the later mismatch that remained after demonpet completion.",
   "source": {
     "file": "uhitm.c",
     "functions": [
@@ -197,5 +143,25 @@
     },
     "remainingScreens": 46,
     "sourceDiagnosisUnchanged": true
+  },
+  "runtimeVerification": {
+    "commit": "760f1a9820a68a5a7265e8192e4ebf2263990329",
+    "casePassed": true,
+    "metrics": {
+      "screens": {
+        "matched": 180,
+        "total": 180
+      },
+      "rng": {
+        "matched": 3308,
+        "total": 3308
+      },
+      "cursors": {
+        "matched": 180,
+        "total": 180
+      }
+    },
+    "evidence": "challenges/evaluations/accepted-760f1a9820a68a5a7265e8192e4ebf2263990329-v50.json",
+    "completionGoal": "port-mhitm-mattackm-v50-20261012"
   }
 }

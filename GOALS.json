@@ -288038,7 +288038,7 @@
     {
       "id": "port-mhitm-rustm-v51-20261012",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Complete weapon erosion from defender attack types",
       "cFile": "mhitm.c",
       "sessions": [
@@ -288082,7 +288082,7 @@
         }
       },
       "activeStanding": {
-        "sha": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+        "sha": "760f1a9820a68a5a7265e8192e4ebf2263990329",
         "screens": 11405,
         "rng": 792838
       },
@@ -288338,7 +288338,7 @@
             "name": "rustm",
             "implementation": "js/mhitm.js",
             "symbol": "rustm",
-            "sourceReview": "Read the complete mhitm.c:1260-1280 definition. With non-null defender and object it selects ERODE_CORRODE before ERODE_RUST before ERODE_BURN; excludes steam vortices from fire erosion; always consumes rn2(chance) for a selected type, including rn2(1); and calls erode_obj(obj, NULL, dmgtyp, EF_GREASE | EF_VERBOSE) only when the draw is zero. The JS implementation preserves the source order, uses chance 6 for fire, and passes the shared state/random environment to the existing erode_obj implementation. C discards erode_obj's return value. Both prior note_unported('mhitm.c rustm') caller gaps were removed.",
+            "sourceReview": "Read the complete mhitm.c:1260-1280 definition. With non-null defender and object it selects ERODE_CORRODE before ERODE_RUST before ERODE_BURN; excludes steam vortices from fire erosion; always consumes rn2(chance) for a selected type, including rn2(1); and calls erode_obj(obj, NULL, dmgtyp, EF_GREASE | EF_VERBOSE) only when the draw is zero. The JS implementation preserves the source order, uses chance 6 for fire, and passes the shared state/random environment to the existing erode_obj implementation. C discards erode_obj's return value. Both prior note_unported('mhitm.c rustm') caller gaps were removed. Final-tree runtime validation strictly matches the admitted synthetic recording through segment 0 step 220 and the independent monster-pair recording through all 157 steps.",
             "callers": [
               {
                 "path": "js/uhitm.js",
@@ -288364,15 +288364,15 @@
                 "batch": "v51",
                 "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
                 "segment": 0,
-                "fromStep": 220,
+                "fromStep": 0,
                 "throughStep": 220,
                 "source": "monster attack on polymorphed hero -> uhitm.c:mhitm_ad_phys() -> rustm(&gy.youmonst, otmp)"
               }
             ],
-            "checkedAt": "82f3cdc17fa9c9f7807117fb5bd6e8cc6f64bdcb"
+            "checkedAt": "5f9dd97eff01ffb3ff1d2d8230eb64a059c94a33"
           }
         ],
-        "entryPointReview": "The patched recorder has two active production entry points. In monster-versus-polymorphed-hero combat, uhitm.c:mhitm_ad_phys() calls rustm(&gy.youmonst, otmp); admitted v51 case v51-rustmonster-passive-weapon-erosion-action-attempt2 strictly matches 291/291 steps and reaches this path at segment 0 step 220. In monster-versus-monster combat, the same C function calls rustm(mdef, mwep); the independent recording rustm-monster-to-monster-caller-variation-20261012 strictly matches 157/157 steps and contains rn2(1)=0 @ rustm(mhitm.c:1278) at segment 0 step 155. Its !verbose option avoids the unrelated mswingsm visible-message dependency. trap.c:erode_obj() is already implemented in js/trap_erode_obj.js and its return value is discarded here.",
+        "entryPointReview": "Both production rustm callers are in uhitm.c:mhitm_ad_phys. The admitted v51 hero-defender path matches through step 220. The independent monster-pair recording matches all 157 steps and executes rustm at step 155. Accepted whole mattackm combat supplies the previously missing armed caller. The independent !verbose option varies message settings. erode_obj is already implemented and its return is discarded.",
         "entryPoints": [
           {
             "name": "monster weapon strikes polymorphed hero",
@@ -288385,7 +288385,7 @@
                 "batch": "v51",
                 "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
                 "segment": 0,
-                "fromStep": 220,
+                "fromStep": 0,
                 "throughStep": 220,
                 "source": "monster attack -> uhitm.c:mhitm_ad_phys() -> rustm(&gy.youmonst, otmp)"
               }
@@ -288727,7 +288727,7 @@
     {
       "id": "port-mhitm-mattackm-v50-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete monster weapon attacks and combat helpers",
       "cFile": "mhitm.c",
       "sessions": [
@@ -288741,8 +288741,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "760f1a9820a68a5a7265e8192e4ebf2263990329",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mattackm",
@@ -289241,6 +289244,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "760f1a9820a68a5a7265e8192e4ebf2263990329",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
