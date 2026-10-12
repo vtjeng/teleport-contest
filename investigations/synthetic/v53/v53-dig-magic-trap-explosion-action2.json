@@ -1,0 +1,43 @@
+{
+  "session": "synthetic/v53/v53-dig-magic-trap-explosion-action2",
+  "corpus": "synthetic",
+  "batch": "v53",
+  "caseId": "v53-dig-magic-trap-explosion-action2",
+  "manifestPath": "challenges/manifests/v53.json",
+  "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+  "recordingPath": "challenges/cases/v53/v53-dig-magic-trap-explosion-action2.session.json",
+  "recordingSha256": "14f3bb3d4680b6910a003e95bdf52a4b9cb98d4cb1f9a0c0f2044e5ee969f5cd",
+  "evaluationPath": "challenges/evaluations/accepted-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-v53.json",
+  "evaluationCommit": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
+  "status": "partial",
+  "commit": "9a7caa77eed523afa0ec8d29f6a4d2ccf75e2769",
+  "summary": "The down-zap path reaches dig.c:dighole on a magical trap. C rolls d(3,6), calls explode with TRAP_EXPLODE and EXPL_MAGICAL, then deletes the trap and redraws the map. js/dig.js records note_unported('explode.c explode') and skips the blast, so the screen and RNG diverge at segment 0 step 177. Existing js/explode.js has the source branch for TRAP_EXPLODE; the missing behavior is the dighole call and its damage roll.",
+  "source": {
+    "file": "dig.c",
+    "branch": "In dighole, after the too-hard guard, a magical trap triggers explode(dig_x,dig_y,0,20+d(3,6),TRAP_EXPLODE,EXPL_MAGICAL), then deltrap and newsym. The JS branch skips the roll and explosion.",
+    "functions": ["dighole"],
+    "callers": [
+      "zap.c:weffects dispatches a digging wand or spell to zap_dig; zap.c:zap_dig calls dighole(FALSE,TRUE,NULL) for a downward zap when there are no stairs. js/zap.js:weffects -> zap_dig -> dighole already follows this path, so no caller edit is required."
+    ],
+    "dependencies": [
+      "explode.c:explode is already available as js/explode.js:explode in the accepted base and handles TRAP_EXPLODE and EXPL_MAGICAL; this task only wires the existing helper from dighole."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The accepted v53 evaluation at 0ddbafd22e56dbc0365fbc0355c9dac9352cba43 records 177/206 screens and 2736/2945 RNG calls matching before the first divergence at segment 0 step 177, key >. The saved C step has rn2(19)=2 from exercise(attrib.c:509), then d(3,6)=12 from dighole(dig.c:919).",
+    "At step 177 the C topline is 'Boom! Your bolt reveals a secret door. The door absorbs your bolt!--More--'. Step 178 shows 'The lichen is caught in the magical blast! You kill the lichen!' and the explosion's damage and monster-death RNG. The JavaScript branch currently calls note_unported('explode.c explode') before deltrap and newsym, omitting the explosion path.",
+    "C source: nethack-c/upstream/src/dig.c:885-922 contains dighole's magical-trap branch; zap.c:weffects and zap_dig provide the production caller. Existing js/explode.js:410-480 sets TRAP_EXPLODE type and js/explode.js:545-590 handles its visible blast and damage path."
+  ],
+  "observedReplay": {
+    "commit": "9a7caa77eed523afa0ec8d29f6a4d2ccf75e2769",
+    "firstMismatch": {
+      "stepIndex": 177,
+      "key": ">",
+      "sourceFile": "dig.c",
+      "function": "dighole",
+      "cRng": "d(3,6)=12 @ dighole(dig.c:919)",
+      "jsRng": null
+    }
+  }
+}
