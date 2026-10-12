@@ -282383,7 +282383,7 @@
     {
       "id": "div-getpos-menu-toggle-v48-20261012",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore the getpos menu toggle and continue target selection",
       "cFile": "getpos.c",
       "sessions": [],
@@ -282395,8 +282395,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "getpos",
       "session": "synthetic/v48/v48-getpos-monster-menu-attempt3",
       "step": 36,
@@ -282646,7 +282649,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
