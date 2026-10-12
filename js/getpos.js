@@ -1,6 +1,6 @@
-// getpos.c -- Ordinary farlook cursor selection.
-// C refs: getpos.c auto_describe(), truncate_to_map(), and getpos(), covering
-// default ordinary and fast movement, the traditional pick, and Escape.
+// getpos.c -- Farlook location collection and cursor selection.
+// C refs include getpos_menu() and the complete getpos() input loop, with
+// source-ordered movement, filtering, target selection, and cleanup.
 
 import {
     MAXTCHARS,
@@ -9,6 +9,7 @@ import {
     GFILTER_NONE,
     GFILTER_VIEW,
     GFILTER_AREA,
+    NUM_GFILTER,
     GPCOORDS_NONE,
     GPCOORDS_MAP,
     GPCOORDS_COMPASS,
@@ -31,6 +32,10 @@ import {
     LOOK_TRADITIONAL,
     LOOK_VERBOSE,
     ROWNO,
+    CMDQ_DIR,
+    CMDQ_KEY,
+    CQ_CANNED,
+    CQ_REPEAT,
     IS_DOOR,
     TER_DETECT,
     TER_MAP,
@@ -45,7 +50,17 @@ import {
     createCommandBindingModel,
     keyForCommand,
 } from './command_bindings.js';
-import { directionname, movecmd, redraw_cmd, xytodir } from './cmd.js';
+import {
+    cmdq_add_key,
+    cmdq_clear,
+    cmdq_pop,
+    directionname,
+    lock_mouse_buttons,
+    movecmd,
+    readchar_poskey,
+    redraw_cmd,
+    xytodir,
+} from './cmd.js';
 import {
     back_to_glyph,
     docrt,
@@ -67,7 +82,6 @@ import {
 import { game } from './gstate.js';
 import { handle_tip, is_valid_travelpt } from './hack.js';
 import { visctrl } from './hacklib.js';
-import { nhgetch } from './input.js';
 import { an } from './objnam.js';
 import { do_screen_description } from './pager.js';
 import { cansee } from './vision.js';
@@ -906,6 +920,21 @@ export async function getpos(ccp, force, goal, state = game) {
         dy: state.u.dy,
         dz: state.u.dz,
     };
+    // C getpos() accepts a queued direction before setting up the interactive
+    // cursor loop. Other queued command types clear the canned queue and
+    // return the Escape result.
+    if (!state.in_doagain) {
+        const queued = cmdq_pop(state);
+        if (queued) {
+            if (queued.typ === CMDQ_DIR && !queued.dz) {
+                ccp.x = state.u.ux + queued.dx;
+                ccp.y = state.u.uy + queued.dy;
+                return 0;
+            }
+            cmdq_clear(CQ_CANNED, state);
+            return -1;
+        }
+    }
     const target = goal || 'desired location';
     let cx = ccp.x;
     let cy = ccp.y;
@@ -923,8 +952,12 @@ export async function getpos(ccp, force, goal, state = game) {
     const garr = Array(NUM_GLOCS).fill(null);
     const gidx = Array(NUM_GLOCS).fill(0);
 
-    if (state.flags.verbose)
-        await ttyPline("(For instructions type a '?')", state);
+    if (state.flags.verbose) {
+        const helpKey = state.commandBindings.specialKeys?.['getpos.help'] ?? 0;
+        await ttyPline(
+            `(For instructions type a '${visctrl(helpKey)}')`, state,
+        );
+    }
 
     state.gg ??= {};
     state.gg.getposx = cx;
@@ -937,10 +970,12 @@ export async function getpos(ccp, force, goal, state = game) {
     // cursor, as C's no-op hup_curs() does.
     if (forcedMapCursor && !showGoalMessage && !state.flags.verbose)
         cursorAt(forcedMapCursor.x + 1, forcedMapCursor.y, state);
+    lock_mouse_buttons(true, state);
 
     let result = LOOK_TRADITIONAL;
     try {
         for (;;) {
+            let rushrun = false;
             if (showGoalMessage) {
                 await ttyPline(`Move cursor to ${target}:`, state);
                 cursorAt(cx, cy, state);
@@ -954,14 +989,44 @@ export async function getpos(ccp, force, goal, state = game) {
                 await auto_describe(cx, cy, state);
             }
 
-            const key = (await nhgetch(state)) & 0xFF;
+            const tx = { value: state.u.ux };
+            const ty = { value: state.u.uy };
+            const sidx = { value: 0 };
+            const queued = cmdq_pop(state);
+            let key;
+            if (queued) {
+                if (queued.typ === CMDQ_KEY) {
+                    key = queued.key;
+                } else {
+                    cmdq_clear(CQ_CANNED, state);
+                    result = -1;
+                    break;
+                }
+            } else {
+                key = await readchar_poskey(tx, ty, sidx, state);
+                if (state.iflags?.remember_getpos && !state.in_doagain)
+                    cmdq_add_key(CQ_REPEAT, key, state);
+            }
+            key &= 0xFF;
             if (state.iflags?.autodescribe)
                 messageGiven = false;
 
             if (key === 0x1B) {
-                ccp.x = ccp.y = -10;
+                cx = cy = -10;
                 messageGiven = true;
                 result = -1;
+                break;
+            }
+            const runKey = keyForCommand(state.commandBindings, 'run');
+            const rushKey = keyForCommand(state.commandBindings, 'rush');
+            if (key === runKey || key === rushKey) {
+                key = (await readchar_poskey(tx, ty, sidx, state)) & 0xFF;
+                rushrun = true;
+            }
+            if (key === 0) {
+                if (!isok(tx.value, ty.value)) continue;
+                cx = tx.value;
+                cy = ty.value;
                 break;
             }
             const pickResult = pickResultForKey(key, state);
@@ -972,23 +1037,45 @@ export async function getpos(ccp, force, goal, state = game) {
                 break;
             }
             let moved = null;
+            let fastMove = false;
             if (movecmd(key, MV_WALK, state)) {
-                moved = truncate_to_map(cx, cy, state.u.dx, state.u.dy);
+                if (rushrun) fastMove = true;
+                else moved = truncate_to_map(cx, cy, state.u.dx, state.u.dy);
             } else if (movecmd(key, MV_RUSH, state)
                 || movecmd(key, MV_RUN, state)) {
-                // The default getloc_moveskip is false, so getpos.c moves
-                // exactly eight cells in the selected run direction.
-                moved = truncate_to_map(
-                    cx, cy, 8 * state.u.dx, 8 * state.u.dy,
-                );
+                fastMove = true;
+            }
+            if (fastMove) {
+                let dx;
+                let dy;
+                if (state.iflags?.getloc_moveskip) {
+                    const glyph = glyph_at(cx, cy, state);
+                    dx = state.u.dx;
+                    dy = state.u.dy;
+                    while (isok(cx + dx, cy + dy)
+                        && glyph === glyph_at(cx + dx, cy + dy, state)
+                        && isok(cx + dx + state.u.dx, cy + dy + state.u.dy)
+                        && glyph === glyph_at(
+                            cx + dx + state.u.dx,
+                            cy + dy + state.u.dy,
+                            state,
+                        )) {
+                        dx += state.u.dx;
+                        dy += state.u.dy;
+                    }
+                } else {
+                    dx = 8 * state.u.dx;
+                    dy = 8 * state.u.dy;
+                }
+                moved = truncate_to_map(cx, cy, dx, dy);
             }
             if (moved) {
                 cx = moved.x;
                 cy = moved.y;
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
-                clearTtyMessageWindow(state);
-                messageGiven = false;
+                cursorAt(cx, cy, state);
+                await flush_screen(0);
                 continue;
             }
             // C ref: getpos.c getpos() help/redraw branch (945-954). A help
@@ -1024,10 +1111,51 @@ export async function getpos(ccp, force, goal, state = game) {
                         await state.getpos_hilitefunc(true, state);
                 }
                 showGoalMessage = true;
+                state.gg.getposx = cx;
+                state.gg.getposy = cy;
+                cursorAt(cx, cy, state);
+                await flush_screen(0);
+                continue;
+            }
+            const autodescribeKey = state.commandBindings.specialKeys?.[
+                'getpos.autodescribe'
+            ];
+            if (key === autodescribeKey) {
+                state.iflags.autodescribe = !state.iflags.autodescribe;
+                await ttyPline(
+                    `Automatic description ${state.flags.verbose
+                        ? 'of features under cursor ' : ''}is ${state.iflags.autodescribe
+                        ? 'on' : 'off'}.`,
+                    state,
+                );
+                if (!state.iflags.autodescribe)
+                    showGoalMessage = true;
                 messageGiven = true;
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
                 cursorAt(cx, cy, state);
+                await flush_screen(0);
+                continue;
+            }
+            const filterKey = state.commandBindings.specialKeys?.['getpos.filter'];
+            if (key === filterKey) {
+                const viewFilters = [
+                    'Not limiting targets',
+                    'Limiting targets to those in sight',
+                    'Limiting targets to those in same area',
+                ];
+                state.iflags.getloc_filter = ((state.iflags.getloc_filter ?? 0) + 1)
+                    % NUM_GFILTER;
+                garr.fill(null);
+                gidx.fill(0);
+                await ttyPline(
+                    `${viewFilters[state.iflags.getloc_filter]}.`, state,
+                );
+                messageGiven = true;
+                state.gg.getposx = cx;
+                state.gg.getposy = cy;
+                cursorAt(cx, cy, state);
+                await flush_screen(0);
                 continue;
             }
             const menuKey = state.commandBindings.specialKeys?.['getpos.menu'];
@@ -1061,19 +1189,19 @@ export async function getpos(ccp, force, goal, state = game) {
                 await flush_screen(0);
                 continue;
             }
-            if (key === '#') {
-                state.iflags.autodescribe = !state.iflags.autodescribe;
+            const moveskipKey = state.commandBindings.specialKeys?.['getpos.moveskip'];
+            if (key === moveskipKey) {
+                state.iflags.getloc_moveskip = !state.iflags.getloc_moveskip;
                 await ttyPline(
-                    `Automatic description is ${state.iflags.autodescribe
-                        ? 'on' : 'off'}.`,
+                    `${state.iflags.getloc_moveskip ? 'S' : 'Not s'}`
+                    + 'kipping over similar terrain when fastmoving the cursor.',
                     state,
                 );
-                if (!state.iflags.autodescribe)
-                    showGoalMessage = true;
                 messageGiven = true;
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
                 cursorAt(cx, cy, state);
+                await flush_screen(0);
                 continue;
             }
             const cycle = locationCycleForKey(key, state);
@@ -1083,7 +1211,6 @@ export async function getpos(ccp, force, goal, state = game) {
                     if (await getpos_menu(menuPoint, cycle.gloc, state)) {
                         cx = menuPoint.x;
                         cy = menuPoint.y;
-                        messageGiven = false;
                     }
                     state.gg.getposx = cx;
                     state.gg.getposy = cy;
@@ -1178,13 +1305,19 @@ export async function getpos(ccp, force, goal, state = game) {
                 state,
             );
             messageGiven = true;
-            state.gg.getposx = cx;
-            state.gg.getposy = cy;
-            cursorAt(cx, cy, state);
+            await ttyPline('Done.', state);
+            messageGiven = false;
+            cx = -1;
+            cy = 0;
+            result = LOOK_TRADITIONAL;
+            break;
         }
     } finally {
+        lock_mouse_buttons(false, state);
         if (messageGiven)
             clearTtyMessageWindow(state);
+        ccp.x = cx;
+        ccp.y = cy;
         state.gg.getposx = 0;
         state.gg.getposy = 0;
         await getpos_sethilite(null, null, state);

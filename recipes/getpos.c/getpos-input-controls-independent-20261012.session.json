@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 397261,
+      "datetime": "20361124153218",
+      "nethackrc": "OPTIONS=name:CursorControls,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " \u0014  \"*#Gl."
+    }
+  ],
+  "comment": "Independent getpos.c input-control witness: a fresh debug Healer enters wizard teleport targeting, cycles target filters, enables same-glyph fast movement and automatic description, moves one cell then fast-moves east, and accepts the cursor. The terminal recorder supplies key input only; internal queued commands and mouse position keys remain covered by source-pinned tests."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 281639,
+      "datetime": "20371124153218",
+      "nethackrc": "OPTIONS=name:MouseTargetProbe,role:Wizard,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": "#therecmdmenu\n_.\u001b"
+    }
+  ],
+  "comment": "Independent cmd.c:dotherecmdmenu/getdir witness. Each segment enters the simulated-mouse direction arm, then chooses a map point with the normal right-click key, the quick left-click key, or Escape. The successful selections open the corresponding target menu and cancel it; the final segment rejects the targeting prompt. C's terminal recorder accepts cursor keys and menu keys but does not emit a physical mouse event."
+}

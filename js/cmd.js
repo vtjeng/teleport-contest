@@ -46,6 +46,10 @@ import {
     GC_CONDHIST,
     GC_ECHOFIRST,
     GC_SAVEHIST,
+    LOOK_ONCE,
+    LOOK_QUICK,
+    LOOK_TRADITIONAL,
+    LOOK_VERBOSE,
     DOOR,
     DRAWBRIDGE_UP,
     GFILTER_VIEW,
@@ -1614,9 +1618,41 @@ export async function getdir(s, state = game) {
         u.dy = 0;
         u.dz = 0;
     } else if (dirsym === spkeys['getdir.mouse']) {
-        throw new UnsupportedDirectionBoundaryError(
-            'a simulated mouse click answers the direction prompt',
+        const pickKeys = commandBindings(state).specialKeys;
+        const cc = { x: u.ux, y: u.uy };
+        const pos = await getpos(
+            cc,
+            true,
+            `desired location, then type '${visctrl(pickKeys['getpos.pick.quick'])}' for left click, `
+                + `'${visctrl(pickKeys['getpos.pick'])}' for right`,
+            state,
         );
+        let mod = 0;
+        if (pos < 0) {
+            // C cmd.c:getdir() turns Escape/rejection into a zero direction.
+            u.dx = u.dy = u.dz = 0;
+        } else {
+            u.dx = cc.x - u.ux;
+            u.dy = cc.y - u.uy;
+            if (!state.iflags.getdir_click) {
+                u.dx = sgn(u.dx);
+                u.dy = sgn(u.dy);
+            }
+            u.dz = 0;
+
+            if (pos === LOOK_QUICK || pos === LOOK_ONCE) {
+                mod = CLICK_1;
+            } else if (pos === LOOK_TRADITIONAL || pos === LOOK_VERBOSE) {
+                mod = CLICK_2;
+            } else {
+                // getpos() only returns these four PICK_ONE results. Keep
+                // C's defensive failure result if that contract changes.
+                mod = 0;
+            }
+        }
+        if (state.iflags.getdir_click)
+            state.iflags.getdir_click = mod;
+        return pos >= 0 && pos <= LOOK_VERBOSE;
     } else {
         const is_mov = movecmd(dirsym, MV_ANY, state);
         if (!is_mov && !u.dz) {
