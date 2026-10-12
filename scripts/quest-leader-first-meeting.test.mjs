@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { A_NEUTRAL, LL_ACHIEVE, MIN_QUEST_ALIGN } from '../js/const.js';
+import {
+    A_NEUTRAL,
+    LL_ACHIEVE,
+    MIN_QUEST_ALIGN,
+    MIN_QUEST_LEVEL,
+    UTOTYPE_DEFERRED,
+    UTOTYPE_PORTAL,
+} from '../js/const.js';
 import { qt_pager } from '../js/questpgr.js';
 import { QUEST_TEXT } from '../js/quest_text_data.js';
 import { quest_chat, quest_stat_check, quest_talk } from '../js/quest.js';
@@ -86,6 +94,64 @@ test('worthy first quest meeting records the granting leader', async () => {
         text: 'the high priest has granted access to proceed deeper into the quest',
     }]);
 });
+
+test('an under-level first audience receives badlevel before expulsion',
+    async () => {
+        const events = [];
+        const priest = roles.find((role) => role.filecode === 'Pri');
+        const state = {
+            moves: 0,
+            multi: 0,
+            context: {},
+            urole: { ...priest, lgod: 'L', ngod: 'N', cgod: 'C' },
+            qstart_level: { dnum: 1, dlevel: 5 },
+            dungeons: [{ dname: 'The Dungeons' }, { dname: 'The Quest' }],
+            branches: [{ end1: { dnum: 0, dlevel: 10 }, end2: { dnum: 1, dlevel: 1 } }],
+            u: {
+                ulevel: MIN_QUEST_LEVEL - 1,
+                uz: { dnum: 1, dlevel: 5 },
+                uevent: {},
+                ualign: { type: A_NEUTRAL, record: MIN_QUEST_ALIGN },
+                ualignbase: [A_NEUTRAL, A_NEUTRAL],
+                uhave: { questart: false },
+                utolev: { dnum: 0, dlevel: 0 },
+            },
+            svq: {
+                quest_status: {
+                    leader_m_id: 77,
+                    got_quest: false,
+                    got_thanks: false,
+                    pissed_off: false,
+                    met_leader: false,
+                },
+            },
+        };
+        monst_globals_init(state);
+        const leader = {
+            m_id: 77,
+            mpeaceful: true,
+            data: state.mons[PM_CLERIC],
+            female: false,
+            mextra: {},
+        };
+        await quest_chat(leader, state, {
+            random: { rn2: (bound) => (events.push(`rn2:${bound}`), 0) },
+            pager: async (id) => events.push(`pager:${id}`),
+            unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
+        });
+
+        assert.deepEqual(events, ['pager:leader_first', 'pager:badlevel', 'rn2:19']);
+        assert.equal(state.svq.quest_status.met_leader, true);
+        assert.equal(state.svq.quest_status.not_ready, 0);
+        assert.equal(state.u.utotype, UTOTYPE_PORTAL | UTOTYPE_DEFERRED);
+        assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 10 });
+
+        const c = readFileSync(new URL('../nethack-c/upstream/src/quest.c',
+            import.meta.url), 'utf8');
+        const js = readFileSync(new URL('../js/quest.js', import.meta.url), 'utf8');
+        assert.match(c, /if \(not_capable\(\)\) \{\s*qt_pager\("badlevel"\);\s*exercise\(A_WIS, TRUE\);\s*expulsion\(FALSE\);/u);
+        assert.match(js, /if \(not_capable\(state\)\) \{\s*await ops\.pager\('badlevel'\);\s*await exercise\(A_WIS, true, state, ops\.random\);\s*expulsion\(false, ops\);/u);
+    });
 
 test('every role has the badalign text chat_with_leader() delivers', () => {
     // dat/quest.lua gives every role its own badalign entry, so qt_pager()

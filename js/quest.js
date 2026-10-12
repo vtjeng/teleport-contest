@@ -341,13 +341,9 @@ async function chat_with_leader(mtmp, ops) {
             return;
 
         if (not_capable(state)) {
-            // C: qt_pager("badlevel"), exercise(A_WIS, TRUE), expulsion(FALSE)
-            // -- the same three statements as the badalign arm below. It is
-            // refused rather than ported because no case reaches it: the quest
-            // start level is only reachable in this port through the wizard
-            // level teleport, whose recipe raises the hero to level 20 first
-            // and so regenerates a different quest level for any lower one.
-            ops.unsupported('a quest leader turning away an under-level hero');
+            await ops.pager('badlevel');
+            await exercise(A_WIS, true, state, ops.random);
+            expulsion(false, ops);
         } else if ((purity = await is_pure(true, ops)) < 0) {
             if (!qs.pissed_off)
                 ops.unsupported('a quest leader banishing the hero');
