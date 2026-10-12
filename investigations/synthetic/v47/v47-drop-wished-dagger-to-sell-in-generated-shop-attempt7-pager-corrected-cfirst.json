@@ -65,7 +65,7 @@
   },
   "summary": "The v47 shop drop reached the missing shk.c:sellobj path. The implementation scope covers its used-return dependencies, full active callers in drop, projectile, container, trap, and kick paths, plus the sounds.c shop chat route and its stock-price quote behavior.",
   "source": {
-    "file": "src/shk.c",
+    "file": "shk.c",
     "functions": [
       "sellobj",
       "special_stock",
@@ -75,9 +75,9 @@
       "price_quote",
       "shk_embellish",
       "shk_chat",
-      "is_izchak",
-      "check_shop_obj",
-      "throw_gold"
+      "shknam.c:is_izchak",
+      "dothrow.c:check_shop_obj",
+      "dothrow.c:throw_gold"
     ],
     "branch": "When an ordinary non-swallowed object is dropped on a costly spot in a shop whose keeper is present, C sellobj() computes its offer and handles the sale response; this recipe reaches the deliberate-sale query for a wished +5 dagger.",
     "callers": [
