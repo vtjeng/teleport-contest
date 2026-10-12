@@ -84,7 +84,7 @@ import {
 } from '../js/trap.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { game } from '../js/gstate.js';
-import { M1_FLY, PM_LICHEN } from '../js/monsters.js';
+import { M1_FLY, PM_LICHEN, PM_PURPLE_WORM } from '../js/monsters.js';
 import {
     LANCE,
     LONG_SWORD,
@@ -320,23 +320,15 @@ test('a hero with nowhere to stand refuses the dismount', async () => {
     assert.ok(state.u.usteed);
 });
 
-test('remaining unported dismount reasons keep their explicit source boundary',
+test('the postmortem bones dismount keeps its explicit source boundary',
     async () => {
-    // These reasons still have separate callers and behavior outside the
-    // implemented fall and DISMOUNT_POLY paths.
-    const reasons = [
-        [DISMOUNT_ENGULFED, /DISMOUNT_ENGULFED/u],
-        [DISMOUNT_BONES, /DISMOUNT_BONES/u],
-    ];
-    for (const [reason, pattern] of reasons) {
-        const state = await mounted();
-        await assert.rejects(
-            dismount_steed(reason, state),
-            (error) => error instanceof UnsupportedSteedError
-                && pattern.test(error.message),
-            String(pattern),
-        );
-    }
+    // bones.c calls after the hero dies; that separate reason stays unported.
+    const state = await mounted();
+    await assert.rejects(
+        dismount_steed(DISMOUNT_BONES, state),
+        (error) => error instanceof UnsupportedSteedError
+            && /DISMOUNT_BONES/u.test(error.message),
+    );
 });
 
 test('DISMOUNT_THROWN uses the C thrown-fall message and shared landing path',
@@ -1503,4 +1495,42 @@ test('dismount heals wounded steed legs before releasing the mounted context', a
     assert.equal(state.u.uprops[WOUNDED_LEGS].extrinsic, 0);
     assert.equal(state.u.atemp[A_DEX], 0);
     assert.doesNotMatch(toplines(), /leg.*better/u);
+});
+
+test('an engulfed dismount releases the steed from the occupied hero square',
+    async () => {
+    // steed.c:681-703 and :777-823. The purple worm occupies the hero's
+    // former mount square, so the released pony must be relocated while the
+    // held hero remains there and does not float down.
+    const state = await mounted();
+    const steed = state.u.usteed;
+    const { ux, uy } = state.u;
+    quiet(state);
+    const engulfer = newMonster({
+        // This id is outside the recorder fixture ids, keeping the test
+        // engulfer distinct from monsters retained in the mounted level.
+        m_id: 77991,
+        data: state.mons[PM_PURPLE_WORM],
+        mnum: PM_PURPLE_WORM,
+        mx: ux,
+        my: uy,
+        mhp: 100,
+        mhpmax: 100,
+    });
+    place_monster(engulfer, ux, uy, state);
+    engulfer.nmon = state.level.monlist;
+    state.level.monlist = engulfer;
+    state.u.ustuck = engulfer;
+
+    await dismount_steed(DISMOUNT_ENGULFED, state, {
+        random: { rn2: (bound) => bound - 1 },
+    });
+
+    assert.equal(state.u.usteed, null);
+    assert.equal(state.u.ustuck, engulfer);
+    assert.deepEqual([state.u.ux, state.u.uy], [ux, uy]);
+    assert.equal(m_at(ux, uy, state), engulfer);
+    assert.notDeepEqual([steed.mx, steed.my], [ux, uy]);
+    assert.equal(m_at(steed.mx, steed.my, state), steed);
+    assert.equal(state.in_steed_dismounting, 0);
 });

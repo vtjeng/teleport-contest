@@ -8,11 +8,12 @@
   "recordingPath": "challenges/cases/v53/v53-mounted-dragon-purpleworm-engulf-action4.session.json",
   "recordingSha256": "d684562357a7eb20585e465ef7db1ccd055bb348f09c2a5d7a4301e6b665cc2d",
   "recipeSha256": "e230b1375884c9ca37c93a50df56e46122be1e029511920528888ea37556fdcc",
+  "replayInputSha256": "9e5ddb75b2b4d19310c2a24f1b8cfee5ef5e7bbc8f5ad730bc4382b133e45870",
   "evaluationPath": "challenges/evaluations/accepted-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-v53.json",
   "evaluationCommit": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
   "remainingScreens": 106,
   "recordedSteps": 359,
-  "status": "diagnosed",
+  "status": "complete",
   "commit": "3aa063bd0b6fe4e0e36a22c034a4bebae0b7c92d",
   "mismatch": {
     "kind": "rng",
@@ -32,7 +33,7 @@
     "recordingPath": "challenges/cases/v53/v53-mounted-dragon-purpleworm-engulf-action4.session.json",
     "error": null
   },
-  "summary": "When a monster engulfs the mounted hero, C calls dismount_steed(DISMOUNT_ENGULFED) before continuing the engulf transition. JavaScript prints the same plucking message but records steed.c:dismount_steed as unported and skips its landing_spot and steed-release work. The first recorded divergence is the landing_spot random draw at step 253.",
+  "summary": "When a monster engulfs the mounted hero, C calls dismount_steed(DISMOUNT_ENGULFED) before continuing the engulf transition. JavaScript now runs that branch and carries the active RNG owner through landing_spot and both enexto calls. The selected replay now matches all RNG calls and 358 of 359 screens; one transient screen cell still differs at step 253.",
   "source": {
     "file": "steed.c",
     "branch": "mhitu.c:gulpmu enters its initial engulf branch, places the engulfer on the hero's square, sets u.ustuck, prints the plucking message, then calls dismount_steed(DISMOUNT_ENGULFED). steed.c:dismount_steed computes landing_spot before checking the steed pointer, accepts DISMOUNT_ENGULFED without a message, releases the steed, chooses an unoccupied adjacent square for it because the hero's square is occupied, avoids float_down for the engulfed reason, and returns to gulpmu.",
@@ -44,13 +45,16 @@
       "C steed.c:dismount_steed:581 initializes have_spot with landing_spot before its null-steed guard; its DISMOUNT_ENGULFED arm proceeds through the common release and occupied-square relocation, then skips float_down. JS js/steed.js:dismount_steed currently throws UnsupportedSteedError for this reason and rejects the occupied hero square."
     ],
     "dependencies": [
-      "The engulf transition consumes the return from gulpmu and continues the same caller after dismount_steed. Keep the dismount's void contract and preserve its C ordering of landing_spot, u.usteed release, steed relocation, and no float_down."
+    "The engulf transition consumes the return from gulpmu and continues the same caller after dismount_steed. Keep the dismount's void contract and preserve its C ordering of landing_spot, u.usteed release, steed relocation, and no float_down.",
+    "steed.c:693-700 calls teleport.c:enexto for the steed's own species, then PM_BAT, then PM_GHOST; steed.c:777-793 calls enexto again and rloc_to when u.ustuck keeps the hero in place, or monkilled when no spot exists. Those existing JS owners receive the active state and RNG environment; they are not claimed as newly ported functions."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
     "The admitted v53 baseline evaluation records this case at 253/359 screens, 3017/3336 RNG calls, and 346/359 cursors. The canonical manifest SHA-256 is fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39 and recording SHA-256 is d684562357a7eb20585e465ef7db1ccd055bb348f09c2a5d7a4301e6b665cc2d.",
     "A bounded replay on commit 3aa063bd0b6fe4e0e36a22c034a4bebae0b7c92d emitted 359 steps with no runtime error. At step 253, C's next RNG call is rn2(3)=0 in steed.c:landing_spot, while JS calls rn2(20)=16; the same step's screen differs at row 1, column 26. The replay log is /tmp/teleport-validation-1000/run-NAUG3V/stdout.log.",
-    "Source review of upstream mhitu.c:1315 and steed.c:459-566,575-826 confirms that C invokes the existing dismount helper for every engulfer when the hero rides. JS mhitu.js instead records the helper as unported; JS steed.js separately refuses DISMOUNT_ENGULFED and occupied-square relocation. This is the responsible gap; subsequent RNG calls are downstream."
+    "Source review of upstream mhitu.c:1315 and steed.c:459-826 confirms that C invokes the dismount helper for every engulfer when the hero rides. JS mhitu.js now calls dismount_steed(DISMOUNT_ENGULFED) with state and random, and JS steed.js implements the engulfed reason, occupied-square relocation, the second enexto/rloc_to path, and the no-float_down tail. This is a bounded branch and caller repair; no whole-function completion is claimed.",
+    "Final replay on the changed source emitted 359/359 screens, 3336/3336 RNG calls, and 359/359 cursor positions. The first and only remaining screen mismatch is at step 253, row 1 column 26 (C blank, JS '#'); step 254 and all later screens match. The runtime has no error, refusal, or unported steed function. Saved replay summary: /tmp/c-v53-engulf-after-scan-r2.json (SHA-256 b9ede1a000448f6f372edac3c5dcf225d2a5748056d93815bfe7c4cf34efdc3d); runtime log: /tmp/teleport-validation-1000/run-Oa93r2/stdout.log (SHA-256 5d6c15ed300d7e5048a037e91b26ae31b4c1bc2700fa5975d96e672dd2b9ca82).",
+    "Focused tests `node --test --test-reporter=spec scripts/dismount-steed.test.mjs scripts/mhitu.test.mjs` passed both files; log SHA-256 3d3f1f3b8bffd603585ff0fd8c252a0cb3e6a11f64cee3bccf58ab53940133d8. `npm run lint` passed; log SHA-256 f8b045212c87825355f5fd99462819427f5f9af4ecbc9ca4ca0e824521bebe6c."
   ]
 }
