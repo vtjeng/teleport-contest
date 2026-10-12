@@ -283836,7 +283836,7 @@
     {
       "id": "div-shk-sellobj-v47-shop-drop-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port shop sales, accounting, quotes and keeper chat with active callers",
       "cFile": "shk.c",
       "sessions": [
@@ -283850,8 +283850,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8ae7e7de357d256030d7564131992129ae09e005",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "sellobj",
@@ -284510,6 +284513,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8ae7e7de357d256030d7564131992129ae09e005",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

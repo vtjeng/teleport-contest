@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T09:43:52.908Z",
+  "capturedAt": "2026-10-12T11:02:13.873Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -94125,6 +94125,188 @@
         "worker": "C",
         "state": "blocked",
         "reason": "Waiting for the queued shop delivery from worker A to free the remaining caller; the coordinator is prioritizing its integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v51-cockatrice-wood-golem-20261012-73965c694f4c993dafc384bf4ef0d0d3c794fff1",
+        "type": "published",
+        "at": "2026-10-12T09:44:05.759Z",
+        "task": "B-investigation-v51-cockatrice-wood-golem-20261012",
+        "commit": "73965c694f4c993dafc384bf4ef0d0d3c794fff1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep17-v53-continuations-20261012-2",
+        "type": "turn",
+        "at": "2026-10-12T09:44:23.921Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v53: recording C continuations for quest, artifact, fountain and creature actions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-main-5723bb7-20261012",
+        "type": "turn",
+        "at": "2026-10-12T09:45:08.560Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Idle at a clean boundary after syncing accepted Main. All actionable queue cases are owned by another worker or held; the remaining open-looking bluejelly case overlaps C’s active combat scope. B’s ready deliveries await integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep17-v53-first-comparisons-20261012-3",
+        "type": "turn",
+        "at": "2026-10-12T09:52:07.418Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v53: checking six independent C action histories."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-A2-shop-after-priority-approval-20261012",
+        "type": "activity",
+        "at": "2026-10-12T09:57:25.771Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "phase": "review",
+        "reason": "Review queued shop source port first to release the dothrow caller needed by the petrification task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-shop-whole-throw-gold-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T09:58:15.488Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "delivery": "47c76762a620fb7fe297dfdfc06b6f7efee883db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-A2-history-after-priority-approval-20261012",
+        "type": "activity",
+        "at": "2026-10-12T09:58:37.470Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "phase": "review",
+        "reason": "Review corrected message-history delivery while A completes the remaining shop throw_gold branches; history releases several queued fixes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-shop-throw-gold-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T09:59:27.699Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ea8accb036fde7b15b539cf524fac6cc53d8d4a2",
+        "type": "ready",
+        "at": "2026-10-12T10:03:53.213Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "delivery": "ea8accb036fde7b15b539cf524fac6cc53d8d4a2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-history-b3f99748-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T10:04:23.838Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "integration": "b3f99748fdb6ebd3483059c2c73f4070e7405942"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-shop-throw-gold-ea8accb0-20261012",
+        "type": "received",
+        "at": "2026-10-12T10:04:37.929Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "delivery": "ea8accb036fde7b15b539cf524fac6cc53d8d4a2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-history-failed-38234021440-20261012",
+        "type": "validated",
+        "at": "2026-10-12T10:12:50.841Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-history-hosted-failures-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T10:15:10.937Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "delivery": "6cc3225f59375d1632dd36507d62d048f2a2b317"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-history-failure-correction-38234021440-20261012",
+        "type": "resume",
+        "at": "2026-10-12T10:17:03.940Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-shop-8ae7e7de-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T10:25:08.570Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "integration": "8ae7e7de357d256030d7564131992129ae09e005"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep17-v53-four-failures-20261012-4",
+        "type": "turn",
+        "at": "2026-10-12T10:27:48.834Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v53: four first failures verified; extending quest and mounted game cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-shop-passed-38236215579-20261012",
+        "type": "validated",
+        "at": "2026-10-12T10:34:11.802Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep17-v53-resumed-wave6-20261012",
+        "type": "turn",
+        "at": "2026-10-12T10:35:02.805Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v53: five source-traced first mismatches; continuing independent C behavior missions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v47-costly-shop-drop-spot-20261012-8ae7e7de357d256030d7564131992129ae09e005-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T10:36:11.180Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-c-resume-minstapetrify-20261012-1038",
+        "type": "turn",
+        "at": "2026-10-12T10:40:30.910Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep17-v53-earth-engulf-quest-20261012",
+        "type": "turn",
+        "at": "2026-10-12T10:44:27.067Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v53: continuing Earth digging, engulfed inventory and Quest alignment missions after five distinct first mismatches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep17-v53-terrain-nine-20261012",
+        "type": "turn",
+        "at": "2026-10-12T10:52:27.719Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v53: seven source-traced first failures; continuing magical-trap and Earth digging missions."
       }
     ]
   },
@@ -94149,17 +94331,6 @@
         "status": "ready",
         "delivery": "07ebea9225679ee0034c2070d886f3d9e28e96fe",
         "since": "2026-10-12T06:05:19.699Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
-        "worker": "A2",
-        "goal": "div-shk-sellobj-v47-shop-drop-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "47c76762a620fb7fe297dfdfc06b6f7efee883db",
-        "since": "2026-10-12T06:05:50.604Z",
         "blockedBy": [],
         "unblocks": 0
       },
@@ -94288,7 +94459,6 @@
         "delivery": "3961fb31767fe6a6b7a61edc0cf78f92361d4aa6",
         "since": "2026-10-12T09:02:18.983Z",
         "blockedBy": [
-          "A2-investigation-v47-costly-shop-drop-spot-20261012",
           "A2-investigation-v48-previous-message-history-ctrlp-20261012",
           "A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012"
         ],
@@ -94327,17 +94497,6 @@
         "since": "2026-10-12T09:18:20.739Z",
         "blockedBy": [],
         "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
-        "worker": "A2",
-        "goal": "file-port-topl-message-history-v48-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "6cc3225f59375d1632dd36507d62d048f2a2b317",
-        "since": "2026-10-12T09:24:46.349Z",
-        "blockedBy": [],
-        "unblocks": 1
       }
     ],
     "preparedBatches": [],
@@ -94809,8 +94968,8 @@
     ]
   },
   "development": {
-    "executionCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
-    "measuredAt": "2026-10-12T09:18:53.531Z",
+    "executionCommit": "566101b4d0986208811a9ace557ff6aab76f3cff",
+    "measuredAt": "2026-10-12T10:59:10.943Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
