@@ -12,8 +12,10 @@
 import {
     A_CHA,
     ACID_RES,
+    ARM,
     ARTICLE_THE,
     BILLSZ,
+    CANDLESHOP,
     ANY_SHOP,
     ACH_SHOP,
     BUFSZ,
@@ -33,6 +35,7 @@ import {
     EYE,
     FAST,
     G_GONE,
+    HEAD,
     helpless,
     HUNGRY,
     ismnum,
@@ -64,6 +67,8 @@ import {
     RLOC_MSG,
     RLOC_NOMSG,
     ROOMOFFSET,
+    SELL_DONTSELL,
+    SELL_NORMAL,
     SHOPBASE,
     TT_PIT,
     FIRE_RES,
@@ -133,8 +138,11 @@ import {
     AGATE,
     AMBER,
     AMETHYST,
+    AMULET_CLASS,
     ARMOR_CLASS,
     BALL_CLASS,
+    CANDELABRUM_OF_INVOCATION,
+    CHAIN_CLASS,
     BLACK_OPAL,
     CHRYSOBERYL,
     COIN_CLASS,
@@ -163,6 +171,7 @@ import {
     POT_WATER,
     PICK_AXE,
     RUBY,
+    RING_CLASS,
     SAPPHIRE,
     SCROLL_CLASS,
     SPBOOK_CLASS,
@@ -215,7 +224,7 @@ import { mbodypart, poly_gender } from './polyself.js';
 import { livelog_printf, verbalize } from './pline.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { growl, set_voice } from './sounds.js';
-import { saleable, shkname, Shknam } from './shknam.js';
+import { is_izchak, saleable, shkname, Shknam } from './shknam.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { findgold, mpickobj, remove_worn_item } from './steal.js';
@@ -228,6 +237,7 @@ import { ansimpleoname, Doname2, donameFresh, paydoname, safe_qbuf,
 import { hidden_gold } from './vault.js';
 import { cansee } from './vision.js';
 import { add_menu_heading, select_menu } from './windows.js';
+import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { choose_stairs } from './wizard.js';
 import { setnotworn } from './worn.js';
@@ -2432,6 +2442,86 @@ export function shop_object(x, y, state = game) {
         : null;
 }
 
+// C ref: shk.c price_quote() (5406-5464). #chat uses this before requesting
+// a direction when the hero stands on sale goods. The TTY menu helper owns
+// the NHW_MENU creation, line writes, blocking display, and destruction.
+export async function price_quote(firstObj, state = game, env = {}) {
+    let shopkeeper = shop_keeper(inside_shop(state.u.ux, state.u.uy, state), state);
+    if (!shopkeeper || !inhishop(shopkeeper, state)) return;
+
+    const lines = ['Fine goods for sale:', ''];
+    let cost = 0;
+    let contentsOnly = false;
+    let count = 0;
+    let quotedLine = '';
+    for (let obj = firstObj; obj; obj = obj.nexthere) {
+        if (obj.oclass === COIN_CLASS) continue;
+        cost = obj.no_charge || obj === state.uball || obj === state.uchain
+            ? 0 : get_cost(obj, shopkeeper, state);
+        contentsOnly = !cost;
+        if (hasContents(obj))
+            cost += contained_cost(obj, shopkeeper, 0, false, false, state);
+        if (obj.globby) cost *= get_pricing_units(obj, state);
+
+        if (!cost) contentsOnly = false;
+        const price = cost
+            ? `${cost} ${currency(cost, state)}${obj.quan > 1 ? ' each' : ''}`
+            : 'no charge';
+        const objectName = `${contentsOnly ? 'the contents of ' : ''}`
+            + donameFresh(obj, state);
+        quotedLine = `${objectName}, ${price}`;
+        lines.push(quotedLine);
+        count++;
+    }
+
+    if (count > 1) {
+        await displayTtyMenuTextWindow(state, lines);
+    } else if (count === 1) {
+        if (!cost) {
+            set_voice(shopkeeper, 0, 80, 0, state);
+            await verbalize(`${upstart(quotedLine)}!`, state, env);
+        } else {
+            const name = `${contentsOnly ? 'the contents of ' : ''}${donameFresh(firstObj, state)}`;
+            set_voice(shopkeeper, 0, 80, 0, state);
+            const embellishment = contentsOnly ? '.'
+                : shk_embellish(firstObj, cost, state, env);
+            await verbalize(`${upstart(name)}, price ${cost} ${currency(cost, state)}`
+                + `${firstObj.quan > 1 ? ' each' : ''}${embellishment}`, state, env);
+        }
+    }
+}
+
+// C ref: shk.c shk_embellish() (5468-5504). Its rn2 calls are part of the
+// core gameplay stream; the remaining branch is an artifact-only fallback.
+function shk_embellish(item, cost, state = game, env = {}) {
+    const random = env.random ?? { rn2 };
+    if (!random.rn2(3)) {
+        let choice = random.rn2(5);
+        if (choice === 0)
+            choice = cost < 100 ? 1 : cost < 500 ? 2 : 3;
+        switch (choice) {
+        case 4: {
+            if (cost < 10) break;
+            const oc = objectType(item, state);
+            if (item.oclass === FOOD_CLASS) return ", gourmets' delight!";
+            if (oc.oc_name_known
+                ? oc.oc_magic
+                : [AMULET_CLASS, RING_CLASS, WAND_CLASS, POTION_CLASS,
+                    SCROLL_CLASS, SPBOOK_CLASS].includes(item.oclass))
+                return ', painstakingly developed!';
+            return ', superb craftsmanship!';
+        }
+        case 3: return ', finest quality.';
+        case 2: return ', an excellent choice.';
+        case 1: return ', a real bargain.';
+        default: break;
+        }
+    } else if (item.oartifact) {
+        return ', one of a kind!';
+    }
+    return '.';
+}
+
 // C ref: decl.c c_common_strings.c_the_your (39-52), indexed by carried().
 const the_your = ['the', 'your'];
 
@@ -2799,8 +2889,8 @@ export async function u_entered_shop(
 }
 
 // C ref: shk.c sellobj_state() (3913-3924). Switches the shopkeeper's billing
-// mode. SELL_NORMAL resets auto-credit and sell_response; other values prime
-// sell_response to 'a' so the next accidental drop is auto-sold.
+// mode. SELL_NORMAL primes sell_response to 'a' for automatic selling; other
+// values clear it so the next deliberate sale can ask for a response.
 // use_container() calls sellobj_state(SELL_NORMAL) at containerdone to restore
 // the default state after in_container() may have changed it.
 export function sellobj_state(deliberate, state = game) {
@@ -2810,6 +2900,386 @@ export function sellobj_state(deliberate, state = game) {
     state.ga ??= {};
     state.ga.auto_credit = false;
 }
+
+// C ref: shk.c dropped_container() (3064-3083). The top-level container's
+// ownership is decided by sellobj(); this recursive walk updates only nested
+// non-coin objects, preserving billed contents and saleable stock.
+function dropped_container(obj, shkp, sale, state = game) {
+    for (let item = obj.cobj; item; item = item.nobj) {
+        if (item.oclass === COIN_CLASS) continue;
+        if (!item.unpaid && !(sale && saleable(shkp, item, state)))
+            item.no_charge = 1;
+        if (hasContents(item)) dropped_container(item, shkp, sale, state);
+    }
+}
+
+// C ref: shk.c special_stock() (3103-3144). The C helper returns TRUE only
+// for the Invocation candelabrum in a candle shop; its caller suppresses the
+// ordinary uninterested message for that case.
+async function special_stock(obj, shkp, quietly, state = game, env = {}) {
+    if (shkp.mextra.eshk.shoptype !== CANDLESHOP
+        || obj.otyp !== CANDELABRUM_OF_INVOCATION)
+        return false;
+
+    if (!quietly) {
+        const message = env.message ?? ttyPline;
+        if (is_izchak(shkp, true, state) && !state.u.uevent?.invoked) {
+            if (heroIsDeaf(state) || muteshk(shkp)) {
+                await message(`${Shknam(shkp, state, env)} seems ${
+                    obj.spe < 7 ? 'horrified' : 'concerned'} that you want to sell that.`, state);
+            } else {
+                set_voice(shkp, 0, 80, 0, state);
+                await verbalize("No thanks, I'd hang onto that if I were you.", state, env);
+                if (obj.spe < 7) {
+                    set_voice(shkp, 0, 80, 0, state);
+                    await verbalize(`You'll need ${7 - obj.spe}${
+                        obj.spe > 0 ? ' more' : ''} candle${plur(7 - obj.spe)} to go along with it.`, state, env);
+                }
+            }
+        } else if (!heroIsDeaf(state) && !muteshk(shkp)) {
+            set_voice(shkp, 0, 80, 0, state);
+            await verbalize("I won't stock that.  Take it out of here!", state, env);
+        } else {
+            const possessive = noitPronoun(shkp, 'his', state, env.random?.rn2 ?? rn2);
+            await message(`${Shknam(shkp, state, env)} shakes ${possessive} ${
+                mbodypart(shkp, HEAD)} in refusal.`, state);
+        }
+    }
+    return true;
+}
+
+// C ref: shk.c donate_gold() (3877-3910). `selling` distinguishes gold the
+// hero drops from gold refunded after a kick; both paths update the same
+// debit, loan and credit fields before printing the source message.
+export async function donate_gold(gold, shkp, selling, state = game, env = {}) {
+    const eshk = shkp.mextra.eshk;
+    const message = env.message ?? ttyPline;
+    if (eshk.debit >= gold) {
+        if (eshk.loan) eshk.loan = Math.max(eshk.loan - gold, 0);
+        eshk.debit -= gold;
+        await message(`Your debt is ${eshk.debit ? 'partially ' : ''}paid off.`, state);
+    } else {
+        const delta = gold - eshk.debit;
+        eshk.credit += delta;
+        if (eshk.debit) {
+            eshk.debit = 0;
+            eshk.loan = 0;
+            await message('Your debt is paid off.', state);
+        }
+        if (eshk.credit === delta) {
+            await message(`You have ${selling ? '' : 're-'}established ${delta} ${
+                currency(delta, state)} credit.`, state);
+        } else {
+            await message(`${delta} ${currency(delta, state)} added${
+                selling ? '' : ' back'} to your credit; total is now ${eshk.credit} ${
+                currency(eshk.credit, state)}.`, state);
+        }
+    }
+}
+
+// C ref: shk.c sellobj() (3927-4194). This is the complete floor-sale
+// decision tree; its callers place the object first and stack it only after
+// this function has finished changing billing and shop ownership.
+export async function sellobj(obj, x, y, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    state.gs ??= {};
+    state.ga ??= {};
+    const rooms = in_rooms(x, y, SHOPBASE, state);
+    if (!state.u?.ushops?.[0]) return;
+    const shkp = shop_keeper(rooms[0] ?? 0, state);
+    if (!shkp || !inhishop(shkp, state) || !costly_spot(x, y, state)) return;
+
+    const container = hasContents(obj);
+    const isgold = obj.oclass === COIN_CLASS;
+    if (obj.unpaid && !container && !isgold) {
+        sub_one_frombill(obj, shkp, state, env);
+        return;
+    }
+
+    let cltmp = 0, gltmp = 0;
+    let cgold = false;
+    if (container) {
+        cltmp = contained_cost(obj, shkp, cltmp, true, false, state);
+        gltmp += contained_gold(obj, true);
+        cgold = gltmp > 0;
+    }
+    const saleitem = saleable(shkp, obj, state);
+    let ltmp = 0;
+    if (!isgold && !obj.unpaid && saleitem)
+        ltmp = set_cost(obj, shkp, state);
+    let offer = ltmp + cltmp;
+
+    // The source wakes the keeper before reading anger and every later branch.
+    await rouse_shk(shkp, true, state, env);
+    const eshk = shkp.mextra.eshk;
+    if (!NOTANGRY(shkp)) {
+        if (!heroIsDeaf(state) && !muteshk(shkp)) {
+            set_voice(shkp, 0, 80, 0, state);
+            await verbalize('Thank you, scum!', state, env);
+        } else {
+            await message(`${Shknam(shkp, state, env)} smirks with satisfaction.`, state);
+        }
+        subfrombill(obj, shkp, state, env);
+        return;
+    }
+
+    if (!(isgold || cgold)
+        && ((offer + gltmp) === 0 || state.gs.sell_how === SELL_DONTSELL)) {
+        const unpaid = is_unpaid(obj);
+        if (container) {
+            dropped_container(obj, shkp, false, state);
+            if (!obj.unpaid) obj.no_charge = 1;
+            if (unpaid) subfrombill(obj, shkp, state, env);
+        } else obj.no_charge = 1;
+        if (!unpaid && state.gs.sell_how !== SELL_DONTSELL
+            && !await special_stock(obj, shkp, false, state, env)) {
+            await message(`${Shknam(shkp, state, env)} seems uninterested.`, state);
+        }
+        return;
+    }
+
+    if (eshk.robbed) {
+        if (isgold) offer = obj.quan;
+        else if (cgold) offer += cgold;
+        eshk.robbed -= offer < 0 ? 1 : 0;
+        if (eshk.robbed) eshk.robbed = 0;
+        if (offer && !heroIsDeaf(state) && !muteshk(shkp)) {
+            set_voice(shkp, 0, 80, 0, state);
+            await verbalize(
+                'Thank you for your contribution to restock this recently plundered shop.',
+                state,
+                env,
+            );
+        }
+        subfrombill(obj, shkp, state, env);
+        return;
+    }
+
+    if (isgold || cgold) {
+        if (!cgold) gltmp = obj.quan;
+        await donate_gold(gltmp, shkp, true, state, env);
+        if (!offer || state.gs.sell_how === SELL_DONTSELL) {
+            if (!isgold) {
+                if (container) dropped_container(obj, shkp, false, state);
+                if (!obj.unpaid) obj.no_charge = 1;
+                subfrombill(obj, shkp, state, env);
+            }
+            return;
+        }
+    }
+
+    if ((!saleitem && !(container && cltmp > 0)) || eshk.billct === BILLSZ
+        || obj.oclass === BALL_CLASS || obj.oclass === CHAIN_CLASS
+        || offer === 0 || (obj.oclass === FOOD_CLASS && obj.oeaten)
+        || (isCandle(obj)
+            && obj.age < 20 * objectType(obj, state).oc_cost)) {
+        await message(`${Shknam(shkp, state, env)} seems uninterested${
+            cgold ? ' in the rest' : ''}.`, state);
+        if (container) dropped_container(obj, shkp, false, state);
+        obj.no_charge = 1;
+        return;
+    }
+
+    const shkmoney = money_cnt(shkp.minvent, state);
+    if (!shkmoney) {
+        const tmpcr = Math.trunc(offer * 9 / 10) + (offer <= 1 ? 1 : 0);
+        let answer;
+        if (state.gs.sell_how === SELL_NORMAL || state.ga.auto_credit) {
+            answer = state.gs.sell_response = 'y';
+        } else if (state.gs.sell_response !== 'n') {
+            await message(`${Shknam(shkp, state, env)} cannot pay you at present.`, state);
+            const prefix = `Will you accept ${tmpcr} ${currency(tmpcr, state)} in credit for `;
+            record_price_quote(obj.otyp, Math.trunc(tmpcr / obj.quan), false, state);
+            const query = safe_qbuf(prefix, '?', obj, donameFresh,
+                thesimpleoname, obj.quan === 1 ? 'that' : 'those', state);
+            answer = String.fromCharCode(
+                await yn_function(query, 'ynaq', 'y', true, state),
+            );
+            if (answer === 'a') {
+                answer = 'y';
+                state.ga.auto_credit = true;
+            }
+        } else answer = 'n';
+
+        if (answer === 'y') {
+            await shk_names_obj(shkp, obj,
+                state.gs.sell_how !== SELL_NORMAL
+                    ? 'traded %s for %ld zorkmid%s in %scredit.'
+                    : 'relinquish %s and acquire %ld zorkmid%s in %scredit.',
+                tmpcr, eshk.credit > 0 ? 'additional ' : '', state, env);
+            eshk.credit += tmpcr;
+            if (container) dropped_container(obj, shkp, true, state);
+            subfrombill(obj, shkp, state, env);
+        } else {
+            if (answer === 'q') state.gs.sell_response = 'n';
+            if (container) dropped_container(obj, shkp, false, state);
+            if (!obj.unpaid) obj.no_charge = 1;
+            subfrombill(obj, shkp, state, env);
+        }
+        return;
+    }
+
+    const shortFunds = offer > shkmoney;
+    if (shortFunds) offer = shkmoney;
+    let onlyPartiallyYourContents = false;
+    let query = null;
+    const hasSellResponse = Boolean(state.gs.sell_response
+        && state.gs.sell_response !== '\0');
+    if (!hasSellResponse) {
+        let yourc = 0;
+        let shksc = 0;
+        if (container) {
+            shksc = count_contents(obj, true, true, false, true, state);
+            yourc = count_contents(obj, true, true, true, true, state) - shksc;
+            onlyPartiallyYourContents = Boolean(shksc && yourc);
+        }
+        const prefix = `${Shknam(shkp, state, env)} offers${
+            shortFunds ? ' only' : ''} ${offer} gold piece${plur(offer)} for ${
+            cltmp && !ltmp ? yourc === 1 ? 'your item in ' : 'your items in ' : ''}${
+            obj.unpaid ? 'the' : 'your'} `;
+        const one = !ltmp ? yourc === 1 : obj.quan === 1 && !cltmp;
+        const suffix = `${cltmp && ltmp
+            ? onlyPartiallyYourContents
+                ? yourc === 1 ? ' and item inside' : ' and items inside'
+                : ' and its contents'
+            : ''}.  Sell ${one ? 'it' : 'them'}?`;
+        record_price_quote(obj.otyp, Math.trunc(offer / obj.quan), false, state);
+        query = safe_qbuf(prefix, suffix, obj, xnameFresh,
+            simpleonames, one ? 'that' : 'those', state);
+    }
+
+    // C builds qbuf only for the initial query; a cached sell_response skips
+    // both object naming and its observation side effects.
+    const answer = hasSellResponse
+        ? state.gs.sell_response
+        : String.fromCharCode(
+            await yn_function(query, 'ynaq', 'n', true, state),
+        );
+    if (answer === 'q') {
+        state.gs.sell_response = 'n';
+        if (container) dropped_container(obj, shkp, false, state);
+        if (!obj.unpaid) obj.no_charge = 1;
+        subfrombill(obj, shkp, state, env);
+    } else if (answer === 'n') {
+        if (container) dropped_container(obj, shkp, false, state);
+        if (!obj.unpaid) obj.no_charge = 1;
+        subfrombill(obj, shkp, state, env);
+    } else if (answer === 'a') {
+        state.gs.sell_response = 'y';
+        if (container) dropped_container(obj, shkp, true, state);
+        if (!obj.unpaid && !saleitem) obj.no_charge = 1;
+        subfrombill(obj, shkp, state, env);
+        await pay(-offer, shkp, state, env);
+        await shk_names_obj(shkp, obj,
+            state.gs.sell_how !== SELL_NORMAL
+                ? (!ltmp && cltmp && onlyPartiallyYourContents
+                    ? 'sold some items inside %s for %ld gold piece%s.%s'
+                    : 'sold %s for %ld gold piece%s.%s')
+                : 'relinquish %s and receive %ld gold piece%s in compensation.%s',
+            offer, '', state, env);
+    } else if (answer === 'y') {
+        if (container) dropped_container(obj, shkp, true, state);
+        if (!obj.unpaid && !saleitem) obj.no_charge = 1;
+        subfrombill(obj, shkp, state, env);
+        await pay(-offer, shkp, state, env);
+        await shk_names_obj(shkp, obj,
+            state.gs.sell_how !== SELL_NORMAL
+                ? (!ltmp && cltmp && onlyPartiallyYourContents
+                    ? 'sold some items inside %s for %ld gold piece%s.%s'
+                    : 'sold %s for %ld gold piece%s.%s')
+                : 'relinquish %s and receive %ld gold piece%s in compensation.%s',
+            offer, '', state, env);
+    } else {
+        throw new Error(`invalid sell response ${String(answer)}`);
+    }
+}
+
+// C ref: shk.c shk_chat() (5521-5601). sounds.c:domonnoise() reaches this
+// conversation when MS_SELL passes its existing hallucination and silence gate.
+export async function shk_chat(shkp, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const random = env.random ?? { rn2 };
+    if (!shkp.isshk) {
+        await message(`${Monnam(shkp, state, env)} asks whether you've seen any untended shops recently.`, state);
+        return;
+    }
+    const eshk = shkp.mextra.eshk;
+    const speaks = () => !heroIsDeaf(state) && !muteshk(shkp);
+    if (!NOTANGRY(shkp)) {
+        await message(`${Shknam(shkp, state, env)} ${
+            speaks() ? 'mentions' : 'indicates'} how much ${
+            noitPronoun(shkp, 'he', state, random.rn2)} dislikes ${
+            eshk.robbed ? 'non-paying' : 'rude'} customers.`, state);
+    } else if (eshk.following) {
+        const customer = encodeUtf8ByteString(eshk.customer ?? '').slice(0, PL_NSIZ);
+        const player = encodeUtf8ByteString(state.plname ?? '').slice(0, PL_NSIZ);
+        const isCustomer = customer.length === player.length
+            && customer.every((byte, i) => byte === player[i]);
+        if (!isCustomer) {
+            if (speaks()) {
+                set_voice(shkp, 0, 80, 0, state);
+                await verbalize(`${Hello(state.urole, { shopkeeper: true })} ${
+                    state.plname}!  I was looking for ${eshk.customer}.`, state, env);
+            }
+            eshk.following = 0;
+        } else if (speaks()) {
+            set_voice(shkp, 0, 80, 0, state);
+            await verbalize(`${Hello(state.urole, { shopkeeper: true })} ${
+                state.plname}!  Didn't you forget to pay?`, state, env);
+        } else {
+            await message(`${Shknam(shkp, state, env)} taps you on the ${
+                body_part(ARM, state.youmonst)}.`, state);
+        }
+    } else if (eshk.billct) {
+        const total = addupbill(shkp) + eshk.debit;
+        await message(`${Shknam(shkp, state, env)} ${
+            speaks() ? 'says' : 'indicates'} that your bill comes to ${total} ${
+            currency(total, state)}.`, state);
+    } else if (eshk.debit) {
+        await message(`${Shknam(shkp, state, env)} ${
+            speaks() ? 'reminds you' : 'indicates'} that you owe ${
+            noitPronoun(shkp, 'him', state, random.rn2)} ${eshk.debit} ${
+            currency(eshk.debit, state)}.`, state);
+    } else if (eshk.credit) {
+        await message(`${Shknam(shkp, state, env)} encourages you to use your ${
+            eshk.credit} ${currency(eshk.credit, state)} of credit.`, state);
+    } else if (eshk.robbed) {
+        await message(`${Shknam(shkp, state, env)} ${
+            speaks() ? 'complains' : 'indicates concern'} about a recent robbery.`, state);
+    } else if (eshk.surcharge) {
+        await message(`${Shknam(shkp, state, env)} ${
+            speaks() ? 'warns you' : 'indicates'} that ${
+            noitPronoun(shkp, 'he', state, random.rn2)} is watching you carefully.`, state);
+    } else {
+        const shopMoney = money_cnt(shkp.minvent, state);
+        if (shopMoney < 50) {
+            await message(`${Shknam(shkp, state, env)} ${
+                speaks() ? 'complains' : 'indicates'} that business is bad.`, state);
+        } else if (shopMoney > 4000) {
+            await message(`${Shknam(shkp, state, env)} ${
+                speaks() ? 'says' : 'indicates'} that business is good.`, state);
+        } else if (is_izchak(shkp, false, state)) {
+            if (speaks()) {
+                const line = IZCHAK_SPEAKS[random.rn2(IZCHAK_SPEAKS.length)];
+                await message(line.replace('%s', shkname(shkp, state, env)), state);
+            }
+        } else if (speaks()) {
+            await message(`${Shknam(shkp, state, env)} talks about the problem of shoplifters.`, state);
+        }
+    }
+}
+
+const IZCHAK_SPEAKS = [
+    "%s says: 'These shopping malls give me a headache.'",
+    "%s says: 'Slow down.  Think clearly.'",
+    "%s says: 'You need to take things one at a time.'",
+    "%s says: 'I don't like poofy coffee... give me Colombian Supremo.'",
+    '%s says that getting the devteam\'s agreement on anything is difficult.',
+    '%s says that he has noticed those who serve their deity will prosper.',
+    "%s says: 'Don't try to steal from me - I have friends in high places!'",
+    "%s says: 'You may well need something from this shop in the future.'",
+    '%s comments about the Valley of the Dead as being a gateway.',
+];
 
 // C ref: shk.c shk_fixes_damage() (4556-4577).  The shopkeeper walks
 // level.damagelist looking for repairable damage.  On a fresh shop with no

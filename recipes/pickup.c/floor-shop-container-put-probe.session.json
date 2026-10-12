@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700006,
+      "datetime": "20390927141723",
+      "nethackrc": "OPTIONS=name:ShopContainerProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00165\n  #wizwish\nunlocked large box\n do y #loot\n.sa",
+      "_comment": "Follow-up probe for pickup.c:in_container: open the dropped large box in a generated bookstore and stash the blessed +1 quarterstaff. This reaches the costly floor-container insertion path and its sellobj call."
+    }
+  ]
+}

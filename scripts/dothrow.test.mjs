@@ -106,6 +106,7 @@ import {
     PM_MONK,
     PM_NINJA,
     PM_ORC,
+    PM_PURPLE_WORM,
     PM_RANGER,
     PM_ROGUE,
     PM_SAMURAI,
@@ -1663,10 +1664,10 @@ test('throw_obj() refuses the throws C answers with a message', async () => {
     // dothrow.c:112-113. Gold is thrown whole unless it is quivered, so
     // throw_obj() dispatches to throw_gold() on the first half of that test;
     // a dagger reaches it only through the second half, and a dagger that is
-    // not the quivered stack passes. The dagger pins the second half alone:
-    // it is not COIN_CLASS, so no mutation of the first half can send it to
-    // throw_gold(), and nothing here covers that dispatch. throw_gold() has
-    // been ported since 5d30999, and the arms that still stop are inside it.
+    // not the quivered stack passes. The dagger pins the ordinary-object half
+    // alone: it is not COIN_CLASS, so no mutation of that half can send it to
+    // throw_gold(). Its coin dispatch and branch behavior have dedicated
+    // coverage below.
     const loose = arena();
     const dagger = item(loose, DAGGER);
     carry(loose, dagger);
@@ -1709,6 +1710,69 @@ test('throw_obj() refuses the throws C answers with a message', async () => {
     assert.match(atSelf._ttyToplines, /cannot throw an object at yourself/u);
     assert.equal(atSelf.invent, kept);
 });
+
+test('throw_gold() restores a count-split stack when aimed at yourself',
+    async () => {
+        // dothrow.c:2660-2665 calls unsplitobj() when this gold belongs to
+        // the current getobj count split, then returns ECMD_CANCEL.
+        const start = DOTHROW_C.indexOf('\nthrow_gold(');
+        const end = DOTHROW_C.indexOf('\n}', start) + 2;
+        const source = DOTHROW_C.slice(start, end);
+        assert.match(source,
+            /cannot throw gold at yourself[\s\S]*?unsplitobj\(obj\)[\s\S]*?return ECMD_CANCEL/u);
+
+        const state = arena();
+        const gold = item(state, GOLD_PIECE, { quan: 7 });
+        carry(state, gold);
+        const selected = splitobj(gold, 2, { state });
+        state.nhDisplay.pushKey('.'.charCodeAt(0));
+        assert.equal(await throw_obj(selected, 0, state), ECMD_CANCEL);
+        assert.equal(state.invent, gold);
+        assert.equal(gold.quan, 7,
+            'the count-selected amount rejoins the original gold stack');
+        assert.equal(selected.where, OBJ_DELETED);
+        assert.deepEqual(state.context.objsplit,
+            { parent_oid: 0, child_oid: 0 });
+    });
+
+test('throw_gold() feeds swallowed gold to digester entrails or inventory',
+    async () => {
+        // dothrow.c:2670-2681 frees the coins, selects the swallowed monster's
+        // entrails name from digests(), and transfers them with add_to_minv().
+        const start = DOTHROW_C.indexOf('\nthrow_gold(');
+        const end = DOTHROW_C.indexOf('\n}', start) + 2;
+        const source = DOTHROW_C.slice(start, end);
+        assert.match(source,
+            /freeinv\(obj\);\s*if \(u\.uswallow\)[\s\S]*?mon_nam\(u\.ustuck\)[\s\S]*?digests\(u\.ustuck->data\)[\s\S]*?s_suffix\(swallower\)[\s\S]*?add_to_minv\(u\.ustuck, obj\)/u);
+
+        for (const { species, entrails } of [
+            { species: PM_PURPLE_WORM, entrails: true },
+            { species: PM_GIANT_ANT, entrails: false },
+        ]) {
+            const state = arena();
+            const gold = item(state, GOLD_PIECE, { quan: 11 });
+            carry(state, gold);
+            const engulfer = newMonster({
+                data: state.mons[species],
+                mnum: species,
+                m_id: 1,
+                minvent: null,
+            });
+            state.u.uswallow = true;
+            state.u.ustuck = engulfer;
+            aimEast(state);
+            state._ttyToplines = '';
+
+            assert.equal(await throw_obj(gold, 0, state), ECMD_TIME);
+            assert.equal(state.invent, null);
+            assert.equal(engulfer.minvent, gold);
+            assert.equal(gold.where, OBJ_MINVENT);
+            assert.equal(gold.ocarry, engulfer);
+            assert.match(state._ttyToplines,
+                /The gold disappears into /u);
+            assert.equal(/entrails/u.test(state._ttyToplines), entrails);
+        }
+    });
 
 test('throw_obj removes a singleton wielded item before freeing it', async () => {
     assert.match(DOTHROW_C,

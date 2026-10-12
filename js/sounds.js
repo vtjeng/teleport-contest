@@ -207,7 +207,13 @@ import { rn1, rn2, rnd } from './rng.js';
 import { aggravate, cuss } from './wizard.js';
 import { genders } from './roles.js';
 
-import { noisy_shop, shop_object, tended_shop } from './shk.js';
+import {
+    noisy_shop,
+    price_quote,
+    shk_chat,
+    shop_object,
+    tended_shop,
+} from './shk.js';
 import { SOUND_EFFECT_BASE_FILENAMES } from './sound_effects_data.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, couldsee } from './vision.js';
@@ -1029,7 +1035,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
     case MS_SELL:
         if (!Hallucination(state) || is_silent(ptr)
             || (mtmp.isshk && !random.rn2(2))) {
-            note_unported('shk.c shk_chat');
+            await shk_chat(mtmp, state, { ...rawEnv, random });
         } else {
             verbalMsg = `15 minutes could save you 15 ${currency(15, state)}.`;
         }
@@ -1481,10 +1487,13 @@ async function dochat(state) {
         await ttyPline('Your speech is unintelligible underwater.', state);
         return ECMD_OK;
     }
-    if (!Deaf(state) && !Blind(state) && shop_object(u.ux, u.uy, state)) {
+    const shopGoods = !Deaf(state) && !Blind(state)
+        ? shop_object(u.ux, u.uy, state) : null;
+    if (shopGoods) {
         /* standing on something in a shop and chatting causes the shopkeeper
            to describe the price(s) */
-        throw new UnsupportedChatError('price_quote() for shop merchandise');
+        await price_quote(shopGoods, state);
+        return ECMD_TIME;
     }
 
     if (!await getdir('Talk to whom? (in what direction)', state)) {

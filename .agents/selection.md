@@ -223,11 +223,13 @@ coverage difference. Until admission, the cases do not enter synthetic scoring,
 the mismatch queue, or the dashboard's scored batch charts. The dashboard lists
 ready batches awaiting admission separately.
 
-Admit prepared batches in order at safe integration boundaries. Give admission
-priority when idle or blocked implementation workers lack independent work.
-An active, unblocked task already gives its worker work. For the other workers,
-count only unreserved work, not submitted deliveries. When every implementation
-worker has active work, prefer ready implementation deliveries.
+Integrate ready implementation deliveries before integrating or admitting another
+prepared batch. Within that backlog, integrate deliveries that unblock other tasks first,
+then the oldest ready delivery. When no dependency-ready implementation delivery
+remains, admit prepared batches in order at safe integration boundaries if idle
+or blocked implementation workers lack independent work. An active, unblocked
+task already gives its worker work. For the other workers, count only unreserved
+work, not submitted deliveries.
 
 After saving a new batch's baseline, ask idle or blocked implementation workers
 to reassess the updated queue at a clean task boundary. Do not wait for their

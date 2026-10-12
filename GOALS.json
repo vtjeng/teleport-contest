@@ -283535,16 +283535,23 @@
     {
       "id": "div-mon-to-stone-message-v51-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Repair the stone golem transformation message",
       "cFile": "mon.c",
       "sessions": [],
       "selectionReason": "A fresh replay traces the error to the implemented visible transformation branch of mon_to_stone.",
       "detail": "v51 wood-golem/cockatrice segment 0: frozen comparison loses the segment after an undefined an binding, so its first mismatch step is null and zero screens match. Diagnostic replay identifies the causal boundary after 155 captured screens. C mon.c:3748-3764 formats Now it is with an(pmname(...)) and a final period; js/mon.js lacks the existing an import and final period. Preserve whole existing function and callers; no new source completion credit.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "facb4c55fd68661ad074955488c6bd7a5f61d7a3",
+      "openStanding": {
+        "sha": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "mon_to_stone",
       "session": "synthetic/v51/v51-cockatrice-levitation-wood-golem-action-attempt2",
       "step": 155,
@@ -283561,6 +283568,948 @@
           "evaluationPath": "challenges/evaluations/baseline-v51-admission-20261012.json",
           "evaluationCommit": "1429fa3c893c4798ccb2117707b507dee4bacd33"
         }
+      },
+      "activeStanding": {
+        "sha": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-cockatrice-levitation-wood-golem-action-attempt2",
+          "session": "synthetic/v51/v51-cockatrice-levitation-wood-golem-action-attempt2",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-cockatrice-levitation-wood-golem-action-attempt2.session.json",
+          "recordingPath": "challenges/cases/v51/v51-cockatrice-levitation-wood-golem-action-attempt2.session.json",
+          "recordingSha256": "1b404d03053e63f1b21879980241c69fff9e5d3aaea9648a94c98daa2689b044",
+          "recipe": "challenges/cases/v51/v51-cockatrice-levitation-wood-golem-action-attempt2.recipe.session.json",
+          "recipeSha256": "75d7f2502d6966d6c96cf76070ba491e59569709e95357026009e09e23bb7714",
+          "replayInputSha256": "1710a507152ba0ad3f1e6006447f6e66b079ece7039fa32d15b06398caa405af",
+          "evaluationPath": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v51.json",
+          "evaluationCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+          "evaluationArtifact": "challenges/evaluations/accepted-dd7580b087b2f6d91b80159b92966379aa7eba3a-v51.json",
+          "evaluationUtc": "2026-10-12T08:42:56.045Z",
+          "remainingScreens": 247,
+          "recordedSteps": 247,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "an is not defined",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 247
+            },
+            "rng": {
+              "matched": 0,
+              "total": 2661
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 247
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: an is not defined",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: an is not defined",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-cockatrice-levitation-wood-golem-action-attempt2.json",
+            "result": {
+              "session": "synthetic/v51/v51-cockatrice-levitation-wood-golem-action-attempt2",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-cockatrice-levitation-wood-golem-action-attempt2",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingSha256": "1b404d03053e63f1b21879980241c69fff9e5d3aaea9648a94c98daa2689b044",
+              "evaluationPath": "challenges/evaluations/baseline-v51-admission-20261012.json",
+              "evaluationCommit": "1429fa3c893c4798ccb2117707b507dee4bacd33",
+              "remainingScreens": 247,
+              "recordedSteps": 247,
+              "status": "complete",
+              "summary": "The admitted replay reaches the visible golem transformation branch of mon.c:mon_to_stone after the wood golem attacks the cockatrice hero. The JS implementation transforms the monster through newcham, then throws ReferenceError because mon.js calls an() without importing it. After that binding is repaired, its follow-up message would still omit the period present in C's pline(\"Now it's %s.\", ...). Existing source evidence marks mon_to_stone ported, its JS body and callers are present, and its relevant source dependencies are already implemented; these are divergences in implemented behavior, not missing source behavior.",
+              "commit": "c464879ca8bcec43ae5cd3355abd0aa2f935bffe",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "mon.c",
+                "functions": [
+                  "mon_to_stone"
+                ],
+                "branch": "A golem is visible, newcham() successfully changes it to PM_STONE_GOLEM, and canseemon() allows the follow-up pline() to format an(pmname(mtmp->data, Mgender(mtmp))). JS reaches that message at mon.js:6237 but an is not bound in the module; its template string also omits the period in C's format string.",
+                "callers": [
+                  "mhitu.c:passiveum -> mon_to_stone (selected wood-golem/cockatrice path)",
+                  "mon.c:m_consume_obj -> mon_to_stone",
+                  "mhitm.c:mdisplacem -> mon_to_stone",
+                  "mhitm.c:do_stone_mon -> mon_to_stone",
+                  "uhitm.c:instapetrify -> mon_to_stone",
+                  "trap.c:minstapetrify -> mon_to_stone"
+                ],
+                "dependencies": [
+                  "mon.c:newcham",
+                  "vision.c:canseemon",
+                  "do_name.c:Monnam",
+                  "do_name.c:pmname",
+                  "mondata.c:gender",
+                  "objnam.c:an"
+                ]
+              },
+              "mismatch": {
+                "session": "synthetic/v51/v51-cockatrice-levitation-wood-golem-action-attempt2",
+                "remainingScreens": 247,
+                "kind": "stop",
+                "message": "Replay error: an is not defined",
+                "causalBoundary": "The diagnostic evidence identifies the causal runtime boundary after 155 captured screens; the frozen comparison reports step null because the thrown error discards the segment output."
+              },
+              "evidence": [
+                "Fresh replay: node scripts/scan-sessions.mjs --json --synthetic v51/v51-cockatrice-levitation-wood-golem-action-attempt2; stop stack is mon_to_stone at js/mon.js:6237, called by passiveum at js/mhitu.js:3433, then hitmu, mattacku, dochug and movemon.",
+                "C source nethack-c/upstream/src/mon.c:3748-3764 checks golem species, conditionally emits ‘<monster> solidifies...’, calls newcham(PM_STONE_GOLEM), then conditionally emits pline(\"Now it's %s.\", an(pmname(..., Mgender(...)))).",
+                "JS source js/mon.js:6221-6245 follows the same branch order and calls newcham before the follow-up message. Its objnam.js import list at js/mon.js:640-663 includes ansimpleoname but omits the existing exported an() helper, and its message template has no final period.",
+                "GOALS.json source inventory at /goals/240/functions/11 records mon_to_stone (mon.c:3748-3765) as ported. scripts/mon-stone-migration.test.mjs already exercises the production helper and verifies the golem changes to PM_STONE_GOLEM.",
+                "The selected admitted case manifest source trace identifies mhitu.c:passiveum -> mon.c:mon_to_stone -> newcham -> an(pmname) and documents the error after 155 captured screens. Queue identity uses the canonical v51 manifest digest and recording digest recorded above."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "file-port-topl-message-history-v48-20261012",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the whole TTY message, prompt, and history family and wire active callers",
+      "cFile": "topl.c",
+      "sessions": [
+        "synthetic/v48/v48-previous-message-history-ctrlp"
+      ],
+      "selectionReason": "History remains queued for source correction while the ready shop dependency integrates.",
+      "detail": "Failed candidate b3f99748 is preserved at integration-history-v48-failed-20261012 and hosted run38234021440. Whole-function completion is not accepted: resolve nine fixed-session losses, sixteen regression recordings and thirty-two test failures. Preserve source scope and submitted commits; treat bounded tty_nhgetch caller repairs as wiring.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "tty_doprev_message",
+          "line": 20,
+          "endLine": 121,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "redotoplin",
+          "line": 122,
+          "endLine": 144,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "show_topl",
+          "line": 145,
+          "endLine": 169,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "remember_topl",
+          "line": 170,
+          "endLine": 193,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "addtopl",
+          "line": 194,
+          "endLine": 204,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "more",
+          "line": 205,
+          "endLine": 250,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "update_topl",
+          "line": 251,
+          "endLine": 304,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "topl_putsym",
+          "line": 305,
+          "endLine": 346,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "putsyms",
+          "line": 347,
+          "endLine": 353,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "removetopl",
+          "line": 354,
+          "endLine": 364,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "tty_yn_function",
+          "line": 365,
+          "endLine": 558,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "msghistory_snapshot",
+          "line": 559,
+          "endLine": 604,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "free_msghistory_snapshot",
+          "line": 605,
+          "endLine": 636,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "tty_getmsghistory",
+          "line": 637,
+          "endLine": 676,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "tty_putmsghistory",
+          "line": 677,
+          "endLine": 731,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 20,
+        "to": 731
+      },
+      "syntheticProvenance": {
+        "synthetic/v48/v48-previous-message-history-ctrlp": {
+          "session": "synthetic/v48/v48-previous-message-history-ctrlp",
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-previous-message-history-ctrlp",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recordingPath": "challenges/cases/v48/v48-previous-message-history-ctrlp.session.json",
+          "recordingSha256": "2f6a36be26eccf74bcf3432d2e5d91e867102d62e6d2e1b661b269eea2f78477",
+          "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v48.json",
+          "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3"
+        }
+      }
+    },
+    {
+      "id": "div-shk-sellobj-v47-shop-drop-20261012",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port shop sales, accounting, quotes and keeper chat with active callers",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst"
+      ],
+      "selectionReason": "Integrate the corrected ready shop dependency while the failed history source port is isolated for correction.",
+      "detail": "Eleven whole source units including complete throw_gold self-split and swallowed branches. Caller-only drop, pickup, trap, kick, projectile and chat repairs receive no enclosing-function credit. Preserve the original submitted goal ID with file-port classification.",
+      "openedAt": "4ab2c8d4c192cd64fa1b1288f5cc83a17b2b6016",
+      "openStanding": {
+        "sha": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "sellobj",
+          "line": 3927,
+          "endLine": 4196,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3927,
+        "to": 4196
+      },
+      "requiredFunctions": [
+        {
+          "name": "dropped_container",
+          "line": 3064,
+          "endLine": 3084,
+          "declared": true,
+          "sourceFile": "shk.c",
+          "complete": true
+        },
+        {
+          "name": "special_stock",
+          "line": 3103,
+          "endLine": 3147,
+          "declared": true,
+          "sourceFile": "shk.c",
+          "complete": true
+        },
+        {
+          "name": "donate_gold",
+          "line": 3877,
+          "endLine": 3912,
+          "declared": true,
+          "sourceFile": "shk.c",
+          "complete": true
+        },
+        {
+          "name": "shop_object",
+          "line": 5386,
+          "endLine": 5405,
+          "declared": true,
+          "sourceFile": "shk.c",
+          "complete": true
+        },
+        {
+          "name": "price_quote",
+          "line": 5406,
+          "endLine": 5467,
+          "declared": true,
+          "sourceFile": "shk.c",
+          "complete": true
+        },
+        {
+          "name": "shk_embellish",
+          "line": 5468,
+          "endLine": 5520,
+          "declared": true,
+          "sourceFile": "shk.c",
+          "complete": true
+        },
+        {
+          "name": "shk_chat",
+          "line": 5521,
+          "endLine": 5605,
+          "declared": true,
+          "sourceFile": "shk.c",
+          "complete": true
+        },
+        {
+          "name": "is_izchak",
+          "line": 908,
+          "endLine": 929,
+          "declared": true,
+          "sourceFile": "shknam.c",
+          "complete": true
+        },
+        {
+          "name": "check_shop_obj",
+          "line": 1181,
+          "endLine": 1219,
+          "declared": true,
+          "sourceFile": "dothrow.c",
+          "complete": true
+        },
+        {
+          "name": "throw_gold",
+          "line": 2656,
+          "endLine": 2736,
+          "declared": true,
+          "sourceFile": "dothrow.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst": {
+          "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+          "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+          "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3"
+        }
+      },
+      "activeStanding": {
+        "sha": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+          "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+          "recipe": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "d2da34f57daaaafb38866d452b63d8dbd42ee7fa80471edb5d112ef3dd69aec0",
+          "replayInputSha256": "3de827a8175a5ea26f4f85ac8f14e5ade189ff44426f770b7a62909bdc2fe001",
+          "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+          "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+          "evaluationArtifact": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+          "evaluationUtc": "2026-10-12T09:18:08.866Z",
+          "remainingScreens": 3,
+          "recordedSteps": 51,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 51
+            },
+            "rng": {
+              "matched": 5396,
+              "total": 5406
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: a costly shop spot",
+            "step": 48
+          },
+          "step": 48,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: a costly shop spot",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.json",
+            "result": {
+              "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+              "remainingScreens": 3,
+              "recordedSteps": 51,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+              "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+              "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+              "status": "complete",
+              "commit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+                "session": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+                "recordingPath": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+                "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+                "recipe": "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json",
+                "recipeSha256": "d2da34f57daaaafb38866d452b63d8dbd42ee7fa80471edb5d112ef3dd69aec0",
+                "replayInputSha256": "3de827a8175a5ea26f4f85ac8f14e5ade189ff44426f770b7a62909bdc2fe001",
+                "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+                "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+                "evaluationArtifact": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json",
+                "evaluationUtc": "2026-10-12T09:18:08.866Z",
+                "remainingScreens": 3,
+                "recordedSteps": 51,
+                "previousScreensMatched": 48,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 48,
+                    "total": 51
+                  },
+                  "rng": {
+                    "matched": 5396,
+                    "total": 5406
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 51
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported drop: a costly shop spot",
+                  "step": 48
+                },
+                "step": 48,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported drop: a costly shop spot",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Dropping an object on a costly shop square stops before C shop selling. Port whole sellobj and its sale, container, credit, quote and keeper-chat helpers, plus is_izchak and projectile shop accounting. Wire the active drop, container, trap, kick, throw and chat callers in source order.",
+              "source": {
+                "file": "shk.c",
+                "branch": "A non-swallowed object lands on a costly shop square with its keeper present. C computes an offer and handles the deliberate-sale response; JavaScript currently rejects that path before placement.",
+                "functions": [
+                  "sellobj",
+                  "dropped_container",
+                  "special_stock",
+                  "donate_gold",
+                  "shop_object",
+                  "price_quote",
+                  "shk_embellish",
+                  "shk_chat",
+                  "shknam.c:is_izchak",
+                  "dothrow.c:check_shop_obj",
+                  "dothrow.c:throw_gold"
+                ],
+                "callers": [
+                  "do.c:dropz -> sellobj",
+                  "dothrow.c:throwit/thitmonst/gem_accept/breakobj -> check_shop_obj",
+                  "dothrow.c:throw_obj -> throw_gold -> sellobj",
+                  "pickup.c:in_container -> sellobj",
+                  "trap.c:cnv_trap_obj -> sellobj",
+                  "dokick.c:kick_object -> donate_gold",
+                  "sounds.c:dochat -> shop_object/price_quote; domonnoise -> shk_chat"
+                ],
+                "dependencies": []
+              },
+              "evidence": [
+                "Saved queue entry at challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json identifies the stop at segment 0, step 48, with 3 remaining screens; step 48 key `o` displays “You drop a dagger.--More--”, step 49 space displays the shopkeeper offer, and step 50 `y` records the sale.",
+                "The immutable recipe challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json independently sets up a wizard, creates a shop, wishes a +5 dagger, then drops it and accepts the sale.",
+                "C source src/do.c:dropx (786-797) extracts inventory, checks shipping and altar effects, then calls dropy(); dropz (806-843) places the object and calls sellobj(obj, u.ux, u.uy) for shop levels before stackobj(). The JavaScript preflight_dropx() at js/do.js:1897-2100 rejects costly_spot() at :1956 before ordinary placement; dropzAdmitted() records the shk.c:sellobj gap only inside its withImpact branch at :2205-2209.",
+                "C source src/shk.c:sellobj() (3927-4194) is a void shop-sale function with ordinary costly-spot eligibility, sale pricing, shopkeeper state, offer and confirmation branches, and payment/billing effects. The current js/shk.js has no sellobj() declaration; rg confirmed existing related helpers including costly_spot(), saleable(), set_cost(), record_price_quote(), and sellobj_state().",
+                "Complete source/caller audit: sellobj() spans shk.c:3927-4194 and has six direct C callsites across do.c:dropz, dothrow.c:check_shop_obj/throw_gold, pickup.c:in_container (two branches), and trap.c:cnv_trap_obj. check_shop_obj() at dothrow.c:1181-1214 has six active projectile callers at :1813, :1836, :2131, :2222, :2372, and :2545. special_stock() at shk.c:3103-3144 is the active used-return dependency. is_izchak() at shknam.c:908-924 is pure and has two active C callers: special_stock() and shk_chat(). shk_chat() at shk.c:5521-5601 is reached by sounds.c:dochat -> domonnoise() at sounds.c:735; JS domonnoise currently records note_unported there. The implementation claim includes both the chat source function and its actual JS dispatch wiring.",
+                "Current saved evaluation challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v47.json stops at step 48 with 48/51 screens and cursors and 5396/5406 RNG values. Complete source scope comprises 11 functions; caller-only edits receive no enclosing-function credit. The corrected throw_gold source includes count-split recovery and swallowed gold naming/transfer through existing source owners."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "sellobj",
+            "implementation": "js/shk.js",
+            "symbol": "sellobj",
+            "sourceReview": "Read shk.c:sellobj in full (3927-4195). Compared all shop/keeper/cost guards, offer and container accounting, unpaid/gold branches, keeper voice gates, prompt choices, RNG and mutation order. The six check_shop_obj call sites and do.c:dropz, pickup.c:in_container, trap.c:cnv_trap_obj callers are wired. No source callee result is replaced by note_unported.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropzAdmitted",
+                "source": "do.c:dropz -> sellobj"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "check_shop_obj",
+                "source": "dothrow.c:check_shop_obj -> sellobj"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_gold",
+                "source": "dothrow.c:throw_gold -> sellobj"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "in_container",
+                "source": "pickup.c:in_container -> sellobj"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "cnv_trap_obj",
+                "source": "trap.c:cnv_trap_obj -> sellobj"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk-sellobj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/shk.c/sell-large-box-contents-generated-shop.session.json",
+              "recordings/dothrow.c/throw-shop-object-probe.session.json",
+              "recordings/dothrow.c/throw-gold-generated-bookstore-probe.session.json",
+              "recordings/pickup.c/floor-shop-container-put-probe.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 50,
+                "source": "do.c:dropz -> shk.c:sellobj; sell confirmation and object sale"
+              }
+            ],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "dropped_container",
+            "implementation": "js/shk.js",
+            "symbol": "dropped_container",
+            "sourceReview": "Read shk.c:dropped_container in full (3064-3090), including recursion over nested contents and coin skipping; compared sale and no-sale no_charge updates and ordering.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "sellobj",
+                "source": "shk.c:sellobj -> dropped_container"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/shk.c/sell-large-box-contents-generated-shop.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "special_stock",
+            "implementation": "js/shk.js",
+            "symbol": "special_stock",
+            "sourceReview": "Read shk.c:special_stock in full (3103-3144). Compared the candle-shop/Candelabrum and Izchak dialogue conditions, mute/deaf branches, messages and TRUE/FALSE result.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "sellobj",
+                "source": "shk.c:sellobj no-value/no-gold branch -> special_stock"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/dothrow.c/throw-worthless-shop-object.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "donate_gold",
+            "implementation": "js/shk.js",
+            "symbol": "donate_gold",
+            "sourceReview": "Read shk.c:donate_gold in full (3877-3915). Compared debt/loan clearing, residual credit arithmetic, first-versus-later credit messages, and selling-dependent re-credit wording.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_gold",
+                "source": "dothrow.c:throw_gold places shop gold then calls shk.c:sellobj -> donate_gold"
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "really_kick_object",
+                "source": "dokick.c:kick_object -> shk.c:donate_gold for contained gold"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk-sellobj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throw-gold-generated-bookstore-probe.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "shop_object",
+            "implementation": "js/shk.js",
+            "symbol": "shop_object",
+            "sourceReview": "Read shk.c:shop_object in full (5386-5404). Confirmed current-shop/floor-pile selection order, shopkeeper state conditions, and that the helper reads state without RNG, output or mutation.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "dochat",
+                "source": "sounds.c:dochat -> shop_object"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/chat-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "price_quote",
+            "implementation": "js/shk.js",
+            "symbol": "price_quote",
+            "sourceReview": "Read shk.c:price_quote in full (5406-5466). Compared object iteration, contained goods handling, message construction, price recording and display order.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "dochat",
+                "source": "sounds.c:dochat -> shop_object -> price_quote"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/chat-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sounds.c/shk-price-quote-generated-bookstore.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "shk_embellish",
+            "implementation": "js/shk.js",
+            "symbol": "shk_embellish",
+            "sourceReview": "Read shk.c:shk_embellish in full (5468-5505). Compared the source phrase branches and rn2 draw order used to select embellishment.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "price_quote",
+                "source": "shk.c:price_quote -> shk_embellish"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/sounds.c/shk-price-quote-generated-bookstore.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "shk_chat",
+            "implementation": "js/shk.js",
+            "symbol": "shk_chat",
+            "sourceReview": "Read shk.c:shk_chat in full (5521-5604), comparing bill, debit, credit, keeper identity, hallucination, mute/deaf and speech branches.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:domonnoise MS_SELL -> shk_chat"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/sounds.c/shk-chat-bookstore-keeper-chat.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "is_izchak",
+            "implementation": "js/shknam.js",
+            "symbol": "is_izchak",
+            "sourceReview": "Read shknam.c:is_izchak in full (908-924). Compared hallucination override, shopkeeper/town gates, plus-prefixed names, and the exact keeper-name equality; the function reads state only.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "special_stock",
+                "source": "shk.c:special_stock -> shknam.c:is_izchak"
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "shk_chat",
+                "source": "shk.c:shk_chat -> shknam.c:is_izchak"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/shknam-is-izchak.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "shknam.c",
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "check_shop_obj",
+            "implementation": "js/dothrow.js",
+            "symbol": "check_shop_obj",
+            "sourceReview": "Read dothrow.c:check_shop_obj in full (1181-1214). Traced all six call sites; matched costly-room selection, broken/thrown/unpaid branches, contained-gold credit, and sale dispatch.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit -> check_shop_obj"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "dothrow.c:thitmonst -> check_shop_obj"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "gem_accept",
+                "source": "dothrow.c:gem_accept -> check_shop_obj"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "breakobj",
+                "source": "dothrow.c:breakobj -> check_shop_obj"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk-sellobj.test.mjs",
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throw-shop-object-probe.session.json",
+              "recordings/dothrow.c/throw-worthless-shop-object.session.json"
+            ],
+            "sourceFile": "dothrow.c",
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          },
+          {
+            "name": "throw_gold",
+            "implementation": "js/dothrow.js",
+            "symbol": "throw_gold",
+            "sourceReview": "Read dothrow.c:throw_gold in full (2655-2731). Compared self-targeted count-split recovery through mkobj.c:unsplitobj, swallowed-monster naming and digest predicate, gold transfer through mkobj.c:add_to_minv, floor-effect, range, throw/catch/ship, landing and shop-sale ordering. Focused dothrow tests exercise the self-split merge and both digester/non-digester swallowed inventory paths; the independent generated-bookstore gold recording covers the production throw/shop entry path.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_obj",
+                "source": "dothrow.c:throw_obj coin-class dispatch -> throw_gold"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throw-gold-generated-bookstore-probe.session.json"
+            ],
+            "sourceFile": "dothrow.c",
+            "synthetic": [],
+            "checkedAt": "de0c36ed1ae13e8404e48acc3c7d0fe1b6b442d3"
+          }
+        ],
+        "entryPointReview": "Source review traced the selected shk.c service functions and their production dispatch. Active paths include do.c:dropz -> sellobj; dothrow.c:throw_gold and throwit -> check_shop_obj/sellobj; pickup.c:in_container -> sellobj; shk.c:sellobj -> dropped_container/special_stock/donate_gold; sounds.c:dochat -> shop_object -> price_quote -> shk_embellish; and sounds.c:dochat -> domonnoise(MS_SELL) -> shk_chat. The throw, drop, put-in, quote and keeper-chat records below reach the cited callees. Caller-only integrations in dokick.c:kick_object -> donate_gold and trap.c:cnv_trap_obj -> sellobj are source-wired but are not claimed as separately replay-covered entry points or as whole enclosing-function ports.",
+        "entryPoints": [
+          {
+            "name": "drop goods and sell nested container contents",
+            "functions": [
+              "sellobj",
+              "dropped_container"
+            ],
+            "recordings": [
+              "recordings/shk.c/sell-large-box-contents-generated-shop.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v47",
+                "caseId": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 50,
+                "source": "do.c:dropz -> shk.c:sellobj"
+              }
+            ]
+          },
+          {
+            "name": "throw worthless object through shop landing",
+            "functions": [
+              {
+                "sourceFile": "dothrow.c",
+                "name": "check_shop_obj"
+              },
+              "sellobj",
+              "special_stock"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throw-worthless-shop-object.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "throw gold into generated shop",
+            "functions": [
+              {
+                "sourceFile": "dothrow.c",
+                "name": "throw_gold"
+              },
+              "sellobj",
+              "donate_gold"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throw-gold-generated-bookstore-probe.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "chat while standing on shop goods",
+            "functions": [
+              "shop_object",
+              "price_quote",
+              "shk_embellish"
+            ],
+            "recordings": [
+              "recordings/sounds.c/shk-price-quote-generated-bookstore.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "chat with shopkeeper",
+            "functions": [
+              "shk_chat",
+              {
+                "sourceFile": "shknam.c",
+                "name": "is_izchak"
+              }
+            ],
+            "recordings": [
+              "recordings/sounds.c/shk-chat-bookstore-keeper-chat.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "put inventory object in floor container on costly square",
+            "functions": [
+              "sellobj"
+            ],
+            "recordings": [
+              "recordings/pickup.c/floor-shop-container-put-probe.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
       }
     }
   ]

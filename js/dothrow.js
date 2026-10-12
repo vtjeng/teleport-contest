@@ -226,6 +226,7 @@ import { distmin, ordin, sgn, s_suffix } from './hacklib.js';
 import {
     addinv,
     addinv_before,
+    add_to_minv,
     delobj,
     freeinv,
     fully_identify_obj,
@@ -462,8 +463,11 @@ import { in_out_region, m_in_out_region } from './region.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import {
     costly_spot,
+    donate_gold,
     inside_shop,
+    is_unpaid,
     shop_keeper,
+    sellobj,
     stolen_value,
 } from './shk.js';
 import { erode_obj } from './trap_erode_obj.js';
@@ -1606,6 +1610,36 @@ export async function breaks(obj, x, y, rawEnv = {}) {
     return await breakobj(obj, x, y, false, false, { ...rawEnv, state });
 }
 
+// C ref: dothrow.c check_shop_obj() (1181-1214). Projectile landings either
+// charge theft at the source shop, transfer unpaid property, or offer a
+// costly-shop object for sale after it reaches the floor.
+async function check_shop_obj(obj, x, y, broken, state = game, rawEnv = {}) {
+    const room = state.u?.ushops?.[0] ?? 0;
+    const shkp = shop_keeper(room, state);
+    if (!shkp) return;
+
+    const costly = costly_spot(x, y, state);
+    if (broken || !costly || (in_rooms(x, y, SHOPBASE, state)[0] ?? 0) !== room) {
+        if (is_unpaid(obj)) {
+            await stolen_value(obj, state.u.ux, state.u.uy,
+                Boolean(shkp.mpeaceful), false, state);
+        }
+        if (broken) obj.no_charge = 1;
+    } else if (costly) {
+        const otherShop = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+        if (otherShop === room || otherShop === state.u.ushops0?.[0]) {
+            if (is_unpaid(obj)) {
+                const gold = Has_contents(obj) ? contained_gold(obj, true) : 0;
+                subfrombill(obj, shkp, state, rawEnv);
+                if (gold > 0)
+                    await donate_gold(gold, shkp, true, state, rawEnv);
+            } else if (x !== shkp.mx || y !== shkp.my) {
+                await sellobj(obj, x, y, state, rawEnv);
+            }
+        }
+    }
+}
+
 // C ref: dothrow.c release_camera_demon() (2457-2470). The release
 // gate precedes species selection and creation; feedback precedes peacefulness.
 export async function release_camera_demon(obj, x, y, env = {}) {
@@ -1730,7 +1764,7 @@ export async function breakobj(
 
     if (heroCaused && (fromInventory || obj.unpaid)) {
         if (state.u?.ushops?.[0] || obj.unpaid)
-            note_unported('dothrow.c check_shop_obj');
+            await check_shop_obj(obj, x, y, true, state, rawEnv);
     } else if (heroCaused && !obj.no_charge) {
         if (costly_spot(x, y, state)) {
             const room = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
@@ -2534,7 +2568,7 @@ async function gem_accept(mon, obj, state = game, rawEnv = {}) {
     if (accepted) {
         text += ' accepts your gift.';
         if (state.u.ushops?.[0] || obj.unpaid)
-            note_unported('dothrow.c check_shop_obj');
+            await check_shop_obj(obj, mon.mx, mon.my, true, state, env);
         mpickobj(mon, obj, {
             ...env,
             canSeeMonster: (target) => canseemon(target, state),
@@ -2857,7 +2891,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
             );
         }
         if (state.u.ushops?.[0] || obj.unpaid)
-            note_unported('dothrow.c check_shop_obj');
+            await check_shop_obj(obj, bx, by, false, state);
         mpickobj(mon, obj, {
             state,
             canSeeMonster: (target) => canseemon(target, state),
@@ -2878,7 +2912,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         impact_disturbs_zombies(obj, true, state);
     }
     if ((state.u.ushops?.[0] || obj.unpaid) && obj !== state.uball)
-        note_unported('dothrow.c check_shop_obj');
+        await check_shop_obj(obj, bx, by, false, state);
     stackobj(obj, { state, hooks: { extractExternalObject: remove_object } });
     if (obj === state.uball)
         await drop_ball(bx, by, state);
@@ -3023,7 +3057,8 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
                     );
                 }
                 if (state.u.ushops?.[0] || obj.unpaid)
-                    note_unported('dothrow.c check_shop_obj');
+                    await check_shop_obj(obj, mon.mx, mon.my, false, state,
+                        operationEnv);
                 mpickobj(mon, obj, operationEnv);
             } else {
                 await finish_quest(obj, operationEnv);
@@ -3103,7 +3138,8 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
             if (wasThrown && !thrownObject(state)) return 1;
             if (should_mulch_missile(obj, state, operationEnv)) {
                 if (state.u.ushops?.[0] || obj.unpaid)
-                    note_unported('dothrow.c check_shop_obj');
+                    await check_shop_obj(obj, state.gb.bhitpos.x,
+                        state.gb.bhitpos.y, true, state, operationEnv);
                 obfree(obj, null, operationEnv);
                 return 1;
             }
@@ -3275,8 +3311,10 @@ export function omon_adj(mon, obj, mon_notices, rawEnv = {}) {
 // C ref: dothrow.c throw_gold() (2655-2731). The coin arm of throw_obj(), and
 // the one arm `t` can reach that `f` cannot: C guards it on
 // `obj->oclass == COIN_CLASS && obj != uquiver`, and dofire() always throws
-// the quiver. The whole stack leaves the hand at once, so there is no volley
-// and no split, and throwit() is never involved.
+// the quiver. The selected stack leaves the hand at once, so there is no
+// volley or in-function split; a count-selected object can still arrive with
+// getobj()'s split context, which the self-throw branch reunites. throwit() is
+// never involved.
 //
 // The tail from flooreffects() down looks like throwit()'s and is not it.
 // throwit() also calls obj_no_longer_held(), container_impact_dmg(),
@@ -3285,20 +3323,9 @@ export function omon_adj(mon, obj, mon_notices, rawEnv = {}) {
 // check_shop_obj(), and calls newsym() unconditionally. The two tails are kept
 // separate because sharing one would draw the wrong screen.
 //
-// Four branches inside this function stop. Each is C's own call to a function
-// no part of this port has translated:
-//
-// - unsplitobj(), for a self-throw of a stack the prompt's count had split.
-//   C reaches getobj() with GETOBJ_ALLOWCNT and splits inside it; the current
-//   dothrow caller still stops before this recovery arm, so no split object
-//   reaches it through a recorded throw yet. The test is written out because
-//   C's comment calls it essential for gold, and it becomes live when that
-//   caller's remaining throw branches land.
-// - mondata.c digests(), for the message a swallowed hero sees. do_name.c
-//   mon_nam() names the engulfer and digests() decides whether the gold
-//   disappears into it or into its entrails. js/do.js drop() stops on the same
-//   pair, and js/dungeon.js surface() on digests() and enfolds().
-// - shk.c sellobj(), for gold that lands on a shop's floor.
+// This whole function is kept separate from throwit() because its gold path
+// has different self-throw recovery, swallowed-monster transfer, and shop
+// sale behavior.
 async function throw_gold(obj, state = game) {
     const u = state.u;
 
@@ -3309,13 +3336,23 @@ async function throw_gold(obj, state = game) {
         const objsplit = state.context.objsplit ?? {};
         if (obj.o_id === objsplit.parent_oid
             || obj.o_id === objsplit.child_oid) {
-            throw new UnsupportedThrowError('unsplitobj()');
+            // C discards unsplitobj()'s result; the existing mkobj.c owner
+            // reunites the count-selected gold with its original stack.
+            unsplitobj(obj, { state });
         }
         return ECMD_CANCEL;
     }
     await freeinv(obj, { state });
     if (u.uswallow) {
-        throw new UnsupportedThrowError('digests() for a swallowed hero');
+        const swallower = mon_nam(u.ustuck, state);
+        const target = digests(u.ustuck.data)
+            ? `${s_suffix(swallower)} entrails`
+            : swallower;
+        await ttyPline(`The gold disappears into ${target}.`, state);
+        // C transfers the freed gold to the engulfer's inventory. add_to_minv
+        // also handles merging into a compatible existing monster stack.
+        add_to_minv(u.ustuck, obj, { state });
+        return ECMD_TIME;
     }
 
     /* C's gb.bhitpos is a struct member and always exists; this port creates
@@ -3385,10 +3422,10 @@ async function throw_gold(obj, state = game) {
         );
     }
     place_object(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, { state });
-    /* `*u.ushops` is the first entry of the room list naming the shops the
-       hero stands in, as js/do.js dropx() reads it. */
+    /* `*u.ushops` is the first entry of the room list naming shops the hero
+       stands in; sellobj() owns all further shop checks. */
     if (u.ushops?.[0])
-        throw new UnsupportedThrowError('sellobj()');
+        await sellobj(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, state);
     /* stackobj() merges the landing gold into a compatible floor pile, which
        extracts the object it merged with; invent.c obj_extract_self() takes
        that operation from its caller, as throwit() above does. */

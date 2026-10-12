@@ -166,7 +166,7 @@ import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { obj_resists } from './bury.js';
 import {
-    addtobill, costly_adjacent, costly_gold, contained_gold, find_objowner, subfrombill,
+    addtobill, costly_adjacent, costly_gold, contained_gold, donate_gold, find_objowner, subfrombill,
     costly_spot, inside_shop, is_unpaid, picked_container, shop_keeper,
     stolen_value,
 } from './shk.js';
@@ -802,8 +802,10 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     if (await flooreffects(object(), end.x, end.y, 'fall', env)) return 1;
     if (costly) {
         if (object().unpaid) subfrombill(object(), keeper, state, env);
-        if (Has_contents(object()) && contained_gold(object(), true) > 0)
-            note_unported('shk.c donate_gold');
+        const containedGold = Has_contents(object())
+            ? contained_gold(object(), true) : 0;
+        if (containedGold > 0)
+            await donate_gold(containedGold, keeper, false, state, env);
     }
     place_object(object(), end.x, end.y, env);
     impact_disturbs_zombies(object(), true, state);

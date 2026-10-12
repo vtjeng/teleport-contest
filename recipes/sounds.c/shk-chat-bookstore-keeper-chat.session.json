@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700006,
+      "datetime": "20390927141723",
+      "nethackrc": "OPTIONS=name:ShopTalkProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00165\n  kh, h, #chat\nh",
+      "_comment": "Independent generated D:5 bookstore probe. It clears two stock squares by buying their items on credit, then chats west to the keeper and exercises shk_chat's outstanding-bill response."
+    }
+  ]
+}

@@ -356,7 +356,7 @@ import { delete_levelfile } from './files.js';
 import { cloneIsaacContext, createCoreRandom, d, rn1, rn2, rnd, rnz } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
-import { costly_spot, sellobj_state } from './shk.js';
+import { sellobj, sellobj_state } from './shk.js';
 import { container_impact_dmg, impact_drop, ship_object } from './dokick.js';
 import { set_levltyp } from './terrain.js';
 import {
@@ -1947,13 +1947,8 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('non-ordinary terrain');
     // A down gate is handled by dropx() before the ordinary floor tail.
     const stway = stairway_at(x, y, state);
-    // sellobj() handles billing when an object lands on a shop square. Its
-    // early returns (shk.c:3938-3944) skip the billing body when the hero is
-    // not in *u.ushops, the shopkeeper is absent, or the square is not a
-    // costly_spot. When costly_spot() is false the call is a no-op, so the
-    // drop can proceed through the ordinary place_object/stackobj/newsym tail.
-    if (costly_spot(x, y, state))
-        throw new UnsupportedDropError('a costly shop spot');
+    // shk.c:sellobj() owns its shop checks after floor placement, including
+    // the costly-spot test this preflight used to reject.
     // The remaining square effects are reached from dropz()'s flooreffects().
     // do.c:dropx ships only at a down gate; flooreffects adds a trap arm
     // for boulders or the hero standing at a seen pit/shaft edge. Other
@@ -2196,11 +2191,12 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
             // effects and before stacking the dropped object.
             await drop_ball(normalized.state.u.ux, normalized.state.u.uy,
                 normalized.state);
-        } else if (normalized.state.level?.flags?.has_shop) {
-            // shk.c:sellobj() is void; shop billing is deliberately not
-            // approximated here.
-            note_unported('shk.c sellobj');
         }
+    }
+    if (obj !== normalized.state.uball
+        && normalized.state.u.ushops?.[0]) {
+        await sellobj(obj, normalized.state.u.ux, normalized.state.u.uy,
+            normalized.state, normalized);
     }
     stackobj(obj, normalized);
     if (heroIsBlind(normalized.state) && Levitation(normalized.state)) {

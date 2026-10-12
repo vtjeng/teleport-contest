@@ -128,3 +128,39 @@ triage decisions or fix references.
 
 - Friction: `git merge --trailer` failed again with exit 129, repeating the Prep13 mistake already recorded here.
 - Outcome: merge used `--no-commit`, then `git commit --trailer`; the report-only conflict retained the verified current diagnosis.
+
+### 2026-10-12 — saved acceptance and divergence evidence terminology
+
+- Context: inventory candidate `dd7580b087b2f6d91b80159b92966379aa7eba3a`, hosted run `38224853910`.
+- Friction: importing the 51 saved synthetic evaluations and recording acceptance took 151 seconds (receipt `run-GsJnzk`: 08:45:17.630Z–08:47:48.801Z). No games were replayed by this handoff. The coordinator initially queried the nonexistent `checkpoint.yml`; the repository uses `checkpoint-trial.yml`.
+- Outcome: the exact run was watched once, imported and accepted. Check the repository workflow filename before discovery.
+
+- Context: C pyrolisk callback delivery `ba6dad22346f0b8b7cba2fbfe509abe87ad3141f`.
+- Friction: `scopeEvidence()` reuses the port-evidence schema for divergence fixes, which led the worker to treat function entries as new whole-function completion claims and stop packaging a completed repair.
+- Outcome: the packet identifies each affected function and explicitly limits its source review to the callback repair. It retains `kind: divergence-fix`; the coordinator records no new whole-source completion for it. No blocked recipe was fabricated and no validation rule changed.
+
+### 2026-10-12 — bounded delivery carried unrelated branch ancestors
+
+- Context: B message repair `0e0d1aa16d7b2de793f249201cf3ed73ed6a02e7`, before hosted validation.
+- Friction: the coordinator inspected the delivery's base-to-head diff, then merged its full branch without inspecting all commits missing from Main. The staged list contained 17 paths, including unrelated pending fixes, but the combined shell command committed before the coordinator reviewed that list.
+- Outcome: the unpushed merge is preserved at `recovery/mon-to-stone-merge-20261012`. Main returned to the prior commit; only the explicitly named accidental-merge paths were restored. Cherry-picking the submitted source commit produced the intended two-file repair. No validation or public push used the accidental merge.
+- Follow-up: inspect both missing ancestry and the actual staged paths before committing a worker integration. Keep the stage inspection and commit as separate operations.
+
+### 2026-10-12 — failed history candidate isolated to free ready dependency work
+
+- Context: TTY history candidate `b3f99748`, hosted run `38234021440`.
+- Friction: the combined gate found 32 failed tests, 16 failed regression
+  recordings, and nine fixed sessions with screen/cursor losses. Keeping the
+  unaccepted source on Main would prevent an independent ready shop delivery
+  from receiving a clean combined gate while A corrected history.
+- Evidence: the failed summary and stage logs are preserved under
+  `.cache/history-failed-checkpoint-38234021440/`; all 792838 fixed RNG values
+  still match. The earlier report import also needed its historical parent
+  before the exact report patch could pass delivery verification.
+- Reason: `.agents/loop.md` requires correcting regressions and integrating
+  independent ready deliveries without waiting for an unfinished goal.
+- Outcome: preserved the complete failed candidate at
+  `integration-history-v48-failed-20261012` and its remote checkpoint branch,
+  restored only its 43 named changed paths to the accepted game plus the
+  approved priority, and requeued history without accepted completion credit.
+  A owns the correction; Root is integrating shop to release C's caller.

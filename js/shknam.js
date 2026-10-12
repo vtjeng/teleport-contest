@@ -25,11 +25,12 @@ import {
     ismnum,
 } from './const.js';
 import { depth, ledger_no, on_level } from './dungeon.js';
+import { in_town } from './hack.js';
 import { noit_mon_nam } from './do_name.js';
 import { set_tin_variety, vegetarian } from './eat.js';
 import { make_engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { distmin } from './hacklib.js';
+import { distmin, letter } from './hacklib.js';
 import {
     makemon,
     mkmonmoney,
@@ -134,6 +135,23 @@ export function shkname_is_pname(shopkeeper) {
 export function Shknam(shopkeeper, state = game, env = {}) {
     const name = shkname(shopkeeper, state, env);
     return name ? name[0].toUpperCase() + name.slice(1) : name;
+}
+
+// C ref: shknam.c is_izchak() (908-924). Shopkeeper names carry a leading
+// marker when they are not ordinary personal names; compare only after the
+// same one-character skip that C performs.
+export function is_izchak(shopkeeper, override_hallucination, state = game) {
+    const hallucination = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    const hallucinating = Boolean(hallucination?.intrinsic
+        && !(resistance?.intrinsic || resistance?.extrinsic));
+    if (hallucinating && !override_hallucination) return false;
+    if (!shopkeeper.isshk) return false;
+    if (!in_town(shopkeeper.mx, shopkeeper.my, state)) return false;
+
+    let name = shopkeeper.mextra.eshk.shknam;
+    if (!letter(name[0] ?? '')) name = name.slice(1);
+    return name === 'Izchak';
 }
 
 // C ref: shknam.c:19. The pseudo-class the health food store's iprobs[] names
