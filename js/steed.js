@@ -730,9 +730,7 @@ export async function kick_steed(state = game) {
         await m_unleash(steed, true, { state });
     if (!steed.mtame || u.ulevel + steed.mtame < rnd(MAXULEV / 2 + 5)) {
         newsym(steed.mx, steed.my, state);
-        // The discarded thrown-dismount caller remains outside this port;
-        // the existing dismount owner refuses that reason.
-        note_unported('steed.c dismount_steed');
+        await dismount_steed(DISMOUNT_THROWN, state);
         return;
     }
     await ttyPline(`${Monnam(steed, state)} gallops!`, state);
@@ -874,16 +872,15 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
     u.usteed = null;
     const ufly = Flying(state);
     const ulev = Levitation(state);
-    const verb = u_locomotion('fall', state);
+    let verb = u_locomotion('fall', state);
     u.usteed = mtmp;
 
     /* Check the reason for dismounting */
     const otmp = which_armor(mtmp, W_SADDLE);
     switch (reason) {
     case DISMOUNT_THROWN:
-        throw new UnsupportedSteedError(
-            `dismount_steed() reason ${reason}, a fall from the saddle`,
-        );
+        verb = 'are thrown';
+        // FALLTHROUGH: C steed.c:602-613 shares the fall landing and injury.
     case DISMOUNT_KNOCKED:
     case DISMOUNT_FELL:
         // uhitm.c:mhitm_knockback() supplies the preferred direction. The

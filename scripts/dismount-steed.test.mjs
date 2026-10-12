@@ -323,9 +323,8 @@ test('a hero with nowhere to stand refuses the dismount', async () => {
 test('remaining unported dismount reasons keep their explicit source boundary',
     async () => {
     // These reasons still have separate callers and behavior outside the
-    // implemented DISMOUNT_POLY path.
+    // implemented fall and DISMOUNT_POLY paths.
     const reasons = [
-        [DISMOUNT_THROWN, /reason 2, a fall from the saddle/u],
         [DISMOUNT_ENGULFED, /DISMOUNT_ENGULFED/u],
         [DISMOUNT_BONES, /DISMOUNT_BONES/u],
     ];
@@ -338,6 +337,34 @@ test('remaining unported dismount reasons keep their explicit source boundary',
             String(pattern),
         );
     }
+});
+
+test('DISMOUNT_THROWN uses the C thrown-fall message and shared landing path',
+    async () => {
+    // steed.c:602-613 sets the source verb then falls through to the same
+    // landing and accident processing as DISMOUNT_FELL.
+    const state = await mounted();
+    const steed = state.u.usteed;
+    const oldx = state.u.ux;
+    const oldy = state.u.uy;
+    state.u.uprops[FLYING].intrinsic = FROMOUTSIDE;
+    isolate(state, [DIR_E, DIR_W]);
+    quiet(state);
+    // Twelve spaces cover the fixture's follow-up pager prompts without
+    // changing the source branch under test.
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await dismount_steed(DISMOUNT_THROWN, state);
+
+    assert.equal(state.u.usteed, null);
+    assert.equal(state.u.uy, oldy);
+    // The isolated map leaves only the east and west adjacent landing squares.
+    assert.equal(Math.abs(state.u.ux - oldx), 1);
+    assert.equal(m_at(oldx, oldy, state), steed);
+    assert.match(toplines(), /You are thrown off of/u);
+    // Flying skips the source riding-accident damage and wounded-leg calls.
+    assert.equal(state.u.uprops[WOUNDED_LEGS].intrinsic, 0);
 });
 
 test('DISMOUNT_POLY reports the transformation and releases the steed',

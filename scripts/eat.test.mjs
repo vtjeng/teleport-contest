@@ -1240,8 +1240,14 @@ test('eatmdone and cpostfx preserve buffer, redraw, and blocking-map order', () 
     assert.doesNotMatch(EAT_JS, /note_unported\('eat\.c eatmdone'\)/u);
     assert.match(EAT_C, /case PM_SMALL_MIMIC:[\s\S]*?newsym\(u\.ux, u\.uy\);\s*curs_on_u\(\);[\s\S]*?display_nhwindow\(WIN_MAP, TRUE\);/u,
         'cpostfx flushes the changed mimic glyph before its blocking map display');
+    assert.match(EAT_C, /case PM_SMALL_MIMIC:[\s\S]*?if \(u\.usteed\)\s*dismount_steed\(DISMOUNT_FELL\);/u,
+        'cpostfx dismounts a rider before applying the gold-pile mimic state');
     assert.match(EAT_JS, /case PM_SMALL_MIMIC:[\s\S]*?newsym\(state\.u\.ux, state\.u\.uy\);\s*await curs_on_u\(state\);\s*await displayPendingTtyMessageWindow\(state\);/u,
         'the JS adapter waits for the pending TTY line after flushing the map');
+    assert.match(EAT_JS, /if \(state\.u\.usteed\)\s*\{\s*const \{ dismount_steed \} = await import\('\.\/steed\.js'\);\s*await dismount_steed\(DISMOUNT_FELL, state\);\s*\}/u,
+        'the completed mimic-corpse branch awaits the source dismount caller');
+    assert.doesNotMatch(EAT_JS, /note_unported\('steed\.c dismount_steed'\)/u,
+        'cpostfx no longer skips the source dismount call');
     assert.doesNotMatch(EAT_JS, /note_unported\('windows\.c display_nhwindow'\)/u,
         'cpostfx no longer skips its source blocking display call');
 });

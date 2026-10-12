@@ -28,6 +28,7 @@ import {
     CONFLICT,
     COST_BITE,
     DIED,
+    DISMOUNT_FELL,
     CXN_NORMAL,
     CXN_PFX_THE,
     CXN_SINGULAR,
@@ -2739,8 +2740,10 @@ async function cpostfx(pm, state, env = {}) {
                 `You can't resist the temptation to mimic ${tempshape}.`,
                 state,
             );
-            if (state.u.usteed)
-                note_unported('steed.c dismount_steed');
+            if (state.u.usteed) {
+                const { dismount_steed } = await import('./steed.js');
+                await dismount_steed(DISMOUNT_FELL, state);
+            }
             nomul(-tmp, state);
             state.multi_reason = 'pretending to be a pile of gold';
             const subject = an(
