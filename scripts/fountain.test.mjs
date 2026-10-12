@@ -34,6 +34,7 @@ import {
     LEVITATION,
     MM_NOMSG,
     POOL,
+    POLYMORPH_CONTROL,
     RLOC_MSG,
     ROOM,
     SICK,
@@ -826,23 +827,51 @@ test('drinksink scalding water respects fire resistance without a damage draw', 
     ]);
 });
 
-test('drinksink preserves the unported polymorph and creates its stench cloud', async () => {
+test('drinksink invokes polyself after toxic waste and creates its stench cloud', async () => {
     for (const unchanging of [false, true]) {
         await startedGame();
         game.u.uprops[UNCHANGING].intrinsic = unchanging ? FROMOUTSIDE : 0;
+        game.moves = 0; // Keep polyself's unrelated post-turn encumbrance callback inert.
+        // The uncontrolled branch chooses a random species without opening
+        // the interactive controlled-polymorph name prompt.
+        game.u.uprops[POLYMORPH_CONTROL].intrinsic = 0;
+        game.u.uprops[POLYMORPH_CONTROL].extrinsic = 0;
+        if (!unchanging) {
+            // polyself's normal messages use ttyPline and wait at pagers.
+            for (let index = 0; index < 30; ++index) game.nhDisplay.pushKey(32);
+        }
         const messages = [];
+        let fatePending = true;
+        const draws = [];
         await drinksink(game, {
             message: (line) => messages.push(line),
-            random: { rn2(bound) {
-                assert.equal(bound, 20);
-                return 10; // Toxic-waste fate calls random polyself if allowed.
-            } },
+            encumberMessage: () => {},
+            random: {
+                d, rn1, rnd, rne,
+                rn2(bound) {
+                    draws.push(bound);
+                    if (fatePending) {
+                        fatePending = false;
+                        assert.equal(bound, 20);
+                        return 10; // Toxic-waste fate calls random polyself if allowed.
+                    }
+                    return rn2(bound);
+                },
+            },
         });
-        assert.deepEqual(messages, unchanging
+        assert.deepEqual(messages.slice(0, unchanging ? 1 : 2), unchanging
             ? ['This water contains toxic wastes!']
             : ['This water contains toxic wastes!', 'You undergo a freakish metamorphosis!']);
-        assert.equal(game.unported?.has('polyself.c polyself') ?? false, !unchanging);
+        assert.deepEqual(draws, [20],
+            'the sink fate uses the injected RNG before polyself uses the game RNG');
+        assert.equal(game.unported?.has('polyself.c polyself') ?? false, false);
     }
+    const jsSource = await readFile(
+        new URL('../js/fountain.js', import.meta.url), 'utf8');
+    assert.match(jsSource,
+        /case 10:\s+await message\(`This \$\{hliquid\('water', liquidEnv\)\} contains toxic wastes!`, state\);\s+if \(!\(state\.u\.uprops\[UNCHANGING\]/u);
+    assert.match(jsSource,
+        /await message\('You undergo a freakish metamorphosis!', state\);\s+\/\/ fountain\.c discards polyself\(\)'s return; its state and RNG\s+\/\/ effects still happen here in the original call order\.\s+await polyself\(POLY_NOFLAGS, state, env\);/u);
     await startedGame();
     const cSource = await readFile(
         new URL('../nethack-c/upstream/src/fountain.c', import.meta.url), 'utf8');
