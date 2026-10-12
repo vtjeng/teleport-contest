@@ -284524,7 +284524,7 @@
     {
       "id": "port-o-init-choose-disco-sort-v48-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port discovery sorting, class selection and all chooser callers",
       "cFile": "o_init.c",
       "sessions": [
@@ -284538,8 +284538,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "583ca5765128db23e1d43883d8faad7b0dbcdef6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "choose_disco_sort",
@@ -284887,7 +284890,7 @@
                 "source": "menu-prefixed backslash known command -> dodiscovered -> choose_disco_sort(1) -> discovery output"
               }
             ],
-            "checkedAt": "4bd1310678a770b54fb40f165bffe40c913de5bb"
+            "checkedAt": "583ca5765128db23e1d43883d8faad7b0dbcdef6"
           },
           {
             "name": "optfn_sortdiscoveries",
@@ -284910,7 +284913,7 @@
             ],
             "sourceFile": "options.c",
             "synthetic": [],
-            "checkedAt": "4bd1310678a770b54fb40f165bffe40c913de5bb"
+            "checkedAt": "583ca5765128db23e1d43883d8faad7b0dbcdef6"
           },
           {
             "name": "doclassdisco",
@@ -284932,7 +284935,7 @@
             ],
             "sourceFile": "o_init.c",
             "synthetic": [],
-            "checkedAt": "4bd1310678a770b54fb40f165bffe40c913de5bb"
+            "checkedAt": "583ca5765128db23e1d43883d8faad7b0dbcdef6"
           },
           {
             "name": "discovered_cmp",
@@ -284953,7 +284956,7 @@
             "recordings": [],
             "sourceFile": "o_init.c",
             "synthetic": [],
-            "checkedAt": "4bd1310678a770b54fb40f165bffe40c913de5bb"
+            "checkedAt": "583ca5765128db23e1d43883d8faad7b0dbcdef6"
           },
           {
             "name": "sortloot_descr",
@@ -284976,7 +284979,7 @@
             ],
             "sourceFile": "o_init.c",
             "synthetic": [],
-            "checkedAt": "4bd1310678a770b54fb40f165bffe40c913de5bb"
+            "checkedAt": "583ca5765128db23e1d43883d8faad7b0dbcdef6"
           },
           {
             "name": "oclass_to_name",
@@ -284997,9 +285000,75 @@
             "recordings": [],
             "sourceFile": "o_init.c",
             "synthetic": [],
-            "checkedAt": "4bd1310678a770b54fb40f165bffe40c913de5bb"
+            "checkedAt": "583ca5765128db23e1d43883d8faad7b0dbcdef6"
+          }
+        ],
+        "entryPointReview": "The recorder build has three active choose_disco_sort callers. Mode 1 is wired from the menu-prefixed backslash command through dodiscovered and has admitted v48 screen-range evidence. Mode 0 is wired from the optionsfull menu row through optfn_sortdiscoveries do_handler and has a new matching recording. Mode 2 is wired from the #knownclass extended command through doclassdisco and has matching alphabetic and sortloot recordings. doclassdisco reuses existing source ports for artifact discovery, class-symbol lookup, object naming, and loot classification. The wizard-only artifact dump and impossible invalid-class reporter remain explicit note_unported void-helper gaps. dodiscovered remains partial for its non-default global sorted-output branch (disco_output_sorted), which is outside this task.",
+        "entryPoints": [
+          {
+            "name": "known discovery menu prefix (mode 1)",
+            "functions": [
+              "choose_disco_sort"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v48",
+                "caseId": "v48-discovery-sort-menu-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 3,
+                "source": "cmd.c menu prefix -> dodiscovered -> choose_disco_sort(1)"
+              }
+            ]
+          },
+          {
+            "name": "interactive sortdiscoveries option (mode 0)",
+            "functions": [
+              {
+                "sourceFile": "options.c",
+                "name": "optfn_sortdiscoveries"
+              },
+              "choose_disco_sort"
+            ],
+            "recordings": [
+              "recordings/options.c/sortdiscoveries-handler-menu-correction.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#knownclass command with menu prefix (mode 2, alphabetical)",
+            "functions": [
+              "doclassdisco",
+              "choose_disco_sort",
+              "discovered_cmp",
+              "oclass_to_name"
+            ],
+            "recordings": [
+              "recordings/o_init.c/knownclass-menu-sort-correction.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#knownclass command with menu prefix (mode 2, sortloot)",
+            "functions": [
+              "doclassdisco",
+              "choose_disco_sort",
+              "sortloot_descr",
+              "oclass_to_name"
+            ],
+            "recordings": [
+              "recordings/o_init.c/knownclass-sortloot-correction.session.json"
+            ],
+            "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "583ca5765128db23e1d43883d8faad7b0dbcdef6",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

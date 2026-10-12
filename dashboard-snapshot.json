@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T11:02:13.873Z",
+  "capturedAt": "2026-10-12T11:30:07.562Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -94307,6 +94307,158 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Preparing v53: seven source-traced first failures; continuing magical-trap and Earth digging missions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-history-correction-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T11:02:20.983Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-shop-16c6a1107",
+        "type": "published",
+        "at": "2026-10-12T11:04:35.345Z",
+        "task": "A2-investigation-v47-costly-shop-drop-spot-20261012",
+        "commit": "16c6a11073728882f1eebf8f153188abb60aa990"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fbfe1b901816f72b4f2306b0959fc5b71ef0f331",
+        "type": "ready",
+        "at": "2026-10-12T11:05:01.906Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "delivery": "fbfe1b901816f72b4f2306b0959fc5b71ef0f331"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-minstapetrify-fbfe1b901",
+        "type": "received",
+        "at": "2026-10-12T11:05:49.963Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "delivery": "fbfe1b901816f72b4f2306b0959fc5b71ef0f331"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-combat-pronoun-1eca93cb",
+        "type": "feedback",
+        "at": "2026-10-12T11:06:01.225Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "1eca93cb1068ff481271b35f49de5497934ef095"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v50-combat-pronoun-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T11:15:06.395Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v50-pronoun-correction-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T11:15:14.368Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-discoveries-583ca5765",
+        "type": "integrating",
+        "at": "2026-10-12T11:15:27.726Z",
+        "task": "C-investigation-v48-discovery-sort-menu-20261012",
+        "integration": "583ca5765128db23e1d43883d8faad7b0dbcdef6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2f28012992fbf8e03c8d8caaed756bcb7fef76f7",
+        "type": "ready",
+        "at": "2026-10-12T11:15:52.584Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "2f28012992fbf8e03c8d8caaed756bcb7fef76f7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d94761f769647534cefb88c0b2d3c31b1637b2de",
+        "type": "ready",
+        "at": "2026-10-12T11:16:09.756Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "delivery": "d94761f769647534cefb88c0b2d3c31b1637b2de"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-combat-pronoun-2f2801299",
+        "type": "received",
+        "at": "2026-10-12T11:16:56.995Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "delivery": "2f28012992fbf8e03c8d8caaed756bcb7fef76f7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-history-d94761f7",
+        "type": "received",
+        "at": "2026-10-12T11:16:59.293Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "delivery": "d94761f769647534cefb88c0b2d3c31b1637b2de"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4458b5ccea78f8f2c6e58468a554d04586a84616",
+        "type": "ready",
+        "at": "2026-10-12T11:20:49.416Z",
+        "task": "Prep17",
+        "delivery": "4458b5ccea78f8f2c6e58468a554d04586a84616"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v48-discovery-sort-menu-20261012-583ca5765128db23e1d43883d8faad7b0dbcdef6-validated",
+        "type": "validated",
+        "at": "2026-10-12T11:23:13.917Z",
+        "task": "C-investigation-v48-discovery-sort-menu-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep18-v54-20261012",
+        "type": "assign",
+        "at": "2026-10-12T11:24:09.816Z",
+        "task": "Prep18",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v54"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v48-discovery-sort-menu-20261012-583ca5765128db23e1d43883d8faad7b0dbcdef6-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T11:27:05.542Z",
+        "task": "C-investigation-v48-discovery-sort-menu-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-knownclass-after-discovery-sort-20261012",
+        "type": "resume",
+        "at": "2026-10-12T11:29:22.121Z",
+        "task": "B-investigation-v48-knownclass-attempt3-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-active-knownclass-after-sort-20261012",
+        "type": "turn",
+        "at": "2026-10-12T11:29:32.525Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resumed B’s parked knownclass case after its source dependency landed; checking the selected replay against accepted Main before deciding whether code work remains."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-prep17-4458b5cc",
+        "type": "received",
+        "at": "2026-10-12T11:29:36.428Z",
+        "task": "Prep17",
+        "delivery": "4458b5ccea78f8f2c6e58468a554d04586a84616"
       }
     ]
   },
@@ -94335,17 +94487,6 @@
         "unblocks": 0
       },
       {
-        "task": "C-investigation-v48-discovery-sort-menu-20261012",
-        "worker": "C",
-        "goal": "port-o-init-choose-disco-sort-v48-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "ff4afe97965f6d71faa65c9b37763d4b31514460",
-        "since": "2026-10-12T06:10:32.228Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
         "worker": "B",
         "goal": "file-port-monmove-monflee-v50-gas-cloud-20261012",
@@ -94369,17 +94510,6 @@
           "B-investigation-v48-name-floor-object-self-20261012",
           "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
-        "worker": "C",
-        "goal": "port-mhitm-mattackm-v50-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "1eca93cb1068ff481271b35f49de5497934ef095",
-        "since": "2026-10-12T07:38:43.008Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -94485,7 +94615,7 @@
         "batch": "v52",
         "since": "2026-10-12T09:15:41.430Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
@@ -94496,6 +94626,53 @@
         "delivery": "9b3e234772bf497eaa67f16ab0a753705afab563",
         "since": "2026-10-12T09:18:20.739Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "worker": "C",
+        "goal": "port-trap-minstapetrify-v51-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "fbfe1b901816f72b4f2306b0959fc5b71ef0f331",
+        "since": "2026-10-12T11:05:01.906Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "worker": "C",
+        "goal": "port-mhitm-mattackm-v50-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2f28012992fbf8e03c8d8caaed756bcb7fef76f7",
+        "since": "2026-10-12T11:15:52.584Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "worker": "A2",
+        "goal": "file-port-topl-message-history-v48-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d94761f769647534cefb88c0b2d3c31b1637b2de",
+        "since": "2026-10-12T11:16:09.756Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "Prep17",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "4458b5ccea78f8f2c6e58468a554d04586a84616",
+        "batch": "v53",
+        "since": "2026-10-12T11:20:49.416Z",
+        "blockedBy": [
+          "Prep16"
+        ],
         "unblocks": 0
       }
     ],
@@ -94889,17 +95066,6 @@
         "reason": "Parked after committing corrected source findings e546f3c39. The current queue boundary at step 48 is behind the do.c:dropz costly-shop preflight refusal. A whole shk.c:sellobj port is not independently bounded: direct dothrow.c:check_shop_obj ownership and its six throwit callers must be included, and return-valued special_stock -> shknam.c:is_izchak must be ported with its active shk_chat caller. No game code was edited."
       },
       {
-        "task": "B-investigation-v48-knownclass-attempt3-20261012",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-12T05:04:52.628Z",
-        "blockedBy": [],
-        "reason": "Fresh replay confirms #knownclass reaches unported o_init.c:doclassdisco, but its whole-function port, choose_disco_sort dependency, and required js/cmd.js:doextcmd wiring overlap C-investigation-v48-discovery-sort-menu-20261012 reservations. Partial source finding is committed as 9dcfe610f. Resume after C delivery acceptance or explicit ownership resolution, then refresh the accepted baseline and replay before defining remaining scope."
-      },
-      {
         "task": "C-investigation-v48-name-floor-object-attempt5-20261012",
         "worker": "C",
         "goal": null,
@@ -94968,8 +95134,8 @@
     ]
   },
   "development": {
-    "executionCommit": "566101b4d0986208811a9ace557ff6aab76f3cff",
-    "measuredAt": "2026-10-12T10:59:10.943Z",
+    "executionCommit": "583ca5765128db23e1d43883d8faad7b0dbcdef6",
+    "measuredAt": "2026-10-12T11:20:15.050Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
