@@ -149,5 +149,33 @@
       "line": null
     },
     "note": "The earlier first mismatch was the missing Wiz-goal loader. Accepted Main now registers that program, and this case reaches quest dialogue; the former diagnosis is retained as history but is no longer the active frontier."
+  },
+  "implementationResult": {
+    "sourceCommit": "e17decedd",
+    "source": "js/quest.js ports quest.c:chat_with_nemesis, chat_with_guardian and quest_chat for role nemesis and guardian dialogue; the existing sounds.js production #chat caller reaches both arms.",
+    "nemesisPrefix": {
+      "batch": "v53",
+      "caseId": "v53-quest-nemesis-nearby-action5",
+      "segment": 0,
+      "fromStep": 207,
+      "throughStep": 209,
+      "match": "exact C/JavaScript RNG, screen, and cursor parity through step 209; first later divergence at step 210 is mcastu.c:mcast_stun_you and outside this source task."
+    },
+    "guardianRecordings": [
+      {
+        "recipe": "recipes/quest.c/guardian-wizard-chat-a2-v53.session.json",
+        "recording": "recordings/quest.c/guardian-wizard-chat-a2-v53.session.json",
+        "role": "Wizard",
+        "guardian": "Apprentice",
+        "result": "diff-fresh exact C/JavaScript parity"
+      },
+      {
+        "recipe": "recipes/quest.c/guardian-valkyrie-chat-a2-v53.session.json",
+        "recording": "recordings/quest.c/guardian-valkyrie-chat-a2-v53.session.json",
+        "role": "Valkyrie",
+        "guardian": "Warrior",
+        "result": "diff-fresh exact C/JavaScript parity"
+      }
+    ]
   }
 }

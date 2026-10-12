@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 64291435,
+      "datetime": "20460417152344",
+      "nethackrc": "OPTIONS=name:QuestGuardianValkyrieA2,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\npeaceful Warrior\n#chat\nj"
+    }
+  ],
+  "comment": "Cheap role variation for guardian chat runtime evidence: Valkyrie role's source-defined quest guardian is a Warrior (role.c), created peacefully adjacent by #wizgenesis. The C recording verifies the guardian placement/direction and exercises the active #chat caller path."
+}

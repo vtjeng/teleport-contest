@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 64291429,
+      "datetime": "20460417152343",
+      "nethackrc": "OPTIONS=name:QuestGuardianWizardA2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\npeaceful Apprentice\n#chat\nj"
+    }
+  ],
+  "comment": "Independent C runtime witness recipe for quest.c:chat_with_guardian() through quest.c:quest_chat(), sounds.c:domonnoise(), and the #chat dispatch. Wizard role supplies its source-defined Apprentice guardian (role.c), created peacefully adjacent by #wizgenesis; direction is confirmed from the C recording before claiming coverage."
+}
