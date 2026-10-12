@@ -430,3 +430,10 @@ triage decisions or fix references.
 - Submission required the registered branch name. A preserved both refs,
   temporarily restored that name to submit the scoped correction, then
   restored the original branch without rewriting commits.
+
+### 2026-10-12 — bounded caller registration
+
+- Context: dismount task `C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012`, delivery `b990a633`, during required goal registration.
+- Friction and evidence: `register-task-goal` rejected caller metadata with `--required-functions requires a C or Lua source port`; `.cache/dismount-current-registration.json` retains the retry result.
+- Reason: normal acceptance requires the assigned goal to be registered from the received worker context, without selecting its session again.
+- Outcome: `d787c2776` restricts the port-completion option to source ports. The original immutable caller context is preserved, actual registration succeeded, and all 25 existing goal tests passed outside the sandbox. The sandbox test process exited without inner diagnostics; it did not establish a source failure. Hosted checkpoint `38306945771` passed at `d2e601976`.
