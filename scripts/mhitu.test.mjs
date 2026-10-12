@@ -4267,14 +4267,14 @@ test('passiveum runs the source acid and physical counterattack arms',
     add_to_minv(bug, sword, { state });
     bug.mw = sword;
     const acid = meleeEnv(state, [1], {
-        rn2: (bound) => bound === 2 ? 0 : bound === 6 ? 0 : 1,
+        rn2: (bound) => bound === 2 || bound === 30 || bound === 6 ? 0 : 1,
     });
     assert.equal(await mattacku(bug, acid.env), false);
     assert.equal(bug.mhp, 9, 'acid damage reaches assess_dmg');
     assert.ok(acid.lines.includes('The grid bug is splashed by your acid!'));
     assert.ok(acid.lines.includes("The grid bug's short sword corrodes!"));
-    assert.deepEqual(acid.bounds.filter((bound) => bound.startsWith('rn2(')).slice(-3),
-        ['rn2(2)', 'rn2(30)', 'rn2(6)']);
+    assert.deepEqual(acid.bounds.filter((bound) => bound.startsWith('rn2(')).slice(-4),
+        ['rn2(2)', 'rn2(30)', 'rn2(5)', 'rn2(6)']);
     assert.equal(sword.oeroded2, 1);
     assert.ok(acid.lines.some(line => line.includes('short sword corrodes!')));
 

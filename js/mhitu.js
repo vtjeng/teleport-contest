@@ -22,6 +22,7 @@ import {
     DETECT_MONSTERS,
     DISPLACED,
     DIED,
+    ERODE_CORRODE,
     FIRE_RES,
     FEMALE,
     G_EXTINCT,
@@ -282,6 +283,7 @@ import {
     enfolds,
     mhitm_adtyping,
     mhitm_knockback,
+    erode_armor,
 } from './uhitm.js';
 import { Cold_resistance, Fire_resistance, drain_item } from './zap.js';
 import { cansee, couldsee, m_canseeu, vision_recalc } from './vision.js';
@@ -3428,7 +3430,8 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
         } else {
             tmp = 0;
         }
-        if (!random.rn2(30)) note_unported('uhitm.c erode_armor');
+        if (!random.rn2(30))
+            await erode_armor(mtmp, ERODE_CORRODE, state, { ...env, random });
         if (!random.rn2(6))
             await acid_damage(mtmp.mw, { ...env, state, random });
         return assess_dmg(mtmp, tmp, state, env);

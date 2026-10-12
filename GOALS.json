@@ -293149,7 +293149,7 @@
     {
       "id": "C-v52-steed-dismount-callers-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dismount_steed from steed.c",
       "cFile": "steed.c",
       "sessions": [
@@ -293160,10 +293160,282 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "d2e601976b8269a21162d2b195e79063e5438e24",
       "delivered": null,
       "function": "dismount_steed",
-      "session": "synthetic/v52/v52-mounted-pony-kick-throw-action-attempt9"
+      "session": "synthetic/v52/v52-mounted-pony-kick-throw-action-attempt9",
+      "closeStanding": {
+        "sha": "d2e601976b8269a21162d2b195e79063e5438e24",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "adf2eb895f6ea37e9edcc25a154cddf8ff97b791",
+        "target": "synthetic/v52/v52-mounted-pony-kick-throw-action-attempt9",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/d2e601976b8269a21162d2b195e79063e5438e24/run-hosted-uN7Vmi/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "kick_steed",
+            "implementation": "js/steed.js",
+            "symbol": "kick_steed",
+            "sourceReview": "Bounded repair of the source branch at steed.c:402-450: after tameness is reduced and the resistance condition fails, C redraws the steed, calls dismount_steed(DISMOUNT_THROWN), then returns. JavaScript now awaits that same call before return. This entry records only the caller repair and does not claim whole-function completion.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "dokick",
+                "source": "dokick.c:dokick:1272-1275 accepts the kick and calls kick_steed"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply whip action calls kick_steed while mounted"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/steed-kick.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-mounted-pony-kick-throw-action-attempt9",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 268,
+                "source": "dokick.c:dokick -> steed.c:kick_steed:402-450 -> steed.c:dismount_steed(DISMOUNT_THROWN):602-613 -> steed.c:landing_spot"
+              }
+            ]
+          },
+          {
+            "name": "dismount_steed",
+            "implementation": "js/steed.js",
+            "symbol": "dismount_steed",
+            "sourceReview": "Bounded repair of the DISMOUNT_THROWN arm at steed.c:602-613: set the source verb to \"are thrown\" and fall through to the shared landing, riding-accident and leg-injury handling. JavaScript now preserves the existing landing and state order and continues through that branch. No other reason and no whole-function completion is claimed.",
+            "callers": [
+              {
+                "path": "js/steed.js",
+                "symbol": "kick_steed",
+                "source": "steed.c:kick_steed:443 calls dismount_steed(DISMOUNT_THROWN)"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "cpostfx",
+                "source": "eat.c:cpostfx:1204-1206 calls dismount_steed(DISMOUNT_FELL) for a mounted mimic corpse"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dismount-steed.test.mjs",
+              "scripts/steed-kick.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-mounted-pony-kick-throw-action-attempt9",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 268,
+                "source": "dokick.c:dokick -> steed.c:kick_steed:402-450 -> steed.c:dismount_steed(DISMOUNT_THROWN):602-613 -> steed.c:landing_spot"
+              },
+              {
+                "batch": "v52",
+                "caseId": "v52-mounted-mimic-corpse-fall-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "eat.c:done_eating:562-565 -> eat.c:cpostfx:1192-1206 -> steed.c:dismount_steed(DISMOUNT_FELL) -> steed.c:landing_spot"
+              }
+            ]
+          },
+          {
+            "name": "cpostfx",
+            "sourceFile": "eat.c",
+            "implementation": "js/eat.js",
+            "symbol": "cpostfx",
+            "sourceReview": "Bounded repair of eat.c:cpostfx:1192-1207: after the mimic message, C calls dismount_steed(DISMOUNT_FELL) when u.usteed is set before continuing the transformation effects. JavaScript now awaits the existing dismount owner at that point. This record does not claim whole cpostfx completion.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "done_eating",
+                "source": "eat.c:done_eating:562-565 dispatches completely consumed corpses to cpostfx"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "consume_tin",
+                "source": "eat.c:consume_tin:1610-1614 dispatches opened monster tins to cpostfx"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "Finish_digestion",
+                "source": "eat.c:Finish_digestion:3961-3965 dispatches swallowed monster digestion to cpostfx"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-mounted-mimic-corpse-fall-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "eat.c:done_eating:562-565 -> eat.c:cpostfx:1192-1206 -> steed.c:dismount_steed(DISMOUNT_FELL) -> steed.c:landing_spot"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This bounded task repairs two active caller paths only. The pony recording exercises the interactive dokick.c:dokick -> steed.c:kick_steed resistance-failure branch and the DISMOUNT_THROWN arm through landing_spot. The mimic recording exercises done_eating -> cpostfx PM_SMALL_MIMIC with a mounted hero -> DISMOUNT_FELL through landing_spot. cpostfx also has tin and deferred Finish_digestion callers, listed above; those callers are not separate entry-point claims in this repair. Other dismount reasons and other dismount callers remain outside this task. No whole-function completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Mounted hero kicks a pony until the source resistance condition throws the rider",
+            "functions": [
+              "kick_steed",
+              "dismount_steed"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-mounted-pony-kick-throw-action-attempt9",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 268,
+                "source": "dokick.c:dokick -> steed.c:kick_steed:402-450 -> steed.c:dismount_steed(DISMOUNT_THROWN):602-613 -> steed.c:landing_spot"
+              }
+            ]
+          },
+          {
+            "name": "Mounted hero finishes eating a small mimic corpse",
+            "functions": [
+              {
+                "sourceFile": "eat.c",
+                "name": "cpostfx"
+              },
+              "dismount_steed"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-mounted-mimic-corpse-fall-action-attempt2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "eat.c:done_eating:562-565 -> eat.c:cpostfx:1192-1206 -> steed.c:dismount_steed(DISMOUNT_FELL) -> steed.c:landing_spot"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fix-mhitu-passiveum-acid-corrosion-caller-v52-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement passiveum from undefined",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "synthetic/v52/v52-acid-passive-yellowdragon-action-attempt3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "28410c7d3faaf6a81ced119bcc94e8c91d7fed36",
+      "delivered": null,
+      "function": "passiveum",
+      "session": "synthetic/v52/v52-acid-passive-yellowdragon-action-attempt3",
+      "closeStanding": {
+        "sha": "28410c7d3faaf6a81ced119bcc94e8c91d7fed36",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "d2e601976b8269a21162d2b195e79063e5438e24",
+        "target": "synthetic/v52/v52-acid-passive-yellowdragon-action-attempt3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/28410c7d3faaf6a81ced119bcc94e8c91d7fed36/run-hosted-5NrMM0/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "passiveum",
+            "implementation": "js/mhitu.js",
+            "symbol": "passiveum",
+            "sourceReview": "This is a bounded repair of the AD_ACID armor-corrosion call, not a claim that all of mhitu.c:passiveum is newly complete. In upstream mhitu.c:passiveum (2435-2615), the source performs rn2(30), then calls erode_armor(mtmp, ERODE_CORRODE) when zero, then performs the independent rn2(6) weapon-damage gate. The JS branch now follows that exact order and passes the same state and RNG owner into the existing callee. I read the complete uhitm.c:erode_armor (126-183) against js/uhitm.js:erode_armor (727+): its five worn-slot arms, retries for absent or unchanged head/shield/gloves/boots, torso fallthrough, and stopping behavior match. Its current source completion is verified as a dependency check; it receives no new completion credit here.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku calls passiveum at 1262"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/trap-erode-obj.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-acid-passive-yellowdragon-action-attempt3",
+                "segment": 0,
+                "fromStep": 478,
+                "throughStep": 478,
+                "source": "mhitu.c:passiveum AD_ACID -> uhitm.c:erode_armor"
+              }
+            ],
+            "sourceFile": "mhitu.c"
+          }
+        ],
+        "entryPointReview": "The production entry is mhitu.c:mattacku -> passiveum, exercised at the selected v52 recording's yellow-dragon acid passive at segment 0, step 478. The matching replay verifies the corrosion call and the subsequent weapon gate in production order. The existing erode_armor helper is separately checked by its source-pinned focused test; no new whole-function completion is claimed for it.",
+        "entryPoints": [
+          {
+            "name": "Monster attack triggers polymorphed hero acid passive",
+            "functions": [
+              "passiveum"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-acid-passive-yellowdragon-action-attempt3",
+                "segment": 0,
+                "fromStep": 478,
+                "throughStep": 478,
+                "source": "mhitu.c:mattacku -> mhitu.c:passiveum AD_ACID -> uhitm.c:erode_armor"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "C-v52-emergency-disrobe-dropx-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement emergency_disrobe from trap.c",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v52/v52-emergency-drowning-disrobe-action-attempt2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "emergency_disrobe",
+      "session": "synthetic/v52/v52-emergency-drowning-disrobe-action-attempt2"
     }
   ]
 }

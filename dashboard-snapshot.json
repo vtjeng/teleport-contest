@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T20:49:18.696Z",
+  "capturedAt": "2026-10-12T21:06:26.403Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -98023,6 +98023,129 @@
         "type": "accepted",
         "at": "2026-10-12T20:45:12.331Z",
         "task": "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep23-v59-decision-wait-20261012-final",
+        "type": "turn",
+        "at": "2026-10-12T20:49:26.651Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep23 v59 evidence verified; awaiting Main smaller-batch decision for six scored failures, one supplemental animation case and 25 controls."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012-3606565839d30c300a518b4929a846c991687a36",
+        "type": "published",
+        "at": "2026-10-12T20:49:36.580Z",
+        "task": "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012",
+        "commit": "3606565839d30c300a518b4929a846c991687a36"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-idle-after-seetrap-accepted-adf2eb89-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:50:04.270Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent unreserved case is available in the saved queue. Remaining sessions are owned by A2/B or covered by my ready deliveries; the v48 short-version case remains held. Waiting for Main to refresh the queue and integrate ready work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep23-v59-approved-submission-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:51:04.579Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Main approved the smaller v59 batch: six scored first failures, one supplemental animation defect and 25 controls; preparing immutable submission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrate-dismount-d2e601976b8269a21162d2b195e79063e5438e24",
+        "type": "integrating",
+        "at": "2026-10-12T20:51:10.855Z",
+        "task": "C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012",
+        "integration": "d2e601976b8269a21162d2b195e79063e5438e24"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c637fe5a61d56b8de72d7bc303222f1ec05142db",
+        "type": "ready",
+        "at": "2026-10-12T20:51:26.895Z",
+        "task": "Prep23",
+        "delivery": "c637fe5a61d56b8de72d7bc303222f1ec05142db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep23-v59-ready-idle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:51:47.253Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep23 v59 submitted: six scored failures, one supplemental animation defect and 25 controls. Main owns integration; next batch assignment pending."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-prep23-c637fe5a-20261012",
+        "type": "received",
+        "at": "2026-10-12T20:52:09.998Z",
+        "task": "Prep23",
+        "delivery": "c637fe5a61d56b8de72d7bc303222f1ec05142db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012-d2e601976b8269a21162d2b195e79063e5438e24-validated",
+        "type": "validated",
+        "at": "2026-10-12T20:57:26.263Z",
+        "task": "C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012-d2e601976b8269a21162d2b195e79063e5438e24-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T20:57:48.076Z",
+        "task": "C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-idle-after-dismount-accepted-d2e6-20261012",
+        "type": "turn",
+        "at": "2026-10-12T20:58:21.820Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted dismount Main is merged. The saved queue predates it, so I’m waiting for Main’s refreshed queue before selecting work; v48 short-version remains held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012-9bce5ea9f6104147535b61623d5120c065cc94ed",
+        "type": "published",
+        "at": "2026-10-12T20:58:38.751Z",
+        "task": "C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012",
+        "commit": "9bce5ea9f6104147535b61623d5120c065cc94ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrate-acid-28410c7d3faaf6a81ced119bcc94e8c91d7fed36",
+        "type": "integrating",
+        "at": "2026-10-12T20:59:23.807Z",
+        "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012",
+        "integration": "28410c7d3faaf6a81ced119bcc94e8c91d7fed36"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012-28410c7d3faaf6a81ced119bcc94e8c91d7fed36-validated",
+        "type": "validated",
+        "at": "2026-10-12T21:05:17.489Z",
+        "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012-28410c7d3faaf6a81ced119bcc94e8c91d7fed36-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T21:05:40.474Z",
+        "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012"
       }
     ]
   },
@@ -98083,28 +98206,6 @@
           "Prep19",
           "Prep20"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v52-mounted-pony-kick-throw-attempt9-20261012",
-        "worker": "C",
-        "goal": "C-v52-steed-dismount-callers-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b990a633252ec72e94821afeda13bafa84b4b798",
-        "since": "2026-10-12T19:06:18.769Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v52-acid-passive-yellowdragon-action-attempt3-20261012",
-        "worker": "B",
-        "goal": "fix-mhitu-passiveum-acid-corrosion-caller-v52-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "5704c1a8b90e8ea382bd46838cf2e3df7e950c30",
-        "since": "2026-10-12T19:15:27.694Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -98177,6 +98278,24 @@
         "delivery": "30e6e3c07c06f039188e465174c1b5a349c1dbc8",
         "since": "2026-10-12T20:14:08.627Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep23",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "c637fe5a61d56b8de72d7bc303222f1ec05142db",
+        "batch": "v59",
+        "since": "2026-10-12T20:51:26.895Z",
+        "blockedBy": [
+          "Prep18",
+          "Prep19",
+          "Prep20",
+          "Prep21",
+          "Prep22"
+        ],
         "unblocks": 0
       }
     ],
@@ -98661,8 +98780,8 @@
     ]
   },
   "development": {
-    "executionCommit": "adf2eb895f6ea37e9edcc25a154cddf8ff97b791",
-    "measuredAt": "2026-10-12T20:41:29.403Z",
+    "executionCommit": "28410c7d3faaf6a81ced119bcc94e8c91d7fed36",
+    "measuredAt": "2026-10-12T21:04:30.290Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

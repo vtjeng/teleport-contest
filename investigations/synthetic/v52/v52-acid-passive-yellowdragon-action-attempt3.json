@@ -1,0 +1,60 @@
+{
+  "session": "synthetic/v52/v52-acid-passive-yellowdragon-action-attempt3",
+  "corpus": "synthetic",
+  "batch": "v52",
+  "caseId": "v52-acid-passive-yellowdragon-action-attempt3",
+  "manifestPath": "challenges/manifests/v52.json",
+  "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+  "recordingSha256": "b1d7df3281f17772931ca7db82c869ea0c0acfae83e2065ad7b9c676290ba182",
+  "evaluationPath": "challenges/evaluations/hosted-38292091033-1-v52.json",
+  "evaluationCommit": "fcfb7afe71226851b75665b753b0c2c73ceb7af4",
+  "remainingScreens": 200,
+  "recordedSteps": 679,
+  "status": "complete",
+  "commit": "0f0345aecbe0ffe68217b1b558818389c9e83edb",
+  "mismatch": {
+    "kind": "rng",
+    "corpus": "synthetic",
+    "session": "synthetic/v52/v52-acid-passive-yellowdragon-action-attempt3",
+    "sourceFile": "uhitm.c",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v52/v52-acid-passive-yellowdragon-action-attempt3"
+    ],
+    "remainingScreens": 200,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 478,
+    "caseId": "v52-acid-passive-yellowdragon-action-attempt3",
+    "batch": "v52",
+    "recordingPath": "challenges/cases/v52/v52-acid-passive-yellowdragon-action-attempt3.session.json",
+    "rng": {
+      "index": 7354,
+      "cEntry": "rn2(5)=4",
+      "cCaller": "erode_armor(uhitm.c:137)",
+      "jsEntry": "rn2(6)=0",
+      "stepIndex": 478
+    }
+  },
+  "summary": "During a monster-to-hero passive acid attack, mhitu.c:passiveum reaches its rn2(30) corrosion gate and calls uhitm.c:erode_armor when it returns zero. The JavaScript passiveum path records note_unported instead, so it skips the helper’s eleven rn2(5) armor-slot selections in this step and advances to the later rn2(6) acid weapon-damage gate. Repair the existing passiveum caller branch to invoke the already-implemented erode_armor with the same state and random owner.",
+  "source": {
+    "file": "mhitu.c",
+    "branch": "The AD_ACID arm of passiveum after the saved hero-form AT_NONE selection: a failed rn2(2) splash check sets tmp to zero; otherwise the damage/resistance path runs, then !rn2(30) calls erode_armor before the independent !rn2(6) acid_damage weapon check.",
+    "functions": [
+      "passiveum"
+    ],
+    "callers": [
+      "mhitu.c:mattacku -> hitmu -> passiveum; js/mhitu.js:hitmu passes the saved pre-rehumanization monster-form snapshot to passiveum.",
+      "The selected recording reaches passiveum on the monster turn; in segment 0 step 478 its source log is rn2(30)=0, eleven rn2(5) calls from uhitm.c:erode_armor, then rn2(6) from mhitu.c:passiveum."
+    ],
+    "dependencies": [
+      "uhitm.c:erode_armor is already implemented in js/uhitm.js and its void result is discarded by C; this correction wires the exact mhitu.c caller rather than claiming erode_armor or whole passiveum completion."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved v52 queue provenance: canonical manifest challenges/manifests/v52.json SHA-256 38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e; recording SHA-256 b1d7df3281f17772931ca7db82c869ea0c0acfae83e2065ad7b9c676290ba182; evaluation challenges/evaluations/hosted-38292091033-1-v52.json at fcfb7afe71226851b75665b753b0c2c73ceb7af4.",
+    "At zero-based segment 0 step 478, C records passiveum rn2(30)=0, then eleven rn2(5) calls from erode_armor (first is rn2(5)=4), then rn2(6)=5 at mhitu.c:2479; JavaScript replaces erode_armor with note_unported and immediately reaches its rn2(6)=0. The first screen difference appears at boundary 480.",
+    "C mhitu.c:passiveum (2435-2615) contains the source-order AD_ACID branch; C uhitm.c:erode_armor (126-183) loops over worn armor slots until the source stop rule succeeds. js/mhitu.js:passiveum has the direct placeholder at line 3431, while js/uhitm.js:erode_armor already implements the helper body."
+  ]
+}
