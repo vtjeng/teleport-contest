@@ -1,0 +1,80 @@
+{
+  "session": "synthetic/v53/v53-quest-underlevel-leader-action3",
+  "corpus": "synthetic",
+  "batch": "v53",
+  "caseId": "v53-quest-underlevel-leader-action3",
+  "manifestPath": "challenges/manifests/v53.json",
+  "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+  "recordingSha256": "8eceb7d87f96f347a179710ae882a0b2af93178567993e8960fba3a5511b1ade",
+  "evaluationPath": "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json",
+  "evaluationCommit": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
+  "status": "complete",
+  "commit": "5db9063c8a9da92ee1fa01b6b2555eaf9a07eae3",
+  "summary": "At segment 0 step 95, the first meeting with the peaceful quest leader prints the first-time greeting but omits C’s under-level rejection, Wisdom exercise and expulsion. The JS branch calls unsupported and stops; C quest.c:chat_with_leader continues through badlevel, exercise(A_WIS, TRUE) and expulsion(FALSE).",
+  "source": {
+    "file": "quest.c",
+    "branch": "In chat_with_leader, after the first-meeting or repeat pager and after confirming the hero remains on qstart_level, when not_capable() is true (u.ulevel < MIN_QUEST_LEVEL), C emits qt_pager(\"badlevel\"), exercises Wisdom upward, then expels to the parent dungeon with expulsion(FALSE). JS currently refuses this exact branch after the matching leader_first pager.",
+    "functions": [
+      "chat_with_leader"
+    ],
+    "callers": [
+      "cmd.c:dotalk -> sounds.c:dotalk/dochat -> sounds.c:domonnoise; MS_LEADER dispatches quest.c:quest_chat, whose leader ID branch calls chat_with_leader. JavaScript cmd.js -> sounds.js:dotalk/dochat/domonnoise -> quest_chat -> chat_with_leader.",
+      "monmove.c:dochug calls quest_talk for a waiting adjacent quest monster; quest.c:quest_talk -> leader_speaks -> chat_with_leader. JavaScript monmove.js -> quest_talk -> leader_speaks -> chat_with_leader. This is a second active caller; this recording exercises the explicit #chat/quest_chat path."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json at 26748832bec4c8d55150cd96f4f870355f5d2bbd records 95/153 screens, 4724/7082 RNG calls and 95/153 cursors for this case; the admitted manifest locates the first mismatch at step 95.",
+    "The immutable input sequence uses #chat at steps 90-93, answers the direction at step 94, and the C recording emits the first-meeting greeting at step 94 and the under-level rejection at step 95. The matching steps before 95 precede the missing exercise RNG and parent-dungeon expulsion.",
+    "Upstream quest.c:321-336 establishes met_leader/not_ready, returns if no longer on qstart_level, then the not_capable branch calls qt_pager(\"badlevel\"), exercise(A_WIS, TRUE), and expulsion(FALSE) in that order. JS quest.js:337-350 has the same level check and predicate, but ops.unsupported replaces all three source calls.",
+    "All three callees already have active JS implementations: questConversation().pager dispatches to qt_pager, exercise(A_WIS, true, state, ops.random) is used by the adjacent badalign and worthy branches, and expulsion(false, ops) calls the existing schedule_goto path. Their C return values are void/discarded; the task introduces no new state owner or return-valued dependency."
+  ],
+  "remainingScreens": 58,
+  "recordedSteps": 153,
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v53",
+    "caseId": "v53-quest-underlevel-leader-action3",
+    "session": "synthetic/v53/v53-quest-underlevel-leader-action3",
+    "manifestPath": "challenges/manifests/v53.json",
+    "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+    "recordingPath": "challenges/cases/v53/v53-quest-underlevel-leader-action3.session.json",
+    "recordingSha256": "8eceb7d87f96f347a179710ae882a0b2af93178567993e8960fba3a5511b1ade",
+    "evaluationPath": "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json",
+    "evaluationCommit": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
+    "remainingScreens": 58,
+    "recordedSteps": 153,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 95,
+        "total": 153
+      },
+      "rng": {
+        "matched": 4724,
+        "total": 7082
+      },
+      "cursors": {
+        "matched": 95,
+        "total": 153
+      }
+    },
+    "firstMismatch": {
+      "segmentIndex": 0,
+      "stepIndex": 95,
+      "key": " ",
+      "sourceFile": "quest.c",
+      "function": "chat_with_leader",
+      "cScreenMessage": "Alas, wizard, you have not yet shown your proficiency as a worthy quest member.",
+      "jsBehavior": "unsupported(a quest leader turning away an under-level hero) after leader_first"
+    },
+    "step": 95,
+    "kind": "screen",
+    "sourceFile": "quest.c",
+    "function": "chat_with_leader",
+    "message": "C continues after not_capable with the badlevel pager, Wisdom exercise and expulsion; JavaScript stops at the unsupported placeholder."
+  }
+}
