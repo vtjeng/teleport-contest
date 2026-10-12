@@ -332,3 +332,16 @@ triage decisions or fix references.
   while deliberately using Main's tree. Ancestry alone therefore does not
   prove those unaccepted source bodies are present. Preserve and combine the
   intact delivery tree with accepted Main before recording new evidence.
+
+### 2026-10-12 — verified prefixes and Rustm conflict
+
+- Automatic approval review initially rejected demon-pet acceptance because
+  its synthetic case diverges after the cited helper range. Root verified the
+  exact candidate through step 157, cited the existing rule that later
+  divergences do not invalidate matching ranges, and retried the same normal
+  acceptance command. Approval succeeded; the later combat mismatch remains
+  visible in the saved evaluation.
+- Rustm's patch conflicted with older combat context on Main. Root imported
+  only the submitted helper and erosion import, retained Main's existing
+  message import, and excluded unchanged worker-parent mswingsm context.
+  The combined mhitm and uhitm focused checks passed.

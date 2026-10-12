@@ -288026,6 +288026,375 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mhitm-rustm-v51-20261012",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete weapon erosion from defender attack types",
+      "cFile": "mhitm.c",
+      "sessions": [
+        "synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2"
+      ],
+      "selectionReason": "The v51 rust-monster case first diverges at step220 because mhitm.c:rustm is skipped by its two physical weapon callers. Complete the whole21-line function and wire both monster-versus-hero and monster-versus-monster callers in uhitm.c:mhitm_ad_phys. Preserve corrosion/rust/fire priority and mandatory rn2(1) draw; saved independent recording covers the second caller.",
+      "detail": "",
+      "openedAt": "751096388c0941d09c9780aee1bf81c62537d16e",
+      "openStanding": {
+        "sha": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rustm",
+          "line": 1260,
+          "endLine": 1282,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1260,
+        "to": 1282
+      },
+      "syntheticProvenance": {
+        "synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2": {
+          "session": "synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json",
+          "recordingSha256": "178a6bcf2464a2f34a44275f63eb3c99c84d2be019ca978f4252b5836cc9b30c",
+          "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v51.json",
+          "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf"
+        }
+      },
+      "activeStanding": {
+        "sha": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
+          "session": "synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json",
+          "recordingPath": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json",
+          "recordingSha256": "178a6bcf2464a2f34a44275f63eb3c99c84d2be019ca978f4252b5836cc9b30c",
+          "recipe": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.recipe.session.json",
+          "recipeSha256": "a836d1175351d74ca1463edace069be457dd22207263543b02f7a57ac576c725",
+          "replayInputSha256": "b69d0d20092b6fdf91187ab6a3ad24eda3959beaeab190fd5685e2f90069f9d7",
+          "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v51.json",
+          "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+          "evaluationArtifact": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v51.json",
+          "evaluationUtc": "2026-10-12T14:28:46.786Z",
+          "remainingScreens": 61,
+          "recordedSteps": 291,
+          "previousScreensMatched": 230,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 230,
+              "total": 291
+            },
+            "rng": {
+              "matched": 3002,
+              "total": 3174
+            },
+            "cursors": {
+              "matched": 289,
+              "total": 291
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 220,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 220,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 47,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2999,
+              "cEntry": "rn2(1)=0",
+              "cCaller": "rustm(mhitm.c:1278)",
+              "jsEntry": "rn2(3)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 220,
+                "key": "."
+              },
+              "stepIndex": 220
+            },
+            "cursor": {
+              "index": 220,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 220,
+                "key": "."
+              },
+              "cCursor": [
+                55,
+                0,
+                1
+              ],
+              "jsCursor": [
+                30,
+                10,
+                1
+              ]
+            }
+          },
+          "step": 220,
+          "kind": "rng",
+          "sourceFile": "mhitm.c",
+          "function": "rustm",
+          "message": null,
+          "cFile": "mhitm.c",
+          "luaFile": null,
+          "line": 1278,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.json",
+            "result": {
+              "session": "synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2",
+              "remainingScreens": 61,
+              "recordedSteps": 291,
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingPath": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json",
+              "recordingSha256": "178a6bcf2464a2f34a44275f63eb3c99c84d2be019ca978f4252b5836cc9b30c",
+              "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v51.json",
+              "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+              "status": "complete",
+              "commit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
+                "session": "synthetic/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json",
+                "recordingPath": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json",
+                "recordingSha256": "178a6bcf2464a2f34a44275f63eb3c99c84d2be019ca978f4252b5836cc9b30c",
+                "recipe": "challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.recipe.session.json",
+                "recipeSha256": "a836d1175351d74ca1463edace069be457dd22207263543b02f7a57ac576c725",
+                "replayInputSha256": "b69d0d20092b6fdf91187ab6a3ad24eda3959beaeab190fd5685e2f90069f9d7",
+                "evaluationPath": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v51.json",
+                "evaluationCommit": "2f7bd8532267d282d4c34e9509a805c8decd3eaf",
+                "evaluationArtifact": "challenges/evaluations/accepted-2f7bd8532267d282d4c34e9509a805c8decd3eaf-v51.json",
+                "evaluationUtc": "2026-10-12T14:28:46.786Z",
+                "remainingScreens": 61,
+                "recordedSteps": 291,
+                "previousScreensMatched": 230,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 230,
+                    "total": 291
+                  },
+                  "rng": {
+                    "matched": 3002,
+                    "total": 3174
+                  },
+                  "cursors": {
+                    "matched": 289,
+                    "total": 291
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 220,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 220,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 47,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2999,
+                    "cEntry": "rn2(1)=0",
+                    "cCaller": "rustm(mhitm.c:1278)",
+                    "jsEntry": "rn2(3)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 220,
+                      "key": "."
+                    },
+                    "stepIndex": 220
+                  },
+                  "cursor": {
+                    "index": 220,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 220,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      55,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      30,
+                      10,
+                      1
+                    ]
+                  }
+                },
+                "step": 220,
+                "kind": "rng",
+                "sourceFile": "mhitm.c",
+                "function": "rustm",
+                "message": null,
+                "cFile": "mhitm.c",
+                "luaFile": null,
+                "line": 1278
+              },
+              "summary": "The Rust Monster defender’s weapon-corrosion helper is missing from JavaScript. C mhitm.c:rustm() selects corrosion, rust, or fire erosion from the defender’s attack types; when an erosion type applies it always calls rn2(chance), including rn2(1) for guaranteed corrosion/rust. The existing uhitm.c:mhitm_ad_phys() JavaScript port skips the helper at two source call sites by recording note_unported('mhitm.c rustm'), so its next draw is used for unrelated monster movement and the recorded weapon erosion screen is missed.",
+              "source": {
+                "file": "mhitm.c",
+                "branch": "With non-null defender and object, choose ERODE_CORRODE before ERODE_RUST before ERODE_BURN, excluding steam vortices from fire erosion; if an erosion type is selected, call rn2(1) for corrosion/rust or rn2(6) for fire and invoke erode_obj only when the result is zero.",
+                "functions": [
+                  "rustm"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_ad_phys() call for a monster weapon striking the polymorphed hero (4106)",
+                  "uhitm.c:mhitm_ad_phys() call for a monster weapon striking another monster (4182-4183)"
+                ],
+                "dependencies": [
+                  "trap.c:erode_obj() (existing whole-function JavaScript implementation in js/trap_erode_obj.js)"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "At challenges/cases/v51/v51-rustmonster-passive-weapon-erosion-action-attempt2.session.json, segment 0 step 220, the admitted baseline first diverges on RNG: C logs rn2(1)=0 at mhitm.c:rustm:1278 while JS next logs rn2(3)=2. This identifies the skipped helper draw before the next monster movement.",
+                "Upstream nethack-c/upstream/src/mhitm.c:1260-1280 defines the complete helper: null inputs return; attack types choose corrosion, rust, or fire erosion; steam vortex is excluded; fire uses chance 6; and the selected branch calls rn2(chance) before erode_obj(obj, NULL, dmgtyp, EF_GREASE | EF_VERBOSE).",
+                "Upstream nethack-c/upstream/src/uhitm.c:4106 and 4182-4183 call rustm from the existing mhitm_ad_phys() source unit. Its JavaScript counterpart js/uhitm.js:4962-4964 and 5043-5044 currently records note_unported('mhitm.c rustm') at both corresponding sites; the task wires the helper at both sites without claiming mhitm_ad_phys() as a newly completed source unit.",
+                "The canonical erosion callee already exists at js/trap_erode_obj.js:171 as erode_obj(); rustm discards its C return value, so no additional source function is required for this scope."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rustm",
+            "implementation": "js/mhitm.js",
+            "symbol": "rustm",
+            "sourceReview": "Read the complete mhitm.c:1260-1280 definition. With non-null defender and object it selects ERODE_CORRODE before ERODE_RUST before ERODE_BURN; excludes steam vortices from fire erosion; always consumes rn2(chance) for a selected type, including rn2(1); and calls erode_obj(obj, NULL, dmgtyp, EF_GREASE | EF_VERBOSE) only when the draw is zero. The JS implementation preserves the source order, uses chance 6 for fire, and passes the shared state/random environment to the existing erode_obj implementation. C discards erode_obj's return value. Both prior note_unported('mhitm.c rustm') caller gaps were removed.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_phys",
+                "source": "uhitm.c:mhitm_ad_phys() at 4106 calls rustm(&gy.youmonst, otmp) after a monster weapon hits a polymorphed hero; the JS binding passes state.youmonst and otmp."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_phys",
+                "source": "uhitm.c:mhitm_ad_phys() at 4183 calls rustm(mdef, mwep) after monster-versus-monster physical damage; the JS binding passes mdef and mwep."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/rustm-monster-to-monster-caller-variation-20261012.session.json"
+            ],
+            "sourceFile": "mhitm.c",
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
+                "segment": 0,
+                "fromStep": 220,
+                "throughStep": 220,
+                "source": "monster attack on polymorphed hero -> uhitm.c:mhitm_ad_phys() -> rustm(&gy.youmonst, otmp)"
+              }
+            ],
+            "checkedAt": "82f3cdc17fa9c9f7807117fb5bd6e8cc6f64bdcb"
+          }
+        ],
+        "entryPointReview": "The patched recorder has two active production entry points. In monster-versus-polymorphed-hero combat, uhitm.c:mhitm_ad_phys() calls rustm(&gy.youmonst, otmp); admitted v51 case v51-rustmonster-passive-weapon-erosion-action-attempt2 strictly matches 291/291 steps and reaches this path at segment 0 step 220. In monster-versus-monster combat, the same C function calls rustm(mdef, mwep); the independent recording rustm-monster-to-monster-caller-variation-20261012 strictly matches 157/157 steps and contains rn2(1)=0 @ rustm(mhitm.c:1278) at segment 0 step 155. Its !verbose option avoids the unrelated mswingsm visible-message dependency. trap.c:erode_obj() is already implemented in js/trap_erode_obj.js and its return value is discarded here.",
+        "entryPoints": [
+          {
+            "name": "monster weapon strikes polymorphed hero",
+            "functions": [
+              "rustm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-rustmonster-passive-weapon-erosion-action-attempt2",
+                "segment": 0,
+                "fromStep": 220,
+                "throughStep": 220,
+                "source": "monster attack -> uhitm.c:mhitm_ad_phys() -> rustm(&gy.youmonst, otmp)"
+              }
+            ]
+          },
+          {
+            "name": "monster weapon strikes another monster",
+            "functions": [
+              "rustm"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/rustm-monster-to-monster-caller-variation-20261012.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
