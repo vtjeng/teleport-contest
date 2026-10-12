@@ -14,6 +14,8 @@
   "status": "complete",
   "commit": "9dda334742ff4b02ce9496bf2ff226d7227f1b2e",
   "mismatch": {
+    "session": "synthetic/v52/v52-emergency-drowning-disrobe-action-attempt2",
+    "remainingScreens": 4,
     "kind": "rng",
     "step": 138,
     "cFile": "trap.c",
