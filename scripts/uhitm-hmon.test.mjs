@@ -1962,6 +1962,26 @@ test('gulpum preserves C green-slime nomovemsg buffer overwrite order', async ()
         /if \(pd === state\.mons\?\.\[PM_GREEN_SLIME\]\)[\s\S]*?await message\(slimeMessage/u);
 });
 
+test('gulpum routes fatal engulf and Rider branches through their death handlers', () => {
+    const cStart = UHITM_SOURCE.indexOf('gulpum(struct monst *mdef, struct attack *mattk)');
+    const cEnd = UHITM_SOURCE.indexOf('\nvoid\nmissum', cStart);
+    const cFunction = UHITM_SOURCE.slice(cStart, cEnd);
+    assert.match(cFunction,
+        /if \(fatal_gulp && !is_rider\(pd\)\)[\s\S]*?Sprintf\(kbuf,[\s\S]*?instapetrify\(kbuf\);/u);
+    assert.match(cFunction,
+        /Unfortunately, digesting any of it is fatal\.[\s\S]*?end_engulf\(\);[\s\S]*?svk\.killer\.format = NO_KILLER_PREFIX;[\s\S]*?done\(DIED\);[\s\S]*?return M_ATTK_MISS;/u);
+
+    const jsSource = readFileSync(new URL('../js/uhitm.js', import.meta.url), 'utf8');
+    const jsStart = jsSource.indexOf('export async function gulpum(');
+    const jsEnd = jsSource.indexOf('// C ref: uhitm.c hmonas()', jsStart);
+    const jsFunction = jsSource.slice(jsStart, jsEnd);
+    assert.match(jsFunction,
+        /if \(fatalGulp && !is_rider\(pd\)\)[\s\S]*?const killer = `[\s\S]*?await instapetrify\(killer, state,[\s\S]*?\);/u);
+    assert.match(jsFunction,
+        /Unfortunately, digesting any of it is fatal\.[\s\S]*?await end_engulf\(state\);[\s\S]*?state\.killer\.format = NO_KILLER_PREFIX;[\s\S]*?await done\(DIED, state,[\s\S]*?return M_ATTK_MISS;/u);
+    assert.doesNotMatch(jsFunction, /note_unported\('(?:trap\.c instapetrify|end\.c done)'\)/u);
+});
+
 test('hmonas source keeps attack selection, results, passive, and knockback order', () => {
     const start = UHITM_SOURCE.indexOf('hmonas(struct monst *mon)');
     const end = UHITM_SOURCE.indexOf('/*      Special (passive)', start);

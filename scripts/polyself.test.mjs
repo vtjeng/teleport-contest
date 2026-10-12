@@ -66,6 +66,21 @@ import {
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/polyself.c', 'utf8');
 const JS_SOURCE = readFileSync('js/polyself.js', 'utf8');
+
+test('dohide petrifies after reporting an all-cockatrice floor pile', () => {
+    const cStart = C_SOURCE.indexOf('dohide(void)');
+    const cEnd = C_SOURCE.indexOf('\nint\ndopoly', cStart);
+    const cFunction = C_SOURCE.slice(cStart, cEnd);
+    assert.match(cFunction,
+        /if \(!otmp && !Stone_resistance\)[\s\S]*?Sprintf\(kbuf, "hiding under %s%s"[\s\S]*?instapetrify\(kbuf\);[\s\S]*?u\.uundetected = 0;[\s\S]*?return ECMD_TIME;/u);
+
+    const jsStart = JS_SOURCE.indexOf('export async function dohide(');
+    const jsEnd = JS_SOURCE.indexOf('// ---------- dopoly', jsStart);
+    const jsFunction = JS_SOURCE.slice(jsStart, jsEnd);
+    assert.match(jsFunction,
+        /if \(!otmp && !Stone_resistance\(state\)\)[\s\S]*?Hiding under \$\{corpse_name\}\$\{plur\(ct\)\} is a fatal mistake\.\.\.[\s\S]*?await instapetrify\([\s\S]*?hiding under \$\{corpse_name\}\$\{plur\(ct\)\}[\s\S]*?u\.uundetected = 0;[\s\S]*?return ECMD_TIME;/u);
+    assert.doesNotMatch(jsFunction, /note_unported\('trap\.c instapetrify'\)/u);
+});
 const C_START = C_SOURCE.indexOf('polyself(int psflags)');
 const C_END = C_SOURCE.indexOf('\n}\n\n/* (try to) make a mntmp', C_START) + 2;
 const JS_START = JS_SOURCE.indexOf('export async function polyself(');

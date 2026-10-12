@@ -1,0 +1,107 @@
+{
+  "session": "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+  "corpus": "synthetic",
+  "batch": "v51",
+  "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+  "manifestPath": "challenges/manifests/v51.json",
+  "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+  "recordingSha256": "c36d2e67d8675e21a499b0c742854a6bae2f095a3e70620f3f3e46c7d0467811",
+  "evaluationPath": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+  "evaluationCommit": "84d6d7988311f02b029d1638fca8ac822f12043f",
+  "remainingScreens": 0,
+  "recordedSteps": 157,
+  "status": "complete",
+  "summary": "A fresh admitted replay first diverges at segment 0 step 148 after #monster dispatch reaches polyself.c:dohide. The viper is hiding under the square's only floor object, an unresisted cockatrice corpse. C prints the fatal-mistake message, builds 'hiding under <corpse name>' and calls trap.c:instapetrify, which prints the stone message and enters the death sequence. JavaScript prints the fatal-mistake message but records note_unported('trap.c instapetrify'), so the next pager and cursor differ while RNG stays aligned. GOALS lists dohide as a historical declaration but the source roadmap has no verified completion evidence for it. Implement the complete polyself.c:dohide function and wire the existing instapetrify implementation at the missing source call.",
+  "commit": "84d6d7988311f02b029d1638fca8ac822f12043f",
+  "goalKind": "file-port",
+  "source": {
+    "file": "polyself.c",
+    "functions": [
+      "dohide"
+    ],
+    "branch": "Read the complete polyself.c:dohide definition at 1777-1876. In this case hides_under is true, the floor pile contains only petrifying corpses, Stone_resistance is false, and ct is one. C uses cxname on the top corpse, applies an() only for ct==1, appends plur(ct), prints the fatal-mistake message, builds kbuf as 'hiding under <corpse name><plural suffix>', and calls instapetrify(kbuf). JavaScript preserves the same pile test, name and first message, but records note_unported('trap.c instapetrify') instead of calling the existing implementation. C discards the void result; after return from a lifesaving outcome, both paths clear uundetected and return ECMD_TIME.",
+    "callers": [
+      "cmd.c:domonability (890-914) dispatches the #monster command to dohide for a hider; js/cmd.js:domonability calls js/polyself.js:dohide(state)."
+    ],
+    "dependencies": [
+      "trap.c:instapetrify"
+    ]
+  },
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v51",
+    "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+    "session": "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+    "manifestPath": "challenges/manifests/v51.json",
+    "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+    "recording": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+    "recordingPath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+    "recordingSha256": "c36d2e67d8675e21a499b0c742854a6bae2f095a3e70620f3f3e46c7d0467811",
+    "recipe": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.recipe.session.json",
+    "recipeSha256": "e03bf582d49f407c77d5f8bede498c25a3f5940565f8ce8a95f84d19c797ac64",
+    "replayInputSha256": "48043e7839df3aff0262f756e7e81bb670fac212254ad4cc8e7a6ec534be6b27",
+    "evaluationPath": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+    "evaluationCommit": "84d6d7988311f02b029d1638fca8ac822f12043f",
+    "evaluationArtifact": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+    "evaluationUtc": "2026-10-12T17:41:55.008Z",
+    "remainingScreens": 0,
+    "recordedSteps": 157,
+    "previousScreensMatched": 152,
+    "regression": false,
+    "passed": true,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 157,
+        "total": 157
+      },
+      "rng": {
+        "matched": 2907,
+        "total": 2907
+      },
+      "cursors": {
+        "matched": 157,
+        "total": 157
+      }
+    },
+    "firstMismatch": null,
+    "step": null,
+    "kind": null,
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "evidence": [
+    "Fresh replay: node scripts/scan-sessions.mjs --json --synthetic v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3. The first screen and cursor mismatch is segment 0 step 148; RNG is still matched. JS records trap.c instapetrify as unported.",
+    "Admitted v51 manifest sourceTrace: step 148 is the fatal-mistake pager and stone/death sequence at steps 149-150. The recipe's leftward movement separates starting equipment from the only floor corpse, so the fatal test is the all-petrifying-corpse pile branch.",
+    "C source nethack-c/upstream/src/polyself.c:1777-1876 counts the petrifying corpse pile, constructs the exact killer text and calls instapetrify(kbuf); the call result is discarded.",
+    "JS source js/polyself.js:dohide preserves the source pile traversal and fatal-mistake message, then records note_unported('trap.c instapetrify') before clearing uundetected and returning ECMD_TIME.",
+    "The source roadmap at the selected base reports polyself.c with 9 verified of 34 declarations and has no verified dohide source evidence. The historical GOALS declaration marked dohide ported is inventory, not completion evidence. js/trap.js already implements trap.c:instapetrify and its call to done(STONING)."
+  ],
+  "recordingPath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+  "recipeSha256": "e03bf582d49f407c77d5f8bede498c25a3f5940565f8ce8a95f84d19c797ac64",
+  "recipePath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.recipe.session.json",
+  "runtimeVerification": {
+    "commit": "84d6d7988311f02b029d1638fca8ac822f12043f",
+    "casePassed": true,
+    "metrics": {
+      "screens": {
+        "matched": 157,
+        "total": 157
+      },
+      "rng": {
+        "matched": 2907,
+        "total": 2907
+      },
+      "cursors": {
+        "matched": 157,
+        "total": 157
+      }
+    },
+    "evidence": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+    "completionGoal": "port-polyself-dohide-v51-viper-fatal-hide-20261012"
+  }
+}

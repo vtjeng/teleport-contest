@@ -1,0 +1,107 @@
+{
+  "session": "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3",
+  "corpus": "synthetic",
+  "batch": "v51",
+  "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+  "manifestPath": "challenges/manifests/v51.json",
+  "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+  "recordingSha256": "d548560245011f4fdf091e5062c3bbecd534f284196631afc3f6548aa6a51a40",
+  "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+  "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
+  "remainingScreens": 0,
+  "recordedSteps": 172,
+  "status": "complete",
+  "summary": "The saved admitted replay first diverges at segment 0 step 114. In uhitm.c:gulpum, the hero's purple-worm AD_DGST Rider branch prints the fatal digestion message, ends engulfing, sets the killer and format, calls done(DIED), then returns M_ATTK_MISS. JavaScript currently records note_unported('end.c done') after the same preceding state changes and returns, so the next death-pager boundary and temporary worm glyph differ. The done result is discarded in C; wire the existing done implementation at this exact source position. This is one branch of the whole gulpum function, which has no verified source-completion evidence and also omits the fatal engulf instapetrify caller exercised by the related session.",
+  "commit": "e55e82d8d3672e473005346e152386e6f78f4753",
+  "goalKind": "file-port",
+  "source": {
+    "file": "uhitm.c",
+    "functions": [
+      "gulpum"
+    ],
+    "branch": "Read the complete gulpum definition at uhitm.c:4958-5195. In this case, engulf_target succeeds, fatal_gulp is true for the digesting Rider, and the non-petrification branch calls start_engulf then the AD_DGST Rider arm. C emits the fatal digestion line, runs end_engulf, writes svk.killer.name and format, calls done(DIED), and returns M_ATTK_MISS. JS has the same ordered path but replaces done(DIED) with note_unported('end.c done'). The void result from done is discarded.",
+    "callers": [
+      "uhitm.c:hmonas -> uhitm.c:gulpum via the hero-as-monster AT_ENGL dispatch; js/uhitm.js:hmonas already awaits gulpum and consumes its M_ATTK_MISS result."
+    ],
+    "dependencies": [
+      "end.c:done",
+      "trap.c:instapetrify"
+    ]
+  },
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v51",
+    "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+    "session": "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3",
+    "manifestPath": "challenges/manifests/v51.json",
+    "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+    "recording": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+    "recordingPath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+    "recordingSha256": "d548560245011f4fdf091e5062c3bbecd534f284196631afc3f6548aa6a51a40",
+    "recipe": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.recipe.session.json",
+    "recipeSha256": "59940034f76e92307f6c29d01c8b945c10d0b5cdf2be7cf7104ccd12b4e6b776",
+    "replayInputSha256": "86473216252a06dc9d6e4dc618e353b82fd1c8399511cd7938463f3ea1dc2889",
+    "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+    "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
+    "evaluationArtifact": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+    "evaluationUtc": "2026-10-12T17:29:23.594Z",
+    "remainingScreens": 0,
+    "recordedSteps": 172,
+    "previousScreensMatched": 158,
+    "regression": false,
+    "passed": true,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 172,
+        "total": 172
+      },
+      "rng": {
+        "matched": 2885,
+        "total": 2885
+      },
+      "cursors": {
+        "matched": 172,
+        "total": 172
+      }
+    },
+    "firstMismatch": null,
+    "step": null,
+    "kind": null,
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "evidence": [
+    "Saved admitted v51 sourceTrace: C swallow step 113, fatal digestion pager step 114 retains the temporary worm glyph at Death tile (37,14), then the Die? input boundary follows. JS omits done at the corresponding step, proceeds into Death combat, releases the glyph early and displays the deadly-touch message. The recording's RNG counts still match at this first screen difference.",
+    "C source nethack-c/upstream/src/uhitm.c:4958-5195, especially the AD_DGST Rider branch: after start_engulf, fatal digestion text, end_engulf, killer name/format writes, done(DIED), and M_ATTK_MISS return occur in this order.",
+    "JS source js/uhitm.js:gulpum has the corresponding Rider branch and currently calls note_unported('end.c done'); js/uhitm.js:hmonas already awaits gulpum and consumes its return value.",
+    "GOALS.json and js/end.js show an existing end.c:done implementation; its return is void and discarded at this caller. The complete gulpum function has no verified source-completion evidence, so the implementation scope must include its other omitted source call as well."
+  ],
+  "recordingPath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+  "recipeSha256": "59940034f76e92307f6c29d01c8b945c10d0b5cdf2be7cf7104ccd12b4e6b776",
+  "recipePath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.recipe.session.json",
+  "runtimeVerification": {
+    "commit": "e55e82d8d3672e473005346e152386e6f78f4753",
+    "casePassed": true,
+    "metrics": {
+      "screens": {
+        "matched": 172,
+        "total": 172
+      },
+      "rng": {
+        "matched": 2885,
+        "total": 2885
+      },
+      "cursors": {
+        "matched": 172,
+        "total": 172
+      }
+    },
+    "evidence": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+    "completionGoal": "port-uhitm-gulpum-v51-fatal-engulf-20261012"
+  }
+}

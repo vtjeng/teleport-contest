@@ -2099,7 +2099,11 @@ test('mhitm_ad_ston preserves each source direction and gate draws',
     assert.equal(mhm.damage, 4);
     assert.equal(mhm.hitflags, M_ATTK_HIT);
     assert.equal(mhm.done, true);
-    assert.ok(game.unported.has('potion.c make_stoned'));
+    assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 5);
+    assert.equal(game.killer.next.id, STONED);
+    assert.equal(game.killer.next.format, KILLED_BY_AN);
+    assert.equal(game.killer.next.name, 'cockatrice');
+    assert.ok(!game.unported.has('potion.c make_stoned'));
 
     // In the hero-to-monster direction C always clears damage after the
     // source munstone() result. The stone-golem defender returns from
@@ -2308,7 +2312,9 @@ test('mhitm_ad_phys handles a petrifying corpse weapon before ordinary damage',
     assert.deepEqual(lines, [
         'The cockatrice hits you with the cockatrice corpse.',
     ]);
-    assert.ok(game.unported.has('potion.c make_stoned'));
+    assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 5);
+    assert.equal(game.killer.next.id, STONED);
+    assert.ok(!game.unported.has('potion.c make_stoned'));
 });
 
 test('mhitm_ad_phys continues a petrifying corpse after do_stone_u declines',

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T16:53:17.454Z",
+  "capturedAt": "2026-10-12T17:45:24.819Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -96110,44 +96110,275 @@
         "type": "accepted",
         "at": "2026-10-12T16:52:46.109Z",
         "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-4d889-queue-refresh-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:54:13.591Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v51-fireelemental-sink-metamorphosis-20261012-dd035751313e38f48f51727ed60744500f69a237",
+        "type": "published",
+        "at": "2026-10-12T16:54:27.091Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
+        "commit": "dd035751313e38f48f51727ed60744500f69a237"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "pyrolisk-bounded-integration-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T16:56:49.441Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "phase": "review",
+        "reason": "Integrate the oldest dependency-ready delivery: await the source-backed mbhit object callback with the complete state and random environment. Bounded caller repair with no new whole-function credit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "pyrolisk-integrating-51f8698c-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T17:00:46.679Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "integration": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-validated",
+        "type": "validated",
+        "at": "2026-10-12T17:10:44.858Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-recovered-c-boundary-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:10:47.199Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v57: recovered completed C recordings; continuing source actions and comparisons."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T17:11:19.005Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-active-C-after-pyrolisk-acceptance-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:11:58.060Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Accepted pyrolisk Main merged; waiting for the refreshed queue before selecting independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-idle-C-after-pyrolisk-queue-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:12:28.873Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "The refreshed queue has no independent unreserved case; preserving the ready bluejelly delivery and held short-version work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012-2d59fc6f2fe4ddd15e6ff38be9f9fb9a3cb662cb",
+        "type": "published",
+        "at": "2026-10-12T17:12:53.286Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "commit": "2d59fc6f2fe4ddd15e6ff38be9f9fb9a3cb662cb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-delayed-stone-46146636-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T17:15:12.411Z",
+        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
+        "integration": "46146636c6f92464e1c18de267d2a38fc8d349d3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-reached-actions-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:17:28.195Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v57: recording source-supported gameplay actions and setup corrections."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012-46146636c6f92464e1c18de267d2a38fc8d349d3-validated",
+        "type": "validated",
+        "at": "2026-10-12T17:21:17.039Z",
+        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012-46146636c6f92464e1c18de267d2a38fc8d349d3-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T17:21:56.563Z",
+        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012-6ad308a058fa4e9a736fd338ea530fe064ae9fa0",
+        "type": "published",
+        "at": "2026-10-12T17:23:24.025Z",
+        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
+        "commit": "6ad308a058fa4e9a736fd338ea530fe064ae9fa0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-post-stoning-queue-check-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:23:30.556Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-post-stoning-queue-idle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:24:06.085Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-gulpum-e55e82d8-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T17:25:16.856Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "integration": "e55e82d8d3672e473005346e152386e6f78f4753"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v51-purpleworm-rider-digestion-20261012-e55e82d8d3672e473005346e152386e6f78f4753-validated",
+        "type": "validated",
+        "at": "2026-10-12T17:33:55.348Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-independent-replays-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:34:19.352Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: independent C replay is running; 38 attempts preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v51-purpleworm-rider-digestion-20261012-e55e82d8d3672e473005346e152386e6f78f4753-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T17:34:31.271Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-local-comparison-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:34:51.749Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: local gameplay comparisons are running after independent C replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-e55-queue-refresh-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:35:29.914Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v51-purpleworm-rider-digestion-20261012-b4d07f487a8185759a71ddb0ee78ba01eb35ad45",
+        "type": "published",
+        "at": "2026-10-12T17:35:42.775Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "commit": "b4d07f487a8185759a71ddb0ee78ba01eb35ad45"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-full-pack-horn-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:36:49.370Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: recording the planned full-inventory horn action and reviewing first-mismatch overlap."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-dohide-84d6d798-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T17:37:42.332Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
+        "integration": "84d6d7988311f02b029d1638fca8ac822f12043f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-additional-source-actions-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:39:03.377Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: eight additional source actions are recording after C setup inspection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-additional-replays-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:39:52.546Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: independent replay is running after 56 preserved C attempts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-form-source-actions-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:43:06.520Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: seven form and ability actions are recording; source and coverage review continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012-84d6d7988311f02b029d1638fca8ac822f12043f-validated",
+        "type": "validated",
+        "at": "2026-10-12T17:43:53.159Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep21-v57-form-comparisons-20261012",
+        "type": "turn",
+        "at": "2026-10-12T17:44:18.923Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep21/v57: comparing seven independently replayed form actions after 70 C attempts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012-84d6d7988311f02b029d1638fca8ac822f12043f-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T17:44:39.961Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
-        "worker": "C",
-        "goal": "div-use-offensive-bhito-callback-v51-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "ba6dad22346f0b8b7cba2fbfe509abe87ad3141f",
-        "since": "2026-10-12T08:55:05.948Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
-        "worker": "A2",
-        "goal": "port-uhitm-do-stone-u-v51-cockatrice-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "3961fb31767fe6a6b7a61edc0cf78f92361d4aa6",
-        "since": "2026-10-12T09:02:18.983Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
-        "worker": "B",
-        "goal": "port-uhitm-gulpum-v51-fatal-engulf-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "d0fae061d2ec9328352b524499cabedd57448e09",
-        "since": "2026-10-12T09:08:29.733Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "Prep16",
         "worker": "Prep",
@@ -96159,17 +96390,6 @@
         "since": "2026-10-12T09:15:41.430Z",
         "blockedBy": [],
         "unblocks": 1
-      },
-      {
-        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
-        "worker": "B",
-        "goal": "port-polyself-dohide-v51-viper-fatal-hide-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "9b3e234772bf497eaa67f16ab0a753705afab563",
-        "since": "2026-10-12T09:18:20.739Z",
-        "blockedBy": [],
-        "unblocks": 0
       },
       {
         "task": "Prep17",
@@ -96703,8 +96923,8 @@
     ]
   },
   "development": {
-    "executionCommit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
-    "measuredAt": "2026-10-12T16:50:42.251Z",
+    "executionCommit": "84d6d7988311f02b029d1638fca8ac822f12043f",
+    "measuredAt": "2026-10-12T17:42:30.066Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

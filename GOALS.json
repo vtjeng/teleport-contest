@@ -290611,7 +290611,7 @@
     {
       "id": "div-use-offensive-bhito-callback-v51-20261012",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Await the monster wand floor-object callback",
       "cFile": "muse.c",
       "sessions": [],
@@ -290623,8 +290623,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "use_offensive",
       "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
       "step": 139,
@@ -290896,6 +290899,1583 @@
           "cFile": "zap.c",
           "luaFile": null,
           "line": 1469
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-do-stone-u-v51-cockatrice-20261012",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port delayed hero stoning from cockatrice attacks",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1"
+      ],
+      "selectionReason": "Oldest dependency-ready implementation delivery; whole do_stone_u owns the current cockatrice hiss mismatch",
+      "detail": "",
+      "openedAt": "a9e2278b153926df6ad9a118af42a9ceca78a379",
+      "openStanding": {
+        "sha": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "do_stone_u",
+          "line": 3924,
+          "endLine": 3944,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3924,
+        "to": 3944
+      },
+      "syntheticProvenance": {
+        "synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1": {
+          "session": "synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.session.json",
+          "recordingSha256": "c3a3b9980ac3259a01e6810b89632939ae83abe6b8fc7f08d2c7f055af5d3081",
+          "evaluationPath": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
+          "evaluationCommit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2"
+        }
+      },
+      "activeStanding": {
+        "sha": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+          "session": "synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.session.json",
+          "recordingPath": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.session.json",
+          "recordingSha256": "c3a3b9980ac3259a01e6810b89632939ae83abe6b8fc7f08d2c7f055af5d3081",
+          "recipe": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.recipe.session.json",
+          "recipeSha256": "8c764075b60e03edab5002ff54b475b557457162ffa015e624ab0d5e3c87af2c",
+          "replayInputSha256": "323099f94213aabad903d9334bb0f609d1f9ede9074f7f979ac19c504ced9ad9",
+          "evaluationPath": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
+          "evaluationCommit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+          "evaluationArtifact": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
+          "evaluationUtc": "2026-10-12T17:05:10.338Z",
+          "remainingScreens": 204,
+          "recordedSteps": 303,
+          "previousScreensMatched": 99,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 99,
+              "total": 303
+            },
+            "rng": {
+              "matched": 2777,
+              "total": 3152
+            },
+            "cursors": {
+              "matched": 285,
+              "total": 303
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.json",
+            "result": {
+              "session": "synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingPath": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.session.json",
+              "recordingSha256": "c3a3b9980ac3259a01e6810b89632939ae83abe6b8fc7f08d2c7f055af5d3081",
+              "recipePath": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.recipe.session.json",
+              "recipeSha256": "8c764075b60e03edab5002ff54b475b557457162ffa015e624ab0d5e3c87af2c",
+              "evaluationPath": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
+              "evaluationCommit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+              "status": "complete",
+              "commit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+              "remainingScreens": 204,
+              "recordedSteps": 303,
+              "summary": "At zero-based segment 0 step 88, the hostile cockatrice's unarmed touch enters uhitm.c:do_stone_u through the monster-to-hero AD_STON branch. That helper correctly selects a five-turn delayed stoning and killer identity, but JavaScript records note_unported('potion.c make_stoned') instead of calling its existing make_stoned port. The missing property timeout and delayed killer cause the first screen and cursor divergence at step 88; RNG first diverges at step 89. Implement the whole do_stone_u source unit and wire its existing make_stoned callee, preserving the source's void-call behavior.",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+                "session": "synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.session.json",
+                "recordingPath": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.session.json",
+                "recordingSha256": "c3a3b9980ac3259a01e6810b89632939ae83abe6b8fc7f08d2c7f055af5d3081",
+                "recipe": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.recipe.session.json",
+                "recipeSha256": "8c764075b60e03edab5002ff54b475b557457162ffa015e624ab0d5e3c87af2c",
+                "replayInputSha256": "323099f94213aabad903d9334bb0f609d1f9ede9074f7f979ac19c504ced9ad9",
+                "evaluationPath": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
+                "evaluationCommit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+                "evaluationArtifact": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
+                "evaluationUtc": "2026-10-12T17:05:10.338Z",
+                "remainingScreens": 204,
+                "recordedSteps": 303,
+                "previousScreensMatched": 99,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 99,
+                    "total": 303
+                  },
+                  "rng": {
+                    "matched": 2777,
+                    "total": 3152
+                  },
+                  "cursors": {
+                    "matched": 285,
+                    "total": 303
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 88,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 88,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 50,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2772,
+                    "cEntry": "rn2(2)=0",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(100)=70",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 89,
+                      "key": " "
+                    },
+                    "stepIndex": 89
+                  },
+                  "cursor": {
+                    "index": 88,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 88,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      58,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      12,
+                      7,
+                      1
+                    ]
+                  }
+                },
+                "step": 88,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "source": {
+                "file": "uhitm.c",
+                "branch": "In mhitm_ad_ston() when mdef is the hero, the cockatrice is not cancelled, the hero is not already stoned or stone resistant, and polymorph to stone golem does not occur. On the new-moon fallback, do_stone_u() calls make_stoned(5L, NULL, killedby, killername) and returns true.",
+                "functions": [
+                  "do_stone_u"
+                ],
+                "callers": [
+                  "C uhitm.c:mhitm_ad_ston() calls do_stone_u(magr) for monster-to-hero AD_STON; JavaScript js/uhitm.js:mhitm_ad_ston() calls do_stone_u(magr, state, env). The caller is already wired and is not part of the code edit.",
+                  "C mhitu.c:hitmu() calls uhitm.c:mhitm_adtyping() for the cockatrice touch, reached from mhitu.c:mattacku()'s AT_TUCH attack slot; the admitted v51 recording exercises this production path."
+                ],
+                "dependencies": [
+                  "C potion.c:make_stoned() is the void callee at uhitm.c:do_stone_u(); js/potion.js:make_stoned() already ports its timeout, condition-line, and delayed-killer updates. Wire this callee rather than retaining note_unported().",
+                  "The reserved uhitm.c:mhitm_adtyping scope belongs to C; this task only reads its dispatch and does not edit that function or its call sites."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Focused admitted-session scan output at /tmp/teleport-validation-1000/run-8XSapD/stdout.log on bf3d3bdbcd75c2148bef7a20dd885fca6dd1f548: segment 0 step 88 screen/cursor first mismatch; RNG first mismatch step 89; replay reports active unported gap potion.c make_stoned. Recorder receipt: /tmp/teleport-validation-1000/run-8XSapD/receipt.json.",
+                "nethack-c/upstream/src/uhitm.c:3924-3942 defines do_stone_u(), including the successful polymon branch, killer-name formatting for unique monsters, void make_stoned(5L, NULL, ...), and true return. js/uhitm.js:5188-5215 matches these branches but substitutes note_unported for the existing js/potion.js:558-579 make_stoned implementation.",
+                "nethack-c/upstream/src/uhitm.c:4790-4805 dispatches AD_STON to mhitm_ad_ston(); its monster-to-hero arm at 4203-4263 calls do_stone_u(). nethack-c/upstream/src/mhitu.c:1144-1177 calls mhitm_adtyping() from hitmu(), and mattacku()'s AT_TUCH arm reaches hitmu()."
+              ]
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 88,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 50,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2772,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(100)=70",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 89,
+                "key": " "
+              },
+              "stepIndex": 89
+            },
+            "cursor": {
+              "index": 88,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": "."
+              },
+              "cCursor": [
+                58,
+                0,
+                1
+              ],
+              "jsCursor": [
+                12,
+                7,
+                1
+              ]
+            }
+          },
+          "step": 88,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_stone_u",
+            "implementation": "js/uhitm.js",
+            "symbol": "do_stone_u",
+            "sourceReview": "Read the full uhitm.c:do_stone_u() body (3924-3942) and compared expression order and every arm. JavaScript checks existing Stoned, then Stone_resistance, then the conditional poly_when_stoned()/polymon() conversion; on the ordinary arm it preserves Mgender(), G_UNIQ and type_is_pname killer formatting, calls the existing potion.c:make_stoned(5L, NULL, kformat, kname) port, awaits its effects, and returns true. The conversion, existing timeout, and resistance arms return false. Removed the note_unported() substitute; make_stoned's C return is void and its state effects now reach the existing JavaScript implementation.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_ston",
+                "source": "uhitm.c:mhitm_ad_ston() monster-to-hero AD_STON arm calls do_stone_u(magr); the matching v51 trace reaches it from mhitu.c:mattacku() -> hitmu() -> mhitm_adtyping()."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_phys",
+                "source": "uhitm.c:mhitm_ad_phys()'s hero-defender AT_WEAP arm calls do_stone_u(magr) when the attacker wields a cockatrice corpse; this existing caller was read and left unchanged."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+                "segment": 0,
+                "fromStep": 88,
+                "throughStep": 88,
+                "source": "mhitu.c:mattacku() -> hitmu() -> uhitm.c:mhitm_adtyping() -> mhitm_ad_ston() -> do_stone_u() -> potion.c:make_stoned()"
+              }
+            ],
+            "checkedAt": "297c17f7d050e882e5c23c51ed4ffeb3dfc532b3"
+          }
+        ],
+        "entryPointReview": "This is a helper-only range, so entryPoints is empty. Its active source callers are uhitm.c:mhitm_ad_ston() for a cockatrice monster touch and uhitm.c:mhitm_ad_phys() for being struck with a cockatrice corpse as a weapon. The admitted v51 range exercises the first production path through the live monster-turn dispatcher; both callers remain wired to do_stone_u(). The source-owned potion.c:make_stoned() callee is already implemented in js/potion.js and receives the source arguments from do_stone_u().",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-gulpum-v51-fatal-engulf-20261012",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port whole hero engulf attack and fatal transitions",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3",
+        "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4"
+      ],
+      "selectionReason": "Oldest dependency-ready delivery; whole gulpum owns both fatal engulf mismatches",
+      "detail": "",
+      "openedAt": "b91a7c6eaf7c5d154625fe0ff284c46e42bc8deb",
+      "openStanding": {
+        "sha": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "e55e82d8d3672e473005346e152386e6f78f4753",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "gulpum",
+          "line": 4958,
+          "endLine": 5197,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 4958,
+        "to": 5197
+      },
+      "syntheticProvenance": {
+        "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3": {
+          "session": "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+          "recordingSha256": "d548560245011f4fdf091e5062c3bbecd534f284196631afc3f6548aa6a51a40",
+          "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+          "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3"
+        },
+        "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4": {
+          "session": "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
+          "recordingSha256": "ece7fa4de510fa51b06f5630486b76f8fb74c3a4d8b9f6a55623a9c2714fa2f8",
+          "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+          "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3"
+        }
+      },
+      "activeStanding": {
+        "sha": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+          "session": "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
+          "recordingPath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
+          "recordingSha256": "ece7fa4de510fa51b06f5630486b76f8fb74c3a4d8b9f6a55623a9c2714fa2f8",
+          "recipe": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.recipe.session.json",
+          "recipeSha256": "7cffb24fbb78b32652e12b891aa1b966f1840e921c41c7a5f512af1ebbce6824",
+          "replayInputSha256": "86473216252a06dc9d6e4dc618e353b82fd1c8399511cd7938463f3ea1dc2889",
+          "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+          "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+          "evaluationArtifact": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+          "evaluationUtc": "2026-10-12T17:19:32.076Z",
+          "remainingScreens": 47,
+          "recordedSteps": 193,
+          "previousScreensMatched": 146,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 146,
+              "total": 193
+            },
+            "rng": {
+              "matched": 2764,
+              "total": 3207
+            },
+            "cursors": {
+              "matched": 168,
+              "total": 193
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.json",
+            "result": {
+              "session": "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingSha256": "ece7fa4de510fa51b06f5630486b76f8fb74c3a4d8b9f6a55623a9c2714fa2f8",
+              "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+              "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+              "remainingScreens": 47,
+              "recordedSteps": 193,
+              "status": "complete",
+              "summary": "The saved admitted replay first diverges at segment 0 step 146. In uhitm.c:gulpum, the engulfing Trapper's fatal_gulp path for an unresisted cockatrice prints the engulf line, constructs the source killer text and calls instapetrify(kbuf). JavaScript prints the first line and records note_unported('trap.c instapetrify'), then continues combat. The existing trap.c:instapetrify implementation must be called here with the source-ordered killer string and the attack environment. This is another branch of the whole gulpum function; the related purple-worm Rider case also exposes the unported done(DIED) call, so both source calls belong in the complete function scope.",
+              "commit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+              "goalKind": "file-port",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "gulpum"
+                ],
+                "branch": "Read the complete gulpum definition at uhitm.c:4958-5195. In this case, engulf_target succeeds and touch_petrifies(pd) makes fatal_gulp true without Stone resistance. The fatal_gulp && !is_rider branch emits the engulf line, chooses pmname by monster gender, applies an() unless the monster has a proper name, formats the killer as swallowing/enclosing/engulfing plus that name and optional whole, then calls instapetrify(kbuf). C discards its void result. JS currently stops after the first message at note_unported('trap.c instapetrify').",
+                "callers": [
+                  "uhitm.c:hmonas -> uhitm.c:gulpum via the hero-as-monster AT_ENGL dispatch; js/uhitm.js:hmonas already awaits gulpum and consumes its M_ATTK_MISS result."
+                ],
+                "dependencies": [
+                  "end.c:done",
+                  "trap.c:instapetrify"
+                ]
+              },
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+                "session": "synthetic/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
+                "recordingPath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
+                "recordingSha256": "ece7fa4de510fa51b06f5630486b76f8fb74c3a4d8b9f6a55623a9c2714fa2f8",
+                "recipe": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.recipe.session.json",
+                "recipeSha256": "7cffb24fbb78b32652e12b891aa1b966f1840e921c41c7a5f512af1ebbce6824",
+                "replayInputSha256": "86473216252a06dc9d6e4dc618e353b82fd1c8399511cd7938463f3ea1dc2889",
+                "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+                "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+                "evaluationArtifact": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+                "evaluationUtc": "2026-10-12T17:19:32.076Z",
+                "remainingScreens": 47,
+                "recordedSteps": 193,
+                "previousScreensMatched": 146,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 146,
+                    "total": 193
+                  },
+                  "rng": {
+                    "matched": 2764,
+                    "total": 3207
+                  },
+                  "cursors": {
+                    "matched": 168,
+                    "total": 193
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 146,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 146,
+                      "key": "h"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 32,
+                    "cCell": {
+                      "ch": "t",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "e",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2757,
+                    "cEntry": "rn2(5)=2",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "jsEntry": "rnd(21)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 148,
+                      "key": " "
+                    },
+                    "stepIndex": 148
+                  },
+                  "cursor": {
+                    "index": 146,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 146,
+                      "key": "h"
+                    },
+                    "cCursor": [
+                      56,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      62,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 146,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "evidence": [
+                "Saved admitted v51 sourceTrace: the blind Trapper retains blessed monster detection, then engulfs an adjacent cockatrice; C prints the fatal petrification line at step 146 and the Die? boundary at step 147. JS skips the instapetrify transition and continues combat. Its later RNG mismatch follows this missing death path.",
+                "C source nethack-c/upstream/src/uhitm.c:4958-5195, fatal_gulp && !is_rider arm: emits the initial engulf message, constructs the source killer buffer with an()/pmname(), and calls instapetrify(kbuf).",
+                "JS source js/uhitm.js:gulpum has the same fatal_gulp branch but records note_unported('trap.c instapetrify') and returns through the surrounding function. trap.c:instapetrify is already implemented in js/trap.js and calls done(STONING).",
+                "GOALS.json marks the trap.c:instapetrify implementation complete; its return is void and discarded at this caller. The selected entry exercises the existing hero-as-monster attack route through hmonas, which awaits gulpum."
+              ],
+              "recordingPath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.session.json",
+              "recipeSha256": "7cffb24fbb78b32652e12b891aa1b966f1840e921c41c7a5f512af1ebbce6824",
+              "recipePath": "challenges/cases/v51/v51-trapper-fatal-cockatrice-engulf-action-attempt4.recipe.session.json"
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 146,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 146,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 32,
+              "cCell": {
+                "ch": "t",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "e",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2757,
+              "cEntry": "rn2(5)=2",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "rnd(21)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 148,
+                "key": " "
+              },
+              "stepIndex": 148
+            },
+            "cursor": {
+              "index": 146,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 146,
+                "key": "h"
+              },
+              "cCursor": [
+                56,
+                0,
+                1
+              ],
+              "jsCursor": [
+                62,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 146,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+          "session": "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+          "recordingPath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+          "recordingSha256": "d548560245011f4fdf091e5062c3bbecd534f284196631afc3f6548aa6a51a40",
+          "recipe": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.recipe.session.json",
+          "recipeSha256": "59940034f76e92307f6c29d01c8b945c10d0b5cdf2be7cf7104ccd12b4e6b776",
+          "replayInputSha256": "86473216252a06dc9d6e4dc618e353b82fd1c8399511cd7938463f3ea1dc2889",
+          "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+          "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+          "evaluationArtifact": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+          "evaluationUtc": "2026-10-12T17:19:32.076Z",
+          "remainingScreens": 14,
+          "recordedSteps": 172,
+          "previousScreensMatched": 158,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 158,
+              "total": 172
+            },
+            "rng": {
+              "matched": 2885,
+              "total": 2885
+            },
+            "cursors": {
+              "matched": 162,
+              "total": 172
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3.json",
+            "result": {
+              "session": "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingSha256": "d548560245011f4fdf091e5062c3bbecd534f284196631afc3f6548aa6a51a40",
+              "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+              "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+              "remainingScreens": 14,
+              "recordedSteps": 172,
+              "status": "complete",
+              "summary": "The saved admitted replay first diverges at segment 0 step 114. In uhitm.c:gulpum, the hero's purple-worm AD_DGST Rider branch prints the fatal digestion message, ends engulfing, sets the killer and format, calls done(DIED), then returns M_ATTK_MISS. JavaScript currently records note_unported('end.c done') after the same preceding state changes and returns, so the next death-pager boundary and temporary worm glyph differ. The done result is discarded in C; wire the existing done implementation at this exact source position. This is one branch of the whole gulpum function, which has no verified source-completion evidence and also omits the fatal engulf instapetrify caller exercised by the related session.",
+              "commit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+              "goalKind": "file-port",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "gulpum"
+                ],
+                "branch": "Read the complete gulpum definition at uhitm.c:4958-5195. In this case, engulf_target succeeds, fatal_gulp is true for the digesting Rider, and the non-petrification branch calls start_engulf then the AD_DGST Rider arm. C emits the fatal digestion line, runs end_engulf, writes svk.killer.name and format, calls done(DIED), and returns M_ATTK_MISS. JS has the same ordered path but replaces done(DIED) with note_unported('end.c done'). The void result from done is discarded.",
+                "callers": [
+                  "uhitm.c:hmonas -> uhitm.c:gulpum via the hero-as-monster AT_ENGL dispatch; js/uhitm.js:hmonas already awaits gulpum and consumes its M_ATTK_MISS result."
+                ],
+                "dependencies": [
+                  "end.c:done",
+                  "trap.c:instapetrify"
+                ]
+              },
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+                "session": "synthetic/v51/v51-purpleworm-rider-digestion-action-attempt3",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+                "recordingPath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+                "recordingSha256": "d548560245011f4fdf091e5062c3bbecd534f284196631afc3f6548aa6a51a40",
+                "recipe": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.recipe.session.json",
+                "recipeSha256": "59940034f76e92307f6c29d01c8b945c10d0b5cdf2be7cf7104ccd12b4e6b776",
+                "replayInputSha256": "86473216252a06dc9d6e4dc618e353b82fd1c8399511cd7938463f3ea1dc2889",
+                "evaluationPath": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+                "evaluationCommit": "46146636c6f92464e1c18de267d2a38fc8d349d3",
+                "evaluationArtifact": "challenges/evaluations/accepted-46146636c6f92464e1c18de267d2a38fc8d349d3-v51.json",
+                "evaluationUtc": "2026-10-12T17:19:32.076Z",
+                "remainingScreens": 14,
+                "recordedSteps": 172,
+                "previousScreensMatched": 158,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 158,
+                    "total": 172
+                  },
+                  "rng": {
+                    "matched": 2885,
+                    "total": 2885
+                  },
+                  "cursors": {
+                    "matched": 162,
+                    "total": 172
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 114,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 114,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 14,
+                    "column": 37,
+                    "cCell": {
+                      "ch": "w",
+                      "color": 5,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "&",
+                      "color": 13,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 115,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 115,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      14,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      48,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 114,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "evidence": [
+                "Saved admitted v51 sourceTrace: C swallow step 113, fatal digestion pager step 114 retains the temporary worm glyph at Death tile (37,14), then the Die? input boundary follows. JS omits done at the corresponding step, proceeds into Death combat, releases the glyph early and displays the deadly-touch message. The recording's RNG counts still match at this first screen difference.",
+                "C source nethack-c/upstream/src/uhitm.c:4958-5195, especially the AD_DGST Rider branch: after start_engulf, fatal digestion text, end_engulf, killer name/format writes, done(DIED), and M_ATTK_MISS return occur in this order.",
+                "JS source js/uhitm.js:gulpum has the corresponding Rider branch and currently calls note_unported('end.c done'); js/uhitm.js:hmonas already awaits gulpum and consumes its return value.",
+                "GOALS.json and js/end.js show an existing end.c:done implementation; its return is void and discarded at this caller. The complete gulpum function has no verified source-completion evidence, so the implementation scope must include its other omitted source call as well."
+              ],
+              "recordingPath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.session.json",
+              "recipeSha256": "59940034f76e92307f6c29d01c8b945c10d0b5cdf2be7cf7104ccd12b4e6b776",
+              "recipePath": "challenges/cases/v51/v51-purpleworm-rider-digestion-action-attempt3.recipe.session.json"
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 114,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 114,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 14,
+              "column": 37,
+              "cCell": {
+                "ch": "w",
+                "color": 5,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "&",
+                "color": 13,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 115,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 115,
+                "key": " "
+              },
+              "cCursor": [
+                14,
+                0,
+                1
+              ],
+              "jsCursor": [
+                48,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 114,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "gulpum",
+            "implementation": "js/uhitm.js",
+            "symbol": "gulpum",
+            "sourceReview": "Read and compared the complete uhitm.c:gulpum definition (4958-5195) against js/uhitm.js in source order. Checked the initial damage roll before engulf_target; target eligibility; snuff_lit order; vampire-shifter early return; fatal_gulp predicate and eating_conducts condition; both fatal_gulp branches; every AD_DGST, AD_PHYS, AD_ACID, AD_BLND, AD_ELEC, AD_COLD, AD_FIRE, and AD_DREN switch branch; end_engulf, damage/death checks, expulsion, and final M_ATTK_MISS result. The Rider branch now calls the existing end.c:done implementation after end_engulf and killer writes, passing DIED and discarding its void return as C does. The non-Rider fatal-petrification branch now constructs the same an()/pmname()-based killer string and calls the existing trap.c:instapetrify implementation in source order; that caller also discards its void result. Removed both stale note_unported placeholders. hmonas remains wired to gulpum for AT_ENGL and consumes its return. No other unported call remains inside the selected gulpum definition.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas dispatches AT_ENGL to gulpum and stores its return in the attack result; js/uhitm.js:hmonas awaits gulpum in the corresponding switch arm. The production path reaches hmonas from do_attack when the hero is polymorphed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 171,
+                "source": "uhitm.c:do_attack polymorphed hero -> uhitm.c:hmonas AT_ENGL/AD_DGST -> uhitm.c:gulpum Rider branch -> end.c:done(DIED); JS do_attack -> hmonas -> awaited gulpum -> done(DIED)"
+              },
+              {
+                "batch": "v51",
+                "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 151,
+                "source": "uhitm.c:do_attack polymorphed hero -> uhitm.c:hmonas AT_ENGL -> uhitm.c:gulpum fatal_gulp branch -> trap.c:instapetrify; JS do_attack -> hmonas -> awaited gulpum -> instapetrify. Later step 152 enters the separate uhitm.c:do_stone_u continuation and is outside this task."
+              }
+            ],
+            "checkedAt": "78beeb4e4a3e4ddca34ae686825505d28556d27f"
+          }
+        ],
+        "entryPointReview": "The selected source unit is the complete uhitm.c:gulpum function. Its active production entry point is a polymorphed hero's melee attack against an engulfable target: uhitm.c:do_attack calls hmonas when Upolyd, and hmonas dispatches AT_ENGL to gulpum. js/uhitm.js has the corresponding do_attack -> hmonas -> awaited gulpum route, and hmonas consumes the returned attack result. The admitted Rider session reaches the AD_DGST fatal-digestion branch and fully matches through its input boundary. The admitted Trapper session reaches the fatal cockatrice branch, passes through instapetrify and the player's refusal to die, and matches through step 151; its later step 152 divergence is in the separate do_stone_u function, owned by another task. The focused test source-pins both death-handler call positions and their order.",
+        "entryPoints": [
+          {
+            "name": "Polymorphed hero melee engulf attack",
+            "functions": [
+              "gulpum"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-purpleworm-rider-digestion-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 171,
+                "source": "uhitm.c:do_attack -> uhitm.c:hmonas AT_ENGL -> uhitm.c:gulpum AD_DGST Rider death route"
+              },
+              {
+                "batch": "v51",
+                "caseId": "v51-trapper-fatal-cockatrice-engulf-action-attempt4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 151,
+                "source": "uhitm.c:do_attack -> uhitm.c:hmonas AT_ENGL -> uhitm.c:gulpum fatal_gulp -> trap.c:instapetrify"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e55e82d8d3672e473005346e152386e6f78f4753",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-polyself-dohide-v51-viper-fatal-hide-20261012",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port whole hiding command and fatal corpse transition",
+      "cFile": "polyself.c",
+      "sessions": [
+        "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3"
+      ],
+      "selectionReason": "Oldest dependency-ready implementation delivery; whole dohide owns the current hiding mismatch",
+      "detail": "",
+      "openedAt": "01ad5008e0b8e654a4eadffe9e0b07f88e5423ab",
+      "openStanding": {
+        "sha": "e55e82d8d3672e473005346e152386e6f78f4753",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "84d6d7988311f02b029d1638fca8ac822f12043f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "dohide",
+          "line": 1777,
+          "endLine": 1876,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1777,
+        "to": 1876
+      },
+      "syntheticProvenance": {
+        "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3": {
+          "session": "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+          "recordingSha256": "c36d2e67d8675e21a499b0c742854a6bae2f095a3e70620f3f3e46c7d0467811",
+          "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+          "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753"
+        }
+      },
+      "activeStanding": {
+        "sha": "e55e82d8d3672e473005346e152386e6f78f4753",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+          "session": "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+          "recordingPath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+          "recordingSha256": "c36d2e67d8675e21a499b0c742854a6bae2f095a3e70620f3f3e46c7d0467811",
+          "recipe": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.recipe.session.json",
+          "recipeSha256": "e03bf582d49f407c77d5f8bede498c25a3f5940565f8ce8a95f84d19c797ac64",
+          "replayInputSha256": "48043e7839df3aff0262f756e7e81bb670fac212254ad4cc8e7a6ec534be6b27",
+          "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+          "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
+          "evaluationArtifact": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+          "evaluationUtc": "2026-10-12T17:29:23.594Z",
+          "remainingScreens": 5,
+          "recordedSteps": 157,
+          "previousScreensMatched": 152,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 152,
+              "total": 157
+            },
+            "rng": {
+              "matched": 2907,
+              "total": 2907
+            },
+            "cursors": {
+              "matched": 153,
+              "total": 157
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.json",
+            "result": {
+              "session": "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingSha256": "c36d2e67d8675e21a499b0c742854a6bae2f095a3e70620f3f3e46c7d0467811",
+              "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+              "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
+              "remainingScreens": 5,
+              "recordedSteps": 157,
+              "status": "complete",
+              "summary": "A fresh admitted replay first diverges at segment 0 step 148 after #monster dispatch reaches polyself.c:dohide. The viper is hiding under the square's only floor object, an unresisted cockatrice corpse. C prints the fatal-mistake message, builds 'hiding under <corpse name>' and calls trap.c:instapetrify, which prints the stone message and enters the death sequence. JavaScript prints the fatal-mistake message but records note_unported('trap.c instapetrify'), so the next pager and cursor differ while RNG stays aligned. GOALS lists dohide as a historical declaration but the source roadmap has no verified completion evidence for it. Implement the complete polyself.c:dohide function and wire the existing instapetrify implementation at the missing source call.",
+              "commit": "e55e82d8d3672e473005346e152386e6f78f4753",
+              "goalKind": "file-port",
+              "source": {
+                "file": "polyself.c",
+                "functions": [
+                  "dohide"
+                ],
+                "branch": "Read the complete polyself.c:dohide definition at 1777-1876. In this case hides_under is true, the floor pile contains only petrifying corpses, Stone_resistance is false, and ct is one. C uses cxname on the top corpse, applies an() only for ct==1, appends plur(ct), prints the fatal-mistake message, builds kbuf as 'hiding under <corpse name><plural suffix>', and calls instapetrify(kbuf). JavaScript preserves the same pile test, name and first message, but records note_unported('trap.c instapetrify') instead of calling the existing implementation. C discards the void result; after return from a lifesaving outcome, both paths clear uundetected and return ECMD_TIME.",
+                "callers": [
+                  "cmd.c:domonability (890-914) dispatches the #monster command to dohide for a hider; js/cmd.js:domonability calls js/polyself.js:dohide(state)."
+                ],
+                "dependencies": [
+                  "trap.c:instapetrify"
+                ]
+              },
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+                "session": "synthetic/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+                "recordingPath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+                "recordingSha256": "c36d2e67d8675e21a499b0c742854a6bae2f095a3e70620f3f3e46c7d0467811",
+                "recipe": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.recipe.session.json",
+                "recipeSha256": "e03bf582d49f407c77d5f8bede498c25a3f5940565f8ce8a95f84d19c797ac64",
+                "replayInputSha256": "48043e7839df3aff0262f756e7e81bb670fac212254ad4cc8e7a6ec534be6b27",
+                "evaluationPath": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+                "evaluationCommit": "e55e82d8d3672e473005346e152386e6f78f4753",
+                "evaluationArtifact": "challenges/evaluations/accepted-e55e82d8d3672e473005346e152386e6f78f4753-v51.json",
+                "evaluationUtc": "2026-10-12T17:29:23.594Z",
+                "remainingScreens": 5,
+                "recordedSteps": 157,
+                "previousScreensMatched": 152,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 152,
+                    "total": 157
+                  },
+                  "rng": {
+                    "matched": 2907,
+                    "total": 2907
+                  },
+                  "cursors": {
+                    "matched": 153,
+                    "total": 157
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 148,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 148,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 54,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 148,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 148,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      62,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      4,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 148,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "evidence": [
+                "Fresh replay: node scripts/scan-sessions.mjs --json --synthetic v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3. The first screen and cursor mismatch is segment 0 step 148; RNG is still matched. JS records trap.c instapetrify as unported.",
+                "Admitted v51 manifest sourceTrace: step 148 is the fatal-mistake pager and stone/death sequence at steps 149-150. The recipe's leftward movement separates starting equipment from the only floor corpse, so the fatal test is the all-petrifying-corpse pile branch.",
+                "C source nethack-c/upstream/src/polyself.c:1777-1876 counts the petrifying corpse pile, constructs the exact killer text and calls instapetrify(kbuf); the call result is discarded.",
+                "JS source js/polyself.js:dohide preserves the source pile traversal and fatal-mistake message, then records note_unported('trap.c instapetrify') before clearing uundetected and returning ECMD_TIME.",
+                "The source roadmap at the selected base reports polyself.c with 9 verified of 34 declarations and has no verified dohide source evidence. The historical GOALS declaration marked dohide ported is inventory, not completion evidence. js/trap.js already implements trap.c:instapetrify and its call to done(STONING)."
+              ],
+              "recordingPath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.session.json",
+              "recipeSha256": "e03bf582d49f407c77d5f8bede498c25a3f5940565f8ce8a95f84d19c797ac64",
+              "recipePath": "challenges/cases/v51/v51-viper-hide-clean-cockatrice-corpse-action-attempt3.recipe.session.json"
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 148,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 148,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 54,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 148,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 148,
+                "key": "\n"
+              },
+              "cCursor": [
+                62,
+                0,
+                1
+              ],
+              "jsCursor": [
+                4,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 148,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dohide",
+            "implementation": "js/polyself.js",
+            "symbol": "dohide",
+            "sourceReview": "Read and compared the complete polyself.c:dohide definition (1777-1876) and js/polyself.js:dohide. Preserved the held/trapped guard and its undetected/disguise reset, eel water/fountain messages, hides_under and empty-pile branches, exact floor-pile walk and corpse quantity count, Stone_resistance check, singular an() and plural suffix, fatal message and killer text, and the lifesaved continuation. The missing path now awaits the existing trap.c:instapetrify implementation after the warning and before clearing uundetected/returning ECMD_TIME, matching C order; C discards the helper's void result. Preserved the ceiling and plane guards, already-hidden message/ECMD_OK path, and new hidden/disguise state update, newsym, and ECMD_TIME return. The production dispatcher remains aligned: cmd.c:domonability calls dohide for the #monster command, and js/cmd.js:domonability calls dohide(state). Removed the obsolete dohide note_unported placeholder. Verified that all called state predicates and message helpers used here have existing implementations; no consumed-return callee is left unported.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c:domonability dispatches the #monster command to polyself.c:dohide for a hiding-capable polymorphed hero; js/cmd.js:domonability calls js/polyself.js:dohide(state)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polyself.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 156,
+                "source": "cmd.c:domonability #monster -> polyself.c:dohide all-cockatrice floor pile -> trap.c:instapetrify; JS cmd.js:domonability -> polyself.js:dohide -> trap.js:instapetrify"
+              }
+            ],
+            "checkedAt": "64eae40f053969a1a00f84b04619e3340a314340"
+          }
+        ],
+        "entryPointReview": "The selected function is the complete polyself.c:dohide source unit. Its production entry point is #monster through cmd.c:domonability when a polymorphed hiding-capable hero chooses to hide; js/cmd.js:domonability dispatches to js/polyself.js:dohide. The admitted v51 replay exercises that command with a viper and a square whose only floor object is an unresisted cockatrice corpse. It reaches the fatal pile branch, calls instapetrify, completes the death/lifesaving continuation, and matches the full input boundary. The existing youhiding implementation covers ordinary/already-hidden completion in the same function; it is awaited after the source state update. The focused source-pinned test checks the fatal caller order.",
+        "entryPoints": [
+          {
+            "name": "#monster hide with a floor pile of cockatrice corpses",
+            "functions": [
+              "dohide"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v51",
+                "caseId": "v51-viper-hide-clean-cockatrice-corpse-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 156,
+                "source": "cmd.c:domonability -> polyself.c:dohide fatal pile branch -> trap.c:instapetrify"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "84d6d7988311f02b029d1638fca8ac822f12043f",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-mhitu-gulpmu-blind-engulfer-name-v51-20261012",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Preserve source visibility and sensing when naming an engulfer",
+      "cFile": "mhitu.c",
+      "sessions": [],
+      "selectionReason": "Last dependency-ready implementation delivery; repair the initial engulfer naming owner without whole-function completion credit",
+      "detail": "",
+      "openedAt": "4e59d1e120132c51ee8c9d2befb68e849b999c2b",
+      "openStanding": {
+        "sha": "84d6d7988311f02b029d1638fca8ac822f12043f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "gulpmu",
+      "session": "synthetic/v51/v51-bluejelly-newt-cold-passive-action-attempt4",
+      "step": 117,
+      "syntheticProvenance": {
+        "synthetic/v51/v51-bluejelly-newt-cold-passive-action-attempt4": {
+          "session": "synthetic/v51/v51-bluejelly-newt-cold-passive-action-attempt4",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-bluejelly-newt-cold-passive-action-attempt4",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-bluejelly-newt-cold-passive-action-attempt4.session.json",
+          "recordingSha256": "793cccdc9a106dd6cdbec04a26ce77f8862eae762db6fa3716eabddc2dc6a935",
+          "evaluationPath": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+          "evaluationCommit": "84d6d7988311f02b029d1638fca8ac822f12043f"
+        }
+      },
+      "activeStanding": {
+        "sha": "84d6d7988311f02b029d1638fca8ac822f12043f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-bluejelly-newt-cold-passive-action-attempt4",
+          "session": "synthetic/v51/v51-bluejelly-newt-cold-passive-action-attempt4",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-bluejelly-newt-cold-passive-action-attempt4.session.json",
+          "recordingPath": "challenges/cases/v51/v51-bluejelly-newt-cold-passive-action-attempt4.session.json",
+          "recordingSha256": "793cccdc9a106dd6cdbec04a26ce77f8862eae762db6fa3716eabddc2dc6a935",
+          "recipe": "challenges/cases/v51/v51-bluejelly-newt-cold-passive-action-attempt4.recipe.session.json",
+          "recipeSha256": "7f551a1ee053f3e6698b50868ba0c723f2b2dea96e4e0cb28ea2320638bc1560",
+          "replayInputSha256": "14fb617553e86af72a3b961bff3dc92b545637776ead00396e0e225b3836d5f5",
+          "evaluationPath": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+          "evaluationCommit": "84d6d7988311f02b029d1638fca8ac822f12043f",
+          "evaluationArtifact": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+          "evaluationUtc": "2026-10-12T17:41:55.008Z",
+          "remainingScreens": 1,
+          "recordedSteps": 349,
+          "previousScreensMatched": 348,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 348,
+              "total": 349
+            },
+            "rng": {
+              "matched": 17823,
+              "total": 17823
+            },
+            "cursors": {
+              "matched": 348,
+              "total": 349
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-bluejelly-newt-cold-passive-action-attempt4.json",
+            "result": {
+              "session": "synthetic/v51/v51-bluejelly-newt-cold-passive-action-attempt4",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-bluejelly-newt-cold-passive-action-attempt4",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingPath": "challenges/cases/v51/v51-bluejelly-newt-cold-passive-action-attempt4.session.json",
+              "recordingSha256": "793cccdc9a106dd6cdbec04a26ce77f8862eae762db6fa3716eabddc2dc6a935",
+              "recipePath": "challenges/cases/v51/v51-bluejelly-newt-cold-passive-action-attempt4.recipe.session.json",
+              "recipeSha256": "7f551a1ee053f3e6698b50868ba0c723f2b2dea96e4e0cb28ea2320638bc1560",
+              "evaluationPath": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+              "evaluationCommit": "84d6d7988311f02b029d1638fca8ac822f12043f",
+              "remainingScreens": 1,
+              "status": "complete",
+              "commit": "84d6d7988311f02b029d1638fca8ac822f12043f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-bluejelly-newt-cold-passive-action-attempt4",
+                "session": "synthetic/v51/v51-bluejelly-newt-cold-passive-action-attempt4",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-bluejelly-newt-cold-passive-action-attempt4.session.json",
+                "recordingPath": "challenges/cases/v51/v51-bluejelly-newt-cold-passive-action-attempt4.session.json",
+                "recordingSha256": "793cccdc9a106dd6cdbec04a26ce77f8862eae762db6fa3716eabddc2dc6a935",
+                "recipe": "challenges/cases/v51/v51-bluejelly-newt-cold-passive-action-attempt4.recipe.session.json",
+                "recipeSha256": "7f551a1ee053f3e6698b50868ba0c723f2b2dea96e4e0cb28ea2320638bc1560",
+                "replayInputSha256": "14fb617553e86af72a3b961bff3dc92b545637776ead00396e0e225b3836d5f5",
+                "evaluationPath": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+                "evaluationCommit": "84d6d7988311f02b029d1638fca8ac822f12043f",
+                "evaluationArtifact": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+                "evaluationUtc": "2026-10-12T17:41:55.008Z",
+                "remainingScreens": 1,
+                "recordedSteps": 349,
+                "previousScreensMatched": 348,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 348,
+                    "total": 349
+                  },
+                  "rng": {
+                    "matched": 17823,
+                    "total": 17823
+                  },
+                  "cursors": {
+                    "matched": 348,
+                    "total": 349
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 117,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 117,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 39,
+                    "cCell": {
+                      "ch": "I",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 117,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 117,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      62,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      73,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 117,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The admitted 12c v51 evaluation first differs at segment 0 step 117 only in the engulfing message: C says “It engulfs you!” while JS says “The fog cloud engulfs you!”. All 17,823 RNG entries match and the cursor differs only because the longer JS name advances the message position. Source trace: mhitu.c:gulpmu prints Monnam(mtmp) before swallow state changes; do_name.c:x_monnam selects “it” when canspotmon is false. js/mhitu.js:2325-2328 overrides the naming owner to consider only invisibility and mundetected state, so it names the fog cloud even when the hero is blind. Keep the occupied-square visibility workaround for sighted heroes, but preserve the canonical or explicitly injected visibility owner when blind.",
+              "source": {
+                "file": "mhitu.c",
+                "functions": [
+                  "gulpmu"
+                ],
+                "branch": "Bounded repair to the initial gulpmu engulfer message naming owner. Preserve explicit canSpotMonster/canSeeMonster owners; otherwise use canonical canspotmon for physical visibility and sensing in every state. Account for the occupied hero square only when the hero is sighted, the engulfer is at the hero coordinates, and mon_visible accepts the monster, matching C IN_SIGHT at that square. No whole gulpmu completion is claimed.",
+                "callers": [
+                  "mhitu.c:mattacku -> gulpmu(mtmp, mattk) for a monster engulfing the hero",
+                  "mhitu.c:gulp_blnd_check -> gulpmu(u.ustuck, mattk) for swallowed engulf-blindness checks"
+                ],
+                "dependencies": [
+                  "do_name.c:x_monnam uses canspotmon to select “it”",
+                  "display.c:canspotmon combines canseemon and sensemon; both visibility and sensing must remain canonical when the hero is blind"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Accepted evaluation challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json reports 348/349 screens and cursors, 17,823/17,823 RNG calls; first mismatch is screen 117, row 0, column 39 (C “I”, JS “T”).",
+                "The admitted C screen at step 117 is “You multiply from its heat!  It dies!  It engulfs you!”; replaying the first 118 input steps in JS displays “You multiply from its heat!  It dies!  The fog cloud engulfs you!”. The unexpected article/name explains the cursor position mismatch; no source RNG or state divergence precedes it.",
+                "nethack-c/upstream/src/mhitu.c:1334-1338 calls Monnam(mtmp) for the initial non-steed swallow line. nethack-c/upstream/src/do_name.c:863-865 sets do_it when !canspotmon(mtmp), yielding “it”; this branch runs before u.uswallow changes.",
+                "js/mhitu.js:2325-2328 injects canSpotMonster: () => !mtmp.minvis && !mtmp.mundetected, overriding the canonical visibility owner and incorrectly treating a blind hero as spotting the monster. js/do_name.js:973-982 trusts that injected owner. Keep the nonblind occupied-square workaround while giving blind heroes and explicit caller owners the C-equivalent visibility decision."
+              ],
+              "recordedSteps": 349
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 117,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 117,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 39,
+              "cCell": {
+                "ch": "I",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 117,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 117,
+                "key": " "
+              },
+              "cCursor": [
+                62,
+                0,
+                1
+              ],
+              "jsCursor": [
+                73,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 117,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null
         }
       ]
     }

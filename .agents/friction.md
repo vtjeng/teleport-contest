@@ -393,3 +393,12 @@ triage decisions or fix references.
   The helper exited after the push. Root confirmed the transient lock had gone
   and retried the same helper at the same report commit. It reused the saved
   packet and checkpoint; no live lock was removed or validation repeated.
+
+### 2026-10-12 — preparation turn recovery
+
+- Prep's turn failed on a content filter while preparing NetHack gameplay
+  recordings. Root resumed the same worker and required it to collect or verify
+  its existing command before starting another recorder. The worker confirmed
+  both recorded commands had exited successfully and that no command remained
+  live. Its thirty completed C attempts and earlier deliveries were preserved;
+  it continued the same v57 task.

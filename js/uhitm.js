@@ -43,6 +43,7 @@ import {
     COLD_RES,
     CONFUSION,
     DEAF,
+    DIED,
     DRAIN_RES,
     DISP_ALWAYS,
     DISP_END,
@@ -615,7 +616,8 @@ import { acurr } from './attrib.js';
 import { dropCommandEnv, dropy, set_wounded_legs } from './do.js';
 import { encumber_msg } from './pickup.js';
 import {
-    make_blinded, make_confused, make_sick, make_slimed, make_stunned,
+    make_blinded, make_confused, make_sick, make_slimed, make_stoned,
+    make_stunned,
     split_mon,
     potionhit,
 } from './potion.js';
@@ -1594,12 +1596,14 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
         }
 
         if (fatalGulp && !is_rider(pd)) {
+            let monsterName = pmname(pd, Mgender(mdef, state));
+            if (!type_is_pname(pd)) monsterName = an(monsterName);
             await message(
                 `You ${uDigest ? 'englut' : 'engulf'} ${mon_nam(mdef, state, env)}.`,
                 state,
             );
-            // trap.c instapetrify() is a discarded void death transition.
-            note_unported('trap.c instapetrify');
+            const killer = `${uDigest ? 'swallowing' : uEnfold ? 'enclosing' : 'engulfing'} ${monsterName}${uDigest ? ' whole' : ''}`;
+            await instapetrify(killer, state, { ...env, random, message });
         } else {
             await start_engulf(mdef, state, { ...env, random, message });
             switch (mattk.adtyp) {
@@ -1612,7 +1616,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
                     state.killer ??= {};
                     state.killer.name = `unwisely tried to eat ${pmname(pd, Mgender(mdef, state))}`;
                     state.killer.format = NO_KILLER_PREFIX;
-                    note_unported('end.c done');
+                    await done(DIED, state, { ...env, random, message });
                     return M_ATTK_MISS;
                 }
                 if (heroSlowDigestion(state)) {
@@ -5182,9 +5186,9 @@ export async function mhitm_ad_blnd(
 // C ref: uhitm.c do_stone_u() (3924-3942). Return TRUE exactly when the
 // hero's petrification has been started. A successful poly_when_stoned()
 // transition to a stone golem returns FALSE, because polymon() handled the
-// petrification and C continues without make_stoned(). The make_stoned() call
-// has no return value; its potion.c owner is still outside this span, so retain
-// the source call as an explicit gap.
+// petrification and C continues without make_stoned(). On the ordinary arm,
+// make_stoned() starts the timeout and records the delayed killer before this
+// helper returns TRUE.
 export async function do_stone_u(mtmp, state = game, env = {}) {
     const stoned = Boolean(
         (state.u?.uprops?.[STONED]?.intrinsic ?? 0) & TIMEOUT,
@@ -5203,13 +5207,9 @@ export async function do_stone_u(mtmp, state = game, env = {}) {
                 kname = the(kname, state);
             kformat = KILLED_BY;
         }
-        // C: make_stoned(5L, NULL, kformat, kname).  The return is void and
-        // no local state may be invented for this unported owner.
-        note_unported('potion.c make_stoned');
-        // Keep the arguments evaluated in C order for future owner wiring.
-        void kformat;
-        void kname;
-        void env;
+        // C's void make_stoned() call starts the delayed stoning timer and
+        // records the monster as its delayed killer before returning TRUE.
+        await make_stoned(5, null, kformat, kname, state);
         return true;
     }
     return false;

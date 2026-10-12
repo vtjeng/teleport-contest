@@ -9,11 +9,11 @@
   "recordingSha256": "793cccdc9a106dd6cdbec04a26ce77f8862eae762db6fa3716eabddc2dc6a935",
   "recipePath": "challenges/cases/v51/v51-bluejelly-newt-cold-passive-action-attempt4.recipe.session.json",
   "recipeSha256": "7f551a1ee053f3e6698b50868ba0c723f2b2dea96e4e0cb28ea2320638bc1560",
-  "evaluationPath": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
-  "evaluationCommit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
+  "evaluationPath": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+  "evaluationCommit": "84d6d7988311f02b029d1638fca8ac822f12043f",
   "remainingScreens": 1,
   "status": "complete",
-  "commit": "4e073dabd50d84bbddd28a75d100cd7c78deff91",
+  "commit": "84d6d7988311f02b029d1638fca8ac822f12043f",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v51",
@@ -26,11 +26,11 @@
     "recordingSha256": "793cccdc9a106dd6cdbec04a26ce77f8862eae762db6fa3716eabddc2dc6a935",
     "recipe": "challenges/cases/v51/v51-bluejelly-newt-cold-passive-action-attempt4.recipe.session.json",
     "recipeSha256": "7f551a1ee053f3e6698b50868ba0c723f2b2dea96e4e0cb28ea2320638bc1560",
-    "replayInputSha256": "ec87e2802e283d81d8a6817b5ed4b751d0fd39498a69f63092959777e15f3e9b",
-    "evaluationPath": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
-    "evaluationCommit": "12c2941a9047cf5fc48e2f032217ecfbdb3884ba",
-    "evaluationArtifact": "challenges/evaluations/accepted-12c2941a9047cf5fc48e2f032217ecfbdb3884ba-v51.json",
-    "evaluationUtc": "2026-10-12T12:38:17.754Z",
+    "replayInputSha256": "14fb617553e86af72a3b961bff3dc92b545637776ead00396e0e225b3836d5f5",
+    "evaluationPath": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+    "evaluationCommit": "84d6d7988311f02b029d1638fca8ac822f12043f",
+    "evaluationArtifact": "challenges/evaluations/accepted-84d6d7988311f02b029d1638fca8ac822f12043f-v51.json",
+    "evaluationUtc": "2026-10-12T17:41:55.008Z",
     "remainingScreens": 1,
     "recordedSteps": 349,
     "previousScreensMatched": 348,
@@ -102,11 +102,7 @@
     "message": null,
     "cFile": null,
     "luaFile": null,
-    "line": null,
-    "investigation": {
-      "status": "missing",
-      "path": "investigations/synthetic/v51/v51-bluejelly-newt-cold-passive-action-attempt4.json"
-    }
+    "line": null
   },
   "summary": "The admitted 12c v51 evaluation first differs at segment 0 step 117 only in the engulfing message: C says “It engulfs you!” while JS says “The fog cloud engulfs you!”. All 17,823 RNG entries match and the cursor differs only because the longer JS name advances the message position. Source trace: mhitu.c:gulpmu prints Monnam(mtmp) before swallow state changes; do_name.c:x_monnam selects “it” when canspotmon is false. js/mhitu.js:2325-2328 overrides the naming owner to consider only invisibility and mundetected state, so it names the fog cloud even when the hero is blind. Keep the occupied-square visibility workaround for sighted heroes, but preserve the canonical or explicitly injected visibility owner when blind.",
   "source": {
@@ -114,7 +110,7 @@
     "functions": [
       "gulpmu"
     ],
-    "branch": "For the initial swallow arm, the engulfer message uses Monnam before the hero is swallowed. The message name therefore depends on current canspotmon visibility. JavaScript forces the monster visible solely from minvis/mundetected, missing the Blind and telepathy/sensing terms of the source owner. The rest of the source effect and RNG sequence match through this screen.",
+    "branch": "Bounded repair to the initial gulpmu engulfer message naming owner. Preserve explicit canSpotMonster/canSeeMonster owners; otherwise use canonical canspotmon for physical visibility and sensing in every state. Account for the occupied hero square only when the hero is sighted, the engulfer is at the hero coordinates, and mon_visible accepts the monster, matching C IN_SIGHT at that square. No whole gulpmu completion is claimed.",
     "callers": [
       "mhitu.c:mattacku -> gulpmu(mtmp, mattk) for a monster engulfing the hero",
       "mhitu.c:gulp_blnd_check -> gulpmu(u.ustuck, mattk) for swallowed engulf-blindness checks"
