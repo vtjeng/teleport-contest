@@ -280,7 +280,7 @@ async function dowatersnakes(state = game, env = {}) {
 // C ref: fountain.c dowaternymph() (93-116). Summon a water nymph at
 // the fountain. If extinct or genocided, print a bubble message. The
 // blind and deaf paths (You_hear / Soundeffect) remain fail-closed.
-async function dowaternymph(state = game, env = {}) {
+export async function dowaternymph(state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? { d, rn1, rn2, rnd, rne };
     const makeMonster = env.makeMonster ?? makemon_runtime;
@@ -298,8 +298,10 @@ async function dowaternymph(state = game, env = {}) {
                 await message(
                     `You attract ${a_monnam(mtmp, { state })}!`, state);
             } else {
-                throw new UnsupportedFountainError(
-                    'You_hear for blind water nymph attraction');
+                // C's You_hear() preserves deafness/acoustics behavior and
+                // returns null when no message should be shown.
+                const heard = youHear('a seductive voice.', state);
+                if (heard) await message(heard, state);
             }
             mtmp.msleeping = 0;
             if (t_at(mtmp.mx, mtmp.my, state)) {
@@ -312,8 +314,8 @@ async function dowaternymph(state = game, env = {}) {
         await message(
             'A large bubble rises to the surface and pops.', state);
     } else {
-        throw new UnsupportedFountainError(
-            'You_hear for blind water nymph bubble');
+        const heard = youHear('a loud pop.', state);
+        if (heard) await message(heard, state);
     }
 }
 
