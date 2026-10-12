@@ -1,0 +1,42 @@
+{
+  "session": "synthetic/v50/v50-demonpet-melee-action-attempt1",
+  "corpus": "synthetic",
+  "batch": "v50",
+  "caseId": "v50-demonpet-melee-action-attempt1",
+  "manifestPath": "challenges/manifests/v50.json",
+  "manifestSha256": "8033e81f20119b05c772e33cdeb1079027f7e032da436b16e9f5131eaa0a6f00",
+  "recordingSha256": "064cea947f1259f065488cc0c8c6f81bb1127ce7d2ddb71f3b726e0ce7202fc2",
+  "evaluationPath": "challenges/evaluations/accepted-ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3-v50.json",
+  "evaluationCommit": "ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3",
+  "remainingScreens": 46,
+  "recordedSteps": 180,
+  "status": "complete",
+  "commit": "07d6ac95bd1f0702693a4e4e26f5639bcdd25796",
+  "mismatch": {
+    "session": "synthetic/v50/v50-demonpet-melee-action-attempt1",
+    "remainingScreens": 46
+  },
+  "summary": "At step 134, the polymorphed hero's unarmed demon attack enters uhitm.c:damageum's demonpet branch when !rn2(13). C prints the arrival line, chooses the current demon form because rn2(6)=3, creates and tames a horned devil at the hero, and exercises Wisdom. The baseline JavaScript records note_unported('demon.c demonpet') and returns M_ATTK_MISS, skipping those effects. The implementation now ports demonpet and wires it through damageum.",
+  "source": {
+    "file": "uhitm.c",
+    "functions": ["demonpet"],
+    "branch": "Complete demonpet(): print the message; choose ndemon(u.ualign.type) only when rn2(6)==0, otherwise use the current form; call makemon at the hero with NO_MM_FLAGS; if creation succeeds, call tamedog with a null object and FALSE; then exercise A_WIS in C order.",
+    "callers": [
+      "uhitm.c:damageum lines 4835-4854 calls demonpet after the initial damage roll when the hero form is a demon, rn2(13)==0, no weapon is wielded, and the form is neither amorous demon nor Balrog; uhitm.c:hmonas reaches damageum from the polymorphed hero attack. js/uhitm.js:damageum now calls the complete demonpet implementation under the matching guard."
+    ],
+    "dependencies": [
+      "minion.c:ndemon is already implemented in js/minion.js and source-pinned by scripts/minion.test.mjs; it supplies the selected aligned demon species only on the rare rn2(6)==0 branch. No completion claim for ndemon is included in this task.",
+      "makemon.c:makemon and its asynchronous runtime tail already support explicit monster creation at the hero square with NO_MM_FLAGS; its returned monster is checked before the source-discarded tamedog result.",
+      "dog.c:tamedog is implemented in js/dog.js; C discards its result at this call.",
+      "attrib.c:exercise is implemented in js/attrib.js; C discards its result at this call."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved accepted v50 evaluation challenges/evaluations/accepted-ee910f83f79d8cb1ddab7352d52ee2b10e9db0d3-v50.json reports 134/180 screens, 150/180 cursors, 2847/3308 RNG calls, and 46 remaining screens for this case.",
+    "The admitted manifest source trace identifies uhitm.c:damageum -> demonpet and hmonas -> damageum -> demonpet. At zero-based step 134, the C RNG log shows the selected damageum call followed by rn2(6)=3 at demonpet; C emits ‘You bite the wood golem. Some hell-p has arrived!’ then the horned devil's appearance and equipment messages. This is the first baseline mismatch because JavaScript skipped the helper call.",
+    "nethack-c/upstream/src/uhitm.c:2131-2145 defines the whole static demonpet function. The implementation preserves message -> rn2(6)/optional ndemon -> species selection -> makemon -> conditional tamedog -> Wisdom exercise order. ndemon, makemon, tamedog, and exercise already have JavaScript implementations; only makemon's and ndemon's return values control source branches here.",
+    "nethack-c/upstream/src/uhitm.c:4835-4854 shows damageum initializes attack data, applies the demon/unarmed/rn2(13) guard, calls demonpet, and returns M_ATTK_MISS. js/uhitm.js:7517-7524 now calls demonpet under the same guard.",
+    "After the change, replaying the admitted case matches through zero-based step 157, including the demonpet summon and taming path. The scanner then stops at step 158 on the separate behavior boundary 'simple monster action requires an armed monster attacking another monster'; this later mismatch is outside demonpet. The source owner is uhitm.c:demonpet, not demon.c, and GOALS.json has no earlier verified evidence for that function."
+  ]
+}
