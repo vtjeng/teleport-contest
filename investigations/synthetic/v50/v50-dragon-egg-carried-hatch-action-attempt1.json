@@ -105,18 +105,65 @@
           "jsSymbol": "hitmm"
         }
       ],
-      "indirectDispatch": "mattackm routes missed strikes through missmm and successful strikes through hitmm; it does not directly call pre_mm_attack."
+      "indirectDispatch": "mattackm routes missed strikes through missmm and successful strikes through hitmm; it does not directly call pre_mm_attack.",
+      "sourceReview": "mhitm.c:41-72 reveals either mimicking combatant before visibility updates, clears mundetected on the defender, then marks or redraws each participant according to canspotmon and showit. It does not update an eelhide timer or emit a dream message; those are outside this function."
     },
     "runtimeEvidence": {
-      "candidateTree": "605633b974feadd91dd904a08a41e30f30298293",
+      "candidateTree": "3472fbed94f0dfbcde63b0f591a3a693bf92bfc9",
       "check": "node scripts/synthetic-range-evidence.mjs /tmp/c-combat-final-range-1754.json",
       "case": "v50/v50-dragon-egg-carried-hatch-action-attempt1",
       "segment": 0,
       "fromStep": 0,
       "throughStep": 1754,
       "result": "matched",
-      "log": "/tmp/c-combat-final-range.log",
+      "log": "/tmp/c-combat-pudding-range.log",
       "logSha256": "237c6eb33dd981925d3b858f33e640b5d7ba0e59d109db17f3f0f25fc58ebab4"
+    }
+  },
+  "puddingWholeSourceCorrection": {
+    "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+    "source": "mhitm.c:mattackm, lines 455-471",
+    "behavior": "After hitmm, a black or brown pudding with more than one HP and not cancelled splits when struck with an iron or metal wielded weapon. clone_mon return is consumed; if a clone exists, the visible message is emitted before mintrap(clone, NO_TRAP_FLAGS), then the aggressor-death bit is set if the aggressor died.",
+    "implementation": "js/mhitm.js:mattackm uses the existing makemon.js:clone_mon and trap_effects.js:mintrap production implementations with the active state/random/display environment.",
+    "tests": [
+      "scripts/mhitm.test.mjs"
+    ],
+    "focusedCoverage": [
+      "metal weapon split after hitmm",
+      "no split for wooden weapon",
+      "no split at one hit point",
+      "no split when the pudding is cancelled"
+    ],
+    "runtimeEvidence": {
+      "candidateTree": "3472fbed94f0dfbcde63b0f591a3a693bf92bfc9",
+      "check": "node --test scripts/mhitm.test.mjs scripts/uhitm.test.mjs scripts/weapon.test.mjs",
+      "result": "passed",
+      "testLog": "/tmp/c-combat-pudding-focused.log",
+      "testLogSha256": "a6bb08e8e51e5ba5a118030bc26fa82d7e7b568dc2fec2f72271d3d49ff8b1c9",
+      "lint": "npm run lint passed",
+      "lintLog": "/tmp/c-combat-pudding-lint.log",
+      "lintLogSha256": "f8b045212c87825355f5fd99462819427f5f9af4ecbc9ca4ca0e824521bebe6c",
+      "syntheticRange": {
+        "case": "v50/v50-dragon-egg-carried-hatch-action-attempt1",
+        "segment": 0,
+        "fromStep": 0,
+        "throughStep": 1754,
+        "result": "matched",
+        "log": "/tmp/c-combat-pudding-range.log",
+        "logSha256": "237c6eb33dd981925d3b858f33e640b5d7ba0e59d109db17f3f0f25fc58ebab4"
+      }
+    }
+  },
+  "monfleeCallerCorrection": {
+    "source": "uhitm.c:mhitm_ad_sedu, line 4689",
+    "implementation": "js/uhitm.js:mhitm_ad_sedu now passes {...env, state, random} as monflee’s fifth argument, preserving caller-owned state and RNG.",
+    "test": "scripts/uhitm.test.mjs source-pins the C call and JS environment forwarding; B’s monmove.js:monflee implementation is not included.",
+    "validation": {
+      "candidateTree": "3472fbed94f0dfbcde63b0f591a3a693bf92bfc9",
+      "check": "node --test scripts/uhitm.test.mjs",
+      "result": "passed",
+      "testLog": "/tmp/c-combat-pudding-focused.log",
+      "testLogSha256": "a6bb08e8e51e5ba5a118030bc26fa82d7e7b568dc2fec2f72271d3d49ff8b1c9"
     }
   }
 }
