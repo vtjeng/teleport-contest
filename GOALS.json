@@ -283190,7 +283190,7 @@
     {
       "id": "div-inventtype-null-title-v48-20261012",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve the unset title in the inventory-type menu",
       "cFile": "invent.c",
       "sessions": [],
@@ -283202,8 +283202,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dotypeinv",
       "session": "synthetic/v48/v48-inventtype-weapons-attempt1",
       "step": 13,
@@ -283478,7 +283481,13 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "Give the prepared batch priority at this safe pre-code boundary because C has no independent unreserved work; preserve B inventory correction for resumption."
+      "parkedReason": "Give the prepared batch priority at this safe pre-code boundary because C has no independent unreserved work; preserve B inventory correction for resumption.",
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "B-v50-demonpet-melee-action",

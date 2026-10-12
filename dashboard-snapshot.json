@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T08:33:27.169Z",
+  "capturedAt": "2026-10-12T08:48:54.302Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -93563,22 +93563,191 @@
         "worker": "A2",
         "state": "active",
         "reason": "Fixing the v51 throne court summon mismatch within the claimed throne effect."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep15-146960102-20261012",
+        "type": "published",
+        "at": "2026-10-12T08:34:07.139Z",
+        "task": "Prep15",
+        "commit": "146960102cee500b340d929844155460e268be6a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-def66703813df3578189d5890865f9f91d530715",
+        "type": "ready",
+        "at": "2026-10-12T08:34:48.819Z",
+        "task": "A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012",
+        "delivery": "def66703813df3578189d5890865f9f91d530715"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v51-mon-to-stone-goal-handoff-20261012",
+        "type": "turn",
+        "at": "2026-10-12T08:35:32.057Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v51-mon-to-stone-20261012",
+        "type": "implement",
+        "at": "2026-10-12T08:35:55.830Z",
+        "task": "B-investigation-v51-cockatrice-wood-golem-20261012",
+        "goal": "div-mon-to-stone-message-v51-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-v51-throne-def66703-20261012",
+        "type": "received",
+        "at": "2026-10-12T08:36:04.018Z",
+        "task": "A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012",
+        "delivery": "def66703813df3578189d5890865f9f91d530715"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-A2-history-20261012",
+        "type": "activity",
+        "at": "2026-10-12T08:36:06.490Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "phase": "review",
+        "reason": "Reviewing the message-history delivery that unblocks the queued throne and inventory fixes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-history-source-branches-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T08:36:52.322Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "delivery": "04d8cf96fb539e0c0b6333f88d7576ce447f699e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-history-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T08:37:09.181Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep16-v52-ten-source-20261012-5",
+        "type": "turn",
+        "at": "2026-10-12T08:37:13.837Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v52: ten distinct first failures verified; scouting shop use coverage."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-74ffc7380822a138acbeb651e419255c8bdd1b40",
+        "type": "ready",
+        "at": "2026-10-12T08:37:17.831Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "delivery": "74ffc7380822a138acbeb651e419255c8bdd1b40"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-B-inventtype-20261012",
+        "type": "activity",
+        "at": "2026-10-12T08:37:21.837Z",
+        "task": "B-investigation-v48-inventtype-weapons-20261012",
+        "phase": "review",
+        "reason": "Resuming the queued inventory menu title correction after the new batch handoff."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-inventtype-dd7580b0-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T08:38:41.563Z",
+        "task": "B-investigation-v48-inventtype-weapons-20261012",
+        "integration": "dd7580b087b2f6d91b80159b92966379aa7eba3a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v51-pyrolisk-gaze-20261012",
+        "type": "assign",
+        "at": "2026-10-12T08:38:51.336Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-v51-rustm-74ffc738-20261012",
+        "type": "received",
+        "at": "2026-10-12T08:39:11.135Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "delivery": "74ffc7380822a138acbeb651e419255c8bdd1b40"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v51-pyrolisk-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T08:39:51.849Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Diagnosing a v51 pyrolisk gaze mismatch in zap.c."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0e0d1aa16d7b2de793f249201cf3ed73ed6a02e7",
+        "type": "ready",
+        "at": "2026-10-12T08:39:54.443Z",
+        "task": "B-investigation-v51-cockatrice-wood-golem-20261012",
+        "delivery": "0e0d1aa16d7b2de793f249201cf3ed73ed6a02e7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-v51-mon-to-stone-0e0d1aa1-20261012",
+        "type": "received",
+        "at": "2026-10-12T08:40:30.889Z",
+        "task": "B-investigation-v51-cockatrice-wood-golem-20261012",
+        "delivery": "0e0d1aa16d7b2de793f249201cf3ed73ed6a02e7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v51-fireelemental-sink-20261012",
+        "type": "assign",
+        "at": "2026-10-12T08:41:36.663Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v51-pyrolisk-bhito-wire-20261012",
+        "type": "implement",
+        "at": "2026-10-12T08:43:38.171Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "goal": "div-use-offensive-bhito-callback-v51-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-inventtype-dd7580b0-20261012",
+        "type": "validated",
+        "at": "2026-10-12T08:45:03.477Z",
+        "task": "B-investigation-v48-inventtype-weapons-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v51-fireelemental-sink-metamorphosis-20261012",
+        "type": "implement",
+        "at": "2026-10-12T08:45:52.618Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
+        "goal": "div-fountain-drinksink-polyself-v51-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v48-inventtype-weapons-20261012-dd7580b087b2f6d91b80159b92966379aa7eba3a-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T08:47:46.044Z",
+        "task": "B-investigation-v48-inventtype-weapons-20261012"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-investigation-v48-inventtype-weapons-20261012",
-        "worker": "B",
-        "goal": "div-inventtype-null-title-v48-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "f0822d3e6fc159be96783df5da5da11471068cbb",
-        "since": "2026-10-12T02:52:04.859Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
         "worker": "C",
@@ -93643,7 +93812,6 @@
         "delivery": "07d6ac95bd1f0702693a4e4e26f5639bcdd25796",
         "since": "2026-10-12T07:36:15.001Z",
         "blockedBy": [
-          "B-investigation-v48-inventtype-weapons-20261012",
           "B-investigation-v49-apply-book-attempt2-20261012",
           "B-investigation-v48-name-floor-object-self-20261012",
           "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
@@ -93673,17 +93841,6 @@
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
-        "worker": "A2",
-        "goal": "file-port-topl-message-history-v48-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "04d8cf96fb539e0c0b6333f88d7576ce447f699e",
-        "since": "2026-10-12T07:54:19.887Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "B-investigation-v50-demonpet-melee-action-20261012",
         "worker": "B",
         "goal": "B-v50-demonpet-melee-action",
@@ -93691,6 +93848,41 @@
         "status": "ready",
         "delivery": "0dde6059611f7df9519f67d1b299279033b819e6",
         "since": "2026-10-12T07:58:38.393Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012",
+        "worker": "A2",
+        "goal": "div-sit-throne-effect-court-summon-v51-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "def66703813df3578189d5890865f9f91d530715",
+        "since": "2026-10-12T08:34:48.819Z",
+        "blockedBy": [
+          "A2-investigation-v48-previous-message-history-ctrlp-20261012"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "worker": "C",
+        "goal": "port-mhitm-rustm-v51-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "74ffc7380822a138acbeb651e419255c8bdd1b40",
+        "since": "2026-10-12T08:37:17.831Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v51-cockatrice-wood-golem-20261012",
+        "worker": "B",
+        "goal": "div-mon-to-stone-message-v51-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "0e0d1aa16d7b2de793f249201cf3ed73ed6a02e7",
+        "since": "2026-10-12T08:39:54.443Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -94136,16 +94328,14 @@
         "status": "parked",
         "delivery": "92449c294641f2004c63c94a6eb5f95c721c7e85",
         "since": "2026-10-12T06:41:40.234Z",
-        "blockedBy": [
-          "B-investigation-v48-inventtype-weapons-20261012"
-        ],
+        "blockedBy": [],
         "reason": "B is command-free and its immutable getobj Escape delivery92449c294 is preserved. Transfer getobj caller-edit ownership to A for the required force_invmenu history-writer hook so the complete TTY family can proceed. A must preserve the pending Escape repair; resume this unchanged B delivery after A releases the caller scope. No behavioral dependency from A to B is introduced."
       }
     ]
   },
   "development": {
-    "executionCommit": "c464879ca8bcec43ae5cd3355abd0aa2f935bffe",
-    "measuredAt": "2026-10-12T08:20:41.533Z",
+    "executionCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
+    "measuredAt": "2026-10-12T08:43:34.765Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
