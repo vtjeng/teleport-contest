@@ -37,7 +37,7 @@
       "backfire"
     ],
     "callers": [
-      "zap.c:dozap at 2648 is the sole direct C caller; js/cmd.js:dozap dispatches production commands to js/zap.js:dozap."
+      "zap.c:dozap at 2648 is the sole direct C caller; js/cmd.js:runZapCommand dispatches production commands to js/zap.js:dozap."
     ],
     "dependencies": [
       "hack.c:losehp, implemented in js/hack.js; the backfire caller discards its return value.",
