@@ -294528,6 +294528,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-dokick-barefoot-corpse-instapetrify-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement really_kick_object from dokick.c",
+      "cFile": "dokick.c",
+      "sessions": [
+        "synthetic/v53/v53-barefoot-kick-cockatrice-corpse-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "really_kick_object",
+      "session": "synthetic/v53/v53-barefoot-kick-cockatrice-corpse-action1"
     }
   ]
 }
