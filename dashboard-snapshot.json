@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T19:42:08.572Z",
+  "capturedAt": "2026-10-12T19:51:42.986Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -97390,6 +97390,112 @@
         "type": "accepted",
         "at": "2026-10-12T19:41:02.551Z",
         "task": "A2-investigation-v52-prayer-crowning-gem-luck-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v52-prayer-crowning-gem-luck-20261012-0365a492b5f9f84735deaf6f038ac880da071441",
+        "type": "published",
+        "at": "2026-10-12T19:42:31.056Z",
+        "task": "A2-investigation-v52-prayer-crowning-gem-luck-20261012",
+        "commit": "0365a492b5f9f84735deaf6f038ac880da071441"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v52-cursed-wand-nothing-backfire-20261012-0365a492b5f9f84735deaf6f038ac880da071441",
+        "type": "publication-confirmed",
+        "at": "2026-10-12T19:42:37.682Z",
+        "task": "B-investigation-v52-cursed-wand-nothing-backfire-20261012",
+        "commit": "0365a492b5f9f84735deaf6f038ac880da071441",
+        "knownBy": "2026-10-12T19:42:31.056Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-minetown-67776b9593bfb9e0bc90bc2ead6934245f045b8b",
+        "type": "integrating",
+        "at": "2026-10-12T19:43:38.400Z",
+        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+        "integration": "67776b9593bfb9e0bc90bc2ead6934245f045b8b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-7e243d7c86f8a4ec52790acfc00d0baa27cdc00f",
+        "type": "received",
+        "at": "2026-10-12T19:44:28.878Z",
+        "task": "C-investigation-v52-monster-deliberate-polymorph-trap-attempt3-20261012",
+        "delivery": "7e243d7c86f8a4ec52790acfc00d0baa27cdc00f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a577fc8927a71cef6f8e093b20353f0764fa3231",
+        "type": "received",
+        "at": "2026-10-12T19:44:34.273Z",
+        "task": "B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
+        "delivery": "a577fc8927a71cef6f8e093b20353f0764fa3231"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-20763e5c8c468f81294b4648414e6ed942b786b0",
+        "type": "ready",
+        "at": "2026-10-12T19:48:34.290Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "delivery": "20763e5c8c468f81294b4648414e6ed942b786b0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-20763e5c8c468f81294b4648414e6ed942b786b0",
+        "type": "received",
+        "at": "2026-10-12T19:48:58.419Z",
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "delivery": "20763e5c8c468f81294b4648414e6ed942b786b0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2ac40434589f38f5e67dfcdde02ef0ec03f37db0",
+        "type": "ready",
+        "at": "2026-10-12T19:49:08.131Z",
+        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+        "delivery": "2ac40434589f38f5e67dfcdde02ef0ec03f37db0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v52-minetown-move-continuation-20261012",
+        "type": "assign",
+        "at": "2026-10-12T19:49:20.265Z",
+        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-2ac40434589f38f5e67dfcdde02ef0ec03f37db0",
+        "type": "received",
+        "at": "2026-10-12T19:49:44.741Z",
+        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+        "delivery": "2ac40434589f38f5e67dfcdde02ef0ec03f37db0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012-67776b9593bfb9e0bc90bc2ead6934245f045b8b-validated",
+        "type": "validated",
+        "at": "2026-10-12T19:50:12.678Z",
+        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-saddle-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T19:50:20.300Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "All current v52 queue cases are reserved by A2, B, or C. The only unreserved case remains held for its build-profile provenance decision; waiting for Main integration or the next admitted queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012-67776b9593bfb9e0bc90bc2ead6934245f045b8b-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T19:50:48.597Z",
+        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012"
       }
     ]
   },
@@ -97486,17 +97592,6 @@
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v52-minetown-unpaid-tool-pickup-attempt12-20261012",
-        "worker": "A2",
-        "goal": "A2-fix-shk-minetown-room-index-v52-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "9f8fa46fc41480fdac403b5f2b2db93725e9c1b9",
-        "since": "2026-10-12T19:16:14.371Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "C-investigation-v52-emergency-drowning-disrobe-attempt2-20261012",
         "worker": "C",
         "goal": "C-v52-emergency-disrobe-dropx-20261012",
@@ -97537,6 +97632,28 @@
         "status": "ready",
         "delivery": "a577fc8927a71cef6f8e093b20353f0764fa3231",
         "since": "2026-10-12T19:34:45.173Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v52-minetown-muse-continuation-20261012",
+        "worker": "A2",
+        "goal": "A2-port-shk-hot-pursuit-v52-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "20763e5c8c468f81294b4648414e6ed942b786b0",
+        "since": "2026-10-12T19:48:34.290Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v52-saddle-cockatrice-touch-attempt2-20261012",
+        "worker": "C",
+        "goal": "C-v52-steed-use-saddle-stoning-caller-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2ac40434589f38f5e67dfcdde02ef0ec03f37db0",
+        "since": "2026-10-12T19:49:08.131Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -98011,8 +98128,8 @@
     ]
   },
   "development": {
-    "executionCommit": "6f4abfb9dd2c5ee00eae26f123d4338a61159c78",
-    "measuredAt": "2026-10-12T19:31:11.014Z",
+    "executionCommit": "67776b9593bfb9e0bc90bc2ead6934245f045b8b",
+    "measuredAt": "2026-10-12T19:48:54.346Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

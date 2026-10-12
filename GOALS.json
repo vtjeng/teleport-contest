@@ -292689,7 +292689,7 @@
     {
       "id": "A2-fix-shk-minetown-room-index-v52-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement inside_shop, deserted_shop, u_entered_shop, shop_keeper from shk.c",
       "cFile": "shk.c",
       "sessions": [
@@ -292699,10 +292699,133 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "67776b9593bfb9e0bc90bc2ead6934245f045b8b",
       "delivered": null,
       "function": "inside_shop",
-      "session": "synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12"
+      "session": "synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12",
+      "closeStanding": {
+        "sha": "67776b9593bfb9e0bc90bc2ead6934245f045b8b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "6f4abfb9dd2c5ee00eae26f123d4338a61159c78",
+        "target": "synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/67776b9593bfb9e0bc90bc2ead6934245f045b8b/run-hosted-592TQW/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "inside_shop",
+            "sourceFile": "shk.c",
+            "implementation": "js/shk.js",
+            "symbol": "inside_shop",
+            "pure": true,
+            "sourceReview": "Bounded room-identity correction only. C reads levl[x][y].roomno and tests the corresponding contiguous svr.rooms entry; JavaScript now resolves that conceptual room index with dungeon.js:mapseen_room. The nested-shop test pins the strict interior and shop-type result; no whole-function completion is claimed.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "u_entered_shop",
+                "source": "C hack.c:check_special_room calls shk.c:u_entered_shop, which calls inside_shop after its greeting; JavaScript keeps the existing call wiring."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "shop_keeper",
+            "sourceFile": "shk.c",
+            "implementation": "js/shk.js",
+            "symbol": "shop_keeper",
+            "pure": false,
+            "sourceReview": "Bounded room-identity correction only. C returns svr.rooms[rmno - ROOMOFFSET].resident; JavaScript now reads that resident through mapseen_room, preserving the existing anger/surcharge branch. No whole-function completion is claimed.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "u_entered_shop",
+                "source": "C shk.c:u_entered_shop calls shop_keeper(*enterstring); the existing JavaScript caller remains wired and now resolves nested residents."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-minetown-unpaid-tool-pickup-attempt12",
+                "segment": 0,
+                "fromStep": 312,
+                "throughStep": 312,
+                "source": "hack.c:check_special_room -> shk.c:u_entered_shop -> shk.c:shop_keeper finds the Minetown hardware-store resident for the nested C room identity."
+              }
+            ]
+          },
+          {
+            "name": "u_entered_shop",
+            "sourceFile": "shk.c",
+            "implementation": "js/shk.js",
+            "symbol": "u_entered_shop",
+            "pure": false,
+            "sourceReview": "Bounded room-identity correction only. C uses svr.rooms[*enterstring - ROOMOFFSET].rtype after resolving an active keeper; JavaScript now resolves the same conceptual index through mapseen_room. Existing command/movement caller wiring is unchanged. No whole-function completion is claimed.",
+            "callers": [
+              {
+                "path": "js/rooms.js",
+                "symbol": "check_special_room",
+                "source": "C hack.c:check_special_room calls shk.c:u_entered_shop for newly entered shops; JavaScript rooms.js retains this production call."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-minetown-unpaid-tool-pickup-attempt12",
+                "segment": 0,
+                "fromStep": 312,
+                "throughStep": 312,
+                "source": "hack.c movement/check_special_room -> shk.c:u_entered_shop resolves the nested room type and reaches the hardware-store greeting."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This bounded correction fixes the nested-room identity used by the four selected shk.c functions. The v52 Minetown case now passes its former step-312 failure and reaches an unrelated muse.c divergence at screen 572 / RNG step 573. The case covers the staffed entry path through shop_keeper and u_entered_shop; scripts/shk.test.mjs separately reaches inside_shop and the no-resident deserted_shop path with a nested fixture. No whole-file or whole-function completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Minetown nested hardware-store entry",
+            "functions": [
+              "inside_shop",
+              "shop_keeper",
+              "u_entered_shop"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-minetown-unpaid-tool-pickup-attempt12",
+                "segment": 0,
+                "fromStep": 312,
+                "throughStep": 312,
+                "source": "hack.c:check_special_room -> shk.c:u_entered_shop -> shop_keeper; the same call then uses inside_shop and the nested shop type."
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": [
+          {
+            "name": "deserted_shop",
+            "sourceFile": "shk.c",
+            "reason": "The v52 C replay enters a staffed shop, so shk.c:u_entered_shop finds its keeper and does not call deserted_shop. scripts/shk.test.mjs exercises the nested-room empty-shop helper path in JavaScript, but there is no matching C runtime evidence for this branch.",
+            "blockedRecipe": "recipes/shk.c/v52-empty-shop-branch-blocked.session.json"
+          }
+        ]
+      }
     }
   ]
 }
