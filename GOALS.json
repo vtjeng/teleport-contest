@@ -293582,6 +293582,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-spell-novel-read-levelup-message-v52-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore the novel reward's level-up message",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v52/v52-novel-read-tribute-action-attempt2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v52-novel-read-tribute-action-attempt2-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "study_book",
+      "session": "synthetic/v52/v52-novel-read-tribute-action-attempt2"
     }
   ]
 }
