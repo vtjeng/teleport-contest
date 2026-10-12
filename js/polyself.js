@@ -181,7 +181,9 @@ import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { youhiding } from './insight.js';
 import { livelog_printf } from './pline.js';
 import {
-    deltrap, maketrap, reset_utrap, set_utrap, selftouch, t_at, unconscious } from './trap.js';
+    deltrap, instapetrify, maketrap, reset_utrap, set_utrap, selftouch, t_at,
+    unconscious,
+} from './trap.js';
 import { dotrap, feeltrap } from './trap_effects.js';
 import {
     make_blinded, make_glib, make_sick, make_slimed, make_stoned,
@@ -2635,11 +2637,9 @@ export async function dogaze(state = game) {
 }
 
 // ---------- dohide ------------------------------------------------------
-// C ref: polyself.c dohide() (1777-1874). "called by domonability() for
-// #monster": the poly'd hider or mimic hides, unless held, trapped, out of
-// water as an eel, without an object to hide under, or on a plane with
-// nothing above or below. The discarded trap.c instapetrify() call remains
-// an explicit gap; both hiding messages await insight.c youhiding().
+// C ref: polyself.c dohide() (1777-1876). "called by domonability() for
+// #monster": preserve the poly'd hider or mimic branches, including fatal
+// hiding under a floor pile made entirely of cockatrice corpses.
 export async function dohide(state = game) {
     const u = state.u;
     const ismimic = state.youmonst.data.mlet === M.S_MIMIC;
@@ -2708,8 +2708,10 @@ export async function dohide(state = game) {
                 `Hiding under ${corpse_name}${plur(ct)} is a fatal mistake...`,
                 state,
             );
-            // instapetrify("hiding under <corpse_name><plur>")
-            note_unported('trap.c instapetrify');
+            await instapetrify(
+                `hiding under ${corpse_name}${plur(ct)}`,
+                state,
+            );
             /* only reach here if life-saved */
             u.uundetected = 0;
             return ECMD_TIME;
