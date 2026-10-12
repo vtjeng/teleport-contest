@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T15:37:48.863Z",
+  "capturedAt": "2026-10-12T15:58:57.523Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -95712,6 +95712,114 @@
         "at": "2026-10-12T15:37:23.064Z",
         "worker": "C",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v50-dragon-egg-carried-hatch-action-20261012-de58f2f789e272b3cfedf2a3af785581967e2b99",
+        "type": "published",
+        "at": "2026-10-12T15:38:52.991Z",
+        "task": "C-investigation-v50-dragon-egg-carried-hatch-action-20261012",
+        "commit": "de58f2f789e272b3cfedf2a3af785581967e2b99"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-840417ac41adce16c263425bf3c6e713711f8c67",
+        "type": "ready",
+        "at": "2026-10-12T15:40:20.354Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "delivery": "840417ac41adce16c263425bf3c6e713711f8c67"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-idle-C-rustm-delivery-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:40:38.105Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Rustm restoration submitted; waiting for integration and hosted validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "rustm-840417ac-received-20261012",
+        "type": "received",
+        "at": "2026-10-12T15:41:53.300Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "delivery": "840417ac41adce16c263425bf3c6e713711f8c67"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "gulpum-caller-preview-20261012",
+        "type": "activity",
+        "at": "2026-10-12T15:45:03.311Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "phase": "review",
+        "reason": "Read-only preview of the queued engulf port: verify the consumed hmonas return and fatal-path state cleanup while the current Rustm candidate is prepared. No Main source changes for this later task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-gulpum-contract-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:45:23.764Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-gulpum-contract-idle-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:46:21.359Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-three-owners-pet-web-20261012",
+        "type": "turn",
+        "at": "2026-10-12T15:47:06.804Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: three provisional first defects; checking pet traps and swallowed web behavior."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "rustm-corrected-integrating-b126627c-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T15:50:57.799Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "integration": "b126627c379b87b95d86d7b9a070973eabc9f24c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "gulpum-caller-preview-done-20261012",
+        "type": "activity",
+        "at": "2026-10-12T15:52:03.707Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "phase": "done",
+        "reason": "Reviewed the whole gulpum source and production caller, confirmed death-handler order and return behavior, and verified all four saved check hashes. Combined candidate validation remains required when this delivery is integrated."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "dohide-intake-preview-done-20261012",
+        "type": "activity",
+        "at": "2026-10-12T15:54:06.432Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
+        "phase": "done",
+        "reason": "Compared the complete dohide source, command caller, and existing death handler; verified all three saved check hashes. Matching range and combined validation remain to be checked during integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v51-rustmonster-passive-weapon-erosion-20261012-b126627c379b87b95d86d7b9a070973eabc9f24c-validated",
+        "type": "validated",
+        "at": "2026-10-12T15:56:58.905Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v51-rustmonster-passive-weapon-erosion-20261012-b126627c379b87b95d86d7b9a070973eabc9f24c-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T15:58:22.285Z",
+        "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012"
       }
     ]
   },
@@ -96335,8 +96443,8 @@
     ]
   },
   "development": {
-    "executionCommit": "760f1a9820a68a5a7265e8192e4ebf2263990329",
-    "measuredAt": "2026-10-12T15:31:46.210Z",
+    "executionCommit": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+    "measuredAt": "2026-10-12T15:55:53.259Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

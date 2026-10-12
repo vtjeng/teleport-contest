@@ -288038,7 +288038,7 @@
     {
       "id": "port-mhitm-rustm-v51-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete weapon erosion from defender attack types",
       "cFile": "mhitm.c",
       "sessions": [
@@ -288052,8 +288052,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "rustm",
@@ -288412,7 +288415,13 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "Hosted38266346302 failed only the new independent monster-pair recording: it stops at step148 on the unaccepted armed mattackm branch before rustm step155. Preserve source and evidence; resume after C whole-combat dependency is accepted."
+      "parkedReason": "Hosted38266346302 failed only the new independent monster-pair recording: it stops at step148 on the unaccepted armed mattackm branch before rustm step155. Preserve source and evidence; resume after C whole-combat dependency is accepted.",
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b126627c379b87b95d86d7b9a070973eabc9f24c",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "div-getobj-menu-escape-v49-20261012",
