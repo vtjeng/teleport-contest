@@ -4,7 +4,6 @@
   "batch": "v53",
   "caseId": "v53-blind-fountain-water-snakes-action2",
   "manifestPath": "challenges/manifests/v53.json",
-  "manifestSha256": "dd39b86ed28491087b5b7fc15cdb512bd375b0e5b359ac58f70dbb6bf321dcd7",
   "recordingSha256": "ab238f6a6b0a904005877ec9a2f8223668be87890b4ece7336d42a6bfbd14ea6",
   "evaluationPath": "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json",
   "evaluationCommit": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
@@ -37,7 +36,6 @@
     "caseId": "v53-blind-fountain-water-snakes-action2",
     "session": "synthetic/v53/v53-blind-fountain-water-snakes-action2",
     "manifestPath": "challenges/manifests/v53.json",
-    "manifestSha256": "dd39b86ed28491087b5b7fc15cdb512bd375b0e5b359ac58f70dbb6bf321dcd7",
     "recordingPath": "challenges/cases/v53/v53-blind-fountain-water-snakes-action2.session.json",
     "recordingSha256": "ab238f6a6b0a904005877ec9a2f8223668be87890b4ece7336d42a6bfbd14ea6",
     "evaluationPath": "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json",
@@ -74,7 +72,8 @@
     "kind": "screen",
     "sourceFile": "insight.c",
     "function": "status_enlightenment",
-    "message": "The C Blindfolded_only macro tests extrinsic blindfold blindness against Blinded (intrinsic blindness); JavaScript excluded the active blindfold from its own adjective predicate."
+    "message": "The C Blindfolded_only macro tests extrinsic blindfold blindness against Blinded (intrinsic blindness); JavaScript excluded the active blindfold from its own adjective predicate.",
+    "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39"
   },
   "observedReplay": {
     "runId": "run-3Lk7uh",
@@ -93,5 +92,6 @@
     "inputBoundaryMatched": true,
     "unported": [],
     "receipt": "/tmp/teleport-validation-1000/run-3Lk7uh/receipt.json"
-  }
+  },
+  "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39"
 }
