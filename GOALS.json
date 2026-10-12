@@ -290043,7 +290043,7 @@
     {
       "id": "B-v50-selftouch-monster-transition",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Call selftouch after an ungloved monster-form transition",
       "cFile": "polyself.c",
       "sessions": [],
@@ -290055,8 +290055,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "710b9ba8695a51a07d975b237876da6a5a22f112",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "polymon",
       "session": "synthetic/v50/v50-selftouch-monster-transition-probe-attempt1",
       "step": 80,
@@ -290302,7 +290305,13 @@
           "luaFile": null,
           "line": null
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "710b9ba8695a51a07d975b237876da6a5a22f112",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

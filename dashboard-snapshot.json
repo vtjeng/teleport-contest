@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T16:24:53.537Z",
+  "capturedAt": "2026-10-12T16:39:03.240Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -95962,22 +95962,75 @@
         "type": "accepted",
         "at": "2026-10-12T16:24:22.587Z",
         "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012-a5fd3cc0d0395d147848ab7bbd2f9972b77a20f4",
+        "type": "published",
+        "at": "2026-10-12T16:25:47.605Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "commit": "a5fd3cc0d0395d147848ab7bbd2f9972b77a20f4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "polymon-selftouch-integration-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T16:25:54.290Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "phase": "review",
+        "reason": "The full dependency list is accepted. Integrate the bounded polymon self-touch caller next, with approved acceptance-tooling changes covered by the same exact combined checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-4f9fc-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:26:25.972Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "polymon-tooling-integrating-710b9ba8-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T16:31:28.164Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "integration": "710b9ba8695a51a07d975b237876da6a5a22f112"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v50-selftouch-monster-transition-20261012-710b9ba8695a51a07d975b237876da6a5a22f112-validated",
+        "type": "validated",
+        "at": "2026-10-12T16:37:26.395Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2d7c71ffbd3ec47af45b3bfab78c10301d28ca57",
+        "type": "ready",
+        "at": "2026-10-12T16:37:35.940Z",
+        "task": "Prep20",
+        "delivery": "2d7c71ffbd3ec47af45b3bfab78c10301d28ca57"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v50-selftouch-monster-transition-20261012-710b9ba8695a51a07d975b237876da6a5a22f112-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T16:38:09.909Z",
+        "task": "B-investigation-v50-selftouch-monster-transition-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep20-v56-received-2d7c71ff-20261012",
+        "type": "received",
+        "at": "2026-10-12T16:38:30.906Z",
+        "task": "Prep20",
+        "delivery": "2d7c71ffbd3ec47af45b3bfab78c10301d28ca57"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-investigation-v50-selftouch-monster-transition-20261012",
-        "worker": "B",
-        "goal": "B-v50-selftouch-monster-transition",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "07d6ac95bd1f0702693a4e4e26f5639bcdd25796",
-        "since": "2026-10-12T07:36:15.001Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
         "worker": "B",
@@ -96098,6 +96151,23 @@
           "Prep16",
           "Prep17",
           "Prep18"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep20",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "2d7c71ffbd3ec47af45b3bfab78c10301d28ca57",
+        "batch": "v56",
+        "since": "2026-10-12T16:37:35.940Z",
+        "blockedBy": [
+          "Prep16",
+          "Prep17",
+          "Prep18",
+          "Prep19"
         ],
         "unblocks": 0
       }
@@ -96560,8 +96630,8 @@
     ]
   },
   "development": {
-    "executionCommit": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
-    "measuredAt": "2026-10-12T16:20:17.318Z",
+    "executionCommit": "710b9ba8695a51a07d975b237876da6a5a22f112",
+    "measuredAt": "2026-10-12T16:36:07.514Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
