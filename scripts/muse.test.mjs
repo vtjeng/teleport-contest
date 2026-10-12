@@ -728,11 +728,11 @@ test('use_misc binds all polymorph callers with their C target and flag order',
         assert.ok(jsUseMiscAt >= 0 && jsWandAt >= 0
             && jsPotionAt > jsWandAt && jsTrapAt > jsPotionAt);
         assert.match(js.slice(jsWandAt, jsPotionAt),
-            /await mzapwand[\s\S]*?muse_newcham_mon\(mtmp,[\s\S]*?await newcham\(mtmp, target,[\s\S]*?NC_VIA_WAND_OR_SPELL \| NC_SHOW_MSG/su);
+            /await mzapwand[\s\S]*?muse_newcham_mon\(mtmp, \{ \.\.\.env, state \}\)[\s\S]*?await newcham\(mtmp, target, \{[\s\S]*?\.\.\.env,[\s\S]*?state,[\s\S]*?NC_VIA_WAND_OR_SPELL \| NC_SHOW_MSG/su);
         assert.match(js.slice(jsPotionAt, jsTrapAt),
-            /await m_useup[\s\S]*?muse_newcham_mon\(mtmp,[\s\S]*?await newcham\(mtmp, target,[\s\S]*?ncflags: NC_SHOW_MSG/su);
+            /await m_useup[\s\S]*?muse_newcham_mon\(mtmp, \{ \.\.\.env, state \}\)[\s\S]*?await newcham\(mtmp, target, \{[\s\S]*?\.\.\.env,[\s\S]*?state,[\s\S]*?ncflags: NC_SHOW_MSG/su);
         assert.match(js.slice(jsTrapAt),
-            /place_monster[\s\S]*?await newcham\(mtmp, null,[\s\S]*?ncflags: NC_SHOW_MSG/su);
+            /place_monster[\s\S]*?await newcham\(mtmp, null, \{[\s\S]*?\.\.\.env,[\s\S]*?state,[\s\S]*?ncflags: NC_SHOW_MSG/su);
         assert.equal(NC_SHOW_MSG, 0x01);
         assert.equal(NC_VIA_WAND_OR_SPELL, 0x02);
     });
