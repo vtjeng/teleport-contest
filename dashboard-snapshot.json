@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T08:48:54.302Z",
+  "capturedAt": "2026-10-12T09:43:52.908Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -93743,6 +93743,388 @@
         "type": "accepted",
         "at": "2026-10-12T08:47:46.044Z",
         "task": "B-investigation-v48-inventtype-weapons-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ae401752816f2c8c7e0adf8c87586cba877483b3",
+        "type": "ready",
+        "at": "2026-10-12T08:48:56.313Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "delivery": "ae401752816f2c8c7e0adf8c87586cba877483b3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v48-inventtype-weapons-20261012-79d7dcc8e11171cbae7fb9d2a05483b0ff17aaad",
+        "type": "published",
+        "at": "2026-10-12T08:49:08.318Z",
+        "task": "B-investigation-v48-inventtype-weapons-20261012",
+        "commit": "79d7dcc8e11171cbae7fb9d2a05483b0ff17aaad"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-history-ae401752-20261012",
+        "type": "received",
+        "at": "2026-10-12T08:49:57.808Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "delivery": "ae401752816f2c8c7e0adf8c87586cba877483b3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v51-cockatrice-hiss-delayed-stoning-20261012",
+        "type": "assign",
+        "at": "2026-10-12T08:51:11.889Z",
+        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8c1a3cc766f01aae3b3c901ec4c7fe3f6bd5579e",
+        "type": "ready",
+        "at": "2026-10-12T08:52:05.064Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
+        "delivery": "8c1a3cc766f01aae3b3c901ec4c7fe3f6bd5579e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v51-purpleworm-rider-digestion-20261012",
+        "type": "assign",
+        "at": "2026-10-12T08:54:33.599Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ba6dad22346f0b8b7cba2fbfe509abe87ad3141f",
+        "type": "ready",
+        "at": "2026-10-12T08:55:05.948Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "delivery": "ba6dad22346f0b8b7cba2fbfe509abe87ad3141f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep16-v52-crowning-20261012-6",
+        "type": "turn",
+        "at": "2026-10-12T08:55:08.690Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v52: eleven first failures verified; recording crowning source route."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-cockatrice-do-stone-u-20261012",
+        "type": "implement",
+        "at": "2026-10-12T08:56:16.405Z",
+        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
+        "goal": "port-uhitm-do-stone-u-v51-cockatrice-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-sink-8c1a3cc7-20261012",
+        "type": "received",
+        "at": "2026-10-12T08:57:23.357Z",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
+        "delivery": "8c1a3cc766f01aae3b3c901ec4c7fe3f6bd5579e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-history-more-ae401752-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T08:57:25.635Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "delivery": "ae401752816f2c8c7e0adf8c87586cba877483b3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-c-v49-apply-book-attempt2-20261012",
+        "type": "assign",
+        "at": "2026-10-12T08:57:48.038Z",
+        "task": "C-investigation-v49-apply-book-attempt2-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-c-v49-apply-book-20261012",
+        "type": "turn",
+        "at": "2026-10-12T08:57:58.107Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-pyrolisk-ba6dad22-20261012",
+        "type": "received",
+        "at": "2026-10-12T08:58:56.414Z",
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "delivery": "ba6dad22346f0b8b7cba2fbfe509abe87ad3141f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-c-v49-apply-book-20261012",
+        "type": "park",
+        "at": "2026-10-12T08:59:00.081Z",
+        "task": "C-investigation-v49-apply-book-attempt2-20261012",
+        "reason": "Step 9 is already covered by delivery 92449c294641f2004c63c94a6eb5f95c721c7e85 from B. That fix depends on A releasing invent.c:getobj; reuse the preserved investigation and resume after that dependency is accepted, without re-diagnosing the unchanged boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v51-uhitm-gulpum-20261012",
+        "type": "implement",
+        "at": "2026-10-12T08:59:51.638Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "goal": "port-uhitm-gulpum-v51-fatal-engulf-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-c-v51-ogre-minstapetrify-20261012",
+        "type": "assign",
+        "at": "2026-10-12T08:59:56.208Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3961fb31767fe6a6b7a61edc0cf78f92361d4aa6",
+        "type": "ready",
+        "at": "2026-10-12T09:02:18.983Z",
+        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
+        "delivery": "3961fb31767fe6a6b7a61edc0cf78f92361d4aa6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v51-stone-golem-nymph-theft-20261012",
+        "type": "assign",
+        "at": "2026-10-12T09:03:35.285Z",
+        "task": "A2-investigation-v51-stone-golem-nymph-corpse-theft-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-c-v51-minstapetrify-20261012",
+        "type": "turn",
+        "at": "2026-10-12T09:05:21.450Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-v51-stone-golem-nymph-minstapetrify-owner-20261012",
+        "type": "park",
+        "at": "2026-10-12T09:06:00.473Z",
+        "task": "A2-investigation-v51-stone-golem-nymph-corpse-theft-20261012",
+        "reason": "Diagnosis and baseline are committed at 503fa9ed8. Step 230 reaches steal.c:steal() then trap.c:minstapetrify(); C owns the complete helper family and will include this caller and case. No game edits were made. Release the session for C's active source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v48-ctrlp-history-correction-20261012",
+        "type": "resume",
+        "at": "2026-10-12T09:06:17.072Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-c-v51-minstapetrify-20261012",
+        "type": "implement",
+        "at": "2026-10-12T09:07:12.643Z",
+        "task": "C-investigation-v51-cockatrice-levitation-ogre-20261012",
+        "goal": "port-trap-minstapetrify-v51-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-B-mon-to-stone-unblock-C-20261012",
+        "type": "activity",
+        "at": "2026-10-12T09:07:15.001Z",
+        "task": "B-investigation-v51-cockatrice-wood-golem-20261012",
+        "phase": "review",
+        "reason": "Integrating the stone golem message correction needed by the new petrification helper port."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d0fae061d2ec9328352b524499cabedd57448e09",
+        "type": "ready",
+        "at": "2026-10-12T09:08:29.733Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "delivery": "d0fae061d2ec9328352b524499cabedd57448e09"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-gulpum-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T09:10:12.440Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Gulpum implementation is ready for integration; the later Trapper replay difference is in A2 do_stone_u task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v51-viper-hide-investigation-20261012",
+        "type": "assign",
+        "at": "2026-10-12T09:12:30.982Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-mon-to-stone-5723bb7e-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T09:14:04.230Z",
+        "task": "B-investigation-v51-cockatrice-wood-golem-20261012",
+        "integration": "5723bb7e10087d27f27a8ec6106f3ac7660597e3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v51-polyself-dohide-20261012",
+        "type": "implement",
+        "at": "2026-10-12T09:15:05.045Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
+        "goal": "port-polyself-dohide-v51-viper-fatal-hide-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0b36bf522006ac959a2cbf73d23dd90367e46591",
+        "type": "ready",
+        "at": "2026-10-12T09:15:41.430Z",
+        "task": "Prep16",
+        "delivery": "0b36bf522006ac959a2cbf73d23dd90367e46591"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-gulpum-d0fae061-20261012",
+        "type": "received",
+        "at": "2026-10-12T09:16:53.694Z",
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "delivery": "d0fae061d2ec9328352b524499cabedd57448e09"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep16-submitted-boundary-20261012-7",
+        "type": "turn",
+        "at": "2026-10-12T09:17:08.095Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Submitted v52:12 first failures and10 matching controls. Preparing next batch at accepted Main."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep17-v53-20261012",
+        "type": "assign",
+        "at": "2026-10-12T09:18:05.863Z",
+        "task": "Prep17",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9b3e234772bf497eaa67f16ab0a753705afab563",
+        "type": "ready",
+        "at": "2026-10-12T09:18:20.739Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
+        "delivery": "9b3e234772bf497eaa67f16ab0a753705afab563"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep16-0b36bf52-20261012",
+        "type": "received",
+        "at": "2026-10-12T09:19:14.419Z",
+        "task": "Prep16",
+        "delivery": "0b36bf522006ac959a2cbf73d23dd90367e46591"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-dohide-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T09:19:57.136Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Gulpum and dohide fixes are ready for integration; both source scopes are distinct from active A2 and C work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-stoning-3961fb31-20261012",
+        "type": "received",
+        "at": "2026-10-12T09:21:45.118Z",
+        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
+        "delivery": "3961fb31767fe6a6b7a61edc0cf78f92361d4aa6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6cc3225f59375d1632dd36507d62d048f2a2b317",
+        "type": "ready",
+        "at": "2026-10-12T09:24:46.349Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "delivery": "6cc3225f59375d1632dd36507d62d048f2a2b317"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-history-ready-no-independent-queue-20261012",
+        "type": "turn",
+        "at": "2026-10-12T09:26:35.137Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Waiting for review of the submitted history correction; current queued cases overlap reserved source work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-mon-to-stone-5723bb7e-20261012",
+        "type": "validated",
+        "at": "2026-10-12T09:28:28.955Z",
+        "task": "B-investigation-v51-cockatrice-wood-golem-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-mselftouch-caller-implementation-20261012T0930",
+        "type": "turn",
+        "at": "2026-10-12T09:29:50.006Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep17-v53-cfirst-20261012-1",
+        "type": "turn",
+        "at": "2026-10-12T09:34:05.590Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v53: recording twelve source-planned game setups."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v51-cockatrice-wood-golem-20261012-5723bb7e10087d27f27a8ec6106f3ac7660597e3-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T09:37:44.553Z",
+        "task": "B-investigation-v51-cockatrice-wood-golem-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-history-6cc3225f-20261012",
+        "type": "received",
+        "at": "2026-10-12T09:38:17.723Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "delivery": "6cc3225f59375d1632dd36507d62d048f2a2b317"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-dohide-9b3e2347-20261012",
+        "type": "received",
+        "at": "2026-10-12T09:38:20.099Z",
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
+        "delivery": "9b3e234772bf497eaa67f16ab0a753705afab563"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-minstapetrify-caller-blocked-20261012",
+        "type": "turn",
+        "at": "2026-10-12T09:38:22.602Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Waiting for the queued shop delivery from worker A to free the remaining caller; the coordinator is prioritizing its integration."
       }
     ]
   },
@@ -93876,15 +94258,86 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v51-cockatrice-wood-golem-20261012",
+        "task": "B-investigation-v51-fireelemental-sink-metamorphosis-20261012",
         "worker": "B",
-        "goal": "div-mon-to-stone-message-v51-20261012",
+        "goal": "div-fountain-drinksink-polyself-v51-20261012",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "0e0d1aa16d7b2de793f249201cf3ed73ed6a02e7",
-        "since": "2026-10-12T08:39:54.443Z",
+        "delivery": "8c1a3cc766f01aae3b3c901ec4c7fe3f6bd5579e",
+        "since": "2026-10-12T08:52:05.064Z",
         "blockedBy": [],
         "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4-20261012",
+        "worker": "C",
+        "goal": "div-use-offensive-bhito-callback-v51-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "ba6dad22346f0b8b7cba2fbfe509abe87ad3141f",
+        "since": "2026-10-12T08:55:05.948Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v51-cockatrice-hiss-delayed-stoning-attempt1-20261012",
+        "worker": "A2",
+        "goal": "port-uhitm-do-stone-u-v51-cockatrice-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "3961fb31767fe6a6b7a61edc0cf78f92361d4aa6",
+        "since": "2026-10-12T09:02:18.983Z",
+        "blockedBy": [
+          "A2-investigation-v47-costly-shop-drop-spot-20261012",
+          "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+          "A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v51-purpleworm-rider-digestion-20261012",
+        "worker": "B",
+        "goal": "port-uhitm-gulpum-v51-fatal-engulf-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d0fae061d2ec9328352b524499cabedd57448e09",
+        "since": "2026-10-12T09:08:29.733Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep16",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "0b36bf522006ac959a2cbf73d23dd90367e46591",
+        "batch": "v52",
+        "since": "2026-10-12T09:15:41.430Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v51-viper-hide-clean-cockatrice-corpse-20261012",
+        "worker": "B",
+        "goal": "port-polyself-dohide-v51-viper-fatal-hide-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "9b3e234772bf497eaa67f16ab0a753705afab563",
+        "since": "2026-10-12T09:18:20.739Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "worker": "A2",
+        "goal": "file-port-topl-message-history-v48-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "6cc3225f59375d1632dd36507d62d048f2a2b317",
+        "since": "2026-10-12T09:24:46.349Z",
+        "blockedBy": [],
+        "unblocks": 1
       }
     ],
     "preparedBatches": [],
@@ -94330,12 +94783,34 @@
         "since": "2026-10-12T06:41:40.234Z",
         "blockedBy": [],
         "reason": "B is command-free and its immutable getobj Escape delivery92449c294 is preserved. Transfer getobj caller-edit ownership to A for the required force_invmenu history-writer hook so the complete TTY family can proceed. A must preserve the pending Escape repair; resume this unchanged B delivery after A releases the caller scope. No behavioral dependency from A to B is introduced."
+      },
+      {
+        "task": "C-investigation-v49-apply-book-attempt2-20261012",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-12T08:59:00.081Z",
+        "blockedBy": [],
+        "reason": "Step 9 is already covered by delivery 92449c294641f2004c63c94a6eb5f95c721c7e85 from B. That fix depends on A releasing invent.c:getobj; reuse the preserved investigation and resume after that dependency is accepted, without re-diagnosing the unchanged boundary."
+      },
+      {
+        "task": "A2-investigation-v51-stone-golem-nymph-corpse-theft-20261012",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-12T09:06:00.473Z",
+        "blockedBy": [],
+        "reason": "Diagnosis and baseline are committed at 503fa9ed8. Step 230 reaches steal.c:steal() then trap.c:minstapetrify(); C owns the complete helper family and will include this caller and case. No game edits were made. Release the session for C's active source task."
       }
     ]
   },
   "development": {
-    "executionCommit": "dd7580b087b2f6d91b80159b92966379aa7eba3a",
-    "measuredAt": "2026-10-12T08:43:34.765Z",
+    "executionCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+    "measuredAt": "2026-10-12T09:18:53.531Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -283535,7 +283535,7 @@
     {
       "id": "div-mon-to-stone-message-v51-20261012",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Repair the stone golem transformation message",
       "cFile": "mon.c",
       "sessions": [],
@@ -283547,8 +283547,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "mon_to_stone",
       "session": "synthetic/v51/v51-cockatrice-levitation-wood-golem-action-attempt2",
       "step": 155,
@@ -283681,7 +283684,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
