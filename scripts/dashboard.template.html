@@ -505,7 +505,7 @@ canvas {
 .integration-duration-key.prep { border-top: 2px dashed var(--integration-orange); }
 .integration-duration-key.prep::after { border-radius: 0; background: var(--integration-orange); }
 .worker-timeline-heading { font-size: 12px; font-weight: 600; margin-top: 18px; }
-.integration-duration canvas { display: block; width: 100%; height: 180px; }
+.integration-duration canvas { display: block; width: 100%; height: 320px; }
 .integration-duration canvas:focus-visible { outline: 2px solid var(--goal-file-port); outline-offset: 2px; }
 .integration-duration-readout { height: 64px; overflow-y: auto; scrollbar-gutter: stable;
   font-size: 12px; color: var(--ink-secondary); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
@@ -975,7 +975,7 @@ canvas {
       <div class="integration-duration-readout" id="integrationDurationReadout" aria-live="polite"></div>
     </div>
     <h3 class="worker-timeline-heading">Worker timeline</h3>
-    <p class="activity-note">One row per agent. Blocks and parked tasks show recorded reasons; pending deliveries stay in task history, not worker rows. Idle and unrecorded time are distinct from blocks. Assigned work does not prove continuous activity. Hover to inspect; select to pin details. Arrow edges mark stages continuing outside the window. Stage details scroll.</p>
+    <p class="activity-note">One row per agent; pending deliveries stay in task history. Blocks and parked tasks show reasons; idle and unrecorded time are separate. Hover to inspect; select to pin. Arrows mark clipped stages; details scroll.</p>
     <div class="legend" id="timelineLegend"></div>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
     <div class="activity-details">
@@ -1700,23 +1700,30 @@ document.getElementById('stats').innerHTML = [
     'awaiting-admission': 'Ready to admit', parked: 'Parked' };
   const deliveries = backlog.deliveries;
   const prepared = backlog.preparedBatches;
+  const submittedBatches = deliveries.filter(row => row.kind === 'challenge-preparation');
   const parked = backlog.parkedTasks;
   const blocked = deliveries.filter(row => row.blockedBy.length).length;
   const rows = [...deliveries, ...prepared, ...parked];
+  const taskLabels = new Map(rows.map(row => [row.task, row.batch ?? row.task]));
   container.innerHTML = '<p>' + deliveries.length
     + ' submitted task' + (deliveries.length === 1 ? '' : 's')
     + (blocked ? ' (' + blocked + ' awaiting dependencies)' : '')
     + (deliveries.length ? '; oldest submission ' + age(deliveries[0]) + ' ago' : '') + '.</p>'
-    + '<p>Ready batches awaiting admission: '
+    + '<p>Submitted batches awaiting Main: '
+    + (submittedBatches.length ? submittedBatches.map(row => esc(row.batch ?? row.task)).join(' · ')
+      + (submittedBatches.some(row => row.blockedBy.length) ? ' ('
+        + submittedBatches.filter(row => row.blockedBy.length).length + ' awaiting dependencies)' : '') + '.' : 'None.')
+    + '</p><p>Accepted batches awaiting admission: '
     + (prepared.length ? prepared.map(row => esc(row.batch)).join(' · ')
-      + '. Oldest accepted preparation: ' + age([...prepared].sort((a, b) => a.since.localeCompare(b.since))[0]) + ' ago.' : 'None.')
+      + '. Oldest acceptance: ' + age([...prepared].sort((a, b) => a.since.localeCompare(b.since))[0]) + ' ago.' : 'None.')
     + '</p>' + (rows.length ? '<details><summary>Details'
     + (parked.length ? ' · ' + parked.length + ' parked' : '') + '</summary>'
     + '<div class="activity-backlog-table"><table><thead><tr><th>Work</th><th>State</th><th>Age</th><th>Waiting on</th></tr></thead><tbody>'
     + rows.map(row => '<tr><td title="' + esc(row.goal) + '">' + esc(row.batch ?? row.task)
-      + '<small>' + esc(row.batch ? row.task : row.worker) + '</small></td><td>' + esc(names[row.status] ?? row.status)
+      + '<small>' + esc(row.batch ? row.task : row.worker) + '</small></td><td>'
+      + esc(row.status === 'ready' && row.blockedBy.length ? 'Awaiting dependencies' : names[row.status] ?? row.status)
       + '<small>' + esc(row.delivery?.slice(0, 8) ?? 'Not submitted') + '</small></td><td>' + age(row)
-      + '</td><td>' + esc(row.reason ?? (row.blockedBy.length ? row.blockedBy.join(', ')
+      + '</td><td>' + esc(row.reason ?? (row.blockedBy.length ? row.blockedBy.map(task => taskLabels.get(task) ?? task).join(', ')
         : row.status === 'awaiting-admission' ? 'Main admission checks and baseline'
           : row.status === 'changes-required' ? 'Worker correction' : 'Main')) + '</td></tr>').join('')
     + '</tbody></table></div></details>' : '');
@@ -1840,7 +1847,8 @@ document.getElementById('stats').innerHTML = [
         + ' min · ' + row.visible.length + (row.visible.length === 1 ? ' attempt' : ' attempts') : 'No completed attempts in this window';
     }
     const visible = series.flatMap(row => row.visible);
-    const width = durationChart.getBoundingClientRect().width || 1000, height = 180;
+    const rect = durationChart.getBoundingClientRect();
+    const width = rect.width || 1000, height = rect.height;
     const dpr = window.devicePixelRatio || 1;
     durationChart.width = width * dpr; durationChart.height = height * dpr;
     const ctx = durationChart.getContext('2d');
@@ -1850,8 +1858,8 @@ document.getElementById('stats').innerHTML = [
     const pad = { left: 44, right: 12, top: 12, bottom: 28 };
     const max = Math.max(1, ...visible.flatMap(point => [point.durationMs, point.rollingMeanMs]).map(ms => ms / 60000),
       ...series.flatMap(row => row.before ? [row.before.rollingMeanMs / 60000] : []));
-    const magnitude = 10 ** Math.floor(Math.log10(max / 3));
-    const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= max / 3);
+    const magnitude = 10 ** Math.floor(Math.log10(max / 5));
+    const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= max / 5);
     const ceiling = Math.ceil(max / step) * step;
     const x = time => pad.left + (Date.parse(time) - start) / (end - start) * (width - pad.left - pad.right);
     const y = ms => height - pad.bottom - ms / 60000 / ceiling * (height - pad.top - pad.bottom);

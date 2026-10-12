@@ -131,7 +131,8 @@ function renderDashboard(data, queue = null) {
                     this.afterHTML += html;
                 },
             },
-            getBoundingClientRect: () => ({ width: 1000, left: 0, top: 0, height: 0 }),
+            // Match the fixed integration frame; other charts own their heights.
+            getBoundingClientRect: () => ({ width: 1000, left: 0, top: 0, height: id === 'integrationDurationChart' ? 320 : 0 }),
             getContext: () => context(ops),
             addEventListener(type, handler) { (this.listeners[type] ||= []).push(handler); },
             setAttribute() {},
@@ -276,10 +277,10 @@ test('rolling lines carry pre-window means and step only at completed attempts',
         return [];
     };
     // Canvas padding is 44/12 px in a 1000 px frame. Prep's carried 100 min
-    // mean sets the ceiling, mapping implementation's means 10/15 to y=138/131.
+    // mean sets the ceiling; in the 320 px frame, means 10/15 map to y=264/250.
     const completionX = 44 + (500 - 240) / 360 * 944;
     assert.deepEqual(meanPath('--integration-blue'), [
-        [44, 138], [completionX, 138], [completionX, 131], [988, 131],
+        [44, 264], [completionX, 264], [completionX, 250], [988, 250],
     ], 'carry the old mean to the left edge, hold, jump at completion, then hold to the right edge');
     assert.deepEqual(meanPath('--integration-orange'), [[44, 12], [988, 12]],
         'Prep retains its pre-window 100 minute mean even without a completion in view');
@@ -287,6 +288,21 @@ test('rolling lines carry pre-window means and step only at completed attempts',
     assert.match(rendered.get('prepIntegrationDurationSummary').textContent, /No completed attempts/u);
     assert.equal(ops.filter(([call]) => call === 'arc').length, 1,
         'pre-window means must not create fake attempt markers');
+});
+
+test('integration axis fits a long attempt without rounding away the typical range', () => {
+    const data = sourceDashboardData();
+    // A 74-minute outlier matches the preview's observed week-long range;
+    // five tick intervals should fit it at 80 rather than the old 100-minute ceiling.
+    data.activity = { capturedAt: '2026-10-12T10:14:00Z', tasks: [], segments: [{
+        task: 'long-attempt', lane: 'Main', phase: 'integrating',
+        start: '2026-10-12T09:00:00Z', end: '2026-10-12T10:14:00Z',
+    }] };
+    const ops = renderDashboard(data).get('integrationDurationChart').ops;
+    const ticks = ops.filter(([call, value]) => call === 'fillText' && /^\d+$/u.test(value))
+        .map(([, value]) => Number(value));
+    assert.deepEqual(ticks, [0, 20, 40, 60, 80]);
+    assert.equal(ops.filter(([call]) => call === 'arc').length, 1, 'the long attempt is retained, not clipped away');
 });
 
 test('score cards share one format and show commit ages without hashes', () => {
@@ -656,7 +672,8 @@ test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, 
     const html = renderDashboard(data).get('pendingMainWork').innerHTML;
     assert.doesNotMatch(html, /<strong>Pending Main work<\/strong>/u, 'the summary does not repeat the section heading');
     assert.match(html, /1 submitted task \(1 awaiting dependencies\)/u);
-    assert.match(html, /Ready batches awaiting admission: v34/u);
+    assert.match(html, /Accepted batches awaiting admission: v34/u);
+    assert.match(html, /Submitted batches awaiting Main: None\./u);
     assert.match(html, /oldest submission 1h 0m ago/u);
     assert.match(html, /<summary>Details · 1 parked<\/summary>/u);
     assert.match(html, /Await &lt;source&gt; owner\./u);
@@ -664,6 +681,26 @@ test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, 
     assert.match(renderDashboard(data).get('pendingMainWork').innerHTML, /admission: None\./u);
     data.pendingMainWork = null;
     assert.match(renderDashboard(data).get('pendingMainWork').textContent, /snapshot is refreshed/u);
+});
+
+test('prepared submissions remain visible separately from accepted batches awaiting admission', () => {
+    const data = sourceDashboardData();
+    data.activity = { capturedAt: '2026-10-12T20:00:00Z', segments: [], tasks: [] };
+    // Reproduce v53 accepted while four newer batches are submitted in order.
+    const rows = [54, 55, 56, 57].map((version, index) => ({
+        task: 'Prep' + (18 + index), worker: 'Prep', kind: 'challenge-preparation',
+        batch: 'v' + version, status: 'ready', since: '2026-10-12T19:00:00Z',
+        blockedBy: Array.from({ length: index }, (_, earlier) => 'Prep' + (18 + earlier)),
+        delivery: String(index + 1).repeat(40),
+    }));
+    data.pendingMainWork = { deliveries: rows, preparedBatches: [{ ...rows[0],
+        task: 'Prep17', batch: 'v53', status: 'awaiting-admission', blockedBy: [] }], parkedTasks: [] };
+    const html = renderDashboard(data).get('pendingMainWork').innerHTML;
+    assert.match(html, /Submitted batches awaiting Main: v54 · v55 · v56 · v57 \(3 awaiting dependencies\)\./u);
+    assert.match(html, /Accepted batches awaiting admission: v53\. Oldest acceptance: 1h 0m ago\./u);
+    assert.match(html, /v55[\s\S]*Awaiting dependencies[\s\S]*<td>v54<\/td>/u,
+        'batch dependencies use batch names rather than opaque preparation task IDs');
+    assert.doesNotMatch(html, /Ready batches awaiting admission/u);
 });
 
 test('primary dashboard sections put sessions before activity and historical detail', () => {
