@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first artifact.c:invoke_untrap; 1838-1846 Master Key invoke -> untrap(TRUE). Required state/action history: Rogue carries Master Key of Thievery, reveals a floor bear trap and invokes magical disarm. Inspect inventory before selecting artifact. Intended C observation: C magical untrap direction/target, trap removal and artifact cooldown rather than ordinary-tool chance. Initial inventory/map/menu scout precedes action selection.",
+  "segments": [
+    {
+      "seed": 54010103,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed Master Key of Thievery\n                    i                    #wizmap\n"
+    }
+  ]
+}

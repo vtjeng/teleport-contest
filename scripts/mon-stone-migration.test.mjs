@@ -127,6 +127,52 @@ test('monstone leaves a statue and detaches the dead monster', async () => {
     assert.ok(golem.mstate & MON_DETACH, 'monstone marks the monster detached');
 });
 
+test('monstone uses the object random defaults when the caller has no provider',
+    async () => {
+        // This independent seed reaches the statue branch without an injected
+        // provider, as the production swallowed-corpse caller does.
+        await hero(7710047);
+        const golem = placeFixture(fixture(PM_CLAY_GOLEM));
+        const { random, ...withoutRandom } = env();
+        assert.ok(random, 'the fixture begins with an explicit provider');
+
+        await monstone(golem, game, withoutRandom);
+
+        assert.equal(
+            game.level.objects[golem.mx][golem.my]?.otyp,
+            STATUE,
+            'statue initialization uses obj.js defaults instead of an rn2-only override',
+        );
+        assert.ok(golem.mstate & MON_DETACH);
+    });
+
+test('monstone preserves an explicit random provider for statue creation',
+    async () => {
+        // This independent seed checks the caller-supplied random operations
+        // while monstone creates a statue through mkcorpstat/mksobj_at.
+        await hero(7710048);
+        const golem = placeFixture(fixture(PM_CLAY_GOLEM));
+        const calls = [];
+        const random = Object.fromEntries(
+            Object.entries({ d, rn1, rn2, rnd, rne }).map(([name, operation]) => [
+                name,
+                (...args) => {
+                    calls.push(name);
+                    return operation(...args);
+                },
+            ]),
+        );
+
+        await monstone(golem, game, { ...env(), random });
+
+        assert.ok(calls.length > 0, 'statue creation uses the supplied provider');
+        assert.equal(
+            game.level.objects[golem.mx][golem.my]?.otyp,
+            STATUE,
+        );
+        assert.ok(golem.mstate & MON_DETACH);
+    });
+
 test('planned vamp_stone uses the clone redraw seam', async () => {
     await hero(7710045);
     const shifted = placeFixture(fixture(PM_JACKAL, {

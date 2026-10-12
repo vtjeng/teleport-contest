@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first new spell-caller mission mcastu.c:cast_cleric_spell; Clerical caster versus non-Antimagic Healer; source-selected insect, blindness, lightning, fire-pillar effects. Scout the created ki-rin's actual position before moving away/allowing bounded turns. Role, armor, innate resistances, maximum HP and spell family differ materially. Derived from C source and earlier C casting observations; no JavaScript comparison precedes this mission plan. C-only continuation selected from the observed caster direction: move away, allow eight forced rests, inspect armor and attributes. Preserve every cast outcome and any setup miss. C-only continuation/correction from recorded observations and source: Angel generation asks explicit force confirmation; ki-rin is AD_SPEL, not AD_CLRC; longer bounded casts seek spell outcomes; long Blind state makes blindness useless and suppresses visible fumbled-name branch for cleric summon observation.",
+  "segments": [
+    {
+      "seed": 54010403,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n30\n                                                  #wizgenesis\nhostile ki-rin\n                    i                    #wizmap\njj                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    i                    #attributes\n                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    #attributes\n                    "
+    }
+  ]
+}

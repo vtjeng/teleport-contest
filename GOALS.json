@@ -293828,6 +293828,24 @@
         ],
         "incompleteFunctions": []
       }
+    },
+    {
+      "id": "fix-monstone-object-rng-environment-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Fix monstone's default object-generation random environment so statue creation uses the complete source-compatible random provider.",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "monstone",
+      "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6"
     }
   ]
 }

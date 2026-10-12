@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mcastu.c:mcast_weaken_you / mcast_stun_you source mission: golden naga uses AT_MAGC/AD_SPEL (include/monsters.h). Faster ordinary caster and non-Antimagic Rogue have different melee, armor, dexterity, maximum HP and spell timing from lich/ki-rin histories. Scout actual monster before bounded rests; count only actual first distinct source behavior, retaining matching/duplicate outcomes as evidence. C observed golden naga adjacent north of Rogue. Allow sixteen forced rests then inspect inventory and attributes; preserve each actual cast and first cause.",
+  "segments": [
+    {
+      "seed": 54010801,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n30\n                                                  #wizgenesis\nhostile golden naga\n                    i                    #wizmap\nm.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    i                    #attributes\n                    "
+    }
+  ]
+}

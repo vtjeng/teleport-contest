@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first spell.c:deadbook; 231-326 cursed ordinary-location Book of Dead raises undead. Required state/action history: Read cursed Book of Dead on ordinary dungeon floor with no ritual prerequisites; inspect its letter first. Intended C observation: C deadbook cursed message and raise_dead/gen_undead effects, not invocation area or novel XP. Initial inventory/map/menu scout precedes action selection. C action continuation selected from the recorded inventory and map; preserved initial setup separately.",
+  "segments": [
+    {
+      "seed": 54010105,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                                                  \u0017cursed Book of the Dead\n                    i                    #wizmap\nro                    #wizmap\n"
+    }
+  ]
+}

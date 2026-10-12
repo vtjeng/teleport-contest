@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T22:14:39.738Z",
+  "capturedAt": "2026-10-12T22:23:03.170Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -98382,23 +98382,119 @@
         "task": "Prep17",
         "phase": "baseline",
         "reason": "V53 is admitted with 15 unchanged C cases. Hosted checkpoint 38314809018 is measuring its first current-Main baseline before workers select new failures."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-active-v53-selection-20261012",
+        "type": "turn",
+        "at": "2026-10-12T22:15:13.679Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Reviewing admitted v53 cases and current reservations before selecting the next independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-newcham-v53-publication-1c2d2fa83-20261012",
+        "type": "published",
+        "at": "2026-10-12T22:15:24.884Z",
+        "task": "C-investigation-v52-polymorph-newcham-continuation-20261012",
+        "commit": "1c2d2fa838c75d7a270330288003dbfaf4a17dcb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v53-worm-start-20261012",
+        "type": "turn",
+        "at": "2026-10-12T22:15:35.128Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "I am selecting an independent v53 mismatch and will claim its source scope after diagnosis."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v53-worm-stoning-investigation-20261012",
+        "type": "assign",
+        "at": "2026-10-12T22:15:39.137Z",
+        "task": "B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v53-20261012T2230-active",
+        "type": "turn",
+        "at": "2026-10-12T22:15:54.968Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v53-knight-excalibur-fountain-20261012",
+        "type": "assign",
+        "at": "2026-10-12T22:15:59.313Z",
+        "task": "C-investigation-v53-knight-excalibur-fountain-action2-20261012",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v53-crown-priest-auto-leader-20261012",
+        "type": "assign",
+        "at": "2026-10-12T22:16:03.916Z",
+        "task": "A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-prep18-integrating-27c23fb69-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T22:16:47.546Z",
+        "task": "Prep18",
+        "integration": "27c23fb69c1e28dd0552d4d77e78bb9a01944b06"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v53-excalibur-implement-20261012",
+        "type": "implement",
+        "at": "2026-10-12T22:18:28.175Z",
+        "task": "C-investigation-v53-knight-excalibur-fountain-action2-20261012",
+        "goal": "C-file-port-fountain-dipfountain-excalibur-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v53-monstone-object-rng-20261012",
+        "type": "implement",
+        "at": "2026-10-12T22:19:38.745Z",
+        "task": "B-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "goal": "fix-monstone-object-rng-environment-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v53-untended-temple-ghost-20261012",
+        "type": "implement",
+        "at": "2026-10-12T22:19:44.842Z",
+        "task": "A2-investigation-v53-crown-priest-auto-leader-adjust-action3-20261012",
+        "goal": "fix-v53-untended-temple-ghost-creation-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep18-27c23fb69c1e28dd0552d4d77e78bb9a01944b06-validated",
+        "type": "validated",
+        "at": "2026-10-12T22:22:38.013Z",
+        "task": "Prep18",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep18-27c23fb69c1e28dd0552d4d77e78bb9a01944b06-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T22:22:42.311Z",
+        "task": "Prep18"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "Prep18",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "5e592fe939987281a297ea430289c96d4646e6d9",
-        "batch": "v54",
-        "since": "2026-10-12T13:14:00.608Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "Prep19",
         "worker": "Prep",
@@ -98408,10 +98504,8 @@
         "delivery": "959008b1baea6371dc337459798c056e13d4a86a",
         "batch": "v55",
         "since": "2026-10-12T14:44:34.053Z",
-        "blockedBy": [
-          "Prep18"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "Prep20",
@@ -98423,7 +98517,6 @@
         "batch": "v56",
         "since": "2026-10-12T16:37:35.940Z",
         "blockedBy": [
-          "Prep18",
           "Prep19"
         ],
         "unblocks": 0
@@ -98438,7 +98531,6 @@
         "batch": "v57",
         "since": "2026-10-12T17:57:01.432Z",
         "blockedBy": [
-          "Prep18",
           "Prep19",
           "Prep20"
         ],
@@ -98454,7 +98546,6 @@
         "batch": "v58",
         "since": "2026-10-12T19:55:18.218Z",
         "blockedBy": [
-          "Prep18",
           "Prep19",
           "Prep20",
           "Prep21"
@@ -98471,7 +98562,6 @@
         "batch": "v59",
         "since": "2026-10-12T20:51:26.895Z",
         "blockedBy": [
-          "Prep18",
           "Prep19",
           "Prep20",
           "Prep21",
@@ -98480,7 +98570,19 @@
         "unblocks": 0
       }
     ],
-    "preparedBatches": [],
+    "preparedBatches": [
+      {
+        "task": "Prep18",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "awaiting-admission",
+        "delivery": "5e592fe939987281a297ea430289c96d4646e6d9",
+        "batch": "v54",
+        "since": "2026-10-12T22:22:42.311Z",
+        "blockedBy": []
+      }
+    ],
     "parkedTasks": [
       {
         "task": "C42",
@@ -98949,8 +99051,8 @@
     ]
   },
   "development": {
-    "executionCommit": "d2cfcd4eeb8033c4cc3f2dbc6cc66db543415f85",
-    "measuredAt": "2026-10-12T22:12:07.590Z",
+    "executionCommit": "27c23fb69c1e28dd0552d4d77e78bb9a01944b06",
+    "measuredAt": "2026-10-12T22:20:47.417Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

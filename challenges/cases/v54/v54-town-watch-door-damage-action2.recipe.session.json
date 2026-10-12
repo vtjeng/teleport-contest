@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dokick.c:watchman_door_damage; 846-863 warning then angry_guards from door kicks in town. Required state/action history: Enter Minetown streets without entering a shop; observe a closed door and peaceful watchman, then damage it twice. Source guard iterator differs from corpse kick. Intended C observation: C watchman warning/D_WARNED state then vandal arrest/guard hostility. Initial inventory/map/menu scout precedes action selection. Independent C-only continuation/correction from observed prompts; original probe preserved.",
+  "segments": [
+    {
+      "seed": 54010109,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                                                  #wizlevelport\n?\n>w                                                  #wizgenesis\npeaceful watchman\n                    #wizmap\n\u0014  lljj.                    \u0004l                    \u0004l                    \u0004l                    \u0004l                    \u0004l                    \u0004l                    \u0004l                    \u0004l                    #wizmap\n"
+    }
+  ]
+}

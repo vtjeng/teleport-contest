@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first fountain.c:dowatersnakes; Timed-blind fountain quaff snake creation. Required state/action history: Establish potion blindness without worn blindfold, create fountain off the initial stairs and use bounded quaffs. Timed blindness differs from the pending blindfold-only enlightenment label. Intended C observation: C reached water-moccasin creation and blind/acoustics behavior; preserve other fountain outcomes without counting earlier pending nymph defect. Initial inventory/map/menu scout precedes action selection.",
+  "segments": [
+    {
+      "seed": 54010106,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n                                                  \u0017uncursed potion of blindness\n                    i                    #wizmap\n"
+    }
+  ]
+}

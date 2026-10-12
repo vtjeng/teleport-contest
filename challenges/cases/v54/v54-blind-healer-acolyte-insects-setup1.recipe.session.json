@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mcastu.c:mcast_insects source variant. include/monsters.h defines acolyte as AD_CLRC, ordinary guardian rather than rank-bearing role cleric. Long Blind state makes blind-you useless and suppresses lightning flash; lower melee damage permits bounded summon observation. Scout cursed blindness potion and NPC before action. Original curate cases and all earlier probes remain preserved.",
+  "segments": [
+    {
+      "seed": 54010601,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n30\n                                                  #wizgenesis\nhostile acolyte\n                    \u0017cursed potion of blindness\n                    i                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first spell.c:spelleffects; 1477 SPE_DRAIN_LIFE -> weffects/bhitm. Required state/action history: Create living hostile ogre, inspect C map and wizard spell menu, choose drain life and aim at observed monster. Intended C observation: C drain-life spell menu/beam, level/HP reduction and continuation; distinguish forced spell caller from ordinary wand. Initial inventory/map/menu scout precedes action selection. C action continuation selected from the recorded inventory and map; preserved initial setup separately.",
+  "segments": [
+    {
+      "seed": 54010110,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V54Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                                                  #wizgenesis\nhostile ogre\n                    #wizmap\n#wizcast\nnl                    #wizmap\n"
+    }
+  ]
+}
