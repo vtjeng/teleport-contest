@@ -283691,6 +283691,336 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "file-port-topl-message-history-v48-20261012",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the whole TTY message, prompt, and history family and wire active callers",
+      "cFile": "topl.c",
+      "sessions": [
+        "synthetic/v48/v48-previous-message-history-ctrlp"
+      ],
+      "selectionReason": "Corrected ready history source port unblocks pending inventory and throne work; integrate ready backlog before another prepared batch.",
+      "detail": "Complete win/tty/topl.c history ring, message rendering, previous-message modes, prompts, and save/restore callbacks. Caller-only edits in cmd, getline, wintty, questpgr, invent, save, restore, pager, insight, sit and display receive no enclosing-function credit.",
+      "openedAt": "9c1bc514551a32eb472c1b2ef8c34f8b7953adf1",
+      "openStanding": {
+        "sha": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "tty_doprev_message",
+          "line": 20,
+          "endLine": 121,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "redotoplin",
+          "line": 122,
+          "endLine": 144,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "show_topl",
+          "line": 145,
+          "endLine": 169,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "remember_topl",
+          "line": 170,
+          "endLine": 193,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "addtopl",
+          "line": 194,
+          "endLine": 204,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "more",
+          "line": 205,
+          "endLine": 250,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "update_topl",
+          "line": 251,
+          "endLine": 304,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "topl_putsym",
+          "line": 305,
+          "endLine": 346,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "putsyms",
+          "line": 347,
+          "endLine": 353,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "removetopl",
+          "line": 354,
+          "endLine": 364,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "tty_yn_function",
+          "line": 365,
+          "endLine": 558,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "msghistory_snapshot",
+          "line": 559,
+          "endLine": 604,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "free_msghistory_snapshot",
+          "line": 605,
+          "endLine": 636,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "tty_getmsghistory",
+          "line": 637,
+          "endLine": 676,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "tty_putmsghistory",
+          "line": 677,
+          "endLine": 731,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 20,
+        "to": 731
+      },
+      "syntheticProvenance": {
+        "synthetic/v48/v48-previous-message-history-ctrlp": {
+          "session": "synthetic/v48/v48-previous-message-history-ctrlp",
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-previous-message-history-ctrlp",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recordingPath": "challenges/cases/v48/v48-previous-message-history-ctrlp.session.json",
+          "recordingSha256": "2f6a36be26eccf74bcf3432d2e5d91e867102d62e6d2e1b661b269eea2f78477",
+          "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v48.json",
+          "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3"
+        }
+      },
+      "activeStanding": {
+        "sha": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v48",
+          "caseId": "v48-previous-message-history-ctrlp",
+          "session": "synthetic/v48/v48-previous-message-history-ctrlp",
+          "manifestPath": "challenges/manifests/v48.json",
+          "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+          "recording": "challenges/cases/v48/v48-previous-message-history-ctrlp.session.json",
+          "recordingPath": "challenges/cases/v48/v48-previous-message-history-ctrlp.session.json",
+          "recordingSha256": "2f6a36be26eccf74bcf3432d2e5d91e867102d62e6d2e1b661b269eea2f78477",
+          "recipe": "challenges/cases/v48/v48-previous-message-history-ctrlp.recipe.session.json",
+          "recipeSha256": "07f4f00da417202d677ccdaa40ad1b8136d23bce55f27179af51ee4b102cce76",
+          "replayInputSha256": "167caa859b3bede5eb9ead2ece0af7dfdc3bc14caf3dc41c6163a103d4cb2025",
+          "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v48.json",
+          "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+          "evaluationArtifact": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v48.json",
+          "evaluationUtc": "2026-10-12T09:18:08.866Z",
+          "remainingScreens": 1,
+          "recordedSteps": 2,
+          "previousScreensMatched": 1,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 1,
+              "total": 2
+            },
+            "rng": {
+              "matched": 3063,
+              "total": 3063
+            },
+            "cursors": {
+              "matched": 1,
+              "total": 2
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+            "step": 1
+          },
+          "step": 1,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v48/v48-previous-message-history-ctrlp.json",
+            "result": {
+              "session": "synthetic/v48/v48-previous-message-history-ctrlp",
+              "remainingScreens": 1,
+              "recordedSteps": 2,
+              "corpus": "synthetic",
+              "batch": "v48",
+              "caseId": "v48-previous-message-history-ctrlp",
+              "manifestPath": "challenges/manifests/v48.json",
+              "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+              "recordingSha256": "2f6a36be26eccf74bcf3432d2e5d91e867102d62e6d2e1b661b269eea2f78477",
+              "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v48.json",
+              "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+              "status": "complete",
+              "commit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v48",
+                "caseId": "v48-previous-message-history-ctrlp",
+                "session": "synthetic/v48/v48-previous-message-history-ctrlp",
+                "manifestPath": "challenges/manifests/v48.json",
+                "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+                "recording": "challenges/cases/v48/v48-previous-message-history-ctrlp.session.json",
+                "recordingPath": "challenges/cases/v48/v48-previous-message-history-ctrlp.session.json",
+                "recordingSha256": "2f6a36be26eccf74bcf3432d2e5d91e867102d62e6d2e1b661b269eea2f78477",
+                "recipe": "challenges/cases/v48/v48-previous-message-history-ctrlp.recipe.session.json",
+                "recipeSha256": "07f4f00da417202d677ccdaa40ad1b8136d23bce55f27179af51ee4b102cce76",
+                "replayInputSha256": "167caa859b3bede5eb9ead2ece0af7dfdc3bc14caf3dc41c6163a103d4cb2025",
+                "evaluationPath": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v48.json",
+                "evaluationCommit": "5723bb7e10087d27f27a8ec6106f3ac7660597e3",
+                "evaluationArtifact": "challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v48.json",
+                "evaluationUtc": "2026-10-12T09:18:08.866Z",
+                "remainingScreens": 1,
+                "recordedSteps": 2,
+                "previousScreensMatched": 1,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 1,
+                    "total": 2
+                  },
+                  "rng": {
+                    "matched": 3063,
+                    "total": 3063
+                  },
+                  "cursors": {
+                    "matched": 1,
+                    "total": 2
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+                  "step": 1
+                },
+                "step": 1,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Ctrl-P is rejected before previous-message dispatch. C dispatches cmd.c:doprev_message to the TTY message-history callback. Port the whole topl.c message, prompt, and history family, store its circular history in the message window, and wire active command, line-input, writer, save, and restore callers.",
+              "source": {
+                "file": "topl.c",
+                "branch": "A bound previous-message key or prompt reaches the TTY message-history callback; the message window retains the same circular history across writes and save/restore.",
+                "functions": [
+                  "tty_doprev_message",
+                  "redotoplin",
+                  "show_topl",
+                  "remember_topl",
+                  "addtopl",
+                  "more",
+                  "update_topl",
+                  "topl_putsym",
+                  "putsyms",
+                  "removetopl",
+                  "tty_yn_function",
+                  "msghistory_snapshot",
+                  "free_msghistory_snapshot",
+                  "tty_getmsghistory",
+                  "tty_putmsghistory"
+                ],
+                "callers": [
+                  "cmd.c:rhack -> doprev_message -> tty_doprev_message",
+                  "getline.c:hooked_tty_getlin -> tty_doprev_message",
+                  "wintty.c:tty_putstr -> update_topl; tty_wait_synch -> tty_doprev_message",
+                  "questpgr.c and invent.c:putmsghistory",
+                  "save.c:save_msghistory; restore.c:restore_msghistory"
+                ],
+                "dependencies": []
+              },
+              "evidence": [
+                "Saved admitted replay challenges/cases/v48/v48-previous-message-history-ctrlp.session.json has one Ctrl-P input; step 0 and C step 1 have identical screens and cursor, and the stored JS stop at step 1 is unsupported hero command at its pre-dispatch repeated-command boundary.",
+                "C source src/cmd.c:1806 binds the prevmsg extcmd row to doprev_message; src/cmd.c:3627 rhack dispatches a bound command row without the JavaScript-only ADMITTED_COMMANDS gate; src/cmd.c:164-169 doprev_message discards nh_doprev_message result and returns ECMD_OK.",
+                "C source include/winprocs.h:71,153 maps nh_doprev_message to windowprocs.win_doprev_message; win/tty/wintty.c:142 registers tty_doprev_message in tty_procs; win/tty/topl.c:20-119 implements the callback over WIN_MESSAGE data/maxrow/maxcol, with single/full/combination/reversed branches.",
+                "C source win/tty/topl.c:172-192 remember_topl stores toplines in the circular WIN_MESSAGE buffer and advances maxrow/maxcol; JavaScript js/tty_message.js currently tracks _ttyToplines and pending text but has no corresponding history ring.",
+                "Recorder configuration enables TTY_GRAPHICS by sys/unix/hints/linux-minimal setting WINSRC=$(WINTTYSRC), and include/config.h selects DEFAULT_WINDOW_SYS tty; this rules out nhwindows.c as the recorder callback implementation.",
+                "A direct runSegment replay at merged HEAD 02896bd emits the same boundary error before doprev_message dispatch, with one screen, cursor [30,6,1], no unported marker, and 3063 RNG calls.",
+                "The complete source family includes topl.c:tty_doprev_message, redotoplin, show_topl, remember_topl, addtopl, more, update_topl, topl_putsym, removetopl, tty_yn_function, msghistory_snapshot, free_msghistory_snapshot, tty_getmsghistory, and tty_putmsghistory. Active callers include cmd.c:rhack/doprev_message; wintty.c:tty_create_nhwindow/tty_putstr/tty_wait_synch; questpgr.c and invent.c message-history writes; and save.c/restore.c history serialization callbacks.",
+                "Current saved evaluation challenges/evaluations/accepted-5723bb7e10087d27f27a8ec6106f3ac7660597e3-v48.json still stops at step 1: one of two screens and cursors matches, with all 3063 RNG calls matched. The complete source scope includes putsyms; enclosing cmd, getline, and wintty functions receive caller wiring only."
+              ],
+              "currentReplay": {
+                "baseEvaluation": "challenges/evaluations/accepted-02f2d3c93e6d30843cc91ad3087f3f9c55829690-v48.json",
+                "baseCommit": "02f2d3c93e6d30843cc91ad3087f3f9c55829690",
+                "workerHead": "02896bd6c3a9ec4720b544eec148192d58f9db3a",
+                "screens": 1,
+                "cursors": 1,
+                "rngMatched": 3063,
+                "rngTotal": 3063,
+                "firstMismatch": "cmd.js:rhack admitParsedCommand rejects prevmsg before C-equivalent dispatch",
+                "historyPath": [
+                  "cmd.c:rhack -> cmd.c:doprev_message -> winprocs nh_doprev_message -> win/tty/topl.c:tty_doprev_message",
+                  "win/tty/topl.c:remember_topl <- update_topl and wintty.c:tty_putstr",
+                  "win/tty/topl.c:tty_yn_function and wintty.c:tty_wait_synch call tty_doprev_message",
+                  "win/tty/topl.c:tty_getmsghistory and tty_putmsghistory snapshot and restore the same ring"
+                ]
+              },
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ]
     }
   ]
 }
