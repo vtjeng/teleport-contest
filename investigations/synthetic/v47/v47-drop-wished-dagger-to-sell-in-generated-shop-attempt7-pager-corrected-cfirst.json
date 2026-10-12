@@ -63,44 +63,46 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The v47 shop drop now reaches the unported shop-sale behavior. Full source-scope review shows that implementing shk.c:sellobj() requires wiring seven active call sites across do.c, dothrow.c, pickup.c, and trap.c, including dothrow.c:check_shop_obj() and throw_gold(); the C paths are currently refused or recorded as gaps in JS. The used-return callee shk.c:special_stock() is also absent from JS and depends on shknam.c:is_izchak(), which has a second caller in shk.c. This is a cross-file shop-accounting port, not a drop-only divergence; keep the investigation parked until the complete caller/evidence scope can be claimed atomically.",
+  "summary": "The v47 shop drop reaches the unported shop-sale function. Complete source scope includes the full shk.c:sellobj(), its used-return shk.c:special_stock(), the pure shknam.c:is_izchak() helper, and the source caller wiring across ordinary drops, projectile shop handling, thrown gold, floor containers, and trap-converted objects. The active is_izchak() caller in shk.c:shk_chat() is reached from sounds.c:dochat() through domonnoise(); JS currently records note_unported at that dispatch. Both helper and chat path are included in the implementation scope.",
   "source": {
     "file": "src/shk.c",
     "functions": [
       "sellobj",
       "special_stock",
+      "shk_chat",
       "is_izchak",
-      "check_shop_obj"
+      "check_shop_obj",
+      "throw_gold"
     ],
     "branch": "When an ordinary non-swallowed object is dropped on a costly spot in a shop whose keeper is present, C sellobj() computes its offer and handles the sale response; this recipe reaches the deliberate-sale query for a wished +5 dagger.",
     "callers": [
       "src/do.c:dropz -> sellobj",
-      "src/dothrow.c:check_shop_obj -> sellobj",
+      "src/dothrow.c:check_shop_obj -> sellobj (six callers)",
       "src/dothrow.c:throw_gold -> sellobj",
       "src/pickup.c:in_container -> sellobj (two branches)",
       "src/trap.c:cnv_trap_obj -> sellobj",
       "src/shk.c:sellobj -> special_stock -> is_izchak",
-      "src/shk.c:shk_chat -> is_izchak (upstream caller only; shk_chat is not currently ported or wired in JS)"
+      "src/sounds.c:dochat -> domonnoise -> shk_chat -> is_izchak"
     ],
     "dependencies": [
-      "src/shk.c:special_stock is a return-valued dependency of sellobj and will be ported whole",
-      "src/shknam.c:is_izchak is a return-valued dependency of special_stock and will be ported whole with a source-pinned pure test",
-      "src/dothrow.c:check_shop_obj is the only sellobj call in the projectile path and will be ported whole, then called at all six existing JS callsites",
-      "shk.c:shk_chat calls is_izchak at :5594 but has no JavaScript implementation/dispatch path in the accepted tree; preserve this as an explicitly excluded unported source caller"
+      "src/shk.c:special_stock is a return-valued dependency of sellobj and is included whole",
+      "src/shknam.c:is_izchak is a return-valued dependency of special_stock and shk_chat; include the whole pure helper and its source-pinned test",
+      "src/dothrow.c:check_shop_obj is the projectile shop accounting function and is included whole, with all six JS callsites wired",
+      "src/sounds.c:domonnoise is the active JavaScript dispatch point whose MS_SELL arm currently records note_unported(shk.c shk_chat); wire shk_chat there"
     ],
     "callerAudit": {
       "sellobjDirectCallers": [
-        "src/do.c:dropz (ordinary drop placement, line 836; JS dropzAdmitted has only an impact-branch gap and preflight currently refuses costly spots)",
-        "src/dothrow.c:check_shop_obj (sellobj call at line 1210; check_shop_obj has six projectile callers at 1813, 1836, 2131, 2222, 2372, 2545; JS call paths contain note_unported markers)",
-        "src/dothrow.c:throw_gold (line 2727; JS throw_gold throws UnsupportedThrowError)",
-        "src/pickup.c:in_container (lines 2641 and 2702; JS has two note_unported markers)",
-        "src/trap.c:cnv_trap_obj (line 5362; JS has note_unported marker)"
+        "src/do.c:dropz line 836",
+        "src/dothrow.c:check_shop_obj sellobj call at line 1210; helper has callers at lines 1813, 1836, 2131, 2222, 2372, 2545",
+        "src/dothrow.c:throw_gold line 2727",
+        "src/pickup.c:in_container lines 2641 and 2702",
+        "src/trap.c:cnv_trap_obj line 5362"
       ],
-      "returnValuedCallees": [
-        "src/shk.c:special_stock (called by sellobj; return gates the uninterested message; JS implementation absent)",
-        "src/shknam.c:is_izchak (return used by special_stock and independently by src/shk.c:shk_names_obj; JS implementation absent; requires a source-pinned pure test)"
+      "isIzchakCallers": [
+        "src/shk.c:special_stock line 3112; active seller path",
+        "src/shk.c:shk_chat line 5594; sounds.c:domonnoise calls it at line 735 from the sounds.c:dochat path"
       ],
-      "sourceScopeDecision": "Claim the complete active shop-sale family as one implementation task: port the full sellobj() and special_stock() functions, include the return-valued pure is_izchak() helper, port check_shop_obj(), and wire every existing direct sellobj caller in drop, projectile, thrown-gold, container, and trap-object paths. is_izchak() has a second upstream caller in shk.c:shk_chat(), but no JS shk_chat implementation or production caller exists; document that unported upstream branch as excluded while testing the complete pure helper and wiring its active special_stock caller."
+      "sourceScopeDecision": "The mismatch and full source scope are claimed atomically. The scope includes sellobj(), special_stock(), shk_chat(), is_izchak(), check_shop_obj(), throw_gold(), and line-aligned wiring at the existing do/pickup/trap/dothrow/sounds dispatch sites. No code edits preceded the source claim."
     }
   },
   "evidence": [
@@ -109,6 +111,6 @@
     "C source src/do.c:dropx (786-797) extracts inventory, checks shipping and altar effects, then calls dropy(); dropz (806-843) places the object and calls sellobj(obj, u.ux, u.uy) for shop levels before stackobj(). The JavaScript preflight_dropx() at js/do.js:1897-2100 rejects costly_spot() at :1956 before ordinary placement; dropzAdmitted() records the shk.c:sellobj gap only inside its withImpact branch at :2205-2209.",
     "C source src/shk.c:sellobj() (3927-4194) is a void shop-sale function with ordinary costly-spot eligibility, sale pricing, shopkeeper state, offer and confirmation branches, and payment/billing effects. The current js/shk.js has no sellobj() declaration; rg confirmed existing related helpers including costly_spot(), saleable(), set_cost(), record_price_quote(), and sellobj_state().",
     "Investigation is partial because the safe reload pause arrived before full direct-callee and entry-point analysis, source reservation, or edits; no game code was changed and no tests, recordings, or fresh differentials were started.",
-    "Complete source/caller audit: sellobj() spans shk.c:3927-4194 and has six direct C callsites across do.c:dropz, dothrow.c:check_shop_obj/throw_gold, pickup.c:in_container (two branches), and trap.c:cnv_trap_obj. check_shop_obj() at dothrow.c:1181-1218 has six callsites at :1813, :1836, :2131, :2222, :2372, and :2545. Its gaps are present at six JavaScript callsites; throw_gold currently refuses with UnsupportedThrowError. special_stock() at shk.c:3103-3136 is an active used-return dependency, and is_izchak() at shknam.c:908-923 is a pure used-return helper. The only other C is_izchak caller is shk.c:shk_chat at :5594; shk_chat has no JS implementation/caller in the accepted tree and is excluded from this task. Reservation status was checked via the shared worker ledger: none of these shop source functions/caller scopes is reserved by another worker."
+    "Complete source/caller audit: sellobj() spans shk.c:3927-4194 and has six direct C callsites across do.c:dropz, dothrow.c:check_shop_obj/throw_gold, pickup.c:in_container (two branches), and trap.c:cnv_trap_obj. check_shop_obj() at dothrow.c:1181-1214 has six active projectile callers at :1813, :1836, :2131, :2222, :2372, and :2545. special_stock() at shk.c:3103-3144 is the active used-return dependency. is_izchak() at shknam.c:908-924 is pure and has two active C callers: special_stock() and shk_chat(). shk_chat() at shk.c:5521-5601 is reached by sounds.c:dochat -> domonnoise() at sounds.c:735; JS domonnoise currently records note_unported there. The implementation claim includes both the chat source function and its actual JS dispatch wiring."
   ]
 }
