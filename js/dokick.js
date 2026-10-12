@@ -174,7 +174,7 @@ import { shkname, Shknam } from './shknam.js';
 import { stairway_at } from './stairs.js';
 import { remove_worn_item } from './steal.js';
 import {
-    activate_statue_trap, chest_trap,
+    activate_statue_trap, chest_trap, instapetrify,
     b_trapped,
     fall_through,
     t_at,
@@ -678,7 +678,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
             && await polymon(PM_STONE_GOLEM, state, env))) {
             state.killer ??= {};
             state.killer.name = `kicking ${killer_xname(object(), state)} barefoot`;
-            note_unported('trap.c instapetrify');
+            await instapetrify(state.killer.name, state, env);
         }
     }
     const isGold = object().oclass === COIN_CLASS;

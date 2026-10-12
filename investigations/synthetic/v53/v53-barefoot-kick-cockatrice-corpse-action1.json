@@ -1,0 +1,103 @@
+{
+  "session": "synthetic/v53/v53-barefoot-kick-cockatrice-corpse-action1",
+  "corpus": "synthetic",
+  "batch": "v53",
+  "caseId": "v53-barefoot-kick-cockatrice-corpse-action1",
+  "manifestPath": "challenges/manifests/v53.json",
+  "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+  "recordingPath": "challenges/cases/v53/v53-barefoot-kick-cockatrice-corpse-action1.session.json",
+  "recordingSha256": "f95cb0ac19f0a236a73bfe877d01036097b134d413fb4d3cf716588da9359add",
+  "evaluationPath": "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json",
+  "evaluationCommit": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
+  "status": "complete",
+  "commit": "2622c1f6822448b14cda8be1ddeba3653d4960ea",
+  "summary": "At segment 0 step 219, C reaches the bare-foot cockatrice corpse branch in dokick.c:really_kick_object. After the kick message and killer name, C calls trap.c:instapetrify before continuing the kick. JavaScript records note_unported and proceeds without the stoning prompt or death/recovery transition.",
+  "source": {
+    "file": "dokick.c",
+    "branch": "In really_kick_object, when the hero has no kicking boots, the object is a corpse whose species touch-petrifies, and the hero lacks Stone resistance, C prints the bare-foot kick message. If poly_when_stoned plus polymon(PM_STONE_GOLEM) does not save the hero, C writes \"kicking <corpse> barefoot\" to the killer name and calls instapetrify. A lifesaving/debug recovery can return to the following kick logic.",
+    "functions": [
+      "really_kick_object"
+    ],
+    "callers": [
+      "dokick.c:dokick dispatches a floor pile through kick_object to really_kick_object; js/dokick.js: dokick -> kick_object -> really_kick_object."
+    ],
+    "dependencies": [
+      "trap.c:instapetrify is implemented in js/trap.js and accepted in Main; this correction replaces the named gap at this caller."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json at 26748832bec4c8d55150cd96f4f870355f5d2bbd records 243/247 screens, 2441/2441 RNG values and 244/247 cursors matching before the step-219 divergence.",
+    "The immutable recording at segment 0 step 219, key \" \", has no RNG delta and captures \"You turn to stone...--More--\" at cursor [28,0,1]. The admitted-baseline C/JS comparison recorded first mismatch row 0 column 4 (C \"t\", JS \"k\"), cursor C [28,0,1] versus JS [70,5,1], while all RNG values match.",
+    "challenges/manifests/v53.json records the production path dokick.c:dokick -> kick_object -> trap.c:instapetrify. Upstream dokick.c:really_kick_object:542-555 contains the exact predicate, message, polymorph exception, killer update and helper call.",
+    "js/dokick.js:really_kick_object mirrors the predicate/message/killer setup but records note_unported('trap.c instapetrify') and falls through. js/trap.js:instapetrify owns the urgent message, killer format, done(STONING), and recovery effects."
+  ],
+  "remainingScreens": 4,
+  "recordedSteps": 247,
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v53",
+    "caseId": "v53-barefoot-kick-cockatrice-corpse-action1",
+    "session": "synthetic/v53/v53-barefoot-kick-cockatrice-corpse-action1",
+    "manifestPath": "challenges/manifests/v53.json",
+    "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+    "recordingPath": "challenges/cases/v53/v53-barefoot-kick-cockatrice-corpse-action1.session.json",
+    "recordingSha256": "f95cb0ac19f0a236a73bfe877d01036097b134d413fb4d3cf716588da9359add",
+    "evaluationPath": "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json",
+    "evaluationCommit": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
+    "remainingScreens": 4,
+    "recordedSteps": 247,
+    "previousScreensMatched": 243,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 243,
+        "total": 247
+      },
+      "rng": {
+        "matched": 2441,
+        "total": 2441
+      },
+      "cursors": {
+        "matched": 244,
+        "total": 247
+      }
+    },
+    "firstMismatch": {
+      "segmentIndex": 0,
+      "stepIndex": 219,
+      "key": " ",
+      "sourceFile": "dokick.c",
+      "function": "really_kick_object",
+      "cScreenMessage": "You turn to stone...--More--",
+      "jsBehavior": "note_unported(trap.c instapetrify), then kick continuation"
+    },
+    "step": 219,
+    "kind": "screen",
+    "sourceFile": "dokick.c",
+    "function": "really_kick_object",
+    "message": "The C corpse-contact branch calls instapetrify before the kick continues; JavaScript skipped the call."
+  },
+  "observedReplay": {
+    "runId": "run-P2qvW8",
+    "command": [
+      "node",
+      "scripts/scan-sessions.mjs",
+      "--json",
+      "--synthetic",
+      "v53/v53-barefoot-kick-cockatrice-corpse-action1"
+    ],
+    "replayCommit": "2622c1f6822448b14cda8be1ddeba3653d4960ea",
+    "screensEmitted": 247,
+    "recordedSteps": 247,
+    "divergence": null,
+    "recordingMatched": true,
+    "inputBoundaryMatched": true,
+    "unported": [
+      "sounds.c SoundAchievement"
+    ],
+    "receipt": "/tmp/teleport-validation-1000/run-P2qvW8/receipt.json"
+  }
+}
