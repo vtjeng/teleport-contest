@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T11:30:07.562Z",
+  "capturedAt": "2026-10-12T11:53:14.491Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -94459,11 +94459,140 @@
         "at": "2026-10-12T11:29:36.428Z",
         "task": "Prep17",
         "delivery": "4458b5ccea78f8f2c6e58468a554d04586a84616"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-active-knownclass-replay-42396",
+        "type": "turn",
+        "at": "2026-10-12T11:30:12.451Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Checking whether the accepted discovery-sort integration resolves B’s parked knownclass replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-park-knownclass-resolved-by-C-583ca576-20261012",
+        "type": "park",
+        "at": "2026-10-12T11:30:34.791Z",
+        "task": "B-investigation-v48-knownclass-attempt3-20261012",
+        "reason": "Resolved by C-investigation-v48-discovery-sort-menu-20261012 accepted at 583ca5765128db23e1d43883d8faad7b0dbcdef6. Fresh bounded replay on B accepted Main 24cd67df72e04946883c4dad0b7185ebbbd77449 matched all 14 screens, RNG, and input boundaries; #knownclass reached with unported=[] and no refusal. Do not create duplicate implementation completion evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v48-discovery-sort-menu-20261012-1c9b6ec23d44462f6b0f8eadc413db0f692c9704",
+        "type": "published",
+        "at": "2026-10-12T11:30:57.446Z",
+        "task": "C-investigation-v48-discovery-sort-menu-20261012",
+        "commit": "1c9b6ec23d44462f6b0f8eadc413db0f692c9704"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-bluejelly-investigation-20261012",
+        "type": "turn",
+        "at": "2026-10-12T11:31:08.522Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating an unreserved v51 monster-action case after syncing accepted Main."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-knownclass-resolution-queue-1129-20261012",
+        "type": "turn",
+        "at": "2026-10-12T11:31:25.906Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Knownclass matches after accepted doclassdisco. At the refreshed queue, every independent candidate is reserved or held; bluejelly overlaps C’s active gulpmu path. B’s ready deliveries remain queued."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-blocked-pending-source-reservations-20261012",
+        "type": "turn",
+        "at": "2026-10-12T11:31:45.339Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Waiting for pending source deliveries to integrate and the combined queue to refresh; the remaining unowned case overlaps C’s queued gulpmu repair."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-history-correction-d340ffebf",
+        "type": "integrating",
+        "at": "2026-10-12T11:39:15.134Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "integration": "d340ffebf19c2ff6d2192c5a92531f069ddeffa1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep18-v54-source-plan-20261012",
+        "type": "turn",
+        "at": "2026-10-12T11:39:28.488Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v54: twelve independent C missions planned across shops, Quest, artifacts, spells, terrain and monster actions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep18-v54-action-wave-20261012",
+        "type": "turn",
+        "at": "2026-10-12T11:46:10.270Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v54: recording artifact, spell, terrain, inventory and monster-item actions from twelve saved C setups."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v48-previous-message-history-ctrlp-20261012-d340ffebf19c2ff6d2192c5a92531f069ddeffa1-validated",
+        "type": "validated",
+        "at": "2026-10-12T11:47:40.123Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v48-previous-message-history-ctrlp-20261012-d340ffebf19c2ff6d2192c5a92531f069ddeffa1-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T11:49:37.434Z",
+        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-escape-after-history-acceptance-20261012",
+        "type": "resume",
+        "at": "2026-10-12T11:50:35.412Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-getobj-escape-resume-20261012",
+        "type": "turn",
+        "at": "2026-10-12T11:51:21.830Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B’s immutable getobj Escape delivery is ready for integration and still improves an unresolved v49 case. Waiting for the post-history queue refresh before selecting further work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-history-accepted-merge-wait-20261012",
+        "type": "turn",
+        "at": "2026-10-12T11:52:24.676Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Accepted Main is merged. Waiting for a refreshed queue and release of pending A2 source reservations before selecting another case."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
+      {
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "worker": "B",
+        "goal": "div-getobj-menu-escape-v49-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "92449c294641f2004c63c94a6eb5f95c721c7e85",
+        "since": "2026-10-12T05:22:46.446Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
       {
         "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
         "worker": "C",
@@ -94542,10 +94671,8 @@
         "status": "ready",
         "delivery": "def66703813df3578189d5890865f9f91d530715",
         "since": "2026-10-12T08:34:48.819Z",
-        "blockedBy": [
-          "A2-investigation-v48-previous-message-history-ctrlp-20261012"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "C-investigation-v51-rustmonster-passive-weapon-erosion-20261012",
@@ -94589,7 +94716,6 @@
         "delivery": "3961fb31767fe6a6b7a61edc0cf78f92361d4aa6",
         "since": "2026-10-12T09:02:18.983Z",
         "blockedBy": [
-          "A2-investigation-v48-previous-message-history-ctrlp-20261012",
           "A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012"
         ],
         "unblocks": 0
@@ -94649,17 +94775,6 @@
         "since": "2026-10-12T11:15:52.584Z",
         "blockedBy": [],
         "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v48-previous-message-history-ctrlp-20261012",
-        "worker": "A2",
-        "goal": "file-port-topl-message-history-v48-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "d94761f769647534cefb88c0b2d3c31b1637b2de",
-        "since": "2026-10-12T11:16:09.756Z",
-        "blockedBy": [],
-        "unblocks": 1
       },
       {
         "task": "Prep17",
@@ -95099,17 +95214,6 @@
         "reason": "C reports committed implementation and V/mV normalized host-string replay, but strict evidence gate rejects submission: local C emits Unix while official profile emits MacOS. Preserve commits 4f13891af and15e869a33, recipes and private check evidence; no raw mismatching recording is in the regression corpus. Source completion remains unproven pending a permitted host-profile evidence route or matching recorder."
       },
       {
-        "task": "B-investigation-v49-apply-book-attempt2-20261012",
-        "worker": "B",
-        "goal": "div-getobj-menu-escape-v49-20261012",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": "92449c294641f2004c63c94a6eb5f95c721c7e85",
-        "since": "2026-10-12T06:41:40.234Z",
-        "blockedBy": [],
-        "reason": "B is command-free and its immutable getobj Escape delivery92449c294 is preserved. Transfer getobj caller-edit ownership to A for the required force_invmenu history-writer hook so the complete TTY family can proceed. A must preserve the pending Escape repair; resume this unchanged B delivery after A releases the caller scope. No behavioral dependency from A to B is introduced."
-      },
-      {
         "task": "C-investigation-v49-apply-book-attempt2-20261012",
         "worker": "C",
         "goal": null,
@@ -95130,12 +95234,23 @@
         "since": "2026-10-12T09:06:00.473Z",
         "blockedBy": [],
         "reason": "Diagnosis and baseline are committed at 503fa9ed8. Step 230 reaches steal.c:steal() then trap.c:minstapetrify(); C owns the complete helper family and will include this caller and case. No game edits were made. Release the session for C's active source task."
+      },
+      {
+        "task": "B-investigation-v48-knownclass-attempt3-20261012",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-12T11:30:34.791Z",
+        "blockedBy": [],
+        "reason": "Resolved by C-investigation-v48-discovery-sort-menu-20261012 accepted at 583ca5765128db23e1d43883d8faad7b0dbcdef6. Fresh bounded replay on B accepted Main 24cd67df72e04946883c4dad0b7185ebbbd77449 matched all 14 screens, RNG, and input boundaries; #knownclass reached with unported=[] and no refusal. Do not create duplicate implementation completion evidence."
       }
     ]
   },
   "development": {
-    "executionCommit": "583ca5765128db23e1d43883d8faad7b0dbcdef6",
-    "measuredAt": "2026-10-12T11:20:15.050Z",
+    "executionCommit": "d340ffebf19c2ff6d2192c5a92531f069ddeffa1",
+    "measuredAt": "2026-10-12T11:44:01.936Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

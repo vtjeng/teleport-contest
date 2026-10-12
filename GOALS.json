@@ -283695,7 +283695,7 @@
     {
       "id": "file-port-topl-message-history-v48-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the whole TTY message, prompt, and history family and wire active callers",
       "cFile": "topl.c",
       "sessions": [
@@ -283709,8 +283709,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d340ffebf19c2ff6d2192c5a92531f069ddeffa1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "tty_doprev_message",
@@ -284521,6 +284524,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d340ffebf19c2ff6d2192c5a92531f069ddeffa1",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
