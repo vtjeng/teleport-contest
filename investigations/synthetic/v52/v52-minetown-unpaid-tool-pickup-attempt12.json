@@ -58,21 +58,23 @@
     },
     "replayCommit": "3b34371d46a47005b16613508fb9e4ce78e70b5a"
   },
-  "summary": "The step-312 nested-shop mismatch was cleared by room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9, and hot-pursuit delivery 20763e5c8c468f81294b4648414e6ed942b786b0 matched through step 583. Follow-up source tracing found shk.c:shk_move compared squared distance with >64 instead of C's distu()>8, admitting a NOTONL candidate and adding an rn2(5). Commit d07983bb131e56f3c28023417a05f1ab8bee26a4 corrects the threshold; the exact fresh recipe and immutable v52 recording now match all 627 screens, cursors, and RNG boundaries.",
+  "summary": "The hot-pursuit path improves the selected Minetown replay, but Main checkpoint 34c94c5a1 found one cursor regression (618/627 to 617/627) while screens improved 573/627 to 616/627 and RNG 7078/7364 to 7226/7364. The source-traced cause was shk.c:shk_move comparing squared distance against 64 instead of C distu()>8. The bounded threshold repair is included in this correction; its exact tree matches all 627 screens, cursors, and 7,364 RNG calls in the fresh recipe replay. Awaiting Main CI for this corrected candidate.",
   "source": {
     "file": "shk.c",
-    "branch": "When theft makes an angry shopkeeper pursue the hero, stolen_value calls hot_pursuit. The helper calls rile_shk, copies the player name into customer, sets following, clears floor no_charge flags, and clears pet-carried no_charge flags before the monster turn.",
+    "branch": "The Minetown theft path calls hot_pursuit through stolen_value. On the resulting shopkeeper turn, shk_move must use C distu(gtx,gty)>8, where hack.h defines distu as squared distance, to keep the NOTONL candidate out of move_special.",
     "functions": [
       "stolen_value",
       "hot_pursuit",
-      "rile_shk"
+      "rile_shk",
+      "shk_move"
     ],
     "callers": [
       "shk.c:stolen_value -> hot_pursuit",
-      "The following monster turn reaches muse.c:use_offensive after hot_pursuit changes the shopkeeper from peaceful to angry."
+      "The following monster turn reaches muse.c:use_offensive after hot_pursuit changes the shopkeeper from peaceful to angry.",
+      "monmove.c:m_move -> shk.c:shk_move"
     ],
     "dependencies": [
-      "room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9"
+      "accepted room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9"
     ]
   },
   "evidence": [
@@ -84,7 +86,9 @@
     "The implementation scope of delivery 20763e5c8c468f81294b4648414e6ed942b786b0 is shk.c:hot_pursuit and its active shk.c:stolen_value caller, reached from pickup.c:mbag_item_gone on this admitted path. Other hot_pursuit gaps at unrelated caller sites remain outside that task. The corrected exact replay matches through zero-based segment 0 step 583; its next C RNG site is monmove.c:m_move at step 584, with the source cause traced separately to shk.c:shk_move's avoid threshold.",
     "After implementation commit c78575762, the exact admitted recording matches every screen, cursor, and RNG call through zero-based segment 0 step 583. The first later RNG mismatch is step 584 in the immutable recording / segment 1 step 585 in the fresh-recipe report: C rn2(20)=2 at monmove.c:m_move:1971 while JS emits rn2(5)=2. A disposable JS replay trace identifies that extra call at priest.c:move_special:612 -> shk.c:shk_move:3413. The trace's keeper is at (55,14), hero at (55,6), and JS has squared distance 64, hero.ushops nonempty, appr 0, and avoid false. C shk.c:shk_move uses distu(gtx,gty)>8; hack.h:1531 defines distu as dist2, so C sets avoid true at this distance. priest.c:move_special:83-87 then skips the (55,15) candidate marked NOTONL (0x00200000) in C, while JS admits it and makes one extra rn2(5) draw. The next C draw is rn2(20) in m_move. The first screen difference is at zero-based boundary 606. The matching prefix was verified by node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json.",
     "Focused checks pass: node --test scripts/shk.test.mjs; node --test scripts/shop-billing.test.mjs scripts/dokick-shipping.test.mjs; npm run lint. The latter two tests retain their source-gap assertions for distinct out-of-scope hot_pursuit call sites.",
-    "Movement correction commit d07983bb131e56f3c28023417a05f1ab8bee26a4 changes only shk.c:shk_move's distance threshold and adds a C-pinned check. Its fresh recipe replay passes all PRNG calls, screens, cursors, and animation frames; the immutable admitted recording also matches through step 626."
+    "Movement correction commit d07983bb131e56f3c28023417a05f1ab8bee26a4 changes only shk.c:shk_move's distance threshold and adds a C-pinned check. Its fresh recipe replay passes all PRNG calls, screens, cursors, and animation frames; the immutable admitted recording also matches through step 626.",
+    "Main checkpoint candidate 34c94c5a11aa142d89f38ba651fbd0cca8508ab7 showed the hot-pursuit gain but lost one selected cursor: screens 573/627 to 616/627, RNG 7,078/7,364 to 7,226/7,364, cursors 618/627 to 617/627. The challenge recording and its expected values remain unchanged.",
+    "The correction reapplies the already-reviewed shk.c:shk_move threshold patch from movement commit d07983bb131e56f3c28023417a05f1ab8bee26a4 on a branch rooted at hot delivery 20763e5c8c468f81294b4648414e6ed942b786b0. This candidate tree is identical to movement candidate ed46996e9a3d80d5c70c1d98c1849d8cf264b339; the preserved exact C replay receipt reports all 7,364 RNG calls, 627 screens, 627 cursors, and 21 animation frames matching. The separate movement delivery remains preserved; this correction folds the same source/test changes into the hot-pursuit dependency chain to resolve its cursor regression."
   ],
   "correctionReplay": {
     "commit": "c78575762",
@@ -100,5 +104,17 @@
     "result": "Exit 0: C and JavaScript match all 7,364 PRNG calls, 627 screens, 627 cursors, and 21 animation frames.",
     "prefixCommand": "node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json",
     "prefixResult": "Exit 0: v52/v52-minetown-unpaid-tool-pickup-attempt12 segment 0 through step 626 matched."
+  },
+  "correctedCandidate": {
+    "base": "20763e5c8c468f81294b4648414e6ed942b786b0",
+    "movementSourceCommit": "e50179139d04270beea49cdf70a75e00fb9783bd",
+    "reusedEquivalentReplayCommit": "ed46996e9a3d80d5c70c1d98c1849d8cf264b339",
+    "result": "Exact source tree matches all 7,364 RNG calls, 627 screens, 627 cursors, and 21 animation frames; Main hosted checkpoint pending.",
+    "candidateTree": "c0b4caf8e2234d98667571ab6be49827fad5a255",
+    "reappliedMovementCommits": [
+      "61339716024aa9b4017a07452ac5916e8352fe0d",
+      "d07983bb131e56f3c28023417a05f1ab8bee26a4",
+      "ed46996e9a3d80d5c70c1d98c1849d8cf264b339"
+    ]
   }
 }
