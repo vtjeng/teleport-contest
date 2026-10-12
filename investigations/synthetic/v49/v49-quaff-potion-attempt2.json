@@ -1,0 +1,120 @@
+{
+  "session": "synthetic/v49/v49-quaff-potion-attempt2",
+  "remainingScreens": 2,
+  "recordedSteps": 9,
+  "corpus": "synthetic",
+  "batch": "v49",
+  "caseId": "v49-quaff-potion-attempt2",
+  "manifestPath": "challenges/manifests/v49.json",
+  "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+  "recordingSha256": "1092edb1d46b2d9076c4492970001062f362c807a1acd802e1aa2c5365d98cfe",
+  "evaluationPath": "challenges/evaluations/baseline-1462b295f-v49.json",
+  "evaluationCommit": "1462b295f3bf6514ca24014016052b1e475bffda",
+  "status": "complete",
+  "commit": "4a7f283b474dbc6f79a49f2e218618bb945290ee",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v49",
+    "caseId": "v49-quaff-potion-attempt2",
+    "session": "synthetic/v49/v49-quaff-potion-attempt2",
+    "manifestPath": "challenges/manifests/v49.json",
+    "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+    "recording": "challenges/cases/v49/v49-quaff-potion-attempt2.session.json",
+    "recordingPath": "challenges/cases/v49/v49-quaff-potion-attempt2.session.json",
+    "recordingSha256": "1092edb1d46b2d9076c4492970001062f362c807a1acd802e1aa2c5365d98cfe",
+    "recipe": "challenges/cases/v49/v49-quaff-potion-attempt2.recipe.session.json",
+    "recipeSha256": "12c022cb990d79b5ac3eec8164c847d12b6672addb996074489051f40cb65c09",
+    "replayInputSha256": "783f4a4a92dfd0a8090752d43fc33c85a489fa16fa48a11f2b520c610ad3428d",
+    "evaluationPath": "challenges/evaluations/baseline-1462b295f-v49.json",
+    "evaluationCommit": "1462b295f3bf6514ca24014016052b1e475bffda",
+    "evaluationArtifact": "challenges/evaluations/baseline-1462b295f-v49.json",
+    "evaluationUtc": "2026-10-12T05:09:46.324Z",
+    "remainingScreens": 2,
+    "recordedSteps": 9,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 7,
+        "total": 9
+      },
+      "rng": {
+        "matched": 2817,
+        "total": 2817
+      },
+      "cursors": {
+        "matched": 7,
+        "total": 9
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: dodrink() for the extended command 'quaff' is not ported",
+      "step": 7
+    },
+    "step": 7,
+    "kind": "stop",
+    "sourceFile": "potion.c",
+    "function": "dodrink",
+    "message": "unsupported hero command: dodrink() for the extended command 'quaff' is not ported",
+    "cFile": "potion.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "This case reaches the same missing selected-handler binding in js/cmd.js:doextcmd() as the other two v49 cases. Upstream cmd.c:doextcmd() sets ge.ext_tlist and invokes the selected ef_funct pointer, so the selected dodrink() runs and its ECMD_* result is returned to rhack(). The JavaScript switch has no dodrink case and falls through to UnsupportedHeroCommandBoundaryError. The handler is already implemented in js/potion.js; its direct-key route already retains the return result. This bounded divergence fix adds only the corresponding doextcmd() binding and does not claim the whole function as ported.",
+  "source": {
+    "file": "cmd.c",
+    "branch": "The player selects #quaff. cmd.c:doextcmd() (493-519) assigns the selected row to ge.ext_tlist then calls its ef_funct pointer. The extcmdlist row at cmd.c:1809 maps to dodrink(); the JS switch lacks that case and reaches the generic unsupported-handler default.",
+    "functions": [
+      "doextcmd",
+      "dodrink"
+    ],
+    "callers": [
+      "cmd.c:rhack dispatches # to doextcmd(); doextcmd() invokes the selected function pointer and returns its ECMD_* result to rhack().",
+      "js/cmd.js:rhack dispatches # to doextcmd(); its doextcmd() switch must route ef_funct 'dodrink' to the existing handler and return the same ECMD_* result."
+    ],
+    "dependencies": [
+      "The existing JavaScript potion.c:dodrink() (526-615) handler and direct-key result wrapper are already implemented; no new helper or handler port is needed."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The immutable v49 baseline 1462b295f3bf6514ca24014016052b1e475bffda identifies synthetic/v49/v49-quaff-potion-attempt2 at step 7: unsupported hero command: dodrink() for the extended command 'quaff' is not ported.",
+    "The saved baseline reports 7/9 screens and cursors, with 2817/2817 RNG calls matched before the refusal.",
+    "The admitted case recording is 1092edb1d46b2d9076c4492970001062f362c807a1acd802e1aa2c5365d98cfe; the recipe identity is 12c022cb990d79b5ac3eec8164c847d12b6672addb996074489051f40cb65c09; both local case files are tracked in accepted-main and their SHA-256 values match the coordinator queue. Only challenges/manifests/v49.json and the baseline evaluation are absent from this worktree. No challenge files were copied or rewritten.",
+    "Upstream cmd.c:doextcmd() (493-519) invokes ef_funct and returns retval; cmd.c extcmdlist cmd.c:1809 binds the selected name to dodrink. potion.c:dodrink() (526-615) establishes the selected handler return contract.",
+    "js/cmd.js:doextcmd() lacks an arm for dodrink; its default resets command state and throws the exact unsupported extended-command boundary in the evaluation. The existing direct-key route calls runQuaffCommand(key, state) and returns the resulting ECMD value to rhack().",
+    "The implementation scope is the single missing dodrink dispatcher binding in cmd.c:doextcmd() parity; this is not whole-function doextcmd() completion.",
+    "Focused replay on the admitted local recipe and recording passes at base 4a7f283b474dbc6f79a49f2e218618bb945290ee: 9 screens, 9 cursors, and 2817 RNG calls match the recorded C output; see .cache/c-v49-extcmd-replay.json."
+  ],
+  "localManifestCheck": {
+    "status": "blocked-missing-local-input",
+    "reason": "Accepted-main 952e284 does not include challenges/manifests/v49.json or challenges/evaluations/baseline-1462b295f-v49.json. The three v49 recipe and recording files are tracked locally and their hashes match the coordinator queue; the manifest, evaluation, and replay identity were read from the coordinator checkout. Do not copy or rewrite those artifacts. Worker delivery local-manifest validation may need the accepted report descendant sync.",
+    "coordinatorManifestPath": "/home/vtjeng/development/vtjeng/teleport-contest/challenges/manifests/v49.json",
+    "coordinatorEvaluationPath": "/home/vtjeng/development/vtjeng/teleport-contest/challenges/evaluations/baseline-1462b295f-v49.json"
+  },
+  "focusedReplay": {
+    "base": "4a7f283b474dbc6f79a49f2e218618bb945290ee",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2817,
+        "js": 2817
+      },
+      "screens": {
+        "c": 9,
+        "js": 9
+      },
+      "cursors": {
+        "c": 9,
+        "js": 9
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "artifact": ".cache/c-v49-extcmd-replay.json"
+  }
+}
