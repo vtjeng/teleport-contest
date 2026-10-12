@@ -290907,6 +290907,306 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-do-stone-u-v51-cockatrice-20261012",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port delayed hero stoning from cockatrice attacks",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1"
+      ],
+      "selectionReason": "Oldest dependency-ready implementation delivery; whole do_stone_u owns the current cockatrice hiss mismatch",
+      "detail": "",
+      "openedAt": "a9e2278b153926df6ad9a118af42a9ceca78a379",
+      "openStanding": {
+        "sha": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_stone_u",
+          "line": 3924,
+          "endLine": 3944,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3924,
+        "to": 3944
+      },
+      "syntheticProvenance": {
+        "synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1": {
+          "session": "synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.session.json",
+          "recordingSha256": "c3a3b9980ac3259a01e6810b89632939ae83abe6b8fc7f08d2c7f055af5d3081",
+          "evaluationPath": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
+          "evaluationCommit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2"
+        }
+      },
+      "activeStanding": {
+        "sha": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+          "session": "synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.session.json",
+          "recordingPath": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.session.json",
+          "recordingSha256": "c3a3b9980ac3259a01e6810b89632939ae83abe6b8fc7f08d2c7f055af5d3081",
+          "recipe": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.recipe.session.json",
+          "recipeSha256": "8c764075b60e03edab5002ff54b475b557457162ffa015e624ab0d5e3c87af2c",
+          "replayInputSha256": "323099f94213aabad903d9334bb0f609d1f9ede9074f7f979ac19c504ced9ad9",
+          "evaluationPath": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
+          "evaluationCommit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+          "evaluationArtifact": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
+          "evaluationUtc": "2026-10-12T17:05:10.338Z",
+          "remainingScreens": 204,
+          "recordedSteps": 303,
+          "previousScreensMatched": 99,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 99,
+              "total": 303
+            },
+            "rng": {
+              "matched": 2777,
+              "total": 3152
+            },
+            "cursors": {
+              "matched": 285,
+              "total": 303
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.json",
+            "result": {
+              "session": "synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingPath": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.session.json",
+              "recordingSha256": "c3a3b9980ac3259a01e6810b89632939ae83abe6b8fc7f08d2c7f055af5d3081",
+              "recipePath": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.recipe.session.json",
+              "recipeSha256": "8c764075b60e03edab5002ff54b475b557457162ffa015e624ab0d5e3c87af2c",
+              "evaluationPath": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
+              "evaluationCommit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+              "status": "complete",
+              "commit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+              "remainingScreens": 204,
+              "recordedSteps": 303,
+              "summary": "At zero-based segment 0 step 88, the hostile cockatrice's unarmed touch enters uhitm.c:do_stone_u through the monster-to-hero AD_STON branch. That helper correctly selects a five-turn delayed stoning and killer identity, but JavaScript records note_unported('potion.c make_stoned') instead of calling its existing make_stoned port. The missing property timeout and delayed killer cause the first screen and cursor divergence at step 88; RNG first diverges at step 89. Implement the whole do_stone_u source unit and wire its existing make_stoned callee, preserving the source's void-call behavior.",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+                "session": "synthetic/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.session.json",
+                "recordingPath": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.session.json",
+                "recordingSha256": "c3a3b9980ac3259a01e6810b89632939ae83abe6b8fc7f08d2c7f055af5d3081",
+                "recipe": "challenges/cases/v51/v51-cockatrice-hiss-newmoon-delayed-stoning-action-attempt1.recipe.session.json",
+                "recipeSha256": "8c764075b60e03edab5002ff54b475b557457162ffa015e624ab0d5e3c87af2c",
+                "replayInputSha256": "323099f94213aabad903d9334bb0f609d1f9ede9074f7f979ac19c504ced9ad9",
+                "evaluationPath": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
+                "evaluationCommit": "51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2",
+                "evaluationArtifact": "challenges/evaluations/accepted-51f8698c3ab2d14fa461c8f1acc65d6b0abed5f2-v51.json",
+                "evaluationUtc": "2026-10-12T17:05:10.338Z",
+                "remainingScreens": 204,
+                "recordedSteps": 303,
+                "previousScreensMatched": 99,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 99,
+                    "total": 303
+                  },
+                  "rng": {
+                    "matched": 2777,
+                    "total": 3152
+                  },
+                  "cursors": {
+                    "matched": 285,
+                    "total": 303
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 88,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 88,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 50,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2772,
+                    "cEntry": "rn2(2)=0",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(100)=70",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 89,
+                      "key": " "
+                    },
+                    "stepIndex": 89
+                  },
+                  "cursor": {
+                    "index": 88,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 88,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      58,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      12,
+                      7,
+                      1
+                    ]
+                  }
+                },
+                "step": 88,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "source": {
+                "file": "uhitm.c",
+                "branch": "In mhitm_ad_ston() when mdef is the hero, the cockatrice is not cancelled, the hero is not already stoned or stone resistant, and polymorph to stone golem does not occur. On the new-moon fallback, do_stone_u() calls make_stoned(5L, NULL, killedby, killername) and returns true.",
+                "functions": [
+                  "do_stone_u"
+                ],
+                "callers": [
+                  "C uhitm.c:mhitm_ad_ston() calls do_stone_u(magr) for monster-to-hero AD_STON; JavaScript js/uhitm.js:mhitm_ad_ston() calls do_stone_u(magr, state, env). The caller is already wired and is not part of the code edit.",
+                  "C mhitu.c:hitmu() calls uhitm.c:mhitm_adtyping() for the cockatrice touch, reached from mhitu.c:mattacku()'s AT_TUCH attack slot; the admitted v51 recording exercises this production path."
+                ],
+                "dependencies": [
+                  "C potion.c:make_stoned() is the void callee at uhitm.c:do_stone_u(); js/potion.js:make_stoned() already ports its timeout, condition-line, and delayed-killer updates. Wire this callee rather than retaining note_unported().",
+                  "The reserved uhitm.c:mhitm_adtyping scope belongs to C; this task only reads its dispatch and does not edit that function or its call sites."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Focused admitted-session scan output at /tmp/teleport-validation-1000/run-8XSapD/stdout.log on bf3d3bdbcd75c2148bef7a20dd885fca6dd1f548: segment 0 step 88 screen/cursor first mismatch; RNG first mismatch step 89; replay reports active unported gap potion.c make_stoned. Recorder receipt: /tmp/teleport-validation-1000/run-8XSapD/receipt.json.",
+                "nethack-c/upstream/src/uhitm.c:3924-3942 defines do_stone_u(), including the successful polymon branch, killer-name formatting for unique monsters, void make_stoned(5L, NULL, ...), and true return. js/uhitm.js:5188-5215 matches these branches but substitutes note_unported for the existing js/potion.js:558-579 make_stoned implementation.",
+                "nethack-c/upstream/src/uhitm.c:4790-4805 dispatches AD_STON to mhitm_ad_ston(); its monster-to-hero arm at 4203-4263 calls do_stone_u(). nethack-c/upstream/src/mhitu.c:1144-1177 calls mhitm_adtyping() from hitmu(), and mattacku()'s AT_TUCH arm reaches hitmu()."
+              ]
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 88,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 50,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2772,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(100)=70",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 89,
+                "key": " "
+              },
+              "stepIndex": 89
+            },
+            "cursor": {
+              "index": 88,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": "."
+              },
+              "cCursor": [
+                58,
+                0,
+                1
+              ],
+              "jsCursor": [
+                12,
+                7,
+                1
+              ]
+            }
+          },
+          "step": 88,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null
+        }
+      ]
     }
   ]
 }
