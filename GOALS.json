@@ -28238,7 +28238,15 @@
         "sha": "dc943f99c7689b99199d9f940806421350bef538",
         "screens": 6981,
         "rng": 509322
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "hitmm",
+          "reason": "The claimed complete hitmm retained an Unsupported silver-weapon searing branch at mhitm.c700–725 because mattackm previously rejected armed attacks. The new whole-combat task makes that branch reachable and implements it in full; preserve the older seduction evidence as history.",
+          "followupGoal": "port-mhitm-mattackm-v50-20261012",
+          "at": "d87eac3475e14580287de739146198176739c990"
+        }
+      ]
     },
     {
       "id": "port-uhitm-mhitm-ad-sedu",
@@ -288715,6 +288723,263 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mhitm-mattackm-v50-20261012",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete monster weapon attacks and combat helpers",
+      "cFile": "mhitm.c",
+      "sessions": [
+        "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1"
+      ],
+      "selectionReason": "Ready whole monster-combat delivery removes the armed attack refusal at v50 step1452 and directly unblocks parked Rustm recording step148. Complete the selected source function and required reveal/message/passive/weapon helpers; existing caller modules receive only source-ordered wiring.",
+      "detail": "",
+      "openedAt": "d87eac3475e14580287de739146198176739c990",
+      "openStanding": {
+        "sha": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mattackm",
+          "line": 293,
+          "endLine": 596,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 293,
+        "to": 596
+      },
+      "requiredFunctions": [
+        {
+          "name": "pre_mm_attack",
+          "line": 41,
+          "endLine": 75,
+          "declared": true,
+          "sourceFile": "mhitm.c",
+          "complete": false
+        },
+        {
+          "name": "hitmm",
+          "line": 644,
+          "endLine": 735,
+          "declared": true,
+          "sourceFile": "mhitm.c",
+          "complete": false
+        },
+        {
+          "name": "mswingsm",
+          "line": 1283,
+          "endLine": 1303,
+          "declared": false,
+          "sourceFile": "mhitm.c",
+          "complete": false
+        },
+        {
+          "name": "passivemm",
+          "line": 1304,
+          "endLine": 1460,
+          "declared": true,
+          "sourceFile": "mhitm.c",
+          "complete": true
+        },
+        {
+          "name": "possibly_unwield",
+          "line": 747,
+          "endLine": 800,
+          "declared": true,
+          "sourceFile": "weapon.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1": {
+          "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+          "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
+          "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+          "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4"
+        }
+      },
+      "activeStanding": {
+        "sha": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v50",
+          "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+          "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
+          "manifestPath": "challenges/manifests/v50.json",
+          "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+          "recording": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+          "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+          "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
+          "recipe": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.recipe.session.json",
+          "recipeSha256": "4d6edba497a07c6ee550413811cf168d0c90fd358b1f6d72428759417e445d99",
+          "replayInputSha256": "118313fa7a6adf8442fa37c8bebfee4cbc61b06986458e15dd81143fe68a3a58",
+          "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+          "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+          "evaluationArtifact": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+          "evaluationUtc": "2026-10-12T15:12:36.544Z",
+          "remainingScreens": 303,
+          "recordedSteps": 1755,
+          "previousScreensMatched": 1452,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 1452,
+              "total": 1755
+            },
+            "rng": {
+              "matched": 7573,
+              "total": 10005
+            },
+            "cursors": {
+              "matched": 1452,
+              "total": 1755
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires an armed monster attacking another monster",
+            "step": 1452
+          },
+          "step": 1452,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires an armed monster attacking another monster",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1.json",
+            "result": {
+              "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
+              "remainingScreens": 303,
+              "recordedSteps": 1755,
+              "corpus": "synthetic",
+              "batch": "v50",
+              "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+              "manifestPath": "challenges/manifests/v50.json",
+              "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+              "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+              "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
+              "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+              "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+              "status": "complete",
+              "commit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v50",
+                "caseId": "v50-dragon-egg-carried-hatch-action-attempt1",
+                "session": "synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1",
+                "manifestPath": "challenges/manifests/v50.json",
+                "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+                "recording": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+                "recordingPath": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json",
+                "recordingSha256": "8fc03e88d78d1a49d7de1108b620f93a1cad7734a0a0e3f98cc18bcbc92f4605",
+                "recipe": "challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.recipe.session.json",
+                "recipeSha256": "4d6edba497a07c6ee550413811cf168d0c90fd358b1f6d72428759417e445d99",
+                "replayInputSha256": "118313fa7a6adf8442fa37c8bebfee4cbc61b06986458e15dd81143fe68a3a58",
+                "evaluationPath": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+                "evaluationCommit": "66954e250e2a887e38507347fa2f683cc3d70dd4",
+                "evaluationArtifact": "challenges/evaluations/accepted-66954e250e2a887e38507347fa2f683cc3d70dd4-v50.json",
+                "evaluationUtc": "2026-10-12T15:12:36.544Z",
+                "remainingScreens": 303,
+                "recordedSteps": 1755,
+                "previousScreensMatched": 1452,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 1452,
+                    "total": 1755
+                  },
+                  "rng": {
+                    "matched": 7573,
+                    "total": 10005
+                  },
+                  "cursors": {
+                    "matched": 1452,
+                    "total": 1755
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires an armed monster attacking another monster",
+                  "step": 1452
+                },
+                "step": 1452,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires an armed monster attacking another monster",
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v50/v50-dragon-egg-carried-hatch-action-attempt1.json"
+                }
+              },
+              "summary": "The egg hatches successfully. The first mismatch is the later adjacent armed monster attack at step1452. Complete mattackm and its reveal, hit-message, weapon-swing, passive-result, and weapon-state helpers. The missing weapon route also blocks the parked Rustm monster-pair recording.",
+              "source": {
+                "file": "mhitm.c",
+                "branch": "Adjacent armed AT_WEAP attack in whole mattackm, including hidden defender reveal, source hit/passive results, silver-weapon messages, and post-hit pudding splitting; required weapon.c:possibly_unwield and its existing callers.",
+                "functions": [
+                  "mattackm",
+                  "pre_mm_attack",
+                  "hitmm",
+                  "mswingsm",
+                  "passivemm"
+                ],
+                "callers": [
+                  "dogmove.c:dog_move() -> mattackm(mtmp, mtmp2) at 1151 and return attack at 1165; current v50 replay exercises the direct ordinary pet-versus-monster action.",
+                  "dogmove.c:pet_ranged_attk() -> mattackm(mtmp, mtarg) at 923 and retaliatory mattackm(mtarg, mtmp) at 946.",
+                  "mhitm.c:fightm() -> mattackm(mtmp, mon) at 143 and return attack at 164.",
+                  "monmove.c:covetous attack -> mattackm(mtmp, intruder) at 1794; monmove.c:m_move() monster-versus-monster attack at 2097 and return attack at 2111.",
+                  "mhitu.c:steed attack/retaliation -> mattackm(mtmp, u.usteed) at 537 and mattackm(u.usteed, mtmp) at 547."
+                ],
+                "dependencies": [
+                  "mattackm() consumes hitmm(), passivemm(), gazemm(), explmm(), gulpmm(), breamm()/spitmm(), and thrwmm() results; verify their returned contracts against C, and include any incomplete consumed callee in the task scope.",
+                  "hitmm() consumes mdamagem() and calls pre_mm_attack() for its map/visibility state changes.",
+                  "mattackm() consumes failed_grab() and helper results from mhitu.c, weapon.c, mon.c, and mthrowu.c; preserve their existing source-aligned implementations and expand scope if a consumed callee is incomplete.",
+                  "The v50 case reaches the existing dogmove.c:dog_move() caller; no new caller adapter or session-specific mapping is needed."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Admitted v50 case challenges/cases/v50/v50-dragon-egg-carried-hatch-action-attempt1.session.json has 1755 recorded steps; its manifest sourceTrace identifies carried egg hatching at steps 1328 and 1376, then the first mismatch at step 1452 in the later armed attack.",
+                "The saved v50 baseline challenges/evaluations/baseline-e4c7bc56e-v50.json records 1452/1755 screens, 7573/10005 RNG calls, and 1452/1755 cursors matched; its source commit is e4c7bc56eb850377811e089788227269b277950d.",
+                "Focused diagnostic `/tmp/teleport-v50-dragon-egg-scan.json`, run from admitted Main 03b0395d562daf356bb7984e49324eb3fedc9236, stops at step 1452 on `UnsupportedSimpleMonsterActionError` for an armed monster attacking another monster.",
+                "C source `nethack-c/upstream/src/mhitm.c:mattackm()` sets up visibility, attacker turn state, and the attack loop; its adjacent AT_WEAP branch (406-417) selects/preserves MON_WEP, calls `mswingsm()` and `hitval()`, then falls through to the physical attack case which rolls `rnd(20 + i)` at line 441 and consumes `hitmm()` result. The recording’s next step has `rnd(20)=14 @ mattackm(mhitm.c:441)` and the runed-broadsword attack message.",
+                "JavaScript `js/mhitm.js:mattackm()` has explicit unported boundaries at lines 732 (`mundetected` defender) and 798 (armed AT_WEAP). The separate earlier starting-pet scope implemented only empty-handed fall-through and explicitly excluded actual wielded weapons; it does not cover this branch.",
+                "The whole-function selection also includes its consumed incomplete `hitmm()`/`passivemm()` results and `pre_mm_attack()` side effects, so the task must cover the functions named in `source.functions` and any incomplete consumed return dependency found during source review.",
+                "The closest v50 case, `v50-own-dragon-egg-floor-hatch-action-attempt1`, uses a floor egg laid through `lay_an_egg`; this selected case uses a carried wished three-egg stack that hatches and reschedules siblings. Its first mismatch is a subsequent armed monster attack, distinct from the floor-egg path."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
