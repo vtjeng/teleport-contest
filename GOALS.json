@@ -279697,6 +279697,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-dungeon-rm-mapseen-v47-20261011",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port dungeon.c rm_mapseen and wire its replacement-level caller.",
+      "cFile": "dungeon.c",
+      "sessions": [
+        "synthetic/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst"
+      ],
+      "selectionReason": "The current v47 queue has one remaining overview screen after #wizmakemap; source tracing identifies the missing dungeon.c rm_mapseen call.",
+      "detail": "Port whole dungeon.c:rm_mapseen, replace the cmd.c:makemap_prepost(TRUE) gap, preserve first-match ledger removal, and verify both #wizmakemap and #wizloaddes production routes.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rm_mapseen",
+          "line": 2665,
+          "endLine": 2694,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2665,
+        "to": 2694
+      },
+      "syntheticProvenance": {
+        "synthetic/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst": {
+          "session": "synthetic/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recordingPath": "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.session.json",
+          "recordingSha256": "1a058a4b18dcbf2754b4cca6cc2be1abec82a6f36a99e1a419423611a9b7790d",
+          "evaluationPath": "challenges/evaluations/accepted-589dba120616b39955a49d02450b8f9d3cdf5d2c-v47.json",
+          "evaluationCommit": "589dba120616b39955a49d02450b8f9d3cdf5d2c"
+        }
+      }
     }
   ]
 }
