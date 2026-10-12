@@ -30,7 +30,7 @@ import { carrying, fully_identify_obj, update_inventory } from './invent.js';
 import { setmangry } from './mon.js';
 import { align_str } from './insight.js';
 import { monnear } from './monmove.js';
-import { MS_DJINNI, MS_NEMESIS } from './monsters.js';
+import { MS_DJINNI, MS_GUARDIAN, MS_NEMESIS } from './monsters.js';
 import {
     com_pager,
     is_quest_artifact,
@@ -387,15 +387,45 @@ async function leader_speaks(mtmp, ops) {
         await chat_with_leader(mtmp, ops);
 }
 
-// C ref: quest.c quest_chat() (472-492). Only the leader identity arm is
-// admitted; nemesis and guardian keep the caller's fail-closed answer.
+// C ref: quest.c chat_with_nemesis() (394-400). C displays the pager first,
+// then sets met_nemesis only when this is the first #chat with the nemesis.
+async function chat_with_nemesis(ops) {
+    const qs = ops.state.svq.quest_status;
+    await ops.pager('discourage');
+    if (!qs.met_nemesis) qs.met_nemesis = true;
+}
+
+// C ref: quest.c chat_with_guardian() (441-448). The artifact and killed
+// flags select the guardian's after-dialogue; all other states use before.
+async function chat_with_guardian(ops) {
+    const { state } = ops;
+    const qs = state.svq.quest_status;
+    const msgid = state.u.uhave.questart && qs.killed_nemesis
+        ? 'guardtalk_after' : 'guardtalk_before';
+    await ops.pager(msgid);
+}
+
+// C ref: quest.c quest_chat() (472-492). The leader remains identified by its
+// persistent m_id; the remaining supported quest voices dispatch by msound.
 export async function quest_chat(mtmp, state = game, env = {}) {
     const qs = state.svq?.quest_status;
-    if (!qs?.leader_m_id || mtmp.m_id !== qs.leader_m_id)
-        return false;
-    await chat_with_leader(mtmp, questConversation({ ...env, state }));
-    if (qs.pissed_off) await setmangry(mtmp, false, { ...env, state });
-    return true;
+    if (qs?.leader_m_id && mtmp.m_id === qs.leader_m_id) {
+        const ops = questConversation({ ...env, state });
+        await chat_with_leader(mtmp, ops);
+        if (qs.pissed_off) await setmangry(mtmp, false, { ...env, state });
+        return true;
+    }
+
+    const ops = questConversation({ ...env, state });
+    if (mtmp.data?.msound === MS_NEMESIS) {
+        await chat_with_nemesis(ops);
+        return true;
+    }
+    if (mtmp.data?.msound === MS_GUARDIAN) {
+        await chat_with_guardian(ops);
+        return true;
+    }
+    return false;
 }
 
 // C ref: quest.c quest_talk() (494-511). monmove.c dochug() calls this for a
