@@ -54,7 +54,9 @@
         5,
         1
       ]
-    }
+    },
+    "session": "synthetic/v48/v48-getpos-monster-menu-attempt3",
+    "remainingScreens": 2
   },
   "step": 36,
   "kind": "screen",
