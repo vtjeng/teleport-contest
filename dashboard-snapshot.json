@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T16:11:06.138Z",
+  "capturedAt": "2026-10-12T16:24:53.537Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -95896,6 +95896,72 @@
         "type": "accepted",
         "at": "2026-10-12T16:10:32.181Z",
         "task": "B-investigation-v48-name-floor-object-self-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "vrock-dependency-integration-review-20261012",
+        "type": "activity",
+        "at": "2026-10-12T16:11:40.653Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "phase": "review",
+        "reason": "Integrate the reviewed whole monflee source and production gas-cloud defaults before the waiting polymorph self-touch delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v48-name-floor-object-self-20261012-dded337d55db2cef5277f1d6fbb525d28c1dfadb",
+        "type": "published",
+        "at": "2026-10-12T16:11:48.137Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "commit": "dded337d55db2cef5277f1d6fbb525d28c1dfadb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-924-getpos-queue-review-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:12:18.547Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "vrock-integrating-4f9fcbb1-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T16:15:31.684Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "integration": "4f9fcbb1903b2104135c30a9ea19209c765c80b9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-accepted924-recheck-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:18:21.783Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: rechecking candidate defects against newly accepted game behavior."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep20-v56-seven-owners-mounted-web-20261012",
+        "type": "turn",
+        "at": "2026-10-12T16:19:29.111Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v56: seven provisional first defects; investigating mounted web and dismount behavior."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012-4f9fcbb1903b2104135c30a9ea19209c765c80b9-validated",
+        "type": "validated",
+        "at": "2026-10-12T16:22:03.369Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012-4f9fcbb1903b2104135c30a9ea19209c765c80b9-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T16:24:22.587Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
       }
     ]
   },
@@ -95909,9 +95975,7 @@
         "status": "ready",
         "delivery": "07d6ac95bd1f0702693a4e4e26f5639bcdd25796",
         "since": "2026-10-12T07:36:15.001Z",
-        "blockedBy": [
-          "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -96036,17 +96100,6 @@
           "Prep18"
         ],
         "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
-        "worker": "B",
-        "goal": "file-port-monmove-monflee-v50-gas-cloud-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "13de69eeb69c8ba8c401afccb03f1778437a6096",
-        "since": "2026-10-12T15:04:24.193Z",
-        "blockedBy": [],
-        "unblocks": 1
       }
     ],
     "preparedBatches": [],
@@ -96507,8 +96560,8 @@
     ]
   },
   "development": {
-    "executionCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
-    "measuredAt": "2026-10-12T16:07:23.423Z",
+    "executionCommit": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+    "measuredAt": "2026-10-12T16:20:17.318Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

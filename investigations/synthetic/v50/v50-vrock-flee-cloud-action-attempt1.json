@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v50.json",
   "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
   "recordingSha256": "9c9263be58f365b0471210cfce7d97c353e5eeff2b2355e0a12d24f0df0dc34f",
-  "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
-  "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
-  "remainingScreens": 18,
+  "evaluationPath": "challenges/evaluations/accepted-4f9fcbb1903b2104135c30a9ea19209c765c80b9-v50.json",
+  "evaluationCommit": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+  "remainingScreens": 0,
   "recordedSteps": 120,
   "status": "complete",
-  "commit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
+  "commit": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v50",
@@ -25,87 +25,33 @@
     "recipe": "challenges/cases/v50/v50-vrock-flee-cloud-action-attempt1.recipe.session.json",
     "recipeSha256": "450c5a05696172d8a8c8c721174077e368d70b8a2eedaf57b18370351f8ba102",
     "replayInputSha256": "b987c8c4ded0a327e8db5d6cd9cfcbde2ed520d74430d05d7a1d5e5644a2f913",
-    "evaluationPath": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
-    "evaluationCommit": "924c170713a549fbc179010bf25a7b9bab6a56ec",
-    "evaluationArtifact": "challenges/evaluations/accepted-924c170713a549fbc179010bf25a7b9bab6a56ec-v50.json",
-    "evaluationUtc": "2026-10-12T16:06:42.167Z",
-    "remainingScreens": 18,
+    "evaluationPath": "challenges/evaluations/accepted-4f9fcbb1903b2104135c30a9ea19209c765c80b9-v50.json",
+    "evaluationCommit": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+    "evaluationArtifact": "challenges/evaluations/accepted-4f9fcbb1903b2104135c30a9ea19209c765c80b9-v50.json",
+    "evaluationUtc": "2026-10-12T16:19:47.380Z",
+    "remainingScreens": 0,
     "recordedSteps": 120,
-    "previousScreensMatched": 102,
+    "previousScreensMatched": 120,
     "regression": false,
-    "passed": false,
+    "passed": true,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 102,
+        "matched": 120,
         "total": 120
       },
       "rng": {
-        "matched": 2946,
+        "matched": 2989,
         "total": 2989
       },
       "cursors": {
-        "matched": 117,
+        "matched": 120,
         "total": 120
       }
     },
-    "firstMismatch": {
-      "screen": {
-        "index": 102,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 102,
-          "key": "."
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 26,
-        "cCell": {
-          "ch": "Y",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": " ",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": {
-        "index": 2946,
-        "cEntry": "rn2(4)=3",
-        "cCaller": "create_gas_cloud(region.c:1255)",
-        "jsEntry": "rn2(5)=2",
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 102,
-          "key": "."
-        },
-        "stepIndex": 102
-      },
-      "cursor": {
-        "index": 102,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 102,
-          "key": "."
-        },
-        "cCursor": [
-          78,
-          0,
-          1
-        ],
-        "jsCursor": [
-          70,
-          5,
-          1
-        ]
-      }
-    },
-    "step": 102,
-    "kind": "rng",
+    "firstMismatch": null,
+    "step": null,
+    "kind": null,
     "sourceFile": "region.c",
     "function": "create_gas_cloud",
     "message": null,
@@ -113,7 +59,7 @@
     "luaFile": null,
     "line": 1255
   },
-  "summary": "The original monster-turn failure omitted the Vrock gas cloud environment and subsequent region transition. This delivery completes the whole monflee function with canonical gas-cloud, visibility and message defaults and preserves existing production caller environments.",
+  "summary": "The original failure omitted the Vrock gas cloud environment and subsequent region transition. The complete monflee function now uses the canonical gas-cloud, visibility and message defaults, and the accepted replay matches all 120 steps.",
   "source": {
     "file": "monmove.c",
     "branch": "Whole monmove.c:monflee (462–532), including fear timers/messages, Vrock cooldown and cloud, and tracking reset; production callers delegate region transitions to the existing region.c owner.",
@@ -304,5 +250,25 @@
       "npm run lint"
     ]
   },
-  "entryPointReview": "The active v50 runtime entry point is monster fear during movement: mon.c:dochugw reaches monmove.c:distfleeck, then monflee and region.c:create_gas_cloud. The fixed caller survey in resolutionCorrection.directCallers covers every current source call site that reaches monflee, including independent command, monster-action, combat, and level-transition routes. Calls without an explicit specialized gas owner now reach the same region implementation through monflee’s default adapter; movement planning, music, fountain, and read retain their explicit providers. The v50 recording verifies the movement entry through all 120 inputs. The bounded uhitm.c:known_hitum caller is separately source-pinned and its Vrock cloud path is covered by focused runtime tests; no whole-known_hitum completion claim is made."
+  "entryPointReview": "The active v50 runtime entry point is monster fear during movement: mon.c:dochugw reaches monmove.c:distfleeck, then monflee and region.c:create_gas_cloud. The fixed caller survey in resolutionCorrection.directCallers covers every current source call site that reaches monflee, including independent command, monster-action, combat, and level-transition routes. Calls without an explicit specialized gas owner now reach the same region implementation through monflee’s default adapter; movement planning, music, fountain, and read retain their explicit providers. The v50 recording verifies the movement entry through all 120 inputs. The bounded uhitm.c:known_hitum caller is separately source-pinned and its Vrock cloud path is covered by focused runtime tests; no whole-known_hitum completion claim is made.",
+  "runtimeVerification": {
+    "commit": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+    "casePassed": true,
+    "metrics": {
+      "screens": {
+        "matched": 120,
+        "total": 120
+      },
+      "rng": {
+        "matched": 2989,
+        "total": 2989
+      },
+      "cursors": {
+        "matched": 120,
+        "total": 120
+      }
+    },
+    "evidence": "challenges/evaluations/accepted-4f9fcbb1903b2104135c30a9ea19209c765c80b9-v50.json",
+    "completionGoal": "file-port-monmove-monflee-v50-gas-cloud-20261012"
+  }
 }

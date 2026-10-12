@@ -289662,7 +289662,7 @@
     {
       "id": "file-port-monmove-monflee-v50-gas-cloud-20261012",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete monster fleeing and its gas-cloud caller routes",
       "cFile": "monmove.c",
       "sessions": [
@@ -289676,8 +289676,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "monflee",
@@ -290029,6 +290032,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4f9fcbb1903b2104135c30a9ea19209c765c80b9",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
