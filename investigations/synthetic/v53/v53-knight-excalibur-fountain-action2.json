@@ -18,7 +18,9 @@
   "mismatch": {
     "step": 121,
     "kind": "screen",
-    "message": "C begins the Excalibur blessing message; JS exits through UnsupportedFountainError"
+    "message": "C begins the Excalibur blessing message; JS exits through UnsupportedFountainError",
+    "session": "synthetic/v53/v53-knight-excalibur-fountain-action2",
+    "remainingScreens": 179
   },
   "summary": "The admitted lawful Knight level-7 session dips a single rusty nonartifact long sword into a fountain. At step 121 C succeeds in dipfountain's Excalibur branch after rn2(6)=0 and displays the Lady of the Lake message; JS consumes the same draw but throws UnsupportedFountainError before any branch effect. Implement the complete fountain.c:dipfountain function and keep its existing potion.c:dodip production call aligned; do not claim the entire fountain.c file.",
   "source": {
@@ -61,5 +63,6 @@
       },
       "error": null
     }
-  }
+  },
+  "commit": "fdf54bd8ba5091228671376196d84da10dad3b95"
 }
