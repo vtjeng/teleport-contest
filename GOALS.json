@@ -294183,7 +294183,7 @@
     {
       "id": "fix-dighole-magical-trap-explosion-v53-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dighole from dig.c",
       "cFile": "dig.c",
       "sessions": [
@@ -294193,10 +294193,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "10bacc75116b05788ed935aa7f24fc20fb324927",
       "delivered": null,
       "function": "dighole",
-      "session": "synthetic/v53/v53-dig-magic-trap-explosion-action2"
+      "session": "synthetic/v53/v53-dig-magic-trap-explosion-action2",
+      "closeStanding": {
+        "sha": "10bacc75116b05788ed935aa7f24fc20fb324927",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "3fd1185f744ed2b8ef8226d6eb23b8a13d330395",
+        "target": "synthetic/v53/v53-dig-magic-trap-explosion-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/10bacc75116b05788ed935aa7f24fc20fb324927/run-hosted-amdXVH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dighole",
+            "implementation": "js/dig.js",
+            "symbol": "dighole",
+            "sourceReview": "Read the complete dig.c:dighole body at 885-1023 and the JavaScript implementation. This bounded fix ports only the magical-trap branch at C lines 919-922: C evaluates d(3,6), passes 20+damage to explode with TRAP_EXPLODE and EXPL_MAGICAL, then deletes the trap and redraws. The JS branch forwards the active state, random provider, and message owner to the existing explode helper and awaits it before deltrap/newsym. No whole-function dighole or explode.c completion is claimed; all other dighole arms remain outside this task.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_dig",
+                "source": "C zap.c:weffects dispatches WAN_DIGGING/SPE_DIG to zap_dig; zap.c:zap_dig calls dighole(FALSE, TRUE, NULL) for a downward zap without stairs. The matching existing JS caller reaches dighole with the current state and random provider."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-dig-magic-trap-explosion-action2",
+                "segment": 0,
+                "fromStep": 177,
+                "throughStep": 178,
+                "source": "zap.c:weffects -> zap_dig -> dig.c:dighole magical-trap arm -> explode(TRAP_EXPLODE, EXPL_MAGICAL)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected entry point is a downward digging zap when the hero stands on a magical trap and no stairs divert the zap. C zap.c:weffects -> zap_dig -> dig.c:dighole enters the magical trap branch. js/zap.js already has matching caller wiring; this task changes only dighole. The admitted v53 recording exercises the branch at step 177 and the blast output at step 178, then matches the remainder of the full 206-step session. Other dighole branches and the general explode.c source unit are not claimed.",
+        "entryPoints": [
+          {
+            "name": "Downward digging zap into a magical trap",
+            "functions": [
+              "dighole"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-dig-magic-trap-explosion-action2",
+                "segment": 0,
+                "fromStep": 177,
+                "throughStep": 178,
+                "source": "zap.c:weffects -> zap_dig -> dig.c:dighole magical-trap arm -> explode(TRAP_EXPLODE, EXPL_MAGICAL)"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
