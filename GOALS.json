@@ -293339,7 +293339,7 @@
     {
       "id": "fix-mhitu-passiveum-acid-corrosion-caller-v52-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement passiveum from undefined",
       "cFile": "mhitu.c",
       "sessions": [
@@ -293349,10 +293349,75 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "28410c7d3faaf6a81ced119bcc94e8c91d7fed36",
       "delivered": null,
       "function": "passiveum",
-      "session": "synthetic/v52/v52-acid-passive-yellowdragon-action-attempt3"
+      "session": "synthetic/v52/v52-acid-passive-yellowdragon-action-attempt3",
+      "closeStanding": {
+        "sha": "28410c7d3faaf6a81ced119bcc94e8c91d7fed36",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "d2e601976b8269a21162d2b195e79063e5438e24",
+        "target": "synthetic/v52/v52-acid-passive-yellowdragon-action-attempt3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/28410c7d3faaf6a81ced119bcc94e8c91d7fed36/run-hosted-5NrMM0/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "passiveum",
+            "implementation": "js/mhitu.js",
+            "symbol": "passiveum",
+            "sourceReview": "This is a bounded repair of the AD_ACID armor-corrosion call, not a claim that all of mhitu.c:passiveum is newly complete. In upstream mhitu.c:passiveum (2435-2615), the source performs rn2(30), then calls erode_armor(mtmp, ERODE_CORRODE) when zero, then performs the independent rn2(6) weapon-damage gate. The JS branch now follows that exact order and passes the same state and RNG owner into the existing callee. I read the complete uhitm.c:erode_armor (126-183) against js/uhitm.js:erode_armor (727+): its five worn-slot arms, retries for absent or unchanged head/shield/gloves/boots, torso fallthrough, and stopping behavior match. Its current source completion is verified as a dependency check; it receives no new completion credit here.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku calls passiveum at 1262"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/trap-erode-obj.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-acid-passive-yellowdragon-action-attempt3",
+                "segment": 0,
+                "fromStep": 478,
+                "throughStep": 478,
+                "source": "mhitu.c:passiveum AD_ACID -> uhitm.c:erode_armor"
+              }
+            ],
+            "sourceFile": "mhitu.c"
+          }
+        ],
+        "entryPointReview": "The production entry is mhitu.c:mattacku -> passiveum, exercised at the selected v52 recording's yellow-dragon acid passive at segment 0, step 478. The matching replay verifies the corrosion call and the subsequent weapon gate in production order. The existing erode_armor helper is separately checked by its source-pinned focused test; no new whole-function completion is claimed for it.",
+        "entryPoints": [
+          {
+            "name": "Monster attack triggers polymorphed hero acid passive",
+            "functions": [
+              "passiveum"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v52",
+                "caseId": "v52-acid-passive-yellowdragon-action-attempt3",
+                "segment": 0,
+                "fromStep": 478,
+                "throughStep": 478,
+                "source": "mhitu.c:mattacku -> mhitu.c:passiveum AD_ACID -> uhitm.c:erode_armor"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
