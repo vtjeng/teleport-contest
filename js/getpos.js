@@ -848,7 +848,8 @@ export async function getpos_menu(ccp, gloc, state = game) {
 function featureSymbolMatches(key, state) {
     const matching = Array(MAXPCHARS).fill(0);
     let count = 0;
-    for (let sidx = 0; sidx < MAXPCHARS; ++sidx) {
+    let sidx;
+    for (sidx = 0; sidx < MAXPCHARS; ++sidx) {
         if ((sidx >= S_stone && sidx <= S_trwall)
             || (sidx >= S_room && sidx <= S_darkroom)
             || (sidx >= S_corr && sidx <= S_litcorr)
@@ -858,7 +859,7 @@ function featureSymbolMatches(key, state) {
         }
         const compiled = DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_P + sidx];
         const active = cmap_symbol_byte(sidx, state);
-        const trapMatch = key === '^'
+        const trapMatch = key === '^'.charCodeAt(0)
             && sidx >= S_arrow_trap
             && sidx < S_arrow_trap + MAXTCHARS;
         const engravingMatch = key === cmap_symbol_byte(S_engroom, state)
@@ -866,7 +867,7 @@ function featureSymbolMatches(key, state) {
         if (key === compiled || key === active || trapMatch || engravingMatch)
             matching[sidx] = ++count;
     }
-    return { matching, count };
+    return { matching, count, sidx };
 }
 
 function matchingCmapGlyph(glyph, matching) {
@@ -881,35 +882,41 @@ function matchingCmapGlyph(glyph, matching) {
 function findTerrainFeature(key, cx, cy, state) {
     const map = state.level;
     if (!map) return null;
-    const { matching, count } = featureSymbolMatches(key, state);
-    if (!count) return { found: false, matching: false };
+    const { matching, count, sidx } = featureSymbolMatches(key, state);
+    if (!count) return { found: false, matching: false, sidx };
 
+    let tx;
+    let ty;
     for (let pass = 0; pass <= 1; ++pass) {
         const loY = pass === 0 ? cy : 0;
         const hiY = pass === 0 ? ROWNO - 1 : cy;
-        for (let y = loY; y <= hiY; ++y) {
-            const loX = pass === 0 && y === loY ? cx + 1 : 1;
-            const hiX = pass === 1 && y === hiY ? cx : COLNO - 1;
-            for (let x = loX; x <= hiX; ++x) {
-                const location = map.at(x, y);
+        for (ty = loY; ty <= hiY; ++ty) {
+            const loX = pass === 0 && ty === loY ? cx + 1 : 1;
+            const hiX = pass === 1 && ty === hiY ? cx : COLNO - 1;
+            for (tx = loX; tx <= hiX; ++tx) {
+                const location = map.at(tx, ty);
                 if (!location) continue;
-                if (matchingCmapGlyph(glyph_at(x, y, state), matching))
-                    return { found: true, x, y };
+                if (matchingCmapGlyph(glyph_at(tx, ty, state), matching))
+                    return { found: true, x: tx, y: ty, tx, ty, sidx };
                 if (state.level.flags?.hero_memory
                     && !state.iflags?.terrainmode
                     && matchingCmapGlyph(
                         location.remembered_glyph?.glyph, matching,
                     ))
-                    return { found: true, x, y };
-                if (key === '~' && known_vibrating_square_at(x, y, state))
-                    return { found: true, x, y };
+                    return { found: true, x: tx, y: ty, tx, ty, sidx };
+                if (key === '~'.charCodeAt(0)
+                    && known_vibrating_square_at(tx, ty, state))
+                    return { found: true, x: tx, y: ty, tx, ty, sidx };
                 if (location.seenv
-                    && matchingCmapGlyph(back_to_glyph(x, y, state), matching))
-                    return { found: true, x, y };
+                    && matchingCmapGlyph(back_to_glyph(tx, ty, state), matching))
+                    return { found: true, x: tx, y: ty, tx, ty, sidx };
             }
         }
     }
-    return { found: false, matching: true };
+    // getpos.c reuses the mouse out-parameters as these loop variables.
+    // After a full unsuccessful scan, the terminating increments leave tx
+    // and ty just beyond the last scanned coordinate.
+    return { found: false, matching: true, tx, ty, sidx };
 }
 
 export async function getpos(ccp, force, goal, state = game) {
@@ -935,7 +942,7 @@ export async function getpos(ccp, force, goal, state = game) {
             return -1;
         }
     }
-    const target = goal || 'desired location';
+    const target = goal ?? 'desired location';
     let cx = ccp.x;
     let cy = ccp.y;
     // C callers install the selection before entering getpos. A tip or
@@ -951,6 +958,12 @@ export async function getpos(ccp, force, goal, state = game) {
     // for the duration of this getpos() invocation.
     const garr = Array(NUM_GLOCS).fill(null);
     const gidx = Array(NUM_GLOCS).fill(0);
+    // getpos.c initializes tx/ty once before its loop. readchar_poskey and
+    // the terrain-symbol scan mutate these same out-parameters across input
+    // iterations; queued keys and non-mouse events leave them untouched.
+    const tx = { value: state.u.ux };
+    const ty = { value: state.u.uy };
+    const sidx = { value: 0 };
 
     if (state.flags.verbose) {
         const helpKey = state.commandBindings.specialKeys?.['getpos.help'] ?? 0;
@@ -989,9 +1002,6 @@ export async function getpos(ccp, force, goal, state = game) {
                 await auto_describe(cx, cy, state);
             }
 
-            const tx = { value: state.u.ux };
-            const ty = { value: state.u.uy };
-            const sidx = { value: 0 };
             const queued = cmdq_pop(state);
             let key;
             if (queued) {
@@ -1248,6 +1258,9 @@ export async function getpos(ccp, force, goal, state = game) {
             if (!quitchars.includes(String.fromCharCode(key))) {
                 const feature = findTerrainFeature(key, cx, cy, state);
                 if (feature?.found) {
+                    tx.value = feature.tx;
+                    ty.value = feature.ty;
+                    sidx.value = feature.sidx;
                     cx = feature.x;
                     cy = feature.y;
                     if (messageGiven) clearTtyMessageWindow(state);
@@ -1259,6 +1272,9 @@ export async function getpos(ccp, force, goal, state = game) {
                     continue;
                 }
                 if (feature?.matching) {
+                    tx.value = feature.tx;
+                    ty.value = feature.ty;
+                    sidx.value = feature.sidx;
                     await ttyPline(
                         `Can't find dungeon feature '${String.fromCharCode(key)}'.`,
                         state,
@@ -1270,6 +1286,7 @@ export async function getpos(ccp, force, goal, state = game) {
                     await flush_screen(0);
                     continue;
                 }
+                if (feature && !feature.matching) sidx.value = feature.sidx;
             }
             // C ref: getpos.c:1126-1141. Force mode prints a diagnostic for
             // an unrecognized non-quitchar, then reaches nxtc and keeps
@@ -1294,8 +1311,8 @@ export async function getpos(ccp, force, goal, state = game) {
             if (key === 0x20 || key === 0x0D || key === 0x0A) {
                 await ttyPline('Done.', state);
                 messageGiven = false;
-                ccp.x = -1;
-                ccp.y = 0;
+                cx = -1;
+                cy = 0;
                 result = LOOK_TRADITIONAL;
                 break;
             }
