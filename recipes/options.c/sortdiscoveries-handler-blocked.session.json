@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent attempt to reach options.c:optfn_sortdiscoveries(do_handler) through the full options menu. The JavaScript option inventory exposes sortdiscoveries as having a handler, but js/options.js has no OPTION_HANDLERS entry or handler_sortdiscoveries implementation, so this path stops before choose_disco_sort(0). This recipe is blocked at that missing JavaScript caller and does not establish mode 0 runtime completion.",
+  "segments": [
+    {
+      "seed": 31867029,
+      "datetime": "20581104121700",
+      "nethackrc": "OPTIONS=name:MenuSortProbe,role:Valkyrie,race:human,gender=female,align=neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " mO:sortdiscoveries\r"
+    }
+  ]
+}
