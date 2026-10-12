@@ -7,12 +7,12 @@
   "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
   "recordingPath": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
   "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
-  "evaluationPath": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
-  "evaluationCommit": "56fe7fb916a1ffdf783a557694a1c1c18af784de",
+  "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+  "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
   "remainingScreens": 12,
   "recordedSteps": 150,
   "status": "complete",
-  "commit": "307c71fed0bfee2b73f9c409863e9f087a67b82e",
+  "commit": "4d4cf4f6962c13e1593841d07199632101339cd4",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v47",
@@ -25,11 +25,11 @@
     "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
     "recipe": "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.recipe.session.json",
     "recipeSha256": "71d1a4f2d140f88a7a658b3a44ef6b7913e10ecb21ed7dc61f84beb43d3533df",
-    "replayInputSha256": "7257e6f9cb3d5083103e10aa607d9d8d162ac7375ca640184e2b8b6c805e10cd",
-    "evaluationPath": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
-    "evaluationCommit": "56fe7fb916a1ffdf783a557694a1c1c18af784de",
-    "evaluationArtifact": "challenges/evaluations/accepted-56fe7fb916a1ffdf783a557694a1c1c18af784de-v47.json",
-    "evaluationUtc": "2026-10-11T21:29:11.560Z",
+    "replayInputSha256": "13d87b260326cb87a3ad759ed31ce3e2d081c9a02c6302da26841e1cdd214c4e",
+    "evaluationPath": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+    "evaluationCommit": "4d4cf4f6962c13e1593841d07199632101339cd4",
+    "evaluationArtifact": "challenges/evaluations/accepted-4d4cf4f6962c13e1593841d07199632101339cd4-v47.json",
+    "evaluationUtc": "2026-10-11T22:24:39.664Z",
     "remainingScreens": 12,
     "recordedSteps": 150,
     "previousScreensMatched": 138,
@@ -114,16 +114,20 @@
     "luaFile": null,
     "line": 1326
   },
-  "summary": "The first mismatch is caused by the missing whole uhitm.c:mhitm_ad_dise helper at the monster-to-monster AD_PEST path. mhitm_ad_pest copies Pestilence’s attack, changes it to AD_DISE, and calls the helper; the helper must zero damage against S_FUNGUS, Ghouls, and monsters defended against disease. JS currently records note_unported and keeps normal damage, so the Red Mold dies. The later corpse_chance RNG and missing Red Mold passive d(2,4) are downstream consequences, not passivemm defects.",
+  "summary": "The first mismatch was caused by the missing uhitm.c:mhitm_ad_dise effect at the monster-to-monster AD_PEST path. mhitm_ad_pest copies Pestilence’s attack, changes it to AD_DISE, and calls the helper; the helper zeroes damage against S_FUNGUS, Ghouls, and monsters defended against disease. The port now reaches that guard, preserving the Red Mold and restoring the later passive RNG. The later corpse_chance and passivemm differences were downstream consequences, not passivemm defects.",
   "source": {
     "file": "uhitm.c",
-    "branch": "For a monster-pair hit, mhitm_ad_dise uses the monster defender’s data: S_FUNGUS, PM_GHOUL, or defended(mdef, AD_DISE) sets mhm.damage to zero; all other defenders take the attack’s normal damage. A hero attacker goes to this same branch. The separate monster-attacks-hero arm emits hitmsg and retains normal damage only when diseasemu succeeds; existing production dispatchers mdamagem and damageum do not pass a hero defender to this helper.",
+    "branch": "For a monster-pair hit, mhitm_ad_dise uses the monster defender’s data: S_FUNGUS, PM_GHOUL, or defended(mdef, AD_DISE) sets mhm.damage to zero; all other defenders take normal damage. A hero attacker goes to this same branch, although the source comment says it is unreachable because every AD_DISE species (Juiblex, Demogorgon, and Scorpius) has M2_NOPOLY. The separate monster-attacks-hero arm emits hitmsg and retains normal damage only when diseasemu succeeds. The dispatcher’s active monster-pair and monster-to-hero callers are mdamagem and hitmu; damageum reaches its hero-attacker arm only for a valid polymorph, which the source monster table excludes.",
     "functions": [
+      "mhitm_ad_pest",
       "mhitm_ad_dise"
     ],
     "callers": [
-      "uhitm.c:mhitm_ad_pest: the monster-pair branch copies mattk, sets alt_attk.adtyp=AD_DISE, and calls mhitm_ad_dise.",
-      "uhitm.c:mhitm_adtyping: the AD_DISE case directly calls mhitm_ad_dise; mdamagem dispatches monster-pair attacks through this switch, and damageum dispatches hero-to-monster attacks."
+      "uhitm.c:mhitm_ad_pest: the monster-pair branch copies mattk, sets alt_attk.adtyp=AD_DISE, and calls mhitm_ad_dise; the monster-to-hero branch emits the fever-and-chills message and calls diseasemu.",
+      "uhitm.c:mhitm_adtyping: the AD_DISE switch case directly calls mhitm_ad_dise and the AD_PEST case calls mhitm_ad_pest.",
+      "mhitm.c:mdamagem at line 1059 calls uhitm.c:mhitm_adtyping for monster-pair attacks; js/mhitm.js:mdamagem is already wired to the same dispatcher.",
+      "mhitu.c:hitmu at line 1191 calls uhitm.c:mhitm_adtyping for monster-to-hero attacks; js/mhitu.js:hitmu is already wired to the same dispatcher.",
+      "uhitm.c:damageum at line 4854 calls uhitm.c:mhitm_adtyping for hero-to-monster attacks; js/uhitm.js:damageum is already wired to the same dispatcher, but no valid hero polymorph can select AD_DISE because all source species with that attack are M2_NOPOLY."
     ],
     "dependencies": [
       "uhitm.c:mhitm_ad_pest source caller branch must call the JS helper instead of note_unported.",
@@ -138,7 +142,10 @@
     "Upstream uhitm.c:4593-4619 defines the entire missing helper. Its monster-pair arm sets mhm.damage=0 for S_FUNGUS, PM_GHOUL, or defended(mdef, AD_DISE), and leaves ordinary damage unchanged otherwise.",
     "Upstream uhitm.c:3808-3833 shows mhitm_ad_pest’s exact call: it copies mattk, changes adtyp to AD_DISE, then discards the void helper result. JS uhitm.js:mhitm_ad_pest currently substitutes note_unported in this monster-pair arm.",
     "Upstream uhitm.c:4782-4825 contains the direct AD_DISE caller in mhitm_adtyping. JS uhitm.js currently stops that arm at unported(\"mhitm_ad_dise\"). The complete source task must wire both existing callers.",
-    "The selected v47 recipe places a forced hostile Pestilence and hostile Red Mold under Conflict, then waits for the adjacent monster fight. The admitted queue identifies the exact caller and target state; its C/JS diff shows downstream corpse RNG only after JS omits the fungus damage guard.",
-    "Earlier v20 Pestilence-vs-hero cases exercise mhitu.c disease handling, not this monster-pair helper. The existing v21 Conflict cases and earlier uhitm recordings do not cover this Pestilence-against-fungus branch."
-  ]
+    "The selected v47 recipe places a forced hostile Pestilence and hostile Red Mold under Conflict, then waits for the adjacent monster fight. Its full replay now matches and reaches mhitm_ad_pest -> mhitm_ad_dise before the Red Mold passive attack.",
+    "The admitted v20 pestilence-touches-wizard-v20-more-corrected case is a distinct matching monster-to-hero entry to mhitm_ad_pest; a fresh differential matches its full 48-step segment.",
+    "New independent C-first recordings cover direct AD_DISE dispatcher entries: Scorpius versus a stone golem exercises mdamagem -> mhitm_adtyping -> mhitm_ad_dise through 156 steps, and Scorpius versus the hero exercises hitmu -> mhitm_adtyping -> mhitm_ad_dise through the disease action at step 79 in an 80-step replay. Both fresh differentials match completely.",
+    "The AD_DISE hero-attacker branch is source-tested but has no valid runtime producer: monsters.h defines Juiblex, Demogorgon, and Scorpius as M2_NOPOLY, and uhitm.c explicitly comments that a hero cannot polymorph into a monster with this attack."
+  ],
+  "queueSha256": "46b5891629d3d59e5e62550cd812381e88752c80574406c65acffb4f4fed55cb"
 }
