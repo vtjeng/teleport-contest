@@ -290607,6 +290607,297 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "div-use-offensive-bhito-callback-v51-20261012",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Await the monster wand floor-object callback",
+      "cFile": "muse.c",
+      "sessions": [],
+      "selectionReason": "Oldest remaining dependency-ready delivery. Repair the grouped offensive-wand callback bridge through mbhit and fhito_loc to existing bhito, preserving object order, awaited effects, shared state and action random. No new whole-function completion credit.",
+      "detail": "v51 segment 0 step 139: the shared teleportation/undead-turning/striking wand arm must bind the existing zap.c:bhito callback. Save next_obj before awaiting each object callback, await fhito_loc before range changes, and forward the complete raw environment. Existing outer mbhit callers already await it.",
+      "openedAt": "cf1ed4f77b6e02470fd3354968387fb7c3fc07fe",
+      "openStanding": {
+        "sha": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_offensive",
+      "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+      "step": 139,
+      "syntheticProvenance": {
+        "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4": {
+          "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recordingPath": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+          "recordingSha256": "3f020a9440e49ec648f85299b1df65d1d23a678291d1271adbf0f826596320f3",
+          "evaluationPath": "challenges/evaluations/accepted-4d88907bfea84e07466d7b3231c1b8c4c481e83e-v51.json",
+          "evaluationCommit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e"
+        }
+      },
+      "activeStanding": {
+        "sha": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v51",
+          "caseId": "v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+          "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+          "manifestPath": "challenges/manifests/v51.json",
+          "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+          "recording": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+          "recordingPath": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+          "recordingSha256": "3f020a9440e49ec648f85299b1df65d1d23a678291d1271adbf0f826596320f3",
+          "recipe": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.recipe.session.json",
+          "recipeSha256": "b842a4e3d785041ca632e7a10d5c70fbdf99540f1e78aa91049086436f30a9d7",
+          "replayInputSha256": "bb4bfa97bb6d17d239a6b99281acb90b1b961f8ab1b6969b229cb31db8cdc506",
+          "evaluationPath": "challenges/evaluations/accepted-4d88907bfea84e07466d7b3231c1b8c4c481e83e-v51.json",
+          "evaluationCommit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+          "evaluationArtifact": "challenges/evaluations/accepted-4d88907bfea84e07466d7b3231c1b8c4c481e83e-v51.json",
+          "evaluationUtc": "2026-10-12T16:50:16.690Z",
+          "remainingScreens": 9,
+          "recordedSteps": 149,
+          "previousScreensMatched": 140,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 140,
+              "total": 149
+            },
+            "rng": {
+              "matched": 2553,
+              "total": 2605
+            },
+            "cursors": {
+              "matched": 147,
+              "total": 149
+            }
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.json",
+            "result": {
+              "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+              "corpus": "synthetic",
+              "batch": "v51",
+              "caseId": "v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+              "manifestPath": "challenges/manifests/v51.json",
+              "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+              "recordingPath": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+              "recordingSha256": "3f020a9440e49ec648f85299b1df65d1d23a678291d1271adbf0f826596320f3",
+              "recipePath": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.recipe.session.json",
+              "recipeSha256": "b842a4e3d785041ca632e7a10d5c70fbdf99540f1e78aa91086436f30a9d7",
+              "evaluationPath": "challenges/evaluations/accepted-4d88907bfea84e07466d7b3231c1b8c4c481e83e-v51.json",
+              "evaluationCommit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+              "remainingScreens": 9,
+              "recordedSteps": 149,
+              "status": "complete",
+              "commit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v51",
+                "caseId": "v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+                "session": "synthetic/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4",
+                "manifestPath": "challenges/manifests/v51.json",
+                "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
+                "recording": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+                "recordingPath": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.session.json",
+                "recordingSha256": "3f020a9440e49ec648f85299b1df65d1d23a678291d1271adbf0f826596320f3",
+                "recipe": "challenges/cases/v51/v51-pyrolisk-forced-shopkeeper-gaze-action-attempt4.recipe.session.json",
+                "recipeSha256": "b842a4e3d785041ca632e7a10d5c70fbdf99540f1e78aa91049086436f30a9d7",
+                "replayInputSha256": "bb4bfa97bb6d17d239a6b99281acb90b1b961f8ab1b6969b229cb31db8cdc506",
+                "evaluationPath": "challenges/evaluations/accepted-4d88907bfea84e07466d7b3231c1b8c4c481e83e-v51.json",
+                "evaluationCommit": "4d88907bfea84e07466d7b3231c1b8c4c481e83e",
+                "evaluationArtifact": "challenges/evaluations/accepted-4d88907bfea84e07466d7b3231c1b8c4c481e83e-v51.json",
+                "evaluationUtc": "2026-10-12T16:50:16.690Z",
+                "remainingScreens": 9,
+                "recordedSteps": 149,
+                "previousScreensMatched": 140,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 140,
+                    "total": 149
+                  },
+                  "rng": {
+                    "matched": 2553,
+                    "total": 2605
+                  },
+                  "cursors": {
+                    "matched": 147,
+                    "total": 149
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 140,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 140,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 44,
+                    "cCell": {
+                      "ch": "m",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "h",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2542,
+                    "cEntry": "rn2(100)=52",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(5)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 139,
+                      "key": " "
+                    },
+                    "stepIndex": 139
+                  },
+                  "cursor": {
+                    "index": 140,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 140,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      63,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      61,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 139,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469
+              },
+              "summary": "The pyrolisk's AD_FIRE gaze at step 138 completes first. On step 139 the shopkeeper selects MUSE_WAN_STRIKING. C muse.c:use_offensive() passes zap.c:bhito as mbhit's floor-object callback; the source path reaches dothrow.c:breaks()/breaktest() and zap.c:obj_resists(), consuming two rn2(100) draws on floor objects. The existing JS js/muse.js:use_offensive() passes null for that callback and records note_unported('zap.c bhito'), so both object-resistance draws are skipped; the next JS draw is rn2(5)=2 from distfleeck(). This is a bounded callback-wiring divergence fix in the existing offensive wand arm, not a claim that use_offensive() or bhito() is newly ported in full.",
+              "source": {
+                "file": "muse.c",
+                "functions": [
+                  "use_offensive"
+                ],
+                "branch": "The shared MUSE_WAN_TELEPORTATION, MUSE_WAN_UNDEAD_TURNING, and MUSE_WAN_STRIKING wand arm calls mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp). For the admitted case's MUSE_WAN_STRIKING selection, JS currently passes null in the bhito callback slot and records zap.c bhito as unported. Restore the existing bhito callback at this source-aligned mbhit call; keep use_offensive and bhito completion credit unchanged.",
+                "callers": [
+                  "monmove.c:dochug -> muse.c:find_offensive/use_offensive",
+                  "muse.c:use_offensive -> mbhit -> fhito_loc -> zap.c:bhito(WAN_STRIKING) -> dothrow.c:breaks/breaktest -> zap.c:obj_resists"
+                ],
+                "dependencies": [
+                  "zap.c:bhito (existing JS implementation js/zap.js; callback-compatible mbhit input)",
+                  "zap.c:obj_resists (existing JS implementation js/bury.js; source helper used by floor-object resistance checks)",
+                  "dothrow.c:breaks",
+                  "dothrow.c:breaktest"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The admitted baseline reports the first mismatch at segment 0 step 139: C rn2(100)=52 @ obj_resists(zap.c:1469), JS rn2(5)=2; screen and cursor diverge at step 140.",
+                "C nethack-c/upstream/src/muse.c:1844-1889 routes the MUSE_WAN_STRIKING wand through mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp). C zap.c:2119-2427 defines bhito's WAN_STRIKING floor-object path, which calls the existing dothrow break checks; that path reaches obj_resists at zap.c:1469.",
+                "JS js/muse.js:2694-2705 groups the same three wand types but calls mbhit(..., mbhitm, null, ...), preceded by note_unported('zap.c bhito'). The complete existing js/zap.js:bhito implementation accepts the callback signature expected by js/zap.js:mbhit and already owns the floor-object branches.",
+                "The immutable admitted recipe identifies the case as polyself.c:dogaze followed by muse.c:use_offensive1884 -> mbhit1734 -> fhito_loc -> zap.c:bhito WAN_STRIKING -> dothrow.c:breaks/breaktest -> obj_resists. The step-138 gaze is not the source of the first mismatch; the first missing draws occur on the following shopkeeper wand action."
+              ]
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 140,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 140,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 44,
+              "cCell": {
+                "ch": "m",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "h",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2542,
+              "cEntry": "rn2(100)=52",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(5)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 139,
+                "key": " "
+              },
+              "stepIndex": 139
+            },
+            "cursor": {
+              "index": 140,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 140,
+                "key": " "
+              },
+              "cCursor": [
+                63,
+                0,
+                1
+              ],
+              "jsCursor": [
+                61,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 139,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469
+        }
+      ]
     }
   ]
 }
