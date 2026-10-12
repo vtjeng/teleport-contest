@@ -499,6 +499,9 @@ test('ordinary throne effect 7 retains its court-summoning branch', async () => 
     game.u.uprops[STEALTH].intrinsic = FROMOUTSIDE;
     const calls = [];
     const messages = [];
+    // Count the initialized monster grid before and after the C case-7 loop;
+    // this distinguishes selecting a court species from creating it.
+    const monsterCountBefore = game.level.monsters.flat().filter(Boolean).length;
     const random = {
         rnd(bound) {
             calls.push(`rnd(${bound})`);
@@ -510,6 +513,18 @@ test('ordinary throne effect 7 retains its court-summoning branch', async () => 
         rn2(bound) {
             calls.push(`rn2(${bound})`);
             return 0; // Choose the first eligible aligned court class.
+        },
+        d(number) {
+            return number; // Supply valid low creation stats for the summoned monster.
+        },
+        rn1(_bound, base) {
+            return base; // Keep placement's first coordinate candidate deterministic.
+        },
+        rne() {
+            return 1; // Keep the summoned monster's extra inventory draw bounded.
+        },
+        rnz(value) {
+            return value; // Preserve a valid unscaled duration in the creation tail.
         },
     };
 
@@ -523,8 +538,12 @@ test('ordinary throne effect 7 retains its court-summoning branch', async () => 
     assert.ok(messages.some((line) => line.includes(
         `Thine audience hath been summoned, ${title}!`,
     )));
+    assert.ok(
+        game.level.monsters.flat().filter(Boolean).length > monsterCountBefore,
+        'effect 7 creates the court monster selected by courtmon()',
+    );
     assert.equal(game.u.uprops[STEALTH].intrinsic, FROMOUTSIDE);
-    assert.ok(game.unported.has('makemon.c makemon'));
+    assert.ok(!game.unported.has('makemon.c makemon'));
 });
 
 test('Vlad throne effect 10 runs blessed remove curse while forcing confusion',

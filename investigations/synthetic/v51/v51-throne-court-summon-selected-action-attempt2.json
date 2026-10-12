@@ -12,7 +12,7 @@
   "evaluationPath": "challenges/evaluations/baseline-v51-admission-20261012.json",
   "evaluationCommit": "1429fa3c893c4798ccb2117707b507dee4bacd33",
   "evaluationUtc": "2026-10-12T08:14:27.811Z",
-  "status": "verified",
+  "status": "resolved",
   "summary": "At zero-based segment 0 step 47, the wizard has selected ordinary throne effect 7. C begins the court-summoning loop; JavaScript calls courtmon() but records note_unported('makemon.c makemon') instead of creating the selected monster. C therefore consumes the monster-placement and creation calls, produces a monster, and updates the screen, while JavaScript skips all of those effects. The queue labels C's next RNG entry collect_coords(teleport.c:700), a downstream placement helper; the source defect is the skipped makemon call in sit.c:throne_sit_effect.",
   "mismatch": {
     "segment": 0,
@@ -22,17 +22,36 @@
     "cEntry": "rn2(8)=1",
     "cCaller": "collect_coords(teleport.c:700)",
     "jsEntry": "rn2(60)=9",
-    "cScreenCell": { "row": 0, "column": 59, "ch": "-" },
-    "jsScreenCell": { "row": 0, "column": 59, "ch": " " },
+    "cScreenCell": {
+      "row": 0,
+      "column": 59,
+      "ch": "-"
+    },
+    "jsScreenCell": {
+      "row": 0,
+      "column": 59,
+      "ch": " "
+    },
     "baselineMetrics": {
-      "screens": { "matched": 47, "total": 73 },
-      "rng": { "matched": 2961, "total": 3661 },
-      "cursors": { "matched": 59, "total": 73 }
+      "screens": {
+        "matched": 47,
+        "total": 73
+      },
+      "rng": {
+        "matched": 2961,
+        "total": 3661
+      },
+      "cursors": {
+        "matched": 59,
+        "total": 73
+      }
     }
   },
   "source": {
     "file": "sit.c",
-    "functions": ["throne_sit_effect"],
+    "functions": [
+      "throne_sit_effect"
+    ],
     "branch": "C sit.c:throne_sit_effect() case 7 sets cnt=rnd(10), emits the throne voice, then repeats (void)makemon(courtmon(), tx, ty, NO_MM_FLAGS) while cnt--. This is an ordinary throne effect, after the wizard selected effect 7; the chosen throne is not a special Vlad's Tower throne.",
     "callers": [
       "C sit.c:dosit() calls throne_sit_effect() for an ordinary throne. JavaScript js/sit.js:dosit reaches throne_sit_effect() through the same sitting command path.",
@@ -50,5 +69,42 @@
     "A fresh strict C/JavaScript diff of the admitted recipe reproduces the same first mismatch at boundary 48 (one-based): C has 3661 RNG calls and JavaScript 3035; the first missing C RNG entry is rn2(8)=1 at collect_coords, while JavaScript's next entry is rn2(60)=9. The C screen has a monster marker at row 0 column 59 where JavaScript has a blank. The full output is retained at /tmp/teleport-validation-1000/run-hH1Gjv/stdout.log, receipt /tmp/teleport-validation-1000/run-hH1Gjv/receipt.json.",
     "Upstream nethack-c/upstream/src/sit.c:114-123 confirms case 7 performs courtmon() followed by makemon() for each of rnd(10) attempts. js/sit.js:468-476 performs courtmon() but skips makemon(), recording note_unported('makemon.c makemon'). The 626-call RNG gap and missing monster are consequences of this omitted call, not a collect_coords defect.",
     "Upstream nethack-c/upstream/src/makemon.c:1147-1200 confirms explicit-species placement at the hero square with NO_MM_FLAGS relocates through enexto_core(). Existing js/makemon_create.js:1280-1305 admits that exact call shape, and js/makemon_create.js:3348-3394 awaits the creation runtime tail. The implementation should invoke that helper once per loop iteration with the selected species, hero coordinates, state, random source, and message operation."
-  ]
+  ],
+  "resolution": {
+    "summary": "js/sit.js now evaluates courtmon() and awaits makemon_runtime() for each case-7 attempt, using the same hero coordinates, NO_MM_FLAGS value 0, state, RNG source and message operation. The former note_unported(\"makemon.c makemon\") skip is gone.",
+    "focusedTest": {
+      "command": [
+        "node",
+        "--test",
+        "--test-name-pattern=ordinary throne effect 7",
+        "scripts/sit-command.test.mjs"
+      ],
+      "result": "exit 0; the test confirms effect 7 places at least one monster and records no makemon gap."
+    },
+    "lint": {
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "result": "exit 0"
+    },
+    "freshDifferential": {
+      "command": [
+        "node",
+        "scripts/run-bounded.mjs",
+        "focused",
+        "--",
+        "node",
+        "scripts/diff-fresh.mjs",
+        "challenges/cases/v51/v51-throne-court-summon-selected-action-attempt2.recipe.session.json"
+      ],
+      "receipt": "/tmp/teleport-validation-1000/run-LGGT2y/receipt.json",
+      "result": "exit 0; PRNG 3661/3661, screens 73/73 with matching cells and attributes, cursors 73/73, animation frames 1/1."
+    },
+    "admittedRecordingScan": {
+      "result": "not available in this worker checkout",
+      "reason": "The registered worker base 9a08dab96 contains the v51 prepared case files but not challenges/manifests/v51.json. scan-sessions rejected both the batch-qualified case and the direct recording path as not admitted. The strict fresh differential used the matching v51 recipe; the orchestrator can verify the admitted prefix on its admission commit."
+    }
+  }
 }
