@@ -1,0 +1,112 @@
+{
+  "session": "synthetic/v50/v50-blacklight-monster-combat-action-attempt3",
+  "remainingScreens": 39,
+  "recordedSteps": 218,
+  "corpus": "synthetic",
+  "batch": "v50",
+  "caseId": "v50-blacklight-monster-combat-action-attempt3",
+  "manifestPath": "challenges/manifests/v50.json",
+  "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+  "recordingPath": "challenges/cases/v50/v50-blacklight-monster-combat-action-attempt3.session.json",
+  "recordingSha256": "7b24109e4a4d12177dc09030e2f394a2ef3dd119bf5a73f37b81f2cb4c8b4cb5",
+  "evaluationPath": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v50.json",
+  "evaluationCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e",
+  "evaluationSha256": "90f592e19f3f26f547aac9ef34aa5535112533ecf581ae4179b98da8c51dc4df",
+  "status": "complete",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v50",
+    "caseId": "v50-blacklight-monster-combat-action-attempt3",
+    "session": "synthetic/v50/v50-blacklight-monster-combat-action-attempt3",
+    "manifestPath": "challenges/manifests/v50.json",
+    "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
+    "recording": "challenges/cases/v50/v50-blacklight-monster-combat-action-attempt3.session.json",
+    "recordingPath": "challenges/cases/v50/v50-blacklight-monster-combat-action-attempt3.session.json",
+    "recordingSha256": "7b24109e4a4d12177dc09030e2f394a2ef3dd119bf5a73f37b81f2cb4c8b4cb5",
+    "recipe": "challenges/cases/v50/v50-blacklight-monster-combat-action-attempt3.recipe.session.json",
+    "recipeSha256": "8a9e5a5e1df40f02adf04fb468e469bcdc35e6f0adc5ac2379744f7fffd7fe73",
+    "replayInputSha256": "a388b10d4c5938706c7cc80056d51337ca84651e0e06d0a64e28c29dc0319516",
+    "evaluationPath": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v50.json",
+    "evaluationCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e",
+    "evaluationArtifact": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v50.json",
+    "evaluationUtc": "2026-10-12T13:21:55.288Z",
+    "remainingScreens": 39,
+    "recordedSteps": 218,
+    "previousScreensMatched": 179,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 179,
+        "total": 218
+      },
+      "rng": {
+        "matched": 2727,
+        "total": 2782
+      },
+      "cursors": {
+        "matched": 179,
+        "total": 218
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires uhitm.c mhitm_ad_halu()",
+      "step": 179
+    },
+    "step": 179,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_halu",
+    "message": "simple monster action requires uhitm.c mhitm_ad_halu()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The accepted replay stops at step 179 because the AD_HALU dispatcher names an unported mhitm_ad_halu. The worker ported the complete 25-line helper and repaired the existing explosion caller’s mondead binding; its saved 218-step replay matches. Main acceptance remains pending.",
+  "source": {
+    "file": "uhitm.c",
+    "functions": [
+      "mhitm_ad_halu"
+    ],
+    "branch": "The whole uhitm.c:3897–3921 helper zeros hero-direction damage. An uncancelled monster confuses an eyed, seeing defender, emits the visible message before setting mconf and clearing STRAT_WAITFORU, and zeros damage.",
+    "callers": [
+      "uhitm.c:mhitm_adtyping AD_HALU arm; mhitm.c:explmm -> mdamagem -> mhitm_adtyping reaches the helper in the selected recording."
+    ],
+    "dependencies": [
+      "Existing haseyes, canseemon, Monnam and pline_mon/messageAt operations implement the required source behavior.",
+      "The existing mhitm.c:explmm caller also needs its already-ported mon.c:mondead binding."
+    ]
+  },
+  "evidence": [
+    "The admitted v50 manifest gives source trace mhitm.c:explmm -> mdamagem -> uhitm.c:mhitm_ad_halu; its baseline has 179/218 screens, 2727/2782 RNG calls, and 179/218 cursors matched.",
+    "The recorded step 179 has key '.', with the C screen reporting the black light explosion; its RNG ends at d(10,12)=66 @ mdamagem(mhitm.c:1025), immediately before the unsupported AD_HALU handler.",
+    "C uhitm.c:mhitm_ad_halu has three actor cases. Hero directions zero damage; the monster-pair branch sets mconf and clears STRAT_WAITFORU only when the aggressor is uncancelled and the defender has eyes and can see. Its visible message precedes those changes; damage is zero on every branch.",
+    "The source grep finds one active C call site, the AD_HALU arm in uhitm.c:mhitm_adtyping(). js/uhitm.js already dispatches that arm to an unported boundary. This task will port only mhitm_ad_halu and wire that existing arm; it will not claim the whole dispatcher or mhitm.c callers.",
+    "C callees haseyes(), canseemon(), and Monnam()/pline_mon() have existing JavaScript implementations; no return-valued unported dependency was found."
+  ],
+  "nextAction": "Submit the scoped mhitm_ad_halu implementation and its dispatcher/explmm caller repairs with explicit actual dependencies.",
+  "callerRepair": {
+    "source": "mhitm.c:explmm",
+    "change": "Imported the already ported mon.c:mondead called after mdamagem, matching the C void call and preserving its order.",
+    "scope": "Caller binding only; no whole-explmm completion claim."
+  },
+  "runtimeValidation": {
+    "command": "node scripts/scan-sessions.mjs --json --synthetic v50/v50-blacklight-monster-combat-action-attempt3",
+    "log": "/tmp/teleport-c-v50-blacklight-scan2.log",
+    "replayCommit": "617f2c92ad6446c31c1094b7c4064a876b0934d8",
+    "screensEmitted": 218,
+    "recordedSteps": 218,
+    "divergence": null,
+    "boundary": null,
+    "recordingMatched": true,
+    "inputBoundaryMatched": true,
+    "remainingUnported": [
+      "sounds.c SoundAchievement",
+      "display.c set_mimic_blocking"
+    ]
+  },
+  "commit": "98b22439c86389e89602ba6c6c2dff8b8032856e",
+  "goalKind": "file-port"
+}

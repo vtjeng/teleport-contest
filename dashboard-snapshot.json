@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T13:02:47.295Z",
+  "capturedAt": "2026-10-12T13:39:31.317Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -94906,33 +94906,216 @@
         "at": "2026-10-12T13:02:28.685Z",
         "worker": "B",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012-adb1e01348e42936c27bdc003df8af38910d18b2",
+        "type": "published",
+        "at": "2026-10-12T13:03:35.385Z",
+        "task": "A2-investigation-v51-throne-court-summon-selected-action-attempt2-20261012",
+        "commit": "adb1e01348e42936c27bdc003df8af38910d18b2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep18-v54-eleven-provisional-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:05:28.614Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v54: eleven provisional first defects; completing overlap checks and a bounded monster spell search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-644a80ff05847c399b8edc6781eb9ec90bfcae78",
+        "type": "ready",
+        "at": "2026-10-12T13:06:29.067Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "delivery": "644a80ff05847c399b8edc6781eb9ec90bfcae78"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-getobj-escape-correction-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:06:53.297Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getobj-js-nul-feedback-644a80ff",
+        "type": "feedback",
+        "at": "2026-10-12T13:08:06.475Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "delivery": "644a80ff05847c399b8edc6781eb9ec90bfcae78"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-getobj-empty-null-followup-20261012",
+        "type": "resume",
+        "at": "2026-10-12T13:08:31.954Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-getobj-empty-null-followup-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:08:39.326Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-33d261d01c61d32a5a560e20d217a75855595d76",
+        "type": "ready",
+        "at": "2026-10-12T13:10:06.022Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "delivery": "33d261d01c61d32a5a560e20d217a75855595d76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-getobj-empty-null-correction-ready-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:10:20.490Z",
+        "worker": "B",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getobj-null-correction-received-33d261d0",
+        "type": "received",
+        "at": "2026-10-12T13:13:49.943Z",
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "delivery": "33d261d01c61d32a5a560e20d217a75855595d76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5e592fe939987281a297ea430289c96d4646e6d9",
+        "type": "ready",
+        "at": "2026-10-12T13:14:00.608Z",
+        "task": "Prep18",
+        "delivery": "5e592fe939987281a297ea430289c96d4646e6d9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep19-v55-20261012",
+        "type": "assign",
+        "at": "2026-10-12T13:15:15.581Z",
+        "task": "Prep19",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v55"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep18-received-5e592fe9",
+        "type": "received",
+        "at": "2026-10-12T13:16:54.288Z",
+        "task": "Prep18",
+        "delivery": "5e592fe939987281a297ea430289c96d4646e6d9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "bindings-integrating-98b22439",
+        "type": "integrating",
+        "at": "2026-10-12T13:17:17.398Z",
+        "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
+        "integration": "98b22439c86389e89602ba6c6c2dff8b8032856e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-source-plan-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:18:25.994Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: twelve independent C behaviors planned; recording initial game setups."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-recording-wave-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:22:54.897Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: recording armor transformation, monster healing, and six further source families."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-action-wave-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:24:40.439Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: recording inventory, artifact, container, and familiar actions from observed C setups."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v49-extended-quaff-remove-swap-20261012-98b22439c86389e89602ba6c6c2dff8b8032856e-validated",
+        "type": "validated",
+        "at": "2026-10-12T13:25:35.414Z",
+        "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-first-comparison-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:25:55.382Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: ten independent C replays match their recordings; comparing the reached game behaviors."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v49-extended-quaff-remove-swap-20261012-98b22439c86389e89602ba6c6c2dff8b8032856e-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T13:27:13.436Z",
+        "task": "C-investigation-v49-extended-quaff-remove-swap-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "getpos-whole-source-scope-feedback-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T13:32:30.108Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012",
+        "delivery": "07ebea9225679ee0034c2070d886f3d9e28e96fe"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-three-first-owners-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:35:59.421Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: three provisional first defects; recording further source actions and shop billing setup."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-getpos-whole-file-port-review-20261012",
+        "type": "resume",
+        "at": "2026-10-12T13:38:20.616Z",
+        "task": "B-investigation-v48-name-floor-object-self-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-getpos-file-port-review-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:38:27.823Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-98b-queue-reserved-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:39:15.664Z",
+        "worker": "C",
+        "state": "idle"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
-        "worker": "C",
-        "goal": "divergence-fix-cmd-doextcmd-quaff-remove-swap-v49-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "e55adc240bed52e7990e1a0228cffafe16098a04",
-        "since": "2026-10-12T05:28:40.978Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v48-name-floor-object-self-20261012",
-        "worker": "B",
-        "goal": "divergence-fix-getpos-self-key-floor-name-v48-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "07ebea9225679ee0034c2070d886f3d9e28e96fe",
-        "since": "2026-10-12T06:05:19.699Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
         "worker": "B",
@@ -95093,6 +95276,32 @@
         "delivery": "64457b3398d812828fdb1fbe7e0767b946c7a8d8",
         "since": "2026-10-12T13:00:07.020Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v49-apply-book-attempt2-20261012",
+        "worker": "B",
+        "goal": "div-getobj-menu-escape-v49-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "33d261d01c61d32a5a560e20d217a75855595d76",
+        "since": "2026-10-12T13:10:06.022Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep18",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "5e592fe939987281a297ea430289c96d4646e6d9",
+        "batch": "v54",
+        "since": "2026-10-12T13:14:00.608Z",
+        "blockedBy": [
+          "Prep16",
+          "Prep17"
+        ],
         "unblocks": 0
       }
     ],
@@ -95554,8 +95763,8 @@
     ]
   },
   "development": {
-    "executionCommit": "8f901abeaff0f711cef77b3bb8fa5c22eecdbe11",
-    "measuredAt": "2026-10-12T12:56:47.811Z",
+    "executionCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e",
+    "measuredAt": "2026-10-12T13:22:28.510Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
