@@ -1232,12 +1232,16 @@ test('eatmdone releases only its message and resets any active disguise', async 
     assert.equal(idle.nomovemsg, 'another action');
 });
 
-test('eatmdone and both cpostfx sites preserve C buffer and redraw order', () => {
+test('eatmdone and cpostfx preserve buffer, redraw, and blocking-map order', () => {
     assert.match(EAT_C, /eatmdone\(void\)[\s\S]*gn\.nomovemsg == ge\.eatmbuf[\s\S]*ge\.eatmbuf = 0;[\s\S]*if \(U_AP_TYPE\)[\s\S]*m_ap_type = M_AP_NOTHING;[\s\S]*newsym\(u\.ux, u\.uy\);[\s\S]*return 0;/u);
     assert.match(EAT_JS, /export function eatmdone[\s\S]*state\.nomovemsg === state\.eatmbuf[\s\S]*state\.eatmbuf = null;[\s\S]*m_ap_type = M_AP_NOTHING;[\s\S]*if \(!env\.planning\)[\s\S]*env\.redraw \?\? newsym[\s\S]*return 0;/u);
     assert.match(EAT_JS, /if \(state\.eatmbuf\) eatmdone\(state\);/u);
     assert.match(EAT_JS, /state\.afternmv = eatmdone;/u);
     assert.doesNotMatch(EAT_JS, /note_unported\('eat\.c eatmdone'\)/u);
-    assert.match(EAT_JS, /note_unported\('windows\.c display_nhwindow'\)/u,
-        'the separate blocking map-window owner remains outside this task');
+    assert.match(EAT_C, /case PM_SMALL_MIMIC:[\s\S]*?newsym\(u\.ux, u\.uy\);\s*curs_on_u\(\);[\s\S]*?display_nhwindow\(WIN_MAP, TRUE\);/u,
+        'cpostfx flushes the changed mimic glyph before its blocking map display');
+    assert.match(EAT_JS, /case PM_SMALL_MIMIC:[\s\S]*?newsym\(state\.u\.ux, state\.u\.uy\);\s*await curs_on_u\(state\);\s*await displayPendingTtyMessageWindow\(state\);/u,
+        'the JS adapter waits for the pending TTY line after flushing the map');
+    assert.doesNotMatch(EAT_JS, /note_unported\('windows\.c display_nhwindow'\)/u,
+        'cpostfx no longer skips its source blocking display call');
 });
