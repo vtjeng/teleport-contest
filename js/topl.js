@@ -3,6 +3,7 @@
 
 import {
     MAX_MSG_HISTORY,
+    MSGTYP_STOP,
     TOPLINE_SPECIAL_PROMPT,
     WIN_LOCKHISTORY,
     WIN_NOSTOP,
@@ -160,10 +161,80 @@ export async function more(state = game) {
     display.inmore = 0;
 }
 
-// C ref: topl.c update_topl() history boundary. ttyPlineCore() performs the
-// terminal and --More-- work; this named function supplies its ring write.
-export function update_topl(_message, state = game) {
-    remember_topl(state);
+// C ref: win/tty/topl.c update_topl(). ttyPlineCore() handles vpline() and
+// tty_putstr() setup, then calls here for the complete topline transition.
+// The callbacks are the TTY rendering operations shared with tty_message.js;
+// branch order, history changes, and wait decisions stay with this source unit.
+export async function update_topl(message, state = game, context = {}) {
+    const {
+        msgtype,
+        urgentMessage = false,
+        mixedFirstCell = null,
+        resetLastMessage = () => {},
+        stoppedAtEntry = Boolean(state._ttyMessageStopped),
+        deathMessage = String(message).startsWith('You die'),
+        deathComparisonReached = false,
+        acknowledgedTopline = false,
+        columns = state.nhDisplay?.cols ?? 80,
+        callbacks = {},
+    } = context;
+    const current = state.nhDisplay?.toplin === TOPLINE_NON_EMPTY
+        ? '' : (state._pending_message ?? '');
+    const next = String(message);
+
+    // topl.c's same-line condition evaluates the death comparison only after
+    // the room and cursor terms pass; its caller supplies that comparison
+    // result because the pline layer also uses it when handling WIN_STOP.
+    if (stoppedAtEntry && !deathComparisonReached) {
+        callbacks.rememberSuppressedMessage?.(state, next, columns);
+        state._ttyPreviousMessage = context.normalizedMessage ?? message;
+        resetLastMessage();
+        return;
+    }
+    if (stoppedAtEntry) state._ttyMessageStopped = false;
+
+    if (current
+        && !deathMessage
+        && callbacks.fitsOnTtyTopline?.(current, next, columns)) {
+        callbacks.rememberPendingMessage?.(
+            state,
+            `${current}  ${next}`,
+            state._ttyMixedFirstCell ?? null,
+        );
+        if (!stoppedAtEntry && state.nhDisplay) {
+            callbacks.appendRecorderTtyLine?.(
+                state.nhDisplay,
+                current.length + 2,
+                0,
+                next,
+            );
+        }
+        state._ttyPreviousMessage = context.normalizedMessage ?? message;
+        resetLastMessage();
+        if (msgtype === MSGTYP_STOP)
+            await callbacks.displayPendingTtyMessageWindow?.(state);
+        return;
+    }
+
+    if (current && !stoppedAtEntry) {
+        await callbacks.dismissPendingTtyMessage?.(state, {
+            preventEscapeStop: urgentMessage,
+        });
+    }
+    if (deathComparisonReached) state._ttyMessageStopped = false;
+    if (acknowledgedTopline)
+        callbacks.redrawTtyTopline?.(state, next, mixedFirstCell);
+    if (state._ttyToplines) remember_topl(state);
+    callbacks.rememberPendingMessage?.(state, next, mixedFirstCell);
+    state._ttyPreviousMessage = context.normalizedMessage ?? message;
+    if (callbacks.wrapTtyTopline?.(next, columns).length > 1) {
+        await callbacks.dismissPendingTtyMessage?.(state, {
+            preventEscapeStop: urgentMessage,
+        });
+    }
+    resetLastMessage();
+    if (msgtype === MSGTYP_STOP)
+        await callbacks.displayPendingTtyMessageWindow?.(state);
 }
 
 // C refs: topl.c topl_putsym(), putsyms() and removetopl().
@@ -208,8 +279,12 @@ function chronologicalHistory(state) {
 
 async function showHistoryMenu(state, reversed = false) {
     const items = chronologicalHistory(state);
-    if (reversed) items.reverse();
-    items.push(topline(state));
+    if (reversed) {
+        items.reverse();
+        items.unshift(topline(state));
+    } else {
+        items.push(topline(state));
+    }
     const { displayTtyMenuTextWindow } = await import('./tty_menu.js');
     await displayTtyMenuTextWindow(state, ['Message History', '', ...items]);
 }
@@ -226,23 +301,30 @@ export async function tty_doprev_message(state = game) {
             cw.maxcol = cw.maxrow;
             await showHistoryMenu(state);
         } else if (mode === 'c') {
-            if (cw.maxcol === cw.maxrow || cw.maxcol === cw.maxrow - 1) {
-                display.dismiss_more = CTRL_P;
-                const index = cw.maxcol === cw.maxrow
-                    ? cw.maxrow : (cw.maxcol + historyRows(state) - 1) % historyRows(state);
-                await redotoplin(index === cw.maxrow ? topline(state) : cw.data[index] ?? '', state);
-                cw.maxcol = (index + historyRows(state) - 1) % historyRows(state);
-                if (!cw.data[cw.maxcol]) cw.maxcol = cw.maxrow;
-            } else {
-                cw.maxcol = cw.maxrow;
-                await showHistoryMenu(state);
-            }
+            do {
+                display.morc = 0;
+                if (cw.maxcol === cw.maxrow) {
+                    display.dismiss_more = CTRL_P;
+                    await redotoplin(topline(state), state);
+                    cw.maxcol = (cw.maxcol + historyRows(state) - 1) % historyRows(state);
+                    if (!cw.data[cw.maxcol]) cw.maxcol = cw.maxrow;
+                } else if (cw.maxcol === cw.maxrow - 1) {
+                    display.dismiss_more = CTRL_P;
+                    await redotoplin(cw.data[cw.maxcol], state);
+                    cw.maxcol = (cw.maxcol + historyRows(state) - 1) % historyRows(state);
+                    if (!cw.data[cw.maxcol]) cw.maxcol = cw.maxrow;
+                } else {
+                    cw.maxcol = cw.maxrow;
+                    await showHistoryMenu(state);
+                }
+            } while (display.morc === CTRL_P);
+            display.dismiss_more = 0;
         } else {
             await showHistoryMenu(state, true);
             cw.maxcol = cw.maxrow;
             display.dismiss_more = 0;
         }
-    } else {
+    } else if (mode === 's') {
         display.dismiss_more = CTRL_P;
         do {
             display.morc = 0;

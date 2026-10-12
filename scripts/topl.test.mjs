@@ -14,6 +14,7 @@ import {
     free_msghistory_snapshot,
     msghistory_snapshot,
     remember_topl,
+    tty_doprev_message,
     tty_getmsghistory,
     tty_putmsghistory,
 } from '../js/topl.js';
@@ -87,4 +88,61 @@ test('SUPPRESS_HISTORY shows feedback but keeps it out of Ctrl-P history', async
     assert.equal(state._pending_message, 'Unknown command');
     assert.equal(state.nhDisplay.grid[0][0].ch, 'U');
     assert.equal(state.nhDisplay.grid[0][0].color, 8);
+});
+
+test('reversed history places the current topline before newest-to-oldest entries', async () => {
+    const state = historyState();
+    const win = state.wintty.wins[state.wintty.messageWindow];
+    win.data[0] = 'oldest stored line';
+    win.data[1] = 'newest stored line';
+    win.maxrow = 2;
+    win.maxcol = 2;
+    state._ttyToplines = 'current topline';
+    state.iflags.prevmsg_window = 'r';
+    state.nhDisplay.pushKey(13);
+    let menuFrame = '';
+    state._preNhgetchHook = () => {
+        menuFrame = state.nhDisplay.serialize();
+    };
+
+    await tty_doprev_message(state);
+
+    const current = menuFrame.indexOf('current topline');
+    const newest = menuFrame.indexOf('newest stored line');
+    const oldest = menuFrame.indexOf('oldest stored line');
+    assert.ok(current >= 0 && current < newest && newest < oldest, menuFrame);
+});
+
+test('combination history keeps looping across Ctrl-P More responses and clears dismiss_more', async () => {
+    const state = historyState();
+    const win = state.wintty.wins[state.wintty.messageWindow];
+    win.data[0] = 'stored line that wraps '.repeat(5);
+    win.maxrow = 1;
+    win.maxcol = 1;
+    state._ttyToplines = 'current line that wraps '.repeat(5);
+    state.iflags.prevmsg_window = 'c';
+    for (const key of [0x10, 0x10, 13]) state.nhDisplay.pushKey(key);
+
+    await tty_doprev_message(state);
+
+    assert.equal(state.nhDisplay.inputQueueLength, 0);
+    assert.equal(state.nhDisplay.dismiss_more, 0);
+    assert.equal(win.maxcol, 0);
+});
+
+test('non-single history is a no-op while the TTY is in a read', async () => {
+    const state = historyState();
+    const win = state.wintty.wins[state.wintty.messageWindow];
+    win.maxrow = 3;
+    win.maxcol = 1;
+    state.iflags.prevmsg_window = 'f';
+    state.nhDisplay.inread = 1;
+    state.nhDisplay.dismiss_more = 7;
+    state.nhDisplay.pushKey(13);
+
+    await tty_doprev_message(state);
+
+    assert.equal(win.maxcol, 1);
+    assert.equal(state.nhDisplay.dismiss_more, 7);
+    assert.equal(state.nhDisplay.inputQueueLength, 1);
 });
