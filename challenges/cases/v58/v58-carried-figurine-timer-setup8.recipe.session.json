@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Verified runtime debug_hunger/debug_mongen true. Enable ordinary time status, close menu and remove existing NPCs using supported wizard genocide class *, then inspect exact turn before numeric waiting.",
+  "segments": [
+    {
+      "seed": 58010102,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,debug_hunger,!safe_wait,!acoustics\n",
+      "moves": "     #levelchange\n30\n                                                            \u0017uncursed ring of slow digestion\n                    \u0017uncursed +99 ring of protection\n                    \u0017cursed figurine of a kitten\n                    i                    #wizmap\nPhr                    Pil                    #optionsfull\n>>>>>>>:debug_mongen\n:debug_hunger\n\n#optionsfull\n>:time\n\n\u0017blessed scroll of genocide\n                    rk  *\n                    #wizmap\n"
+    }
+  ]
+}

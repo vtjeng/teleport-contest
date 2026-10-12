@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Raw cursor establishes hero (47,11), unlike priest (46,8). Earlier b/j moves met closed door/wall. Move west to (46,11) and kick closed door south at (46,12), with peaceful watchman north (46,10).",
+  "segments": [
+    {
+      "seed": 58010106,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of gain ability\n                    i                    #wizmap\n#wizlevelport\n?\n>w                                        #wizmap\nb                    j                    j                    #wizgenesis\npeaceful watchman\n                    #wizmap\nh                    \u0004j                    #wizmap\n"
+    }
+  ]
+}

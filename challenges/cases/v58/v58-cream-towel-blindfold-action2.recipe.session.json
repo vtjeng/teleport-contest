@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Apply one of the two observed cream pies k, wear blindfold m, clean with towel l while external Blind remains, remove blindfold and inspect inventory/vision. Trace actual pie split and towel blindness state.",
+  "segments": [
+    {
+      "seed": 58010110,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u00172 uncursed cream pies\n                    \u0017uncursed towel\n                    \u0017uncursed blindfold\n                    i                    #wizmap\nak                    Pm                    al                    Rm                    i                    "
+    }
+  ]
+}

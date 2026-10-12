@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C wished boots m. Wield m, then wear m from W_WEAPONS state. Source do_wear.c accessory_or_armor_on calls existing remove_worn_item before assigning boots slot; JSguard still refuses the active caller. Existing v54 lava and v55 poly callers remove W_ARM body armor, not this W_WEP -> W_ARMF transition.",
+  "segments": [
+    {
+      "seed": 58010601,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed low boots\n                    i                    #wizmap\nwm                    Wm                    i                    "
+    }
+  ]
+}

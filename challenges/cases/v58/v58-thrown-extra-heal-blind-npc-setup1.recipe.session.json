@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Generate adjacent hill orc, throw blindness potion and observe its actual state/position, then throw extra healing. Independent C source mission planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 58010108,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of blindness\n                    \u0017uncursed potion of extra healing\n                    i                    #wizmap\n"
+    }
+  ]
+}

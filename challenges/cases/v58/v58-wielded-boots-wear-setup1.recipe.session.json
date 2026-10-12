@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent human Wizard wishes low boots, then will wield the C-observed boots and wear them from weapon slot. C do_wear.c:accessory_or_armor_on2359-2364 removes worn weapon ownership before assigning armor slot; compare earlier body-armor transformation/removal callers and actual W_WEAPONS branch.",
+  "segments": [
+    {
+      "seed": 58010601,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed low boots\n                    i                    #wizmap\n"
+    }
+  ]
+}

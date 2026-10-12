@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Inspect last page of supported optionsfull menu to establish actual debug_mongen/debug_hunger values before changing them. Initial configuration produced unchanged timer/HP; no claim about applied flags is made without the runtime menu.",
+  "segments": [
+    {
+      "seed": 58010102,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,debug_hunger,!safe_wait,!acoustics\n",
+      "moves": "     #levelchange\n30\n                                                            \u0017uncursed ring of slow digestion\n                    \u0017uncursed +99 ring of protection\n                    \u0017cursed figurine of a kitten\n                    i                    #wizmap\nPhr                    Pil                    #optionsfull\n>>>>>>>"
+    }
+  ]
+}

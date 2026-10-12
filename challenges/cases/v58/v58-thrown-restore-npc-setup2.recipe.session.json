@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Generate a live hill orc, inspect direction and HP context before throwing restore-ability potion g. Bottle impact precedes potionhit healing.",
+  "segments": [
+    {
+      "seed": 58010107,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of restore ability\n                    i                    #wizmap\n#wizgenesis\nhostile hill orc\n                    #wizmap\n"
+    }
+  ]
+}

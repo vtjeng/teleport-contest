@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent level20 Wizard C-first source route: wraith corpse grows digesting NPC; stethoscope observes level/HP state",
+  "segments": [
+    {
+      "seed": 58010404,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed stethoscope\n                    \u0017wraith corpse\n                    #wizgenesis\nhostile purple worm\n                    i                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Named Minetown was not accepted from the Dungeons branch and the prompt remained open. Use the supported wizard level menu, then select C-observed Mines special-level entry without copying an earlier route.",
+  "segments": [
+    {
+      "seed": 58010106,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of gain ability\n                    i                    #wizmap\n#wizlevelport\n?\n                    "
+    }
+  ]
+}

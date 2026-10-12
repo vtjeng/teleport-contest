@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "At observed T:5, runtime hunger and NPC generation suppression are enabled and current NPCs removed. Wait 7265 turns toward timer rnd9000 7080 plus200 at early turn, disable only NPC generation suppression before expiry, then acknowledged waits permit make_familiar.",
+  "segments": [
+    {
+      "seed": 58010102,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,debug_hunger,!safe_wait,!acoustics\n",
+      "moves": "     #levelchange\n30\n                                                            \u0017uncursed ring of slow digestion\n                    \u0017uncursed +99 ring of protection\n                    \u0017cursed figurine of a kitten\n                    i                    #wizmap\nPhr                    Pil                    #optionsfull\n>>>>>>>:debug_mongen\n:debug_hunger\n\n#optionsfull\n>:time\n\n\u0017blessed scroll of genocide\n                    rk  *\n                    #wizmap\n7265.#optionsfull\n:debug_mongen\n\nm. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. i                    #wizmap\n"
+    }
+  ]
+}

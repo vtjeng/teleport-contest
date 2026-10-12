@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Wizard level20 setup and source-selected object/action history. blind hero reaches source-selected fountain creature or fate effect",
+  "segments": [
+    {
+      "seed": 58010206,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed blindfold\n                    \u0017fountain\n                    Po                    qy                    qy                    qy                    qy                    qy                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent level20 Wizard C-first source route: amorphous/unsolid form releases bear trap then reset_utrap(TRUE) unblocks timed levitation",
+  "segments": [
+    {
+      "seed": 58010401,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017blessed potion of levitation\n                    \u0017bear trap\n                    \u0017blessed scroll of genocide\n                    i                    #wizmap\n"
+    }
+  ]
+}

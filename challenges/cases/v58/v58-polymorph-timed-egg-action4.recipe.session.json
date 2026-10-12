@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C same-type polymorph reports Nothing seems to happen and enters potion naming. Decline with newline and inspect the actual post-effect inventory. This does not claim a type conversion or completed timer expiry.",
+  "segments": [
+    {
+      "seed": 58010112,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed killer bee egg\n                    \u0017uncursed potion of polymorph\n                    i                    #wizmap\n#dip\nop                    i                    \n                    i                    "
+    }
+  ]
+}

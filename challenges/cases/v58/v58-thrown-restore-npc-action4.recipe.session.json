@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Restore potion impact reaches do_healing and Call an emerald potion prompt. Decline naming with newline and inspect C healed monster continuation; the earlier valid prompt-ending recording remains preserved.",
+  "segments": [
+    {
+      "seed": 58010107,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of restore ability\n                    i                    #wizmap\n#wizgenesis\nhostile hill orc\n                    #wizmap\ntgk                    \n                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent level20 Wizard C-first source route: nurse corpse heals and silently cures blind digesting NPC; directional stethoscope establishes final blindness state",
+  "segments": [
+    {
+      "seed": 58010402,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed stethoscope\n                    \u0017nurse corpse\n                    \u0017uncursed potion of blindness\n                    #wizgenesis\nhostile purple worm\n                    i                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent level20 Wizard C-first mission: correct tune near Castle drawbridge invokes open_drawbridge/close_drawbridge",
+  "segments": [
+    {
+      "seed": 58010501,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed wooden flute\n                    #wizlevelport\n?\n"
+    }
+  ]
+}

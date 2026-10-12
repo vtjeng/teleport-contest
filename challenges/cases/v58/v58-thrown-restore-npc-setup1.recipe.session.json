@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Generate a corporeal hill orc at observed adjacent location and throw the independently acquired restore-ability potion; the bottle impact establishes damage before do_healing. Independent C source mission planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 58010107,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of restore ability\n                    i                    #wizmap\n"
+    }
+  ]
+}

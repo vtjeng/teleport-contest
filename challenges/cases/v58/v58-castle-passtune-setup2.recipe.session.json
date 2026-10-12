@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Supported wizard level menu exposes Castle at j/depth29 and tune EBBFF for this independent C game. Select j and inspect actual arrival/map before approaching its drawbridge.",
+  "segments": [
+    {
+      "seed": 58010501,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed wooden flute\n                    #wizlevelport\n?\nj                                        #wizmap\n"
+    }
+  ]
+}

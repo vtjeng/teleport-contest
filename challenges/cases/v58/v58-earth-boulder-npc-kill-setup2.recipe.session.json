@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Generate the C-supported hostile newt and inspect its actual adjacent position before reading observed blessed Earth scroll o.",
+  "segments": [
+    {
+      "seed": 58010103,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017blessed scroll of earth\n                    i                    #wizmap\n#wizgenesis\nhostile newt\n                    #wizmap\n"
+    }
+  ]
+}

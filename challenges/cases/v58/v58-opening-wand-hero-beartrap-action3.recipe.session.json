@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wish produced carried beartrap p rather than armed terrain. Apply p to arm it, leave west onto C-observed floor, return east to establish utrap, then zap opening wand o downward. Preserve actual setting, injury and release state.",
+  "segments": [
+    {
+      "seed": 58010109,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed wand of opening (0:3)\n                    i                    #wizmap\n\u0017bear trap\n                    #wizmap\nap                    h                    l                    zo>                    "
+    }
+  ]
+}

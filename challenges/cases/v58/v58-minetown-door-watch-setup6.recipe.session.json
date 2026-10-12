@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Walk within temple to (45,11), adjacent to closed town door (46,12), create supported peaceful watchman and inspect position before door kick.",
+  "segments": [
+    {
+      "seed": 58010106,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of gain ability\n                    i                    #wizmap\n#wizlevelport\n?\n>w                                        #wizmap\nb                    j                    j                    #wizgenesis\npeaceful watchman\n                    #wizmap\n"
+    }
+  ]
+}

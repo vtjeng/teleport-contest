@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C carried partly eaten nurse corpse o, stethoscope n, blindness potion p and dexterity gloves q. Worm remains adjacent south; raise throwing accuracy through worn gloves, then record pre/post nurse digestion blindness state.",
+  "segments": [
+    {
+      "seed": 58010402,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed stethoscope\n                    \u0017partly eaten nurse corpse\n                    \u0017uncursed potion of blindness\n                    \u0017uncursed +12 gauntlets of dexterity\n                    Wq                    #wizgenesis\nhostile purple worm\n                    i                    #wizmap\ntpj                    \n                    m. m. an>                    do                    an>                    "
+    }
+  ]
+}

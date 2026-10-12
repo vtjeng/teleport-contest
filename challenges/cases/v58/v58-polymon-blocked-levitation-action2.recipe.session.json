@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Use C slots o levitation potion/p beartrap/q genocide. Remove NPCs, arm and enter bear trap with explicit y, quaff timed levitation while held then polymorph into ghost. C must establish blocked levitation and float-up continuation.",
+  "segments": [
+    {
+      "seed": 58010401,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017blessed potion of levitation\n                    \u0017bear trap\n                    \u0017blessed scroll of genocide\n                    i                    #wizmap\nrq  *\n                    h                    ap                    h                    ly                    qo                    #polyself\nghost\n                    "
+    }
+  ]
+}

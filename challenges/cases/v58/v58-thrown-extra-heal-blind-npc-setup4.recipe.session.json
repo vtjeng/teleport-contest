@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Earlier thrown blindness missed, giving hero vapor blindness without NPC blindness. Raise level for source to-hit/HP state, then create a new hill orc and inspect its actual location before another independent throw.",
+  "segments": [
+    {
+      "seed": 58010108,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of blindness\n                    \u0017uncursed potion of extra healing\n                    i                    #wizmap\n#levelchange\n20\n                                        #wizgenesis\nhostile hill orc\n                    #wizmap\n"
+    }
+  ]
+}

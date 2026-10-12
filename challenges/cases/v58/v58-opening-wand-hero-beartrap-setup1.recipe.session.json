@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Create an armed bear trap on ordinary floor, step off and back so C establishes hero utrap, then zap the observed opening wand downwards. Independent C source mission planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 58010109,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed wand of opening (0:3)\n                    i                    #wizmap\n"
+    }
+  ]
+}

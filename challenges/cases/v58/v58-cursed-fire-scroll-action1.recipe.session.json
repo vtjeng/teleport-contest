@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Wizard level20 setup and source-selected object/action history. cursed fire scroll applies fire damage and inventory effects",
+  "segments": [
+    {
+      "seed": 58010207,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017cursed scroll of fire\n                    ro                    #wizmap\n"
+    }
+  ]
+}

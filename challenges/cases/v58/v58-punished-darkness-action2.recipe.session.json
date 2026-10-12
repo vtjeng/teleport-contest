@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Read punishment o, make an ordinary east movement to separate ball and chain from the hero, then read cursed light p to test source move_bc redraw state.",
+  "segments": [
+    {
+      "seed": 58010302,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed scroll of punishment\n                    \u0017cursed scroll of light\n                    i                    #wizmap\nro                    l                    rp                    #wizmap\n"
+    }
+  ]
+}

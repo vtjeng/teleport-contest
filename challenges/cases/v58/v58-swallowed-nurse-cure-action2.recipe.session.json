@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Throw C observed blindness potion p south at adjacent worm; after bounded waits, probe holder using stethoscope n down, drop nurse corpse o, then probe again to establish silent cure state.",
+  "segments": [
+    {
+      "seed": 58010402,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed stethoscope\n                    \u0017nurse corpse\n                    \u0017uncursed potion of blindness\n                    #wizgenesis\nhostile purple worm\n                    i                    #wizmap\ntpj                    \n                    m. m. an>                    do                    an>                    "
+    }
+  ]
+}

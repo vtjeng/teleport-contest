@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear C-observed slow digestion h and +99 protection i, remove current NPCs with supported blessed genocide class * (new scroll k), and retain figurine j carried. Species availability remains unchanged. Inspect actual elimination and HP/AC before callback wait.",
+  "segments": [
+    {
+      "seed": 58010102,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n30\n                                                            \u0017uncursed ring of slow digestion\n                    \u0017uncursed +99 ring of protection\n                    \u0017cursed figurine of a kitten\n                    i                    #wizmap\nPhr                    Pil                    \u0017blessed scroll of genocide\n                    rk *\n                    i                    "
+    }
+  ]
+}

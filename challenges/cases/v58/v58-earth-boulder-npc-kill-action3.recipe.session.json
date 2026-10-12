@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Read blessed Earth o with C-observed adjacent newt southwest. Target read.c:drop_boulder_on_monster byu fatal branch, existing killed helper caller.",
+  "segments": [
+    {
+      "seed": 58010103,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017blessed scroll of earth\n                    i                    #wizmap\n#wizgenesis\nhostile newt\n                    #wizmap\nro                    i                    "
+    }
+  ]
+}

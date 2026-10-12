@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Dog was west of levitating hero at the pit; move east onto observed empty floor to avoid the prior pet-swap refusal, allow five bounded turns and whistle o. Attribute trap state only if C reports actual pit entry. fill_pit has no floor effect without a boulder, so do not claim its effect completed.",
+  "segments": [
+    {
+      "seed": 58010105,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed magic whistle\n                    \u0017uncursed ring of levitation\n                    i                    #wizmap\nPpr                    \u0017pit\n                    #wizgenesis\ntame little dog\n                    #wizmap\nl                    .....                    ao                    "
+    }
+  ]
+}

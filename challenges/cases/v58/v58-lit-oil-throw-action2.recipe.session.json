@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C lit oil potion o and newt north at (63,18), hero (63,19). Throw lit o north and retain actual explosion/breakage state.",
+  "segments": [
+    {
+      "seed": 58010204,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed potion of oil\n                    ao                    #wizgenesis\nhostile newt\n                    #wizmap\n#wizmap\ntok                    #wizmap\n"
+    }
+  ]
+}

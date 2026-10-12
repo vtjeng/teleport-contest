@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Ghost is source NOPOLY and C refuses it. Use allowed amorphous gelatinous cube for the same blocked timed-levitation trap-release route, preserving refusal recording.",
+  "segments": [
+    {
+      "seed": 58010401,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017blessed potion of levitation\n                    \u0017bear trap\n                    \u0017blessed scroll of genocide\n                    i                    #wizmap\nrq  *\n                    h                    ap                    h                    ly                    qo                    #polyself\ngelatinous cube\n                    "
+    }
+  ]
+}

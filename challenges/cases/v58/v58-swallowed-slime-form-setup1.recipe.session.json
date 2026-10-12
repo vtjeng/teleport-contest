@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent level20 Wizard C-first source route: green slime glob transforms digesting NPC and applies live swallowed-state continuation",
+  "segments": [
+    {
+      "seed": 58010403,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017glob of green slime\n                    #wizgenesis\nhostile purple worm\n                    i                    #wizmap\n"
+    }
+  ]
+}

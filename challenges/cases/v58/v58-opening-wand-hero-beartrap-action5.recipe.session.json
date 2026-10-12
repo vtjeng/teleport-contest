@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C adjacent grid bug interrupted trap arming on ordinary floor. Remove current NPCs using newly wished scroll q and supported class *, then move off stairs, arm p, leave and re-enter, and zap o downward. This is a different source-relevant occupation state rather than another seed.",
+  "segments": [
+    {
+      "seed": 58010109,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed wand of opening (0:3)\n                    i                    #wizmap\n\u0017bear trap\n                    #wizmap\n\u0017blessed scroll of genocide\n                    rq  *\n                    h                    ap                    h                    l                    zo>                    "
+    }
+  ]
+}

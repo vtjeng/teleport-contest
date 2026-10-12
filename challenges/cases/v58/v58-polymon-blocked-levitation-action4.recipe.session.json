@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source monsters.h gelatinous cube155 has neither AMORPHOUS nor UNSOLID, so no trap release. Fog cloud1053 explicitly has both and is not NOPOLY; this cheap source-proven route tests blocked timed levitation continuation.",
+  "segments": [
+    {
+      "seed": 58010401,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017blessed potion of levitation\n                    \u0017bear trap\n                    \u0017blessed scroll of genocide\n                    i                    #wizmap\nrq  *\n                    h                    ap                    h                    ly                    qo                    #polyself\nfog cloud\n                    "
+    }
+  ]
+}

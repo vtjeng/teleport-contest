@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Wizard level20 setup and source-selected object/action history. held hero adds trapped state to self status",
+  "segments": [
+    {
+      "seed": 58010202,
+      "datetime": "20640115161718",
+      "nethackrc": "OPTIONS=name:V58Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed stethoscope\n                    \u0017bear trap\n                    \u0017blessed scroll of genocide\n                    rq  *\n                    h                    ap                    h                    ly                    ao.                    #wizmap\n"
+    }
+  ]
+}
