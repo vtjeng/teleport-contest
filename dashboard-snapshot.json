@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T23:30:20.790Z",
+  "capturedAt": "2026-10-12T23:38:47.386Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -99163,6 +99163,45 @@
         "type": "accepted",
         "at": "2026-10-12T23:29:40.668Z",
         "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012-b5a8e0a5c3a44a2e7e64d491fdf09c94004acfed",
+        "type": "published",
+        "at": "2026-10-12T23:30:35.410Z",
+        "task": "B-investigation-v53-earth-remote-blessed-pick-cave-action10-20261012",
+        "commit": "b5a8e0a5c3a44a2e7e64d491fdf09c94004acfed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-mounted53-ce966d4bd-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T23:31:12.406Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "integration": "ce966d4bd4812d2d625f234fde8f87b1d105ebdc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v53-guardian-evidence-20261012",
+        "type": "turn",
+        "at": "2026-10-12T23:33:51.385Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012-ce966d4bd4812d2d625f234fde8f87b1d105ebdc-validated",
+        "type": "validated",
+        "at": "2026-10-12T23:37:27.618Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012-ce966d4bd4812d2d625f234fde8f87b1d105ebdc-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T23:37:56.618Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012"
       }
     ]
   },
@@ -99240,17 +99279,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
-        "worker": "C",
-        "goal": "C-fix-mounted-engulf-steed-dismount-v53-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "25292491b77cbda07c2827be91c7c1ef4ebe87c7",
-        "since": "2026-10-12T22:59:01.202Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -99790,8 +99818,8 @@
     ]
   },
   "development": {
-    "executionCommit": "14ac3f48337297707c5da82a2939b273d09de0ae",
-    "measuredAt": "2026-10-12T23:27:54.528Z",
+    "executionCommit": "ce966d4bd4812d2d625f234fde8f87b1d105ebdc",
+    "measuredAt": "2026-10-12T23:36:11.314Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

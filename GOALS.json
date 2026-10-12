@@ -294451,7 +294451,7 @@
     {
       "id": "C-fix-mounted-engulf-steed-dismount-v53-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dismount_steed from steed.c",
       "cFile": "steed.c",
       "sessions": [
@@ -294461,10 +294461,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "ce966d4bd4812d2d625f234fde8f87b1d105ebdc",
       "delivered": null,
       "function": "dismount_steed",
-      "session": "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4"
+      "session": "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4",
+      "closeStanding": {
+        "sha": "ce966d4bd4812d2d625f234fde8f87b1d105ebdc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "14ac3f48337297707c5da82a2939b273d09de0ae",
+        "target": "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/ce966d4bd4812d2d625f234fde8f87b1d105ebdc/run-hosted-Z3eu5E/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dismount_steed",
+            "symbol": "dismount_steed",
+            "implementation": "js/steed.js",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu:1315 calls steed.c:dismount_steed(DISMOUNT_ENGULFED) after the urgent plucking message; JS forwards state and random."
+              }
+            ],
+            "tests": [
+              "scripts/dismount-steed.test.mjs",
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-mounted-dragon-purpleworm-engulf-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 252,
+                "source": "mhitu.c:gulpmu -> steed.c:dismount_steed(DISMOUNT_ENGULFED); the engulf and dismount complete during step 252."
+              }
+            ],
+            "sourceReview": "Bounded branch and caller repair only. C steed.c:dismount_steed evaluates landing_spot before the null-steed guard, accepts DISMOUNT_ENGULFED, releases and relocates the steed because the engulfer occupies the hero square, then avoids float_down; C mhitu.c:gulpmu calls this void helper after its plucking message and resumes the engulf transition. JS implements this branch and awaits it at the source call with state and random forwarded. Existing enexto, rloc_to and monkilled owners are reused, not ported here. The matching prefix reaches the engulf and completed dismount at step 252. Step 253 has the sole residual display-cell mismatch after return and the pager boundary; later steps match. No whole-function completion is claimed."
+          }
+        ],
+        "entryPointReview": "Within this bounded scope, the active runtime entry is a monster engulfing a mounted hero; C calls the DISMOUNT_ENGULFED branch and resumes gulpmu after the helper returns. The admitted v53 replay matches the source path through the completed dismount at step 252. Step 253 retains one transient screen cell mismatch after the pager boundary; no strict full-case match or whole-function completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Mounted hero is engulfed and dismounted while monster keeps hero held",
+            "functions": [
+              "dismount_steed"
+            ],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-mounted-dragon-purpleworm-engulf-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 252,
+                "source": "mhitu.c:gulpmu -> steed.c:dismount_steed(DISMOUNT_ENGULFED); the engulf and dismount complete during step 252."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
