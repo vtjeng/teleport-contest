@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v57 source mission steed.c:dismount_steed, grounded(mdat) gate before live steed liquid death. Create and saddle a tame flying dragon, mount it, wish a pool under the pair and voluntarily dismount. Confirm flying mount and live liquid state from C. Required C observation: C flying steed survives its pool square while the hero relocates; no drowned-steed generic path is substituted. Twelve source candidates planned before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010110,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed saddle\n                    i                    #wizmap\n"
+    }
+  ]
+}

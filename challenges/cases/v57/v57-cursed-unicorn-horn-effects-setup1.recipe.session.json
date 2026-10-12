@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-source mission: C applies a cursed horn and establishes its actual selected timed trouble; bounded further applications preserve state-dependent branches. Acquire objects and inspect actual C slots before selecting action inputs.",
+  "segments": [
+    {
+      "seed": 57010207,
+      "datetime": "20631113161718",
+      "nethackrc": "OPTIONS=name:V57Scout,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed unicorn horn\n                    i                    #wizmap\n"
+    }
+  ]
+}

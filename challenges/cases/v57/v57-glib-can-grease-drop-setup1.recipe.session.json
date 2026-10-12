@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-source mission: C applies a grease can while Glib, dropping it without consuming a charge. Acquire objects and inspect actual C slots before selecting action inputs.",
+  "segments": [
+    {
+      "seed": 57010206,
+      "datetime": "20631113161718",
+      "nethackrc": "OPTIONS=name:V57Scout,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed +3 can of grease\n                    i                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Timed Fumbling source page-two s, then flip gold with apply $: flip_coin drops one coin via splitobj/dropx without heads/tails RNG.",
+  "segments": [
+    {
+      "seed": 57010203,
+      "datetime": "20631113161718",
+      "nethackrc": "OPTIONS=name:V57Scout,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017100 gold pieces\n                    i                    #wizmap\n#wizintrinsic\n>100s\n                    a$                    i                    "
+    }
+  ]
+}

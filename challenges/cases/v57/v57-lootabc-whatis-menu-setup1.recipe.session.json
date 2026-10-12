@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v57 source mission pager.c:do_look, flags.lootabc selection letters versus symbol accelerators. Set lootabc before startup and request the ordinary whatis menu, then use a C-observed selector. This differs from quick glance, which bypasses menu construction. Required C observation: C renders letter selectors/group accelerators and accepts the observed choice. Twelve source candidates planned before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010105,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\nOPTIONS=lootabc\n",
+      "moves": "     i                    #wizmap\n"
+    }
+  ]
+}

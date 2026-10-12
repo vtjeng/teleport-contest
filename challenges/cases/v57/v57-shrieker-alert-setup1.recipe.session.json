@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C hero shrieks and source cmd.c calls aggravate on existing level monsters. Inspect C form, energy, equipment and prompts before subsequent action. This source mission is planned before its JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010303,
+      "datetime": "20631214181920",
+      "nethackrc": "OPTIONS=name:V57Form,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                                        #polyself\nshrieker\n                                        #wizgenesis\nhostile orc\ny\n                    i                    #wizmap\n"
+    }
+  ]
+}

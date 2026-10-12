@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Invoke the actual C-observed umber hulk gaze; acknowledge a peaceful-monster question if C presents one. Trace actual first AD_CONF behavior.",
+  "segments": [
+    {
+      "seed": 57010301,
+      "datetime": "20631214181920",
+      "nethackrc": "OPTIONS=name:V57Form,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                                        \u0017uncursed potion of gain energy\n                    #polyself\number hulk\n                                        #wizgenesis\nhostile orc\ny\n                    i                    #wizmap\n#monster\ny\n                              "
+    }
+  ]
+}

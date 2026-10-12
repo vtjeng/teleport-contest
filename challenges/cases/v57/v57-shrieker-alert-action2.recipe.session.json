@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Invoke C-observed shrieker ability with an existing hostile orc. Trace cmd.c MS_SHRIEK -> wizard.c aggravate caller; the immobile polymorph state is preserved.",
+  "segments": [
+    {
+      "seed": 57010303,
+      "datetime": "20631214181920",
+      "nethackrc": "OPTIONS=name:V57Form,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                                        #polyself\nshrieker\n                                        #wizgenesis\nhostile orc\ny\n                    i                    #wizmap\n#monster\n                              "
+    }
+  ]
+}

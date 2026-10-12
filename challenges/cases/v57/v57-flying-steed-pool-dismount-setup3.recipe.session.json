@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Create and saddle a tame flying dragon, mount it, wish a pool under the pair and voluntarily dismount. Confirm flying mount and live liquid state from C. C new tame flying dragon must be observed before saddle direction and mounting are chosen. C silver dragon is directly south. Apply saddle i south, then force successful mount south and inspect mounted state. Source and C-only observations determine these actions before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010110,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed saddle\n                    i                    #wizmap\n#levelchange\n20\n                                        #wizgenesis\ntame silver dragon\n                    #wizmap\naij                    #ride\njy                    #wizmap\n"
+    }
+  ]
+}

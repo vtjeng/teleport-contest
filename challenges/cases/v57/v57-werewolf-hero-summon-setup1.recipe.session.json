@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v57 source mission polyself.c:dosummon, hero were_summon consumption and pet creation. Raise level/energy, take an allowed werewolf form and invoke the monster ability on ordinary floor. Follow C form/ability prompts before comparisons. Required C observation: C dosummon spends energy and calls were_summon with yours=TRUE, creating tame assistance or a valid no-helper outcome. Twelve source candidates planned before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010112,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of gain energy\n                    i                    #wizmap\n"
+    }
+  ]
+}

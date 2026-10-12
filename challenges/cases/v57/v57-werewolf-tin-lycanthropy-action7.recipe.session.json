@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Eat the C-observed blessed werewolf tin o, accept contents if prompted, then request the werewolf form and special summon. Source tin-consumption cpostfx can establish lycanthropy without a multi-turn corpse meal; retain observed target misses.",
+  "segments": [
+    {
+      "seed": 57010112,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of gain energy\n                    i                    #wizmap\n\u0017blessed tin of werewolf meat\n                    i                    eo                              y                              #polyself\nwerewolf\n                              #monster\n                              "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Stash independently selected ordinary items in the cursed holding bag and reopen it a bounded number of times. Do not nest magic bags. C cursed bag o, apples p and gem q. Observe the real container action menu before stashing. C bag action s stashes apples p and gem q; repeat eight ordinary reopen/quit actions to sample opening loss, without nesting magic bags. Source and C-only observations determine these actions before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010108,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed bag of holding\n                    \u00173 uncursed apples\n                    \u0017uncursed diamond\n                    i                    #wizmap\naosp                    aosq                    aoq                    aoq                    aoq                    aoq                    aoq                    aoq                    aoq                    aoq                    "
+    }
+  ]
+}

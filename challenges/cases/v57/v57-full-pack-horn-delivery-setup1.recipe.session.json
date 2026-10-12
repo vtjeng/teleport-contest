@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v57 source mission invent.c:hold_another_object, new generated item at invlet_basic limit. Keep the horn in its observed slot, fill ordinary inventory slots with individually named light gems, then apply the charged horn. Unlike floor pickup, C creates and drops an unholdable item. Required C observation: C horn generates food/potion, reaches hold_another_object full-slot drop and leaves it on floor. Twelve source candidates planned before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010109,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed +3 horn of plenty\n                    i                    #wizmap\n"
+    }
+  ]
+}

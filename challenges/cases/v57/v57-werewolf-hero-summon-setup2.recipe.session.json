@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Raise level/energy, take an allowed werewolf form and invoke the monster ability on ordinary floor. Follow C form/ability prompts before comparisons. C high level gives ability energy; observe allowed actual werewolf form and ability message before invoking it. C-only actions follow source and observed inventory; no JavaScript comparison has occurred for this mission.",
+  "segments": [
+    {
+      "seed": 57010112,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of gain energy\n                    i                    #wizmap\n#levelchange\n20\n                                        #polyself\nwerewolf\n                              "
+    }
+  ]
+}

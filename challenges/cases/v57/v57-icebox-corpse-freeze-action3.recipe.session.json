@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Place a fresh timed corpse into a source-created ice box, then take it out after bounded turns. Follow observed C floor/container and inventory slots. C ice box fell to floor and orc corpse is p. Observe the floor container entry prompt before putting it in. C floor ice box action menu offers s for stash one. Corpse p is selected. Show the documented debug timeout queue to observe rot-timer suspension. Source and C-only observations determine these actions before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010107,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed ice box\n                    \u0017uncursed orc corpse\n                    i                    #wizmap\n#loot\nsp                    #timeout\n"
+    }
+  ]
+}

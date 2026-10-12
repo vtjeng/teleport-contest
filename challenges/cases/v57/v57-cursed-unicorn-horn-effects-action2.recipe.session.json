@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Apply cursed horn l three bounded times and preserve actual timed trouble transitions; only source-distinct first mismatches count. Existing curse-confusion/vomiting controls remain closest saved coverage.",
+  "segments": [
+    {
+      "seed": 57010207,
+      "datetime": "20631113161718",
+      "nethackrc": "OPTIONS=name:V57Scout,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed unicorn horn\n                    i                    #wizmap\nal                    al                    al                    "
+    }
+  ]
+}

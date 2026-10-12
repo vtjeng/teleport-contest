@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v57 source mission pager.c:do_look, Hallucination after standard menu selection. Quaff observed potion, open the standard whatis menu, and select map lookup while hallucinating. Earlier matching menu-only coverage does not establish selected lookup. Required C observation: C accepts a selected lookup and reports the hallucinated map symbol; identify actual first behavior. Twelve source candidates planned before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010104,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of hallucination\n                    i                    #wizmap\n"
+    }
+  ]
+}

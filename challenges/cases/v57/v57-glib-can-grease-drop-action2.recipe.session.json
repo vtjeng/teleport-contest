@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Set timed Glib through page-one l, apply ordinary charged grease n, and observe pre-charge dropx branch. Distinct from cursed/Fumbling charge-consumption slip branch.",
+  "segments": [
+    {
+      "seed": 57010206,
+      "datetime": "20631113161718",
+      "nethackrc": "OPTIONS=name:V57Scout,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed +3 can of grease\n                    i                    #wizmap\n#wizintrinsic\n100l\n                    an                    i                    "
+    }
+  ]
+}

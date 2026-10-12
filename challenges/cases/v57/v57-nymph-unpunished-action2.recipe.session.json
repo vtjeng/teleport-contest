@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Correct initial mistaken scope from C polyself.c:1481-1495: nymph doremove removes punishment rather than clothing. Current C wood nymph is unpunished; preserve actual not-chained feedback as target miss, and compare closest v29/v49 coverage.",
+  "segments": [
+    {
+      "seed": 57010305,
+      "datetime": "20631214181920",
+      "nethackrc": "OPTIONS=name:V57Form,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                                        #polyself\nwood nymph\n                                                            i                    #wizmap\n#monster\n                              "
+    }
+  ]
+}

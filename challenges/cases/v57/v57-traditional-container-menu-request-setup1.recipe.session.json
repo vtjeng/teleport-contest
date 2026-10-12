@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v57 source mission pickup.c:traditional_loot, query_classes m -> menu_loot existing caller. Use traditional menu style, stash the dagger, select take-out, then request the item menu through m. This occurs after the outer container action prompt and differs from earlier colon/inventory views. Required C observation: C invokes menu_loot on the current contents from traditional_loot and displays an item selector. Twelve source candidates planned before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010106,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\nOPTIONS=menustyle:traditional\n",
+      "moves": "     \u0017uncursed sack\n                    \u0017uncursed dagger\n                    i                    #wizmap\n"
+    }
+  ]
+}

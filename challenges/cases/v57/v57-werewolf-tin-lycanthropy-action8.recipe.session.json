@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "The previous C tin action acknowledged two More screens, then excess spaces selected default no at Eat it. Supply exactly two acknowledgement spaces followed by y, then request the werewolf form and summon. C postfx/lycanthropy state must be observed before attributing later behavior.",
+  "segments": [
+    {
+      "seed": 57010112,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of gain energy\n                    i                    #wizmap\n\u0017blessed tin of werewolf meat\n                    i                    eo  y                              #polyself\nwerewolf\n                              #monster\n                              "
+    }
+  ]
+}

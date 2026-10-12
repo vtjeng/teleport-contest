@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-source mission: C tins a floor cockatrice corpse without gloves and reaches the distinct use_tinning_kit instapetrify call. Acquire objects and inspect actual C slots before selecting action inputs.",
+  "segments": [
+    {
+      "seed": 57010204,
+      "datetime": "20631113161718",
+      "nethackrc": "OPTIONS=name:V57Scout,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed +3 tinning kit\n                    \u0017uncursed cockatrice corpse\n                    i                    #wizmap\n"
+    }
+  ]
+}

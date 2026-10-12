@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Apply tinning kit g to the C-observed floor cockatrice corpse; bare-handed use_tinning_kit caller reaches instapetrify, distinct from floor-loot precheck and throw caller. Preserve actual death/continuation state.",
+  "segments": [
+    {
+      "seed": 57010204,
+      "datetime": "20631113161718",
+      "nethackrc": "OPTIONS=name:V57Scout,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed +3 tinning kit\n                    \u0017uncursed cockatrice corpse\n                    i                    #wizmap\nagy                    "
+    }
+  ]
+}

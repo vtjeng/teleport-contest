@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-source mission: C displays the supported throne effect prompt and effect 7 calls courtmon/makemon, preserving actual first owner. Acquire objects and inspect actual C slots before selecting action inputs.",
+  "segments": [
+    {
+      "seed": 57010201,
+      "datetime": "20631113161718",
+      "nethackrc": "OPTIONS=name:V57Scout,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017throne\n                    i                    #wizmap\n"
+    }
+  ]
+}

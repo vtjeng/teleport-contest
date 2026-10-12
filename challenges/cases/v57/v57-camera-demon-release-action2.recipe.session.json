@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Fracture independently acquired cursed and blessed cameras in a bounded action history, selecting actual C slots. At most eight fractures; no seed scan. C initial camera slots g and h are distinct. Fracture the cursed and blessed cameras first, preserving release or no-release outcomes before any extension. Source and C-only observations determine these actions before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010103,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed expensive camera\n                    \u0017blessed expensive camera\n                    i                    #wizmap\ntg>                    th>                    i                    "
+    }
+  ]
+}

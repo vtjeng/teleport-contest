@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Stash independently selected ordinary items in the cursed holding bag and reopen it a bounded number of times. Do not nest magic bags. C cursed bag o, apples p and gem q. Observe the real container action menu before stashing. C-only actions follow source and observed inventory; no JavaScript comparison has occurred for this mission.",
+  "segments": [
+    {
+      "seed": 57010108,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed bag of holding\n                    \u00173 uncursed apples\n                    \u0017uncursed diamond\n                    i                    #wizmap\nao"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source sit.c throne_sit_effect: repeat six bounded sit actions, selecting supported debug effect 7 if prompted. C courtmon/makemon branch is the target; if throne vanishes or no prompt occurs, preserve the actual reachability miss.",
+  "segments": [
+    {
+      "seed": 57010201,
+      "datetime": "20631113161718",
+      "nethackrc": "OPTIONS=name:V57Scout,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017throne\n                    i                    #wizmap\n#sit\n 7\n                    #sit\n 7\n                    #sit\n 7\n                    #sit\n 7\n                    #sit\n 7\n                    #sit\n 7\n                    "
+    }
+  ]
+}

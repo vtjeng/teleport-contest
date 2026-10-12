@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v57 source mission apply.c:fig_transform, automatic FIG_TRANSFORM for a cursed contained object. Wear slow digestion, stash the cursed figurine in the sack, and advance bounded source turns past the C-observed timer. Preserve the timer initializer and confirm actual location/history before waiting. Required C observation: C timer callback locates the contained figurine and attempts familiar creation; timer initialization alone does not establish callback. Twelve source candidates planned before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010102,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed ring of slow digestion\n                    \u0017uncursed sack\n                    \u0017cursed figurine of a gnome\n                    i                    #wizmap\n"
+    }
+  ]
+}

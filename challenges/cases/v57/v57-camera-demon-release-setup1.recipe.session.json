@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v57 source mission dothrow.c:release_camera_demon, successful rn2(3)==0 creation and curse-dependent peace. Fracture independently acquired cursed and blessed cameras in a bounded action history, selecting actual C slots. At most eight fractures; no seed scan. Required C observation: C releases a homunculus or imp and sets peace from curse, or preserves bounded no-release outcomes. Twelve source candidates planned before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010103,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed expensive camera\n                    \u0017blessed expensive camera\n                    i                    #wizmap\n"
+    }
+  ]
+}

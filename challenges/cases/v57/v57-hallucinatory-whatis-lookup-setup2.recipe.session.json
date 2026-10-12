@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Quaff observed potion, open the standard whatis menu, and select map lookup while hallucinating. Earlier matching menu-only coverage does not establish selected lookup. C potion is o. Observe the hallucinating whatis menu before choosing a lookup. C-only actions follow source and observed inventory; no JavaScript comparison has occurred for this mission.",
+  "segments": [
+    {
+      "seed": 57010104,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of hallucination\n                    i                    #wizmap\nqo                    /"
+    }
+  ]
+}

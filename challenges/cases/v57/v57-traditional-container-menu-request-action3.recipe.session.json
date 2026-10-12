@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Use traditional menu style, stash the dagger, select take-out, then request the item menu through m. This occurs after the outer container action prompt and differs from earlier colon/inventory views. C bag m and dagger n; add food apple o so take-out class selection has two classes. Stash each singly, then observe take-out class prompt. C class prompt explicitly lists m. Request the item menu for the dagger/apple contents. Source and C-only observations determine these actions before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010106,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\nOPTIONS=menustyle:traditional\n",
+      "moves": "     \u0017uncursed sack\n                    \u0017uncursed dagger\n                    i                    #wizmap\n\u0017uncursed apple\n                    amsn                    amso                    amom\n"
+    }
+  ]
+}

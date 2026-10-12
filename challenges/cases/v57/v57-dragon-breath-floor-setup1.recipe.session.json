@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C hero dragon breath follows direction and energy/buzz terrain path on ordinary floor. Inspect C form, energy, equipment and prompts before subsequent action. This source mission is planned before its JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010306,
+      "datetime": "20631214181920",
+      "nethackrc": "OPTIONS=name:V57Form,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                                        #polyself\nred dragon\n                                                            i                    #wizmap\n"
+    }
+  ]
+}

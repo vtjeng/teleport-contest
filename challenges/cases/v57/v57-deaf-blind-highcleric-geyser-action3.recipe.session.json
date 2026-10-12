@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Raise HP, establish timed Blinded and Deaf, then generate a hostile high cleric. Blinded suppresses blindness choice; Deaf suppresses the earlier cursetxt Norep path. Use bounded combat turns. C ring o supplies fire resistance. Source intrinsic first-page i/j are timed Blinded and Deaf; establish both before the forced high cleric and bounded combat. Correct the canonical monster name from source NAMS: high cleric.",
+  "segments": [
+    {
+      "seed": 57010101,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed ring of fire resistance\n                    i                    #wizmap\nPor                    #levelchange\n25\n                                                            #wizintrinsic\n600i600j\n                              #wizgenesis\nhostile high cleric\ny          m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               "
+    }
+  ]
+}

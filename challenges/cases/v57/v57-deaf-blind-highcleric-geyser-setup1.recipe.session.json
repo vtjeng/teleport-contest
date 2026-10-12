@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v57 source mission mcastu.c:mcast_geyser, high cleric attack with intrinsic Blinded and Deaf. Raise HP, establish timed Blinded and Deaf, then generate a hostile high cleric. Blinded suppresses blindness choice; Deaf suppresses the earlier cursetxt Norep path. Use bounded combat turns. Required C observation: C reaches geyser or another source-traced first clerical effect; earlier spell overlaps remain excluded. Twelve source candidates planned before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 57010101,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed ring of fire resistance\n                    i                    #wizmap\n"
+    }
+  ]
+}

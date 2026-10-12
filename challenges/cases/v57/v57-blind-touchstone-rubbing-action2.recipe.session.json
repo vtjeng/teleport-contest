@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear observed blindfold n and rub gray touchstone l on gem m: use_stone Blind scritch branch, distinct from visible identification and cursed shatter.",
+  "segments": [
+    {
+      "seed": 57010205,
+      "datetime": "20631113161718",
+      "nethackrc": "OPTIONS=name:V57Scout,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed touchstone\n                    \u0017uncursed ruby\n                    \u0017uncursed blindfold\n                    i                    #wizmap\nPn                    #rub\nlm                    "
+    }
+  ]
+}

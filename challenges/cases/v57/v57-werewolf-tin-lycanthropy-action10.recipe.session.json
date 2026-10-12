@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C level-raised tin opens magically and merges opening/smell into one More screen, unlike the earlier level-one two-More path. Use exactly one observed acknowledgement before Eat it y and then #monster. This completes the bounded energy-state/prompt follow-up; preserve every prior input unchanged.",
+  "segments": [
+    {
+      "seed": 57010112,
+      "datetime": "20631012141516",
+      "nethackrc": "OPTIONS=name:V57Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed potion of gain energy\n                    i                    #wizmap\n\u0017blessed tin of werewolf meat\n                    i                    #levelchange\n20\n                                        eo y                              #monster\n                              "
+    }
+  ]
+}
