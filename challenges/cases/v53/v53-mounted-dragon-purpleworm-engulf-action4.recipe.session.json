@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mhitu.c:gulpmu; 1316-1345 mounted DISMOUNT_ENGULFED. Saddle a stronger large-HP silver dragon and mount before a hostile purple worm or whirly engulfer attacks. The mount survives longer than the earlier pony. Inventory/map/menu scout before action selection. C-only continuation chosen from observed inventory/menu/map and source prerequisites. C-only continuation chosen from recorded cursor, object slots and source guards. C-only continuation uses wizard teleport restrictions from teleport.c:dotelecmd/scrolltele and observed map coordinates; acknowledge the destination prompt before cursor movement.",
+  "segments": [
+    {
+      "seed": 53010103,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                                                  \u0017uncursed saddle\n          #wizgenesis\ntame silver dragon\n          #wizmap\naiy          #wizmap\n#ride\ny          #wizmap\n#wizgenesis\nhostile purple worm\n          #wizmap\nm.          m.          m.          m.          m.          m.          m.          m.          m.          m.          "
+    }
+  ]
+}

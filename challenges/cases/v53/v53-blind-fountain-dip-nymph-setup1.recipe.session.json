@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first fountain.c:dowaternymph; blinded seductive-voice branch through dipfountain. Wear blindfold and dip hands/ordinary object into a fountain, seeking the water-nymph fate through the dipping caller. This changes the action history from drinking. Inventory/map/menu scout before action selection.",
+  "segments": [
+    {
+      "seed": 53010109,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l          \u0017uncursed blindfold\n          i          "
+    }
+  ]
+}

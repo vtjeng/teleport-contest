@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first fountain.c:dipfountain; 404-447 lawful Knight long-sword Excalibur branch. Lawful level7 Knight dips the nonartifact starting long sword in a fountain. Replace dried fountains for a bounded source chance; preserve every result. Inventory/map/menu scout before action selection. C-only continuation chosen from observed inventory/menu/map and source prerequisites.",
+  "segments": [
+    {
+      "seed": 53010105,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n7\n          l          \u0017fountain\n          i                    #dip\nay          \u0017fountain\n          #dip\nay          \u0017fountain\n          #dip\nay          \u0017fountain\n          #dip\nay          \u0017fountain\n          #dip\nay          \u0017fountain\n          #dip\nay          \u0017fountain\n          "
+    }
+  ]
+}

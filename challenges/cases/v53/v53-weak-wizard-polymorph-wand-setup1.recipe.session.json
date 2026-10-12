@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first muse.c:use_misc; 2499-2507 MUSE_WAN_POLYMORPH newcham. Drop a charged polymorph wand on accessible floor, move away and let a weak intelligent gnomish wizard collect/use it. Wand charges and actor magic-item seeking differ from the prior kobold potion misses. Inventory/map/menu scout before action selection.",
+  "segments": [
+    {
+      "seed": 53010104,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l          \u0017uncursed wand of polymorph\n          i          "
+    }
+  ]
+}

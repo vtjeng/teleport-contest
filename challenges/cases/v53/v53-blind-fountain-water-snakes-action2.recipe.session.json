@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first fountain.c:dowatersnakes; fate22 blinded hero output and snakes creation. Wear blindfold, drink ordinary fountains in a bounded C-directed history. Observe actual fate rather than assume the target; replace dry fountains only from C output. Inventory/map/menu scout before action selection. C-only continuation chosen from observed inventory/menu/map and source prerequisites.",
+  "segments": [
+    {
+      "seed": 53010108,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l          \u0017uncursed blindfold\n          i                    Po          \u0017fountain\n          qy          \u0017fountain\n          qy          \u0017fountain\n          qy          \u0017fountain\n          qy          "
+    }
+  ]
+}

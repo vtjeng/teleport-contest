@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first quest.c:nemesis_speaks; first hostile nemesis encounter and dialogue state. Visit Wizard quest goal and approach/chat with Dark One; track first encounter flags and dialogue before attacking. Inventory/map/menu scout before action selection. C-only continuation chosen from observed inventory/menu/map and source prerequisites.",
+  "segments": [
+    {
+      "seed": 53010107,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n14\n                                                  #wizlevelport\n?\n>A                                                  #wizmap\n"
+    }
+  ]
+}

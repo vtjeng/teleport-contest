@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first shk.c:check_unpaid_usage; 5698-5732 charged unpaid item use in ordinary main-room shop. Inspect a top-level shop and charged stock, pick up unpaid object and use it inside the shop. Avoid the prior Minetown subroom lookup defect. Inventory/map/menu scout before action selection. C-only continuation chosen from observed inventory/menu/map and source prerequisites. C-only continuation uses wizard teleport restrictions from teleport.c:dotelecmd/scrolltele and observed map coordinates; acknowledge the destination prompt before cursor movement. Bounded two-depth source search: mklev.c special-room creation reads depth and room threshold; inspect D2 and D4, preserving same independently chosen setup. Additional independent shk.c:shopdig/dig.c:dighole shop-floor damage mission. Source ordinary D2 ring shop main room avoids Minetown subroom; inspect shop state after teleport before downward dig. C first chosen x10,y7 was shop wall and teleported randomly. Correct to decoded interior x6,y6 from29,y7, 23 west and north. C observed wand k then zap down inside actual ring-shop main room.",
+  "segments": [
+    {
+      "seed": 53010101,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n2\n                    #wizmap\n\u0017blessed potion of object detection\n          i                    qj          #wizmap\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhhhk.                    \u0017uncursed wand of digging\n                    i                    #wizmap\nzk>                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Quest purity to PIOUS crowning, varied Priest role changes source start Lua, guardian monsters and leader. Inspect C eligible Quest layout before chat. Wizard mission reached alignment20 but a later apprentice spell-message first difference blocks crowning evidence. C Priest leader_speaks activates automatically after adjacent teleport: destination More159, leader pager160, purity More161, adjust162; explicit y163. Preserve that distinct caller history. Use C wizard destination menu main-page a ordinary Oracle level rather than relative Quest numeric1; named neutral unicorn gem gifts can raise Luck while preserving record20.",
+  "segments": [
+    {
+      "seed": 53010115,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Priest,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n20\n                                                  #wizlevelport\n?\n>y                                                  #wizmap\n#teleport\n  hhhk.   y                                                  #wizmap\n#wizlevelport\n?\na                                                  \u00177 diamonds named Gift\n                    \u0007peaceful gray unicorn\n                    i                    #wizmap\n"
+    }
+  ]
+}
