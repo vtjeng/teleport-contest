@@ -1242,6 +1242,9 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
                         // invent.c:getobj() distinguishes display_pickinv's
                         // Escape result from an ordinary uncommitted menu.
                         cancelValue: '\x1b',
+                        // invent.c:tty_select_menu returns NUL when an empty
+                        // inventory menu is committed with Enter.
+                        emptyValue: '\0',
                     },
                 );
                 if (!picked) {
@@ -1840,6 +1843,7 @@ export async function display_pickinv(
         allowcnt = false,
         permanent = false,
         cancelValue = null,
+        emptyValue,
     } = {},
 ) {
     const requestedLets = lets && String(lets).length ? String(lets) : null;
@@ -1909,6 +1913,7 @@ export async function display_pickinv(
         how,
         returnCount: Boolean(allowcnt),
         cancelValue,
+        ...(emptyValue !== undefined ? { emptyValue } : {}),
         overlay: state.iflags?.menu_overlay !== false,
     }));
 

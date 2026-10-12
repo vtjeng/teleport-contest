@@ -20,3 +20,15 @@ test('getobj returns from the suggested inventory menu on Escape', async () => {
     // Never_mind and returns before asking for another object.
     assert.equal(game._pending_message, 'Never mind.');
 });
+
+test('getobj commits an empty suggested inventory menu on Enter', async () => {
+    const setup = loadApplyPromptRecipe().segments[0];
+    await runSegment({
+        ...setup,
+        moves: '.#apply\n?\n',
+    });
+
+    // invent.c:tty_select_menu returns NUL for Enter with no item selected;
+    // getobj treats that as an empty result, not an Escape cancellation.
+    assert.notEqual(game._pending_message, 'Never mind.');
+});
