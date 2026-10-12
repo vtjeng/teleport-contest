@@ -294088,6 +294088,29 @@
           }
         ]
       }
+    },
+    {
+      "id": "port-wiz-goal-v53-20261012",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Wizard Quest goal level program and register its production loader.",
+      "luaFile": "Wiz-goal.lua",
+      "sessions": [
+        "synthetic/v53/v53-quest-nemesis-nearby-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v53-quest-nemesis-nearby-action5-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Wiz-goal.lua",
+          "line": 1,
+          "endLine": 132
+        }
+      ]
     }
   ]
 }
