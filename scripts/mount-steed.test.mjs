@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -73,6 +74,30 @@ import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { getRngLog } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import { RIDE_COMMAND, loadMountSteedRecipe } from './run-mount-steed.mjs';
+
+const C_STEED = readFileSync(new URL('../nethack-c/upstream/src/steed.c', import.meta.url), 'utf8');
+const JS_STEED = readFileSync(new URL('../js/steed.js', import.meta.url), 'utf8');
+
+test('use_saddle forwards an unprotected cockatrice touch to instapetrify in C order', () => {
+    // steed.c:36-80 touches a petrifying target, tries stone-golem polymorph,
+    // then builds the killer text and calls instapetrify before saddle checks.
+    const cStart = C_STEED.indexOf('\nuse_saddle(struct obj *otmp)');
+    const cEnd = C_STEED.indexOf('\nvoid\nput_saddle_on_mon', cStart);
+    const jsStart = JS_STEED.indexOf('export async function use_saddle(');
+    const jsEnd = JS_STEED.indexOf('\nexport async function mount_steed(', jsStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const cUseSaddle = C_STEED.slice(cStart, cEnd);
+    const jsUseSaddle = JS_STEED.slice(jsStart, jsEnd);
+
+    assert.match(cUseSaddle,
+        /touch_petrifies\(ptr\)[\s\S]*?Sprintf\(kbuf, "attempting to saddle %s"[\s\S]*?instapetrify\(kbuf\);/u);
+    assert.match(jsUseSaddle,
+        /touch_petrifies\(species\)[\s\S]*?poly_when_stoned\(state\.youmonst\.data, state\)[\s\S]*?const killer = `attempting to saddle \$\{an\(pmname\(mtmp\.data, gender\(mtmp\)\)\)\}`;[\s\S]*?await instapetrify\(killer, state, env\);/u);
+    assert.doesNotMatch(jsUseSaddle, /note_unported\('trap\.c instapetrify'\)/u);
+    assert.match(JS_STEED,
+        /from '\.\/trap\.js';[\s\S]*?\binstapetrify\b/u);
+});
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
