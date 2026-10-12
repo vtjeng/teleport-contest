@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T13:39:31.317Z",
+  "capturedAt": "2026-10-12T14:06:39.985Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -95111,6 +95111,72 @@
         "at": "2026-10-12T13:39:15.664Z",
         "worker": "C",
         "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v49-extended-quaff-remove-swap-20261012-76feae41365718757f39d1b5b769c632f4353d01",
+        "type": "published",
+        "at": "2026-10-12T13:40:06.510Z",
+        "task": "C-investigation-v49-extended-quaff-remove-swap-20261012",
+        "commit": "76feae41365718757f39d1b5b769c632f4353d01"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "vrock-whole-caller-evidence-feedback-20261012",
+        "type": "feedback",
+        "at": "2026-10-12T13:42:42.099Z",
+        "task": "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012",
+        "delivery": "8255f7b092517a83dc6faeec5e78330a99ef7537"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "blacklight-intake-activity-20261012",
+        "type": "activity",
+        "at": "2026-10-12T13:44:35.105Z",
+        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012",
+        "phase": "review",
+        "reason": "Reviewing the whole hallucination damage function, dispatcher wiring, death caller and saved matching replay before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "blacklight-integrating-8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+        "type": "integrating",
+        "at": "2026-10-12T13:52:41.768Z",
+        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012",
+        "integration": "8bd6dfafae1c66e19642bc3c49301daf5a90c816"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep19-v55-six-first-owners-20261012",
+        "type": "turn",
+        "at": "2026-10-12T13:56:53.045Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v55: six provisional first defects; recording a lantern save/restore mission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v50-blacklight-monster-combat-action-20261012-8bd6dfafae1c66e19642bc3c49301daf5a90c816-validated",
+        "type": "validated",
+        "at": "2026-10-12T14:02:31.501Z",
+        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v50-blacklight-monster-combat-action-20261012-8bd6dfafae1c66e19642bc3c49301daf5a90c816-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T14:02:51.055Z",
+        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-readonly-combat-caller-support-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T14:04:03.453Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing C combat callers and checking the pending dragon-egg evidence packet."
       }
     ]
   },
@@ -95121,7 +95187,7 @@
         "worker": "B",
         "goal": "file-port-monmove-monflee-v50-gas-cloud-20261012",
         "kind": "implementation",
-        "status": "ready",
+        "status": "changes-required",
         "delivery": "8255f7b092517a83dc6faeec5e78330a99ef7537",
         "since": "2026-10-12T07:29:20.763Z",
         "blockedBy": [],
@@ -95140,17 +95206,6 @@
           "B-investigation-v48-name-floor-object-self-20261012",
           "B-investigation-v50-vrock-flee-cloud-action-attempt1-20261012"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v50-blacklight-monster-combat-action-20261012",
-        "worker": "C",
-        "goal": "port-uhitm-mhitm-ad-halu-v50-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "97a59976b9a9433075997927024fc0954209d1fb",
-        "since": "2026-10-12T07:51:10.317Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -95763,8 +95818,8 @@
     ]
   },
   "development": {
-    "executionCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e",
-    "measuredAt": "2026-10-12T13:22:28.510Z",
+    "executionCommit": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+    "measuredAt": "2026-10-12T13:57:31.770Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

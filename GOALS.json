@@ -287575,7 +287575,7 @@
     {
       "id": "port-uhitm-mhitm-ad-halu-v50-20261012",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete black-light monster hallucination damage",
       "cFile": "uhitm.c",
       "sessions": [
@@ -287583,17 +287583,24 @@
       ],
       "selectionReason": "The v50 black-light explosion first mismatches at step 179 because the AD_HALU dispatcher records an unported mhitm_ad_halu gap. Complete uhitm.c:3897–3921, wire its sole direct dispatcher arm, and bind existing mondead at the explosion caller. Source review and saved focused/runtime checks establish the complete helper body.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+      "openStanding": {
+        "sha": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_halu",
           "line": 3897,
           "endLine": 3923,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -287613,6 +287620,72 @@
           "evaluationPath": "challenges/evaluations/accepted-98b22439c86389e89602ba6c6c2dff8b8032856e-v50.json",
           "evaluationCommit": "98b22439c86389e89602ba6c6c2dff8b8032856e"
         }
+      },
+      "activeStanding": {
+        "sha": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_halu",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_halu",
+            "sourceReview": "Ported uhitm.c:3897-3921 in full. Hero aggressor and defender branches set damage to zero. The monster-pair branch requires an uncancelled aggressor, an eyed defender, and mcansee; it emits the visible source message before setting mconf and clearing STRAT_WAITFORU, then sets damage to zero. mattk is unused in C. Existing haseyes, canseemon, Monnam, messageAt, and message operations preserve the consumed source behavior.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping() has the sole direct C call at case AD_HALU; all hero, hero-defender, and monster-pair callers route through this dispatcher."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-halu.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-blacklight-monster-combat-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 217,
+                "source": "mhitm.c:explmm -> mdamagem -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_halu"
+              }
+            ],
+            "checkedAt": "8bd6dfafae1c66e19642bc3c49301daf5a90c816"
+          }
+        ],
+        "entryPointReview": "The admitted blacklight monster-combat case reaches uhitm.c:mhitm_ad_halu through the existing uhitm.c:mhitm_adtyping AD_HALU arm at step 179 and matches the complete 218-step segment. The source unit implemented here is only mhitm_ad_halu; the dispatcher arm is caller wiring. The same replay reaches the existing mhitm.c:explmm caller, whose source-ordered mondead(magr) binding was repaired by importing the already ported mon.c:mondead; no whole-explmm completion is claimed. Source intake also verified the dispatcher routes at C mhitu.c:hitmu (1191), mhitm.c:mdamagem (1059), and uhitm.c:damageum (4854); the selected range is an attack helper with no new command entry point. Hero-direction branches suppress damage and are pinned by the focused dispatcher tests.",
+        "entryPoints": [
+          {
+            "name": "black-light monster explosion against a seeing monster",
+            "functions": [
+              "mhitm_ad_halu"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v50",
+                "caseId": "v50-blacklight-monster-combat-action-attempt3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 217,
+                "source": "mhitm.c:explmm -> mdamagem -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_halu"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8bd6dfafae1c66e19642bc3c49301daf5a90c816",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
