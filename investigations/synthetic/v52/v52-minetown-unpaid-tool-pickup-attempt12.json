@@ -58,7 +58,7 @@
     },
     "replayCommit": "3b34371d46a47005b16613508fb9e4ce78e70b5a"
   },
-  "summary": "Partial: the earlier step-312 nested-shop exception is cleared by room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9. The step-572 More marker is source-defined overflow: record-session uses pipes without a PTY, TERM=xterm-256color supplies CO=80, and topl.c calls more() before the following wand message will not fit after the 67-character thief line. The next saved frame shows Y-crad’s wand message, and muse.c emits it before the first rn2(8). C shk.c:stolen_value calls hot_pursuit before the shopkeeper turn; JS currently records note_unported at that call, so the keeper remains peaceful and does not reach the wand message. Implement hot_pursuit and verify the exact admitted replay. This continuation depends on the room delivery.",
+  "summary": "Partial: the earlier step-312 nested-shop exception is cleared by room delivery 9f8fa46fc41480fdac403b5f2b2db93725e9c1b9. I implemented shk.c:hot_pursuit and wired it into stolen_value. The exact admitted replay now matches every screen, cursor, and RNG boundary through zero-based step 583, including the theft message, default 80-column More overflow, and Y-crad’s wand attack. The next mismatch is a separate m_move RNG divergence at zero-based step 584; its screen consequence appears at step 606. This report retains the original step-572 mismatch as the investigation baseline and records the corrected replay separately.",
   "source": {
     "file": "shk.c",
     "branch": "When theft makes an angry shopkeeper pursue the hero, stolen_value calls hot_pursuit. The helper calls rile_shk, copies the player name into customer, sets following, clears floor no_charge flags, and clears pet-carried no_charge flags before the monster turn.",
@@ -80,7 +80,16 @@
     "The immutable C screen at step 572 reads `The giant mimic vanishes!  Y-crad booms: \"wizard, you are a thief!\"--More--`; JS emits the same line without the marker. The mismatch is C `-` versus JS blank at row 0 column 67. A read-only recorder/source probe confirmed record-session uses stdin/stdout pipes without a PTY, sets TERM=xterm-256color, and falls back to termcap co#80. C topl.c:262-279 calls more() before appending a next message that cannot fit after the 67-character line with its eight-column margin.",
     "Step 573 records Y-crad’s wand message. C muse.c:1877-1884 emits that message before the first rn2(8), so the C-only More is the expected wait before that next message.",
     "C shk.c:stolen_value issues Norep, then calls hot_pursuit and angry_guards(FALSE). Norep defaults to MSGTYP_NOREP and does not itself force More; topline overflow before the next monster message causes the wait.",
-    "C shk.c:hot_pursuit calls rile_shk, copies svp.plname into customer, sets following, clears no_charge on fobj, and calls clear_no_charge_pets. JS shk.js:stolen_value currently records note_unported('shk.c hot_pursuit'). Existing JS helpers rile_shk, clear_no_charge, and clear_no_charge_pets implement the dependencies; clear_no_charge_pets was previously closed under port-shk-clear-no-charge-pets.",
-    "The implementation scope is shk.c:hot_pursuit and its active shk.c:stolen_value caller. Other hot_pursuit gaps at unrelated caller sites remain outside this task. The exact recording has not yet been replayed with the correction."
-  ]
+    "C shk.c:hot_pursuit calls rile_shk, copies svp.plname into customer, sets following, clears no_charge on fobj, and calls clear_no_charge_pets. JS shk.js:stolen_value now invokes the new hot_pursuit implementation at the matching source position. Existing JS helpers rile_shk, clear_no_charge, and clear_no_charge_pets implement the dependencies; clear_no_charge_pets was previously closed under port-shk-clear-no-charge-pets.",
+    "The implementation scope is shk.c:hot_pursuit and its active shk.c:stolen_value caller, reached from pickup.c:mbag_item_gone on this admitted path. Other hot_pursuit gaps at unrelated caller sites remain outside this task. The corrected exact replay matches through zero-based segment 0 step 583; the next mismatch is separately attributed to monmove.c:m_move at step 584.",
+    "After implementation commit c78575762, the exact admitted recording matches every screen, cursor, and RNG call through zero-based segment 0 step 583. The first remaining RNG difference is at zero-based step 584 in monmove.c:m_move (C rn2(20)=2; JS rn2(5)=2); the first remaining screen difference is at zero-based boundary 606. The matching prefix was verified by node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json.",
+    "Focused checks pass: node --test scripts/shk.test.mjs; node --test scripts/shop-billing.test.mjs scripts/dokick-shipping.test.mjs; npm run lint. The latter two tests retain their source-gap assertions for distinct out-of-scope hot_pursuit call sites."
+  ],
+  "correctionReplay": {
+    "commit": "c78575762",
+    "command": "node scripts/diff-fresh.mjs challenges/cases/v52/v52-minetown-unpaid-tool-pickup-attempt12.recipe.session.json",
+    "result": "Fresh C and JavaScript output match through the theft/More/wand boundary. The next RNG mismatch is at segment 1 step 585 in diff-fresh output: C rn2(20)=2 from monmove.c:m_move, JS rn2(5)=2. A direct comparison with the immutable admitted recording maps this to zero-based segment 0 step 584; its next screen mismatch is step 606.",
+    "prefixCommand": "node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json",
+    "prefixResult": "Exit 0: v52/v52-minetown-unpaid-tool-pickup-attempt12 segment 0 through step 583 matched."
+  }
 }
