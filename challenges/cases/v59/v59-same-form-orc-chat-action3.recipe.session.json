@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C hero hill orc53,8 sees peaceful hill orc53,7 directly north. Chat north and attribute MS_ORC -> MS_HUMANOID dialogue to same current form.",
+  "segments": [
+    {
+      "seed": 59022303,
+      "datetime": "20670319202122",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +99 ring of protection\n                    i                    #wizmap\nPpr                    #polyself\nhill orc\n                    #wizgenesis\npeaceful hill orc\n                    #wizmap\n#chat\nk                    i                    "
+    }
+  ]
+}

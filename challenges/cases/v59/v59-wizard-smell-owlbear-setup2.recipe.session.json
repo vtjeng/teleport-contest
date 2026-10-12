@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear protection g and generate peaceful owlbear, inspect exact live position before smell picker.",
+  "segments": [
+    {
+      "seed": 59022308,
+      "datetime": "20670319202122",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +99 ring of protection\n                    i                    #wizmap\nPgr                    #wizgenesis\npeaceful owlbear\n                    #wizmap\n"
+    }
+  ]
+}

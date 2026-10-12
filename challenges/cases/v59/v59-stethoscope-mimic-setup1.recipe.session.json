@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Create a giant mimic beside hero, observe its furniture/object disguise, listen toward it before melee or proximity reveal where possible. Independent C source mission planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59012104,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed stethoscope\n                    \u0017uncursed +99 ring of protection\n                    i                    #wizmap\n"
+    }
+  ]
+}

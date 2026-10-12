@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Map nearby wall/corridor layout, dig along a source-observed direction, then display #wmode. Reserve a less-directed terrain exploration mission; do not infer useful control difference unless digging changes reached wall flags. Independent C mission before its JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59022307,
+      "datetime": "20670319202122",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed wand of digging (0:4)\n                    i                    #wizmap\n"
+    }
+  ]
+}

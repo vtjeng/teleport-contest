@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Owlbear is northwest41,8 from hero42,9. Acknowledge first picker tip, select northwest and cancel repeat picker after observed den odor.",
+  "segments": [
+    {
+      "seed": 59022308,
+      "datetime": "20670319202122",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +99 ring of protection\n                    i                    #wizmap\nPgr                    #wizgenesis\npeaceful owlbear\n                    #wizmap\n#wizsmell\n                    y.                    \u001b                    "
+    }
+  ]
+}

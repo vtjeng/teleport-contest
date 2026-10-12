@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Decoded C coordinate is rothe36,9 directly south of hero36,8; earlier southwest key hit wall. Chat south before judging MS_BELLOW. Preserve both target miss and correction.",
+  "segments": [
+    {
+      "seed": 59052605,
+      "datetime": "20670625101112",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +99 ring of protection\n                    i                    #wizmap\nPkr                    #wizgenesis\npeaceful rothe\n                    #wizmap\n#chat\nb                    i                    #chat\nj                    i                    "
+    }
+  ]
+}

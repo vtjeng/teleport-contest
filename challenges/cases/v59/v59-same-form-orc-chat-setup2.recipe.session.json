@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear protection p, become hill orc and create peaceful hill orc. Inspect exact position before same-form dialogue.",
+  "segments": [
+    {
+      "seed": 59022303,
+      "datetime": "20670319202122",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +99 ring of protection\n                    i                    #wizmap\nPpr                    #polyself\nhill orc\n                    #wizgenesis\npeaceful hill orc\n                    #wizmap\n"
+    }
+  ]
+}

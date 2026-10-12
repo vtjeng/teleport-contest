@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Use controlled debug polymorph to iron golem on clear floor, create and trigger a rust trap after leaving stairs. Trace full form HP damage and human reversion; distinct from pending v53 fire healing and accepted monster AD_RUST attack. Independent C mission before its JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59022301,
+      "datetime": "20670319202122",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of slow digestion\n                    i                    #wizmap\n"
+    }
+  ]
+}

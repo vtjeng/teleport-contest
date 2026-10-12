@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Actual pit viper hides under dropped quarterstaff, not wished statue. Supply up immediately after spell search so C bhito targets the cover object and reevaluates hideunder. This caller/state remains independent of fatal v51 corpse contact.",
+  "segments": [
+    {
+      "seed": 59032405,
+      "datetime": "20670421222324",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed statue of a lichen\n                    i                    #wizmap\ndo                    #polyself\npit viper\n                    #monster\n                    #wizcast\n:polymorph\n<                    i                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Become an umber hulk and apply mirror at self before an NPC is involved; trace hero confusion d(3,4). Existing v26 mirror-umber-hulk points at a monster and changes NPC mconf instead. Independent C mission before its JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59022305,
+      "datetime": "20670319202122",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed mirror\n                    i                    #wizmap\n"
+    }
+  ]
+}

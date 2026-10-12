@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Become a hill orc, generate a peaceful hill orc beside hero, then chat toward observed position. Include acoustics and trace changed speech selector because current hero form is same race. Independent C mission before its JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59022303,
+      "datetime": "20670319202122",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +99 ring of protection\n                    i                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear hard helmet and zap digging upward. Distinct from v58 upward striking zap_updown arm: this source path does not use rn2(3) and comes directly from zap_dig. Independent C mission before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59032402,
+      "datetime": "20670421222324",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed wand of digging (0:4)\n                    \u0017uncursed helmet\n                    i                    #wizmap\n"
+    }
+  ]
+}

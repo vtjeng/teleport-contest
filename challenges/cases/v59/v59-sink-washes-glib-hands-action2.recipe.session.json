@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Move west off stairs, dip shield g into cursed oil f to establish Glib, create sink then dip hands minus and confirm y. Trace actual timer and clearance, not only intended wash.",
+  "segments": [
+    {
+      "seed": 59042505,
+      "datetime": "20670523232425",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017cursed potion of oil\n                    \u0017uncursed small shield\n                    i                    #wizmap\nh                    #dip\ngf                    \u0017sink\n                    #dip\n-y                    i                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cause slippery bare fingers with cursed-oil dip into shield, create sink underfoot then dip hands and inspect Glib cleared. This resumes through a different source helper after the existing v59 oil-spill control. Independent C mission before its JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59042505,
+      "datetime": "20670523232425",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017cursed potion of oil\n                    \u0017uncursed small shield\n                    i                    #wizmap\n"
+    }
+  ]
+}

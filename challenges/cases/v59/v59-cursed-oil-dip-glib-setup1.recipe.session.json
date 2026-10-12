@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Dip an ordinary carried nonweapon shield in cursed unlit oil, observe spills on fingers/gloves, then attempt weapon ownership action to show Glib. Independent C source mission planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59012107,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed small shield\n                    \u0017cursed potion of oil\n                    i                    #wizmap\n"
+    }
+  ]
+}

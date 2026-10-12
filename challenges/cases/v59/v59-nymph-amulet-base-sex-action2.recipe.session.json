@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear observed polymorph control p, become wood nymph, then wear observed amulet o; inspect fixed form and base-sex-change message before call prompt. Independent C source route before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59012109,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed amulet of change\n                    \u0017uncursed ring of polymorph control\n                    \u0017uncursed wand of polymorph (0:5)\n                    i                    #wizmap\nPpr                    #polyself\nwood nymph\n                    Po                    i                    "
+    }
+  ]
+}

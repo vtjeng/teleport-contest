@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Create peaceful untame rothe and chat toward its actual adjacent position. Trace msound replacement rather than tame cow/hungry pet dialogue. Independent C mission before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59052605,
+      "datetime": "20670625101112",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +99 ring of protection\n                    i                    #wizmap\n"
+    }
+  ]
+}

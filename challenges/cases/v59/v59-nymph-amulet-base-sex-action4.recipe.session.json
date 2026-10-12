@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Use two C-observed More acknowledgements after wearing amulet, then a blank newline at Call prompt. Avoid naming text contamination and inspect post-disintegration inventory.",
+  "segments": [
+    {
+      "seed": 59012109,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed amulet of change\n                    \u0017uncursed ring of polymorph control\n                    \u0017uncursed wand of polymorph (0:5)\n                    i                    #wizmap\nPpr                    #polyself\nwood nymph\n                    Po  \n                    i                    "
+    }
+  ]
+}

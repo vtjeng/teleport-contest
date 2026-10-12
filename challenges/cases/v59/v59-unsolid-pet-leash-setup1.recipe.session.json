@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Generate tame air elemental and use leash toward observed position. Compare no-extremities/unsolid failure with ordinary pet attachment and cursed removal; no impossible pet swap implied. Independent C mission before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59052603,
+      "datetime": "20670625101112",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed leash\n                    \u0017uncursed +99 ring of protection\n                    i                    #wizmap\n"
+    }
+  ]
+}

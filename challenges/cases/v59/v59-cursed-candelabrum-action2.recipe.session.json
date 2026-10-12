@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Apply observed seven wax candles p, accept attachment to cursed artifact o, then apply candelabrum and inspect flicker/age/lighting. Preserve any prompt miss. Independent C source route before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59012105,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed Candelabrum of Invocation\n                    \u00177 uncursed wax candles\n                    i                    #wizmap\napy                    ao                    i                    "
+    }
+  ]
+}

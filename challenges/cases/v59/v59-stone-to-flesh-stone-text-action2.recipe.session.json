@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Move west off stairs, engrave independent stone circles remain with athame f, then cast stone to flesh downward immediately after menu search. Look at floor and trace shortened text plus d(2,4).",
+  "segments": [
+    {
+      "seed": 59042502,
+      "datetime": "20670523232425",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +0 athame\n                    i                    #wizmap\nh                    Ef stone circles remain\n                    #wizcast\n:stone to flesh\n>                    :                    "
+    }
+  ]
+}

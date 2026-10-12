@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Generate peaceful human-form werewolf and speak along observed direction at independently chosen late-night time. Trace actual form, lunar branch and possible waking. Independent C mission before its JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59022304,
+      "datetime": "20671201235500",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +99 ring of protection\n                    i                    #wizmap\n"
+    }
+  ]
+}

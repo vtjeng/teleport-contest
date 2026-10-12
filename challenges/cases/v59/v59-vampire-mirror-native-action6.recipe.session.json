@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Native vampire held by protection from shape changers is southwest75,19 from hero76,18. Apply mirror southwest, observe no-reflection message; this adds the eyed native branch beyond eyeless cloud guard misses.",
+  "segments": [
+    {
+      "seed": 59012103,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed mirror\n                    \u0017uncursed +99 ring of protection\n                    i                    #wizmap\n\u0017uncursed ring of protection from shape changers\n                    Pqr                    Prl                    #wizgenesis\nhostile vampire\n                    #wizmap\napb                    i                    "
+    }
+  ]
+}

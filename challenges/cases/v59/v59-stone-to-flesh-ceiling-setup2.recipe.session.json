@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Use source menu search colon for stone to flesh; inspect actual spell selection and direction input before claiming the blood feedback.",
+  "segments": [
+    {
+      "seed": 59032401,
+      "datetime": "20670421222324",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     i                    #wizmap\n#wizcast\n:stone to flesh\n                    <                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Explore a corridor from start, map it, read light and invoke #vision to display COULD_SEE/IN_SIGHT/TEMP_LIT flags after the action history. Saved ordinary/blind displays remain closest control coverage; no new defect assumed. Independent C mission before its JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59022306,
+      "datetime": "20670319202122",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed scroll of light\n                    i                    #wizmap\n"
+    }
+  ]
+}

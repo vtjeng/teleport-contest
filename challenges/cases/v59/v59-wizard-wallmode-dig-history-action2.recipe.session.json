@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Zap observed digging wand e west through nearby room wall and display wmode grid afterward; inspect actual digging and wall transitions.",
+  "segments": [
+    {
+      "seed": 59022307,
+      "datetime": "20670319202122",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed wand of digging (0:4)\n                    i                    #wizmap\nzeh                    #wmode\n                    "
+    }
+  ]
+}

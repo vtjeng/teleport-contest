@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Take source-independent westward exploration steps, read observed light scroll h, display vision array and acknowledge pages. Inspect actual terrain/action history before claiming added coverage.",
+  "segments": [
+    {
+      "seed": 59022306,
+      "datetime": "20670319202122",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed scroll of light\n                    i                    #wizmap\nh h h                     rh                    #vision\n                    "
+    }
+  ]
+}

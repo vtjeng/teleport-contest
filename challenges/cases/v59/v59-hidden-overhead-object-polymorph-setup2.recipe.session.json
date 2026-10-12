@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Drop ordinary statue o, become pit viper and use supported monster hiding ability. Search wizard spell menu for polymorph and inspect upward cover-object behavior; note if dropped cloak is the actual top cover.",
+  "segments": [
+    {
+      "seed": 59032405,
+      "datetime": "20670421222324",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed statue of a lichen\n                    i                    #wizmap\ndo                    #polyself\npit viper\n                    #monster\n                    #wizcast\n:polymorph\n                    <                    "
+    }
+  ]
+}

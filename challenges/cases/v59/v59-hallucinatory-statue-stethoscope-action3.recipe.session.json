@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Enable acoustics because You_hear voice messages are suppressed when !acoustics. C hallucination potion also briefly shows attributes without ending Hallu; listen down to statue afterward.",
+  "segments": [
+    {
+      "seed": 59012112,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed stethoscope\n                    \u0017uncursed statue of a lichen\n                    \u0017uncursed potion of hallucination\n                    i                    #wizmap\ndl                    qm                    ak>                    i                    "
+    }
+  ]
+}

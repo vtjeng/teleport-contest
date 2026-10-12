@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Peaceful untame rothe is southwest35,9 from hero36,8. Chat southwest and inspect bellow response from the MS_MOO replacement.",
+  "segments": [
+    {
+      "seed": 59052605,
+      "datetime": "20670625101112",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +99 ring of protection\n                    i                    #wizmap\nPkr                    #wizgenesis\npeaceful rothe\n                    #wizmap\n#chat\nb                    i                    "
+    }
+  ]
+}

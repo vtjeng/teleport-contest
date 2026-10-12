@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Move west to dry floor, create supported sink fixture and dip observed object-detection potion g with sink confirmation y. Preserve actual rn2(25) plumbing result and call prompt. Complete blank Call prompt with newline, then verify potion consumption and resulting inventory.",
+  "segments": [
+    {
+      "seed": 59042503,
+      "datetime": "20670523232425",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed potion of object detection\n                    i                    #wizmap\nh                    \u0017sink\n                    #dip\ngy                    \n                    i                    "
+    }
+  ]
+}

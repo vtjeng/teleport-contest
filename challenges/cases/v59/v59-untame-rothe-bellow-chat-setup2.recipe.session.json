@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear protection k and create peaceful untame rothe; inspect position before triggering MS_MOO replacement to MS_BELLOW in chat.",
+  "segments": [
+    {
+      "seed": 59052605,
+      "datetime": "20670625101112",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +99 ring of protection\n                    i                    #wizmap\nPkr                    #wizgenesis\npeaceful rothe\n                    #wizmap\n"
+    }
+  ]
+}

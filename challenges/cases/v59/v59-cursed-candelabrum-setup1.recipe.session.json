@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Attach observed candles to the cursed artifact, then apply in a sighted ordinary room. No invocation or empty-candelabrum behavior claimed. Independent C source mission planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59012105,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017cursed Candelabrum of Invocation\n                    \u00177 uncursed wax candles\n                    i                    #wizmap\n"
+    }
+  ]
+}

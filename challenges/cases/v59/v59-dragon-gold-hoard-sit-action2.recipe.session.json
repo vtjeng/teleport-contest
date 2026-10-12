@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Become red dragon, drop observed1500gold after dropped gear so coins are top floor object, then sit and inspect hoard threshold output.",
+  "segments": [
+    {
+      "seed": 59052604,
+      "datetime": "20670625101112",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u00171500 gold pieces\n                    i                    #wizmap\n#polyself\nred dragon\n                    d$                    #sit\n                    i                    "
+    }
+  ]
+}

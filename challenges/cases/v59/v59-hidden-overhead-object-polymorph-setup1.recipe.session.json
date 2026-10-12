@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Place ordinary nonpetrifying statue on clear floor, become pit viper and hide under it. Use debug spell picker for polymorph upward while hidden; ordinary gameplay no-hands restrictions are bypassed only by supported dowizcast force command. Independent C mission before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59032405,
+      "datetime": "20670421222324",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed statue of a lichen\n                    i                    #wizmap\n"
+    }
+  ]
+}

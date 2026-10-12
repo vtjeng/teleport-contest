@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C object mimic is southwest at9,3 from hero10,2; listen southwest before any movement or hit.",
+  "segments": [
+    {
+      "seed": 59012104,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed stethoscope\n                    \u0017uncursed +99 ring of protection\n                    i                    #wizmap\nPmr                    #wizgenesis\nhostile giant mimic\n                    #wizmap\nalb                    i                    "
+    }
+  ]
+}

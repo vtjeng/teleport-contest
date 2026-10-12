@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear C-observed polymorph control ring o; choose giant eel with debug polymorph, wish supported pool underfoot and inspect actual underwater/form/gender state before judging Sargasso target. Independent C source route before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59012101,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed ring of polymorph control\n                    \u0017uncursed wand of polymorph (0:5)\n                    \u0017uncursed ring of slow digestion\n                    i                    #wizmap\nPoq                    #polyself\ngiant eel\n                    \u0017pool\n                    #sit\n                    #attributes\n                    "
+    }
+  ]
+}

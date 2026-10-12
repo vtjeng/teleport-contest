@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Carve independent stone text with athame on clear floor; cast stone to flesh down through wizard spell picker and inspect shortened engraving. This is separate zap_map erosion rather than the retained upward blood feedback. Independent C mission before its JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59042502,
+      "datetime": "20670523232425",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +0 athame\n                    i                    #wizmap\n"
+    }
+  ]
+}

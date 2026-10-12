@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Human-form werewolf is northwest10,15 from hero11,16. Chat northwest at recorded late-night date; preserve actual lunar output.",
+  "segments": [
+    {
+      "seed": 59022304,
+      "datetime": "20671201235500",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +99 ring of protection\n                    i                    #wizmap\nPlr                    #wizgenesis\npeaceful human werewolf\n                    #wizmap\n#chat\ny                    i                    "
+    }
+  ]
+}

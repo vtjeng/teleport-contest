@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Move east off starting stairs, become iron golem, wish rust trap, leave west and re-enter east to trigger actual trapeffect_rust_trap; floor dropped gear does not override movement trap handling.",
+  "segments": [
+    {
+      "seed": 59022301,
+      "datetime": "20670319202122",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of slow digestion\n                    i                    #wizmap\nl                    #polyself\niron golem\n                    \u0017rust trap\n                    h                    l                    i                    "
+    }
+  ]
+}

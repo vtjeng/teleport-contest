@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Earlier +99 protection made worm miss and the dig zap bounced on stairs instead of inside. Remove protection n after creation to reach a bounded swallowing route with high human HP, then dig from inside and inspect expulsion.",
+  "segments": [
+    {
+      "seed": 59032403,
+      "datetime": "20670421222324",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     #levelchange\n27\n                                             \u0017uncursed +99 ring of protection\n                    \u0017uncursed wand of digging (0:4)\n                    \u0017uncursed stethoscope\n                    i                    #wizmap\nPnr                    #wizgenesis\nhostile purple worm\n                    Rn                    m. m. m.                     zo>                    #wizmap\n"
+    }
+  ]
+}

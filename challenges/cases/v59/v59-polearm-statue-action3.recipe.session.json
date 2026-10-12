@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Earlier direction keys were consumed by initial More and target tip. Current C cursor is hero32,13; now select statue two squares east and acknowledge result.",
+  "segments": [
+    {
+      "seed": 59012106,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed +2 ranseur\n                    \u0017uncursed statue of a newt\n                    i                    #wizmap\ndg                    hh                    wf                    afll.                    i                    ll.                    i                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Create independently sized gold stack, polymorph red dragon and put money atop floor pile. Sit on gold rather than dropped armor/weapon; trace sum of carried and floor money against u.ulevel*1000. Independent C mission before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59052604,
+      "datetime": "20670625101112",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u00171500 gold pieces\n                    i                    #wizmap\n"
+    }
+  ]
+}

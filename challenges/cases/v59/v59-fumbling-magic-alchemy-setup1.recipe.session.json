@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear fumbling gloves and mix the independent observed healing stack into gain energy. Trace random partial stack amount, possible explosion and successful mixture delivery/drop; either actual reached branch retained for review. Independent C source mission planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59012108,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u001712 uncursed potions of healing\n                    \u0017uncursed potion of gain energy\n                    \u0017uncursed gauntlets of fumbling\n                    i                    #wizmap\n"
+    }
+  ]
+}

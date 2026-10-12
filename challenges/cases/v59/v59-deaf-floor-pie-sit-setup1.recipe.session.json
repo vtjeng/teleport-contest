@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Set temporary Deaf through wizard intrinsic UI, drop pie onto clear dry floor away from stairs, #sit and inspect floor/inventory. Independent C source mission planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59012110,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed cream pie\n                    i                    #wizmap\n"
+    }
+  ]
+}

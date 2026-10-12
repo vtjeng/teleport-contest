@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Apply observed gray stone p and select towel q as the cloth to rub; inspect polished feedback rather than gem handling.",
+  "segments": [
+    {
+      "seed": 59052601,
+      "datetime": "20670625101112",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed touchstone\n                    \u0017uncursed towel\n                    i                    #wizmap\napq                    i                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear observed protection p, create independently generated worm, explicitly wait with More acknowledgements, then apply camera o downward while swallowed. Record actual reachability before comparison. Independent C source route before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59012102,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n28\n                                                  \u0017uncursed expensive camera (0:6)\n                    \u0017uncursed +99 ring of protection\n                    i                    #wizmap\nPpr                    #wizgenesis\nhostile purple worm\n                    m. m. m. m. m. m.                     ao>                    i                    "
+    }
+  ]
+}

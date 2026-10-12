@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source use_mirror first rejects creatures without eyes. Native vampire appeared as eyeless fog cloud, so two directed mirrors did not reach reflection branch. Wear protection from shape changers before fresh creation to keep native eyed vampire; inspect placement before action.",
+  "segments": [
+    {
+      "seed": 59012103,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed mirror\n                    \u0017uncursed +99 ring of protection\n                    i                    #wizmap\n\u0017uncursed ring of protection from shape changers\n                    Pqr                    Prl                    #wizgenesis\nhostile vampire\n                    #wizmap\n"
+    }
+  ]
+}

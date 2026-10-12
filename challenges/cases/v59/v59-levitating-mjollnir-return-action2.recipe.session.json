@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wear power gloves f, wield artifact e, wear levitation ring g and throw e east through observed clear floor. Inspect actual recoil, catch and weapon slot restoration.",
+  "segments": [
+    {
+      "seed": 59042506,
+      "datetime": "20670523232425",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +2 Mjollnir\n                    \u0017uncursed gauntlets of power\n                    \u0017uncursed ring of levitation\n                    i                    #wizmap\nWf                    we                    Pgr                    tel                    i                    "
+    }
+  ]
+}

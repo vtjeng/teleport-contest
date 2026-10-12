@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Move off stairs, write independent dust text with fingers, then zap cancellation downward and look at floor. Prior unadmitted packets have no same engraving cancellation behavior. Independent C mission before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59032404,
+      "datetime": "20670421222324",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed wand of cancellation (0:4)\n                    i                    #wizmap\n"
+    }
+  ]
+}

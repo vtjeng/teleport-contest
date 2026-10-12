@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Set timed Deaf via established intrinsic menu j with250, move west from adjacent door, drop observed cream pie m and sit on that floor object. Independent C source route before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 59012110,
+      "datetime": "20670217181920",
+      "nethackrc": "OPTIONS=name:V59Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     \u0017uncursed cream pie\n                    i                    #wizmap\n#wizintrinsic\n250j\n                    h                    dm                    #sit\n                    i                    "
+    }
+  ]
+}
