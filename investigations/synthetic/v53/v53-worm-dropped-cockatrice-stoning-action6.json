@@ -72,7 +72,7 @@
     "repair": "Forward dropz’s normalized state/operation environment through engulfer digestion and its source callees. Preserve an injected stopObjectTimers owner; otherwise supply the existing timeout.c:obj_stop_timers implementation."
   },
   "status": "complete",
-  "summary": "The accepted 0ddb v53 baseline matches 263 of 290 screens, 2678 of 2694 RNG calls, and 263 of 290 cursors, with no runner error. A separate local replay reaches the statue screen, then stops because corpse deletion lacks the timer owner. The repair forwards the normalized timer owner through swallowed digestion and delobj while preserving injected hooks and C call order. The final saved replay matches all 290 steps.",
+  "summary": "The accepted 0ddb v53 baseline matches 263 of 290 screens, 2678 of 2694 RNG calls, and 263 of 290 cursors, with no runner error. A separate local replay reaches the statue screen, then stops because corpse deletion lacks the timer owner. The repair forwards the normalized timer owner through swallowed digestion and delobj while preserving injected hooks and C call order. The accepted-Main bridge replay matches all 290 steps.",
   "history": [
     {
       "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
@@ -130,8 +130,8 @@
     }
   ],
   "after": {
-    "replayCommit": "562c606e07538025a0aa57f463523619595e61cb",
-    "replayInputSha256": "05fda928c04c6287b9d47faa0501d0f511b5b17e7d2f0eddb7301f6d38f90c32",
+    "replayCommit": "425ced5d3ffa76ca4133cd01ea440bd40231ed20",
+    "replayInputSha256": "0005b829805665fbc17b5100b1bd1b063af2b742e6af28be1772cbac900ace5f",
     "screensEmitted": 290,
     "recordedSteps": 290,
     "divergence": null,
@@ -140,7 +140,7 @@
   },
   "remainingScreens": 27,
   "recordedSteps": 290,
-  "commit": "562c606e07538025a0aa57f463523619595e61cb",
+  "commit": "2195437aa",
   "goalKind": "divergence-fix",
   "mismatch": {
     "kind": "screens",
@@ -163,7 +163,7 @@
   "evidence": [
     "The accepted evaluation challenges/evaluations/accepted-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-v53.json at 0ddbafd22e56dbc0365fbc0355c9dac9352cba43 reports 263/290 screens, 2678/2694 RNG calls, and 263/290 cursors, with error null and 27 screens remaining.",
     "A separate local replay at 57db3186aeb0cd6cef9072e4c29c56af541fb298 emitted 263 screens, then stopped with UnsupportedDropError because stopObjectTimers was unavailable for corpse otyp 265. This is diagnostic evidence, not the admitted evaluation runner error.",
-    "The matching replay at 562c606e07538025a0aa57f463523619595e61cb emitted all 290 screens and steps with no divergence, boundary, or command refusal; its replay input digest is 05fda928c04c6287b9d47faa0501d0f511b5b17e7d2f0eddb7301f6d38f90c32."
+    "The matching replay at 425ced5d3ffa76ca4133cd01ea440bd40231ed20 emitted all 290 screens and steps with no divergence, boundary, or command refusal; its replay input digest is 0005b829805665fbc17b5100b1bd1b063af2b742e6af28be1772cbac900ace5f."
   ],
   "source": {
     "file": "do.c",
