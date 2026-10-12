@@ -89,10 +89,13 @@
     "Focused replay on the admitted local recipe and recording passes at base 4a7f283b474dbc6f79a49f2e218618bb945290ee: 9 screens, 9 cursors, and 2817 RNG calls match the recorded C output; see .cache/c-v49-extcmd-replay.json."
   ],
   "localManifestCheck": {
-    "status": "blocked-missing-local-input",
-    "reason": "Accepted-main 952e284 does not include challenges/manifests/v49.json or challenges/evaluations/baseline-1462b295f-v49.json. The three v49 recipe and recording files are tracked locally and their hashes match the coordinator queue; the manifest, evaluation, and replay identity were read from the coordinator checkout. Do not copy or rewrite those artifacts. Worker delivery local-manifest validation may need the accepted report descendant sync.",
-    "coordinatorManifestPath": "/home/vtjeng/development/vtjeng/teleport-contest/challenges/manifests/v49.json",
-    "coordinatorEvaluationPath": "/home/vtjeng/development/vtjeng/teleport-contest/challenges/evaluations/baseline-1462b295f-v49.json"
+    "status": "available-after-accepted-main-sync",
+    "acceptedMainCommit": "44b6c8758e45cdf0f48ef38b2c61d9bb0ee9b941",
+    "manifestPath": "challenges/manifests/v49.json",
+    "manifestCorpusSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
+    "evaluationPath": "challenges/evaluations/baseline-1462b295f-v49.json",
+    "evaluationCommit": "1462b295f3bf6514ca24014016052b1e475bffda",
+    "caseFiles": "Present locally; recording and recipe hashes match the admitted v49 baseline provenance."
   },
   "focusedReplay": {
     "base": "4a7f283b474dbc6f79a49f2e218618bb945290ee",
