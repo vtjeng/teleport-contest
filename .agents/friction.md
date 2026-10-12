@@ -417,3 +417,16 @@ triage decisions or fix references.
   also printed full state when its stdout was not redirected. Root switched
   to selected-field summaries and cache-file output. The saved independent
   replays and all 148 original input hashes were checked without rerunning C.
+
+### 2026-10-12 — hot-pursuit cursor loss and correction submission
+
+- Candidate `34c94c5a1` passed hosted checks and gained 43 matching screens
+  and 148 RNG values, but lost one cursor on its assigned Minetown case.
+  Acceptance rejected it. A combined the source-defined `shk_move` threshold
+  repair with hot-pursuit in correction `575ed936`; the original movement
+  packet and rejected evidence remain intact. Checkpoint `38303795996` and
+  acceptance passed at `b656ad046`, matching the full 627-step case. Main
+  parked the overlapping movement task without adding a duplicate score.
+- Submission required the registered branch name. A preserved both refs,
+  temporarily restored that name to submit the scoped correction, then
+  restored the original branch without rewriting commits.
