@@ -145,3 +145,20 @@ triage decisions or fix references.
 - Friction: the coordinator inspected the delivery's base-to-head diff, then merged its full branch without inspecting all commits missing from Main. The staged list contained 17 paths, including unrelated pending fixes, but the combined shell command committed before the coordinator reviewed that list.
 - Outcome: the unpushed merge is preserved at `recovery/mon-to-stone-merge-20261012`. Main returned to the prior commit; only the explicitly named accidental-merge paths were restored. Cherry-picking the submitted source commit produced the intended two-file repair. No validation or public push used the accidental merge.
 - Follow-up: inspect both missing ancestry and the actual staged paths before committing a worker integration. Keep the stage inspection and commit as separate operations.
+
+### 2026-10-12 — historical report import changed patch identity
+
+- Context: corrected TTY history integration, original report `8d8c4a58`,
+  preflight at `997b9df3`.
+- Friction: Main lacked the parent investigation. Resolving its modify/delete
+  import as an addition preserved the report contents but changed its patch
+  identity. Preflight rejected the original delivery despite matching source
+  patches. An earlier sandboxed attempt also reported `spawnSync git ETIMEDOUT`.
+- Evidence: `.cache/history-preflight.json`; `git cherry` identified only the
+  original report patch as missing, while both source commits matched.
+- Reason: `.agents/loop.md` requires preserving the submitted investigation
+  and verifying every original delivery patch before integration.
+- Outcome: preserved the historical parent report, reapplied the exact report
+  modification, then restored the current complete diagnosis in separate
+  commits. The original delivery and worker branches remain unchanged.
+  Preflight passed; no game replay was needed for this report reconciliation.
