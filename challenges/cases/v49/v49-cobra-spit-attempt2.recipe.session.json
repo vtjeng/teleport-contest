@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first monster-ability mission: polyself.c:dospit, cmd.c:domonability dispatch for cobra to dospit. Expected C observation: blinding venom created and thrown east. Seed 49000302 chosen in a new predeclared v49 range. C-first correction: twenty spaces clear transformation More boundaries before issuing #monster; the shorter polymorph probe is preserved outside the manifest.",
+  "segments": [
+    {
+      "seed": 49000302,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\ncobra\n                    #monster\nl"
+    }
+  ]
+}

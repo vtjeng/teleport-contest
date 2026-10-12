@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: do_wear.c:dowear, wear_ok excludes armor already worn. Expected C observation: wear selection or no eligible armor message. Seed 49000105 is the next deterministic value in a prechosen v49 range; it is not selected using JavaScript results. Attempt 2 chooses a date seven days after the new moon to avoid startup --More-- consuming commands; attempt 1 is preserved as invalid setup evidence.",
+  "segments": [
+    {
+      "seed": 49000105,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wear\n\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first expanded mission: detect.c:doterrain, menu chooses terrain map layers. C reachability observation: terrain map-view menu. Seed 49000215 chosen as next value in a predeclared v49 source exploration range.",
+  "segments": [
+    {
+      "seed": 49000215,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#terrain\n\u001b"
+    }
+  ]
+}

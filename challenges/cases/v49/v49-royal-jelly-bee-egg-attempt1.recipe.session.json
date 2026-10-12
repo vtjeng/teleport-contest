@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first follow-up chosen from independently observed inventory letter n. C royal-jelly freeinv/getobj converts killer-bee egg to queen-bee egg; no JS comparison has been made for this setup.",
+  "segments": [
+    {
+      "seed": 49000351,
+      "datetime": "20581124132240",
+      "nethackrc": "OPTIONS=name:V49Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed lump of royal jelly\n\u0017uncursed killer bee egg\nano"
+    }
+  ]
+}
