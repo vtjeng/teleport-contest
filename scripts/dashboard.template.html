@@ -970,7 +970,7 @@ canvas {
         <p class="integration-duration-series"><span class="integration-duration-key" aria-hidden="true"></span>Implementation: <span id="integrationDurationSummary"></span></p>
         <p class="integration-duration-series"><span class="integration-duration-key prep" aria-hidden="true"></span>Prep: <span id="prepIntegrationDurationSummary"></span></p>
       </div>
-      <p class="activity-note">Main’s elapsed integration and checks, including CI wait; excludes acceptance, publication and Prep’s case generation. Marks show completed attempts, including retries. Each stepped line averages its series’ last 10 completed attempts, including earlier history. Open stages are excluded; summaries show window means.</p>
+      <p class="activity-note">Integration/checks time includes CI wait; excludes acceptance, publication and case generation. Marks: completed attempts, including retries. Lines: 10-attempt rolling means per series, including pre-window history. Summaries: window means.</p>
       <canvas id="integrationDurationChart" tabindex="0" aria-label="Main integration duration. Blue circles: implementation; orange squares: Prep. Select a point to pin task details; arrow keys move between attempts, Home and End jump, Escape clears the selection."></canvas>
       <div class="integration-duration-readout" id="integrationDurationReadout" aria-live="polite"></div>
     </div>
