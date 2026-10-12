@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dig.c:dig; Earth-level blessed pick digging -> mkcavearea(FALSE). C wizard menu Earth, blessed pickaxe; observe solid rock then horizontal dig. Observe setup before actions. Distinct source caller from prior hero gulpum and rock-drop control. Inspect final page of C wizard destination menu before selecting Earth. C menu N selects Earth; inspect the post-arrival wish/menu boundary. Source wizcmds.c:wiz_kill reduces selected target HP at no game time. C-observed adjacent Wizard72,18 obstructs digging; target right, cancel next-target picker, inspect before continuation. Raw decoded C coordinates place Wizard70,18 west of hero71,18; correct directional target from getpos stone miss, with dismissal before cancellation. C selected Wizard70,18 was killed and only hero remains. Retry three materially bounded digging occupations after interrupted predecessor; blessed pick o, C-permitted southeast n.",
+  "segments": [
+    {
+      "seed": 53010113,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>>N                    \u0017blessed pick-axe\n                    i                    #wizmap\n#wizkill\n  h. \u001b                    #wizmap\n#levelchange\n20\n                                                  ao n                    m.                    ao n                    m.                    ao n                    m.                    #wizmap\n"
+    }
+  ]
+}

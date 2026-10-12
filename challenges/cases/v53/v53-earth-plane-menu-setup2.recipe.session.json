@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dig.c:dig; Earth-level blessed pick digging -> mkcavearea(FALSE). C wizard menu Earth, blessed pickaxe; observe solid rock then horizontal dig. Observe setup before actions. Distinct source caller from prior hero gulpum and rock-drop control. Inspect final page of C wizard destination menu before selecting Earth.",
+  "segments": [
+    {
+      "seed": 53010113,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>>"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first artifact.c:invoke_charge_obj; 1848 CHARGE_OBJ via Platinum Yendorian Express Card. Tourist invokes their role artifact and selects exhausted wand for recharge. Record artifact cooldown and charged object state. Inventory/map/menu scout before action selection.",
+  "segments": [
+    {
+      "seed": 53010110,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017The Platinum Yendorian Express Card\n          \u0017uncursed wand of light (0:0)\n          i          "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first quest.c:chat_with_leader; Rule5 not_capable badlevel and expulsion. Visit Wizard quest start at level1 and speak to Neferet; source rejects under-level hero independently of alignment. Inventory/map/menu scout before action selection. C-only continuation chosen from observed inventory/menu/map and source prerequisites. C-only continuation chosen from recorded cursor, object slots and source guards.",
+  "segments": [
+    {
+      "seed": 53010106,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>y                                                  #wizmap\nj          #chat\nn                                                  #wizmap\n"
+    }
+  ]
+}

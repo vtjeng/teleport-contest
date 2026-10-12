@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pray.c:pleased; 1339-1345 PIOUS crowning; quest.c:is_pure wizard adjustment to20. Meet leader at eligible level and accept wizard alignment adjustment; return to ordinary dungeon, gain Luck from coaligned unicorn gem gifts, then pray. This source route bypasses the short-game ALIGNLIM cap without new offerings clamping it. Inventory/map/menu scout before action selection. C-only continuation chosen from observed inventory/menu/map and source prerequisites. C-only continuation uses wizard teleport restrictions from teleport.c:dotelecmd/scrolltele and observed map coordinates; acknowledge the destination prompt before cursor movement. C first-use farlook tip requires one additional Space after the message More; correct observed input boundary before cursor motion. Three C-observed pager/More dismissal keys place explicit y at adjust prompt335. Corrected from actual C keys: leader pager332, More333, adjust334; explicit y335, with only two dismissal spaces. Source dothrow.c:gem_accept named coaligned real gems add2 Luck without clamping alignment record. Return ordinary dungeon and inspect gem/unicorn position before gifts.",
+  "segments": [
+    {
+      "seed": 53010102,
+      "datetime": "20591210141820",
+      "nethackrc": "OPTIONS=name:V53Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#levelchange\n14\n                                                  #wizlevelport\n?\n>y                                                  #wizmap\n#levelchange\n20\n                                                  #teleport\n  lllllllllllllllllllllllllllllllllllllllllllllk.                                                  #wizmap\n#chat\nl  y                                                  #wizmap\n#wizlevelport\n1\n                                                  \u00177 diamonds named Gift\n                    \u0007peaceful gray unicorn\n                    i                    #wizmap\n"
+    }
+  ]
+}
