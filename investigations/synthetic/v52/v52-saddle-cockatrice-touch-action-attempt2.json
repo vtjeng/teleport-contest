@@ -1,0 +1,140 @@
+{
+  "session": "synthetic/v52/v52-saddle-cockatrice-touch-action-attempt2",
+  "remainingScreens": 4,
+  "recordedSteps": 114,
+  "corpus": "synthetic",
+  "batch": "v52",
+  "caseId": "v52-saddle-cockatrice-touch-action-attempt2",
+  "manifestPath": "challenges/manifests/v52.json",
+  "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+  "recordingPath": "challenges/cases/v52/v52-saddle-cockatrice-touch-action-attempt2.session.json",
+  "recordingSha256": "72183e8acdeccf5691b7d8f77d6a10f805b21239c94509ef2cac6a9c45331968",
+  "evaluationPath": "challenges/evaluations/accepted-4cd4881552c06e139c24162766546ede1f17aeea-v52.json",
+  "evaluationCommit": "4cd4881552c06e139c24162766546ede1f17aeea",
+  "status": "complete",
+  "commit": "1bbf3d702f4c7f72fa3fd15025f4fa0ad1cf0cef",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v52",
+    "caseId": "v52-saddle-cockatrice-touch-action-attempt2",
+    "session": "synthetic/v52/v52-saddle-cockatrice-touch-action-attempt2",
+    "manifestPath": "challenges/manifests/v52.json",
+    "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
+    "recording": "challenges/cases/v52/v52-saddle-cockatrice-touch-action-attempt2.session.json",
+    "recordingPath": "challenges/cases/v52/v52-saddle-cockatrice-touch-action-attempt2.session.json",
+    "recordingSha256": "72183e8acdeccf5691b7d8f77d6a10f805b21239c94509ef2cac6a9c45331968",
+    "recipe": "challenges/cases/v52/v52-saddle-cockatrice-touch-action-attempt2.recipe.session.json",
+    "recipeSha256": "e18f5dd596eab79d6baf12efb9cbc24735410e46d8e37dc0f096a4d12b71447c",
+    "replayInputSha256": "5176b0eca3a7dc2316690bba995c7fdcc9c996d87452e5c122a23012fd44b6a1",
+    "evaluationPath": "challenges/evaluations/accepted-4cd4881552c06e139c24162766546ede1f17aeea-v52.json",
+    "evaluationCommit": "4cd4881552c06e139c24162766546ede1f17aeea",
+    "evaluationArtifact": "challenges/evaluations/accepted-4cd4881552c06e139c24162766546ede1f17aeea-v52.json",
+    "evaluationUtc": "2026-10-12T19:09:35.763Z",
+    "remainingScreens": 4,
+    "recordedSteps": 114,
+    "previousScreensMatched": 110,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 110,
+        "total": 114
+      },
+      "rng": {
+        "matched": 3151,
+        "total": 3151
+      },
+      "cursors": {
+        "matched": 111,
+        "total": 114
+      }
+    },
+    "firstMismatch": null,
+    "step": null,
+    "kind": "cursor",
+    "sourceFile": null,
+    "function": null,
+    "message": null
+  },
+  "summary": "When an unprotected hero tries to apply a saddle to an adjacent cockatrice, steed.c:use_saddle calls trap.c:instapetrify before continuing its saddle checks. js/steed.js records note_unported at that call and continues, so the death message and stoning stop path are skipped. The admitted replay first differs at step 103 on the attempted saddle; the diagnostic records trap.c instapetrify as unported.",
+  "source": {
+    "file": "steed.c",
+    "branch": "In use_saddle, the target is visible and not already saddled; it has touch_petrifies, the hero has no gloves or Stone_resistance, and the hero neither changes into a stone golem nor resists stoning. C formats the killer text and calls instapetrify before the remaining saddle validation.",
+    "functions": [
+      "use_saddle"
+    ],
+    "callers": [
+      "apply.c:doapply"
+    ],
+    "dependencies": [
+      "trap.c:instapetrify",
+      "end.c:done",
+      "polyself.c:polymon"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "observedReplay": {
+    "commit": "1bbf3d702f4c7f72fa3fd15025f4fa0ad1cf0cef",
+    "log": ".cache/C-v52-saddle-cockatrice-scan.json",
+    "firstMismatch": {
+      "screen": {
+        "index": 103,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 103,
+          "key": "k"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 31,
+        "cCell": {
+          "ch": "t",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "c",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 103,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 103,
+          "key": "k"
+        },
+        "cCursor": [
+          55,
+          0,
+          1
+        ],
+        "jsCursor": [
+          67,
+          18,
+          1
+        ]
+      }
+    },
+    "matchingScreens": 110,
+    "totalScreens": 114,
+    "runnerError": null,
+    "unported": [
+      "sounds.c SoundAchievement",
+      "trap.c instapetrify"
+    ]
+  },
+  "evidence": [
+    "The saved accepted v52 evaluation challenges/evaluations/accepted-4cd4881552c06e139c24162766546ede1f17aeea-v52.json measures the assigned case at 110/114 screens, 3151/3151 RNG calls, and 111/114 cursors, with no runner error.",
+    "The case recipe challenges steed.c:use_saddle with a visible hostile cockatrice, a barehanded human wizard, and an applied saddle; its comment states the independently chosen seed and setup.",
+    "Upstream nethack-c/upstream/src/steed.c:36-80 calls instapetrify(kbuf) after the touch message when touch_petrifies(ptr), !uarmg and !Stone_resistance hold and the hero does not successfully turn into a stone golem.",
+    "Upstream nethack-c/upstream/src/trap.c:3844-3855 checks Stone_resistance and polymon before printing the stoning message, setting svk.killer, and calling done(STONING).",
+    "JS js/steed.js:375-385 has the same branch and preconditions but calls note_unported(\"trap.c instapetrify\") instead of the existing js/trap.js:374-392 helper. The focused replay at .cache/C-v52-saddle-cockatrice-scan.json first differs at step 103 and lists trap.c instapetrify as unported.",
+    "The change needed is limited to wiring this use_saddle call to the existing helper with its state and environment; it does not claim whole steed.c:use_saddle or trap.c:instapetrify completion. The separate can_ride caller remains outside this target."
+  ]
+}
