@@ -2592,7 +2592,7 @@ export function force_launch_placement(state = game) {
 // This port covers the rolling path shared by the hero and monster arms. The
 // display and message operations are injected so mintrap() can first replay
 // the same motion against its planning clone without painting or printing.
-async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}) {
+export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}) {
     const env = {
         ...rawEnv,
         state,
