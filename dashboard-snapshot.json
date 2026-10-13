@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T09:40:09.187Z",
+  "capturedAt": "2026-10-13T09:50:33.096Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -103163,6 +103163,82 @@
         "type": "accepted",
         "at": "2026-10-13T09:38:47.034Z",
         "task": "C-investigation-v55-broken-teleport-wand-ogre-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v55-broken-teleport-wand-ogre-action3-20261013-6b93206ab68b9da753501f91b9efa334f2b34bf0",
+        "type": "published",
+        "at": "2026-10-13T09:40:21.868Z",
+        "task": "C-investigation-v55-broken-teleport-wand-ogre-action3-20261013",
+        "commit": "6b93206ab68b9da753501f91b9efa334f2b34bf0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-c-trap-20261013",
+        "type": "activity",
+        "at": "2026-10-13T09:41:15.502Z",
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
+        "phase": "review",
+        "reason": "Integrating the original unpaid-trap implementation and corrected complete replay-range evidence after wand publication."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-c-trap-a3d5288a-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T09:41:35.898Z",
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
+        "integration": "a3d5288a67d83e471f199ede2f2c35d4b78c29f0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep27-v63-c-setups-20261016",
+        "type": "turn",
+        "at": "2026-10-13T09:45:43.721Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep27 records twelve independently planned C game setups before JavaScript comparison."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep27-v63-c-actions-20261016",
+        "type": "turn",
+        "at": "2026-10-13T09:47:03.395Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep27 records observed C quest entries and gameplay actions; all twelve setup attempts remain preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v55-unpaid-beartrap-install-action5-20261013-a3d5288a67d83e471f199ede2f2c35d4b78c29f0-validated",
+        "type": "validated",
+        "at": "2026-10-13T09:48:52.072Z",
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep27-v63-protocol-followups-20261016",
+        "type": "turn",
+        "at": "2026-10-13T09:49:00.384Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep27 preserves the initial C attempts and records bounded observed gameplay follow-ups."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v55-unpaid-beartrap-install-action5-20261013-a3d5288a67d83e471f199ede2f2c35d4b78c29f0-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T09:49:20.318Z",
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep27-v63-c-next-20261016",
+        "type": "turn",
+        "at": "2026-10-13T09:50:28.289Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep27 observes source reachability in fiery gaze and Sunsword energy payment while refining three C gameplay routes."
       }
     ]
   },
@@ -103240,17 +103316,6 @@
           "Prep22",
           "Prep23"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
-        "worker": "C",
-        "goal": "port-shk-use-unpaid-trapobj-v55-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "3361490d558c47ee9dbc4458f92f2420496483ba",
-        "since": "2026-10-13T06:56:32.501Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -103793,8 +103858,8 @@
     ]
   },
   "development": {
-    "executionCommit": "3726ce3a6d8841ee4ea2f2d0bda16035968be4f3",
-    "measuredAt": "2026-10-13T09:35:22.827Z",
+    "executionCommit": "a3d5288a67d83e471f199ede2f2c35d4b78c29f0",
+    "measuredAt": "2026-10-13T09:46:28.502Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
