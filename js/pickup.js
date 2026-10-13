@@ -5,7 +5,8 @@
 // 272-313, doloot(), doloot_core(), container_at(), able_to_loot(),
 // mon_beside(), do_loot_cont(), use_container(), traditional_loot(),
 // query_classes(), collect_obj_classes(), out_container(), lift_object(),
-// carry_count(), pickup_prinv(), container_gone(), ck_bag(), and delta_cwt().
+// carry_count(), pickup_prinv(), container_gone(), explain_container_prompt(), ck_bag(), and
+// delta_cwt().
 
 import {
     AUTOSELECT_SINGLE,
@@ -246,7 +247,9 @@ import {
     sellobj_state, shop_keeper, shk_your, stolen_value, subfrombill,
     check_unpaid_usage,
 } from './shk.js';
-import { displayTtyMenuTextWindow, menuTitleStyle } from './tty_menu.js';
+import {
+    displayTtyMenuTextWindow, displayTtyTextWindow, menuTitleStyle,
+} from './tty_menu.js';
 import { waterbody_name } from './pager.js';
 import {
     back_on_ground,
@@ -2112,6 +2115,30 @@ async function boh_loss(container, held, state) {
     return loss;
 }
 
+// C ref: pickup.c:explain_container_prompt() (2910-2940). The text rows and
+// conditional Next row match the static NHW_TEXT source table.
+async function explain_container_prompt(more_containers, state) {
+    const explaintext = [
+        'Container actions:',
+        '',
+        ' : -- Look: examine contents',
+        ' o -- Out: take things out',
+        ' i -- In: put things in',
+        ' b -- Both: first take things out, then put things in',
+        ' r -- Reversed: put things in, then take things out',
+        ' s -- Stash: put one item in',
+        '',
+        ' n -- Next: loot next selected container',
+        ' q -- Quit: finished',
+        ' ? -- Help: display this text.',
+        '',
+    ];
+    const lines = explaintext
+        .filter((line) => more_containers || !line.startsWith(' n '))
+        .map((text) => ({ text }));
+    await displayTtyTextWindow(state, lines);
+}
+
 // sellobj_state containerdone cleanup.
 //
 // Not covered: 'o'/'i'/'b'/'r'/'s' (item transfer) and otrapped/chest_trap.
@@ -2256,11 +2283,7 @@ export async function use_container(obj, held, more_containers, state) {
         }
 
         if (ch === '?') {
-            // explain_container_prompt is a text window listing actions.
-            // For this slice, refuse it rather than porting the text window.
-            throw new UnsupportedPickupError(
-                'use_container: explain_container_prompt (?)',
-            );
+            await explain_container_prompt(more_containers, state);
         } else if (ch === ':') {
             if (!state.gc.current_container.cknown)
                 used = ECMD_TIME;
