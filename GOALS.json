@@ -296609,6 +296609,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "divergence-muse-monster-fire-wand-v54-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement find_offensive, use_offensive from muse.c",
+      "cFile": "muse.c",
+      "sessions": [
+        "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "find_offensive",
+      "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3"
     }
   ]
 }
