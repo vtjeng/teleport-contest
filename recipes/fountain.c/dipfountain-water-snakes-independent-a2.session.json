@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent fountain.c:dipfountain() witness for fate 23 -> dowatersnakes. I used the documented JavaScript seed scanner over 8428100–8428199 with a debug Valkyrie, which reached the snake message at seeds 8428122, 8428160 and 8428188 (89 starts replayed); I chose 8428122 and recorded C independently. The debug Wizard wishes a starting-square fountain, then dips the Valkyrie's ration. This route exercises the dipfountain caller and the sighted, non-hallucinating source arm.",
+  "segments": [
+    {
+      "seed": 8428122,
+      "datetime": "20320415090000",
+      "nethackrc": "OPTIONS=name:DipSnakeA2,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017fountain\n#dip\ndy"
+    }
+  ]
+}
