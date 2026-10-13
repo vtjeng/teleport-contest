@@ -294694,7 +294694,7 @@
     {
       "id": "fix-quest-underlevel-leader-expulsion-v53-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement chat_with_leader from quest.c",
       "cFile": "quest.c",
       "sessions": [
@@ -294704,10 +294704,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "8f096a2f3d681e51339722d94b668dfaa7ba5075",
       "delivered": null,
       "function": "chat_with_leader",
-      "session": "synthetic/v53/v53-quest-underlevel-leader-action3"
+      "session": "synthetic/v53/v53-quest-underlevel-leader-action3",
+      "closeStanding": {
+        "sha": "8f096a2f3d681e51339722d94b668dfaa7ba5075",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f198de1914d3503813ea7333d0fe355f6d3fdc5f",
+        "target": "synthetic/v53/v53-quest-underlevel-leader-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/8f096a2f3d681e51339722d94b668dfaa7ba5075/run-hosted-vFlJ9s/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "chat_with_leader",
+            "implementation": "js/quest.js",
+            "symbol": "chat_with_leader",
+            "sourceReview": "Branch-level correction only; not whole-function certification. Upstream quest.c:chat_with_leader lines 321-336 delivers leader_first or leader_next, marks first meeting, checks qstart_level, then for not_capable() calls qt_pager(\"badlevel\"), exercise(A_WIS, TRUE), and expulsion(FALSE) in source order. The JavaScript branch now awaits ops.pager(\"badlevel\"), awaits the existing exercise(A_WIS, true, state, ops.random), and calls existing expulsion(false, ops) at the same point. The existing expulsion(false) branch uses dungeon_branch(), nomul(), and schedule_goto(); all return values from pager/exercise/expulsion are discarded by C. Other chat_with_leader verdicts and both caller functions remain outside this correction.",
+            "callers": [
+              {
+                "path": "js/quest.js",
+                "symbol": "quest_chat",
+                "source": "C cmd.c:dotalk -> sounds.c:dotalk/dochat -> domonnoise; MS_LEADER dispatches quest.c:quest_chat, whose quest-leader identity branch calls chat_with_leader. JavaScript command -> sounds.js:dotalk/dochat/domonnoise -> quest.js:quest_chat -> chat_with_leader."
+              },
+              {
+                "path": "js/quest.js",
+                "symbol": "leader_speaks",
+                "source": "C monmove.c:dochug -> quest_talk -> quest.c:leader_speaks -> chat_with_leader for a peaceful leader on qstart_level. JavaScript monmove.js -> quest_talk -> leader_speaks -> chat_with_leader. The admitted recording exercises the first direct caller via #chat."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-leader-first-meeting.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-underlevel-leader-action3",
+                "segment": 0,
+                "fromStep": 93,
+                "throughStep": 96,
+                "source": "sounds.c:dotalk/dochat -> domonnoise MS_LEADER -> quest.c:quest_chat -> chat_with_leader; first-meeting pager, not_capable branch, Wisdom exercise, expulsion(FALSE), and resulting parent-level transition."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This correction follows the admitted #chat command on a peaceful quest leader at qstart_level while the hero is below MIN_QUEST_LEVEL. C and JavaScript callers are already wired through dotalk/dochat/domonnoise -> quest_chat -> chat_with_leader; the recorded replay matches the same path through the complete input. A second active caller uses monmove.c:dochug -> quest_talk -> leader_speaks -> chat_with_leader; this patch leaves that existing wiring and leader_speaks behavior unchanged. No whole quest.c function or whole quest.js program is certified.",
+        "entryPoints": [
+          {
+            "name": "Chat with the quest leader while below MIN_QUEST_LEVEL",
+            "functions": [
+              "chat_with_leader"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-underlevel-leader-action3",
+                "segment": 0,
+                "fromStep": 93,
+                "throughStep": 96,
+                "source": "C #chat path through quest_chat -> chat_with_leader badlevel pager, Wisdom exercise and parent-dungeon expulsion."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "port-fountain-dowaternymph-v53-20261012",

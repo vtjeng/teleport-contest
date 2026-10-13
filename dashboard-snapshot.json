@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T00:03:14.617Z",
+  "capturedAt": "2026-10-13T00:13:49.257Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -99372,6 +99372,70 @@
         "task": "A2-investigation-v53-blind-fountain-dip-nymph-residual-action2-20261012",
         "worker": "A2",
         "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-active-v53-blind-fountain-nymph-residual-20261012",
+        "type": "turn",
+        "at": "2026-10-13T00:03:25.917Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing the remaining fountain-nymph glyph and cursor mismatch against the exact C source and saved case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v53-blind-fountain-dip-nymph-action2-20261012-ecaaca660cbf4dd1f9d73d9195f0fc6be58e0f9a",
+        "type": "published",
+        "at": "2026-10-13T00:04:01.595Z",
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+        "commit": "ecaaca660cbf4dd1f9d73d9195f0fc6be58e0f9a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-leader53-8f096a2f3-20261012",
+        "type": "integrating",
+        "at": "2026-10-13T00:04:48.538Z",
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
+        "integration": "8f096a2f3d681e51339722d94b668dfaa7ba5075"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v53-nymph-yn-prompt-cleanup-20261012",
+        "type": "implement",
+        "at": "2026-10-13T00:05:36.974Z",
+        "task": "A2-investigation-v53-blind-fountain-dip-nymph-residual-action2-20261012",
+        "goal": "fix-tty-yn-cleanup-topline-nymph-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-park-a-nymph-residual-b-topl-owner-20261013",
+        "type": "park",
+        "at": "2026-10-13T00:10:29.550Z",
+        "task": "A2-investigation-v53-blind-fountain-dip-nymph-residual-action2-20261012",
+        "reason": "Source trace identifies topl.c:update_topl, already owned by B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012. Preserve A diagnosis deec7a41ae6b854f77de995406a4795cae466b0b and saved replay; release the nymph session and obsolete tty_yn_function reservation for B to claim as an additional target."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-quest-underlevel-leader-action3-20261012-8f096a2f3d681e51339722d94b668dfaa7ba5075-validated",
+        "type": "validated",
+        "at": "2026-10-13T00:11:08.547Z",
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-quest-underlevel-leader-action3-20261012-8f096a2f3d681e51339722d94b668dfaa7ba5075-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T00:11:59.652Z",
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-await-B-update-topl-fountain-residual-20261012",
+        "type": "turn",
+        "at": "2026-10-13T00:12:07.793Z",
+        "worker": "A2",
+        "state": "idle"
       }
     ]
   },
@@ -99449,17 +99513,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
-        "worker": "A2",
-        "goal": "fix-quest-underlevel-leader-expulsion-v53-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "bb6370184cf3613c0760edc01f5bfecf7c85668c",
-        "since": "2026-10-12T23:15:39.443Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -99962,12 +100015,23 @@
         "since": "2026-10-12T20:29:41.779Z",
         "blockedBy": [],
         "reason": "Superseded by accepted hot-pursuit correction 575ed936 at b656ad046. Its source-defined shk_move threshold change and full matching Minetown replay are preserved in the accepted correction; the original movement packet remains historical evidence."
+      },
+      {
+        "task": "A2-investigation-v53-blind-fountain-dip-nymph-residual-action2-20261012",
+        "worker": "A2",
+        "goal": "fix-tty-yn-cleanup-topline-nymph-v53-20261012",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-13T00:10:29.550Z",
+        "blockedBy": [],
+        "reason": "Source trace identifies topl.c:update_topl, already owned by B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012. Preserve A diagnosis deec7a41ae6b854f77de995406a4795cae466b0b and saved replay; release the nymph session and obsolete tty_yn_function reservation for B to claim as an additional target."
       }
     ]
   },
   "development": {
-    "executionCommit": "f198de1914d3503813ea7333d0fe355f6d3fdc5f",
-    "measuredAt": "2026-10-13T00:00:56.871Z",
+    "executionCommit": "8f096a2f3d681e51339722d94b668dfaa7ba5075",
+    "measuredAt": "2026-10-13T00:09:32.725Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
