@@ -827,7 +827,12 @@ export async function slip_or_trip(state = game, env = {}) {
             state.killer.name = `tripping over ${an(
                 state.mons[object.corpsenm].pmnames[NEUTRAL],
             )} corpse`;
-            if (!env.planning) note_unported('trap.c instapetrify');
+            if (!env.planning) {
+                // timeout.c calls trap.c:instapetrify() here. trap.js imports
+                // timeout.js, so defer this caller binding until gameplay.
+                const { instapetrify } = await import('./trap.js');
+                await instapetrify(state.killer.name, state, env);
+            }
         }
     } else if ((u.uprops?.[FUMBLING]?.intrinsic & FROMOUTSIDE)
         || (is_ice(u.ux, u.uy, state) && !random.rn2(3))) {
