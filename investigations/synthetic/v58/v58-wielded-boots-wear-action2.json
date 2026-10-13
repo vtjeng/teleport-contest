@@ -18,7 +18,24 @@
     "earliestStep": 98,
     "caseId": "v58-wielded-boots-wear-action2",
     "batch": "v58",
-    "recordingPath": "challenges/cases/v58/v58-wielded-boots-wear-action2.session.json"
+    "recordingPath": "challenges/cases/v58/v58-wielded-boots-wear-action2.session.json",
+    "session": "synthetic/v58/v58-wielded-boots-wear-action2",
+    "originalQueueEntry": {
+      "kind": "synthetic",
+      "corpus": "synthetic",
+      "sourceFile": "steal.c",
+      "cFile": "steal.c",
+      "luaFile": null,
+      "sessions": [
+        "synthetic/v58/v58-wielded-boots-wear-action2"
+      ],
+      "remainingScreens": 42,
+      "remainingScreensUpperBound": null,
+      "earliestStep": 98,
+      "caseId": "v58-wielded-boots-wear-action2",
+      "batch": "v58",
+      "recordingPath": "challenges/cases/v58/v58-wielded-boots-wear-action2.session.json"
+    }
   },
   "summary": "The queue attributes the refusal to steal.c:remove_worn_item, but that helper is already implemented in js/steal.js. The first mismatch is caused by an obsolete UnsupportedWearError in js/do_wear.js:accessory_or_armor_on: C do_wear.c:2363-2364 calls remove_worn_item(obj, FALSE) when selected armor carries W_WEAPONS, while JavaScript refuses before the existing helper can clear the weapon-slot ownership. Replace the refusal with the source call. The helper returns no value used by accessory_or_armor_on; it performs the required worn-mask and slot updates.",
   "source": {
@@ -44,13 +61,48 @@
     "js/do_wear.js:3741-3745 is the faulty guard; scripts/wear-armor.test.mjs:1997-2003 currently asserts the obsolete refusal."
   ],
   "provenance": {
+    "corpus": "synthetic",
     "batch": "v58",
     "caseId": "v58-wielded-boots-wear-action2",
+    "session": "synthetic/v58/v58-wielded-boots-wear-action2",
     "manifestPath": "challenges/manifests/v58.json",
     "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8e2f68f891da4b51b28acf",
+    "recording": "challenges/cases/v58/v58-wielded-boots-wear-action2.session.json",
     "recordingPath": "challenges/cases/v58/v58-wielded-boots-wear-action2.session.json",
     "recordingSha256": "4c8766662d2ef5759b0728f9dbc77bc828fe38f4eaf9a18ea00a46c271e5e6c2",
+    "recipe": "challenges/cases/v58/v58-wielded-boots-wear-action2.recipe.session.json",
+    "recipePath": "challenges/cases/v58/v58-wielded-boots-wear-action2.recipe.session.json",
+    "recipeSha256": "776fa401b64aacd78df35e8f9078dfea95200c379950af055839f7f1c19e5c34",
+    "replayInputSha256": "141c20cf32a82279fa655ed9b2ef14f3ac8a870117be4d97b98b531fc30e147c",
     "evaluationPath": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v58.json",
-    "evaluationCommit": "b151b2318fa82ab62868ad676c7f00823de614c0"
-  }
+    "evaluationCommit": "b151b2318fa82ab62868ad676c7f00823de614c0",
+    "evaluationArtifact": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v58.json",
+    "evaluationUtc": "2026-10-13T15:57:57.263Z",
+    "remainingScreens": 42,
+    "recordedSteps": 140,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "baseline": {
+      "screens": "98/140",
+      "rng": "2843/2855",
+      "cursors": "98/140"
+    },
+    "firstMismatch": {
+      "segment": 0,
+      "step": 98,
+      "key": "W",
+      "kind": "stop",
+      "function": "accessory_or_armor_on"
+    }
+  },
+  "corpus": "synthetic",
+  "batch": "v58",
+  "caseId": "v58-wielded-boots-wear-action2",
+  "manifestPath": "challenges/manifests/v58.json",
+  "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8e2f68f891da4b51b28acf",
+  "recordingSha256": "4c8766662d2ef5759b0728f9dbc77bc828fe38f4eaf9a18ea00a46c271e5e6c2",
+  "evaluationPath": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v58.json",
+  "evaluationCommit": "b151b2318fa82ab62868ad676c7f00823de614c0"
 }
