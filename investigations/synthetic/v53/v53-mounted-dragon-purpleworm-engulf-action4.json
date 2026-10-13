@@ -14,7 +14,7 @@
   "remainingScreens": 106,
   "recordedSteps": 359,
   "status": "complete",
-  "commit": "3aa063bd0b6fe4e0e36a22c034a4bebae0b7c92d",
+  "commit": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
   "mismatch": {
     "kind": "screen",
     "corpus": "synthetic",
