@@ -296901,6 +296901,34 @@
           }
         ]
       }
+    },
+    {
+      "id": "port-mcast-destroy-armor-v54-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement mcast_destroy_armor from mcastu.c",
+      "cFile": "mcastu.c",
+      "sessions": [
+        "synthetic/v54/v54-monk-masterlich-strength-and-stun-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mcast_destroy_armor",
+          "line": 450,
+          "endLine": 465,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 450,
+        "to": 465
+      }
     }
   ]
 }
