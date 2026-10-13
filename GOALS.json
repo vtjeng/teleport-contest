@@ -295215,6 +295215,25 @@
           }
         ]
       }
+    },
+    {
+      "id": "div-fix-topl-clear-after-more-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Repair the wrapped TTY More row lifecycle: clear the newline destination before writing the prompt, then reproduce docorner row clearing and row_refresh from the live display glyph buffer.",
+      "cFile": "topl.c",
+      "sessions": [
+        "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4",
+        "synthetic/v53/v53-blind-fountain-dip-nymph-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "more",
+      "session": "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4"
     }
   ]
 }
