@@ -178,5 +178,57 @@
       }
     ]
   },
-  "step": 207
+  "step": 207,
+  "remainingFrontier": {
+    "baselineCommit": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9",
+    "baselineEvaluationPath": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/68ca32057bc676b09a8eda1f0c88ee3cb9de83c9/run-hosted-ycGofg/synthetic/ci-v53.json",
+    "metrics": {
+      "screens": {
+        "matched": 210,
+        "total": 246
+      },
+      "rng": {
+        "matched": 3732,
+        "total": 3829
+      },
+      "cursors": {
+        "matched": 244,
+        "total": 246
+      }
+    },
+    "remainingScreens": 36,
+    "recordedSteps": 246,
+    "mismatch": {
+      "step": 210,
+      "kind": "screen",
+      "cScreenPrefix": "The Dark One casts a spell at you!  You feel momentarily disoriented.--More--",
+      "cRngPrefix": [
+        "d(8,6)=29 @ castmu(mcastu.c:243)",
+        "rn2(5)=0 @ nemesis_speaks(quest.c:420)"
+      ],
+      "sourceFile": "mcastu.c",
+      "function": "mcast_stun_you",
+      "line": 504,
+      "jsPath": "js/mcastu.js:mcast_spell MCAST_STUN_YOU case (line 904) records mcastu.c mcast_stun_you as unported and applies no stun/message/shield effect."
+    },
+    "source": {
+      "file": "mcastu.c",
+      "functions": [
+        "mcast_stun_you",
+        "mcast_spell"
+      ],
+      "callers": [
+        "mcastu.c:castmu calls mcast_spell after the spell announcement and damage roll (lines 243 and 298).",
+        "mhitu.c:930 calls castmu for a hostile monster attack; the admitted step 210 follows the Dark One spell selected during this attack."
+      ],
+      "branch": "mcastu.c:mcast_stun_you tests Antimagic or Free_action. The admitted C line “You feel momentarily disoriented.” proves its resistant branch: when not already Stunned, C calls shieldeff, records M_SEEN_MAGR, prints the feeling, then make_stunned(1,FALSE). The non-resistant branch prints based on Stunned, rolls d(6 or 4,4) from current Dexterity, halves by Half_spell_damage, extends only HStun timeout, and clears M_SEEN_MAGR with monstunseesu.",
+      "existingCallees": "shieldeff, monstseesu, monstunseesu and potion.c:make_stunned already have JavaScript implementations. castmu and mcast_spell already provide the production dispatch; only the STUN_YOU helper branch is a gap."
+    },
+    "evidence": [
+      "Accepted Main 68ca32057bc676b09a8eda1f0c88ee3cb9de83c9 hosted checkpoint 38328501086 reports the case at 210/246 screens, 3732/3829 RNG values and 244/246 cursors; the saved queue identifies 36 remaining screens.",
+      "The immutable v53 recording segment 0 step 210 begins with the C message “The Dark One casts a spell at you! You feel momentarily disoriented.”; its first RNG is d(8,6)=29 at castmu(mcastu.c:243), followed by the quest nemesis response.",
+      "Upstream mcastu.c:503-520 implements mcast_stun_you. mcastu.c:848-851 dispatches MCAST_STUN_YOU and clears dmg; castmu calls mcast_spell at line 298.",
+      "js/mcastu.js:904 routes MCAST_STUN_YOU to recordMcastGap(\"mcastu.c mcast_stun_you\"); the already-wired C/JS production path therefore omits the C shield/status/message branch."
+    ]
+  }
 }
