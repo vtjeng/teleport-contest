@@ -296072,6 +296072,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "complete-lava-worn-removal-v54-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement lava_effects from trap.c",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v54/v54-lava-worn-organic-armor-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "lava_effects",
+      "session": "synthetic/v54/v54-lava-worn-organic-armor-action3"
     }
   ]
 }
