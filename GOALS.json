@@ -296163,7 +296163,7 @@
     {
       "id": "C-v54-unpaid-library-fee-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement check_unpaid_usage from shk.c",
       "cFile": "shk.c",
       "sessions": [
@@ -296173,10 +296173,264 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "f3648d25fabdfcda63bed663c9c81c5681e7c469",
       "delivered": null,
       "function": "check_unpaid_usage",
-      "session": "synthetic/v54/v54-healer-unpaid-library-novel-action4"
+      "session": "synthetic/v54/v54-healer-unpaid-library-novel-action4",
+      "closeStanding": {
+        "sha": "f3648d25fabdfcda63bed663c9c81c5681e7c469",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "8945d37e01910ae6c3485f28e200b65c137b72cb",
+        "target": "synthetic/v54/v54-healer-unpaid-library-novel-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/f3648d25fabdfcda63bed663c9c81c5681e7c469/run-hosted-dfZEpN/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "cost_per_charge",
+            "implementation": "js/shk.js",
+            "symbol": "cost_per_charge",
+            "pure": true,
+            "sourceReview": "Whole shk.c definition 5627-5684. Preserves in-shop eligibility, get_cost base price, exact special item-class branches and order, integer truncation and source return. Pure: no RNG, output or state mutation. Removed the previous missing-function status; no unported callee.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "check_unpaid_usage",
+                "source": "shk.c:check_unpaid_usage calls cost_per_charge after unpaid, shop and charge guards and after resolving a live in-shop keeper."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "check_unpaid_usage",
+            "implementation": "js/shk.js",
+            "symbol": "check_unpaid_usage",
+            "pure": false,
+            "sourceReview": "Whole shk.c definition 5688-5733. Preserves initial unpaid/shop/charged-item guards; keeper and shop guards; zero-cost return; source message arms and rn2 order; audible-keeper voice/verbalize/wisdom exercise order; and unconditional keeper debit. Uses canonical owners for currency, voice, verbalize and exercise.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "check_unpaid",
+                "source": "shk.c:check_unpaid:5738-5742 forwards FALSE to check_unpaid_usage."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "dorub",
+                "source": "apply.c:1818 calls check_unpaid_usage(uwep, TRUE) for unusual magic-lamp use."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer_checks",
+                "source": "pickup.c:4026 calls check_unpaid_usage(box, TRUE) before zeroing the container charges."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs",
+              "scripts/apply-light-cocktail.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/apply-bell.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-unpaid-library-novel-action4",
+                "segment": 0,
+                "fromStep": 297,
+                "throughStep": 299,
+                "source": "spell.c:study_book reads a novel passage, calls check_unpaid(spellbook), then shk.c:check_unpaid_usage -> cost_per_charge; all 381 recorded screens and input boundaries match on the final private tree."
+              }
+            ]
+          },
+          {
+            "name": "check_unpaid",
+            "implementation": "js/shk.js",
+            "symbol": "check_unpaid",
+            "pure": false,
+            "sourceReview": "Whole shk.c definition 5738-5742: normal-use adapter calls check_unpaid_usage once with altusage FALSE and awaits the fee effects before returning. No additional state, RNG or message behavior.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "consume_obj_charge",
+                "source": "invent.c:1336-1347 calls check_unpaid before decrementing the charge."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "learn",
+                "source": "spell.c:459 calls check_unpaid after successful spell learning."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "study_book",
+                "source": "spell.c:524 calls check_unpaid after a novel passage; exercised by v54."
+              },
+              {
+                "path": "js/apply_catch_lit.js",
+                "symbol": "catch_lit",
+                "source": "apply.c:1613 calls check_unpaid before lighting."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_lamp",
+                "source": "apply.c:1682 calls check_unpaid before lamp effects."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "light_cocktail",
+                "source": "apply.c:1748 calls check_unpaid before the oil-potion fee speech."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "dorub",
+                "source": "apply.c:1818 calls check_unpaid_usage with altusage TRUE for a magic lamp."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "do_break_wand",
+                "source": "apply.c:3946 calls check_unpaid before costly alteration."
+              },
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave_sfx_item",
+                "source": "engrave.c:793 calls check_unpaid before wand use."
+              },
+              {
+                "path": "js/write.js",
+                "symbol": "dowrite",
+                "source": "write.c:253 calls check_unpaid before spending a marker charge."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "potion_dip",
+                "source": "potion.c:2709 calls check_unpaid before potion dip effects."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "dozap",
+                "source": "zap.c:2642 calls check_unpaid before wand zap effects."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer_checks",
+                "source": "pickup.c:4026 calls check_unpaid_usage with altusage TRUE before emptying a container."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_camera",
+                "source": "apply.c: use_camera -> invent.c:consume_obj_charge; await fee before charge decrement."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_bell",
+                "source": "apply.c: use_bell -> invent.c:consume_obj_charge; await fee before charge decrement."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_tinning_kit",
+                "source": "apply.c: use_tinning_kit -> invent.c:consume_obj_charge; await fee before charge decrement."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grease",
+                "source": "apply.c: use_grease -> invent.c:consume_obj_charge; await fee before charge decrement."
+              },
+              {
+                "path": "js/makemon.js",
+                "symbol": "bagotricks",
+                "source": "makemon.c:bagotricks -> invent.c:consume_obj_charge; await fee before charge decrement."
+              },
+              {
+                "path": "js/mkobj_hornoplenty.js",
+                "symbol": "hornoplenty",
+                "source": "mkobj.c:hornoplenty -> invent.c:consume_obj_charge; await fee before charge decrement."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "use_crystal_ball",
+                "source": "detect.c:use_crystal_ball -> invent.c:consume_obj_charge; await fee before charge decrement."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "dotip",
+                "source": "pickup.c:dotip -> invent.c:consume_obj_charge; await fee before charge decrement."
+              },
+              {
+                "path": "js/music.js",
+                "symbol": "do_improvisation",
+                "source": "music.c:do_improvisation -> invent.c:consume_obj_charge; await fee before charge decrement."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_squeaky_board",
+                "source": "trap.c:disarm_squeaky_board -> invent.c:consume_obj_charge; await fee before charge decrement."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs",
+              "scripts/invent.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/engrave-command.test.mjs",
+              "scripts/write.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/pickup-tip.test.mjs",
+              "scripts/music.test.mjs",
+              "scripts/trap-squeaky-board.test.mjs",
+              "scripts/makemon-create.test.mjs",
+              "scripts/detect.test.mjs",
+              "scripts/mkobj-hornoplenty.test.mjs",
+              "scripts/apply-lamp.test.mjs",
+              "scripts/apply-light-cocktail.test.mjs",
+              "scripts/apply-tinning-kit.test.mjs",
+              "scripts/apply-grease.test.mjs",
+              "scripts/apply-break-wand.test.mjs",
+              "scripts/apply-catch-lit.test.mjs",
+              "scripts/apply-bell.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-unpaid-library-novel-action4",
+                "segment": 0,
+                "fromStep": 297,
+                "throughStep": 299,
+                "source": "spell.c:study_book novel success -> check_unpaid(spellbook) -> check_unpaid_usage; complete admitted segment matches on the final private tree."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Verified runtime entry point: spell.c:study_book -> novel read_tribute success -> check_unpaid(spellbook) -> check_unpaid_usage -> cost_per_charge at v54 case step 299. The final private replay matches all 381 screens and input boundaries. Other active callsites retained in task-context callerScopes are wired and covered by focused caller tests, but this delivery makes no runtime-completion claim for them: spell.c:learn; apply.c:catch_lit/use_lamp/light_cocktail/dorub/do_break_wand/use_camera/use_bell/use_tinning_kit/use_grease; engrave.c:doengrave_sfx_item; write.c:dowrite; potion.c:potion_dip; zap.c:dozap; pickup.c:tipcontainer_checks/dotip; plus invent.c:consume_obj_charge callees in makemon.c, mkobj.c, detect.c, music.c and trap.c. These caller-scoped changes do not claim whole-function completion for the caller functions. The independent bookstore probes remained private because their attempted read did not exercise the selected fee path. Final validation on source commit 926cb72ac: the 574 task-scoped caller tests pass, targeted ESLint passes, and the recorded synthetic replay above matches the complete 381-step segment. Correction source review: apply.c:use_lamp forwards its received environment and state into check_unpaid, preserving the explicit random and billing operations on the lamp route. Focused caller checks passed 174/174; all six previously failing lamp/light/burn recordings now match their complete screen and RNG traces. The inventory-substrate test now awaits the Promise returned by consume_obj_charge before asserting source-ordered mutation.",
+        "entryPoints": [
+          {
+            "name": "Read an unpaid novel in the bookstore",
+            "functions": [
+              "cost_per_charge",
+              "check_unpaid_usage",
+              "check_unpaid"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-unpaid-library-novel-action4",
+                "segment": 0,
+                "fromStep": 297,
+                "throughStep": 299,
+                "source": "spell.c:study_book -> shk.c:check_unpaid -> check_unpaid_usage -> cost_per_charge; full replay matched through the segment boundary."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

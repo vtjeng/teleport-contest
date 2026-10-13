@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T02:58:45.585Z",
+  "capturedAt": "2026-10-13T03:29:37.693Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -100484,6 +100484,137 @@
         "type": "accepted",
         "at": "2026-10-13T02:57:48.140Z",
         "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v54-lava-worn-organic-armor-action3-20261013-6bc7c9d2e09a8446b82ae18eafdd5bcdbc6b8ea4",
+        "type": "published",
+        "at": "2026-10-13T02:58:59.526Z",
+        "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
+        "commit": "6bc7c9d2e09a8446b82ae18eafdd5bcdbc6b8ea4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-main-8945d37-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:59:11.172Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent admitted JavaScript source scope is free after the accepted-Main sync. Remaining spell cases wait on C mcastu work, the unpaid novel is C-owned, healer/muse scope remains held by A2 delivery e1274be5, and v48 stays held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-c-unpaid-20261013",
+        "type": "activity",
+        "at": "2026-10-13T02:59:35.163Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "phase": "review",
+        "reason": "Reviewing the saved unpaid-use helper and caller delivery, preserving its explicit novel runtime evidence and other caller limits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-c-unpaid-748073928-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T03:00:08.712Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "integration": "7480739283eca55681f88dac2fe88353512d2677"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-failed-c-unpaid-38339601835-20261013",
+        "type": "validated",
+        "at": "2026-10-13T03:06:54.422Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8ab50eca20f6ca0ec220faaaad46bbbee166450e",
+        "type": "ready",
+        "at": "2026-10-13T03:09:21.798Z",
+        "task": "C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
+        "delivery": "8ab50eca20f6ca0ec220faaaad46bbbee166450e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-weakening-8ab50eca-20261013",
+        "type": "received",
+        "at": "2026-10-13T03:09:50.895Z",
+        "task": "C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
+        "delivery": "8ab50eca20f6ca0ec220faaaad46bbbee166450e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-resume-unpaid-fix-correction-20261013",
+        "type": "resume",
+        "at": "2026-10-13T03:10:04.169Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-unpaid-fix-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T03:10:08.534Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is correcting the failed unpaid-use delivery from its recorded hosted failures; no other task starts until this correction is ready."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a8e487a9d4763cf1177d2646af540a66037f13fe",
+        "type": "ready",
+        "at": "2026-10-13T03:20:11.832Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "delivery": "a8e487a9d4763cf1177d2646af540a66037f13fe"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-fee-correction-queued-idle-20261013",
+        "type": "turn",
+        "at": "2026-10-13T03:20:42.315Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Waiting for Root to integrate and validate the unpaid-fee correction; C source reservations remain held through acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-fee-correction-a8e487a9-20261013",
+        "type": "received",
+        "at": "2026-10-13T03:20:46.890Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "delivery": "a8e487a9d4763cf1177d2646af540a66037f13fe"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-c-fee-correction-a8e487a9-20261013",
+        "type": "activity",
+        "at": "2026-10-13T03:20:55.360Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "phase": "review",
+        "reason": "Verifying the two-path correction against the failed hosted tests and six matching lamp-recording rechecks before retrying validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-c-fee-correction-f3648d25f-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T03:21:18.553Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "integration": "f3648d25fabdfcda63bed663c9c81c5681e7c469"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v54-healer-unpaid-library-novel-action4-20261013-f3648d25fabdfcda63bed663c9c81c5681e7c469-validated",
+        "type": "validated",
+        "at": "2026-10-13T03:27:52.371Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v54-healer-unpaid-library-novel-action4-20261013-f3648d25fabdfcda63bed663c9c81c5681e7c469-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T03:28:46.139Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013"
       }
     ]
   },
@@ -100564,17 +100695,6 @@
         "unblocks": 0
       },
       {
-        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
-        "worker": "C",
-        "goal": "C-v54-unpaid-library-fee-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "0dec329225648f2f2fbc10fee4f8831667aaf38b",
-        "since": "2026-10-13T02:34:24.818Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
         "worker": "B",
         "goal": "fix-mon-meatmetal-acoustics-v54-20261013",
@@ -100593,6 +100713,17 @@
         "status": "ready",
         "delivery": "e1274be5f6277c6e05d37bb72bf827c23254af26",
         "since": "2026-10-13T02:44:50.582Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
+        "worker": "C",
+        "goal": "port-mcastu-weaken-you-v54-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "8ab50eca20f6ca0ec220faaaad46bbbee166450e",
+        "since": "2026-10-13T03:09:21.798Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -101099,8 +101230,8 @@
     ]
   },
   "development": {
-    "executionCommit": "8945d37e01910ae6c3485f28e200b65c137b72cb",
-    "measuredAt": "2026-10-13T02:54:42.899Z",
+    "executionCommit": "f3648d25fabdfcda63bed663c9c81c5681e7c469",
+    "measuredAt": "2026-10-13T03:26:10.002Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
