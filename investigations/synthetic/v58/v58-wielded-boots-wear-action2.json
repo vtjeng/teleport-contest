@@ -1,0 +1,56 @@
+{
+  "session": "synthetic/v58/v58-wielded-boots-wear-action2",
+  "remainingScreens": 42,
+  "recordedSteps": 140,
+  "status": "complete",
+  "commit": "66e7f1fc1c9af5a64cc72f0251658d342fb15fa3",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": "steal.c",
+    "cFile": "steal.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v58/v58-wielded-boots-wear-action2"
+    ],
+    "remainingScreens": 42,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 98,
+    "caseId": "v58-wielded-boots-wear-action2",
+    "batch": "v58",
+    "recordingPath": "challenges/cases/v58/v58-wielded-boots-wear-action2.session.json"
+  },
+  "summary": "The queue attributes the refusal to steal.c:remove_worn_item, but that helper is already implemented in js/steal.js. The first mismatch is caused by an obsolete UnsupportedWearError in js/do_wear.js:accessory_or_armor_on: C do_wear.c:2363-2364 calls remove_worn_item(obj, FALSE) when selected armor carries W_WEAPONS, while JavaScript refuses before the existing helper can clear the weapon-slot ownership. Replace the refusal with the source call. The helper returns no value used by accessory_or_armor_on; it performs the required worn-mask and slot updates.",
+  "source": {
+    "file": "do_wear.c",
+    "branch": "accessory_or_armor_on, lines 2359-2364: after retouch_object succeeds, when armor is selected and obj->owornmask contains W_WEAPONS, call remove_worn_item(obj, FALSE) before setworn. The helper must clear the weapon-slot ownership while preserving the object for the new armor slot.",
+    "functions": [
+      "accessory_or_armor_on"
+    ],
+    "callers": [
+      "dowear at do_wear.c:2432-2450 (W command)",
+      "doputon at do_wear.c:2454-2469 (P command)"
+    ],
+    "dependencies": [
+      "steal.c:remove_worn_item (already implemented as js/steal.js:330-376)"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "challenges/manifests/v58.json (v58-wielded-boots-wear-action2) records the C route: wield low boots, clear W_WEP ownership, then wear into W_ARMF; sourcePointers identify do_wear.c:2359-2364.",
+    "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v58.json is the saved admitted evaluation; the combined queue reports 42 unmatched screens and step 98 as the earliest mismatch for this case.",
+    "node frozen/ps_test_runner.mjs --worker-session=challenges/cases/v58/v58-wielded-boots-wear-action2.session.json reproduced the current JavaScript boundary at 98/140 matching screens; log: .cache/v58-wielded-boots-before.log.",
+    "nethack-c/upstream/src/do_wear.c:2209-2428 defines the shared accessory_or_armor_on function; lines 2359-2364 invoke remove_worn_item for W_WEAPONS before setworn. nethack-c/upstream/src/steal.c:213-290 defines the helper, and js/steal.js:330-376 implements it.",
+    "js/do_wear.js:3741-3745 is the faulty guard; scripts/wear-armor.test.mjs:1997-2003 currently asserts the obsolete refusal."
+  ],
+  "provenance": {
+    "batch": "v58",
+    "caseId": "v58-wielded-boots-wear-action2",
+    "manifestPath": "challenges/manifests/v58.json",
+    "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8e2f68f891da4b51b28acf",
+    "recordingPath": "challenges/cases/v58/v58-wielded-boots-wear-action2.session.json",
+    "recordingSha256": "4c8766662d2ef5759b0728f9dbc77bc828fe38f4eaf9a18ea00a46c271e5e6c2",
+    "evaluationPath": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v58.json",
+    "evaluationCommit": "b151b2318fa82ab62868ad676c7f00823de614c0"
+  }
+}
