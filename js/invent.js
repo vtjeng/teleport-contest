@@ -4886,8 +4886,13 @@ async function gotoDrop(obj, drop_fmt, drop_arg, normalized) {
         const dropObject = normalized.hooks.dropObject;
         if (typeof dropObject === 'function')
             await dropObject(obj, normalized);
-        else
-            note_unported('do.c dropx');
+        else {
+            // invent.c:hold_another_object() calls do.c:dropx() when it
+            // discards an object. Load do.js here to keep its existing
+            // inventory-to-drop dependency out of the static import cycle.
+            const { dropCommandEnv, dropx } = await import('./do.js');
+            await dropx(obj, dropCommandEnv(normalized.state, normalized));
+        }
     } else {
         await freeinv(obj, normalized);
         // invent.c:1302 calls dothrow.c:hitfloor() and discards its void result.

@@ -3110,6 +3110,23 @@ function ordinaryDropFixture(otyp = HEAVY_IRON_BALL) {
     return { hooks, lines, obj, state };
 }
 
+// The Fumbling admission path must call do.c:dropx even when its caller did
+// not inject a drop callback; the ordinary room fixture keeps dropx on its
+// surviving-object path and exposes inventory/floor ownership directly.
+test('Fumbling dispatches to the implemented dropx operation', async () => {
+    const { hooks, state } = ordinaryDropFixture();
+    state.u.uprops[FUMBLING] = { blocked: 0, extrinsic: 0, intrinsic: 1 };
+    const potion = instance(POT_WATER, state);
+
+    assert.equal(await hold_another_object(potion, null, null, null, {
+        state,
+        hooks,
+    }), null);
+    assert.equal(potion.where, OBJ_FLOOR);
+    assert.equal(state.invent.nobj, null);
+    assert.equal(state.level.objects[10][5], potion);
+});
+
 // C ref: do.c dropx()/dropz(), invent.c stackobj()/merged(). The newly
 // dropped object survives; only a compatible absorbed pile member needs the
 // canonical light/timer merge operations.
@@ -3913,7 +3930,7 @@ test('a heavy hold reaches drop admission after addinv and its message',
         ]);
     });
 
-test('a missing dropx caller records the source gap after hold decisions',
+test('a heavy hold dispatches to dropx without an injected caller hook',
     async () => {
         const { obj, state } = ordinaryDropFixture();
         state.u.acurr.a[A_STR] = 3;
@@ -3935,9 +3952,9 @@ test('a missing dropx caller records the source gap after hold decisions',
                     },
                 },
             ), null);
-        assert.equal(obj.where, OBJ_INVENT);
-        assert.equal(state.invent, obj);
-        assert.equal(state.level.objects[10][5], null);
+        assert.equal(obj.where, OBJ_FLOOR);
+        assert.equal(state.invent, null);
+        assert.equal(state.level.objects[10][5], obj);
         assert.deepEqual(lines, ['Oops!  The heavy iron ball drops to the floor!']);
     });
 
