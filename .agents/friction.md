@@ -562,3 +562,14 @@ triage decisions or fix references.
 - Root observed that the lock had cleared and retried the publication helper.
   It reused the committed dashboard and completed the receipt successfully;
   Root did not remove a lock or restart validation.
+
+### 2026-10-13 — source workers waiting for prepared batch admission
+
+- After healer acceptance at `950ec0f9`, the refreshed queue contains only
+  the held v48 host-profile case. A2, B, and C are idle with no independent
+  source task. Seven submitted batches, v56 through v62, await acceptance
+  and admission; their cases are not yet worker inputs.
+- Main follows implementation-first integration priority, then starts Prep20
+  when the ready implementation queue empties. Its saved C evidence is
+  verified. The approved Admission workflow will baseline accepted manifests
+  at the next safe boundary.
