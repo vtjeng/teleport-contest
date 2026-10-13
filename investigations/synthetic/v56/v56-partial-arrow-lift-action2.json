@@ -11,6 +11,7 @@
   "evaluationPath": "challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json",
   "evaluationCommit": "398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6",
   "status": "complete",
+  "commit": "e8f757faa235cac634efac291cb0622a527e215f",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v56",
