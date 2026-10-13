@@ -50,7 +50,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
-import { check_unpaid, UnsupportedShopError } from '../js/shk.js';
+import { check_unpaid } from '../js/shk.js';
 import { m_canseeu } from '../js/vision.js';
 import {
     dozap,
@@ -415,7 +415,7 @@ function shopState(ushops) {
     return state;
 }
 
-test('check_unpaid bills only for unpaid merchandise used in a shop', () => {
+test('check_unpaid applies source guards before looking up a shopkeeper', async () => {
     // shk.c:5695-5697, the guard check_unpaid() reaches through
     // check_unpaid_usage(otmp, FALSE). Each case below flips one conjunct.
     // ROOMOFFSET is the lowest room number in_rooms() will report, so it is
@@ -429,37 +429,27 @@ test('check_unpaid bills only for unpaid merchandise used in a shop', () => {
     });
 
     // Paid for, so nothing is owed however deep in the shop the hero stands.
-    check_unpaid(charged({ unpaid: false }), shopState(IN_SHOP));
+    await check_unpaid(charged({ unpaid: false }), shopState(IN_SHOP));
     // Unpaid, but carried outside the shop it came from.
-    check_unpaid(charged({ unpaid: true }), shopState(NO_SHOP));
+    await check_unpaid(charged({ unpaid: true }), shopState(NO_SHOP));
     // Unpaid and inside the shop, but with no charge left to be billed for.
     // objects[WAN_SLEEP].oc_charged is 1, which is what makes this arm apply.
-    check_unpaid(charged({ unpaid: true, spe: 0 }), shopState(IN_SHOP));
+    await check_unpaid(charged({ unpaid: true, spe: 0 }), shopState(IN_SHOP));
 
-    // The same spe on an object type that is not sold by the charge:
-    // objects[POT_WATER].oc_charged is 0, so C's third conjunct is false
-    // however low spe reads and the fee applies. This is the row that holds
-    // the conjunct itself, since every wand above carries oc_charged 1.
+    // The same zero spe on an uncharged object type does not satisfy C's
+    // final guard conjunct. With no resident keeper this then exits at the
+    // source shop lookup, without a fee or refusal.
     assert.equal(shopState(IN_SHOP).objects[POT_WATER].oc_charged, 0);
-    assert.throws(
-        () => check_unpaid(
+    await check_unpaid(
             { otyp: POT_WATER, oclass: POTION_CLASS, spe: 0, unpaid: true },
             shopState(IN_SHOP),
-        ),
-        UnsupportedShopError,
     );
 
-    // All three conjuncts false: C charges a usage fee, which needs
-    // cost_per_charge(), verbalize() and the shopkeeper's debit. spe 1 is the
-    // boundary the `<= 0` sits on -- the last charge is still worth billing
-    // for -- and spe 4 is an ordinary wand well clear of it.
+    // All guard conjuncts are false for these two live-charge items, and the
+    // source lookup still safely returns when there is no resident keeper.
     for (const spe of [1, 4]) {
-        assert.throws(
-            () => check_unpaid(
+        await check_unpaid(
                 charged({ unpaid: true, spe }), shopState(IN_SHOP),
-            ),
-            UnsupportedShopError,
-            `spe ${spe}`,
         );
     }
 });
@@ -651,7 +641,7 @@ test('a NODIR wand reaches its effect without a direction prompt', async () => {
     // same keys open a direction prompt above.
     assert.equal(game.objects[WAN_LIGHT].oc_dir, NODIR);
     assert.notEqual(game.objects[WAN_SLEEP].oc_dir, NODIR);
-    typeAtPrompts(HEALER_WAND);
+    typeAtPrompts(HEALER_WAND, SELF_KEY);
     initRng(49);
     enableRngLog();
     assert.equal(await dozap(game), ECMD_TIME);
@@ -743,7 +733,7 @@ test('a secret-door-detection wand reports an empty findit result', async () => 
     // this catalog row known makes zapnodir() take observe_object(), not the
     // second exercise(A_WIS, TRUE) that a newly discovered type would spend.
     game.objects[WAN_SECRET_DOOR_DETECTION].oc_name_known = 1;
-    typeAtPrompts(HEALER_WAND);
+    typeAtPrompts(HEALER_WAND, SELF_KEY);
     initRng(49);
     enableRngLog();
 
@@ -1055,42 +1045,30 @@ test('a self-zap of an unimplemented type records C impossible and returns',
     assert.deepEqual(getRngLog(), []);
 });
 
-test('zapping unpaid merchandise inside a shop stops at the usage fee',
+test('zapping unpaid merchandise without a resident shopkeeper continues',
     async () => {
     // zap.c:2642's check_unpaid(obj), which sits between the object prompt and
     // the charge. A wand the hero has not paid for still has charges, so
-    // shk.c:5695-5697 falls through -- into the port's refusal, which is wider
-    // than the fee: this level has no shopkeeper, so C would return at 5700
-    // and bill nothing. What the case pins is where the command stops, not
-    // that C would charge here.
+    // shk.c:5695-5700 returns when the room has no resident shopkeeper. The
+    // usage fee therefore does not stop the command or consume a charge.
     const wand = await heroCarryingWand({ unpaid: true, spe: 4 });
     game.u.ushops[0] = ROOMOFFSET;
-    typeAtPrompts(HEALER_WAND);
+    typeAtPrompts(HEALER_WAND, SELF_KEY);
     initRng(49);
     enableRngLog();
-    await assert.rejects(
-        () => dozap(game), UnsupportedShopError,
-    );
-    // C calls check_unpaid() above zappable(), so the refusal precedes the
-    // charge and every draw the command could take.
-    assert.equal(wand.spe, 4);
-    assert.deepEqual(getRngLog(), []);
+    assert.equal(await dozap(game), ECMD_TIME);
+    assert.equal(wand.spe, 3);
 
-    // The last charge is what that order is worth. Reversed, zappable() would
-    // take spe to 0 first and shk.c:5696's `(spe <= 0 && oc_charged)` conjunct
-    // would then excuse the fee, so the command would run to the end: the
-    // self-zap key queued below would be read and the hero would fall asleep
-    // in a shop C bills.
+    // The source charge guard runs before zappable() too; the last charge is
+    // spent by the command after the absent resident keeper makes billing a
+    // no-op.
     const lastCharge = await heroCarryingWand({ unpaid: true, spe: 1 });
     game.u.ushops[0] = ROOMOFFSET;
     typeAtPrompts(HEALER_WAND, SELF_KEY);
     initRng(49);
     enableRngLog();
-    await assert.rejects(
-        () => dozap(game), UnsupportedShopError,
-    );
-    assert.equal(lastCharge.spe, 1);
-    assert.deepEqual(getRngLog(), []);
+    assert.equal(await dozap(game), ECMD_TIME);
+    assert.ok(lastCharge.spe <= 0);
 });
 
 test('a zap under perm_invent stops at the inventory window', async () => {

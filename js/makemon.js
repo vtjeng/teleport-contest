@@ -1280,7 +1280,7 @@ export async function bagotricks(bag, tipping, state = game) {
 
         // C: consume_obj_charge(bag, !tipping) -- invent.c.
         // Decrements bag->spe and optionally bills the hero.
-        consume_obj_charge(bag, !tipping, { state });
+        await consume_obj_charge(bag, !tipping, { state });
 
         if (!rn2(23))
             creatcnt += rnd(7);

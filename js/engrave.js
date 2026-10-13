@@ -555,7 +555,7 @@ export async function doengrave_sfx_item(de, state = game, env = {}) {
         break;
     case WAND_CLASS:
         if (await zappable(otmp, state)) {
-            check_unpaid(otmp, state);
+            await check_unpaid(otmp, state, env);
             if (otmp.cursed && !env.random.rn2(WAND_BACKFIRE_CHANCE)) {
                 await wand_explode(otmp, 0, state);
                 de.ret = env.ECMD_TIME ?? ECMD_TIME;

@@ -83,7 +83,7 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
         let obj;
         let what;
 
-        consume_obj_charge(horn, !tipping, { ...env, state });
+        await consume_obj_charge(horn, !tipping, { ...env, state });
         if (!rn2(13)) {
             obj = mkobj(POTION_CLASS, false, { ...env, state });
             if (objectType(obj, state).oc_magic) {

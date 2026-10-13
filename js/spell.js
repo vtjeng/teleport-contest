@@ -884,7 +884,7 @@ export async function learn(state = game, env = {}) {
         spbook.o_id = 0;
         return 0;
     }
-    if (costly) check_unpaid(book, state);
+    if (costly) await check_unpaid(book, state, { ...env, random });
     spbook.book = null;
     spbook.o_id = 0;
     return 0;
@@ -953,7 +953,7 @@ export async function study_book(spellbook, state = game, env = {}) {
                         `became literate by reading ${title.title}`,
                         state,
                     );
-                check_unpaid(spellbook, state);
+                await check_unpaid(spellbook, state, { ...env, random });
                 discover_object(booktype, true, true, true, state);
                 if (!state.u.uevent.read_tribute) {
                     (await import('./insight.js')).record_achievement(

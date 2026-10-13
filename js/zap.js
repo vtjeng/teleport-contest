@@ -9,10 +9,8 @@
 // dispatches immediate effects and aimed rays; the callback and ray families
 // record their own remaining source boundaries below.
 //
-// The shop usage fee stops the command earlier than any of them. check_unpaid()
-// runs between the object prompt and the charge, and js/shk.js raises
-// UnsupportedShopError there for merchandise the hero has not paid for, so a
-// zap in a shop ends the segment before an effect arm is chosen at all.
+// The shop usage fee runs between the object prompt and the charge. Its
+// source-owned helper can debit the resident keeper before zap selection.
 //
 // The self-zap arm runs through zapyourself(), whose complete C switch is kept
 // below. Calls to helpers that are void in C but still outside the port are
@@ -895,7 +893,7 @@ export async function dozap(state = game) {
     if (!obj)
         return ECMD_CANCEL;
 
-    check_unpaid(obj, state);
+    await check_unpaid(obj, state);
 
     const need_dir = objectType(obj, state).oc_dir !== NODIR;
     if (!await zappable(obj, state)) {

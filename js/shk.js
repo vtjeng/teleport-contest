@@ -12,6 +12,7 @@
 
 import {
     A_CHA,
+    A_WIS,
     ACID_RES,
     ARM,
     ARTICLE_THE,
@@ -96,7 +97,7 @@ import {
     u_at,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import { acurr, adjalign } from './attrib.js';
+import { acurr, adjalign, exercise } from './attrib.js';
 import { arti_cost } from './artifacts.js';
 import { y_n, yn_function } from './cmd.js';
 import { bot, map_invisible } from './display.js';
@@ -152,7 +153,13 @@ import {
     AMULET_CLASS,
     ARMOR_CLASS,
     BALL_CLASS,
+    BAG_OF_TRICKS,
+    BRASS_LANTERN,
     CANDELABRUM_OF_INVOCATION,
+    CAN_OF_GREASE,
+    CRYSTAL_BALL,
+    DRUM_OF_EARTHQUAKE,
+    EXPENSIVE_CAMERA,
     CHAIN_CLASS,
     BLACK_OPAL,
     CHRYSOBERYL,
@@ -176,9 +183,14 @@ import {
     JASPER,
     JET,
     LARGE_BOX,
+    MAGIC_FLUTE,
+    MAGIC_LAMP,
+    MAGIC_MARKER,
     MIRROR,
+    OIL_LAMP,
     OPAL,
     POTION_CLASS,
+    POT_OIL,
     POT_WATER,
     PICK_AXE,
     RUBY,
@@ -189,9 +201,11 @@ import {
     STRANGE_OBJECT,
     TIN,
     TOPAZ,
+    TINNING_KIT,
     TOOL_CLASS,
     WAND_CLASS,
     WEAPON_CLASS,
+    HORN_OF_PLENTY,
     AQUAMARINE,
     LEASH,
 } from './objects.js';
@@ -2367,42 +2381,82 @@ export async function dopay(state = game, env = {}) {
     return paid.value ? ECMD_TIME : ECMD_OK;
 }
 
-// C ref: shk.c check_unpaid() (5737-5742), the "used in the normal manner"
-// entry point, over check_unpaid_usage() (5687-5733). C's wrapper is one call
-// with `altusage` FALSE; the guard below is check_unpaid_usage()'s own opening
-// test (5695-5697).
-//
-// C returns silently twice more past that guard: when shop_keeper() finds no
-// keeper for the room or inhishop() finds it away (5698-5700), and when
-// cost_per_charge() prices the use at zero (5701-5702). Neither is ported, so
-// this refusal is deliberately wider than the set C bills for, and a hero in a
-// shop whose keeper is absent or dead stops here where C charges nothing.
-//
-// What it refuses is the tail, for the arms `altusage` FALSE can reach:
-// cost_per_charge(), then a line whose lead-ins are drawn for -- two rn2(3)
-// draws choosing `Hey!  ` and `Ahem.  ` in the default arm (5719-5724), one
-// rn2(2) choosing the library scolding for a spellbook (5705-5709), and no
-// draw at all for a potion of oil (5710-5711) -- then verbalize() and
-// exercise(A_WIS, TRUE) behind `!Deaf && !muteshk(shkp)` (5727-5731), then an
-// unconditional `ESHK(shkp)->debit += tmp` (5732). The `Whoa!  ` and
-// `Watch it!  ` lead-ins belong to the emptying arm at 5712-5718, which only
-// an `altusage` TRUE caller reaches. None of this is ported, so the tail stops
-// as a whole.
-//
-// The `*u.ushops` term is the first entry of hack.c move_update()'s room list;
-// js/rooms.js stores it as a fixed five-entry array, so an empty list reads as
-// a zero here exactly as an empty string does in C.
-export function check_unpaid_usage(otmp, altusage, state = game) {
+// C ref: shk.c cost_per_charge() (5627-5684). Keep each special use rate
+// beside the normal item price; all integer divisions truncate as C long does.
+export function cost_per_charge(shopkeeper, otmp, altusage, state = game) {
+    if (!shopkeeper || !inhishop(shopkeeper, state)) return 0;
+
+    let price = get_cost(otmp, shopkeeper, state);
+    if (otmp.otyp === MAGIC_LAMP) {
+        if (!altusage) price = Math.trunc(objectType(OIL_LAMP, state).oc_cost);
+        else price += Math.trunc(price / 3);
+    } else if (otmp.otyp === MAGIC_MARKER) {
+        price = Math.trunc(price / 2);
+    } else if (otmp.otyp === BAG_OF_TRICKS || otmp.otyp === HORN_OF_PLENTY) {
+        if (!altusage) price = Math.trunc(price / 5);
+    } else if (otmp.otyp === CRYSTAL_BALL || otmp.otyp === OIL_LAMP
+        || otmp.otyp === BRASS_LANTERN
+        || (otmp.otyp >= MAGIC_FLUTE
+            && otmp.otyp <= DRUM_OF_EARTHQUAKE)
+        || otmp.oclass === WAND_CLASS) {
+        if (otmp.spe > 1) price = Math.trunc(price / 4);
+    } else if (otmp.oclass === SPBOOK_CLASS) {
+        price -= Math.trunc(price / 5);
+    } else if (otmp.otyp === CAN_OF_GREASE || otmp.otyp === TINNING_KIT
+        || otmp.otyp === EXPENSIVE_CAMERA) {
+        price = Math.trunc(price / 10);
+    } else if (otmp.otyp === POT_OIL) {
+        price = Math.trunc(price / 5);
+    }
+    return price;
+}
+
+// C ref: shk.c check_unpaid_usage() (5688-5733). C bills a partial use only
+// after the unpaid/shop/charge guards, then selects its message and RNG branch,
+// speaks when the resident keeper can be heard, and adds the fee to shop debt.
+export async function check_unpaid_usage(otmp, altusage, state = game, env = {}) {
     if (!otmp.unpaid || !state.u?.ushops?.[0]
         || (otmp.spe <= 0 && objectType(otmp, state).oc_charged))
         return;
-    throw new UnsupportedShopError(
-        `check_unpaid_usage() billing a${altusage ? 'n unusual' : ''} use fee`,
-    );
+
+    const shopkeeper = shop_keeper(state.u.ushops[0], state);
+    if (!shopkeeper || !inhishop(shopkeeper, state)) return;
+    const price = cost_per_charge(shopkeeper, otmp, altusage, state);
+    if (price === 0) return;
+
+    const random = env.random ?? { rn2 };
+    let first = '';
+    let second = '';
+    let line;
+    if (otmp.oclass === SPBOOK_CLASS) {
+        const scolding = `This is no free library, ${cad(false, state)}!  `;
+        first = random.rn2(2) ? scolding : '';
+        second = shopkeeper.mextra.eshk.debit > 0 ? ' an additional' : '';
+        line = `${first}You owe${second} ${price} ${currency(price, state, env)}.`;
+    } else if (otmp.otyp === POT_OIL) {
+        line = `That will cost you ${price} ${currency(price, state, env)} (Yendorian Fuel Tax).`;
+    } else if (altusage
+        && (otmp.otyp === BAG_OF_TRICKS || otmp.otyp === HORN_OF_PLENTY)) {
+        if (!random.rn2(3)) first = 'Whoa!  ';
+        if (!random.rn2(3)) first = 'Watch it!  ';
+        line = `${first}Emptying that will cost you ${price} ${currency(price, state, env)}.`;
+    } else {
+        if (!random.rn2(3)) first = 'Hey!  ';
+        if (!random.rn2(3)) second = 'Ahem.  ';
+        line = `${first}Usage fee, ${price} ${currency(price, state, env)}.`;
+    }
+
+    if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+        set_voice(shopkeeper, 0, 80, 0, state);
+        await verbalize(line, state, { message: env.message ?? ttyPline });
+        await exercise(A_WIS, true, state, random);
+    }
+    shopkeeper.mextra.eshk.debit += price;
 }
 
-export function check_unpaid(otmp, state = game) {
-    check_unpaid_usage(otmp, false, state);
+// C ref: shk.c check_unpaid() (5737-5742), the normal-use adapter.
+export async function check_unpaid(otmp, state = game, env = {}) {
+    await check_unpaid_usage(otmp, false, state, env);
 }
 
 // C ref: shk.c costly_spot().

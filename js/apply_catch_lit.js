@@ -12,7 +12,7 @@ import { discover_object } from './o_init.js';
 import { bill_dummy_object, carried } from './obj.js';
 import { Yname2, otense, yname } from './objnam.js';
 import { in_rooms } from './rooms.js';
-import { costly_spot, shop_keeper } from './shk.js';
+import { check_unpaid, costly_spot, shop_keeper } from './shk.js';
 import { verbalize } from './pline.js';
 import {
     BRASS_LANTERN,
@@ -139,9 +139,7 @@ export async function catch_lit(obj, rawEnv = {}) {
             state,
         )[0] ?? 0;
         shopKeeper(roomno, state);
-        // C discards check_unpaid()'s void result. Record and skip its
-        // unsupported fee path, then continue in source order.
-        note_unported('shk.c check_unpaid');
+        await check_unpaid(obj, state, { ...env, random });
         await speak(
             `That's in addition to the cost of ${yname(obj, state)} `
                 + `${obj.quan === 1 ? 'itself' : 'themselves'}, of course.`,

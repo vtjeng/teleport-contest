@@ -279,7 +279,7 @@ test('visible floor feedback records the set_msg_xy gap before naming', async ()
     assert.ok(game.unported.has('pline.c set_msg_xy'));
 });
 
-test('unpaid carried oil skips only check_unpaid and keeps billing order',
+test('unpaid carried oil calls billing before the source dummy charge',
     async () => {
         game.unported = new Set();
         const state = ignitionEnv().state;
@@ -326,7 +326,7 @@ test('unpaid carried oil skips only check_unpaid and keeps billing order',
         assert.equal(events[5][0], 'verbalize');
         assert.match(events[5][1], /^That's in addition/u);
         assert.match(events[5][1], /itself, of course\.$/u);
-        assert.ok(game.unported.has('shk.c check_unpaid'));
+        assert.ok(!game.unported.has('shk.c check_unpaid'));
     },
 );
 

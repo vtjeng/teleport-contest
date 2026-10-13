@@ -5,6 +5,8 @@ import test from 'node:test';
 import {
     BUFSZ,
     HUNGRY,
+    HALLUC,
+    HALLUC_RES,
     MS_HUMANOID,
     MS_SELL,
     MAXNROFROOMS,
@@ -30,7 +32,14 @@ import {
     CORPSE,
     CHAIN_MAIL,
     FOOD_RATION,
+    BAG_OF_TRICKS,
+    MAGIC_LAMP,
+    MAGIC_MARKER,
+    OIL_LAMP,
     POT_HEALING,
+    SPE_NOVEL,
+    SPBOOK_CLASS,
+    TOOL_CLASS,
     PICK_AXE,
     TALLOW_CANDLE,
     WAN_SLEEP,
@@ -49,7 +58,9 @@ import {
     contained_gold,
     clear_no_charge_pets,
     costly_adjacent,
+    check_unpaid_usage,
     get_cost,
+    cost_per_charge,
     get_pricing_units,
     getprice,
     gem_learned,
@@ -464,6 +475,67 @@ function pickState(shopkeeper) {
     shopkeeper.my = 2;
     return state;
 }
+
+test('cost_per_charge follows the complete shk.c item-rate formula', () => {
+    const keeper = ownershipShopkeeper(ROOMOFFSET, []);
+    const state = pickState(keeper);
+    assert.equal(cost_per_charge(keeper, {
+        otyp: MAGIC_LAMP, oclass: TOOL_CLASS, spe: 1, dknown: true,
+    }, false, state), Math.trunc(state.objects[OIL_LAMP].oc_cost));
+    const marker = {
+        otyp: MAGIC_MARKER, oclass: TOOL_CLASS, spe: 50,
+        dknown: true,
+    };
+    const markerPrice = get_cost(marker, keeper, state);
+    assert.equal(cost_per_charge(keeper, marker, false, state),
+        Math.trunc(markerPrice / 2));
+
+    const bag = {
+        otyp: BAG_OF_TRICKS, oclass: TOOL_CLASS, spe: 3,
+        dknown: true,
+    };
+    const bagPrice = get_cost(bag, keeper, state);
+    assert.equal(cost_per_charge(keeper, bag, false, state),
+        Math.trunc(bagPrice / 5));
+    assert.equal(cost_per_charge(keeper, bag, true, state), bagPrice);
+
+    const cCost = sourceBody(C_SHK, 'staticfn long\ncost_per_charge(');
+    assert.match(cCost, /tmp \/= 2L;/u);
+    assert.match(cCost, /if \(!altusage\)\s+tmp \/= 5L;/u);
+    assert.match(cCost, /if \(!altusage\)\s+tmp = \(long\) objects\[OIL_LAMP\]\.oc_cost;/u);
+});
+
+test('unpaid novel use speaks the C library fee and increments debt', async () => {
+    const keeper = ownershipShopkeeper(ROOMOFFSET, []);
+    keeper.data = { msound: MS_SELL };
+    keeper.mextra.eshk.debit = 5;
+    const state = pickState(keeper);
+    state.u.uprops[HALLUC] = { intrinsic: 0, extrinsic: 0 };
+    state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+    state.youmonst.data = {};
+    const book = {
+        otyp: SPE_NOVEL,
+        oclass: SPBOOK_CLASS,
+        unpaid: true,
+        spe: 0,
+        dknown: true,
+    };
+    const messages = [];
+    const draws = [];
+    const random = { rn2(bound) { draws.push(bound); return 0; } };
+    const before = keeper.mextra.eshk.debit;
+
+    await check_unpaid_usage(book, false, state, {
+        random,
+        message: async (text) => messages.push(text),
+    });
+
+    assert.deepEqual(draws, [2, 19]);
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /You owe/u);
+    assert.equal(keeper.mextra.eshk.debit - before,
+        cost_per_charge(keeper, book, false, state));
+});
 
 test('pick_pick warns once per move and preserves speech formatting', async () => {
     const shopkeeper = billShopkeeper(ROOMOFFSET, []);

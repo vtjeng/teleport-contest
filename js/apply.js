@@ -566,7 +566,6 @@ import {
     pay_for_damage,
     shop_keeper,
     shk_your,
-    UnsupportedShopError,
 } from './shk.js';
 import { begin_burn, end_burn } from './timeout.js';
 import { wield_tool } from './wield.js';
@@ -1685,7 +1684,7 @@ export async function use_camera(object, state = game, env = {}) {
         await ttyPline(nothing_happens, state);
         return ECMD_TIME;
     }
-    consume_obj_charge(object, true, { ...env, state });
+    await consume_obj_charge(object, true, { ...env, state });
 
     const random = env.random ?? { d, rn2, rnd };
     if (object.cursed && !random.rn2(2)) {
@@ -1778,7 +1777,7 @@ async function use_tinning_kit(obj, state = game, env = {}) {
         return;
     }
 
-    consume_obj_charge(obj, true, { ...env, state });
+    await consume_obj_charge(obj, true, { ...env, state });
     const can = mksobj(TIN, false, false, { ...env, state });
     if (!can) {
         note_unported('pline.c impossible');
@@ -2397,7 +2396,7 @@ export async function dorub(state = game, env = {}) {
     if (state.uwep.otyp === MAGIC_LAMP) {
         const random = env.random ?? { d, rn1, rn2, rnd, rne, rnz };
         if (state.uwep.spe > 0 && !random.rn2(3)) {
-            check_unpaid_usage(state.uwep, true, state);
+            await check_unpaid_usage(state.uwep, true, state, { ...env, random });
             state.uwep.otyp = OIL_LAMP;
             state.uwep.spe = 0;
             state.uwep.age = random.rn1(500, 1000);
@@ -3203,14 +3202,7 @@ export async function use_lamp(obj, state = game, env = {}) {
             await ttyPline('Nothing seems to happen.', state);
         }
     } else if (lamp) {
-        try {
-            check_unpaid(obj, state);
-        } catch (error) {
-            // check_unpaid() is void in C. Its unresolved billing branch is
-            // skipped as a recorded gap while the source continues to light.
-            if (!(error instanceof UnsupportedShopError)) throw error;
-            note_unported('shk.c check_unpaid_usage');
-        }
+        await check_unpaid(obj, state, { ...env, random });
         const owner = shk_your(obj, state);
         await ttyPline(
             `${highc(owner[0])}${owner.slice(1)}${lamp} is now on.`, state,
@@ -3243,6 +3235,7 @@ export async function use_lamp(obj, state = game, env = {}) {
 export async function light_cocktail(objp, state = game, env = {}) {
     let obj = objp.obj;
     const message = env.message ?? ttyPline;
+    const random = env.random ?? { rn2 };
 
     if (state.u?.uswallow) {
         await message(
@@ -3287,10 +3280,7 @@ export async function light_cocktail(objp, state = game, env = {}) {
             state,
         )[0] ?? 0;
         const shopkeeper = shop_keeper(room, state);
-        // C check_unpaid() discards check_unpaid_usage()'s void result. Its
-        // fee tail is unported, so record the gap without invoking its partial
-        // refusal; the following voice and billing calls still run in order.
-        note_unported('shk.c check_unpaid_usage');
+        await check_unpaid(obj, state, { ...env, random });
         set_voice(shopkeeper, 0, 80, 0, state);
         await verbalize(
             "That's in addition to the cost of the potion, of course.",
@@ -3971,17 +3961,7 @@ export async function use_bell(objp, state = game, rawEnv = {}) {
         }
         wakem = true;
     } else {
-        consume_obj_charge(obj, true, {
-            ...rawEnv,
-            state,
-            // check_unpaid() is a discarded void call here. Its shop fee
-            // tail is still unported, so record the gap and preserve C's
-            // following charge decrement/update_inventory order.
-            checkUnpaid(item, chargeState) {
-                if (item.unpaid && chargeState.u?.ushops?.[0])
-                    note_unported('shk.c check_unpaid');
-            },
-        });
+        await consume_obj_charge(obj, true, { ...rawEnv, state, random });
         if (state.u.uswallow) {
             if (!obj.cursed) await openit(state, rawEnv);
             else await message(nothing_happens);
@@ -4779,7 +4759,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
     );
 
     if (obj.unpaid) {
-        check_unpaid(obj, state);
+        await check_unpaid(obj, state, { ...env, random });
         costly_alteration(obj, COST_DSTROY, env);
     }
 
@@ -5392,7 +5372,7 @@ export async function use_grease(obj, state = game, env = {}) {
 
     if (obj.spe > 0) {
         if ((obj.cursed || applyIsFumbling(state)) && !rn2(2)) {
-            consume_obj_charge(obj, true, { ...env, state });
+            await consume_obj_charge(obj, true, { ...env, state });
             await ttyPline(
                 `${Tobjnam(obj, 'slip', state)} from your ${fingers_or_gloves(false, state)}.`,
                 state,
@@ -5409,7 +5389,7 @@ export async function use_grease(obj, state = game, env = {}) {
         if (await inaccessible_equipment(target, 'grease', false, state))
             return ECMD_OK;
 
-        consume_obj_charge(obj, true, { ...env, state });
+        await consume_obj_charge(obj, true, { ...env, state });
         const oldglib = (state.u?.uprops?.[GLIB]?.intrinsic ?? 0) & TIMEOUT;
         if (target !== hands_obj) {
             await ttyPline(

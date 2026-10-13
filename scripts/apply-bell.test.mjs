@@ -52,7 +52,7 @@ test('doapply wires both bell arms before its surviving-artifact tail', () => {
         /case BELL:\s*case BELL_OF_OPENING:\s*\{\s*await use_bell\(objp, state, env\);\s*obj = objp\.obj;\s*let result = ECMD_TIME;[\s\S]*if \(obj\?\.oartifact\) result \|= await arti_speak\(obj, state\)/u);
 });
 
-test('the Bell records its discarded shop check without replacing other callers', () => {
+test('the Bell awaits shared unpaid billing before spending a charge', () => {
     const cConsume = cFunction(
         readFileSync(new URL('../nethack-c/upstream/src/invent.c', import.meta.url),
             'utf8'),
@@ -69,7 +69,7 @@ test('the Bell records its discarded shop check without replacing other callers'
     assert.match(cConsume,
         /if \(maybe_unpaid\)\s*check_unpaid\(obj\);\s*obj->spe -= 1;\s*if \(obj->known\)\s*update_inventory\(\);/u);
     assert.match(jsConsume,
-        /const checkUnpaid = normalized\.checkUnpaid \?\? check_unpaid;\s*checkUnpaid\(obj, normalized\.state\);\s*\}\s*obj\.spe -= 1;\s*if \(obj\.known\) update_inventory/u);
+        /const checkUnpaid = normalized\.checkUnpaid \?\? check_unpaid;\s*await checkUnpaid\(obj, normalized\.state, normalized\);\s*\}\s*obj\.spe -= 1;\s*if \(obj\.known\) update_inventory/u);
     assert.match(jsBell,
-        /checkUnpaid\(item, chargeState\)[\s\S]*note_unported\('shk\.c check_unpaid'\)/u);
+        /await consume_obj_charge\(obj, true, \{ \.\.\.rawEnv, state, random \}\);/u);
 });
