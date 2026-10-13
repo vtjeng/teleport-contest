@@ -169,7 +169,9 @@ worker's guide defines the required checks and evidence. Record `received`
 for the exact commit. Follow "Notifications"; a saved submission remains valid
 even if its notification fails.
 
-Take ready deliveries one at a time, after their dependencies are accepted.
+Take implementation deliveries one at a time, after their dependencies are accepted.
+Group consecutive ready Prep submissions under `.agents/validation.md`,
+"Prep acceptance groups"; dependencies within the group may be pending.
 Integrate deliveries that unblock other tasks first, then the oldest ready
 delivery. Do not make an independent delivery wait for an unfinished goal.
 Integrate exact submitted commits rather than a moving branch tip. Merge

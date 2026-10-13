@@ -138,7 +138,9 @@ version. Only one preparation task may be working at a time; submitted batches
 do not block preparation of the next version. Handle earlier parked tasks and
 corrections before starting another batch. Resuming rechecks ownership;
 a parked ready delivery returns to ready, and failed validation requires rework
-and a new delivery SHA. Only one task can be integrating/validated at a time.
+and a new delivery SHA. Only one candidate can be integrating/validated at a time.
+Prep submissions may share it through prep-handoff.mjs; implementation tasks
+retain a single slot.
 Validation events check the supplied summary; they do not run validation.
 
 Example scope announcement (after register):
@@ -164,6 +166,7 @@ const FIELDS = {
     activity: ['task', 'phase', 'reason'],
     feedback: ['task', 'delivery', 'reason'],
     integrating: ['task', 'integration'],
+    'prep-integrating': ['tasks', 'integration'],
     validated: ['task', 'passed', 'checkpoint'],
     accepted: ['task'], published: ['task', 'commit'],
     'publication-confirmed': ['task', 'commit', 'knownBy', 'evidenceTask'],
@@ -256,6 +259,32 @@ function applyEvent(state, event, at) {
     for (const key of Object.keys(event)) check(allowed.includes(key), `unexpected event field: ${key}`);
     for (const key of ['id', 'type', ...FIELDS[type]]) check(Object.hasOwn(event, key), `missing event field: ${key}`);
     identifier(event.id, 'event id');
+    if (type === 'prep-integrating') {
+        list(event.tasks, 'tasks', value => identifier(value, 'task'));
+        sha(event.integration, 'integration');
+        check(!Object.values(state.tasks).some(task => ['integrating', 'validated'].includes(task.status)),
+            'integration slot is occupied');
+        const deliveries = event.tasks.map(id => {
+            const task = state.tasks[id];
+            check(task?.kind === 'challenge-preparation' && task.status === 'ready',
+                'Prep group requires ready preparation tasks');
+            const delivery = state.deliveries[task.deliveries.at(-1)];
+            check(delivery?.receivedAt, 'acknowledge every Prep delivery before integrating');
+            return delivery;
+        });
+        const versions = event.tasks.map(id => Number(state.tasks[id].reservations[0].split(':v')[1]));
+        check(versions.every((version, i) => !i || version === versions[i - 1] + 1),
+            'Prep group must contain consecutive batches in version order');
+        const included = new Set(deliveries.map(delivery => delivery.delivery));
+        for (const delivery of deliveries) for (const dependency of delivery.dependencies)
+            check(acceptedDependency(state, dependency) || included.has(dependency),
+                `dependency is outside the Prep group and not accepted: ${dependency}`);
+        for (const delivery of deliveries) {
+            Object.assign(delivery, {integratingAt: at, integration: event.integration, prepGroup: [...event.tasks]});
+            state.tasks[delivery.task].status = 'integrating';
+        }
+        return;
+    }
     if (type === 'register') {
         identifier(event.worker, 'worker'); absolute(event.worktree, 'worktree');
         string(event.branch, 'branch'); sha(event.base, 'base'); string(event.handle, 'handle');
@@ -447,6 +476,8 @@ function applyEvent(state, event, at) {
         task.status = event.passed ? 'validated' : 'changes-required';
     } else if (type === 'accepted') {
         requireStatus('validated');
+        for (const dependency of delivery.dependencies)
+            check(acceptedDependency(state, dependency), `dependency is not accepted: ${dependency}`);
         delivery.acceptedAt = at;
         task.status = 'accepted';
     } else if (type === 'published') {
@@ -516,7 +547,7 @@ export function nextActions(state, admittedBatches = [], queue = null) {
     const readyPrep = ready.filter(row => row.kind === 'challenge-preparation')
         .sort((a, b) => a.batch.localeCompare(b.batch, 'en', { numeric: true }))[0];
     const preparing = tasks.find(task => task.kind === 'challenge-preparation' && task.status !== 'accepted');
-    const prepAction = readyPrep ? { action: 'integrate-prepared-batch-next', task: readyPrep.task, batch: readyPrep.batch }
+    const prepAction = readyPrep ? { action: 'integrate-prepared-batches-next', task: readyPrep.task, batch: readyPrep.batch }
         : preparing ? { action: 'finish-preparation', task: preparing.id,
             batch: preparing.reservations[0].split(':')[1] } : { action: 'prepare-more-work' };
     const readyImplementation = ready.find(row => row.kind !== 'challenge-preparation');

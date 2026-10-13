@@ -4,6 +4,40 @@ import { test } from 'node:test';
 
 import { activityTimeline, activityUtilization, mainIntegrationDurations, agentStages, syntheticGainByCommit } from './dashboard-activity.mjs';
 import { activityFromLedger, developmentFromCheckpoint, mergeActivity } from './dashboard-snapshot.mjs';
+import {createLedger, recordEvent} from './worker-state.mjs';
+
+test('a shared Prep run stays in every task lifespan but counts once in Main timing', () => {
+  // Two tasks share the same five-minute hosted attempt; neither is a second CPU/elapsed sample.
+  const at = minute => new Date(Date.UTC(2026, 9, 13, 10, minute)).toISOString();
+  let ledger = createLedger('loop-20261013', '/tmp/dashboard-prep-group');
+  let sequence = 0;
+  const send = (event, minute) => {ledger = recordEvent(ledger, {id: `shared-${++sequence}`, ...event}, at(minute));};
+  const base = 'a'.repeat(40), integration = 'd'.repeat(40); // Synthetic transport IDs only.
+  send({type: 'register', worker: 'Prep', worktree: '/tmp/dashboard-prep-group/prep',
+    branch: 'worker/prep', base, handle: 'fixture'}, 0);
+  ['Prep-v2', 'Prep-v3'].forEach((task, index) => {
+    const batch = `v${index + 2}`, delivery = String(index + 1).repeat(40);
+    send({type: 'assign', task, worker: 'Prep', kind: 'challenge-preparation', seed: null,
+      base, reservations: [`challenge-batch:${batch}`], allowedPaths: [`challenges/cases/${batch}/`]}, index);
+    send({type: 'ready', task, delivery, base, commits: [delivery], paths: [`challenges/cases/${batch}/case.json`],
+      evidence: `/tmp/${task}.json`, dependencies: []}, index + 1);
+    send({type: 'received', task, delivery}, index + 1);
+  });
+  send({type: 'prep-integrating', tasks: ['Prep-v2', 'Prep-v3'], integration}, 3);
+  for (const task of ['Prep-v2', 'Prep-v3']) {
+    send({type: 'validated', task, passed: true, checkpoint: '/tmp/summary.json'}, 8);
+    send({type: 'accepted', task}, 8);
+  }
+  const timeline = activityTimeline(activityFromLedger(ledger), at(9));
+  const stages = timeline.segments.filter(segment => segment.phase === 'integrating');
+  assert.equal(stages.length, 2, 'both task histories retain the shared attempt');
+  assert.deepEqual(stages[0].prepGroup, ['Prep-v2', 'Prep-v3']);
+  const points = mainIntegrationDurations(timeline).preparation;
+  assert.equal(points.length, 1);
+  assert.equal(points[0].durationMs / 60000, 5);
+  assert.equal(points[0].sampleSize, 1);
+  assert.deepEqual(points[0].prepGroup, ['Prep-v2', 'Prep-v3']);
+});
 
 test('integration timing retains retries and outliers but excludes open and unknown endpoints', () => {
   // The first attempt ends in feedback; the second passes. Both spent Main time.

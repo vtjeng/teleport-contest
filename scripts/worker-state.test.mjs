@@ -139,6 +139,30 @@ test('accepting an older delivery preserves the same worker’s next reservation
     f.assign('three', 'B'); // Parking explicitly releases only the parked task.
 });
 
+test('a Prep group shares one integration slot and keeps dependencies within that group', () => {
+    const f = fixture();
+    const tasks = ['prep-v2', 'prep-v3', 'prep-v4', 'prep-v5']; // More than three batches must remain eligible.
+    const deliveries = tasks.map((_, i) => String(i + 1).repeat(40)); // Distinct delivery identities, not game seeds.
+    tasks.forEach((task, i) => {
+        f.send({type: 'assign', task, worker: 'A', kind: 'challenge-preparation', seed: null, base: BASE,
+            reservations: [`challenge-batch:v${i + 2}`], allowedPaths: [`challenges/cases/v${i + 2}/`]});
+        f.send({type: 'ready', task, delivery: deliveries[i], base: BASE, commits: [deliveries[i]],
+            paths: [`challenges/cases/v${i + 2}/case.json`], evidence: `${ROOT}/${task}.json`,
+            dependencies: deliveries.slice(0, i)});
+        f.send({type: 'received', task, delivery: deliveries[i]});
+    });
+    const before = f.ledger();
+    assert.throws(() => f.send({type: 'prep-integrating', tasks: tasks.slice(1), integration: INTEGRATION}), /dependency/);
+    assert.deepEqual(f.ledger(), before, 'a rejected group changes no task');
+    const state = f.send({type: 'prep-integrating', tasks, integration: INTEGRATION});
+    for (const task of tasks) assert.equal(state.tasks[task].status, 'integrating');
+    f.assign('implementation', 'B'); f.ready('implementation', FIRST);
+    assert.throws(() => f.send({type: 'integrating', task: 'implementation', integration: INTEGRATION}), /slot/);
+    assert.throws(() => f.send({type: 'accepted', task: tasks[1]}), /requires validated/);
+    f.send({type: 'validated', task: tasks[1], passed: true, checkpoint: `${ROOT}/summary.json`});
+    assert.throws(() => f.send({type: 'accepted', task: tasks[1]}), /dependency/);
+});
+
 test('pending deliveries reserve functions without blocking independent workers', () => {
     const f = fixture();
     f.assign();

@@ -292,7 +292,7 @@ function replacedCacheDelivery(root, state, task) {
     return original.delivery;
 }
 
-function checkCandidate(root, state, task, commit, visited = new Set(), patchIds = new Map()) {
+function checkCandidate(root, state, task, commit, visited = new Set(), patchIds = new Map(), pendingPrep = new Set()) {
     if (visited.has(task.id)) return;
     visited.add(task.id);
     const accepted = state.deliveries[task.deliveries.at(-1)];
@@ -320,11 +320,13 @@ function checkCandidate(root, state, task, commit, visited = new Set(), patchIds
         }
         for (const dependency of delivery.dependencies) {
             const required = state.tasks[state.deliveries[dependency]?.task];
-            check(required && state.deliveries[required.deliveries.at(-1)]?.acceptedAt,
+            check(required && (state.deliveries[required.deliveries.at(-1)]?.acceptedAt
+                || (required.kind === 'challenge-preparation' && pendingPrep.has(dependency)
+                    && required.deliveries.at(-1) === dependency)),
                 `dependency is not accepted: ${dependency}`);
             // Acceptance of a repair is not enough: this candidate must also
             // contain the repair, including a selectively cherry-picked one.
-            checkCandidate(root, state, required, commit, visited, patchIds);
+            checkCandidate(root, state, required, commit, visited, patchIds, pendingPrep);
         }
     }
 }
@@ -416,6 +418,20 @@ export function verifyEvent(root, state, input) {
     const event = resolveEventCommits(root, input);
     const task = state.tasks[event.task];
     const delivery = task && state.deliveries[task.deliveries.at(-1)];
+    if (event.type === 'prep-integrating') {
+        check(event.integration === resolveCommit(root, 'HEAD'), 'integration SHA must be the current combined HEAD');
+        check(Array.isArray(event.tasks) && event.tasks.length > 0, 'Prep group needs tasks');
+        const included = new Set(event.tasks.map(id => {
+            const member = state.tasks[id];
+            check(member?.kind === 'challenge-preparation', 'Prep group may contain only preparation tasks');
+            const submitted = state.deliveries[member.deliveries.at(-1)];
+            check(submitted?.receivedAt, 'acknowledge receipt before integrating');
+            readDelivery(submitted);
+            return submitted.delivery;
+        }));
+        const visited = new Set(), patchIds = new Map();
+        for (const id of event.tasks) checkCandidate(root, state, state.tasks[id], event.integration, visited, patchIds, included);
+    }
     if (event.type === 'register') {
         check(git(event.worktree, 'rev-parse', '--path-format=absolute', '--git-common-dir')
             === git(root, 'rev-parse', '--path-format=absolute', '--git-common-dir'), 'worker must belong to the same Git repository');
@@ -492,7 +508,7 @@ export function copiedRecipe(recipe, fixed) {
         && segment.moves === reference.moves));
 }
 
-export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previousCheckpoint }) {
+export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previousCheckpoint, pendingPrep = new Set() }) {
     commit = resolveCommit(root, commit);
     const task = state.tasks[taskId];
     check(task?.deliveries.length, 'task has no delivery');
@@ -504,7 +520,9 @@ export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previo
     inspect('Git identity', () => {
         check(isDeepStrictEqual(deliveryGit(root, delivery.base, delivery.delivery), packet.git), 'delivery Git metadata changed');
         checkScope(task, deliveryPaths);
-        checkCandidate(root, state, task, commit);
+        const grouped = delivery.integration === commit ? delivery.prepGroup ?? [] : [];
+        const pending = new Set([...pendingPrep, ...grouped.map(id => state.tasks[id]?.deliveries.at(-1))]);
+        checkCandidate(root, state, task, commit, new Set(), new Map(), pending);
     });
     let evidence;
     inspect(task.kind === 'challenge-preparation' ? 'prepared C cases' : 'source evidence',

@@ -138,6 +138,26 @@ competition holdout is outside this workspace.
   changes do not need it when focused tests cover the renderer's input
   contract.
 
+## Prep acceptance groups
+
+At a safe boundary, acknowledge the ready Prep submissions, then run
+`node scripts/prep-handoff.mjs integrate --ledger <shared-ledger>`. It freezes
+consecutive ready batches in version order, with no size cap. Dependencies must
+be accepted or included in the group. Verify saved overlap and control rationales;
+hold batches with concrete evidence or dependency problems.
+
+Run one hosted checkpoint at the returned commit and import it once. Keep HEAD
+there and run `node scripts/prep-handoff.mjs accept --ledger <shared-ledger>`.
+The helper records acceptance for the entire group from that saved result.
+Then follow "Hosted admission baselines" below, using
+`prep-handoff.mjs publish --ledger <shared-ledger> --admission <receipt> --queue <saved-queue>`
+for one publication covering every task. New arrivals belong to the next group.
+
+Retry the helper after an interruption; it retains the frozen submissions.
+If integration or CI fails, preserve the candidate and frozen plan, resolve the
+failure, and revalidate before acceptance. Do not accept a subset using the
+failed result or run a checkpoint per task.
+
 ## Hosted admission baselines
 
 At a safe boundary with a passing checkpoint at HEAD, run
