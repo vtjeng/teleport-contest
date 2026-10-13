@@ -1,0 +1,55 @@
+{
+  "session": "synthetic/v62/v62-tourist-earlier-filler-action5",
+  "remainingScreens": 29,
+  "recordedSteps": 328,
+  "corpus": "synthetic",
+  "batch": "v62",
+  "caseId": "v62-tourist-earlier-filler-action5",
+  "manifestPath": "challenges/manifests/v62.json",
+  "manifestSha256": "587abdbdc8c8ba55bb83c7c9607405768a4145f82697dfb85bf1623148213948",
+  "recordingSha256": "08e7e5a740ec25b91181520645c5779810759632dcc1c8cb73cc8c32c3cab55b",
+  "evaluationPath": "challenges/evaluations/accepted-d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84-v62.json",
+  "evaluationCommit": "d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84",
+  "status": "complete",
+  "commit": "edf67a990329752517ee8ba0204f6b4aab593d1f",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": "nhlib.lua",
+    "cFile": null,
+    "luaFile": "nhlib.lua",
+    "sessions": [
+      "synthetic/v62/v62-tourist-earlier-filler-action5"
+    ],
+    "remainingScreens": 29,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 299,
+    "caseId": "v62-tourist-earlier-filler-action5",
+    "batch": "v62",
+    "recordingPath": "challenges/cases/v62/v62-tourist-earlier-filler-action5.session.json"
+  },
+  "summary": "The Tourist earlier quest filler is missing from the JavaScript special-level loader. On quest Home level 2, mklev.c:makelevel selects Tou-fila and passes it through makemaz/load_special; js/mklev.js computes the same name but SPECIAL_LEVEL_LOADERS has no Tou-fila entry, so generation falls through to an ordinary level. Port the complete dat/Tou-fila.lua program and register it in the quest-level loader.",
+  "source": {
+    "file": "dat/Tou-fila.lua",
+    "branch": "When the hero is in the Tourist quest on a level above the locate level, makelevel selects the earlier filler program Tou-fila.lua.",
+    "functions": [
+      "Tou-fila.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special",
+      "js/mklev.js:makelevel -> makemaz -> load_special"
+    ],
+    "dependencies": [
+      "dat/nhlib.lua alignment initialization",
+      "sp_lev.c level descriptor APIs already implemented by js/mklev.js"
+    ]
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "challenges/manifests/v62.json identifies the mission as dat/Tou-fila.lua, records the C source trace through mklev.c:makelevel, and states that js/mklev.js:makelevel computes the fill name but the registry lacks Tou-fila.",
+    "nethack-c/upstream/src/mklev.c:1251-1285 selects <filecode>-fila above the role locate level; nethack-c/upstream/dat/Tou-fila.lua defines a complete mines-style filler with flags, stairs, objects, traps, and hostile soldiers/monster classes.",
+    "js/mklev.js:759-772 computes Tou-fila for the reproduced Tourist Home level 2 and proceeds to ordinary generation when SPECIAL_LEVEL_LOADERS lacks the name; js/quest_levels.js exports the registry containing other role filler programs but no Tou-fila.",
+    "The admitted v62 evaluation challenges/evaluations/accepted-d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84-v62.json at d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84 records 299/328 screens, 9417/12218 RNG calls, and 306/328 cursors matched; the case C observation shows the distinct generated level after the missing loader branch.",
+    "The queue annotation names nhlib.lua because load_special performs its existing alignment initialization; the manifest source trace and C selector establish Tou-fila.lua as the missing program that owns the mismatch."
+  ]
+}
