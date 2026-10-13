@@ -10,7 +10,7 @@
   "recordingPath": "challenges/cases/v57/v57-throne-court-summon-action2.session.json",
   "recordingSha256": "aff21fc31123fae6741b17cde1ca187061ea115ed413aaf34bfda5c04758d20f",
   "evaluationPath": "challenges/evaluations/admission-01813882f5ec9612667f08b17e1630f732d78381-v57.json",
-  "evaluationCommit": "a79bddc437c90bdcfa6d9d6b01c480b86225a9c5",
+  "evaluationCommit": "01813882f5ec9612667f08b17e1630f732d78381",
   "status": "complete",
   "commit": "a48a5469fa9ca2cd8f32a882d3536cc97f9cb195",
   "mismatch": {
