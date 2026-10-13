@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T04:43:10.404Z",
+  "capturedAt": "2026-10-13T04:53:09.750Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -101141,6 +101141,149 @@
         "type": "accepted",
         "at": "2026-10-13T04:42:20.150Z",
         "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013-cd82c9427d18b19a5487bff63be1aa6a9e026e26",
+        "type": "published",
+        "at": "2026-10-13T04:43:22.567Z",
+        "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013",
+        "commit": "cd82c9427d18b19a5487bff63be1aa6a9e026e26"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-B-v54-castmu-fumble-20261013",
+        "type": "activity",
+        "at": "2026-10-13T04:43:39.627Z",
+        "task": "B-investigation-v54-caveman-cleric-insects-residual-action2-20261013",
+        "phase": "review",
+        "reason": "Integrate the immutable naming fix after the accepted armor checkpoint; saved worker checks verified."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-angel-magic-missiles-20261013",
+        "type": "turn",
+        "at": "2026-10-13T04:43:48.957Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Tracing the admitted angel magic-missiles mismatch against accepted Main before deciding whether its source scope is independent."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v54-angel-magic-missiles-20261013",
+        "type": "assign",
+        "at": "2026-10-13T04:43:57.704Z",
+        "task": "C-investigation-v54-angel-adjacent-magic-missiles-action3-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-B-v54-fumble-29e87d84-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T04:44:07.819Z",
+        "task": "B-investigation-v54-caveman-cleric-insects-residual-action2-20261013",
+        "integration": "29e87d84ecdc23bec49894556749298f61677af6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-park-angel-behind-castmu-20261013",
+        "type": "park",
+        "at": "2026-10-13T04:45:27.561Z",
+        "task": "C-investigation-v54-angel-adjacent-magic-missiles-action3-20261013",
+        "reason": "Source trace identifies mcastu.c:castmu AD_MAGM as the first unsupported branch; B owns mcastu.c:castmu and mhitu.c:mattacku until its naming delivery is accepted. Partial diagnosis is committed at 45113cb02."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-preview-Prep19-behind-B-fumble-20261013",
+        "type": "activity",
+        "at": "2026-10-13T04:45:36.612Z",
+        "task": "Prep19",
+        "phase": "review",
+        "reason": "Read-only preview of the oldest prepared batch while the naming checkpoint runs; ready implementations retain priority."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-wait-castmu-release-20261013",
+        "type": "turn",
+        "at": "2026-10-13T04:45:50.504Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Waiting for B’s castmu/mattacku delivery to be accepted; the angel magic-missile diagnosis is saved and parked. The other open admitted cases are owned or held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a73a9e9e7791e8bd794dfe31d9b72e8db1fbfe7e",
+        "type": "ready",
+        "at": "2026-10-13T04:46:20.018Z",
+        "task": "A2-investigation-v54-healer-multishot-name-action4-20261013",
+        "delivery": "a73a9e9e7791e8bd794dfe31d9b72e8db1fbfe7e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-A-v54-multishot-a73a9e9e-20261013",
+        "type": "received",
+        "at": "2026-10-13T04:46:36.516Z",
+        "task": "A2-investigation-v54-healer-multishot-name-action4-20261013",
+        "delivery": "a73a9e9e7791e8bd794dfe31d9b72e8db1fbfe7e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-preview-A-v54-multishot-behind-B-20261013",
+        "type": "activity",
+        "at": "2026-10-13T04:46:59.589Z",
+        "task": "A2-investigation-v54-healer-multishot-name-action4-20261013",
+        "phase": "review",
+        "reason": "Preview immutable multishot delivery and saved checks while B naming checkpoint retains Main."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-await-a73-20261013",
+        "type": "turn",
+        "at": "2026-10-13T04:47:18.158Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Waiting for delivery a73a9e9e integration; will recheck independent cases when its source reservations release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v54-caveman-cleric-insects-residual-action2-20261013-29e87d84ecdc23bec49894556749298f61677af6-validated",
+        "type": "validated",
+        "at": "2026-10-13T04:50:36.912Z",
+        "task": "B-investigation-v54-caveman-cleric-insects-residual-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v54-caveman-cleric-insects-residual-action2-20261013-29e87d84ecdc23bec49894556749298f61677af6-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T04:51:16.992Z",
+        "task": "B-investigation-v54-caveman-cleric-insects-residual-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-resume-angel-after-castmu-acceptance-20261013",
+        "type": "resume",
+        "at": "2026-10-13T04:52:24.266Z",
+        "task": "C-investigation-v54-angel-adjacent-magic-missiles-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-resume-angel-after-castmu-acceptance-20261013",
+        "type": "turn",
+        "at": "2026-10-13T04:52:33.808Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Resumed the angel magic-missile investigation after B’s accepted castmu repair; verifying the current source path and full caller scope before implementation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-accepted-naming-20261013",
+        "type": "turn",
+        "at": "2026-10-13T04:52:57.133Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Idle after accepted naming delivery; remaining admitted cases are owned by A2/C or held, pending Root’s v55 admission."
       }
     ]
   },
@@ -101221,13 +101364,13 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v54-caveman-cleric-insects-residual-action2-20261013",
-        "worker": "B",
-        "goal": "fix-castmu-fumble-priest-monname-v54-20261013",
+        "task": "A2-investigation-v54-healer-multishot-name-action4-20261013",
+        "worker": "A2",
+        "goal": "port-objnam-mshot-xname-ordinal-v54-20261013",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "adc1d50c79d320ca301dcb7b9f7c191004d8029a",
-        "since": "2026-10-13T04:30:35.416Z",
+        "delivery": "a73a9e9e7791e8bd794dfe31d9b72e8db1fbfe7e",
+        "since": "2026-10-13T04:46:20.018Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -101723,8 +101866,8 @@
     ]
   },
   "development": {
-    "executionCommit": "4a9094bc9f4f7e628235de5fd4774d64a4779fc0",
-    "measuredAt": "2026-10-13T04:40:07.239Z",
+    "executionCommit": "29e87d84ecdc23bec49894556749298f61677af6",
+    "measuredAt": "2026-10-13T04:48:59.115Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
