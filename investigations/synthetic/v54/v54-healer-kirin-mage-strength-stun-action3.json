@@ -213,7 +213,7 @@
         "function": "disintegrate_mon",
         "definition": "nethack-c/upstream/src/zap.c:4723-4753",
         "branch": "When canseemon(mon) and mlifesaver(mon) is null, C prints \"%s is disintegrated!\" with Monnam(mon), which uppercases the first character of mon_nam.",
-        "productionCaller": "zap.c:zhitu calls disintegrate_mon at nethack-c/upstream/src/zap.c:4914 for MAGIC_COOKIE; JS js/zap.js:zhitu calls the corresponding helper at js/zap.js:5585.",
+        "productionCaller": "zap.c:dobuzz calls disintegrate_mon at nethack-c/upstream/src/zap.c:4914 in the MAGIC_COOKIE branch after zhitm returns the disintegration sentinel; JS js/zap.js:dobuzz makes the corresponding call at js/zap.js:5585.",
         "jsOwner": "js/zap.js:disintegrate_mon currently interpolates monsterCommonName(mon, state), producing lowercase \"the vampire bat\" instead of Monnam-style \"The vampire bat\".",
         "intendedFix": "Use the existing Monnam(mon, state, env) source-aligned helper for this message; leave the unrelated step-659 offensive-item boundary separate."
       }
