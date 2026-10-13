@@ -239,5 +239,13 @@
         ]
       }
     }
-  }
+  },
+  "corpus": "synthetic",
+  "batch": "v62",
+  "caseId": "v62-healer-later-filler-action5",
+  "manifestPath": "challenges/manifests/v62.json",
+  "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+  "recordingSha256": "f07d566e20297d0ca1ba7832e2839ed63ce6d7557240518b5a653fd2ae014ab5",
+  "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+  "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904"
 }
