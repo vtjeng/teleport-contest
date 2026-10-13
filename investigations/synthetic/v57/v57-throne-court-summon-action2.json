@@ -1,0 +1,47 @@
+{
+  "session": "synthetic/v57/v57-throne-court-summon-action2",
+  "corpus": "synthetic",
+  "batch": "v57",
+  "caseId": "v57-throne-court-summon-action2",
+  "remainingScreens": 17,
+  "recordedSteps": 231,
+  "manifestPath": "challenges/manifests/v57.json",
+  "manifestSha256": "9d357944cc12ddc677f3afeccc2016496764f6ecb2cb5748aafdfa885fcd2007",
+  "recordingPath": "challenges/cases/v57/v57-throne-court-summon-action2.session.json",
+  "recordingSha256": "aff21fc31123fae6741b17cde1ca187061ea115ed413aaf34bfda5c04758d20f",
+  "evaluationPath": "challenges/evaluations/admission-01813882f5ec9612667f08b17e1630f732d78381-v57.json",
+  "evaluationCommit": "a79bddc437c90bdcfa6d9d6b01c480b86225a9c5",
+  "status": "complete",
+  "commit": "a48a5469fa9ca2cd8f32a882d3536cc97f9cb195",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": ["synthetic/v57/v57-throne-court-summon-action2"],
+    "remainingScreens": 17,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 72,
+    "caseId": "v57-throne-court-summon-action2",
+    "batch": "v57",
+    "recordingPath": "challenges/cases/v57/v57-throne-court-summon-action2.session.json"
+  },
+  "summary": "The v57 throne court summon diverges when consecutive hobgoblins are created: C redraws the next monster and suppresses its repeated appearance line with Norep(), while JavaScript routes that line through the ordinary message callback and adds a screen boundary. The owner is the runtime appearance tail of makemon.c:makemon and its Norep callback binding.",
+  "source": {
+    "file": "makemon.c",
+    "branch": "Outside level generation, when MM_NOMSG is clear and the created monster has a discernible appearance, makemon redraws its square and calls Norep for the appearance line.",
+    "functions": ["makemon"],
+    "callers": ["sit.c:throne_sit_effect effect 7 calls makemon(courtmon(), tx, ty, NO_MM_FLAGS)"],
+    "dependencies": ["pline.c:Norep"]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/sit.c:112-123: throne_sit_effect effect 7 generates court monsters by calling makemon(courtmon(), tx, ty, NO_MM_FLAGS).",
+    "nethack-c/upstream/src/makemon.c:1468-1505: in runtime outside level generation, makemon calls newsym before formatting a visible appearance and sends that line through Norep().",
+    "nethack-c/upstream/src/pline.c:327-335: Norep sets PLINE_NOREPEAT before vpline, so repeated visible appearance text is suppressed while the square redraw still occurs.",
+    "js/sit.js:471-490: the effect-7 caller passes state, random, and its ordinary message callback to makemon_runtime without a distinct norepMessage callback.",
+    "js/makemon_create.js:2951-2961 and 3348-3363: the runtime appearance tail calls normalized.norepMessage, but makemon_runtime defaults that callback to the ordinary message callback whenever env.message is supplied; this bypasses ttyNorep's PLINE_NOREPEAT behavior.",
+    "The admitted v57 evaluation at challenges/evaluations/admission-01813882f5ec9612667f08b17e1630f732d78381-v57.json records 214/231 screens, 4039/4039 RNG calls, and 218/231 cursors; its first source mismatch is segment 0, input step 72, where the second identical hobgoblin appearance adds a boundary before the kobold redraw."
+  ]
+}
