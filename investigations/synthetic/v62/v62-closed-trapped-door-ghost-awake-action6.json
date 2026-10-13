@@ -1,0 +1,147 @@
+{
+  "session": "synthetic/v62/v62-closed-trapped-door-ghost-awake-action6",
+  "remainingScreens": 52,
+  "recordedSteps": 689,
+  "status": "complete",
+  "commit": "2945ffcdf1c464510ca577ba9bd8cf4067bbd5d4",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": "hack.c",
+    "cFile": "hack.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v62/v62-closed-trapped-door-ghost-awake-action6"
+    ],
+    "remainingScreens": 52,
+    "remainingScreensUpperBound": null,
+    "caseId": "v62-closed-trapped-door-ghost-awake-action6",
+    "batch": "v62",
+    "recordingPath": "challenges/cases/v62/v62-closed-trapped-door-ghost-awake-action6.session.json",
+    "session": "synthetic/v62/v62-closed-trapped-door-ghost-awake-action6",
+    "originalQueueEntry": {
+      "corpus": "synthetic",
+      "batch": "v62",
+      "caseId": "v62-closed-trapped-door-ghost-awake-action6",
+      "session": "synthetic/v62/v62-closed-trapped-door-ghost-awake-action6",
+      "manifestPath": "challenges/manifests/v62.json",
+      "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+      "recording": "challenges/cases/v62/v62-closed-trapped-door-ghost-awake-action6.session.json",
+      "recordingPath": "challenges/cases/v62/v62-closed-trapped-door-ghost-awake-action6.session.json",
+      "recordingSha256": "fd65d8249d2c2b059f5bd893309344ee911f75e57e2da60caa5583e2aff17339",
+      "recipe": "challenges/cases/v62/v62-closed-trapped-door-ghost-awake-action6.recipe.session.json",
+      "recipeSha256": "ec8170217d2c2b73304a5bef379bf255a127af115fbd425b322ade1fb874073b",
+      "replayInputSha256": "a585d58b0058cd5b0dfe8b3109cd07bf713ed6c9f1b80c7be8efd83b9287f2a4",
+      "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v62.json",
+      "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+      "evaluationArtifact": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v62.json",
+      "evaluationUtc": "2026-10-13T16:13:02.457Z",
+      "remainingScreens": 52,
+      "recordedSteps": 689,
+      "previousScreensMatched": 637,
+      "regression": false,
+      "passed": false,
+      "error": null,
+      "metrics": {
+        "screens": {
+          "matched": 637,
+          "total": 689
+        },
+        "rng": {
+          "matched": 3150,
+          "total": 3223
+        },
+        "cursors": {
+          "matched": 637,
+          "total": 689
+        }
+      },
+      "firstMismatch": {
+        "kind": "stop",
+        "message": "unsupported hero move: domove_swap_with_pet() door or special terrain movement",
+        "step": 637
+      },
+      "step": 637,
+      "kind": "stop",
+      "sourceFile": "hack.c",
+      "function": "domove_swap_with_pet",
+      "message": "unsupported hero move: domove_swap_with_pet() door or special terrain movement",
+      "cFile": "hack.c",
+      "luaFile": null,
+      "line": null
+    }
+  },
+  "summary": "The v62 pass-wall Xorn can swap with its tame ghost on an obstructed square, and the ghost can follow through the closed doorway. C hack.c:domove_core() has no destination-terrain refusal; test_move() admits Passes_walls movement, and mon.c:mfndpos() sets thrudoor for ALLOW_WALL. JavaScript now admits those source-approved branches. When the hero later strikes the trapped door, C lock.c:doorlock() calls monmove.c:mb_trapped() for the resident ghost; JavaScript now calls its existing port, preserving the explosion message, damage, stun, and RNG. The admitted v62 replay matches all 689 screens, 3,223 RNG calls, and 689 cursors.",
+  "source": {
+    "file": "hack.c",
+    "branch": "hack.c:domove_core() reaches test_move(), which allows an obstructed destination for Passes_walls && may_passwall(), then runs do_attack() and domove_swap_with_pet() for a safe monster without rejecting the destination terrain. During the elapsed turn, mon.c:mfndpos() sets thrudoor when ALLOW_WALL is present, so the wall-walking ghost can enter a closed doorway; monmove.c:postmov() skips the ordinary door-opening path for passwall monsters. Later zap.c:bhit() calls lock.c:doorlock() for WAN_STRIKING; a trapped door with a monster at its square becomes D_NODOOR and calls monmove.c:mb_trapped().",
+    "functions": [
+      "domove_core"
+    ],
+    "callers": [
+      "cmd.c:rhack() -> hack.c:domove() -> hack.c:domove_core() -> uhitm.c:do_attack() -> hack.c:domove_swap_with_pet().",
+      "allmain.c:moveloop_core() -> mon.c:movemon() -> monmove.c:dochugw()/m_move() -> mon.c:mfndpos() -> monmove.c:postmov().",
+      "cmd.c zap command -> zap.c:bhit() -> lock.c:doorlock() -> monmove.c:mb_trapped()."
+    ],
+    "dependencies": [
+      "hack.c:test_move() admits obstructed movement when Passes_walls && may_passwall().",
+      "uhitm.c:do_attack() spends the source-ordered safe-monster draw before domove_core() swaps the pet.",
+      "mon.c:mfndpos() sets thrudoor for ALLOW_WALL and admits closed-door squares; monmove.c:postmov() skips door opening for passwall monsters.",
+      "dungeon.c:u_on_newpos() and hack.c:spoteffects() run after the successful hero swap.",
+      "lock.c:doorlock() discards mb_trapped()'s return value but relies on its message, RNG, damage, stun, death, and trap-learning effects. js/monmove.js already implements mb_trapped()."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The original v62 evaluation at challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v62.json recorded 637/689 screens, 3150/3223 RNG calls, and 637/689 cursors, stopping at segment 0 step 637 on the unsupported safe-monster special-terrain preflight.",
+    "The saved worker replay after the fix at .cache/v62/replay-result.json reports a strict match: 689/689 screens, 3223/3223 RNG calls, 689/689 cursors, and zero animation frames on both sides.",
+    "The first source defect was js/hack.js:requireOrdinarySafeMonsterSwap(), which admitted only ROOM, CORR, furniture, or an empty door before do_attack(). C hack.c:test_move():1011-1018 admits an obstructed destination when Passes_walls && may_passwall(); hack.c:2922-2934 performs the safe-monster swap and u_on_newpos() without a terrain-type gate.",
+    "The elapsed-turn follow-up was js/unported_monster_actions.js:admitSimpleDestinationAndRegion(). C mon.c:2140-2222 derives thrudoor from ALLOW_WALL and lets that monster enter a closed door; monmove.c:1540-1590 skips door opening when the monster passes walls. JavaScript now admits pass-wall doors for this planner path.",
+    "The later step 660 RNG and screen mismatch was js/lock.js:doorlock() recording note_unported('trap.c mb_trapped') instead of calling the existing js/monmove.js:mb_trapped(). C lock.c:1201-1220 clears a trapped closed door and calls monmove.c:mb_trapped() for a monster at the square; the JS call now preserves its RNG and state/output effects.",
+    "Focused coverage in scripts/hack.test.mjs exercises the pass-wall safe-pet preflight and test_move() branch. scripts/lock.test.mjs checks door destruction, the discarded helper result, the explosion message, stun, HP loss, and rnd(15) ordering. The admitted v62 replay exercises the complete production path through both later branches."
+  ],
+  "provenance": {
+    "corpus": "synthetic",
+    "batch": "v62",
+    "caseId": "v62-closed-trapped-door-ghost-awake-action6",
+    "session": "synthetic/v62/v62-closed-trapped-door-ghost-awake-action6",
+    "manifestPath": "challenges/manifests/v62.json",
+    "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+    "recording": "challenges/cases/v62/v62-closed-trapped-door-ghost-awake-action6.session.json",
+    "recordingPath": "challenges/cases/v62/v62-closed-trapped-door-ghost-awake-action6.session.json",
+    "recordingSha256": "fd65d8249d2c2b059f5bd893309344ee911f75e57e2da60caa5583e2aff17339",
+    "recipe": "challenges/cases/v62/v62-closed-trapped-door-ghost-awake-action6.recipe.session.json",
+    "recipeSha256": "ec8170217d2c2b73304a5bef379bf255a127af115fbd425b322ade1fb874073b",
+    "replayInputSha256": "a585d58b0058cd5b0dfe8b3109cd07bf713ed6c9f1b80c7be8efd83b9287f2a4",
+    "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v62.json",
+    "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+    "evaluationArtifact": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v62.json",
+    "evaluationUtc": "2026-10-13T16:13:02.457Z",
+    "remainingScreens": 52,
+    "recordedSteps": 689,
+    "previousScreensMatched": 637,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "baseline": {
+      "screens": "637/689",
+      "rng": "3150/3223",
+      "cursors": "637/689"
+    },
+    "firstMismatch": {
+      "segment": 0,
+      "step": 637,
+      "key": null,
+      "kind": "stop",
+      "message": "unsupported hero move: domove_swap_with_pet() door or special terrain movement"
+    }
+  },
+  "corpus": "synthetic",
+  "batch": "v62",
+  "caseId": "v62-closed-trapped-door-ghost-awake-action6",
+  "manifestPath": "challenges/manifests/v62.json",
+  "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+  "recordingSha256": "fd65d8249d2c2b059f5bd893309344ee911f75e57e2da60caa5583e2aff17339",
+  "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v62.json",
+  "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678"
+}
