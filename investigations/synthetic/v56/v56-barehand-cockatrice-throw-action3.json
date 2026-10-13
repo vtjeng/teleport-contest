@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v56/v56-barehand-cockatrice-throw-action3",
-  "remainingScreens": 0,
+  "remainingScreens": 4,
   "recordedSteps": 177,
   "corpus": "synthetic",
   "batch": "v56",
@@ -15,7 +15,7 @@
   "commit": "615af68bf6c69fcfc8ad6c04f82f873401378484",
   "mismatch": {
     "session": "synthetic/v56/v56-barehand-cockatrice-throw-action3",
-    "remainingScreens": 0,
+    "remainingScreens": 4,
     "step": 157,
     "kind": "screen",
     "sourceFile": "dothrow.c",
