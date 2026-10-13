@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3",
-  "remainingScreens": 83,
+  "remainingScreens": 86,
   "recordedSteps": 280,
   "corpus": "synthetic",
   "batch": "v54",
@@ -14,25 +14,25 @@
   "commit": "0dd06dd535426d0cb6108ae7cd7aeee921e32d44",
   "mismatch": {
     "session": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3",
-    "remainingScreens": 83,
-    "step": 197,
-    "kind": "unported-discarded-void-helper",
-    "sourceFile": "zap.c",
-    "function": "mon_spell_hits_spot",
-    "sourceBranch": "C mcastu.c:castmu AD_MAGM branch calls zap.c:mon_spell_hits_spot after the missile message/resistance-or-damage branch. It is void and castmu discards the result; this task records the explicit gap and skips it. In the engraved selected challenge, the helper consumes a floor-effect RNG call at step 197.",
-    "runtimeBoundary": "AD_MAGM messages and damage branch now execute; remaining mismatch is the subsequent floor helper gap.",
+    "remainingScreens": 86,
+    "step": 194,
+    "kind": "unsupported-source-branch",
+    "sourceFile": "mcastu.c",
+    "function": "castmu",
+    "sourceBranch": "C mcastu.c:castmu AD_MAGM branch (282-294) handles magic missiles; JS castmu falls through to unsupported at js/mcastu.js:617.",
+    "runtimeBoundary": "simple monster action requires castmu() elemental spell type",
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 197,
+        "matched": 194,
         "total": 280
       },
       "rng": {
-        "matched": 2471,
+        "matched": 2459,
         "total": 2581
       },
       "cursors": {
-        "matched": 279,
+        "matched": 194,
         "total": 280
       }
     },
@@ -41,7 +41,7 @@
     "evaluationCommit": "29e87d84ecdc23bec49894556749298f61677af6",
     "recordedSteps": 280
   },
-  "summary": "AD_MAGM is implemented through its source-ordered resistance or damage branch and trailing mdamageu effect. The selected admitted case now reaches step 197 before diverging because its engraved hero square triggers the still-unported void zap.c:mon_spell_hits_spot helper. The selected metrics are 197/280 screens, 2471/2581 RNG calls, 279/280 cursors, error null; this is not a complete session match. Independent Tourist positive-damage and Wizard Antimagic recordings each match completely.",
+  "summary": "The accepted baseline remains 194/280 screens, 2459/2581 RNG calls and 194/280 cursors. The AD_MAGM branch is now implemented and independently verified on both positive-damage and Antimagic routes. On the selected engraved-square case, the branch runs, then the remaining frontier is the discarded void zap.c:mon_spell_hits_spot helper at step 197; current selected metrics are 197/280 screens, 2471/2581 RNG calls and 279/280 cursors, error null. The case is not complete.",
   "source": {
     "file": "mcastu.c",
     "functions": [
@@ -90,7 +90,7 @@
       }
     },
     "remainingScreens": 86,
-    "note": "Accepted v54 baseline after B naming acceptance; retained unchanged."
+    "note": "Accepted v54 evaluation after B’s castmu naming repair; the per-case baseline is unchanged."
   },
   "history": [
     {
@@ -98,8 +98,35 @@
       "note": "Original partial diagnosis and B ownership blocker, preserved in Git; it records the earlier 4a9094bc baseline and the same AD_MAGM stop."
     },
     {
-      "sourceRevision": "current-worker-admagm-implementation",
-      "note": "Bounded AD_MAGM branch implementation and independent runtime evidence; selected case still stops at the discarded void mon_spell_hits_spot gap. Original diagnosis remains in history."
+      "sourceRevision": "0dd06dd535426d0cb6108ae7cd7aeee921e32d44",
+      "note": "AD_MAGM branch implemented. Selected replay advances from the saved baseline to the explicit mon_spell_hits_spot void-gap frontier; independent Tourist and Wizard recordings match completely."
     }
-  ]
+  ],
+  "latestResult": {
+    "implementationCommit": "0dd06dd535426d0cb6108ae7cd7aeee921e32d44",
+    "status": "partial",
+    "remainingScreens": 83,
+    "mismatch": {
+      "step": 197,
+      "kind": "unported-discarded-void-helper",
+      "sourceFile": "zap.c",
+      "function": "mon_spell_hits_spot",
+      "error": null,
+      "metrics": {
+        "screens": {
+          "matched": 197,
+          "total": 280
+        },
+        "rng": {
+          "matched": 2471,
+          "total": 2581
+        },
+        "cursors": {
+          "matched": 279,
+          "total": 280
+        }
+      }
+    },
+    "note": "Selected case has an engraving on the hero square; the void helper call is skipped as required, leaving its C floor-effect RNG draw unmatched."
+  }
 }
