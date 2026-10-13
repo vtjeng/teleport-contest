@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T15:44:28.937Z",
+  "capturedAt": "2026-10-13T16:03:49.045Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -104184,85 +104184,387 @@
         "worker": "B",
         "state": "idle",
         "reason": "B deliveries are submitted and accepted-main is synced; waiting for an independent refreshed queue candidate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v57-flying-steed-pool-dismount-20261013",
+        "type": "assign",
+        "at": "2026-10-13T15:44:29.409Z",
+        "task": "A2-investigation-v57-flying-steed-pool-dismount-action4-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v56-magic-whistle-firetrap-pet-action2-20261013-97203964a9c90242f5da33b1c12e4bd97860d6f5",
+        "type": "published",
+        "at": "2026-10-13T15:44:42.525Z",
+        "task": "A2-investigation-v56-magic-whistle-firetrap-pet-action2-20261013",
+        "commit": "97203964a9c90242f5da33b1c12e4bd97860d6f5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-park-v57-flying-steed-duplicate-20261013",
+        "type": "park",
+        "at": "2026-10-13T15:44:52.102Z",
+        "task": "A2-investigation-v57-flying-steed-pool-dismount-action4-20261013",
+        "reason": "Duplicate session already owned by B parked investigation B-investigation-v57-flying-steed-pool-dismount-20261013 (diagnosis 99b0d915d); Root confirmed B ownership. Parked without source edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-idle-queue-refresh-20261013",
+        "type": "turn",
+        "at": "2026-10-13T15:45:06.662Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent saved-queue candidate remains after checking current reservations; Root is preparing a refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-d94667a2bd6f38a514195d9552954ae31af9e9eb-20261013",
+        "type": "received",
+        "at": "2026-10-13T15:45:45.126Z",
+        "task": "A2-investigation-v56-barehand-cockatrice-throw-action3-20261013",
+        "delivery": "d94667a2bd6f38a514195d9552954ae31af9e9eb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a48c235cc3c1bdbe8b10396b35a84228098e2ecf-20261013",
+        "type": "received",
+        "at": "2026-10-13T15:45:47.942Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013",
+        "delivery": "a48c235cc3c1bdbe8b10396b35a84228098e2ecf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-21c8bd543a08958badec3b96cc22b894fbb365ec-20261013",
+        "type": "received",
+        "at": "2026-10-13T15:45:50.905Z",
+        "task": "B-investigation-v57-hallucinatory-whatis-20261013",
+        "delivery": "21c8bd543a08958badec3b96cc22b894fbb365ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c28f3b83e48a51bb5046ce8408f370f155fd427c-20261013",
+        "type": "received",
+        "at": "2026-10-13T15:45:53.717Z",
+        "task": "C-investigation-v56-sack-container-help-traditional-action2-20261013",
+        "delivery": "c28f3b83e48a51bb5046ce8408f370f155fd427c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-68393cf4971e6ff2e067d276863b8cfed33d6d72-20261013",
+        "type": "received",
+        "at": "2026-10-13T15:45:59.855Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+        "delivery": "68393cf4971e6ff2e067d276863b8cfed33d6d72"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-9a9a1a2d70d4997b724e1763388a1575d8fbecc4-20261013",
+        "type": "received",
+        "at": "2026-10-13T15:46:02.785Z",
+        "task": "B-investigation-v57-traditional-container-menu-request-20261013",
+        "delivery": "9a9a1a2d70d4997b724e1763388a1575d8fbecc4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-fe5122c605cc481dfd021a5bf7e92a6ec3de77a68dc3b40a85425359f42053a6-ce51c52366d1b682c5423677ab5c687cb70833ee-Prep22",
+        "type": "integrating",
+        "at": "2026-10-13T15:47:06.530Z",
+        "task": "Prep22",
+        "integration": "ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "prepGroup": [
+          "Prep22",
+          "Prep23",
+          "Prep24",
+          "Prep25",
+          "Prep26"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-fe5122c605cc481dfd021a5bf7e92a6ec3de77a68dc3b40a85425359f42053a6-ce51c52366d1b682c5423677ab5c687cb70833ee-Prep23",
+        "type": "integrating",
+        "at": "2026-10-13T15:47:06.530Z",
+        "task": "Prep23",
+        "integration": "ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "prepGroup": [
+          "Prep22",
+          "Prep23",
+          "Prep24",
+          "Prep25",
+          "Prep26"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-fe5122c605cc481dfd021a5bf7e92a6ec3de77a68dc3b40a85425359f42053a6-ce51c52366d1b682c5423677ab5c687cb70833ee-Prep24",
+        "type": "integrating",
+        "at": "2026-10-13T15:47:06.530Z",
+        "task": "Prep24",
+        "integration": "ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "prepGroup": [
+          "Prep22",
+          "Prep23",
+          "Prep24",
+          "Prep25",
+          "Prep26"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-fe5122c605cc481dfd021a5bf7e92a6ec3de77a68dc3b40a85425359f42053a6-ce51c52366d1b682c5423677ab5c687cb70833ee-Prep25",
+        "type": "integrating",
+        "at": "2026-10-13T15:47:06.530Z",
+        "task": "Prep25",
+        "integration": "ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "prepGroup": [
+          "Prep22",
+          "Prep23",
+          "Prep24",
+          "Prep25",
+          "Prep26"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-fe5122c605cc481dfd021a5bf7e92a6ec3de77a68dc3b40a85425359f42053a6-ce51c52366d1b682c5423677ab5c687cb70833ee-Prep26",
+        "type": "integrating",
+        "at": "2026-10-13T15:47:06.530Z",
+        "task": "Prep26",
+        "integration": "ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "prepGroup": [
+          "Prep22",
+          "Prep23",
+          "Prep24",
+          "Prep25",
+          "Prep26"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep22-ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "type": "validated",
+        "at": "2026-10-13T15:55:09.389Z",
+        "task": "Prep22",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep22-ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "type": "accepted",
+        "at": "2026-10-13T15:55:09.389Z",
+        "task": "Prep22"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep23-ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "type": "validated",
+        "at": "2026-10-13T15:55:09.389Z",
+        "task": "Prep23",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep23-ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "type": "accepted",
+        "at": "2026-10-13T15:55:09.389Z",
+        "task": "Prep23"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep24-ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "type": "validated",
+        "at": "2026-10-13T15:55:09.389Z",
+        "task": "Prep24",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep24-ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "type": "accepted",
+        "at": "2026-10-13T15:55:09.389Z",
+        "task": "Prep24"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep25-ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "type": "validated",
+        "at": "2026-10-13T15:55:09.389Z",
+        "task": "Prep25",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep25-ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "type": "accepted",
+        "at": "2026-10-13T15:55:09.389Z",
+        "task": "Prep25"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep26-ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "type": "validated",
+        "at": "2026-10-13T15:55:09.389Z",
+        "task": "Prep26",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep26-ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "type": "accepted",
+        "at": "2026-10-13T15:55:09.389Z",
+        "task": "Prep26"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-admission-Prep22-v58-v62-20261013",
+        "type": "activity",
+        "at": "2026-10-13T15:55:51.492Z",
+        "task": "Prep22",
+        "phase": "admission",
+        "reason": "Five accepted batches share one hosted admission baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-admission-Prep23-v58-v62-20261013",
+        "type": "activity",
+        "at": "2026-10-13T15:55:54.509Z",
+        "task": "Prep23",
+        "phase": "admission",
+        "reason": "Five accepted batches share one hosted admission baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-admission-Prep24-v58-v62-20261013",
+        "type": "activity",
+        "at": "2026-10-13T15:55:57.470Z",
+        "task": "Prep24",
+        "phase": "admission",
+        "reason": "Five accepted batches share one hosted admission baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-admission-Prep25-v58-v62-20261013",
+        "type": "activity",
+        "at": "2026-10-13T15:55:58.839Z",
+        "task": "Prep25",
+        "phase": "admission",
+        "reason": "Five accepted batches share one hosted admission baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-admission-Prep26-v58-v62-20261013",
+        "type": "activity",
+        "at": "2026-10-13T15:56:01.951Z",
+        "task": "Prep26",
+        "phase": "admission",
+        "reason": "Five accepted batches share one hosted admission baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep22-b151b2318fa82ab62868ad676c7f00823de614c0",
+        "type": "activity",
+        "at": "2026-10-13T16:00:25.847Z",
+        "task": "Prep22",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep22-b151b2318fa82ab62868ad676c7f00823de614c0",
+        "type": "activity",
+        "at": "2026-10-13T16:00:26.518Z",
+        "task": "Prep22",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep23-b151b2318fa82ab62868ad676c7f00823de614c0",
+        "type": "activity",
+        "at": "2026-10-13T16:00:27.121Z",
+        "task": "Prep23",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep23-b151b2318fa82ab62868ad676c7f00823de614c0",
+        "type": "activity",
+        "at": "2026-10-13T16:00:27.809Z",
+        "task": "Prep23",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep24-b151b2318fa82ab62868ad676c7f00823de614c0",
+        "type": "activity",
+        "at": "2026-10-13T16:00:28.516Z",
+        "task": "Prep24",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep24-b151b2318fa82ab62868ad676c7f00823de614c0",
+        "type": "activity",
+        "at": "2026-10-13T16:00:29.174Z",
+        "task": "Prep24",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep25-b151b2318fa82ab62868ad676c7f00823de614c0",
+        "type": "activity",
+        "at": "2026-10-13T16:00:29.897Z",
+        "task": "Prep25",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep25-b151b2318fa82ab62868ad676c7f00823de614c0",
+        "type": "activity",
+        "at": "2026-10-13T16:00:30.507Z",
+        "task": "Prep25",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep26-b151b2318fa82ab62868ad676c7f00823de614c0",
+        "type": "activity",
+        "at": "2026-10-13T16:00:31.142Z",
+        "task": "Prep26",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep26-b151b2318fa82ab62868ad676c7f00823de614c0",
+        "type": "activity",
+        "at": "2026-10-13T16:00:31.798Z",
+        "task": "Prep26",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep27-v63-current-cli-comparison-20261013-1634",
+        "type": "turn",
+        "at": "2026-10-13T16:01:05.474Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep27 compares the independently replayed C Wizard clone encounter after finding eleven distinct source failures."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "Prep22",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "b02faa4f089627c4e01057453683eec7518bdbc0",
-        "batch": "v58",
-        "since": "2026-10-12T19:55:18.218Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
-        "task": "Prep23",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "c637fe5a61d56b8de72d7bc303222f1ec05142db",
-        "batch": "v59",
-        "since": "2026-10-12T20:51:26.895Z",
-        "blockedBy": [
-          "Prep22"
-        ],
-        "unblocks": 0
-      },
-      {
-        "task": "Prep24",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "18b60878251f96d7acedc3097cb6ceef06d05b68",
-        "batch": "v60",
-        "since": "2026-10-13T06:25:55.304Z",
-        "blockedBy": [
-          "Prep22",
-          "Prep23"
-        ],
-        "unblocks": 0
-      },
-      {
-        "task": "Prep25",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "b3d877b53d0df5ef2467984da2973e7a00f41ba1",
-        "batch": "v61",
-        "since": "2026-10-13T07:46:50.404Z",
-        "blockedBy": [
-          "Prep22",
-          "Prep23",
-          "Prep24"
-        ],
-        "unblocks": 0
-      },
-      {
-        "task": "Prep26",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "e01335307fb606b19ee30b6248eb115201e20e30",
-        "batch": "v62",
-        "since": "2026-10-13T09:15:26.126Z",
-        "blockedBy": [
-          "Prep22",
-          "Prep23",
-          "Prep24",
-          "Prep25"
-        ],
-        "unblocks": 0
-      },
       {
         "task": "C-investigation-v56-timedblind-highcleric-geyser-action5-20261013",
         "worker": "C",
@@ -104891,12 +105193,23 @@
         "since": "2026-10-13T15:23:25.222Z",
         "blockedBy": [],
         "reason": "Source-traced file-port scope is steed.c:dismount_steed (whole range 576-822), including related v56 save_utrap/mintrap mismatch. Caller audit found js/timeout.js still records steed.c dismount as unported inside A2’s active timeout.c:slip_or_trip reservation; finish or clear that caller reservation before this whole-function task can wire all callers. Diagnosis is preserved in investigations/synthetic/v57/v57-flying-steed-pool-dismount-action4.json at 99b0d915d."
+      },
+      {
+        "task": "A2-investigation-v57-flying-steed-pool-dismount-action4-20261013",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-13T15:44:52.102Z",
+        "blockedBy": [],
+        "reason": "Duplicate session already owned by B parked investigation B-investigation-v57-flying-steed-pool-dismount-20261013 (diagnosis 99b0d915d); Root confirmed B ownership. Parked without source edits."
       }
     ]
   },
   "development": {
-    "executionCommit": "7b766fdd76a05cfda5bb0bb507c6c720b68041dc",
-    "measuredAt": "2026-10-13T15:27:35.625Z",
+    "executionCommit": "ce51c52366d1b682c5423677ab5c687cb70833ee",
+    "measuredAt": "2026-10-13T15:53:26.088Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
