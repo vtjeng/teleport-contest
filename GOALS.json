@@ -298266,6 +298266,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "div-zap-bhitm-extra-healing-blindness-call-v55-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Call muse.c:mcureblindness from the existing bhitm extra-healing branch in C order, restoring the visible cure message and monster sight state before the improvement message.",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v55/v55-blind-ogre-extra-healing-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v55-blind-ogre-extra-healing-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "bhitm",
+      "session": "synthetic/v55/v55-blind-ogre-extra-healing-action5"
     }
   ]
 }
