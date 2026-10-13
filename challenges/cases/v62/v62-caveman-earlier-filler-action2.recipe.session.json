@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission dat/Cav-fila.lua:whole-program. Seven objects, five explicit bugbears plus h/hill giant, rather than later twelve objects and different creature sequence. Scout actual wizard Quest locate entry before Home-relative filler request; no named filename teleport or quest flag injection. Actual own C menu locate entry z establishes Quest branch before Home2 early-filler request. Source do.c home-level guard is avoided through supported wizard menu selection.",
+  "segments": [
+    {
+      "seed": 62101901,
+      "datetime": "20730617202122",
+      "nethackrc": "OPTIONS=name:V62Filler,role:Caveman,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     #levelchange\n30\n                                                                                     #wizlevelport\n?\n z                    #wizmap\n#wizlevelport\n2\n                    #wizmap\n"
+    }
+  ]
+}

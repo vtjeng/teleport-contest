@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission dat/Tou-filb.lua:whole-program mines eleven objects and captain/H/C/spider descriptors. Later Tourist filler source captain and spider descriptors differ from earlier soldiers; descriptor-order failure may qualify, generic mines loader failure remains overlap. Inspect the second page of own wizard dungeon menu to establish actual Quest start and locate depths before choosing filler numeric target. C source correction: C menu y enters actual Quest home. teleport.c1281-1291 relativizes positive numeric requests in Quest, so filler input is Home4, not absolute depth. Earlier action3 stayed in Doom and is preserved outside target.",
+  "segments": [
+    {
+      "seed": 62101812,
+      "datetime": "20720415222526",
+      "nethackrc": "OPTIONS=name:V62Prep,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +20 ring of protection\n                    #wizidentify\n.\n                    #levelchange\n30\n                                                                                     #wizlevelport\nTou-strt\n                    #wizlevelport\n?\n y                    #wizmap\n#wizlevelport\n4\n                    #wizmap\n"
+    }
+  ]
+}

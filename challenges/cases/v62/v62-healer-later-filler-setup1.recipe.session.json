@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission dat/Hea-filb.lua:whole-program mines pool background unsmoothed/unwalled; eel/rat/dragon descriptors. Scout own quest depth; reach later filler whose pools and descriptor classes differ from Cav cavern. Separate source program only qualifies if first defect reaches its different source behavior.",
+  "segments": [
+    {
+      "seed": 62101806,
+      "datetime": "20720415222526",
+      "nethackrc": "OPTIONS=name:V62Prep,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +20 ring of protection\n                    #wizidentify\n.\n                    #levelchange\n30\n                                                                                     #wizlevelport\nHea-strt\n                    #wizlevelport\n?\n"
+    }
+  ]
+}

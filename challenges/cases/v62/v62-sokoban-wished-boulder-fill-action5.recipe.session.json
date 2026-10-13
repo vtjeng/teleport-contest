@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission trap.c:maybe_finish_sokoban deltrap existing PIT while remaining pits persist. Wizard establishes levitation before entering an existing Sokoban pit. If boulders enclose arrival, use source-supported passwall form to reach clear pit approach, then spider form while ring levitation prevents u.utrap refusal. Never wish forbidden HOLE terrain on Sokoban. C-only observed item slots and supported source actions establish actual map/menu state before gameplay target coordinates. C-only source action: Select actual own menu E soko4 with ring levitation already active; inspect resulting boulder/pit geometry before an existing-pit route. C-only terrain follow-up: Source soko4 non_passwall forbids xorn shortcut. Strike observed adjacent boulder from original levitating hero to clear a source-supported floor route, then inspect real geometry before existing-pit web. Wished wand slot p follows own n/o rings. C-only source alternative: Sokoban gravity ignores levitation, so pit-standing web route cannot rely on ring. Actual cleared row has a pit west of hero; independently wish/drop boulder q, remove levitation, step east and push west along observed clear line into one existing pit. Preserve any wish/drop protocol miss.",
+  "segments": [
+    {
+      "seed": 62101801,
+      "datetime": "20720415222526",
+      "nethackrc": "OPTIONS=name:V62Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of levitation\n                    \u0017uncursed ring of slow digestion\n                    #wizidentify\n.\n                    #levelchange\n30\n                                                                                     i                    #wizmap\nPnl                    #wizlevelport\n?\n E                    #wizmap\n\u0017uncursed wand of striking (0:5)\n                    #wizidentify\n.\n                    zph                    #wizmap\n\u0017uncursed boulder\n                    dq                    Rn                    l                    h                    h                    h                    h                    h                    #wizmap\n"
+    }
+  ]
+}

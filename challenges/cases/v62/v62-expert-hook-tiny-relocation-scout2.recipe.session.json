@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission apply.c:use_grapple Expert monster aim -> verysmall rloc_to. Independent male Ranger raises flail to Expert using supported wizard enhancement, observes actual newt position, then bounded monster-target aim. Prior v61 Skillful aim reaches Nothing happens; only actual newt relocation adds target coverage. C-only observed item slots and supported source actions establish actual map/menu state before gameplay target coordinates.",
+  "segments": [
+    {
+      "seed": 62101803,
+      "datetime": "20720415222526",
+      "nethackrc": "OPTIONS=name:V62Prep,role:Ranger,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed grappling hook\n                    \u0017uncursed +20 ring of protection\n                    #wizidentify\n.\n                    #levelchange\n30\n                                                                                     i                    #wizmap\nPhl                    #enhance\nyi                    \u001b                    #enhance\nyi                    \u001b                    #enhance\nyi                    \u001b                    wg                    #wizgenesis\npeaceful newt\n                    #wizmap\n"
+    }
+  ]
+}

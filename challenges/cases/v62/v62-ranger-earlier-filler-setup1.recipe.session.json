@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission dat/Ran-fila.lua:whole-program mines tree background and seven object descriptors. Earlier Ranger filler has tree background and forest/mountain centaur distribution. Actual program order and terrain must differ at first defect from prior wilderness programs.",
+  "segments": [
+    {
+      "seed": 62101809,
+      "datetime": "20720415222526",
+      "nethackrc": "OPTIONS=name:V62Prep,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +20 ring of protection\n                    #wizidentify\n.\n                    #levelchange\n30\n                                                                                     #wizlevelport\nRan-strt\n                    #wizlevelport\n?\n"
+    }
+  ]
+}
