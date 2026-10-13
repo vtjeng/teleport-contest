@@ -30,7 +30,8 @@
     "recordingPath": "challenges/cases/v58/v58-swallowed-wraith-growth-action2.session.json",
     "segment": 0,
     "step": 231,
-    "error": "ReferenceError: grow_up is not defined"
+    "error": "ReferenceError: grow_up is not defined",
+    "session": "synthetic/v58/v58-swallowed-wraith-growth-action2"
   },
   "summary": "The swallowed-wraith synthetic recording reaches do.c:engulfer_digests_food when a digesting swallower consumes a CORPSE with corpsenm PM_WRAITH. C calls (void) grow_up(u.ustuck, 0), and js/makemon.js already exports grow_up; js/do.js awaits grow_up in the corresponding branch but does not import it, so the fresh JS replay throws ReferenceError at input step 231 before completing digestion. The general repair is to bind the existing callee in do.js.",
   "source": {
