@@ -299323,6 +299323,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-mcastu-cursetxt-norep-v56",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Honor Norep for repeated unseen-monster curses.",
+      "cFile": "mcastu.c",
+      "sessions": [
+        "synthetic/v56/v56-timedblind-highcleric-geyser-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v56-timedblind-highcleric-geyser-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "cursetxt",
+      "session": "synthetic/v56/v56-timedblind-highcleric-geyser-action5"
     }
   ]
 }
