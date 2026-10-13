@@ -295332,7 +295332,7 @@
     {
       "id": "C-port-pay-for-damage-v53-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement pay_for_damage, add_damage, shk_impaired, repairable_damage, find_damage, shk_fixes_damage from shk.c",
       "cFile": "shk.c",
       "sessions": [
@@ -295342,10 +295342,255 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "fcc47e9ff72ca9833565127cd205eca099bd9d48",
       "delivered": null,
       "function": "add_damage and pay_for_damage",
-      "session": "synthetic/v53/v53-ring-shop-wall-digging-damage-action3"
+      "session": "synthetic/v53/v53-ring-shop-wall-digging-damage-action3",
+      "closeStanding": {
+        "sha": "fcc47e9ff72ca9833565127cd205eca099bd9d48",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "65da8c69c8e214b155c129c3ecd975d3c48e47af",
+        "target": "synthetic/v53/v53-ring-shop-wall-digging-damage-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/fcc47e9ff72ca9833565127cd205eca099bd9d48/run-hosted-7G7cwn/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "add_damage",
+            "implementation": "js/shk.js",
+            "symbol": "add_damage",
+            "pure": false,
+            "sourceReview": "Whole C definition shk.c:add_damage (4399-4433): preserve level/shop guards, canonical damage-list identity and order, coordinate/cost accumulation, seenv update, and allocation only for a new record. All claimed active direct JS callers below now bind this owner; no duplicate damage state remains.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "set_trap",
+                "source": "apply.c:set_trap; Replace the add_damage gap with the canonical shk.c implementation."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "use_pick_axe2",
+                "source": "dig.c:use_pick_axe2; Replace shop terrain damage gap with add_damage; preserve pickaxe source order."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "mdig_tunnel",
+                "source": "dig.c:mdig_tunnel; Replace the local addShopDamage duplicate with canonical add_damage."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "picklock",
+                "source": "lock.c:picklock; Replace the add_damage gap."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doopen_indir",
+                "source": "lock.c:doopen_indir; Replace the add_damage gap."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doorlock",
+                "source": "lock.c:doorlock; Replace the add_damage gap."
+              },
+              {
+                "path": "js/music.js",
+                "symbol": "do_earthquake",
+                "source": "music.c:do_earthquake; Replace the add_damage gap."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhit",
+                "source": "muse.c:mbhit; Replace the add_damage gap."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "dospinweb",
+                "source": "polyself.c:dospinweb; Replace the add_damage gap."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "maketrap",
+                "source": "trap.c:maketrap; Replace both add_damage gaps."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:untrap; Replace the add_damage gap."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "maybe_spin_web",
+                "source": "monmove.c:maybe_spin_web; Replace the add_damage gap."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c:postmov; Replace the add_damage gap."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_over_floor",
+                "source": "zap.c:zap_over_floor; Replace all add_damage gaps."
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "kick_door",
+                "source": "dokick.c:kick_door; Replace add_damage and pay_for_damage gaps in the door-break branch. This is the actual C callsite at dokick.c:954-955; really_kick_object has no direct billing call."
+              }
+            ],
+            "tests": [
+              "scripts/add-damage.test.mjs"
+            ],
+            "recordings": [
+              "recordings/shk.c/shop-wall-billing-wizard-decline-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-ring-shop-wall-digging-damage-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 294,
+                "source": "The admitted v53 ring-shop recording strictly matches the complete replay; C zap.c:dozap -> dig.c:zap_dig calls shk.c:add_damage and then shk.c:pay_for_damage."
+              }
+            ]
+          },
+          {
+            "name": "shk_impaired",
+            "implementation": "js/shk.js",
+            "symbol": "shk_impaired",
+            "pure": true,
+            "sourceReview": "Whole C definition shk.c:shk_impaired (4441-4452); checks keeper validity, in-shop presence, helplessness, and following state without RNG, output, or mutation.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "repairable_damage",
+                "source": "shk.c:repairable_damage calls shk_impaired before eligibility checks."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "find_damage",
+                "source": "shk.c:find_damage calls shk_impaired before walking the damage list."
+              }
+            ],
+            "tests": [
+              "scripts/shk-move.test.mjs"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "repairable_damage",
+            "implementation": "js/shk.js",
+            "symbol": "repairable_damage",
+            "pure": true,
+            "sourceReview": "Whole C definition shk.c:repairable_damage (4454-4487); preserves REPAIR_DELAY, occupancy, wallwalking, trap and shop ownership predicates without RNG, output, or mutation.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "find_damage",
+                "source": "shk.c:find_damage tests each listed damage record with repairable_damage in list order."
+              }
+            ],
+            "tests": [
+              "scripts/shk-move.test.mjs"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "find_damage",
+            "implementation": "js/shk.js",
+            "symbol": "find_damage",
+            "pure": true,
+            "sourceReview": "Whole C definition shk.c:find_damage (4489-4506); returns the first eligible record in source list order and does not mutate or emit output.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "shk_fixes_damage",
+                "source": "shk.c:shk_fixes_damage calls find_damage before deciding whether repair work is due."
+              }
+            ],
+            "tests": [
+              "scripts/shk-move.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The independent Wizard role-variation recording strictly matches the decline/hot-pursuit branch of shk.c:pay_for_damage (113/113 screens and cursors, 5,717/5,717 RNG calls). The admitted v53 ring-shop case also strictly matches on the final delivery bridge eefc50c62cf12bf6d1cf23fce78748cabefc496a: 295/295 screens, 4,617/4,617 RNG calls, 295/295 cursors, error null. The accepted 0ddb evaluation remains the historical before baseline (266/295, 4,555/4,617, 292/295). The Healer yes-payment recipe remains blocked at home_shk relocation/priest.c:move_special and is not a passing recording. The delayed repair branch is source reviewed and pure eligibility helpers are tested, but no matching runtime recording reaches mature-damage repair; repair_damage and discard_damage_struct remain explicit discarded-result gaps.",
+        "entryPoints": [
+          {
+            "name": "Dig a shop wall and decline payment (source-matched role variation)",
+            "functions": [
+              "add_damage",
+              "pay_for_damage"
+            ],
+            "recordings": [
+              "recordings/shk.c/shop-wall-billing-wizard-decline-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-ring-shop-wall-digging-damage-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 294,
+                "source": "The admitted v53 ring-shop recording strictly matches the complete replay; C zap.c:dozap -> dig.c:zap_dig calls shk.c:add_damage and then shk.c:pay_for_damage."
+              }
+            ]
+          },
+          {
+            "name": "Dig a shop wall and accept restitution",
+            "functions": [
+              "add_damage",
+              "pay_for_damage"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Shopkeeper attempts delayed repair of mature damage",
+            "functions": [
+              "shk_impaired",
+              "repairable_damage",
+              "find_damage",
+              "shk_fixes_damage"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Dig a shop wall and bill the keeper (admitted selected case)",
+            "functions": [
+              "add_damage",
+              "pay_for_damage"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-ring-shop-wall-digging-damage-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 294,
+                "source": "The admitted v53 ring-shop recording strictly matches the complete replay; C zap.c:dozap -> dig.c:zap_dig calls shk.c:add_damage and then shk.c:pay_for_damage."
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": [
+          {
+            "name": "pay_for_damage",
+            "reason": "The decline/hot-pursuit branch is strictly matched, but the independent Healer yes-payment recipe reaches a post-response mismatch in home_shk relocation and priest.c:move_special; this task does not port those source units, so the accepted-payment entrypoint is not claimed complete.",
+            "blockedRecipe": "recipes/shk.c/shop-wall-billing-cfirst.session.json"
+          },
+          {
+            "name": "shk_fixes_damage",
+            "reason": "The source implementation and eligibility helpers are present, but no matching runtime recording reaches the delayed repair branch. C invokes the still-unported shk.c:repair_damage and shk.c:discard_damage_struct void helpers on that branch; the independent billing recipe stops before REPAIR_DELAY.",
+            "blockedRecipe": "recipes/shk.c/shop-wall-billing-cfirst.session.json"
+          }
+        ]
+      }
     },
     {
       "id": "mcast-stun-you-v53-quest-nemesis-20261013",
