@@ -154,5 +154,6 @@
       }
     },
     "note": "Strict selected replay exercises the unpaid-shop quote and used-object billing path through its C caller."
-  }
+  },
+  "goalKind": "file-port"
 }
