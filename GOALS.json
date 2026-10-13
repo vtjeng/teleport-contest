@@ -299739,6 +299739,34 @@
           }
         ]
       }
+    },
+    {
+      "id": "port-zap-zap-updown-ceiling-striking-v58-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement zap_updown from zap.c",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v58/v58-ceiling-striking-helmet-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "zap_updown",
+          "line": 3219,
+          "endLine": 3414,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 3219,
+        "to": 3414
+      }
     }
   ]
 }
