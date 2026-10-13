@@ -354,6 +354,7 @@ import {
     find_defensive, find_offensive, searches_for_item, use_defensive,
 } from './muse.js';
 import { fracture_rock } from './zap.js';
+import { objectGenerationEnv } from './object_generation.js';
 import {
     bill_dummy_object,
     g_at,
@@ -1939,11 +1940,12 @@ export async function bee_eat_jelly(mon, obj, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };
     const message = env.message ?? ttyPline;
+    const objectEnv = objectGenerationEnv({ ...env, state, random, message });
     const mtmp = find_pmmonst(PM_QUEEN_BEE, state);
 
     if (!mtmp) {
         const m_delay = obj.blessed ? 3 : !obj.cursed ? 5 : 7;
-        if (obj.quan > 1) obj = splitobj(obj, 1, env);
+        if (obj.quan > 1) obj = splitobj(obj, 1, objectEnv);
         if (canseemon(mon, state)) {
             await message(
                 messageAt(
@@ -1956,7 +1958,7 @@ export async function bee_eat_jelly(mon, obj, env = {}) {
                 env,
             );
         }
-        delobj(obj, env);
+        delobj(obj, objectEnv);
 
         if (mon.m_lev < (state.mons?.[PM_QUEEN_BEE]?.mlevel ?? 0) - 1)
             mon.m_lev = (state.mons?.[PM_QUEEN_BEE]?.mlevel ?? 0) - 1;
