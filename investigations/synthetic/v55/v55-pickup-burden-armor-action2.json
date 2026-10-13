@@ -15,6 +15,7 @@
   "commit": "ff9b6af255e5859ba8b41b780088641ea6d72785",
   "mismatch": {
     "session": "synthetic/v55/v55-pickup-burden-armor-action2",
+    "remainingScreens": 43,
     "step": 117,
     "segment": 0,
     "key": ",",
