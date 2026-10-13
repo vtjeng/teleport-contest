@@ -102,6 +102,7 @@ import {
     PM_LONG_WORM,
     PM_PONY,
     PM_PURPLE_WORM,
+    PM_ROPE_GOLEM,
     PM_TRAPPER,
     PM_KEYSTONE_KOP,
     PM_MEDUSA,
@@ -3507,11 +3508,10 @@ test('ustatusline stops for every clause it would have to name', async () => {
         game.u.uprops[propidx].extrinsic = 0;
     }
 
-    // The four conditions that live outside u.uprops.
+    // The two remaining conditions live outside u.uprops.
     for (const [field, value, branch] of [
         ['utrap', 3, 'the trapped clause'],
         ['uundetected', 1, 'the concealed clause'],
-        ['ustuck', { m_id: 1 }, 'a_monnam() for u.ustuck'],
     ]) {
         game.u[field] = value;
         await assert.rejects(() => ustatusline(game),
@@ -3560,6 +3560,31 @@ test('ustatusline stops for every clause it would have to name', async () => {
         'Status of Stetho (insufficiently neutral):  Level 1  HP 13(13)  '
         + 'AC 8.',
     );
+});
+
+test('ustatusline names swallowed, holding, and held monsters', async () => {
+    await runSegment({ ...segmentFor('ac.'), moves: '.' });
+    const target = { x: game.u.ux - 1, y: game.u.uy };
+    // Fog clouds neither digest nor stick; they expose the source phrase and
+    // article selected by ustatusline() and a_monnam().
+    game.u.ustuck = monsterAt(target, { data: game.mons[PM_FOG_CLOUD] });
+    const statusFor = async ({ swallowed = false, heroSpecies = null } = {}) => {
+        game.u.uswallow = swallowed ? 1 : 0;
+        if (heroSpecies !== null) game.youmonst.data = game.mons[heroSpecies];
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await ustatusline(game);
+        return game._ttyToplines || pendingTopLine() || topLine();
+    };
+
+    // C chooses the swallowed wording before the held/holding check, and
+    // x_monnam changes ARTICLE_A to ARTICLE_THE for u.ustuck while swallowed.
+    assert.match(await statusFor({ swallowed: true }),
+        /, engulfed by the fog cloud\.$/u);
+    // A non-sticky human hero uses the source's `held by` branch and article A.
+    assert.match(await statusFor({}), /, held by a fog cloud\.$/u);
+    // PM_ROPE_GOLEM has AT_HUGS, so sticks() selects the `holding` branch.
+    assert.match(await statusFor({ heroSpecies: PM_ROPE_GOLEM }),
+        /, holding a fog cloud\.$/u);
 });
 
 test('the apply matrix holds the thirteen clean recipes the slices close on',
