@@ -60,7 +60,7 @@ import {
     pet_ranged_attk,
 } from './dogmove.js';
 import { migrate_to_level } from './dog.js';
-import { capitalizedMonsterName } from './do_name.js';
+import { capitalizedMonsterName, mon_nam } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { PM_ANGEL } from './monsters.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
@@ -1488,12 +1488,7 @@ function attackHeroWithMattacku(monster, env) {
                 encumberMessage: spellEnv.encumberMessage
                     ?? (planning ? async () => {} : encumber_msg),
                 monsterName: (mtmp) => capitalizedMonsterName(mtmp, env.state),
-                monnam: (mtmp) => {
-                    const name = mtmp.data?.pmnames?.[2]
-                        ?? mtmp.data?.pmnames?.[0]
-                        ?? 'something';
-                    return `the ${name}`;
-                },
+                monnam: (mtmp) => mon_nam(mtmp, state, spellEnv),
                 message: spellMessage,
                 mdamageu: (mtmp2, dmg) =>
                     mdamageu(mtmp2, dmg, spellEnv.state ?? env.state, spellEnv),

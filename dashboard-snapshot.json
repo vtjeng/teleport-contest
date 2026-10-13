@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T04:25:02.497Z",
+  "capturedAt": "2026-10-13T04:43:10.404Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -101034,6 +101034,113 @@
         "type": "accepted",
         "at": "2026-10-13T04:22:17.827Z",
         "task": "A2-investigation-v54-healer-step511-residual-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v54-healer-step511-residual-action3-20261013-dea3c224268fcc1c43a03a693b4f7449b1836537",
+        "type": "published",
+        "at": "2026-10-13T04:25:14.557Z",
+        "task": "A2-investigation-v54-healer-step511-residual-action3-20261013",
+        "commit": "dea3c224268fcc1c43a03a693b4f7449b1836537"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v54-healer-multishot-name-20261013",
+        "type": "assign",
+        "at": "2026-10-13T04:25:55.116Z",
+        "task": "A2-investigation-v54-healer-multishot-name-action4-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-healer-multishot-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T04:26:06.541Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the v54 healer step 527 multishot naming mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-objnam-mshot-xname-ordinal-20261013",
+        "type": "implement",
+        "at": "2026-10-13T04:28:57.354Z",
+        "task": "A2-investigation-v54-healer-multishot-name-action4-20261013",
+        "goal": "port-objnam-mshot-xname-ordinal-v54-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4910b51bc138dddc177fd0b45b2346fd98b7b7f9",
+        "type": "ready",
+        "at": "2026-10-13T04:30:04.387Z",
+        "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013",
+        "delivery": "4910b51bc138dddc177fd0b45b2346fd98b7b7f9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-adc1d50c79d320ca301dcb7b9f7c191004d8029a",
+        "type": "ready",
+        "at": "2026-10-13T04:30:35.416Z",
+        "task": "B-investigation-v54-caveman-cleric-insects-residual-action2-20261013",
+        "delivery": "adc1d50c79d320ca301dcb7b9f7c191004d8029a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-castmu-delivery-20261013",
+        "type": "turn",
+        "at": "2026-10-13T04:31:02.912Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Waiting for castmu delivery integration; remaining eligible v54 cases are owned or overlap this delivery, and v48 short-version is held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-armor-4910b51b-20261013",
+        "type": "received",
+        "at": "2026-10-13T04:32:47.593Z",
+        "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013",
+        "delivery": "4910b51bc138dddc177fd0b45b2346fd98b7b7f9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-fumble-adc1d50-20261013",
+        "type": "received",
+        "at": "2026-10-13T04:33:07.304Z",
+        "task": "B-investigation-v54-caveman-cleric-insects-residual-action2-20261013",
+        "delivery": "adc1d50c79d320ca301dcb7b9f7c191004d8029a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-c-armor-20261013",
+        "type": "activity",
+        "at": "2026-10-13T04:33:56.219Z",
+        "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013",
+        "phase": "review",
+        "reason": "Reviewing the oldest ready armor-spell delivery and its complete matching runtime, including corrected planner message forwarding."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-c-armor-4a9094bc9-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T04:34:41.147Z",
+        "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013",
+        "integration": "4a9094bc9f4f7e628235de5fd4774d64a4779fc0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013-4a9094bc9f4f7e628235de5fd4774d64a4779fc0-validated",
+        "type": "validated",
+        "at": "2026-10-13T04:41:54.652Z",
+        "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013-4a9094bc9f4f7e628235de5fd4774d64a4779fc0-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T04:42:20.150Z",
+        "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013"
       }
     ]
   },
@@ -101111,6 +101218,17 @@
           "Prep21",
           "Prep22"
         ],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v54-caveman-cleric-insects-residual-action2-20261013",
+        "worker": "B",
+        "goal": "fix-castmu-fumble-priest-monname-v54-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "adc1d50c79d320ca301dcb7b9f7c191004d8029a",
+        "since": "2026-10-13T04:30:35.416Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -101605,8 +101723,8 @@
     ]
   },
   "development": {
-    "executionCommit": "4c44ed71e765ae70b69439c91ebc31a44cde99f4",
-    "measuredAt": "2026-10-13T04:19:30.075Z",
+    "executionCommit": "4a9094bc9f4f7e628235de5fd4774d64a4779fc0",
+    "measuredAt": "2026-10-13T04:40:07.239Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

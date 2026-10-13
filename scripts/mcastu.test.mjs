@@ -49,6 +49,8 @@ import {
     AT_MAGC,
     monst_globals_init,
     PM_KOBOLD_SHAMAN,
+    PM_ALIGNED_CLERIC,
+    PM_ANGEL,
     S_ANT,
 } from '../js/monsters.js';
 import { DAGGER, STRANGE_OBJECT, WEAPON_CLASS } from '../js/objects.js';
@@ -868,6 +870,68 @@ test('castmu fumble: m_lev=2 always fumbles (rn2(20) is always < 20)', async () 
     assert.equal(result, M_ATTK_MISS);
     assert.deepEqual(random.draws, ['rn2(2)', 'rn2(20)']);
     assert.deepEqual(messages, ['The air crackles around the kobold shaman.']);
+});
+
+test('castmu fumble names priests and minions through mon_nam', async () => {
+    const state = makeState({
+        u: {
+            ux: 4, uy: 5, uprops: {},
+            ualign: { align: 0, type: 0 },
+            uz: { dnum: 0, dlevel: 1 },
+        },
+        urole: { lgod: 'Law', ngod: 'Balance', cgod: 'Chaos' },
+    });
+    monst_globals_init(state);
+
+    const namedCasters = [
+        [makeCaster({
+            m_lev: 2,
+            data: state.mons[PM_ALIGNED_CLERIC],
+            ispriest: true,
+            mextra: { epri: { shralign: 0 } },
+        }), 'the priest of Balance'],
+        [makeCaster({
+            m_lev: 2,
+            data: state.mons[PM_ANGEL],
+            isminion: true,
+            mextra: { emin: { min_align: 0 } },
+        }), 'the Angel of Balance'],
+    ];
+
+    for (const [caster, name] of namedCasters) {
+        const messages = [];
+        const result = await castmu(caster, AD_SPEL_ATTACK, true, true, {
+            state, random: scriptedRandom([0, 0]), unsupported: refuse,
+            message: (text) => messages.push(text),
+        });
+        assert.equal(result, M_ATTK_MISS);
+        assert.deepEqual(messages, [`The air crackles around ${name}.`]);
+    }
+});
+
+test('castmu fumble preserves the injected monnam provider', async () => {
+    const messages = [];
+    const result = await castmu(makeCaster({ m_lev: 2 }),
+        AD_SPEL_ATTACK, true, true, {
+            state: makeState(), random: scriptedRandom([0, 0]),
+            unsupported: refuse, monnam: () => 'the injected curate',
+            message: (text) => messages.push(text),
+        });
+    assert.equal(result, M_ATTK_MISS);
+    assert.deepEqual(messages, ['The air crackles around the injected curate.']);
+});
+
+test('castmu fumble formatter follows C mon_nam at the same message point', () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/mcastu.c', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/mcastu.js', import.meta.url), 'utf8');
+    const cStart = c.indexOf('if (rn2(ml * 10)');
+    const jsStart = js.indexOf('if (random.rn2(ml * 10)');
+    const cBody = c.slice(cStart, c.indexOf('return M_ATTK_MISS;', cStart));
+    const jsBody = js.slice(jsStart, js.indexOf('return M_ATTK_MISS;', jsStart));
+    assert.ok(cBody);
+    assert.ok(jsBody);
+    assert.match(cBody, /canseemon\(mtmp\) && !Deaf[\s\S]*set_msg_xy\(mtmp->mx, mtmp->my\)[\s\S]*mon_nam\(mtmp\)/u);
+    assert.match(jsBody, /canseemon\(mtmp, state\) && !Deaf\(state\)[\s\S]*env\.monnam\?\.\(mtmp\)\s*\?\?\s*mon_nam\(mtmp, state, env\)/u);
 });
 
 test('castmu fumble: the deaf roleplay option silences the crackle', async () => {

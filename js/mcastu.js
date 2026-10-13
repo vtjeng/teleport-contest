@@ -52,7 +52,7 @@ import { HeroDeathPlanningError, losehp, nomul } from './hack.js';
 import { acurr, adjuhploss, losestr, minuhpmax, setuhpmax } from './attrib.js';
 import { done } from './end.js';
 import { sgn, upstart } from './hacklib.js';
-import { bogusmon, Monnam, Mgender, pmname } from './do_name.js';
+import { bogusmon, Monnam, Mgender, mon_nam, pmname } from './do_name.js';
 import { an, the_unique_pm, vtense } from './objnam.js';
 import { makeplural, makesingular } from './fruit.js';
 import {
@@ -555,7 +555,7 @@ export async function castmu(
             await message(
                 `The air crackles around ${
                     env.monnam?.(mtmp)
-                    ?? monnamFallback(mtmp, state)
+                    ?? mon_nam(mtmp, state, env)
                 }.`,
                 state,
             );
@@ -621,14 +621,6 @@ export async function castmu(
     // elemental arms above; the AD_SPEL/AD_CLRC arm zeroes dmg because
     // mcast_spell() calls mdamageu() itself.
     return ret;
-}
-
-// Lowercase monster name fallback for "the air crackles around <mon_nam>".
-function monnamFallback(mtmp, state) {
-    const name = mtmp.data?.pmnames?.[2]
-        ?? mtmp.data?.pmnames?.[0]
-        ?? 'something';
-    return `the ${name}`;
 }
 
 // ---- Individual spell effect functions ----

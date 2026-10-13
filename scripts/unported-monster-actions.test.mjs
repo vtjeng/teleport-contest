@@ -3953,7 +3953,19 @@ test('starting-pet adapter wires dog_move reflection to mon_reflects',
             x: target.destinationX,
             y: target.heroY,
         });
-    });
+});
+
+test('mattacku production adapter preserves source mon_nam for castmu', () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/unported_monster_actions.js', import.meta.url), 'utf8');
+    const adapterStart = js.indexOf('function attackHeroWithMattacku(');
+    const adapterEnd = js.indexOf('// C ref: dogmove.c pet_ranged_attk()', adapterStart);
+    const adapter = js.slice(adapterStart, adapterEnd);
+    assert.match(c, /castmu\(mtmp, mattk, TRUE, foundyou\)/u);
+    assert.match(adapter, /castMonsterSpell:[\s\S]*?monnam: \(mtmp\) => mon_nam\(mtmp, state, spellEnv\)/u);
+    assert.doesNotMatch(adapter, /pmnames\?\./u,
+        'the adapter must not replace source naming with raw species text');
+});
 
 test('monster missile caller adapters preserve hallucinated display RNG', () => {
     const mThrowStart = MTHROWU_SOURCE.indexOf('void\nm_throw(\n');
