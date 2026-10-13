@@ -299414,6 +299414,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-pickup-partial-stack-lift-v56-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Allow an overweight floor stack through pickup preflight so the source pickup_object/lift_object/carry_count flow can choose a partial lift before deferred inventory planning.",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v56/v56-partial-arrow-lift-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v56-partial-arrow-lift-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "pickup",
+      "session": "synthetic/v56/v56-partial-arrow-lift-action2"
     }
   ]
 }
