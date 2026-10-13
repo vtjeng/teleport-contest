@@ -11,6 +11,7 @@ import {
     DIED,
     KILLED_BY,
     FROMFORM,
+    FREE_ACTION,
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
@@ -21,6 +22,7 @@ import {
     M_ATTK_MISS,
     M_SEEN_MAGR,
     MFAST,
+    STUNNED,
     SEE_INVIS,
     STRAT_APPEARMSG,
     STRAT_WAITFORU,
@@ -1228,6 +1230,59 @@ test('paralyze: production cleric cast applies nomul damage', async () => {
     assert.equal(state.multi_reason, 'paralyzed by a monster');
     assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
 });
+
+test('stun spell: free action uses the resistant branch without a stun roll',
+    async () => {
+        const random = scriptedRandom([3, 115], 29);
+        const state = makeState({
+            disp: {},
+            level: { monlist: null },
+            u: {
+                ux: 4, uy: 5,
+                uprops: {
+                    [FREE_ACTION]: { intrinsic: 1, extrinsic: 0 },
+                    [STUNNED]: { intrinsic: 0, extrinsic: 0 },
+                },
+            },
+        });
+        const messages = [];
+        const gaps = [];
+        await castmu(makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, true, true, {
+            state, random, unsupported: refuse,
+            message: (text) => messages.push(text),
+            noteUnported: (gap) => gaps.push(gap),
+        });
+        assert.deepEqual(random.draws, ['rn2(15)', 'rn2(150)', 'd(8,6)']);
+        assert.ok(messages.includes('You feel momentarily disoriented.'));
+        assert.equal(state.u.uprops[STUNNED].intrinsic, 1);
+        assert.deepEqual(gaps, []);
+    });
+
+test('stun spell: unresisted damage extends the timeout after its own roll',
+    async () => {
+        const random = scriptedRandom([3, 115], 4);
+        const state = makeState({
+            disp: {},
+            level: { monlist: null },
+            u: {
+                ux: 4, uy: 5,
+                uprops: {
+                    [HALF_SPDAM]: { intrinsic: 1, extrinsic: 0 },
+                    [STUNNED]: { intrinsic: 3, extrinsic: 0 },
+                },
+            },
+        });
+        const messages = [];
+        await castmu(makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, true, true, {
+            state, random, unsupported: refuse,
+            message: (text) => messages.push(text),
+        });
+        assert.deepEqual(random.draws, [
+            'rn2(15)', 'rn2(150)', 'd(8,6)', 'd(6,4)',
+        ]);
+        assert.ok(messages.includes('You struggle to keep your balance.'));
+        assert.equal(state.u.uprops[STUNNED].intrinsic, 5);
+    });
 
 // -- cure_self via castmu ----------------------------------------------
 
