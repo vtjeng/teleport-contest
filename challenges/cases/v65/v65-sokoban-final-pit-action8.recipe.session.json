@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first trap.c maybe_finish_sokoban through actual delfloortrap on existing Sokoban pit. Source giantcarryingbouldersanddroponownpit avoidsmoverocklaunch_obj firstfailure. Observepolymorphcontrol/potionslotsbeforetransformandSokobanmenuroute. C observedcontrolringoandpolypotionp; giantformallowscarriedboulders. InspectownSokobanmenuafteractualpolymorph. SourceSokobanfourthlevelentryEobserved; wishcarriedbouldersasgiantandinspectactualmap/inventorybeforeexistingpitdrop. C confirms wish20bouldersyieldsoneunstackedboulderq. Scoutownedteleportwandslotafterboulderto approachactualpitlegallyfromnearbyfloor. C consumedpolypotionp, soownednewwandusesfreedslotp. Firstcontrolledteleportscoutstopsbeforemessage/firstgetpostippadding. Upstairfeature<willgivelegalapproachtoadjacentexistingpit. C firstgetpostipacknowledged; < selectsactualupstair39,12legalfloor. Twoeaststepsreachactualexistingpit41,12withcarriedboulderq; dropqfillsratherthanmoverocklaunch. C observation will establish delfloortrap consumer beforefinalcompletion target. ActualCinventory showswandr (Cassigninvletdidnotreusep); correctonlysource-observedselectorandretainsfailedpversion. C actualsecondl prompts Reallystepintothatpit; priorpaddingaccepteddefaultn anddroppedoutsidepit. Sourceconfirmationyimmediatelyfollowstraversalbeforeacknowledgingfall; originalmatchingmisspreserved.",
+  "segments": [
+    {
+      "seed": 65103901,
+      "datetime": "20831115171329",
+      "nethackrc": "OPTIONS=name:V65Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of polymorph control\n               \u0017uncursed potion of polymorph\n               #wizidentify\n.\n               #levelchange\n20\n                                                                 Pol     qp        stone giant\n                    #wizlevelport\n?\n E                    #wizmap\n\u001720 boulders\n                    #wizidentify\n.\n               #wizwish\nuncursed wand of teleportation (0:20)\n               #wizidentify\n.\n               zr.  <.               lly                    dq               #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source replacement for practice notification: weapon.c give_may_advance_msg reached through ordinary spell.c successful force-bolt practice; wizard force-casting does not train and is not used. Source reveals cheaper practice route than repeated monster combat. Ordinary cast a westward force bolt seventy times; source spell level1 adds one successful practice each. Observed initial power357 covers350-cost budget before regeneration.",
+  "segments": [
+    {
+      "seed": 65103191,
+      "datetime": "20831115171329",
+      "nethackrc": "OPTIONS=name:V65Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +20 ring of protection\n               #wizidentify\n.\n               #levelchange\n30\n                                                                 Pnl     Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   Zah   #enhance\nn"
+    }
+  ]
+}

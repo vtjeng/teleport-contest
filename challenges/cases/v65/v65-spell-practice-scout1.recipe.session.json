@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source replacement for practice notification: weapon.c give_may_advance_msg reached through ordinary spell.c successful force-bolt practice; wizard force-casting does not train and is not used. Source reveals cheaper practice route than repeated monster combat.",
+  "segments": [
+    {
+      "seed": 65103191,
+      "datetime": "20831115171329",
+      "nethackrc": "OPTIONS=name:V65Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +20 ring of protection\n               #wizidentify\n.\n               #levelchange\n30\n                                                                 Pnl     Zah   +"
+    }
+  ]
+}

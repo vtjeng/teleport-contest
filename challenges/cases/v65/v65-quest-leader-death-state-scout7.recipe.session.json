@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first quest.c leaddead mission: actual Rogue-role quest leader created through wizgenesis, then real wizard kill (not mongone), followed by actual home and beyond-home permission while experience1. Source makemon leader identity and mon m_detach due_to_death set killed_leader; observed menu and target coordinates before continuing. C uniqueness restriction defaults to substituted doppelganger unless forced. Actual Cprompt observed; answer y immediately to force actual questleader beforekill. Actual Master forced successfully; stop at C wizardkill targetcursor before selecting, because assumed default coordinates were not established. Wizardkillgetposdefaulthero34,6wasobserved; use source nextmonster cursor commandmto selectnearestactualleaderinstead of guessed coordinates. ActualMasterdeathobserved, experience2stillbelowquestrequirement. Acknowledgekill, exitwizardkillloop, scoutactualRoguehome menu.",
+  "segments": [
+    {
+      "seed": 65103501,
+      "datetime": "20840119161921",
+      "nethackrc": "OPTIONS=name:V65Leader,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     #wizgenesis\npeaceful Master of Thieves\ny               #wizmap\n#wizkill\n  m.   \u001b\u001b          #wizlevelport\n?\n "
+    }
+  ]
+}

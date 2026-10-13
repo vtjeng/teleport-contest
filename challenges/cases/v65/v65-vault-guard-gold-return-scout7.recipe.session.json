@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first vault.c invault/gd_move/clear_fcorr mission: source normal D8 generation may containisolatedgoldvault; map actualworld andscout beforecontrolled entry/goldreturn. Newseed/dateandroleWizard, no archived vault seed inputs copied. ActualD8maphasnoisolatedvault; source-directedsecondmateriallevel12generation scout. No vault proof assumed. D12maprevealsisolated2x2rectangle at(2..3,2..3), sourcevault-onlyroomsize. Wishownedteleportwand andobserveinventorybeforeentry. C inventoryshowsownteleportwando; observeactualcursorafterfirstgetpostippaddingbeforeabsolutevaultselection. Actualgetposhero29,7: selectvault3,3 via26west4north. Pickactualgoldthen35genuinewaitturnsforinvaultguard; stopatname/golddialogue forsourcecontinuation. C exactguardtriggerstep462validatedagainstowninputkeyoffset; stopafteroneMoreackatrealnamequery, notafterrestkeyscontaminateguardname.",
+  "segments": [
+    {
+      "seed": 65104001,
+      "datetime": "20840421173519",
+      "nethackrc": "OPTIONS=name:V65Vault,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,debug_hunger,acoustics\n",
+      "moves": "     #levelchange\n20\n                                                                 #wizlevelport\n8\n                    #wizmap\n#wizlevelport\n12\n                    #wizmap\n\u0017uncursed wand of teleportation (0:20)\n               #wizidentify\n.\n               zo.  hhhhhhhhhhhhhhhhhhhhhhhhhhkkkk.               ,               .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    . "
+    }
+  ]
+}

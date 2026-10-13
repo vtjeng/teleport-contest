@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source probe dat/tut-2.lua actual Tutorial dungeon second level. New seed and datetime; no archived inputs copied. C menu scouting precedes source-directed continuation.",
+  "segments": [
+    {
+      "seed": 65103111,
+      "datetime": "20831115171329",
+      "nethackrc": "OPTIONS=name:V65Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "                         #wizlevelport\n2\n                    #wizmap\n"
+    }
+  ]
+}

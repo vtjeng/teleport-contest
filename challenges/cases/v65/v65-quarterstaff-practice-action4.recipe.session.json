@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first weapon.c use_skill -> give_may_advance_msg practice mission. Source durable iron golem target and high protection; observe inventory/target coordinates before repeated attacks. New seed chosen independently. C command table names wizgenesis; wear own observed ring n on left hand before actual monster creation. C hand prompt rejects a space; choose left finger directly with no intervening key. C target observed southeast. Repeated force attacks source exercise practice; stop and preserve if target dies before threshold.",
+  "segments": [
+    {
+      "seed": 65103181,
+      "datetime": "20831115171329",
+      "nethackrc": "OPTIONS=name:V65Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +20 ring of protection\n               #wizidentify\n.\n               #levelchange\n20\n                                                                 Pnl     #wizgenesis\nhostile iron golem\n               #wizmap\n FnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFnFn               #enhance\n"
+    }
+  ]
+}

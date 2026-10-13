@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source shk.c delayed shop repair, angry debt settlement and home return missions. Observe actual Minetown menu route and shop geometry before independent continuations; no JavaScript-derived route.",
+  "segments": [
+    {
+      "seed": 65103401,
+      "datetime": "20831115171329",
+      "nethackrc": "OPTIONS=name:V65Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +30 ring of protection\n               #wizidentify\n.\n               #levelchange\n20\n                                                                 #wizlevelport\n?\n "
+    }
+  ]
+}

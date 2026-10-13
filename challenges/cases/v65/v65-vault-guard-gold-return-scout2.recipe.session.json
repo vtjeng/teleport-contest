@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first vault.c invault/gd_move/clear_fcorr mission: source normal D8 generation may containisolatedgoldvault; map actualworld andscout beforecontrolled entry/goldreturn. Newseed/dateandroleWizard, no archived vault seed inputs copied. ActualD8maphasnoisolatedvault; source-directedsecondmateriallevel12generation scout. No vault proof assumed.",
+  "segments": [
+    {
+      "seed": 65104001,
+      "datetime": "20840421173519",
+      "nethackrc": "OPTIONS=name:V65Vault,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,debug_hunger,acoustics\n",
+      "moves": "     #levelchange\n20\n                                                                 #wizlevelport\n8\n                    #wizmap\n#wizlevelport\n12\n                    #wizmap\n"
+    }
+  ]
+}

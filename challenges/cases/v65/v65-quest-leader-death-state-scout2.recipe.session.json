@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first quest.c leaddead mission: actual Rogue-role quest leader created through wizgenesis, then real wizard kill (not mongone), followed by actual home and beyond-home permission while experience1. Source makemon leader identity and mon m_detach due_to_death set killed_leader; observed menu and target coordinates before continuing. C actualhero33,7, leader32,6; wizardkill cursor northwest selects actualleader. Observe dungeonmenu after realdeath, preserving no mongone substitute.",
+  "segments": [
+    {
+      "seed": 65103501,
+      "datetime": "20840119161921",
+      "nethackrc": "OPTIONS=name:V65Leader,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     #wizgenesis\npeaceful Master of Thieves\n               #wizmap\n#wizkill\ny.               #wizlevelport\n?\n "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source visual reset mission: reset_customsymbols. Source options.c setter schedules distinct glyph customization reset, then returns to existing map. Own observed options page2 selection.",
+  "segments": [
+    {
+      "seed": 65103112,
+      "datetime": "20831115171329",
+      "nethackrc": "OPTIONS=name:V65Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     O d\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first priest.c reset_hostility correction fromsource: highpriestsareispriestandfunctiononlyprocessesisminionAngel/alignedcleric. Four forcedpeaceful Angels providepossibleEMINnoncoalignedroamers; AngelsM2_STALKfollownearbyheroontoactualnewAstral wherefinal_leveliteratesreset_hostility. ObserveCcreation andmenu beforecontinuing. CexplicitforceAngelpromptobserved; answerytoavoidfourhumanzombiesubstitutes. ActualAngelsneededforM2_STALKandEMINstate.",
+  "segments": [
+    {
+      "seed": 65103801,
+      "datetime": "20831115171329",
+      "nethackrc": "OPTIONS=name:V65Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     #levelchange\n30\n                                                                                4#wizgenesis\npeaceful Angel\ny                    #wizmap\n#wizlevelport\n?\n "
+    }
+  ]
+}

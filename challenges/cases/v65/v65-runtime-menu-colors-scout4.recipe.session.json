@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source probe options.c doset and runtime rest_on_space; observe option selection menu. New seed and datetime; no archived inputs copied. C menu scouting precedes source-directed continuation. C-only page continuation from observed menu. C-only observed menu selection. C-only continuation to source handler from own observed menu. Source-designed C-only menu continuation. C-only branch inspection; unavailable runtime options are source misses.",
+  "segments": [
+    {
+      "seed": 65103112,
+      "datetime": "20831115171329",
+      "nethackrc": "OPTIONS=name:V65Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     O kaquarterstaff\nb"
+    }
+  ]
+}
