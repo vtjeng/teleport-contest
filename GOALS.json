@@ -296076,7 +296076,7 @@
     {
       "id": "complete-lava-worn-removal-v54-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement lava_effects from trap.c",
       "cFile": "trap.c",
       "sessions": [
@@ -296086,10 +296086,79 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "8945d37e01910ae6c3485f28e200b65c137b72cb",
       "delivered": null,
       "function": "lava_effects",
-      "session": "synthetic/v54/v54-lava-worn-organic-armor-action3"
+      "session": "synthetic/v54/v54-lava-worn-organic-armor-action3",
+      "closeStanding": {
+        "sha": "8945d37e01910ae6c3485f28e200b65c137b72cb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "31cbb41c18d4bd378e14fc3ebada9e6bc1bd3be4",
+        "target": "synthetic/v54/v54-lava-worn-organic-armor-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/8945d37e01910ae6c3485f28e200b65c137b72cb/run-hosted-db2Rae/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "lava_effects",
+            "implementation": "js/trap.js",
+            "symbol": "lava_effects",
+            "sourceFile": "trap.c",
+            "pure": false,
+            "sourceReview": "trap.c:lava_effects (6794-6987), especially 6884-6913: for every doomed inventory item, preserve the saved next pointer; if worn, emit the message only when the hero survives, then always call remove_worn_item(obj, TRUE), and only afterward call useupall(obj). The helper result is discarded. This correction removes the cloak-only guard so the existing steal.c:remove_worn_item implementation also clears body armor before useupall. The selected gameplay entry is checked in source order; unrelated explicit note_unported branches for debug/impossible cases remain outside this bounded correction.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c:spoteffects calls lava_effects at 3296-3299 when the hero lands on lava; the admitted wizard-map recipe creates lava then moves onto it."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "float_down",
+                "source": "trap.c:float_down calls lava_effects at 4107-4108 when floating down onto lava; its existing caller wiring remains source-pinned in scripts/trap.test.mjs."
+              }
+            ],
+            "tests": [
+              "scripts/trap.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-lava-worn-organic-armor-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 281,
+                "source": "hack.c:spoteffects -> trap.c:lava_effects -> steal.c:remove_worn_item -> invent.c:useupall; complete admitted segment matches."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected source path is the active lava landing through hack.c:spoteffects, which creates/lands on lava in the admitted recording. trap.c:float_down is the other active caller; its existing wiring is pinned by scripts/trap.test.mjs, but this task does not claim a second distinct runtime entry-point recording.",
+        "entryPoints": [
+          {
+            "name": "lava landing through spoteffects",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-lava-worn-organic-armor-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 281,
+                "source": "hack.c:spoteffects -> trap.c:lava_effects -> steal.c:remove_worn_item -> invent.c:useupall."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

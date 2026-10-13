@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T02:48:15.263Z",
+  "capturedAt": "2026-10-13T02:58:45.585Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -100391,6 +100391,99 @@
         "type": "accepted",
         "at": "2026-10-13T02:47:00.073Z",
         "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v54-healer-cleric-insects-blindness-action2-20261013-76b69f0593eda251ccf35e1770c03a557e9a88fc",
+        "type": "published",
+        "at": "2026-10-13T02:48:31.067Z",
+        "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013",
+        "commit": "76b69f0593eda251ccf35e1770c03a557e9a88fc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-mkclass-aligned-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:48:36.109Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the later healer cleric divergence after the accepted blindness fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-healer-cleric-mkclass-aligned-20261013",
+        "type": "assign",
+        "at": "2026-10-13T02:48:40.214Z",
+        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-a-lava-20261013",
+        "type": "activity",
+        "at": "2026-10-13T02:49:17.062Z",
+        "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
+        "phase": "review",
+        "reason": "Reviewing the saved matching lava landing and worn-item removal evidence before integrating the oldest ready independent delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-lava-8945d37e0-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T02:49:46.480Z",
+        "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
+        "integration": "8945d37e01910ae6c3485f28e200b65c137b72cb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-v54-rogue-weaken-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:51:59.473Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v54-rogue-weaken-20261013",
+        "type": "assign",
+        "at": "2026-10-13T02:52:13.809Z",
+        "task": "C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
+        "worker": "C",
+        "goal": "port-mcastu-weaken-you-v54-20261013",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B-mkclass-behind-C-mcast-spell-20261013",
+        "type": "park",
+        "at": "2026-10-13T02:52:50.338Z",
+        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
+        "reason": "Diagnosis is preserved in b6da78920. Step 386 is caused by the missing MCAST_INSECTS helper/caller, whose dispatcher is in source:mcastu.c:mcast_spell, currently owned by C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013. Resume after C acceptance releases the dispatcher reservation, then claim the complete helper/caller scope if still needed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-behind-C-mcast-spell-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:52:56.422Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Waiting for C to finish the reserved mcast_spell dispatcher task, then I can resume the healer cleric MCAST_INSECTS source fix if it remains unresolved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v54-lava-worn-organic-armor-action3-20261013-8945d37e01910ae6c3485f28e200b65c137b72cb-validated",
+        "type": "validated",
+        "at": "2026-10-13T02:57:13.242Z",
+        "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v54-lava-worn-organic-armor-action3-20261013-8945d37e01910ae6c3485f28e200b65c137b72cb-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T02:57:48.140Z",
+        "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013"
       }
     ]
   },
@@ -100468,17 +100561,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
-        "worker": "A2",
-        "goal": "complete-lava-worn-removal-v54-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "f371831b92f7a04f053d73de2289d70ef88a488f",
-        "since": "2026-10-13T02:29:12.360Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -101002,12 +101084,23 @@
         "since": "2026-10-13T02:21:08.563Z",
         "blockedBy": [],
         "reason": "Diagnosis committed at f70875423; required mcastu.c:mcast_spell dispatcher edit is held by B active blindness task. No game code changes made; retaining this source finding for later continuation."
+      },
+      {
+        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-13T02:52:50.338Z",
+        "blockedBy": [],
+        "reason": "Diagnosis is preserved in b6da78920. Step 386 is caused by the missing MCAST_INSECTS helper/caller, whose dispatcher is in source:mcastu.c:mcast_spell, currently owned by C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013. Resume after C acceptance releases the dispatcher reservation, then claim the complete helper/caller scope if still needed."
       }
     ]
   },
   "development": {
-    "executionCommit": "31cbb41c18d4bd378e14fc3ebada9e6bc1bd3be4",
-    "measuredAt": "2026-10-13T02:45:18.368Z",
+    "executionCommit": "8945d37e01910ae6c3485f28e200b65c137b72cb",
+    "measuredAt": "2026-10-13T02:54:42.899Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
