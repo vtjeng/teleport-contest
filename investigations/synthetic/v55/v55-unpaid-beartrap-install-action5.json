@@ -1,0 +1,80 @@
+{
+  "session": "synthetic/v55/v55-unpaid-beartrap-install-action5",
+  "remainingScreens": 1,
+  "recordedSteps": 380,
+  "corpus": "synthetic",
+  "batch": "v55",
+  "caseId": "v55-unpaid-beartrap-install-action5",
+  "manifestPath": "challenges/manifests/v55.json",
+  "manifestSha256": "3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105",
+  "recordingSha256": "b732335cb2693485f613f7e978ac9f2a5a4592128c713dafa972e3f9a2f5614d",
+  "evaluationPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v55.json",
+  "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
+  "status": "complete",
+  "commit": "",
+  "mismatch": {
+    "session": "synthetic/v55/v55-unpaid-beartrap-install-action5",
+    "remainingScreens": 1,
+    "step": 226,
+    "kind": "source-gap",
+    "sourceFile": "shk.c",
+    "function": "use_unpaid_trapobj",
+    "sourceBranch": "For an unpaid trap, C first conditionally finds its owner and has a non-deaf, non-mute shopkeeper say `You set it, you buy it!`, then calls bill_dummy_object to add the used trap to the bill and clear the carried object’s unpaid state. The JS caller records a gap and skips this source body.",
+    "runtimeBoundary": "apply.c:use_trap calls use_unpaid_trapobj immediately after the begin-setting message and before starting the set_trap occupation.",
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 379, "total": 380 },
+      "rng": { "matched": 8310, "total": 8439 },
+      "cursors": { "matched": 379, "total": 380 }
+    },
+    "replayInputSha256": "0e782730c15d0dfe259c6d57228992bdf785f6de205d00db9501cafe95f6de54",
+    "evaluationPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v55.json",
+    "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
+    "recordedSteps": 380
+  },
+  "summary": "The unpaid beartrap install reaches the existing apply.c:use_trap source caller, whose only C call to shk.c:use_unpaid_trapobj is currently skipped in JS. The missing helper performs the shopkeeper quote and used-object billing before the trap occupation begins.",
+  "source": {
+    "file": "shk.c",
+    "functions": ["use_unpaid_trapobj"],
+    "branch": "Complete void helper: when otmp->unpaid, conditionally locate the object owner and speak unless deaf or muteshk, then bill_dummy_object. The helper’s return is void; its caller discards it.",
+    "callers": [
+      "apply.c:use_trap at 2909 is the sole active C caller. The JS use_trap already implements the surrounding source function and will receive a bounded helper binding."
+    ],
+    "dependencies": [
+      "shk.c:find_objowner (existing JS implementation; returned shopkeeper selects the speech branch)",
+      "shk.c:muteshk (existing JS implementation in js/shk.js)",
+      "mkobj.c:bill_dummy_object (existing JS implementation; C discards its void result)"
+    ]
+  },
+  "evidence": [
+    "The accepted v55 baseline at 71adf2891b4ccef846c2e0d5e01a907878e15ad6 reports 379/380 screens, 8310/8439 RNG calls, 379/380 cursor positions, and error null.",
+    "The admitted manifest identifies the first missing behavior at step 226: after a matching ordinary-shop sale, pickup, and application prefix, C prints `You begin setting Akranes' bear trap.  \"You set it, you buy it!\"--More--`; the missing call also bills the used object via bill_dummy_object, whose nextoid path accounts for subsequent RNG differences.",
+    "C apply.c:use_trap invokes use_unpaid_trapobj at line 2909 after its begin-setting message and before set_occupation. The only C reference to use_unpaid_trapobj is this call.",
+    "C shk.c:use_unpaid_trapobj (6101-6114) checks unpaid, finds the owning shopkeeper at the supplied hero coordinates, conditionally sets voice and verbalizes the quote when not deaf and not muteshk, then calls bill_dummy_object. JS apply.js:use_trap currently stops at note_unported('shk.c use_unpaid_trapobj').",
+    "Existing JS dependencies are already implemented: shk.js:find_objowner preserves the owner lookup contract, shk.js:muteshk matches helpless-or-animal sound, and obj.js:bill_dummy_object ports the used-object billing/state changes. The recorder build compiles SetVoice to an empty macro; verbalize and billing remain observable effects."
+  ],
+  "blocker": null,
+  "replay": {
+    "command": "accepted admitted synthetic evaluation",
+    "replayCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
+    "replayInputSha256": "0e782730c15d0dfe259c6d57228992bdf785f6de205d00db9501cafe95f6de54",
+    "outputPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v55.json",
+    "outputSha256": null,
+    "boundary": "shk.c:use_unpaid_trapobj begins from apply.c:use_trap at step 226",
+    "at": 226,
+    "error": null
+  },
+  "replayInputSha256": "0e782730c15d0dfe259c6d57228992bdf785f6de205d00db9501cafe95f6de54",
+  "currentBaseline": {
+    "evaluationPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v55.json",
+    "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
+    "replayInputSha256": "0e782730c15d0dfe259c6d57228992bdf785f6de205d00db9501cafe95f6de54",
+    "metrics": {
+      "screens": { "matched": 379, "total": 380 },
+      "rng": { "matched": 8310, "total": 8439 },
+      "cursors": { "matched": 379, "total": 380 }
+    },
+    "remainingScreens": 1,
+    "note": "Accepted pre-implementation v55 evaluation; the manifest source trace identifies the first source divergence at step 226."
+  }
+}
