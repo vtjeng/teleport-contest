@@ -106,7 +106,7 @@
     "file": "zap.c",
     "branch": "zap.c:weffects() sends an immediate directional zap with nonzero u.dz to zap_updown(). Within zap_updown(), WAN_STRIKING falls through with striking=true; when u.dz<0, rn2(3) is nonzero, the level is not air or water, the hero is not underwater, and the level is not the quest start, C prints the dislodged-rock message, rolls rnd(2) for a hard helmet or rnd(6) otherwise, calls losehp(Maybe_Half_Phys(dmg), ...), creates a rock at the hero square, learns its description with xname(), stacks it, and calls newsym().",
     "functions": [
-      "zap_updown() whole zap.c:3219-3410; js/zap.js:6173-6256 currently implements WAN_PROBING and generic pile/map handling but omits WAN_OPENING/SPE_KNOCK, WAN_STRIKING/SPE_FORCE_BOLT, WAN_LOCKING/SPE_WIZARD_LOCK, SPE_STONE_TO_FLESH, and the source-sensitive upward/downward effect branches."
+      "zap_updown() whole function; js/zap.js:6173-6256 currently implements WAN_PROBING and generic pile/map handling but omits WAN_OPENING/SPE_KNOCK, WAN_STRIKING/SPE_FORCE_BOLT, WAN_LOCKING/SPE_WIZARD_LOCK, SPE_STONE_TO_FLESH, and the source-sensitive upward/downward effect branches."
     ],
     "callers": [
       "zap.c:weffects() at 3438-3445 calls zap_updown(obj) when an immediate wand or spell has nonzero u.dz.",
