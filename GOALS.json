@@ -299495,6 +299495,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-dothrow-barehand-cockatrice-throw-v56-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire throw_obj barehanded cockatrice corpse petrification call.",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v56/v56-barehand-cockatrice-throw-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v56-barehand-cockatrice-throw-action3-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "throw_obj",
+      "session": "synthetic/v56/v56-barehand-cockatrice-throw-action3"
     }
   ]
 }
