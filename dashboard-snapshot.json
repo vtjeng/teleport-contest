@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T16:03:49.045Z",
+  "capturedAt": "2026-10-13T16:23:02.843Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -104560,6 +104560,311 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep27 compares the independently replayed C Wizard clone encounter after finding eleven distinct source failures."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep22-c171803b73da5bae96ae4bc8d8607057ddf0579d",
+        "type": "published",
+        "at": "2026-10-13T16:04:01.225Z",
+        "task": "Prep22",
+        "commit": "c171803b73da5bae96ae4bc8d8607057ddf0579d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-Prep23-c171803b73da5bae96ae4bc8d8607057ddf0579d",
+        "type": "publication-confirmed",
+        "at": "2026-10-13T16:04:03.351Z",
+        "task": "Prep23",
+        "commit": "c171803b73da5bae96ae4bc8d8607057ddf0579d",
+        "knownBy": "2026-10-13T16:04:01.225Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-Prep24-c171803b73da5bae96ae4bc8d8607057ddf0579d",
+        "type": "publication-confirmed",
+        "at": "2026-10-13T16:04:04.678Z",
+        "task": "Prep24",
+        "commit": "c171803b73da5bae96ae4bc8d8607057ddf0579d",
+        "knownBy": "2026-10-13T16:04:01.225Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-Prep25-c171803b73da5bae96ae4bc8d8607057ddf0579d",
+        "type": "publication-confirmed",
+        "at": "2026-10-13T16:04:06.042Z",
+        "task": "Prep25",
+        "commit": "c171803b73da5bae96ae4bc8d8607057ddf0579d",
+        "knownBy": "2026-10-13T16:04:01.225Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-Prep26-c171803b73da5bae96ae4bc8d8607057ddf0579d",
+        "type": "publication-confirmed",
+        "at": "2026-10-13T16:04:07.577Z",
+        "task": "Prep26",
+        "commit": "c171803b73da5bae96ae4bc8d8607057ddf0579d",
+        "knownBy": "2026-10-13T16:04:01.225Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-active-refresh-v58-v62-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:04:22.339Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Synchronized grouped-preparation tooling; awaiting publication of v58-v62 manifests and baseline evaluations before selecting work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-20261013-v58",
+        "type": "turn",
+        "at": "2026-10-13T16:04:29.928Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-a-mounted-615af68b-20261013",
+        "type": "activity",
+        "at": "2026-10-13T16:05:48.415Z",
+        "task": "A2-investigation-v56-mounted-fumbling-fall-action4-20261013",
+        "phase": "review",
+        "reason": "Integrate the submitted timeout caller fix, preserving its original diagnosis, to release the parked steed task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v60-whirly-stethoscope-20261013",
+        "type": "assign",
+        "at": "2026-10-13T16:06:03.309Z",
+        "task": "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v58-boots-start-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:06:15.586Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the admitted v58 worn-boots case and tracing its unported source branch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-investigation-v58-wielded-boots-wear-action2-20261013",
+        "type": "assign",
+        "at": "2026-10-13T16:06:19.187Z",
+        "task": "C-investigation-v58-wielded-boots-wear-action2-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-mounted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+        "type": "integrating",
+        "at": "2026-10-13T16:06:55.494Z",
+        "task": "A2-investigation-v56-mounted-fumbling-fall-action4-20261013",
+        "integration": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v58-ceiling-striking-helmet-20261013",
+        "type": "assign",
+        "at": "2026-10-13T16:07:03.209Z",
+        "task": "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-active-v58-ceiling-striking-helmet-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:07:07.356Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the v58 ceiling strike mismatch in zap.c:zap_updown."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v60-ustatusline-20261013",
+        "type": "implement",
+        "at": "2026-10-13T16:08:30.888Z",
+        "task": "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
+        "goal": "fix-insight-ustatusline-held-monster-report-v60-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-wielded-boots-wear-action2-20261013",
+        "type": "implement",
+        "at": "2026-10-13T16:08:43.431Z",
+        "task": "C-investigation-v58-wielded-boots-wear-action2-20261013",
+        "goal": "fix-do-wear-wielded-armor-removal-v58-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-implement-v58-zap-updown-20261013",
+        "type": "implement",
+        "at": "2026-10-13T16:11:37.440Z",
+        "task": "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
+        "goal": "port-zap-zap-updown-ceiling-striking-v58-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-819202120be22caa2ab014fc6fbdb9dd7a86e55c",
+        "type": "ready",
+        "at": "2026-10-13T16:14:13.655Z",
+        "task": "C-investigation-v58-wielded-boots-wear-action2-20261013",
+        "delivery": "819202120be22caa2ab014fc6fbdb9dd7a86e55c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep27-v63-handoff-evidence-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:14:57.584Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep27 completed fifteen independently replayed cases: twelve source failures and three controls with added coverage."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v56-mounted-fumbling-fall-action4-20261013-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-validated",
+        "type": "validated",
+        "at": "2026-10-13T16:15:00.512Z",
+        "task": "A2-investigation-v56-mounted-fumbling-fall-action4-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2e179fceccde68131d733a1874d5dbde7ee96440",
+        "type": "ready",
+        "at": "2026-10-13T16:15:07.722Z",
+        "task": "Prep27",
+        "delivery": "2e179fceccde68131d733a1874d5dbde7ee96440"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v61-bee-jelly-start-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:15:16.702Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating v61 pet bee floor-jelly behavior from its admitted source trace."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-investigation-v61-pet-bee-eats-floor-jelly-action2-20261013",
+        "type": "assign",
+        "at": "2026-10-13T16:15:21.605Z",
+        "task": "C-investigation-v61-pet-bee-eats-floor-jelly-action2-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v56-mounted-fumbling-fall-action4-20261013-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T16:15:36.790Z",
+        "task": "A2-investigation-v56-mounted-fumbling-fall-action4-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-active-v58-zap-updown-port-20261013T1623",
+        "type": "turn",
+        "at": "2026-10-13T16:16:13.039Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Ported the v58 vertical zap mismatch; waiting for the selected replay slot to clear."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-658a0cef0be43ca10fa417eb398d16ff9c6c9b54",
+        "type": "ready",
+        "at": "2026-10-13T16:16:35.776Z",
+        "task": "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
+        "delivery": "658a0cef0be43ca10fa417eb398d16ff9c6c9b54"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep28-v64-claim-20261013",
+        "type": "assign",
+        "at": "2026-10-13T16:16:45.364Z",
+        "task": "Prep28",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v64"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep28-v64-source-planning-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:16:50.447Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep28 plans the next independent C challenge batch, v64."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-steed-after-timeout-accepted-20261013",
+        "type": "resume",
+        "at": "2026-10-13T16:17:53.791Z",
+        "task": "B-investigation-v57-flying-steed-pool-dismount-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-steed-resumed-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:17:58.136Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resuming the flying steed dismount investigation after the timeout caller blocker cleared."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-steed-dismount-20261013",
+        "type": "implement",
+        "at": "2026-10-13T16:19:02.577Z",
+        "task": "B-investigation-v57-flying-steed-pool-dismount-20261013",
+        "goal": "port-steed-dismount-steed-v57-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v61-bee-jelly-owner-20261013",
+        "type": "implement",
+        "at": "2026-10-13T16:19:17.303Z",
+        "task": "C-investigation-v61-pet-bee-eats-floor-jelly-action2-20261013",
+        "goal": "fix-monmove-bee-eat-jelly-floor-extraction-v61-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8356adcf7451ddd587e14ab62324e9fad6245391",
+        "type": "ready",
+        "at": "2026-10-13T16:22:19.105Z",
+        "task": "C-investigation-v61-pet-bee-eats-floor-jelly-action2-20261013",
+        "delivery": "8356adcf7451ddd587e14ab62324e9fad6245391"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-819202120be22caa2ab014fc6fbdb9dd7a86e55c-20261013",
+        "type": "received",
+        "at": "2026-10-13T16:22:45.615Z",
+        "task": "C-investigation-v58-wielded-boots-wear-action2-20261013",
+        "delivery": "819202120be22caa2ab014fc6fbdb9dd7a86e55c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-2e179fceccde68131d733a1874d5dbde7ee96440-20261013",
+        "type": "received",
+        "at": "2026-10-13T16:22:50.095Z",
+        "task": "Prep27",
+        "delivery": "2e179fceccde68131d733a1874d5dbde7ee96440"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-658a0cef0be43ca10fa417eb398d16ff9c6c9b54-20261013",
+        "type": "received",
+        "at": "2026-10-13T16:22:51.668Z",
+        "task": "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
+        "delivery": "658a0cef0be43ca10fa417eb398d16ff9c6c9b54"
       }
     ]
   },
@@ -104588,17 +104893,6 @@
         "unblocks": 1
       },
       {
-        "task": "A2-investigation-v56-mounted-fumbling-fall-action4-20261013",
-        "worker": "A2",
-        "goal": "fix-mounted-fumbling-dismount-caller-v56-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "615af68bf6c69fcfc8ad6c04f82f873401378484",
-        "since": "2026-10-13T15:20:30.392Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
         "task": "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
         "worker": "C",
         "goal": "fix-music-do-earthquake-doormask-alias-v56",
@@ -104619,10 +104913,8 @@
         "status": "ready",
         "delivery": "d94667a2bd6f38a514195d9552954ae31af9e9eb",
         "since": "2026-10-13T15:30:22.694Z",
-        "blockedBy": [
-          "A2-investigation-v56-mounted-fumbling-fall-action4-20261013"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "C-investigation-v57-throne-court-summon-action2-20261013",
@@ -104675,7 +104967,6 @@
         "delivery": "68393cf4971e6ff2e067d276863b8cfed33d6d72",
         "since": "2026-10-13T15:41:42.926Z",
         "blockedBy": [
-          "A2-investigation-v56-mounted-fumbling-fall-action4-20261013",
           "A2-investigation-v56-barehand-cockatrice-throw-action3-20261013"
         ],
         "unblocks": 0
@@ -104692,6 +104983,60 @@
           "B-investigation-v56-partial-arrow-lift-20261013",
           "B-investigation-v57-hallucinatory-whatis-20261013"
         ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v58-wielded-boots-wear-action2-20261013",
+        "worker": "C",
+        "goal": "fix-do-wear-wielded-armor-removal-v58-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "819202120be22caa2ab014fc6fbdb9dd7a86e55c",
+        "since": "2026-10-13T16:14:13.655Z",
+        "blockedBy": [
+          "C-investigation-v56-timedblind-highcleric-geyser-action5-20261013",
+          "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
+          "C-investigation-v57-throne-court-summon-action2-20261013",
+          "C-investigation-v56-sack-container-help-traditional-action2-20261013"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep27",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "2e179fceccde68131d733a1874d5dbde7ee96440",
+        "batch": "v63",
+        "since": "2026-10-13T16:15:07.722Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
+        "worker": "B",
+        "goal": "fix-insight-ustatusline-held-monster-report-v60-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "658a0cef0be43ca10fa417eb398d16ff9c6c9b54",
+        "since": "2026-10-13T16:16:35.776Z",
+        "blockedBy": [
+          "B-investigation-v56-partial-arrow-lift-20261013",
+          "B-investigation-v57-hallucinatory-whatis-20261013",
+          "B-investigation-v57-traditional-container-menu-request-20261013"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v61-pet-bee-eats-floor-jelly-action2-20261013",
+        "worker": "C",
+        "goal": "fix-monmove-bee-eat-jelly-floor-extraction-v61-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "8356adcf7451ddd587e14ab62324e9fad6245391",
+        "since": "2026-10-13T16:22:19.105Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -105184,17 +105529,6 @@
         "reason": "Diagnosis committed at f70875423; required mcastu.c:mcast_spell dispatcher edit is held by B active blindness task. No game code changes made; retaining this source finding for later continuation."
       },
       {
-        "task": "B-investigation-v57-flying-steed-pool-dismount-20261013",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-13T15:23:25.222Z",
-        "blockedBy": [],
-        "reason": "Source-traced file-port scope is steed.c:dismount_steed (whole range 576-822), including related v56 save_utrap/mintrap mismatch. Caller audit found js/timeout.js still records steed.c dismount as unported inside A2’s active timeout.c:slip_or_trip reservation; finish or clear that caller reservation before this whole-function task can wire all callers. Diagnosis is preserved in investigations/synthetic/v57/v57-flying-steed-pool-dismount-action4.json at 99b0d915d."
-      },
-      {
         "task": "A2-investigation-v57-flying-steed-pool-dismount-action4-20261013",
         "worker": "A2",
         "goal": null,
@@ -105208,8 +105542,8 @@
     ]
   },
   "development": {
-    "executionCommit": "ce51c52366d1b682c5423677ab5c687cb70833ee",
-    "measuredAt": "2026-10-13T15:53:26.088Z",
+    "executionCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+    "measuredAt": "2026-10-13T16:12:25.423Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
