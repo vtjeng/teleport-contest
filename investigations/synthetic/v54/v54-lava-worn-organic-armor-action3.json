@@ -1,0 +1,84 @@
+{
+  "session": "synthetic/v54/v54-lava-worn-organic-armor-action3",
+  "remainingScreens": 68,
+  "recordedSteps": 282,
+  "corpus": "synthetic",
+  "batch": "v54",
+  "caseId": "v54-lava-worn-organic-armor-action3",
+  "manifestPath": "challenges/manifests/v54.json",
+  "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+  "recordingSha256": "bab51aed44f82f8e2a47915dd56158d3abff9a8e418ddd8bcfdbeccc2892dc1d",
+  "recipeSha256": "74a46434214bf3268c565f605b721541a580ba5072aae10ede32b7c9d2120955",
+  "replayInputSha256": "081380f9c9cfb62169de8ed82468fd0c3009e0bdebfb8d1bf01d1ba0cc8c2535",
+  "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+  "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
+  "status": "complete",
+  "commit": "f708754231d4cfac516d62b9501877537b0d99a5",
+  "mismatch": {
+    "passed": false,
+    "corpus": "synthetic",
+    "batch": "v54",
+    "caseId": "v54-lava-worn-organic-armor-action3",
+    "session": "synthetic/v54/v54-lava-worn-organic-armor-action3",
+    "manifestPath": "challenges/manifests/v54.json",
+    "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+    "recording": "challenges/cases/v54/v54-lava-worn-organic-armor-action3.session.json",
+    "recordingPath": "challenges/cases/v54/v54-lava-worn-organic-armor-action3.session.json",
+    "recordingSha256": "bab51aed44f82f8e2a47915dd56158d3abff9a8e418ddd8bcfdbeccc2892dc1d",
+    "recipe": "challenges/cases/v54/v54-lava-worn-organic-armor-action3.recipe.session.json",
+    "recipeSha256": "74a46434214bf3268c565f605b721541a580ba5072aae10ede32b7c9d2120955",
+    "replayInputSha256": "081380f9c9cfb62169de8ed82468fd0c3009e0bdebfb8d1bf01d1ba0cc8c2535",
+    "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+    "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
+    "previousScreensMatched": 214,
+    "remainingScreens": 68,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 214, "total": 282 },
+      "rng": { "matched": 3035, "total": 3060 },
+      "cursors": { "matched": 214, "total": 282 }
+    },
+    "firstMismatch": {
+      "kind": "behavioral-boundary",
+      "step": 214,
+      "message": "The first input after the matching More screen reaches unsupported setNotWorn for otyp 134."
+    },
+    "step": 214,
+    "kind": "behavioral-boundary",
+    "sourceFile": "trap.c",
+    "function": "lava_effects",
+    "boundary": "unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 134",
+    "key": " ",
+    "message": "Your leather armor bursts into flame!--More--",
+    "branch": "For a doomed carried item, C conditionally emits the destruction message, then unconditionally removes every worn item through remove_worn_item(obj, TRUE) before useupall(obj). JS explicitly records steal.c:remove_worn_item as unported for armor other than cloaks and proceeds to useupall with the body armor still worn, which requires the missing setNotWorn hook."
+  },
+  "summary": "The admitted case matches all screens and cursors through step 213. On the next Space after the body-armor destruction prompt, JavaScript reaches an explicitly skipped C call and then refuses useupall because leather armor (otyp 134) remains worn. This is a source-defined caller gap, not a visual mismatch in the saved prefix.",
+  "sourceFile": "trap.c",
+  "function": "lava_effects",
+  "source": {
+    "file": "trap.c",
+    "function": "lava_effects",
+    "branch": "For each doomed inventory item, C preserves the next link, conditionally emits a destruction message for worn gear, unconditionally removes every worn item through steal.c:remove_worn_item, and then calls invent.c:useupall. The selected body-armor branch was explicitly skipped in JavaScript, leaving otyp 134 worn when useupall ran.",
+    "lines": "6794-6987",
+    "functions": ["lava_effects"],
+    "callers": [
+      "hack.c:spoteffects calls lava_effects when the hero is on lava (3296-3299); the admitted wizard map / lava recipe reaches this live path.",
+      "trap.c:float_down also calls lava_effects for lava at the hero's position (4107-4108)."
+    ],
+    "callee": "steal.c:remove_worn_item (213-290) clears armor slots through Armor_off/other slot callbacks and then setnotworn for any residual worn mask. C's lava_effects discards its result and immediately calls invent.c:useupall.",
+    "jsPath": "js/trap.js:lava_effects currently notes the remove_worn_item gap for every armor type except cloaks, then calls useupall with only {state}; js/steal.js:remove_worn_item already implements the body-armor callback and worn-state clearing path.",
+    "scopeForImplementation": [
+      "source:trap.c:lava_effects",
+      "source:steal.c:remove_worn_item"
+    ],
+    "dependencies": [
+      "steal.c:remove_worn_item is already implemented in js/steal.js; the current call site explicitly skips it for armor other than cloaks."
+    ]
+  },
+  "evidence": [
+    "Admitted evaluation baseline-78195d815-v54.json records 214/282 screens, 3035/3060 RNG calls, 214/282 cursors and error null for the selected case.",
+    "Single-case scan at commit f708754231d4cfac516d62b9501877537b0d99a5: no screen divergence through emitted screen 214; the next Space reaches unsupported setNotWorn for otyp 134 at segment 0 step 214. Receipt run-bq60gZ is /tmp/teleport-validation-1000/run-bq60gZ/receipt.json; stdout is in /tmp/teleport-validation-1000/run-bq60gZ/stdout.log.",
+    "Source comparison: trap.c:lava_effects lines 6884-6913 unconditionally calls remove_worn_item before useupall for each doomed worn item; js/trap.js lines 1700-1726 skips every armor item except a cloak. steal.c:remove_worn_item lines 213-290 and js/steal.js lines 327-380 include the body-armor slot callback and setnotworn cleanup."
+  ],
+  "goalKind": "divergence-fix"
+}

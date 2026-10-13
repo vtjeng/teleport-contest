@@ -466,7 +466,7 @@ test('trap.c lava_effects awaits burn_away_slime before lava handling', () => {
     assert.doesNotMatch(jsLava, /note_unported\(['"]timeout\.c burn_away_slime/u);
 });
 
-test('float_down runs lava effects immediately and removes a worn cloak before destruction', () => {
+test('float_down runs lava effects and removes every worn item before destruction', () => {
     const cFloatDown = cFunction(
         C_TRAP,
         'float_down(\n    long hmask,',
@@ -503,10 +503,10 @@ test('float_down runs lava effects immediately and removes a worn cloak before d
     ) + 3;
     assert.ok(jsLavaStart >= 0 && jsLavaEnd > jsLavaStart);
     const jsLava = JS_TRAP.slice(jsLavaStart, jsLavaEnd);
-    const cloakCheck = jsLava.indexOf('const supportedCloak = obj === state.uarmc');
-    const helperCall = jsLava.indexOf('await remove_worn_item(obj, true, state);', cloakCheck);
+    const wornCheck = jsLava.indexOf('if (obj.owornmask) {');
+    const helperCall = jsLava.indexOf('await remove_worn_item(obj, true, state);', wornCheck);
     const destroyCall = jsLava.indexOf('await useupall(obj, { state });', helperCall);
-    assert.ok(cloakCheck >= 0 && helperCall > cloakCheck && destroyCall > helperCall);
-    assert.match(jsLava.slice(cloakCheck, helperCall),
-        /Boolean\(mask & W_ARMOR\) && !supportedCloak/u);
+    assert.ok(wornCheck >= 0 && helperCall > wornCheck && destroyCall > helperCall);
+    assert.doesNotMatch(jsLava.slice(wornCheck, helperCall),
+        /note_unported\(['"]steal\.c remove_worn_item/u);
 });

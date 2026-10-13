@@ -3202,7 +3202,7 @@ export async function use_lamp(obj, state = game, env = {}) {
             await ttyPline('Nothing seems to happen.', state);
         }
     } else if (lamp) {
-        await check_unpaid(obj, state, { ...env, random });
+        await check_unpaid(obj, state, { ...env, state });
         const owner = shk_your(obj, state);
         await ttyPline(
             `${highc(owner[0])}${owner.slice(1)}${lamp} is now on.`, state,
