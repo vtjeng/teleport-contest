@@ -2502,14 +2502,14 @@ export async function poly_obj(obj, id, state = game,
             const newWornMask = (oldWornMask & W_WEAPONS)
                 ? oldWornMask
                 : wearslot(replacement, state) & oldWornMask;
-            // steal.c remove_worn_item() is a void dependency. Its supported
-            // ring/weapon arms are wired here; unsupported accessory arms stay
-            // an explicit discarded-call boundary until that source owner is
-            // ported, rather than being replaced with invented effects.
+            // C calls remove_worn_item() for every worn replacement. The
+            // existing armor, ring, and weapon branches are wired here;
+            // unsupported accessory arms remain an explicit discarded-call
+            // boundary until their source owners are ported.
             const removable = !(oldWornMask
-                & (W_ARMOR | W_AMUL | W_TOOL | W_BALL | W_CHAIN | W_QUIVER));
+                & (W_AMUL | W_TOOL | W_BALL | W_CHAIN | W_QUIVER));
             if (removable) {
-                await remove_worn_item(obj, true, state);
+                await remove_worn_item(obj, true, state, env);
             } else {
                 note_unported('steal.c remove_worn_item');
             }
@@ -2531,7 +2531,7 @@ export async function poly_obj(obj, id, state = game,
                 setuqwep(replacement, env);
             } else if (newWornMask) {
                 await setworn(replacement, newWornMask, env);
-                if (newWornMask & W_RING) {
+                if (newWornMask & (W_RING | W_ARMOR)) {
                     await set_wear(state, replacement, { ...rawEnv, random });
                 } else {
                     note_unported('do_wear.c set_wear');

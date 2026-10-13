@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import {
     OBJ_INVENT,
+    W_ARM,
     W_RINGL,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -16,7 +17,12 @@ import {
 import { runSegment } from '../js/jsmain.js';
 import { setwornEnv } from '../js/do_wear.js';
 import { setworn } from '../js/worn.js';
-import { RIN_REGENERATION, RIN_WARNING } from '../js/objects.js';
+import {
+    CRYSTAL_PLATE_MAIL,
+    RIN_REGENERATION,
+    RIN_WARNING,
+    STUDDED_LEATHER_ARMOR,
+} from '../js/objects.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/zap.c', 'utf8');
 const JS_SOURCE = readFileSync('js/zap.js', 'utf8');
@@ -35,9 +41,14 @@ const JS_FUNCTION = JS_SOURCE.slice(JS_START, JS_END);
 
 const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
 
-test('poly_obj calls target set_wear only for a worn ring in C order', () => {
-    // zap.c:1946-1949 sets the replacement in the worn slot, calls set_wear,
-    // then rereads the slot because an amulet callback can replace its object.
+test('poly_obj removes supported worn items before restoring them in C order', () => {
+    // zap.c:1930 and 1945-1949 remove the old item before assigning the
+    // replacement, then call set_wear and reread the slot.
+    const cPolyToSetWorn = C_SOURCE.slice(
+        C_SOURCE.indexOf('poly_obj(struct obj *obj, int id)\n{'),
+        C_CALL_END,
+    );
+    assert.match(cPolyToSetWorn, /remove_worn_item\(obj, TRUE\);/u);
     assert.match(C_CALL, /setworn\(otmp, new_wornmask\);/u);
     assert.match(C_CALL, /set_wear\(otmp\);/u);
     assert.match(C_CALL, /otmp = wearmask_to_obj\(new_wornmask\);/u);
@@ -45,7 +56,14 @@ test('poly_obj calls target set_wear only for a worn ring in C order', () => {
     assert.ok(C_CALL.indexOf('set_wear(')
         < C_CALL.indexOf('wearmask_to_obj('));
 
-    assert.match(JS_FUNCTION, /if \(newWornMask & W_RING\)/u);
+    const jsRemoveCall = JS_FUNCTION.indexOf(
+        'await remove_worn_item(obj, true, state, env);',
+    );
+    const jsSetWorn = JS_FUNCTION.indexOf(
+        'await setworn(replacement, newWornMask, env);',
+    );
+    assert.ok(jsRemoveCall >= 0 && jsRemoveCall < jsSetWorn);
+    assert.match(JS_FUNCTION, /if \(newWornMask & \(W_RING \| W_ARMOR\)\)/u);
     assert.match(
         JS_FUNCTION,
         /await set_wear\(state, replacement, \{ \.\.\.rawEnv, random \}\);/u,
@@ -53,6 +71,41 @@ test('poly_obj calls target set_wear only for a worn ring in C order', () => {
     assert.match(JS_FUNCTION, /replacement = wearmask_to_obj\(newWornMask, state\);/u);
     assert.ok(JS_FUNCTION.indexOf('await set_wear(')
         < JS_FUNCTION.indexOf('replacement = wearmask_to_obj('));
+});
+
+test('poly_obj removes and restores worn armor around polymorph', async () => {
+    const segment = {
+        seed: 9102474,
+        datetime: '20330708101112',
+        nethackrc: [
+            'OPTIONS=name:ArmorSwap,role:Wizard,race:human,gender:male,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics',
+            '',
+        ].join('\n'),
+        moves: '.',
+    };
+    await runSegment(segment);
+
+    const oldArmor = mksobj(
+        CRYSTAL_PLATE_MAIL, false, false, { state: game, ...random },
+    );
+    addinv(oldArmor, { state: game });
+    setworn(oldArmor, W_ARM, setwornEnv(game));
+
+    const replacement = await poly_obj(
+        oldArmor,
+        STUDDED_LEATHER_ARMOR,
+        game,
+        random,
+        { state: game },
+    );
+
+    assert.equal(replacement.otyp, STUDDED_LEATHER_ARMOR);
+    assert.equal(game.uarm, replacement);
+    assert.equal(replacement.owornmask, W_ARM);
+    assert.equal(oldArmor.owornmask, 0);
+    assert.equal(game.unported.has('steal.c remove_worn_item'), false);
+    assert.equal(game.unported.has('do_wear.c set_wear'), false);
 });
 
 test('poly_obj cancels a replacement egg timer before making it generic', () => {
