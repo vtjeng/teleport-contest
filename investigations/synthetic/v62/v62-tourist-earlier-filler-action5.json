@@ -26,7 +26,8 @@
     "earliestStep": 299,
     "caseId": "v62-tourist-earlier-filler-action5",
     "batch": "v62",
-    "recordingPath": "challenges/cases/v62/v62-tourist-earlier-filler-action5.session.json"
+    "recordingPath": "challenges/cases/v62/v62-tourist-earlier-filler-action5.session.json",
+    "session": "synthetic/v62/v62-tourist-earlier-filler-action5"
   },
   "summary": "The Tourist earlier quest filler is missing from the JavaScript special-level loader. On quest Home level 2, mklev.c:makelevel selects Tou-fila and passes it through makemaz/load_special; js/mklev.js computes the same name but SPECIAL_LEVEL_LOADERS has no Tou-fila entry, so generation falls through to an ordinary level. Port the complete dat/Tou-fila.lua program and register it in the quest-level loader.",
   "source": {
@@ -36,8 +37,8 @@
       "Tou-fila.lua"
     ],
     "callers": [
-      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special",
-      "js/mklev.js:makelevel -> makemaz -> load_special"
+      "js/mklev.js:makelevel (mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special)",
+      "js/mklev.js:ensureSpecialLevelLoaders (dispatches QUEST_LEVEL_LOADERS into load_special)"
     ],
     "dependencies": [
       "dat/nhlib.lua alignment initialization",
