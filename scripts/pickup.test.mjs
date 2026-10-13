@@ -1779,7 +1779,14 @@ test('query_objlist delegates petrifying corpse discovery to look_here',
     corpse.corpsenm = PM_COCKATRICE;
     // look_here() emits the tactile setup, discovery, and warning lines;
     // queue ordinary More dismissals for the complete production TTY path.
-    for (let i = 0; i < 4; ++i)
+    for (let i = 0; i < 24; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+    // The now-ported instapetrify() completes the fatal touch; dismiss its
+    // terminal messages, decline each end.c:disclose() category, then allow
+    // the final tombstone and farewell text window to close.
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey('n'.charCodeAt(0));
+    for (let i = 0; i < 24; ++i)
         state.nhDisplay.pushKey(' '.charCodeAt(0));
 
     const result = await query_objlist(
@@ -1790,7 +1797,8 @@ test('query_objlist delegates petrifying corpse discovery to look_here',
     );
 
     assert.deepEqual(result, { n: 0, pick_list: [] });
-    assert.match(state._ttyToplines, /fatal mistake/u);
+    assert.match(state.killer.name, /^touching .*cockatrice corpse bare-handed$/u);
+    assert.equal(state.program_state.gameover, true);
     });
 
 test('query_objlist walks an engulfer inventory through nobj', async () => {

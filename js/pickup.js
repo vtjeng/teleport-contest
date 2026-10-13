@@ -194,6 +194,7 @@ import {
     askchain,
     update_inventory,
     useupf,
+    feel_cockatrice,
     useup,
     will_feel_cockatrice,
 } from './invent.js';
@@ -3476,13 +3477,9 @@ export async function menu_loot(retry, put_in, state = game) {
 // through do_loot_cont(). Falls through to directional looting when no
 // container is found directly underfoot.
 //
-// Covered: the container-at-hero path (single and multi-container), the
-// grave message, the directional looting direction prompt through
-// get_adjacent_loc(), the underfoot redirect, the u.dz < 0 ceiling arm, and
-// the no-container messages.
-//
-// Also covers the confusion gate and its reverse_loot() result.
-// Not covered: cockatrice blind-no-glove arm (refuses).
+// C ref: pickup.c doloot_core() (2178-2346). Finds containers and performs
+// the pre-prompt fatal-corpse check before any container selection, then falls
+// through to directional looting when no container is underfoot.
 async function doloot_core(state) {
     let c = null;
     let timepassed = 0;
@@ -3525,15 +3522,17 @@ async function doloot_core(state) {
         if (!(await able_to_loot(cc.x, cc.y, true, state)))
             return ECMD_OK;
 
-        // pickup.c:2223-2235. Blind cockatrice corpse handling.
+        // pickup.c:2223-2235. Blind cockatrice corpse handling happens
+        // before a container menu or interaction.
         if (heroIsBlind(state) && !state.uarmg) {
             for (let nobj = state.level.objects[cc.x][cc.y]; nobj;
                 nobj = nobj.nexthere) {
                 if (nobj.otyp === CORPSE
-                    && touch_petrifies(state.mons[nobj.corpsenm])) {
-                    throw new UnsupportedPickupError(
-                        'doloot_core: blind cockatrice corpse on floor',
-                    );
+                    && will_feel_cockatrice(nobj, false, state)) {
+                    await feel_cockatrice(nobj, false, state);
+                    // C returns ECMD_TIME even if lifesaving or polymorphing
+                    // into a stone golem let feel_cockatrice() return.
+                    return ECMD_TIME;
                 }
             }
         }

@@ -176,6 +176,34 @@ test('isContainer matches the C range LARGE_BOX..BAG_OF_TRICKS', () => {
         'otyp 221 (above BAG_OF_TRICKS) is not a container');
 });
 
+test('doloot_core handles blind floor cockatrice before container selection', () => {
+    const pickupC = readFileSync('nethack-c/upstream/src/pickup.c', 'utf8');
+    const inventC = readFileSync('nethack-c/upstream/src/invent.c', 'utf8');
+    const pickupJs = readFileSync('js/pickup.js', 'utf8');
+    const inventJs = readFileSync('js/invent.js', 'utf8');
+    const cStart = pickupC.indexOf('doloot_core(void)');
+    const cEnd = pickupC.indexOf('\n/* called when attempting to #loot while confused */', cStart);
+    const jsStart = pickupJs.indexOf('async function doloot_core(state)');
+    const jsEnd = pickupJs.indexOf('\n// The lootmon label section of doloot_core()', jsStart);
+    const cFeelStart = inventC.indexOf('feel_cockatrice(struct obj *otmp, boolean force_touch)');
+    const cFeelEnd = inventC.indexOf("\n/* 'obj' is being placed on the floor", cFeelStart);
+    const jsFeelStart = inventJs.indexOf('export async function feel_cockatrice(');
+    const jsFeelEnd = inventJs.indexOf('\n// C ref: youprop.h:65 Stone_resistance', jsFeelStart);
+    const cLoot = pickupC.slice(cStart, cEnd);
+    const jsLoot = pickupJs.slice(jsStart, jsEnd);
+    const cFeel = inventC.slice(cFeelStart, cFeelEnd);
+    const jsFeel = inventJs.slice(jsFeelStart, jsFeelEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.ok(cFeelStart >= 0 && cFeelEnd > cFeelStart);
+    assert.ok(jsFeelStart >= 0 && jsFeelEnd > jsFeelStart);
+    assert.match(cLoot, /if \(Blind && !uarmg\)[\s\S]*?will_feel_cockatrice\(nobj, FALSE\)[\s\S]*?feel_cockatrice\(nobj, FALSE\);[\s\S]*?return ECMD_TIME;[\s\S]*?if \(num_conts > 1\)/u);
+    assert.match(jsLoot, /if \(heroIsBlind\(state\) && !state\.uarmg\)[\s\S]*?will_feel_cockatrice\(nobj, false, state\)[\s\S]*?await feel_cockatrice\(nobj, false, state\);[\s\S]*?return ECMD_TIME;[\s\S]*?if \(num_conts > 1\)/u);
+    assert.match(cFeel, /if \(will_feel_cockatrice\(otmp, force_touch\)\)[\s\S]*?Sprintf\(kbuf, "touching %s bare-handed", killer_xname\(otmp\)\);[\s\S]*?instapetrify\(kbuf\);/u);
+    assert.match(jsFeel, /if \(!will_feel_cockatrice\(otmp, force_touch, state\)\) return;[\s\S]*?killer_xname\(otmp, state\)[\s\S]*?await instapetrify\(killer, state\);/u);
+    assert.doesNotMatch(jsFeel, /note_unported\('trap\.c instapetrify'\)/u);
+});
+
 // -- doloot direct-call tests --
 // These tests call doloot() directly on existing game state. The state is
 // from a completed runSegment, so the message window carries a pending

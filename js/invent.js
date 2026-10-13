@@ -222,6 +222,7 @@ import {
 } from './dbridge.js';
 
 import {
+    instapetrify,
     t_at,
     trapname,
 } from './trap.js';
@@ -337,6 +338,7 @@ import {
     ansimpleoname,
     yname,
     corpse_xname,
+    killer_xname,
     erosion_matters,
 } from './objnam.js';
 import { hliquid, mon_nam, noit_Monnam } from './do_name.js';
@@ -2291,9 +2293,9 @@ export function will_feel_cockatrice(otmp, force_touch, state = game) {
         && touch_petrifies(state.mons[otmp.corpsenm]));
 }
 
-// C ref: invent.c feel_cockatrice(). The final killer_xname()/instapetrify()
-// call is a trap.c side effect; record that dependency after preserving the
-// warning, as other petrification callers do in this port.
+// C ref: invent.c feel_cockatrice() (4343-4365). Preserve the tactile
+// warning, normalize the body-shape wording in the killer text, then run the
+// existing trap.c:instapetrify() death path.
 export async function feel_cockatrice(
     otmp, force_touch, state = game, { message } = {},
 ) {
@@ -2308,10 +2310,8 @@ export async function feel_cockatrice(
         await pline(`Touching ${corpseName} is a fatal mistake...`, state);
     }
 
-    // killer_xname() feeds the unported instapetrify() call and has no result
-    // visible before that call, so leave both source operations at the same
-    // dependency boundary rather than inventing a second state owner.
-    note_unported('trap.c instapetrify');
+    const killer = `touching ${killer_xname(otmp, state)} bare-handed`;
+    await instapetrify(killer, state);
 }
 
 // C ref: youprop.h:65 Stone_resistance, which is
