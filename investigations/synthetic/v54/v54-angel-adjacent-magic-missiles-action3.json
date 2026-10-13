@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v54.json",
   "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
   "recordingSha256": "7a0d0b42039af195fef219fe72bfecea98f45b039f838c61bf17eab19626a8ca",
-  "evaluationPath": "challenges/evaluations/accepted-4a9094bc9f4f7e628235de5fd4774d64a4779fc0-v54.json",
-  "evaluationCommit": "4a9094bc9f4f7e628235de5fd4774d64a4779fc0",
+  "evaluationPath": "challenges/evaluations/accepted-29e87d84ecdc23bec49894556749298f61677af6-v54.json",
+  "evaluationCommit": "29e87d84ecdc23bec49894556749298f61677af6",
   "status": "partial",
-  "commit": "dcf29dc416c72f6142c38f53280dc292d8feeb6c",
+  "commit": "cd5e80ee9a794ef6dcffb9c72b8bde50dbd14be5",
   "mismatch": {
     "session": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3",
     "remainingScreens": 86,
@@ -35,9 +35,13 @@
         "matched": 194,
         "total": 280
       }
-    }
+    },
+    "replayInputSha256": "b19d7469db037a1ac5e6423e2eac1bc8cfd69f121bfbec672f2e21b5d8262f0a",
+    "evaluationPath": "challenges/evaluations/accepted-29e87d84ecdc23bec49894556749298f61677af6-v54.json",
+    "evaluationCommit": "29e87d84ecdc23bec49894556749298f61677af6",
+    "recordedSteps": 280
   },
-  "summary": "Diagnosis only: the angel magic-missiles action reaches the missing AD_MAGM handling in castmu. The selected scan stops at boundary 194 with \"simple monster action requires castmu() elemental spell type\"; the saved accepted v54 evaluation has 194/280 screens, 2459/2581 RNG calls and 194/280 cursors matched. B owns mcastu.c:castmu and mhitu.c:mattacku for a separate admitted investigation, so this case must wait for that source delivery before implementation scope can be claimed.",
+  "summary": "The diagnosis remains the AD_MAGM arm of castmu. On the accepted 29e87d84 baseline, the case still matches 194/280 screens, 2459/2581 RNG calls and 194/280 cursors. A selected replay at cd5e80ee stops at boundary 194 because JavaScript refuses the source-supported magic-missile attack. B’s naming delivery has now been accepted and released castmu/mattacku, so this task can proceed to implementation.",
   "source": {
     "file": "mcastu.c",
     "functions": [
@@ -49,28 +53,48 @@
     ]
   },
   "evidence": [
-    "Accepted baseline: challenges/evaluations/accepted-4a9094bc9f4f7e628235de5fd4774d64a4779fc0-v54.json; its v54 case metrics are 194/280 screens, 2459/2581 RNG, 194/280 cursors and error null.",
-    "Selected JS comparison at dcf29dc416c72f6142c38f53280dc292d8feeb6c stopped at behavioral boundary 194 with the unsupported castmu elemental spell type refusal. Saved output: .cache/C-v54-angel-magic-missiles-scan.json; SHA-256 9eb262b9fa4ead97a02985585d5cb2a0d429e47a736f8d167195cec16162bc40.",
-    "Source trace: nethack-c/upstream/src/mhitu.c:930 calls castmu for the monster attack; nethack-c/upstream/src/mcastu.c:282-294 implements AD_MAGM including antimagic handling, magic-missile damage and mon_spell_hits_spot. js/mcastu.js:615-617 rejects the corresponding attack type.",
-    "Current ledger ownership is B-investigation-v54-caveman-cleric-insects-residual-action2-20261013 for source:mcastu.c:castmu and source:mhitu.c:mattacku. No C code was edited."
+    "The accepted 29e87d84 v54 evaluation records this case at 194/280 screens, 2459/2581 RNG calls, 194/280 cursors, with error null. Artifact: challenges/evaluations/accepted-29e87d84ecdc23bec49894556749298f61677af6-v54.json.",
+    "A selected comparison after accepted B naming on replay tree cd5e80ee9a794ef6dcffb9c72b8bde50dbd14be5, input SHA-256 b19d7469db037a1ac5e6423e2eac1bc8cfd69f121bfbec672f2e21b5d8262f0a, emitted 194 screens and stopped at behavioral boundary 194: \"simple monster action requires castmu() elemental spell type\". Saved output .cache/C-v54-angel-magic-missiles-accepted-scan.json; SHA-256 79d69061189643ca341ee5b78c4db36d2d65d73dcca5a08ae42180b46b60fd08.",
+    "C source: mcastu.c:castmu lines 282-294 handles AD_MAGM with the shower-of-missiles message, Antimagic shield/resistance branches, damage roll, and mon_spell_hits_spot. mhitu.c:930 calls castmu from the AT_MAGC attack arm. JavaScript js/mcastu.js:615-617 currently sends AD_MAGM to the unsupported fallback.",
+    "The earlier partial report at commit 45113cb02 is preserved in Git. B’s castmu/mattacku ownership has been released by accepted naming delivery 29e87d84."
   ],
-  "blocker": {
-    "task": "B-investigation-v54-caveman-cleric-insects-residual-action2-20261013",
-    "owner": "B",
-    "sourceReservations": [
-      "source:mcastu.c:castmu",
-      "source:mhitu.c:mattacku"
-    ],
-    "reason": "The first source-traced divergence is inside B-owned castmu; implementation requires that reservation to be released."
-  },
+  "blocker": null,
   "replay": {
     "command": "node scripts/scan-sessions.mjs --json --synthetic v54/v54-angel-adjacent-magic-missiles-action3",
-    "replayCommit": "dcf29dc416c72f6142c38f53280dc292d8feeb6c",
-    "replayInputSha256": "dcd772795cefb4233d2965d01591ca4ebeff5c748d8a37560f9329a15dc07874",
-    "outputPath": ".cache/C-v54-angel-magic-missiles-scan.json",
-    "outputSha256": "9eb262b9fa4ead97a02985585d5cb2a0d429e47a736f8d167195cec16162bc40",
+    "replayCommit": "cd5e80ee9a794ef6dcffb9c72b8bde50dbd14be5",
+    "replayInputSha256": "b19d7469db037a1ac5e6423e2eac1bc8cfd69f121bfbec672f2e21b5d8262f0a",
+    "outputPath": ".cache/C-v54-angel-magic-missiles-accepted-scan.json",
+    "outputSha256": "79d69061189643ca341ee5b78c4db36d2d65d73dcca5a08ae42180b46b60fd08",
     "boundary": "simple monster action requires castmu() elemental spell type",
     "at": 194,
     "error": null
-  }
+  },
+  "replayInputSha256": "b19d7469db037a1ac5e6423e2eac1bc8cfd69f121bfbec672f2e21b5d8262f0a",
+  "currentBaseline": {
+    "evaluationPath": "challenges/evaluations/accepted-29e87d84ecdc23bec49894556749298f61677af6-v54.json",
+    "evaluationCommit": "29e87d84ecdc23bec49894556749298f61677af6",
+    "replayInputSha256": "b19d7469db037a1ac5e6423e2eac1bc8cfd69f121bfbec672f2e21b5d8262f0a",
+    "metrics": {
+      "screens": {
+        "matched": 194,
+        "total": 280
+      },
+      "rng": {
+        "matched": 2459,
+        "total": 2581
+      },
+      "cursors": {
+        "matched": 194,
+        "total": 280
+      }
+    },
+    "remainingScreens": 86,
+    "note": "Accepted v54 evaluation after B’s castmu naming repair; the per-case baseline is unchanged."
+  },
+  "history": [
+    {
+      "sourceRevision": "45113cb02",
+      "note": "Original partial diagnosis and B ownership blocker, preserved in Git; it records the earlier 4a9094bc baseline and the same AD_MAGM stop."
+    }
+  ]
 }
