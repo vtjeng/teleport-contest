@@ -26,6 +26,7 @@ import {
     FROMOUTSIDE,
     G_GONE,
     HALLUC,
+    HALLUC_RES,
     HUNGRY,
     IN_SIGHT,
     ICE,
@@ -67,6 +68,10 @@ import {
     PM_WATER_MOCCASIN,
     PM_WATER_NYMPH,
     PM_VROCK,
+    LOW_PM,
+    SPECIAL_PM,
+    G_NOGEN,
+    M2_PNAME,
     M1_TPORT,
     PM_HUMAN,
     PM_WATCHMAN,
@@ -1233,7 +1238,56 @@ test('dowatersnakes follows fountain.c for the ordinary visible arm',
         assert.equal(location.typ, ROOM);
     });
 
-test('dowatersnakes leaves unsupported visibility/extinction arms fail-closed',
+test('dowatersnakes uses You_hear for the blind water-snake effect', async () => {
+    await startedGame();
+    const location = game.level.at(game.u.ux, game.u.uy);
+    location.typ = FOUNTAIN;
+    location.horizontal = 0;
+    location.flags = 0;
+    game.u.uprops[BLINDED].intrinsic = FROMOUTSIDE;
+    game.flags.acoustics = true;
+    const messages = [];
+    const draws = [];
+    const creations = [];
+
+    await drinkfountain(game, {
+        message: (line) => messages.push(line),
+        makeMonster: async (species, x, y, flags) => {
+            creations.push({ species, x, y, flags });
+            return null;
+        },
+        random: {
+            rnd(bound) {
+                assert.equal(bound, 30); // Fate 22 reaches dowatersnakes.
+                draws.push('rnd(30)');
+                return 22;
+            },
+            rn1(bound, base) {
+                assert.equal(bound, 5);
+                assert.equal(base, 2);
+                draws.push('rn1(5,2)');
+                return 2; // Two iterations exercise the source while loop.
+            },
+            rn2(bound) {
+                assert.equal(bound, 3); // Keep the fountain from drying up.
+                draws.push('rn2(3)');
+                return 1;
+            },
+        },
+    });
+
+    assert.deepEqual(draws, ['rnd(30)', 'rn1(5,2)', 'rn2(3)']);
+    // Blindness takes C's You_hear branch; acoustics make its line visible.
+    assert.deepEqual(messages, ['You hear something hissing!']);
+    assert.equal(creations.length, 2);
+    for (const creation of creations) {
+        assert.equal(creation.species, game.mons[PM_WATER_MOCCASIN]);
+        assert.deepEqual([creation.x, creation.y], [game.u.ux, game.u.uy]);
+        assert.equal(creation.flags, MM_NOMSG);
+    }
+});
+
+test('dowatersnakes consumes its count before the extinct-species effect',
     async () => {
         await startedGame();
         const location = game.level.at(game.u.ux, game.u.uy);
@@ -1241,14 +1295,94 @@ test('dowatersnakes leaves unsupported visibility/extinction arms fail-closed',
         location.horizontal = 0;
         location.flags = 0;
         game.mvitals[PM_WATER_MOCCASIN].mvflags |= G_GONE;
+        const messages = [];
+        const draws = [];
 
-        await assert.rejects(
-            () => drinkfountain(game, {
-                random: { rnd: () => 22, rn1: () => 4, rn2: () => 1 },
-                message: () => {},
-            }),
-            /extinct water-snake fountain effect/u,
+        await drinkfountain(game, {
+            message: (line) => messages.push(line),
+            makeMonster: () => assert.fail(
+                'fountain.c dowatersnakes creates no extinct water snakes',
+            ),
+            random: {
+                rnd(bound) {
+                    assert.equal(bound, 30);
+                    draws.push('rnd(30)');
+                    return 22; // Enter dowatersnakes through drinkfountain.
+                },
+                rn1(bound, base) {
+                    assert.equal(bound, 5);
+                    assert.equal(base, 2);
+                    draws.push('rn1(5,2)');
+                    return 2; // C draws this count before its extinction test.
+                },
+                rn2(bound) {
+                    assert.equal(bound, 3);
+                    draws.push('rn2(3)');
+                    return 1; // Keep the fountain from drying up after fate 22.
+                },
+            },
+        });
+
+        assert.deepEqual(draws, ['rnd(30)', 'rn1(5,2)', 'rn2(3)']);
+        assert.deepEqual(messages, [
+            // The extinct-species branch uses pline_The after rn1(5, 2).
+            'The fountain bubbles furiously for a moment, then calms.',
+        ]);
+    });
+
+test('dowatersnakes uses rndmonnam when the visible hero hallucinates',
+    async () => {
+        const cSource = await readFile(
+            new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+            'utf8',
         );
+        assert.match(cSource,
+            /dowatersnakes\(void\)[\s\S]*?Hallucination\s*\?\s*makeplural\(rndmonnam\(NULL\)\)\s*:\s*"snakes"/u);
+
+        await startedGame();
+        const location = game.level.at(game.u.ux, game.u.uy);
+        location.typ = FOUNTAIN;
+        location.horizontal = 0;
+        location.flags = 0;
+        game.u.uprops[HALLUC].intrinsic = FROMOUTSIDE;
+        game.u.uprops[HALLUC_RES].intrinsic = 0;
+        const candidate = game.mons.findIndex((species, index) =>
+            index >= LOW_PM && index < SPECIAL_PM && species
+                && !(species.mflags2 & M2_PNAME)
+                && !(species.geno & G_NOGEN));
+        assert.ok(candidate >= LOW_PM && candidate < SPECIAL_PM);
+        const messages = [];
+        const draws = [];
+
+        await drinkfountain(game, {
+            message: (line) => messages.push(line),
+            makeMonster: async () => null,
+            displayRandom(bound) {
+                draws.push(bound);
+                // Select the first eligible species, then its male name.
+                return draws.length === 1 ? candidate - LOW_PM : 0;
+            },
+            random: {
+                rnd(bound) {
+                    assert.equal(bound, 30);
+                    return 22; // Enter dowatersnakes through drinkfountain.
+                },
+                rn1(bound, base) {
+                    assert.equal(bound, 5);
+                    assert.equal(base, 2);
+                    return 2; // Exercise two iterations of the C while loop.
+                },
+                rn2(bound) {
+                    assert.equal(bound, 3);
+                    return 1; // Keep the fountain from drying up.
+                },
+            },
+        });
+
+        assert.match(messages[0], /^An endless stream of .+ pours forth!$/u);
+        assert.notEqual(messages[0], 'An endless stream of snakes pours forth!');
+        // rndmonnam draws a species offset followed by one gender draw.
+        assert.deepEqual(draws, [SPECIAL_PM + 100 - LOW_PM, 2]);
     });
 
 test('drinkfountain follows fountain.c foul-water fate 20', async () => {

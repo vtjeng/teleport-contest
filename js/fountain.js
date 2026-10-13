@@ -42,6 +42,7 @@ import {
     ROOM,
     S_LRING,
     SEE_INVIS,
+    something,
     UNCHANGING,
     LL_ARTIFACT,
     ONAME_VIA_DIP,
@@ -57,7 +58,9 @@ import { monster_detect } from './detect.js';
 import {
     bot, newsym, glyph_at, glyph_is_cmap, glyph_to_cmap,
 } from './display.js';
-import { Amonnam, hcolor, hliquid, a_monnam, oname } from './do_name.js';
+import {
+    Amonnam, hcolor, hliquid, a_monnam, oname, rndmonnam,
+} from './do_name.js';
 import { level_difficulty, dunlevs_in_dungeon, dunlev } from './dungeon.js';
 import { del_engr_at } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -231,38 +234,37 @@ async function dowaterdemon(state = game, env = {}) {
     }
 }
 
-// C ref: fountain.c dowatersnakes() (38-60). This admits only the ordinary
-// sighted, non-hallucinating branch. The blind branch needs Soundeffect() and
-// You_hear(), while the hallucinating branch needs rndmonnam(); both remain
-// explicit boundaries rather than consuming a partial effect.
+// C ref: fountain.c dowatersnakes() (38-60). Soundeffect() is compiled away
+// by the recorder's no-sound backend; You_hear() still owns the blind message.
 async function dowatersnakes(state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? { d, rn1, rn2, rnd, rne };
     const makeMonster = env.makeMonster ?? makemon_runtime;
-    const hallucination = state.u?.uprops?.[HALLUC];
-    const hallucinationResistance = state.u?.uprops?.[HALLUC_RES];
+    const number = random.rn1(5, 2);
 
-    if (state.mvitals[PM_WATER_MOCCASIN].mvflags & G_GONE) {
-        throw new UnsupportedFountainError(
-            'the extinct water-snake fountain effect (fate 22)',
+    // C draws the snake count before checking extinction.
+    if (state.mvitals[PM_WATER_MOCCASIN].mvflags & G_GONE)
+        return message(
+            'The fountain bubbles furiously for a moment, then calms.', state,
         );
-    }
+
     if (heroIsBlind(state)) {
-        throw new UnsupportedFountainError(
-            'the blind water-snake fountain effect (fate 22)',
-        );
-    }
-    if (hallucination?.intrinsic
-        && !(hallucinationResistance?.intrinsic
-            || hallucinationResistance?.extrinsic)) {
-        throw new UnsupportedFountainError(
-            'the hallucinating water-snake fountain effect (fate 22)',
-        );
+        // Soundeffect(se_snakes_hissing, 75) is a no-op in the TTY recorder.
+        const heard = youHear(`${something} hissing!`, state);
+        if (heard) await message(heard, state);
+    } else {
+        const hallucination = state.u?.uprops?.[HALLUC];
+        const hallucinationResistance = state.u?.uprops?.[HALLUC_RES];
+        const hallucinating = Boolean(hallucination?.intrinsic)
+            && !(hallucinationResistance?.intrinsic
+                || hallucinationResistance?.extrinsic);
+        const name = hallucinating
+            ? makeplural(rndmonnam({ state, random: env.displayRandom }))
+            : 'snakes';
+        await message(`An endless stream of ${name} pours forth!`, state);
     }
 
-    const num = random.rn1(5, 2);
-    await message('An endless stream of snakes pours forth!', state);
-    for (let remaining = num; remaining > 0; --remaining) {
+    for (let remaining = number; remaining > 0; --remaining) {
         const monster = await makeMonster(
             state.mons[PM_WATER_MOCCASIN],
             state.u.ux,
