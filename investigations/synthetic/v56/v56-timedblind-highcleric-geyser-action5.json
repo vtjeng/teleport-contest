@@ -1,0 +1,44 @@
+{
+  "session": "synthetic/v56/v56-timedblind-highcleric-geyser-action5",
+  "remainingScreens": 22,
+  "recordedSteps": 435,
+  "corpus": "synthetic",
+  "batch": "v56",
+  "caseId": "v56-timedblind-highcleric-geyser-action5",
+  "manifestPath": "challenges/manifests/v56.json",
+  "manifestSha256": "4aa0cf52cd2e315fae1c6b13dd2e5bf5317121d64ab04eacf9e4576fb86b8e19",
+  "recordingSha256": "0fbb3c71aace7af8b9072043d0c8ee1f47968c1cd1dd923896e58a5d8736119a",
+  "evaluationPath": "challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json",
+  "evaluationCommit": "398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6",
+  "status": "diagnosed",
+  "mismatch": {
+    "session": "synthetic/v56/v56-timedblind-highcleric-geyser-action5",
+    "remainingScreens": 22,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 413, "total": 435 },
+      "rng": { "matched": 3003, "total": 3003 },
+      "cursors": { "matched": 416, "total": 435 }
+    },
+    "firstMismatch": {
+      "kind": "screen",
+      "step": 301,
+      "message": "C suppresses the repeated mumbled curse with Norep; JavaScript sends it as an ordinary message, causing an extra --More-- boundary."
+    }
+  },
+  "summary": "The selected high cleric's two AT_MAGC attacks fail while Timed Blinded makes the directed spell useless and the hero remains paralyzed. Both paths reach mcastu.c:cursetxt's unseen-caster branch. C sends the same 'You hear a mumbled curse.' through Norep on each attempt, so PLINE_NOREPEAT suppresses the duplicate. JavaScript cursetxt sends the text through its ordinary message callback, producing an extra pager boundary on the second attempt. The selected case already matches all 3003 RNG calls; this is a message-mode defect, not a spell or geyser behavior mismatch.",
+  "source": {
+    "file": "mcastu.c",
+    "branch": "cursetxt's unseen-caster branch runs when the time gate passes and the hero is not Deaf; it calls Norep with the fixed mumbled-curse line.",
+    "functions": ["cursetxt"],
+    "callers": ["mcastu.c:castmu calls cursetxt when the caster is unable to cast; mcastu.c:buzzmu calls it for cancelled or resisted ranged spells. JavaScript castmu() and buzzmu() share cursetxt()."],
+    "dependencies": ["pline.c:Norep sets PLINE_NOREPEAT before vpline; js/tty_message.js:ttyNorep already provides this behavior. The live monster-action adapter supplies an ordinary message callback but no norepMessage callback. The cursetxt adaptation can select the canonical ttyNorep directly and suppress it during clone-only planning, so no caller edit is needed."]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Source trace: nethack-c/upstream/src/mcastu.c:cursetxt lines 63-85 calls Norep('You hear a mumbled curse.') only when the caster is unseen, the move-count/random gate passes, and Deaf is false. mcastu.c:castmu line 177 and buzzmu line 997 call cursetxt; neither changes the Norep contract.",
+    "Source trace: nethack-c/upstream/src/pline.c:Norep lines 327-335 sets PLINE_NOREPEAT for vpline. js/tty_message.js:ttyNorep already sets the same flag and ttyPlineCore suppresses an identical prior line.",
+    "Existing JavaScript defect: js/mcastu.js:cursetxt lines 429-469 sends the unseen-caster text through env.message and explicitly notes that Norep is not used. Production castmu and buzzmu adapters provide the ordinary ttyPline-backed message callback, so the second attempt reaches TTY as a normal line.",
+    "Accepted v56 baseline: challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json records 413/435 screens, 3003/3003 RNG calls, 416/435 cursors, error null; first differing screen is step 301. The admitted manifest attributes it to duplicate Norep suppression."
+  ]
+}
