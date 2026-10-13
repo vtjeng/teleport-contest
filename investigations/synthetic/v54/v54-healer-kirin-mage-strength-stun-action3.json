@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
-  "remainingScreens": 252,
+  "remainingScreens": 251,
   "recordedSteps": 778,
   "corpus": "synthetic",
   "batch": "v54",
@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v54.json",
   "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
   "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
-  "evaluationPath": "challenges/evaluations/accepted-3d403994ae35fe3f31ee2f3b856002abe1c79933-v54.json",
-  "evaluationCommit": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
+  "evaluationPath": "challenges/evaluations/accepted-4c44ed71e765ae70b69439c91ebc31a44cde99f4-v54.json",
+  "evaluationCommit": "4c44ed71e765ae70b69439c91ebc31a44cde99f4",
   "status": "complete",
-  "commit": "9fa6482c0c9a58400f19f791d19bc39ce29c820f",
+  "commit": "043aa932c7a20ca571af561bfea924b46cf0a62e",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v54",
@@ -24,20 +24,19 @@
     "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
     "recipe": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.recipe.session.json",
     "recipeSha256": "aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557",
-    "replayInputSha256": "b0c35f1df2a51d8969172ca51e0d50dbef607d93969d6b8508ff092b16fc71a9",
-    "evaluationPath": "challenges/evaluations/accepted-3d403994ae35fe3f31ee2f3b856002abe1c79933-v54.json",
-    "evaluationCommit": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
-    "evaluationArtifact": "challenges/evaluations/accepted-3d403994ae35fe3f31ee2f3b856002abe1c79933-v54.json",
-    "evaluationUtc": "2026-10-13T03:54:52.312Z",
-    "remainingScreens": 252,
+    "replayInputSha256": "39289a50320f57cd7945f54677c860ef696e3d9e6cf8d8355423b9100975a254",
+    "evaluationPath": "challenges/evaluations/accepted-4c44ed71e765ae70b69439c91ebc31a44cde99f4-v54.json",
+    "evaluationArtifact": "challenges/evaluations/accepted-4c44ed71e765ae70b69439c91ebc31a44cde99f4-v54.json",
+    "evaluationCommit": "4c44ed71e765ae70b69439c91ebc31a44cde99f4",
+    "evaluationUtc": "2026-10-13T04:18:42.122Z",
+    "remainingScreens": 251,
     "recordedSteps": 778,
-    "previousScreensMatched": 505,
+    "previousScreensMatched": 527,
     "regression": false,
     "passed": false,
-    "error": null,
     "metrics": {
       "screens": {
-        "matched": 526,
+        "matched": 527,
         "total": 778
       },
       "rng": {
@@ -45,39 +44,99 @@
         "total": 15123
       },
       "cursors": {
-        "matched": 526,
+        "matched": 527,
         "total": 778
       }
     },
-    "firstMismatch": null,
-    "step": null,
-    "kind": "rng",
-    "sourceFile": null,
-    "function": null,
-    "message": null
+    "firstMismatch": {
+      "step": 527,
+      "kind": "refusal",
+      "sourceFile": "objnam.c",
+      "function": "mshot_xname",
+      "message": "unsupported multishot missile ordinal"
+    },
+    "step": 527,
+    "kind": "refusal",
+    "sourceFile": "objnam.c",
+    "function": "mshot_xname",
+    "message": "unsupported multishot missile ordinal",
+    "error": null
   },
-  "summary": "The accepted baseline mismatch at step 511 came from makemon.c:grow_up preserving sex in unsigned fem while JS passed Boolean false/true to pmname as an array index, selecting the neutral species name. The source-aligned fix now preserves integer 0/1 for name selection and comparison, then stores the sex bit as Boolean. The exact committed v54 replay at 9fa6482c0c9a58400f19f791d19bc39ce29c820f matches all 527 emitted screens, cursors, and RNG boundaries through step 526. It then stops at step 527 on the separate objnam.c:mshot_xname multishot missile ordinal refusal.",
+  "summary": "After the accepted grow_up correction, v54 reaches a monster multishot volley. C objnam.c:mshot_xname first computes xname(obj), then, when gm.m_shot.n > 1 and the object type matches gm.m_shot.o, prepends \"the <i><ordinal suffix> \". JS currently throws at this branch. The saved recording reaches an Elvenking bow volley; its subsequent C messages name the first runed arrow as an ordinal. The source owner is objnam.c:mshot_xname; existing JS caller wiring reaches it from mthrowu.c:thitu and also from the existing thrown-object and hit-message paths.",
   "source": {
-    "file": "makemon.c",
-    "branch": "When grow_up advances a monster into another species with neither M2_MALE nor M2_FEMALE, C preserves mtmp->female in unsigned fem and uses that 0/1 index in pmname; the JS fallback currently passes Boolean false/true as the array index and therefore selects the neutral name.",
+    "file": "objnam.c",
+    "branch": "Compute xname(obj) first. If gm.m_shot.n > 1 and gm.m_shot.o equals obj->otyp, prepend \"the <i><ordin(i)> \"; otherwise return the ordinary xname unchanged.",
     "functions": [
-      "grow_up"
+      "mshot_xname"
     ],
     "callers": [
-      "muse.c:use_misc -> grow_up for MUSE_POT_GAIN_LEVEL; JS js/muse.js:use_misc -> js/makemon.js:grow_up. This selected session exercises the visible potion advancement path."
+      "mthrowu.c:thitu uses mshot_xname(obj) when the incoming object stack has quantity one; JS js/mthrowu.js:thitu already calls mshot_xname.",
+      "mthrowu.c:m_throw uses mshot_xname(singleobj) for visible sink-drop and missed-volley messages; JS js/mthrowu.js:m_throw already passes mshot_xname as distant_name callback at the corresponding output sites.",
+      "uhitm.c:hmon_hitmon_do_hit and hmon_hitmon_msg_hit use mshot_xname for thrown/kicked object hit feedback; JS js/uhitm.js has both calls.",
+      "dothrow.c:tmiss uses mshot_xname for player-thrown miss feedback; JS js/dothrow.js:tmiss already calls it."
     ],
     "dependencies": [
-      "do_name.c:pmname existing JS implementation in js/do_name.js"
+      "objnam.c:xname existing JS implementation",
+      "objnam.c:strprepend existing JS implementation",
+      "hacklib.c:ordin existing JS implementation"
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "At makemon.c:2095-2117, C sets unsigned fem to 0 for M2_MALE, 1 for M2_FEMALE, or mtmp->female (an integer boolean); the evolution message formats pmname(ptr, fem) and compares fem to mtmp->female at 2141-2150. PM_ELVENKING in include/monsters.h:2679-2685 has neither male nor female flags and names [Elvenking, Elvenqueen, elven monarch].",
-    "At js/makemon.js:431-451 before the fix, the fallback assigned mtmp.female directly; Boolean false/true was not an array index in js/do_name.js:1239-1244, so pmname fell back to NEUTRAL. JS also used strict number-versus-boolean comparison for the verb. The fix in 9fa6482c0 converts the fallback and comparison to C-compatible numbers and stores Boolean(fem), preserving JS game-state shape.",
-    "The exact v54 session is unchanged (manifest cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e; recording b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c; recipe aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557). Accepted baseline 3d403994ae35fe3f31ee2f3b856002abe1c79933 reports 526/778 screens and cursors, 5001 RNG, error null, with 252 screens remaining.",
-    "The exact committed scan at 9fa6482c0c9a58400f19f791d19bc39ce29c820f uses replay input SHA 21e2b7ff4073fff11eacb14adbd0b31ea7e53532f12fa86f767e92d39ee71731 and receipt /tmp/teleport-validation-1000/run-l4P7PY/receipt.json. It emits 527 of 778 screens with no divergence (steps 0-526, including step 511 and the completed growth caller path); step 527 remains blocked by the unsupported multishot missile ordinal branch in objnam.c:mshot_xname.",
-    "C and JS both use the source branch `humanoid(ptr) ? becomes : grows up into`; the observed verb already matched. `muse.c:use_misc` calls grow_up after the visible MUSE_POT_GAIN_LEVEL action, and existing JS js/muse.js:use_misc reaches js/makemon.js:grow_up.",
-    "Source-pinned regression test scripts/makemon.test.mjs exercises the actual PM_ELF_NOBLE -> PM_ELVEN_MONARCH evolution message for both false and true preserved sex bits and verifies the field remains Boolean after the update. The bounded focused suite passed 65/65 at grow_up code 9fa6482c0; npm run lint exited 0."
+    "objnam.c:1090-1102 defines the whole function. C evaluates xname(obj) before testing gm.m_shot.n > 1 and matching gm.m_shot.o to obj->otyp; on the volley branch it formats \"the %d%s \" from gm.m_shot.i and ordin(i), prepends that prefix with strprepend, then returns the resulting name. The quantity-one branch returns xname unchanged.",
+    "Required callees are already implemented: objnam.c:xname and strprepend in js/objnam.js, and hacklib.c:ordin in js/hacklib.js. The port must preserve unconditional name construction and source order, use the current volley index/type state, and remove the existing unsupported multishot missile ordinal refusal.",
+    "The active source caller for the selected monster volley is mthrowu.c:thitu: for obj->quan <= 1, it sets name from mshot_xname(obj) before killer_xname and before the attack roll. JS js/mthrowu.js:thitu has the corresponding call. Other existing callers are mthrowu.c:m_throw at the sink/miss branches, uhitm.c:hmon_hitmon_do_hit/hmon_hitmon_msg_hit, and dothrow.c:tmiss; their JS paths already call the same JS symbol.",
+    "The unchanged admitted recording has 778 steps. Segment 0 step 527 uses \".\" and C prints \"The Elvenking wields a runed bow!\"; step 528 uses Space and C prints \"The Elvenking shoots 5 runed arrows!\"; step 529 uses Space and C reports \"The 1st runed arrow misses the xan.\" This reaches the multishot ordinal naming path. The current accepted v54 artifact from 4c44ed71e765ae70b69439c91ebc31a44cde99f4 reports 527/778 screens and cursors, 5001/15123 RNG, error null, with 251 screens remaining.",
+    "Historical v54 grow_up investigation and measurements are retained in report history and prior commits; the accepted grow_up correction accounts for the earlier PM_ELVENKING name mismatch and is not part of this task."
   ],
-  "evaluationUtc": "2026-10-13T03:54:52.312Z"
+  "evaluationUtc": "2026-10-13T04:18:42.122Z",
+  "history": [
+    {
+      "task": "grow_up sex-index correction",
+      "diagnosisCommit": "76292bfb228554b60356cff82bf68b8a45706999",
+      "fixCommit": "9fa6482c0c9a58400f19f791d19bc39ce29c820f",
+      "reportCommit": "6396a8fbb478a96a27642a27650f7e3d5b3fcf58",
+      "goalKind": "divergence-fix",
+      "commit": "9fa6482c0c9a58400f19f791d19bc39ce29c820f",
+      "evaluationCommit": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
+      "evaluationPath": "challenges/evaluations/accepted-3d403994ae35fe3f31ee2f3b856002abe1c79933-v54.json",
+      "remainingScreens": 252,
+      "metrics": {
+        "screens": {
+          "matched": 526,
+          "total": 778
+        },
+        "rng": {
+          "matched": 5001,
+          "total": 15123
+        },
+        "cursors": {
+          "matched": 526,
+          "total": 778
+        }
+      },
+      "summary": "The accepted baseline mismatch at step 511 came from makemon.c:grow_up preserving sex in unsigned fem while JS passed Boolean false/true to pmname as an array index, selecting the neutral species name. The source-aligned fix now preserves integer 0/1 for name selection and comparison, then stores the sex bit as Boolean. The exact committed v54 replay at 9fa6482c0c9a58400f19f791d19bc39ce29c820f matches all 527 emitted screens, cursors, and RNG boundaries through step 526. It then stops at step 527 on the separate objnam.c:mshot_xname multishot missile ordinal refusal.",
+      "source": {
+        "file": "makemon.c",
+        "branch": "When grow_up advances a monster into another species with neither M2_MALE nor M2_FEMALE, C preserves mtmp->female in unsigned fem and uses that 0/1 index in pmname; the JS fallback currently passes Boolean false/true as the array index and therefore selects the neutral name.",
+        "functions": [
+          "grow_up"
+        ],
+        "callers": [
+          "muse.c:use_misc -> grow_up for MUSE_POT_GAIN_LEVEL; JS js/muse.js:use_misc -> js/makemon.js:grow_up. This selected session exercises the visible potion advancement path."
+        ],
+        "dependencies": [
+          "do_name.c:pmname existing JS implementation in js/do_name.js"
+        ]
+      },
+      "evidence": [
+        "At makemon.c:2095-2117, C sets unsigned fem to 0 for M2_MALE, 1 for M2_FEMALE, or mtmp->female (an integer boolean); the evolution message formats pmname(ptr, fem) and compares fem to mtmp->female at 2141-2150. PM_ELVENKING in include/monsters.h:2679-2685 has neither male nor female flags and names [Elvenking, Elvenqueen, elven monarch].",
+        "At js/makemon.js:431-451 before the fix, the fallback assigned mtmp.female directly; Boolean false/true was not an array index in js/do_name.js:1239-1244, so pmname fell back to NEUTRAL. JS also used strict number-versus-boolean comparison for the verb. The fix in 9fa6482c0 converts the fallback and comparison to C-compatible numbers and stores Boolean(fem), preserving JS game-state shape.",
+        "The exact v54 session is unchanged (manifest cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e; recording b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c; recipe aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557). Accepted baseline 3d403994ae35fe3f31ee2f3b856002abe1c79933 reports 526/778 screens and cursors, 5001 RNG, error null, with 252 screens remaining.",
+        "The exact committed scan at 9fa6482c0c9a58400f19f791d19bc39ce29c820f uses replay input SHA 21e2b7ff4073fff11eacb14adbd0b31ea7e53532f12fa86f767e92d39ee71731 and receipt /tmp/teleport-validation-1000/run-l4P7PY/receipt.json. It emits 527 of 778 screens with no divergence (steps 0-526, including step 511 and the completed growth caller path); step 527 remains blocked by the unsupported multishot missile ordinal branch in objnam.c:mshot_xname.",
+        "C and JS both use the source branch `humanoid(ptr) ? becomes : grows up into`; the observed verb already matched. `muse.c:use_misc` calls grow_up after the visible MUSE_POT_GAIN_LEVEL action, and existing JS js/muse.js:use_misc reaches js/makemon.js:grow_up.",
+        "Source-pinned regression test scripts/makemon.test.mjs exercises the actual PM_ELF_NOBLE -> PM_ELVEN_MONARCH evolution message for both false and true preserved sex bits and verifies the field remains Boolean after the update. The bounded focused suite passed 65/65 at grow_up code 9fa6482c0; npm run lint exited 0."
+      ]
+    }
+  ]
 }
