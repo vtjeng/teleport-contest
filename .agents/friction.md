@@ -533,3 +533,13 @@ triage decisions or fix references.
 - Later refreshes should pass the imported checkpoint's `scan-cache.json`
   with `--scan`. That saved artifact has all 44 rows. Synthetic diagnostics
   can still refresh separately when their current cache is missing.
+
+### 2026-10-13 — spell helper insertion and delivery identity
+
+- The spell-floor helper insertion conflicted with A's corrected
+  `disintegrate_mon` source comment. Root retained the comment and the
+  complete incoming helper; preflight then rejected changed patch identity.
+- Root verified four delivered files and the complete inserted helper
+  against immutable `794e91a9`, then preserved that submission's ancestry
+  with a merge that left Main's tree unchanged. Preflight passed at
+  `acaa5f96`; all 86 focused spell tests passed after the resolution.
