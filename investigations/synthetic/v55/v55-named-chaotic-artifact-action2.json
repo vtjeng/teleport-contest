@@ -1,0 +1,38 @@
+{
+  "session": "synthetic/v55/v55-named-chaotic-artifact-action2",
+  "remainingScreens": 2,
+  "recordedSteps": 159,
+  "corpus": "synthetic",
+  "batch": "v55",
+  "caseId": "v55-named-chaotic-artifact-action2",
+  "manifestPath": "challenges/manifests/v55.json",
+  "manifestSha256": "3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105",
+  "recordingSha256": "0286c6c695db58678a38d827dca5b0a896edf04c33d55756f6ff72d0d6e5aa46",
+  "evaluationPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v55.json",
+  "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
+  "status": "complete",
+  "commit": "b3a095e1bf941171ac53635f2c7697a4b47daef2",
+  "mismatch": {
+    "session": "synthetic/v55/v55-named-chaotic-artifact-action2",
+    "remainingScreens": 2
+  },
+  "summary": "When the hero rejects naming the chaotic artifact Stormbringer, C chooses how many letters to scuff with the display RNG, then wipeout_text uses the core game RNG for character positions and replacement choices. JS injects the display RNG into wipeout_text, so it omits those core calls and produces a different scuffed name.",
+  "source": {
+    "file": "do_name.c",
+    "functions": ["do_oname"],
+    "branch": "If artifact_name recognizes a canonical artifact name and restrict_name or exist_artifact rejects this object/name pairing, C copies the canonical name, calls rnd_on_display_rng(2) only for the count, then calls wipeout_text(bufp, count, 0). Since seed is zero, engrave.c:wipeout_text uses process rn2 for character positions, rubout selection and replacement choice. The selected chaotic Rogue rejects Stormbringer for a runed broadsword; the saved trace first loses those core draws at step 117.",
+    "callers": [
+      "do_name.c:docallcmd case 'i' selects an object and calls do_oname; js/do_name.js:docallcmd dispatches the same naming menu."
+    ],
+    "dependencies": [
+      "engrave.c:wipeout_text is the existing void degradation helper; C discards its return (there is none). js/engrave.js already defaults its random provider to the process rn2/rnd stream. The caller must not override it with rn2_on_display_rng."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved accepted v55 evaluation has 157/159 screens, 2305/2311 RNG values, and 159/159 cursors matching, with error null.",
+    "Fresh replay at b3a095e1bf941171ac53635f2c7697a4b47daef2 first differs at zero-based step 117 in the RNG stream: C calls rn2(12)=9 from wipeout_text(engrave.c:134), while JS does not call the core RNG. The next screen differs at step 118, row 0 column 16. Receipt: /tmp/teleport-validation-1000/run-0RRVVq/receipt.json.",
+    "upstream/src/do_name.c:349 calls wipeout_text(bufp, rnd_on_display_rng(2), 0): the count uses the display stream, but the zero seed delegates per-character draws to engrave.c:wipeout_text. upstream/src/engrave.c:120-190 uses rn2 for character position, rubout choice, and replacement selection when seed is zero.",
+    "js/do_name.js:857-859 currently passes rnd_on_display_rng(2) for the count and also injects rn2_on_display_rng as wipeout_text's random.rn2. js/engrave.js:1314+ correctly uses its default process rn2 provider when no random override is supplied. Prior do_oname completion evidence at GOALS.json's do_name.c port records full function review; this task repairs only that caller RNG binding."
+  ]
+}
