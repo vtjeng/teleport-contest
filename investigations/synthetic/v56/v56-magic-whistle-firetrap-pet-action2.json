@@ -65,5 +65,36 @@
     "Admitted baseline accepted-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json: selected recording c4a85e22cb0c01a18cf3e7a828247eaa00ba8880c84a1a8f5b6a538fad632b70 has 335/481 screens, 2322/3994 RNG calls, 335/481 cursors, and error null. First mismatch is step 335, when C reports “You stop. Your little dog doesn’t want to swap places.”",
     "C source: nethack-c/upstream/src/hack.c:1955-1993 shows domove_attackmon_at dispatches to do_attack before the later displacement helper. nethack-c/upstream/src/uhitm.c:462-502 consumes rn2(7) for a safe pet and can return FALSE. nethack-c/upstream/src/hack.c:2098-2228 contains the helper’s origin-trap refusal and no level-region rejection.",
     "JS source: js/hack.js:1678-1760 runs requireOrdinarySafeMonsterSwap in preflightDomoveDestination, before the do_attack path, and its state.level.regions.length check throws “pet swap region crossing”. js/hack.js:4882 onward already implements domove_swap_with_pet’s C trap check."
-  ]
+  ],
+  "afterFix": {
+    "sourceCommit": "177bbd2e09da3878c59a291f1d4b3cf37ec08785",
+    "replay": {
+      "batch": "v56",
+      "caseId": "v56-magic-whistle-firetrap-pet-action2",
+      "segment": 0,
+      "throughStep": 480,
+      "command": [
+        "node",
+        "scripts/synthetic-range-evidence.mjs",
+        ".cache/task-evidence.json"
+      ],
+      "receipt": "/tmp/teleport-validation-1000/run-o1syln/receipt.json"
+    },
+    "metrics": {
+      "screens": {
+        "matched": 481,
+        "total": 481
+      },
+      "rng": {
+        "matched": 3994,
+        "total": 3994
+      },
+      "cursors": {
+        "matched": 481,
+        "total": 481
+      },
+      "error": null
+    },
+    "result": "The selected admitted recording now matches through its final step; the original baseline mismatch and its provenance remain unchanged above."
+  }
 }
