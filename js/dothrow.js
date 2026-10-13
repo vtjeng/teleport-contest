@@ -435,6 +435,7 @@ import {
     Flying,
     Levitation,
     drown,
+    instapetrify,
     minstapetrify,
     t_at,
     trapname,
@@ -2188,8 +2189,7 @@ export async function throw_obj(obj, shotlimit, state = game) {
         state.svk ??= {};
         state.svk.killer ??= {};
         state.svk.killer.name = `throwing ${killer_xname(obj, state)} bare-handed`;
-        // trap.c:instapetrify() is a discarded void death path.
-        note_unported('trap.c instapetrify');
+        await instapetrify(state.svk.killer.name, state);
     }
     if (welded(obj, state)) {
         // canletgo() above rejects an actually welded wielded item first. Keep

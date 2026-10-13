@@ -2061,48 +2061,25 @@ test('throw_obj applies C\'s wield and strength gates only to Mjollnir',
             'the threshold-strength hammer follows the throw path');
     });
 
-test('throw_obj() preserves the corpse message before discarded instapetrify',
-    async () => {
-        // dothrow.c:139-143 gates this on no gloves, a petrifying corpse, and
-        // no Stone_resistance. The C void instapetrify() call remains a named
-        // gap after its message and killer-name setup.
-        const state = arena();
-        const corpse = item(state, CORPSE, { corpsenm: PM_COCKATRICE });
-        carry(state, corpse);
-        state.uquiver = corpse;
-        aimEast(state);
-
-        const sourceStart = DOTHROW_C.indexOf('\nthrow_obj(');
-        const sourceEnd = DOTHROW_C.indexOf('\n/* common to dothrow()', sourceStart);
-        const source = DOTHROW_C.slice(sourceStart, sourceEnd);
-        const messageAt = source.indexOf('You("throw %s with your bare %s."');
-        const killerAt = source.indexOf('Sprintf(svk.killer.name, "throwing %s bare-handed"');
-        const helperAt = source.indexOf('instapetrify(svk.killer.name);');
-        assert.ok(messageAt >= 0 && messageAt < killerAt && killerAt < helperAt,
-            'C prints, sets svk.killer.name, then calls the void helper');
-        assert.match(source,
-            /corpse_xname\(obj, \(const char \*\) 0, CXN_PFX_THE\)/u);
-        assert.match(source, /makeplural\(body_part\(HAND\)\)/u);
-
-        const previousUnported = game.unported;
-        game.unported = new Set();
-        try {
-            const result = await throw_obj(corpse, 0, state);
-            // C has no later throw_obj branch before the void helper returns;
-            // this gap test asserts the preceding effects without inventing
-            // instapetrify's terminal side effects.
-            assert.equal(result, ECMD_TIME);
-            assert.match(state._ttyToplines,
-                /You throw the cockatrice corpse with your bare hands\./u);
-            assert.match(state.svk.killer.name,
-                /^throwing .*cockatrice corpse bare-handed$/u);
-            assert.equal(game.unported.has('trap.c instapetrify'), true);
-            assert.equal(corpse.where, OBJ_FLOOR,
-                'after the discarded helper boundary, throw_obj continues');
-        } finally {
-            game.unported = previousUnported;
-        }
-    });
+test('throw_obj calls instapetrify before continuing a barehanded corpse throw', () => {
+    const cThrowStart = DOTHROW_C.indexOf('throw_obj(struct obj *obj, int shotlimit)');
+    const cThrowEnd = DOTHROW_C.indexOf('\n/* common to dothrow()', cThrowStart);
+    const jsThrowStart = DOTHROW_JS.indexOf('export async function throw_obj(');
+    const jsThrowEnd = DOTHROW_JS.indexOf('\n// C ref: throw_obj()', jsThrowStart + 1);
+    const cThrowObj = DOTHROW_C.slice(cThrowStart, cThrowEnd);
+    const jsThrowObj = DOTHROW_JS.slice(jsThrowStart, jsThrowEnd);
+    assert.ok(cThrowStart >= 0 && cThrowEnd > cThrowStart);
+    assert.ok(jsThrowStart >= 0 && jsThrowEnd > jsThrowStart);
+    assert.match(cThrowObj, /if \(!uarmg && obj->otyp == CORPSE[\s\S]*?Sprintf\(svk\.killer\.name, "throwing %s bare-handed",[\s\S]*?instapetrify\(svk\.killer\.name\);[\s\S]*?if \(welded\(obj\)\)/u);
+    const killerSetup = 'state.svk.killer.name = `throwing ${killer_xname(obj, state)} bare-handed`;';
+    const instapetrifyCall = 'await instapetrify(state.svk.killer.name, state);';
+    assert.ok(jsThrowObj.includes(killerSetup));
+    assert.ok(jsThrowObj.includes(instapetrifyCall));
+    assert.ok(jsThrowObj.indexOf(killerSetup) < jsThrowObj.indexOf(instapetrifyCall));
+    assert.ok(jsThrowObj.indexOf(instapetrifyCall)
+        < jsThrowObj.indexOf('if (welded(obj, state))'));
+    assert.doesNotMatch(jsThrowObj, /note_unported\('trap\.c instapetrify'\)/u);
+});
 
 // Source order has canletgo() before throw_obj()'s later welded() branch;
 // canletgo() rejects the same wielded-and-cursed item, so weldmsg() is a C
