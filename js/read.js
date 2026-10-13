@@ -392,7 +392,7 @@ import {
 import {
     arti_light_radius, del_light_source, obj_is_burning,
 } from './light.js';
-import { light_hits_gremlin } from './uhitm.js';
+import { digests, light_hits_gremlin } from './uhitm.js';
 import {
     block_point, cansee, do_clear_area, does_block, unblock_point,
     vision_recalc,
@@ -2081,7 +2081,12 @@ export async function litroom(on, object, state) {
             if (!propertyActive(BLINDED, state)) {
                 const engulfer = state.u.ustuck;
                 const name = engulfer ? Monnam(engulfer, state) : 'It';
-                if (engulfer?.data && is_whirly(engulfer.data)) {
+                if (engulfer?.data && digests(engulfer.data)) {
+                    await ttyPline(
+                        `${s_suffix(name)} ${mbodypart(engulfer, STOMACH)} is lit.`,
+                        state,
+                    );
+                } else if (engulfer?.data && is_whirly(engulfer.data)) {
                     await ttyPline(`${name} shines briefly.`, state);
                 } else if (engulfer?.data) {
                     await ttyPline(`${name} glistens.`, state);
