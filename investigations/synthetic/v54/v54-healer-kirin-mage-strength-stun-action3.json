@@ -62,7 +62,7 @@
     "message": "unsupported multishot missile ordinal",
     "error": null
   },
-  "summary": "After the accepted grow_up correction, v54 reaches a monster multishot volley. C objnam.c:mshot_xname first computes xname(obj), then, when gm.m_shot.n > 1 and the object type matches gm.m_shot.o, prepends \"the <i><ordinal suffix> \". JS currently throws at this branch. The saved recording reaches an Elvenking bow volley; its subsequent C messages name the first runed arrow as an ordinal. The source owner is objnam.c:mshot_xname; existing JS caller wiring reaches it from mthrowu.c:thitu and also from the existing thrown-object and hit-message paths.",
+  "summary": "Ported objnam.c:mshot_xname: it now builds xname first and prepends the current ordinal only for a matching active volley. The admitted replay passes the Elvenking five-arrow volley and its first ordinal miss at step 529. The next screen difference is step 598 in a fire-giant wand message (capital T in C, lowercase t in JS); a later simple monster action stops at step 659.",
   "source": {
     "file": "objnam.c",
     "branch": "Compute xname(obj) first. If gm.m_shot.n > 1 and gm.m_shot.o equals obj->otyp, prepend \"the <i><ordin(i)> \"; otherwise return the ordinary xname unchanged.",
@@ -70,9 +70,10 @@
       "mshot_xname"
     ],
     "callers": [
-      "mthrowu.c:thitu uses mshot_xname(obj) when the incoming object stack has quantity one; JS js/mthrowu.js:thitu already calls mshot_xname.",
-      "mthrowu.c:m_throw uses mshot_xname(singleobj) for visible sink-drop and missed-volley messages; JS js/mthrowu.js:m_throw already passes mshot_xname as distant_name callback at the corresponding output sites.",
-      "uhitm.c:hmon_hitmon_do_hit and hmon_hitmon_msg_hit use mshot_xname for thrown/kicked object hit feedback; JS js/uhitm.js has both calls.",
+      "mthrowu.c:thitu uses mshot_xname(obj) for quantity-one incoming objects; JS js/mthrowu.js:thitu already calls it.",
+      "mthrowu.c:ohitmon passes mshot_xname to distant_name for visible hit/miss feedback from a monster missile; JS js/mthrowu.js:ohitmon passes the same callback. The selected run exercises the hit/miss message for an Elvenking arrow targeting the xan.",
+      "mthrowu.c:m_throw directly uses mshot_xname(singleobj) for visible sink-drop and missed-volley messages; JS js/mthrowu.js:m_throw evaluates the same name and sends both formatted lines through the existing message callback.",
+      "uhitm.c:hmon_hitmon_do_hit and hmon_hitmon_msg_hit use mshot_xname for thrown/kicked object feedback; JS js/uhitm.js has both calls.",
       "dothrow.c:tmiss uses mshot_xname for player-thrown miss feedback; JS js/dothrow.js:tmiss already calls it."
     ],
     "dependencies": [
@@ -83,11 +84,13 @@
   },
   "goalKind": "file-port",
   "evidence": [
-    "objnam.c:1090-1102 defines the whole function. C evaluates xname(obj) before testing gm.m_shot.n > 1 and matching gm.m_shot.o to obj->otyp; on the volley branch it formats \"the %d%s \" from gm.m_shot.i and ordin(i), prepends that prefix with strprepend, then returns the resulting name. The quantity-one branch returns xname unchanged.",
-    "Required callees are already implemented: objnam.c:xname and strprepend in js/objnam.js, and hacklib.c:ordin in js/hacklib.js. The port must preserve unconditional name construction and source order, use the current volley index/type state, and remove the existing unsupported multishot missile ordinal refusal.",
-    "The active source caller for the selected monster volley is mthrowu.c:thitu: for obj->quan <= 1, it sets name from mshot_xname(obj) before killer_xname and before the attack roll. JS js/mthrowu.js:thitu has the corresponding call. Other existing callers are mthrowu.c:m_throw at the sink/miss branches, uhitm.c:hmon_hitmon_do_hit/hmon_hitmon_msg_hit, and dothrow.c:tmiss; their JS paths already call the same JS symbol.",
-    "The unchanged admitted recording has 778 steps. Segment 0 step 527 uses \".\" and C prints \"The Elvenking wields a runed bow!\"; step 528 uses Space and C prints \"The Elvenking shoots 5 runed arrows!\"; step 529 uses Space and C reports \"The 1st runed arrow misses the xan.\" This reaches the multishot ordinal naming path. The current accepted v54 artifact from 4c44ed71e765ae70b69439c91ebc31a44cde99f4 reports 527/778 screens and cursors, 5001/15123 RNG, error null, with 251 screens remaining.",
-    "Historical v54 grow_up investigation and measurements are retained in report history and prior commits; the accepted grow_up correction accounts for the earlier PM_ELVENKING name mismatch and is not part of this task."
+    "objnam.c:1090-1102 is the complete function. It evaluates xname(obj) first; when gm.m_shot.n > 1 and gm.m_shot.o equals obj->otyp, it formats \"the %d%s \" from gm.m_shot.i and ordin(i), prepends it with strprepend, and returns the resulting name. Otherwise it returns the ordinary xname.",
+    "Required callees already have JS implementations: objnam.c:xname and strprepend in js/objnam.js, and hacklib.c:ordin in js/hacklib.js. The prefix branch preserves C evaluation order and uses the current volley index/type state. The sole UnsupportedObjectNameError throw class and its dead fail-closed registrations were removed.",
+    "The selected production path is mthrowu.c:m_throw -> ohitmon -> distant_name(otmp, mshot_xname) -> hit/miss, with JS js/mthrowu.js:m_throw -> ohitmon using the same callback. C mthrowu.c:ohitmon calls the callback for visible missile hit/miss lines; the admitted recording exercises the miss line against the xan. The separate m_throw flight-end sink/miss branches now evaluate The(mshot_xname(singleobj)) and send their source-formatted lines through env.message or ttyPline.",
+    "Other active direct C callsites are mthrowu.c:thitu, mthrowu.c:m_throw, uhitm.c:hmon_hitmon_do_hit/hmon_hitmon_msg_hit, and dothrow.c:tmiss. Their existing JS paths already call mshot_xname or pass it to distant_name.",
+    "The admitted case uses segment 0 step 527 (Elvenking wields a runed bow), step 528 (Elvenking shoots 5 runed arrows), and step 529 (the 1st runed arrow misses the xan). The accepted 4c44ed71e765ae70b69439c91ebc31a44cde99f4 baseline had 527/778 screens and cursors, 5001/15123 RNG, error null, and 251 remaining screens.",
+    "The final committed replay at a3ab10a468094ea182805b6203fa2aabffdf5a43 emitted 659 screens and matches recorded screens/cursors/RNG through zero-based step 597, including the ordinal missile message and its production caller. The next screen divergence is step 598, row 0 column 0: C \"T\" versus JS \"t\" in the fire giant wand message. The replay later stops at the separate simple-monster-action offensive-item-use boundary at step 659; neither later boundary belongs to mshot_xname.",
+    "Focused source/caller tests passed 398/398 at final code commit (bounded run-emOYa5); npm run lint exited 0. The final replay receipt is /tmp/teleport-validation-1000/run-elYqHO/receipt.json with replay input SHA-256 a934fa7120b0cc2a1c211532863c5421e451afc70d40320d40c143ea738bc6c1."
   ],
   "evaluationUtc": "2026-10-13T04:18:42.122Z",
   "history": [
@@ -138,5 +141,26 @@
         "Source-pinned regression test scripts/makemon.test.mjs exercises the actual PM_ELF_NOBLE -> PM_ELVEN_MONARCH evolution message for both false and true preserved sex bits and verifies the field remains Boolean after the update. The bounded focused suite passed 65/65 at grow_up code 9fa6482c0; npm run lint exited 0."
       ]
     }
-  ]
+  ],
+  "afterFix": {
+    "commit": "a3ab10a468094ea182805b6203fa2aabffdf5a43",
+    "emittedScreens": 659,
+    "recordedSteps": 778,
+    "firstMismatchStep": 598,
+    "screenMismatch": {
+      "row": 0,
+      "column": 0,
+      "c": "T",
+      "js": "t"
+    },
+    "laterBoundary": {
+      "step": 659,
+      "reason": "simple monster action requires monster offensive item use"
+    },
+    "replayInputSha256": "a934fa7120b0cc2a1c211532863c5421e451afc70d40320d40c143ea738bc6c1",
+    "diagnosticToolSha256": "707e173e6aeed4e4cb3007e741daff592f5f2d209f7fef0cf19d18a56b841dd0",
+    "receipt": "/tmp/teleport-validation-1000/run-elYqHO/receipt.json",
+    "focusedTests": "scripts/objnam.test.mjs, scripts/mthrowu.test.mjs, scripts/cmd.test.mjs, scripts/hack.test.mjs, scripts/allmain-turn.test.mjs: 398/398 passed (run-emOYa5).",
+    "lint": "npm run lint exited 0."
+  }
 }
