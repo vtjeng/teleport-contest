@@ -1,0 +1,80 @@
+{
+  "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+  "remainingScreens": 778,
+  "recordedSteps": 778,
+  "corpus": "synthetic",
+  "batch": "v54",
+  "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+  "manifestPath": "challenges/manifests/v54.json",
+  "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+  "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
+  "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+  "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
+  "status": "complete",
+  "commit": "a6bb4eb951db01dd2ab78790fc60ddf1f65a0c0d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v54",
+    "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+    "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+    "manifestPath": "challenges/manifests/v54.json",
+    "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+    "recording": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.session.json",
+    "recordingPath": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.session.json",
+    "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
+    "recipe": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.recipe.session.json",
+    "recipeSha256": "aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557",
+    "replayInputSha256": "45d90454248a4bc3c97d75d60b021c6c51189f320359df542992f70d10d86993",
+    "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+    "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
+    "evaluationArtifact": "challenges/evaluations/baseline-78195d815-v54.json",
+    "evaluationUtc": "2026-10-13T01:55:42.579Z",
+    "remainingScreens": 778,
+    "recordedSteps": 778,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "set_apparxy is not defined",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 778
+      },
+      "rng": {
+        "matched": 0,
+        "total": 15123
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 778
+      }
+    },
+    "firstMismatch": null,
+    "step": null,
+    "kind": "rng",
+    "sourceFile": null,
+    "function": null,
+    "message": "set_apparxy is not defined"
+  },
+  "summary": "The admitted replay reaches C mon.c:newcham while makemon.c:makemon selects the initial form of a natural shapechanger. The C newcham branch calls set_apparxy when mon_moving and the apparent-hero location is stale; js/mon.js makes the same call without importing the already-ported helper from js/monmove.js, causing the recorded ReferenceError.",
+  "source": {
+    "file": "mon.c",
+    "branch": "During newcham, context.mon_moving is true and !u_at(mtmp->mux, mtmp->muy), so C refreshes the monster apparent-hero coordinates with set_apparxy.",
+    "functions": [
+      "newcham"
+    ],
+    "callers": [
+      "makemon.c:makemon initializes natural shapechangers with newcham; JS makemon_create.js:makemon calls newcham_initial."
+    ],
+    "dependencies": [
+      "monmove.c:set_apparxy is already implemented and exported by js/monmove.js."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v54 baseline at challenges/evaluations/baseline-78195d815-v54.json reports set_apparxy is not defined for this 778-step recording; recording SHA b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c and replay-input SHA 45d90454248a4bc3c97d75d60b021c6c51189f320359df542992f70d10d86993.",
+    "A targeted replay at a6bb4eb951db01dd2ab78790fc60ddf1f65a0c0d produced a ReferenceError stack: js/mon.js:3084 apply_newcham_steps -> js/mon.js:3216 newcham_initial -> js/makemon_create.js:3203 makemon.",
+    "C makemon.c:1355-1368 invokes newcham for natural shapechangers; C mon.c:5522-5525 calls set_apparxy only when mon_moving and the apparent-hero coordinate is not the hero; the helper is monmove.c:2197-2245.",
+    "JS mon.js:566-578 imports multiple monmove.js functions but omits set_apparxy, while apply_newcham_steps calls it at line 3084. JS makemon_create.js:3194-3204 mirrors the C initial-shape call."
+  ]
+}

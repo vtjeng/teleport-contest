@@ -295812,6 +295812,87 @@
           }
         ]
       }
+    },
+    {
+      "id": "newcham-set-apparxy-v54-20261013",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement newcham from mon.c",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "df5ff0a2196351b29a774a3be604914535a2a147",
+      "delivered": null,
+      "function": "newcham",
+      "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+      "closeStanding": {
+        "sha": "df5ff0a2196351b29a774a3be604914535a2a147",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "8c9dea179cf061e29b9b7a3cde76a99c42083a35",
+        "target": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/df5ff0a2196351b29a774a3be604914535a2a147/run-hosted-zACnXg/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "newcham",
+            "implementation": "js/mon.js",
+            "symbol": "newcham",
+            "sourceReview": "Branch-level correction, not whole-function recertification. Compared mon.c:newcham at 5522-5525 with js/mon.js:apply_newcham_steps. Both gate the helper call on context.mon_moving and stale apparent-hero coordinates (!u_at(mux,muy)); the JS branch already matched this order but set_apparxy was not bound in the monmove.js import. The change imports the existing monmove.c:set_apparxy port without changing its behavior. The focused test uses visible, non-displaced coordinates so the C helper directly replaces stale mux/muy with u.ux/u.uy, without a helper RNG branch. The selected replay no longer throws at this branch and matches screens, cursor positions, and RNG through the emitted prefix; it then stops at step 505 on a separate unported monster offensive-item-use behavior.",
+            "callers": [
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon",
+                "source": "C makemon.c:1355-1368 calls newcham for a natural shapechanger's initial form; JS makemon_create.js:3194-3204 calls newcham_initial, which dispatches to newcham in js/mon.js."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-shape.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 504,
+                "source": "makemon.c:makemon -> mon.c:newcham natural shapechanger initial form -> stale apparent-hero coordinate branch and monmove.c:set_apparxy. Scanner reports no screen/cursor/RNG divergence in the emitted 505-step prefix; step 505 reaches a separate simple-monster-action offensive-item-use boundary."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The corrected branch is reached through the active makemon.c:makemon natural-shapechanger initial-form call, mirrored by js/makemon_create.js:makemon -> newcham_initial -> js/mon.js:newcham. The exact admitted v54 replay exercises this path and matches its emitted prefix. Later replay is blocked by a different monster-action behavior; this task makes no claim for that path or whole-function completion.",
+        "entryPoints": [
+          {
+            "name": "Natural shapechanger initial form during makemon",
+            "functions": [
+              "newcham"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 504,
+                "source": "makemon.c:makemon -> mon.c:newcham; JS makemon_create.js:makemon -> newcham_initial -> newcham."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

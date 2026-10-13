@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T01:43:07.775Z",
+  "capturedAt": "2026-10-13T02:29:38.398Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -99854,6 +99854,330 @@
         "at": "2026-10-13T01:42:43.694Z",
         "worker": "A2",
         "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013-c08cc5d6b63c3253eeacf62a733a256cc875b7ab",
+        "type": "published",
+        "at": "2026-10-13T01:43:20.370Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "commit": "c08cc5d6b63c3253eeacf62a733a256cc875b7ab"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-c-billing-fcc47e9f-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T01:45:07.141Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "integration": "fcc47e9ff72ca9833565127cd205eca099bd9d48"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012-fcc47e9ff72ca9833565127cd205eca099bd9d48-validated",
+        "type": "validated",
+        "at": "2026-10-13T01:51:12.344Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012-fcc47e9ff72ca9833565127cd205eca099bd9d48-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T01:51:38.837Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-admitting-prep18-v54-after-ready-fixes-20261013",
+        "type": "activity",
+        "at": "2026-10-13T01:53:45.779Z",
+        "task": "Prep18",
+        "phase": "admission",
+        "reason": "All ready implementation fixes are accepted. Three implementation workers lack independent admitted work; v54 has no overlap with the remaining held version-profile case, and its saved C evidence and control rationales are retained."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-idle-wait-v54-admission-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:54:23.627Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Billing fix accepted and C synced to Main; waiting for Root to publish the v54 baseline before selecting the next independent case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-baseline-prep18-v54-78195d815-20261013",
+        "type": "activity",
+        "at": "2026-10-13T01:55:33.955Z",
+        "task": "Prep18",
+        "phase": "baseline",
+        "reason": "The immutable 15-case v54 manifest is committed. Saving its first JavaScript evaluation before selecting any failures; older batches remain separate regression evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v54-healer-kirin-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:05:11.786Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-v54-lichen-investigation-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:05:16.484Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the v54 earth-boulder kill mismatch from its saved C recording and source trace."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v54-healer-kirin-stun-action3-20261013",
+        "type": "assign",
+        "at": "2026-10-13T02:05:24.594Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v54-healer-novel-action4-20261013",
+        "type": "assign",
+        "at": "2026-10-13T02:05:46.146Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-v54-healer-novel-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:05:53.588Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-validating-v54-publication-8c9dea179-20261013",
+        "type": "activity",
+        "at": "2026-10-13T02:06:11.694Z",
+        "task": "Prep18",
+        "phase": "baseline",
+        "reason": "The 15-case v54 baseline is saved and workers are resuming independent investigations. A supplemental hosted checkpoint validates the admitted manifest before public upload."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v54-earth-boulder-kills-lichen-action2-20261013",
+        "type": "assign",
+        "at": "2026-10-13T02:09:38.092Z",
+        "task": "B-investigation-v54-earth-boulder-kills-lichen-action2-20261013",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-newcham-set-apparxy-v54-20261013",
+        "type": "implement",
+        "at": "2026-10-13T02:10:35.182Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013",
+        "goal": "newcham-set-apparxy-v54-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-implement-v54-healer-unpaid-library-fee-20261013",
+        "type": "implement",
+        "at": "2026-10-13T02:11:39.880Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "goal": "C-v54-unpaid-library-fee-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v54-earth-boulder-killed-caller-20261013",
+        "type": "implement",
+        "at": "2026-10-13T02:12:30.244Z",
+        "task": "B-investigation-v54-earth-boulder-kills-lichen-action2-20261013",
+        "goal": "fix-read-drop-boulder-killed-caller-v54-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9c456e572a5b52f2c9deb21edf2d4b2ad1e3a19f",
+        "type": "ready",
+        "at": "2026-10-13T02:13:42.697Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013",
+        "delivery": "9c456e572a5b52f2c9deb21edf2d4b2ad1e3a19f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v54-rogue-fast-apprentice-20261013",
+        "type": "assign",
+        "at": "2026-10-13T02:14:28.172Z",
+        "task": "A2-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d54efaeb9c3c290fc7da9f9d68603b084ba78645",
+        "type": "ready",
+        "at": "2026-10-13T02:16:13.086Z",
+        "task": "B-investigation-v54-earth-boulder-kills-lichen-action2-20261013",
+        "delivery": "d54efaeb9c3c290fc7da9f9d68603b084ba78645"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-v54-newcham-9c456e57-20261013",
+        "type": "received",
+        "at": "2026-10-13T02:16:18.375Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013",
+        "delivery": "9c456e572a5b52f2c9deb21edf2d4b2ad1e3a19f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-v54-healer-cleric-insects-blindness-investigation-20261013-r2",
+        "type": "assign",
+        "at": "2026-10-13T02:17:44.346Z",
+        "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-v54-earth-d54efaeb-20261013",
+        "type": "received",
+        "at": "2026-10-13T02:19:29.990Z",
+        "task": "B-investigation-v54-earth-boulder-kills-lichen-action2-20261013",
+        "delivery": "d54efaeb9c3c290fc7da9f9d68603b084ba78645"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-done-v54-publication-validation-20261013",
+        "type": "activity",
+        "at": "2026-10-13T02:19:42.113Z",
+        "task": "Prep18",
+        "phase": "done",
+        "reason": "The first v54 baseline is recorded and reproduced by the passing supplemental hosted checkpoint. Workers are investigating independent v54 cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-v54-mcastu-blindness-implement-20261013",
+        "type": "implement",
+        "at": "2026-10-13T02:19:54.546Z",
+        "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013",
+        "goal": "fix-mcastu-clerical-blindness-body-v54-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-published-c-billing-v54-f64f6ff66-20261013",
+        "type": "published",
+        "at": "2026-10-13T02:20:40.613Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "commit": "f64f6ff6681d167d4221e582453e795c4c1e5e11"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-a-newcham-v54-20261013",
+        "type": "activity",
+        "at": "2026-10-13T02:21:00.941Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013",
+        "phase": "review",
+        "reason": "Reviewing the immutable newcham delivery and saved focused/runtime evidence before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-v54-rogue-mcastu-dispatcher-20261013",
+        "type": "park",
+        "at": "2026-10-13T02:21:08.563Z",
+        "task": "A2-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
+        "reason": "Diagnosis committed at f70875423; required mcastu.c:mcast_spell dispatcher edit is held by B active blindness task. No game code changes made; retaining this source finding for later continuation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-newcham-df5ff0a21-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T02:21:38.377Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013",
+        "integration": "df5ff0a2196351b29a774a3be604914535a2a147"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v54-lava-worn-organic-armor-action3-20261013",
+        "type": "assign",
+        "at": "2026-10-13T02:22:04.267Z",
+        "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v54-lava-worn-armor-20261013",
+        "type": "implement",
+        "at": "2026-10-13T02:24:48.786Z",
+        "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
+        "goal": "complete-lava-worn-removal-v54-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v54-lava-removal-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:25:09.420Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-73d1c0d07858658942b6998683f9db1e311c9092",
+        "type": "ready",
+        "at": "2026-10-13T02:27:04.591Z",
+        "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013",
+        "delivery": "73d1c0d07858658942b6998683f9db1e311c9092"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-blindness-73d1c0d-20261013",
+        "type": "received",
+        "at": "2026-10-13T02:27:38.964Z",
+        "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013",
+        "delivery": "73d1c0d07858658942b6998683f9db1e311c9092"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013-df5ff0a2196351b29a774a3be604914535a2a147-validated",
+        "type": "validated",
+        "at": "2026-10-13T02:28:11.722Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v54-knight-lich-20261013",
+        "type": "assign",
+        "at": "2026-10-13T02:28:19.527Z",
+        "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v54-knight-lich-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:28:29.666Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013-df5ff0a2196351b29a774a3be604914535a2a147-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T02:28:33.543Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f371831b92f7a04f053d73de2289d70ef88a488f",
+        "type": "ready",
+        "at": "2026-10-13T02:29:12.360Z",
+        "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
+        "delivery": "f371831b92f7a04f053d73de2289d70ef88a488f"
       }
     ]
   },
@@ -99934,30 +100258,40 @@
         "unblocks": 0
       },
       {
-        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
-        "worker": "C",
-        "goal": "C-port-pay-for-damage-v53-20261012",
+        "task": "B-investigation-v54-earth-boulder-kills-lichen-action2-20261013",
+        "worker": "B",
+        "goal": "fix-read-drop-boulder-killed-caller-v54-20261013",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "9e2470b0b07e4f4ab68703c4965423a859f923ff",
-        "since": "2026-10-13T01:15:12.641Z",
+        "delivery": "d54efaeb9c3c290fc7da9f9d68603b084ba78645",
+        "since": "2026-10-13T02:16:13.086Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013",
+        "worker": "B",
+        "goal": "fix-mcastu-clerical-blindness-body-v54-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "73d1c0d07858658942b6998683f9db1e311c9092",
+        "since": "2026-10-13T02:27:04.591Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
+        "worker": "A2",
+        "goal": "complete-lava-worn-removal-v54-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "f371831b92f7a04f053d73de2289d70ef88a488f",
+        "since": "2026-10-13T02:29:12.360Z",
         "blockedBy": [],
         "unblocks": 0
       }
     ],
-    "preparedBatches": [
-      {
-        "task": "Prep18",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "awaiting-admission",
-        "delivery": "5e592fe939987281a297ea430289c96d4646e6d9",
-        "batch": "v54",
-        "since": "2026-10-12T22:22:42.311Z",
-        "blockedBy": []
-      }
-    ],
+    "preparedBatches": [],
     "parkedTasks": [
       {
         "task": "C42",
@@ -100433,12 +100767,23 @@
         "since": "2026-10-13T00:10:29.550Z",
         "blockedBy": [],
         "reason": "Source trace identifies topl.c:update_topl, already owned by B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012. Preserve A diagnosis deec7a41ae6b854f77de995406a4795cae466b0b and saved replay; release the nymph session and obsolete tty_yn_function reservation for B to claim as an additional target."
+      },
+      {
+        "task": "A2-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-13T02:21:08.563Z",
+        "blockedBy": [],
+        "reason": "Diagnosis committed at f70875423; required mcastu.c:mcast_spell dispatcher edit is held by B active blindness task. No game code changes made; retaining this source finding for later continuation."
       }
     ]
   },
   "development": {
-    "executionCommit": "65da8c69c8e214b155c129c3ecd975d3c48e47af",
-    "measuredAt": "2026-10-13T01:39:43.509Z",
+    "executionCommit": "df5ff0a2196351b29a774a3be604914535a2a147",
+    "measuredAt": "2026-10-13T02:26:31.971Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
