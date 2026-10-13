@@ -3,7 +3,7 @@
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
 //         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
-//         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Mon-loca.lua, dat/Mon-strt.lua,
+//         dat/Cav-strt.lua, dat/Cav-fila.lua, dat/Mon-goal.lua, dat/Mon-loca.lua, dat/Mon-strt.lua,
 //         dat/Sam-goal.lua, dat/Tou-strt.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
@@ -28,8 +28,10 @@ import {
     PM_ACOLYTE,
     PM_ALIGNED_CLERIC,
     PM_ARCH_PRIEST,
+    PM_BUGBEAR,
     PM_CHIEFTAIN,
     PM_GIANT_EEL,
+    PM_HILL_GIANT,
     PM_HUMAN_ZOMBIE,
     PM_IXOTH,
     PM_LORD_CARNARVON,
@@ -53,6 +55,7 @@ import {
     S_WRAITH,
     S_ZOMBIE,
     S_OGRE,
+    S_HUMANOID,
     S_SNAKE,
     S_TROLL,
     S_VAMPIRE,
@@ -381,6 +384,28 @@ async function barFilb(des) {
     await des.monster({ id: PM_ROCK_TROLL, peaceful: 0 });
     await des.monster({ id: PM_ROCK_TROLL, peaceful: 0 });
     await des.monster({ class: S_TROLL, peaceful: 0 });
+}
+
+// C ref: dat/Cav-fila.lua (6-35). Mines-style, walled filler for the Caveman
+// quest levels above Cav-loca, with random objects, traps and hostile monsters.
+async function cavFila(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({
+        style: 'mines', fg: '.', bg: ' ',
+        smoothed: true, joined: true, walled: true,
+    });
+
+    await des.stair('up');
+    await des.stair('down');
+
+    for (let i = 0; i < 7; i++) await des.object();
+    for (let i = 0; i < 4; i++) await des.trap();
+
+    for (let i = 0; i < 5; i++)
+        await des.monster({ id: PM_BUGBEAR, peaceful: 0 });
+    await des.monster({ class: S_HUMANOID, peaceful: 0 });
+    await des.monster({ id: PM_HILL_GIANT, peaceful: 0 });
 }
 
 // C ref: dat/Bar-goal.lua. Map-based barbarian quest goal level: irregular
@@ -2995,6 +3020,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Val-strt': valStrt,
     'Hea-strt': heaStrt,
     'Cav-loca': cavLoca,
+    'Cav-fila': cavFila,
     'Cav-goal': cavGoal,
     'Bar-strt': barStrt,
     'Bar-fila': barFila,
