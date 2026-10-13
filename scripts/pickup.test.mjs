@@ -909,8 +909,11 @@ test('pickup validates each independent floor-object shape term', async () => {
 test('pickup full-pack counting excludes coins and preserves exact 52 slots',
     async () => {
         for (const specimen of [
+            // 51 ordinary objects leave one of C's 52 inventory letters free.
             { count: 51, withCoins: false, accepted: true },
+            // Gold uses no ordinary inventory letter.
             { count: 51, withCoins: true, accepted: true },
+            // 52 objects exercise lift_object()'s full-pack refusal.
             { count: 52, withCoins: false, accepted: false },
         ]) {
             const state = await heroOnAnEmptySquare();
@@ -918,18 +921,78 @@ test('pickup full-pack counting excludes coins and preserves exact 52 slots',
             inventoryOfSize(state, specimen.count, specimen);
             const object = objectUnderHero(state);
             quiet(state);
+            // Three spaces dismiss the refusal, the D:1 feature line, and the
+            // remaining object's description from check_here().
+            for (let index = 0; index < 3; ++index)
+                state.nhDisplay.pushKey(' '.charCodeAt(0));
+            assert.equal(await pickup(1, state), 1);
             if (specimen.accepted) {
-                assert.equal(await pickup(1, state), 1);
                 assert.equal(object.where, OBJ_INVENT);
             } else {
-                await assert.rejects(
-                    () => pickup(1, state),
-                    (error) => error instanceof UnsupportedPickupError
-                        && /full pack/u.test(error.message),
-                );
                 assert.equal(object.where, OBJ_FLOOR);
             }
         }
+    });
+
+test('random-arrival preflight keeps full-pack objects in the floor pile',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        // 52 carried objects force lift_object() to leave ordinary items down.
+        inventoryOfSize(state, 52);
+        const first = typedObjectUnderHero(state, TALLOW_CANDLE);
+        const second = typedObjectUnderHero(state, ELVEN_DAGGER);
+
+        preflight_projected_random_arrival_pickup({
+            ...state,
+            gw: { ...state.gw },
+        });
+        assert.equal(first.where, OBJ_FLOOR);
+        assert.equal(second.where, OBJ_FLOOR);
+        assert.equal(state._ttyToplines ?? '', '');
+    });
+
+test('pickup_object reports the C full-pack refusal', async () => {
+    const state = await heroOnAnEmptySquare();
+    inventoryOfSize(state, 52);
+    const object = objectUnderHero(state);
+    quiet(state);
+
+    // pickup_object() isolates lift_object() before pickup() describes the pile.
+    assert.equal(await pickup_object(object, 1, false, state), -1);
+    assert.equal(object.where, OBJ_FLOOR);
+    assert.equal(
+        state._ttyToplines,
+        'Your knapsack cannot accommodate any more items.',
+    );
+});
+
+test('pickup stops at the first item beyond its projected slot limit',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        // 51 held objects allow the first new item and make the second fail.
+        inventoryOfSize(state, 51);
+        const first = typedObjectUnderHero(state, TALLOW_CANDLE);
+        const second = typedObjectUnderHero(state, ELVEN_DAGGER);
+        quiet(state);
+        // Five spaces dismiss the first pickup, full-pack refusal, D:1 feature,
+        // and floor-pile messages while the pickup loop stops at the refusal.
+        for (let index = 0; index < 5; ++index)
+            state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+        assert.equal(await pickup(1, state), 1);
+        assert.equal(inv_cnt(false, state), 52);
+        assert.equal(
+            [first, second].filter((object) => object.where === OBJ_INVENT)
+                .length,
+            1,
+        );
+        assert.equal(
+            [first, second].filter((object) => object.where === OBJ_FLOOR)
+                .length,
+            1,
+        );
     });
 
 test('pickup applies the 52-slot limit after source-ordered merge projection',
