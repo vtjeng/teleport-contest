@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v56/v56-barehand-cockatrice-throw-action3",
-  "remainingScreens": 4,
+  "remainingScreens": 0,
   "recordedSteps": 177,
   "corpus": "synthetic",
   "batch": "v56",
@@ -37,7 +37,7 @@
       }
     }
   },
-  "summary": "The selected v56 recording removes the Monk’s gloves, then throws an unwielded cockatrice corpse. In dothrow.c:throw_obj, the bare-handed corpse branch sets the killer text and calls trap.c:instapetrify before continuing. js/dothrow.js emits the same first message but records note_unported and throws the corpse, so the petrification message and death prompt are absent. The helper is already implemented in js/trap.js; this is a caller-wiring defect in throw_obj.",
+  "summary": "The v56 barehanded cockatrice throw path now calls the existing instapetrify helper in C order. The selected recording matches all 177 screens, cursor positions, PRNG calls, and animation frames, and no longer reports an unported helper.",
   "source": {
     "file": "dothrow.c",
     "functions": [
@@ -57,6 +57,14 @@
     "The saved v56 admission evaluation records 173/177 matching screens, 2633/2633 matching PRNG calls, and 174/177 matching cursors; its first unmatched screen is the missing “You turn to stone...” output at step 157.",
     "Fresh-process node scripts/diff-fresh.mjs challenges/cases/v56/v56-barehand-cockatrice-throw-action3.recipe.session.json reproduces complete 177-screen C/JS runs and matching 2633-call PRNG traces; the first mismatch is the death screen boundary (C shows the petrification/death sequence while JS continues throwing). Log: /tmp/teleport-validation-1000/run-lyQJoJ/ .",
     "C dothrow.c:throw_obj lines 140-148 calls instapetrify(svk.killer.name) in the bare-handed petrifying-corpse branch after setting killer text. JavaScript js/dothrow.js lines 2182-2193 has the same preconditions and text but note_unported('trap.c instapetrify').",
-    "C trap.c:instapetrify lines 3844-3855 and js/trap.js:instapetrify implement the void death helper. The caller must await it and then preserve C source order; no return value is used."
-  ]
+    "C trap.c:instapetrify lines 3844-3855 and js/trap.js:instapetrify implement the void death helper. The caller must await it and then preserve C source order; no return value is used.",
+    "After wiring the caller, node scripts/run-bounded.mjs focused -- node --test scripts/dothrow.test.mjs passed 72/72. The test pins the C call before welded/missile flight and the JavaScript await at the same point.",
+    "After commit 786538489, node scripts/diff-fresh.mjs challenges/cases/v56/v56-barehand-cockatrice-throw-action3.recipe.session.json passed: 177/177 screens and cursors, 2633/2633 PRNG values, 0/0 animation frames. Log: /tmp/teleport-validation-1000/run-1GKVie/.",
+    "The refreshed node scripts/scan-sessions.mjs --json --synthetic v56/v56-barehand-cockatrice-throw-action3 result has divergence null, recordedSteps 177, and unported []. Replay commit: b531918645a78bfada2e7c32aa041f750fc60646."
+  ],
+  "resolution": {
+    "status": "resolved",
+    "function": "dothrow.c:throw_obj",
+    "commit": "786538489"
+  }
 }
