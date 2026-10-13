@@ -3214,9 +3214,9 @@ export async function mstatusline(mtmp, state = game) {
 }
 
 // C ref: insight.c ustatusline() (3401-3489), the one-line report a
-// stethoscope or a probe applied to the hero produces. Every writer of C's
-// `info` buffer stops above, so the buffer is provably empty where C's format
-// string interpolates it and the report ends at the armor class.
+// stethoscope or a probe applied to the hero produces. The `u.ustuck` arm
+// adds the swallowed, held, or holding description and names the monster
+// before the report line is printed.
 export async function ustatusline(state = game) {
     const u = state.u;
 
@@ -3230,14 +3230,24 @@ export async function ustatusline(state = game) {
         throw new UnsupportedEnlightenmentError('the concealed clause');
     if ((state.youmonst?.m_ap_type ?? M_AP_NOTHING) !== M_AP_NOTHING)
         throw new UnsupportedEnlightenmentError('the disguised clause');
-    // u.ustuck covers C's swallowed, held and holding arms, and with it the
-    // u.uswallow guard on the region clause below: youprop.h keeps u.uswallow
-    // inside u.ustuck, so a hero with no holder is a hero who is not swallowed.
-    if (u.ustuck)
-        throw new UnsupportedEnlightenmentError('a_monnam() for u.ustuck');
-    // `info` is empty at this point, so C's `strlen(info) < sizeof info` term
-    // holds and the clause depends only on there being a visible region.
-    if (visible_region_at(u.ux, u.uy, state))
+    let info = '';
+    if (u.ustuck) {
+        if (u.uswallow)
+            info += digests(u.ustuck.data)
+                ? ', being digested by ' : ', engulfed by ';
+        else if (!sticks(state.youmonst.data))
+            info += ', held by ';
+        else
+            info += ', holding ';
+        let heldmon = a_monnam(u.ustuck, { state });
+        if (heldmon === 'it'
+            && (!u.ustuck.mextra?.mgivenname
+                || u.ustuck.mextra.mgivenname !== 'it'))
+            heldmon = 'an unseen creature';
+        info += heldmon;
+    }
+    // insight.c:3474-3476 excludes regions while swallowed.
+    if (!u.uswallow && visible_region_at(u.ux, u.uy, state))
         throw new UnsupportedEnlightenmentError('the cloud-of-vapor clause');
 
     await ttyPline(
@@ -3245,7 +3255,7 @@ export async function ustatusline(state = game) {
         + `(${piousness(false, align_str(u.ualign.type), state)}):  `
         + `Level ${Upolyd(u) ? state.mons[u.umonnum].mlevel : u.ulevel}  `
         + `HP ${Upolyd(u) ? u.mh : u.uhp}(${Upolyd(u) ? u.mhmax : u.uhpmax})  `
-        + `AC ${u.uac}.`,
+        + `AC ${u.uac}${info}.`,
         state,
     );
 }
