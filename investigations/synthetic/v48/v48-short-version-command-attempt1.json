@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v48/v48-short-version-command-attempt1",
+  "remainingScreens": 1,
+  "recordedSteps": 2,
+  "corpus": "synthetic",
+  "batch": "v48",
+  "caseId": "v48-short-version-command-attempt1",
+  "manifestPath": "challenges/manifests/v48.json",
+  "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+  "recordingSha256": "9e7b91d51430831431fab258a2c212b357a795a546affdcbec72012630731899",
+  "evaluationPath": "challenges/evaluations/accepted-5634567626a2300fafc2a91ef8a10ca138f5edab-v48.json",
+  "evaluationCommit": "5634567626a2300fafc2a91ef8a10ca138f5edab",
+  "status": "complete",
+  "commit": "962c2521305f76d8ee8ae4b95b872f09d41394c8",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v48",
+    "caseId": "v48-short-version-command-attempt1",
+    "session": "synthetic/v48/v48-short-version-command-attempt1",
+    "manifestPath": "challenges/manifests/v48.json",
+    "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
+    "recording": "challenges/cases/v48/v48-short-version-command-attempt1.session.json",
+    "recordingPath": "challenges/cases/v48/v48-short-version-command-attempt1.session.json",
+    "recordingSha256": "9e7b91d51430831431fab258a2c212b357a795a546affdcbec72012630731899",
+    "recipe": "challenges/cases/v48/v48-short-version-command-attempt1.recipe.session.json",
+    "recipeSha256": "d31b3267d8d8cb349bf6c0f5baf679547e5724eb06d4a945e4612a74818ff403",
+    "replayInputSha256": "a7b1787f4b9874105a98b35622d6776f054df087c1d164fc2f9985c22bfb00c6",
+    "evaluationPath": "challenges/evaluations/accepted-5634567626a2300fafc2a91ef8a10ca138f5edab-v48.json",
+    "evaluationCommit": "5634567626a2300fafc2a91ef8a10ca138f5edab",
+    "evaluationArtifact": "challenges/evaluations/accepted-5634567626a2300fafc2a91ef8a10ca138f5edab-v48.json",
+    "evaluationUtc": "2026-10-13T18:32:20.690Z",
+    "remainingScreens": 1,
+    "recordedSteps": 2,
+    "previousScreensMatched": 1,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 1,
+        "total": 2
+      },
+      "rng": {
+        "matched": 2897,
+        "total": 2897
+      },
+      "cursors": {
+        "matched": 1,
+        "total": 2
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, prevmsg, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+      "step": 1
+    },
+    "step": 1,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, prevmsg, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The direct V key is bound to versionshort/doversion in both C and the JavaScript command table, but JS rejects versionshort at the repeated-command boundary before command dispatch. It also has no doversion handler. C version.c:doversion prints getversionstring() and returns ECMD_OK when menu_requested is false, which is the branch this recording reaches. JS already has the matching getversionstring() and doextversion(); the missing behavior is the short command path and its admission.",
+  "source": {
+    "file": "version.c",
+    "branch": "doversion when iflags.menu_requested is false; print getversionstring() with pline and return ECMD_OK. The alternate true branch delegates to doextversion.",
+    "functions": [
+      "doversion"
+    ],
+    "callers": [
+      "cmd.c:commands_init binds V to the versionshort row and doversion; cmd.c:rhack dispatches that bound command"
+    ],
+    "dependencies": [
+      "version.c:getversionstring",
+      "version.c:doextversion",
+      "pline.c:pline"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The accepted v48 evaluation reports 1/2 screens and cursors matched, all 2897 RNG calls matched, and a first stop at segment 0 step 1 because JS rejects the hero command at the repeated-command boundary. The saved queue preserves the exact manifest, recording and evaluation hashes above.",
+    "The v48 manifest identifies the C entry point as version.c:doversion via V / #versionshort. In upstream cmd.c:1926-1927, the V row is named versionshort and maps to doversion. In upstream version.c:156-165, doversion returns doextversion when menu_requested is set; otherwise it calls pline(\"%s\", getversionstring(...)) and returns ECMD_OK.",
+    "The production JavaScript key table has the corresponding V/versionshort/doversion row in js/extcmdlist_data.js. However, js/cmd.js:1905-1916 omits versionshort from ADMITTED_COMMANDS, so rhack refuses it before dispatch. The doextcmd switch has a doextversion case but no doversion case. js/version.js exports getversionstring() and doextversion(), but no doversion(). The recorder short-version string itself is already represented by getversionstring().",
+    "The recording has exactly one gameplay input, V, after its initial screen; C produces the short version message without an RNG call or turn. The implementation scope is version.c:doversion plus its existing V command dispatch/admission path; the version-string helper and extended-version branch already exist."
+  ]
+}
