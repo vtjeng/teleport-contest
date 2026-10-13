@@ -5440,7 +5440,7 @@ export async function zap_over_floor(
     return rangemod;
 }
 
-// C ref: zap.c disintegrate_mon() (5050-5095).  The caller intentionally
+// C ref: zap.c disintegrate_mon() (4723-4753). dobuzz() intentionally
 // consumes no damage from zhitm's MAGIC_COOKIE; this helper removes every
 // non-protected carried item before delegating the ordinary monster death
 // owner, preserving the source's no-corpse flags and killer direction.
@@ -5449,7 +5449,7 @@ async function disintegrate_mon(mon, type, fltxt, state, random, env) {
     const message = env.message ?? ttyPline;
     if (visible) {
         await message(
-            `${monsterCommonName(mon, state)} is disintegrated!`, state, env,
+            `${Monnam(mon, state, env)} is disintegrated!`, state, env,
         );
     }
     for (let obj = mon.minvent; obj;) {

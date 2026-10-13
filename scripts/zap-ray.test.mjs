@@ -168,6 +168,27 @@ test('melt_ice uses objnam An() for its settled boulder message', () => {
     assert.match(jsSource.slice(jsStart, jsEnd), /An\(xnameFresh\(boulder, state\)\)/u);
 });
 
+test('disintegrate_mon uses C Monnam capitalization for its visible message', () => {
+    const cSource = readFileSync(new URL(
+        '../nethack-c/upstream/src/zap.c', import.meta.url,
+    ), 'utf8');
+    const jsSource = readFileSync(new URL('../js/zap.js', import.meta.url), 'utf8');
+    const cStart = cSource.indexOf('\ndisintegrate_mon(\n    struct monst *mon,');
+    const jsStart = jsSource.indexOf('async function disintegrate_mon(');
+    const jsEnd = jsSource.indexOf('\n}', jsStart);
+
+    // C's visible, non-lifesaving branch calls Monnam; its first character
+    // is uppercase, matching the recorded vampire-bat message at v54 step 598.
+    assert.notEqual(cStart, -1);
+    assert.match(cSource.slice(cStart, cStart + 900),
+        /pline\("%s is disintegrated!", Monnam\(mon\)\)/u);
+    assert.notEqual(jsStart, -1);
+    assert.match(jsSource.slice(jsStart, jsEnd),
+        /Monnam\(mon, state, env\)\} is disintegrated!/u);
+    assert.doesNotMatch(jsSource.slice(jsStart, jsEnd),
+        /monsterCommonName\(mon, state\)/u);
+});
+
 test('inventory resistance mapping matches its complete C source', () => {
     const cSource = readFileSync(new URL(
         '../nethack-c/upstream/src/zap.c', import.meta.url,
