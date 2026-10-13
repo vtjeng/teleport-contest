@@ -1,0 +1,55 @@
+{
+  "session": "synthetic/v55/v55-pickup-burden-armor-action2",
+  "corpus": "synthetic",
+  "batch": "v55",
+  "caseId": "v55-pickup-burden-armor-action2",
+  "manifestPath": "challenges/manifests/v55.json",
+  "manifestSha256": "3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105",
+  "recordingSha256": "950e3ee0c8ac602ead519746f5821bb21cbe7e8c1a31be27c31763ac3f5cad40",
+  "recipeSha256": "f8559dd82c9fb164ed06b633aa9e09c876677365f6d5934fefe94c3f83e55203",
+  "evaluationPath": "challenges/evaluations/baseline-261c3097d-v55.json",
+  "evaluationCommit": "3ce874995224d20d3a43bda76e780be8b707f8de",
+  "remainingScreens": 43,
+  "recordedSteps": 160,
+  "status": "complete",
+  "commit": "ff9b6af255e5859ba8b41b780088641ea6d72785",
+  "mismatch": {
+    "session": "synthetic/v55/v55-pickup-burden-armor-action2",
+    "step": 117,
+    "segment": 0,
+    "key": ",",
+    "kind": "js-missing",
+    "source": "pickup.c:lift_object",
+    "expectedMessage": "You have trouble lifting a plate mail.  Continue?",
+    "baseline": {
+      "screens": "117/160",
+      "rng": "2393/2398",
+      "cursors": "117/160",
+      "error": null
+    }
+  },
+  "summary": "At the manual pickup command, C runs pickup_object(), calls lift_object(), and asks its ynq() burden question before pick_obj() plans addinv(). JavaScript preflight rejected the object before pickup_object() could reach that branch. Preflight now defers addinv planning for this burden-prompt case, and lift_object reads the answer through ynq().",
+  "source": {
+    "file": "pickup.c",
+    "branch": "pickup_object() calls lift_object() before pick_obj(); lift_object() asks ynq() when next_encumbr exceeds max(near_capacity(), flags.pickup_burden).",
+    "functions": [
+      "pickup",
+      "pickup_object",
+      "lift_object"
+    ],
+    "callers": [
+      "pickup() -> pickup_object() -> lift_object() -> ynq() for manual floor pickup",
+      "pickup() -> pickup_object() -> lift_object() -> pick_obj() after an accepted answer"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/pickup.c:1757-1794 computes the burden threshold, builds the Continue prompt and switches on ynq(qbuf); the n answer sets result to zero.",
+    "nethack-c/upstream/src/pickup.c:1803-1888 calls lift_object() at 1876 and returns for res <= 0 before reaching pick_obj() at 1888.",
+    "js/pickup.js:preflightPickupObjects previously threw before pickup_object(); it now defers the addinv plan when the planned pickup crosses the configured burden threshold.",
+    "js/pickup.js:lift_object now calls ynq(qbuf, state), preserving the C canned/repeated command-queue behavior and clearing the message window after the answer.",
+    "The admitted v55 baseline evaluation records 117/160 screens, 2393/2398 RNG calls, 117/160 cursors and error null. Its first mismatch is segment 0 step 117, key comma, where JavaScript lacks C's Continue prompt.",
+    "scripts/pickup.test.mjs exercises pickup_object() with a queued canned n answer, verifies the floor object remains on the floor and the queue is consumed, and pins C and JavaScript lift-before-pick_obj ordering."
+  ]
+}
