@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T01:23:00.547Z",
+  "capturedAt": "2026-10-13T01:43:07.775Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -99749,6 +99749,111 @@
         "type": "accepted",
         "at": "2026-10-13T01:21:13.264Z",
         "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-accepted-mounted-nymph-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:23:09.972Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Waiting on Root-owned publication/integration and v54 admission; all remaining admitted sessions are owned or held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012-d58f2c00e45787745fa4c336014482c78e925f3f",
+        "type": "published",
+        "at": "2026-10-13T01:23:39.557Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "commit": "d58f2c00e45787745fa4c336014482c78e925f3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-nemesis-a26c3da2-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T01:25:10.574Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "integration": "a26c3da2d2ab4372f422e8856b52b0bd3ca5e8c9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-validated-a-nemesis-failed-38332051839-20261013",
+        "type": "validated",
+        "at": "2026-10-13T01:31:19.540Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v53-quest-nemesis-correction-20261013",
+        "type": "resume",
+        "at": "2026-10-13T01:31:48.937Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-waiting-a-nemesis-obsolete-test-correction-20261013",
+        "type": "activity",
+        "at": "2026-10-13T01:32:07.338Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "phase": "waiting",
+        "reason": "A is replacing the obsolete nemesis refusal test with source-backed behavior before submitting a correction; Root preserves the failed candidate and saved checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f2bfe0ada46bffb6fa3a92e20d41a18255836f0b",
+        "type": "ready",
+        "at": "2026-10-13T01:33:40.899Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "delivery": "f2bfe0ada46bffb6fa3a92e20d41a18255836f0b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-nemesis-correction-f2bfe0ad-20261013",
+        "type": "received",
+        "at": "2026-10-13T01:33:59.157Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "delivery": "f2bfe0ada46bffb6fa3a92e20d41a18255836f0b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-nemesis-correction-65da8c69-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T01:34:40.831Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "integration": "65da8c69c8e214b155c129c3ecd975d3c48e47af"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-observed-a-idle-after-nemesis-correction-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:35:14.605Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Quest test correction submitted. Waiting for Root validation and the next prepared batch; remaining admitted work is owned or held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013-65da8c69c8e214b155c129c3ecd975d3c48e47af-validated",
+        "type": "validated",
+        "at": "2026-10-13T01:40:53.424Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013-65da8c69c8e214b155c129c3ecd975d3c48e47af-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T01:41:24.449Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-quest-accepted-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:42:43.694Z",
+        "worker": "A2",
+        "state": "idle"
       }
     ]
   },
@@ -99826,17 +99931,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
-        "worker": "A2",
-        "goal": "mcast-stun-you-v53-quest-nemesis-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "ca3ca09ea4abb5210f8e525148199a6dcd340616",
-        "since": "2026-10-13T01:14:43.595Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -100343,8 +100437,8 @@
     ]
   },
   "development": {
-    "executionCommit": "644903f4dfbf2fb72ed95dab9297dbba854f81cf",
-    "measuredAt": "2026-10-13T01:19:36.559Z",
+    "executionCommit": "65da8c69c8e214b155c129c3ecd975d3c48e47af",
+    "measuredAt": "2026-10-13T01:39:43.509Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

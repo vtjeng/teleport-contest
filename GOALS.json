@@ -295350,7 +295350,7 @@
     {
       "id": "mcast-stun-you-v53-quest-nemesis-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement quest_stat_check, nemesis_speaks, quest_talk from mcastu.c",
       "cFile": "quest.c",
       "sessions": [
@@ -295360,10 +295360,213 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "65da8c69c8e214b155c129c3ecd975d3c48e47af",
       "delivered": null,
       "function": "quest_stat_check",
-      "session": "synthetic/v53/v53-quest-nemesis-nearby-action5"
+      "session": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+      "closeStanding": {
+        "sha": "65da8c69c8e214b155c129c3ecd975d3c48e47af",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "644903f4dfbf2fb72ed95dab9297dbba854f81cf",
+        "target": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/65da8c69c8e214b155c129c3ecd975d3c48e47af/run-hosted-BCazlz/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mcast_stun_you",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_stun_you",
+            "sourceReview": "mcastu.c:503-520 checked in source order. Antimagic/Free_action emits the shield/resistance message only for a new stun and calls make_stunned(1,FALSE); the other arm chooses d(6 or 4,4) from Dexterity, rounds Half_spell_damage up, extends HStun timeout, and clears remembered magic resistance. Existing callers preserve damage-roll and cast effect order.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:mcast_spell MCAST_STUN_YOU arm calls mcast_stun_you; mcastu.c:castmu calls mcast_spell after announcement and damage roll."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "mhitu.c hostile attack -> mcastu.c:castmu -> mcast_spell -> mcast_stun_you; complete admitted segment matches."
+              }
+            ],
+            "sourceFile": "mcastu.c"
+          },
+          {
+            "name": "mcast_spell",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_spell",
+            "sourceReview": "mcastu.c:832-853 checked for dispatcher ordering. The selected MCAST_STUN_YOU arm awaits mcast_stun_you and then clears dmg to zero, matching C. Other spell arms remain unchanged; the dispatch path is verified as a bounded divergence fix rather than a whole-function port.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "castmu",
+                "source": "mcastu.c:castmu invokes mcast_spell after the spell announcement and damage calculation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "mhitu.c hostile attack -> mcastu.c:castmu -> mcast_spell; the recorded stun branch is reached at step 210."
+              }
+            ],
+            "sourceFile": "mcastu.c"
+          },
+          {
+            "name": "quest_stat_check",
+            "implementation": "js/quest.js",
+            "symbol": "quest_stat_check",
+            "sourceReview": "quest.c:quest_stat_check (513-518) has one branch: for MS_NEMESIS, set Qstat(in_battle) to !helpless(mtmp) && monnear(mtmp,u.ux,u.uy); all other monster sounds leave the field untouched. Its reader nemesis_speaks follows this state.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:dochug calls quest_stat_check at line 714 before movement and speech."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-talk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "monmove.c:dochug -> quest_stat_check -> quest_talk -> nemesis_speaks; full segment matches."
+              }
+            ]
+          },
+          {
+            "name": "nemesis_speaks",
+            "implementation": "js/quest.js",
+            "symbol": "nemesis_speaks",
+            "sourceReview": "quest.c:403-422 checked branch-by-branch. Outside battle, u.uhave.questart selects nemesis_wantsit; otherwise made_goal/met_nemesis select first/next/other dialogue, with the late 1-in-5 discourage branch. made_goal increments up to seven and met_nemesis is set after paging. In battle, rn2(5) precedes optional discourage paging and no progress fields change. questpgr.c:qt_pager is already implemented and its void result is discarded by C.",
+            "callers": [
+              {
+                "path": "js/quest.js",
+                "symbol": "quest_talk",
+                "source": "quest.c:quest_talk MS_NEMESIS arm calls nemesis_speaks."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-talk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "monmove.c:dochug ordinary nearby gate -> quest.c:quest_talk -> nemesis_speaks; in-battle rng and pager path match."
+              }
+            ]
+          },
+          {
+            "name": "quest_talk",
+            "implementation": "js/quest.js",
+            "symbol": "quest_talk",
+            "sourceReview": "quest.c:495-511 checked for all arms. The leader m_id arm calls the existing leader_speaks port; MS_NEMESIS now awaits nemesis_speaks; MS_DJINNI records note_unported(quest.c prisoner_speaks) because the C void return is discarded; default is silent. Both active monmove.c callers are traced and wired in js/monmove.js.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:dochug wait-mask branch lines 720-722 and ordinary post-action !helpless(mtmp) && nearby gate lines 980-982 call quest_talk."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-talk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "monmove.c:dochug ordinary nearby gate -> quest_talk -> nemesis_speaks; full admitted segment matches."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The scoped runtime routes are the hostile monster stun spell path and the active nearby quest-nemesis speech path. C monmove.c:dochug calls quest_stat_check before its turn, calls quest_talk for wait-mask monsters, and calls quest_talk again after movement/attack when !helpless(mtmp) && nearby; js/monmove.js now mirrors both talk calls. mcastu.c:castmu dispatches through mcast_spell into mcast_stun_you. The selected admitted v53 segment covers the nearby nemesis and stun spell path through completion. quest_talk retains the unrelated MS_DJINNI prisoner_speaks side-effect gap explicitly via note_unported; no completion claim is made for those effects.",
+        "entryPoints": [
+          {
+            "name": "Hostile caster stuns the hero",
+            "functions": [
+              {
+                "sourceFile": "mcastu.c",
+                "name": "mcast_spell"
+              },
+              {
+                "sourceFile": "mcastu.c",
+                "name": "mcast_stun_you"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "mhitu.c:mattacku -> mcastu.c:castmu -> mcast_spell -> mcast_stun_you."
+              }
+            ]
+          },
+          {
+            "name": "Nearby quest nemesis speaks during monster movement",
+            "functions": [
+              "quest_stat_check",
+              "quest_talk",
+              "nemesis_speaks"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "monmove.c:dochug -> quest_stat_check -> ordinary !helpless && nearby quest_talk call -> nemesis_speaks -> qt_pager."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
