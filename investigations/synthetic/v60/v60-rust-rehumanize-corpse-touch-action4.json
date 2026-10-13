@@ -32,9 +32,18 @@
     "passed": false,
     "error": null,
     "metrics": {
-      "screens": {"matched": 380, "total": 386},
-      "rng": {"matched": 2820, "total": 2820},
-      "cursors": {"matched": 381, "total": 386}
+      "screens": {
+        "matched": 380,
+        "total": 386
+      },
+      "rng": {
+        "matched": 2820,
+        "total": 2820
+      },
+      "cursors": {
+        "matched": 381,
+        "total": 386
+      }
     },
     "firstMismatch": {
       "screen": 333,
@@ -48,7 +57,9 @@
   "source": {
     "file": "polyself.c",
     "branch": "After polyman() returns the hero to human form and retouch_equipment(2) updates worn gear, if no gloves remain then rehumanize() invokes selftouch(no_longer_petrify_resistant). The case reaches this branch after three lightning self-zaps reduce the stone golem's form HP to zero while it wields a cockatrice corpse.",
-    "functions": ["rehumanize"],
+    "functions": [
+      "rehumanize"
+    ],
     "callers": [
       "nethack-c/upstream/src/zap.c:3194 zapyourself() calls rehumanize() when self-zap damage reduces polymorphed hit points to zero.",
       "js/zap.js:6377 zapyourself() calls rehumanize(state, env) in the corresponding lethal self-zap branch.",
@@ -65,6 +76,7 @@
     "Fresh worker replay at 0a25f5a21f03cce59f5b39841a998c967829b978 reproduces those metrics; its full comparison is saved in .cache/Cv60-rehumanize-before.log.",
     "C source nethack-c/upstream/src/polyself.c:1415-1417 performs retouch_equipment(2) and immediately calls selftouch(no_longer_petrify_resistant) if gloves are absent.",
     "JavaScript js/polyself.js:2194-2196 performs the equipment retouch but records note_unported('trap.c selftouch'); js/trap.js:416-436 already implements selftouch() and js/polyself.js imports it.",
-    "The selected case uses a resistant stone golem wielding a cockatrice corpse. Its third lightning self-zap enters zap.c:zapyourself(), sets form HP to zero, and calls rehumanize()."
+    "The selected case uses a resistant stone golem wielding a cockatrice corpse. Its third lightning self-zap enters zap.c:zapyourself(), sets form HP to zero, and calls rehumanize().",
+    "The current saved queue names evaluation commit cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec, but that report file is absent from the assigned base. Its selected case entry has the same v60 manifest digest, recording SHA ec563224d6d526e1a44baa49592cacd21de71a7bd8c3a124dd812c9c4f8f76ce, 380/386 screens, 2820/2820 RNG calls, 381/386 cursors, and error null as the retained accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v60.json. The report cites the retained ancestor artifact; the fresh worker replay is separately recorded in .cache/Cv60-rehumanize-before.log."
   ]
 }
