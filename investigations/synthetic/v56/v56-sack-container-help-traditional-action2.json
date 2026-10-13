@@ -1,0 +1,47 @@
+{
+  "session": "synthetic/v56/v56-sack-container-help-traditional-action2",
+  "corpus": "synthetic",
+  "batch": "v56",
+  "caseId": "v56-sack-container-help-traditional-action2",
+  "remainingScreens": 1,
+  "recordedSteps": 44,
+  "manifestPath": "challenges/manifests/v56.json",
+  "manifestSha256": "a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74",
+  "recordingPath": "challenges/cases/v56/v56-sack-container-help-traditional-action2.session.json",
+  "recordingSha256": "a00503107b867cf073151dd9ed752b21ca72b18ff274490ea3a76ca1e99abd2c",
+  "evaluationPath": "challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json",
+  "evaluationCommit": "398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6",
+  "status": "complete",
+  "commit": "a48c235cc3c1bdbe8b10396b35a84228098e2ecf",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "session": "synthetic/v56/v56-sack-container-help-traditional-action2",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": ["synthetic/v56/v56-sack-container-help-traditional-action2"],
+    "remainingScreens": 1,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 43,
+    "caseId": "v56-sack-container-help-traditional-action2",
+    "batch": "v56",
+    "recordingPath": "challenges/cases/v56/v56-sack-container-help-traditional-action2.session.json"
+  },
+  "summary": "In traditional menu style, answering ? to the container action prompt should display the Container actions text window and then resume the prompt. C routes this to pickup.c:explain_container_prompt; JavaScript currently throws UnsupportedPickupError at the caller.",
+  "source": {
+    "file": "pickup.c",
+    "branch": "When use_container reaches its traditional menu action prompt and the user answers ?, explain_container_prompt displays its fixed NHW_TEXT help lines, omitting the Next line when no additional container is selected.",
+    "functions": ["explain_container_prompt"],
+    "callers": ["use_container in pickup.c at the '?' dispatch (3117-3118)"],
+    "dependencies": ["tty_menu.js:displayTtyTextWindow"]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "nethack-c/upstream/src/pickup.c:2910-2940 defines the entire static explain_container_prompt(boolean) helper: create NHW_TEXT; emit the fixed action lines in order; skip the ' n -- Next' line when more_containers is false; display; destroy.",
+    "nethack-c/upstream/src/pickup.c:3117-3118 calls explain_container_prompt(more_containers) from use_container whenever the traditional action prompt returns '?'.",
+    "js/pickup.js:2239-2244 has the matching caller branch but throws UnsupportedPickupError instead of displaying the help text. This is a missing source helper, so the task is a whole-function port of explain_container_prompt and its production caller wiring; it does not claim whole-function completion for use_container.",
+    "The existing JS tty_menu.js:displayTtyTextWindow owns the NHW_TEXT TTY display, dismissal, destruction, and screen repair sequence and can serve as the display dependency.",
+    "The admitted v56 evaluation at challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json records 43/44 screens, 2186/2186 RNG calls, and 43/44 cursors; segment 0 input step 43 is the first mismatch when '?' opens the container help text."
+  ]
+}
