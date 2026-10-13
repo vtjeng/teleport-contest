@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Additional independent v64 source candidate: {\"id\":\"v64-multi-trouble-horn-setup1\",\"source\":{\"file\":\"apply.c\",\"function\":\"use_unicorn_horn\"},\"state\":\"Two timed troubles from supported wizintrinsic (Blind and Deaf), blessed horn applied while both remain active\",\"expectedCObservation\":\"shuffle_int_array executes before d(2,4); one-trouble cheap variation skips shuffle\",\"designedFromSourceBeforeItsJavaScriptComparison\":true}. Not runtime evidence until reached in C.",
+  "segments": [
+    {
+      "seed": 64133559,
+      "datetime": "20840707132716",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017blessed unicorn horn\n        #wizidentify\n.\n        i        #wizmap\n"
+    }
+  ]
+}

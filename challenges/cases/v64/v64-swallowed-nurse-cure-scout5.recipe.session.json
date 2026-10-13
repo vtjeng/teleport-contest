@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first Prep28 v64 setup: {\"id\":\"v64-swallowed-nurse-cure-setup1\",\"source\":{\"file\":\"do.c\",\"function\":\"engulfer_digests_food\"},\"state\":\"Blind purple worm engulfs hero; drop a nurse corpse from stomach\",\"expectedCObservation\":\"Instant digestion heals worm and cures mblinded via mcureblindness without announcing visibility\",\"overlapHypothesis\":\"Prior swallowed slime/wraith routes exercise different callbacks; prior thrown healing owns potion.c caller.\"}. Source hypotheses are not runtime evidence. Actual branch reachability and independence will be checked from the new C recording. Source-directed C continuation scout3 from observed C state; independent of JavaScript results. C source continuation scout5 selected from current C map/menu states. Castle CDECG is this independent C menu tune, not copied from an earlier session.",
+  "segments": [
+    {
+      "seed": 64131137,
+      "datetime": "20820407193721",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed nurse corpse\n        \u0017uncursed potion of blindness\n        \u0017uncursed +25 ring of protection\n        #wizidentify\n.\n        i        #wizmap\n#levelchange\n20\n                                                                Ppl        \u0017uncursed +20 ring of gain strength\n        Pqr        ,y        #wizgenesis\npurple worm\n        #wizmap\n\u0017uncursed potion of blindness\n        m.        m.        i        "
+    }
+  ]
+}

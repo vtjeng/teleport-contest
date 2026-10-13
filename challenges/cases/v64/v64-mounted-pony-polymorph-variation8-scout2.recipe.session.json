@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Additional independent v64 source candidate: {\"id\":\"v64-mounted-pony-polymorph-setup1\",\"source\":{\"file\":\"mon.c\",\"function\":\"newcham -> steed.c poly_steed\"},\"state\":\"Source-created tame saddled pony mounted by wizard; polymorph zap down affects steed\",\"expectedCObservation\":\"New form causes poly_steed rider-state adjustment and possible dismount; confirm actual saddle and mount before zapping\",\"designedFromSourceBeforeItsJavaScriptComparison\":true}. Not runtime evidence until reached in C. Source-directed independent C continuation scout2. Independent C seed variation 8 affects polymorph selection and actual placement.",
+  "segments": [
+    {
+      "seed": 64139657,
+      "datetime": "20840707132716",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed wand of polymorph (0:12)\n        \u0017uncursed +25 ring of protection\n        #wizidentify\n.\n        i        #wizmap\n#levelchange\n20\n                                                                Ppl        #wizgenesis\ntame saddled pony\n        #wizmap\n"
+    }
+  ]
+}

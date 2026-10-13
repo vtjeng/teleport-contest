@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first Prep28 v64 setup: {\"id\":\"v64-mimic-see-invis-expiry-setup1\",\"source\":{\"file\":\"timeout.c\",\"function\":\"nh_timeout\"},\"state\":\"Source-created invisible mimic blocking corridor, timed See_invisible expires\",\"expectedCObservation\":\"set_mimic_blocking updates sight blocking when SEE_INVIS timeout reaches zero\",\"overlapHypothesis\":\"Compare prior source probes; mere potion identification does not prove blocking geometry.\"}. Source hypotheses are not runtime evidence. Actual branch reachability and independence will be checked from the new C recording. New source-directed continuation scout2 after C setup observations; no JavaScript comparison used.",
+  "segments": [
+    {
+      "seed": 64132096,
+      "datetime": "20820407193721",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed potion of see invisible\n        \u0017uncursed ring of protection from shape changers\n        \u0017uncursed +25 ring of protection\n        #wizidentify\n.\n        i        #wizmap\n#wizgenesis\ninvisible small mimic\n        qo        #wizmap\n"
+    }
+  ]
+}

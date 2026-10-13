@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first Prep28 v64 setup: {\"id\":\"v64-breathless-cursed-leash-setup1\",\"source\":{\"file\":\"apply.c\",\"function\":\"check_leash\"},\"state\":\"Tame breathless creature attached to cursed leash pulled beyond5 squares\",\"expectedCObservation\":\"Cursed leash snaps loose instead of choking breathless pet\",\"overlapHypothesis\":\"Must document actual breathless pet, attachment and long-distance source movement.\"}. Source hypotheses are not runtime evidence. Actual branch reachability and independence will be checked from the new C recording. New source-directed continuation scout2 after C setup observations; no JavaScript comparison used. Source-directed independent C continuation action4. Source geometry correction action7: timed PassWalls500 permits hero to cross west chamber wall while breathless skeleton lacks wall passage, producing actual leash distance beyond5 rather than equal-speed chase or blocked hero movement.",
+  "segments": [
+    {
+      "seed": 64132781,
+      "datetime": "20820407193721",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017cursed leash\n        \u0017uncursed wand of teleportation (0:20)\n        \u0017uncursed +25 ring of protection\n        #wizidentify\n.\n        i        #wizmap\n#wizgenesis\ntame skeleton\n        #wizmap\naon        #wizintrinsic\n 500f\n        h        h        h        h        h        h        h        #wizmap\nh        h        h        h        h        h        h        h        h        h        #wizmap\n"
+    }
+  ]
+}

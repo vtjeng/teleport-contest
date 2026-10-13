@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first Prep28 v64 setup: {\"id\":\"v64-worn-amulet-poly-setup1\",\"source\":{\"file\":\"zap.c\",\"function\":\"poly_obj\"},\"state\":\"Wear nonunique amulet, dip into polymorph; record changed slot and new item\",\"expectedCObservation\":\"Accessory remove_worn_item and set_wear call order retains or removes slot according to replacement\",\"overlapHypothesis\":\"Prior crystal plate changes W_ARM; accessory branch is separately source-defined.\"}. Source hypotheses are not runtime evidence. Actual branch reachability and independence will be checked from the new C recording. Source-directed C continuation action3 after observed C setup setup1; no JavaScript comparison used.",
+  "segments": [
+    {
+      "seed": 64132918,
+      "datetime": "20820407193721",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed amulet of ESP\n        \u0017uncursed potion of polymorph\n        \u0017uncursed +25 ring of protection\n        #wizidentify\n.\n        i        #wizmap\nPo        #dip\nop        i        "
+    }
+  ]
+}

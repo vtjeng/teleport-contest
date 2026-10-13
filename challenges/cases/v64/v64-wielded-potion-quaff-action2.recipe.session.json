@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first Prep28 v64 setup: {\"id\":\"v64-wielded-potion-quaff-setup1\",\"source\":{\"file\":\"potion.c\",\"function\":\"dodrink\"},\"state\":\"Wield one uncursed potion, then quaff it; cheap stack variation\",\"expectedCObservation\":\"remove_worn_item clears weapon before useup; stack keeps remaining weapon\",\"overlapHypothesis\":\"Different from worn armor polymorph and prior ordinary potion consumption.\"}. Source hypotheses are not runtime evidence. Actual branch reachability and independence will be checked from the new C recording. Source-designed continuation action2: wo        qo        i        . No JavaScript comparison was used to design it.",
+  "segments": [
+    {
+      "seed": 64131411,
+      "datetime": "20820407193721",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed potion of gain energy\n        \u0017uncursed +25 ring of protection\n        #wizidentify\n.\n        i        #wizmap\nwo        qo        i        "
+    }
+  ]
+}

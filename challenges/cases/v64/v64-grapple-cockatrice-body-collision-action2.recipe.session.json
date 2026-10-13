@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first Prep28 mission {\"id\":\"v64-grapple-cockatrice-body-collision-setup1\",\"source\":{\"file\":\"dothrow.c\",\"function\":\"hurtle_step\"},\"state\":\"Expert Priest grapples to floor beyond adjacent peaceful sleeping cockatrice after removing body robe; claw-free movement still bumps petrifying skin\",\"expectedCObservation\":\"hurtle_step bump prints petrification viainstapetrify when no shirt/suit/cloak, separatelyfrom barehandthrow\",\"designBasis\":\"apply.c use_grapple surface calls hurtle(dx,dy,1), dothrow.c875/1062 collision calls require no body armor; floor target differs from monster damage target.\"} C setup confirms Expert flail(grapplinghook), hero54,17 and sleepingcockatrice53,16 northwest. Grapple floor two northweststeps, squared distance8 in Expert range8. Remove original bodyrobe c, wieldj; surface choicec makeshurtleNW.",
+  "segments": [
+    {
+      "seed": 64161817,
+      "datetime": "20880912141317",
+      "nethackrc": "OPTIONS=name:V64Source,role:Priest,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed grappling hook\n        \u0017uncursed +20 ring of protection\n        #wizidentify\n.\n        i        #wizmap\n#levelchange\n30\n                                                                                     #enhance\nye e e \u001b               #wizgenesis\npeaceful sleeping cockatrice\n        #wizmap\nTc               wj               aj               @yy.c                                #wizmap\n"
+    }
+  ]
+}

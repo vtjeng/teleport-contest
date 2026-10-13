@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first Prep28 v64 setup: {\"id\":\"v64-castle-tune-close-setup1\",\"source\":{\"file\":\"music.c\",\"function\":\"do_play_instrument\"},\"state\":\"Open source Castle drawbridge first via opening wand, then known source tune played nearby\",\"expectedCObservation\":\"Correct tune on DRAWBRIDGE_DOWN calls close_drawbridge and crush/repaints geometry\",\"overlapHypothesis\":\"Prior v58 passtune begins closed and exposes open_drawbridge; distinct opposite helper requires real down state.\"}. Source hypotheses are not runtime evidence. Actual branch reachability and independence will be checked from the new C recording. New source-directed continuation scout2 after C setup observations; no JavaScript comparison used. Source-directed C continuation scout3 from observed C state; independent of JavaScript results.",
+  "segments": [
+    {
+      "seed": 64132507,
+      "datetime": "20820407193721",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed wooden flute\n        \u0017uncursed wand of opening (0:8)\n        \u0017uncursed +25 ring of protection\n        #wizidentify\n.\n        i        #wizmap\n#wizlevelport\n?\nj                                                #wizmap\n"
+    }
+  ]
+}

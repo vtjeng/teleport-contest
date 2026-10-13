@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first Prep28 v64 setup: {\"id\":\"v64-stonegolem-corpse-touch-setup1\",\"source\":{\"file\":\"invent.c\",\"function\":\"feel_cockatrice\"},\"state\":\"Stone-resistant clay golem loses resistance? Instead clay golem blind floor touch on cockatrice corpse\",\"expectedCObservation\":\"instapetrify transforms poly_when_stoned clay golem to stone golem; normal human cheap variation ends fatally\",\"overlapHypothesis\":\"Prior death touch may reach fatal variant; transformation branch must be actually reached.\"}. Source hypotheses are not runtime evidence. Actual branch reachability and independence will be checked from the new C recording. Source-designed continuation action2: Prl        qqclay golem\n        ao        :        . No JavaScript comparison was used to design it.",
+  "segments": [
+    {
+      "seed": 64131548,
+      "datetime": "20820407193721",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed blindfold\n        \u0017uncursed cockatrice corpse\n        \u0017uncursed potion of polymorph\n        \u0017uncursed ring of polymorph control\n        \u0017uncursed +25 ring of protection\n        #wizidentify\n.\n        i        #wizmap\nPrl        qqclay golem\n        ao        :        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-derived pre-effect ownership mission: {\"id\":\"v64-wielded-polymorph-potion-setup1\",\"source\":{\"file\":\"potion.c\",\"function\":\"dodrink\",\"branch\":\"remove_worn_item before opening/effect\"},\"state\":\"Wield one polymorph potion; controlled floating-eye transformation has no hands\",\"expectedCObservation\":\"C clears weapon ownership before polymorph so the new no-hands form has no wielded potion to drop\",\"designBasis\":\"potion.c591-598 removal precedes potion effect, and polyself.c break_armor/drop_weapon checks current ownership. This C branch distinguishes pre-effect removal from eventual deletion cleanup.\"} Independent C source continuation action2. Castle teleport attempts are blocked by canonical tele_jump_ok exclusion rectangles; timed levitation and pass-walls allow ordinary movement to the actual outside bridge tile.",
+  "segments": [
+    {
+      "seed": 64141973,
+      "datetime": "20891205152637",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed potion of polymorph\n        \u0017uncursed ring of polymorph control\n        #wizidentify\n.\n        i        #wizmap\nwo        Ppl        qo        floating eye\n        i        "
+    }
+  ]
+}

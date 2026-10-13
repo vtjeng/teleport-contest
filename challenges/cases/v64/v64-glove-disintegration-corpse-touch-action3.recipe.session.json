@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first mission {\"id\":\"v64-glove-disintegration-corpse-touch-setup1\",\"source\":{\"file\":\"do_wear.c\",\"function\":\"disintegrate_arm\"},\"state\":\"Hero wields cockatrice corpse with leather gloves; blessed destroy armor selects gloves while cloak provides second armor slot\",\"expectedCObservation\":\"Gloves vanish, wornarm_destroyed then selftouch petrifies hero\",\"designBasis\":\"read.c1324-1395 blessed scroll with two armor pieces permits selection; do_wear.c3239-3252 marks losing_gloves then calls selftouch.\"} C inventory shows gloves n, corpse onfloor becomes o onpickup, scrollp. Weargloves, pickupcorpse,wieldo; blessed destroyarmor has cloakb andglovesn, selectn. Source menu continuation action3: read scroll creates More boundary before blessed selection, so padding precedes explicit glovesn.",
+  "segments": [
+    {
+      "seed": 64152113,
+      "datetime": "20860117181619",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed leather gloves\n        \u0017uncursed cockatrice corpse\n        \u0017blessed scroll of destroy armor\n        #wizidentify\n.\n        i        #wizmap\nWn        ,        wo        rp        n                                #wizmap\n"
+    }
+  ]
+}

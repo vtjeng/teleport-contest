@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first Prep28 v64 setup: {\"id\":\"v64-mimic-see-invis-expiry-setup1\",\"source\":{\"file\":\"timeout.c\",\"function\":\"nh_timeout\"},\"state\":\"Source-created invisible mimic blocking corridor, timed See_invisible expires\",\"expectedCObservation\":\"set_mimic_blocking updates sight blocking when SEE_INVIS timeout reaches zero\",\"overlapHypothesis\":\"Compare prior source probes; mere potion identification does not prove blocking geometry.\"}. Source hypotheses are not runtime evidence. Actual branch reachability and independence will be checked from the new C recording. Source refinement action4: original 220 waits cannot expire potion see-invisible (source750..849); timed intrinsic10 is used instead. Controlled teleport to actual C-mapped corridor (49,15) gives non-room mimic a guaranteed blocking boulder disguise. Peaceful sleeping invisible mimic stays still through timed expiry. Source correction action5: #wizintrinsic gain does not run the potion visibility refresh, so create mimic while timed SeeInvisible is already active to initialize its blocking point; light corridor using wand of light before expiry so newly uncovered terrain can affect the screen.",
+  "segments": [
+    {
+      "seed": 64132096,
+      "datetime": "20820407193721",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed potion of see invisible\n        \u0017uncursed ring of protection from shape changers\n        \u0017uncursed +25 ring of protection\n        #wizidentify\n.\n        i        #wizmap\n\u0017uncursed ring of teleport control\n        \u0017uncursed wand of teleportation (0:20)\n        Prl        zs.        @hhhhhhhhk.        \u0017uncursed wand of light (0:10)\n        #wizintrinsic\n 10a\n        #wizgenesis\npeaceful sleeping invisible small mimic\n        zt        m.        m.        m.        m.        m.        m.        m.        m.        m.        m.        m.        m.        m.        m.        m.        m.        #wizmap\n"
+    }
+  ]
+}

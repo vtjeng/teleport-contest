@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first Prep28 v64 setup: {\"id\":\"v64-broken-speed-wand-setup1\",\"source\":{\"file\":\"apply.c\",\"function\":\"do_break_wand\"},\"state\":\"Adjacent surviving monster and a charged speed-monster wand applied and deliberately broken\",\"expectedCObservation\":\"Explosion first; monster bhitm speeds target before final zapping hero\",\"overlapHypothesis\":\"Previously wired light/striking/polymorph/teleport callback arms are not this speed arm.\"}. Source hypotheses are not runtime evidence. Actual branch reachability and independence will be checked from the new C recording. Source-directed C continuation action3 after observed C setup setup1; no JavaScript comparison used.",
+  "segments": [
+    {
+      "seed": 64131822,
+      "datetime": "20820407193721",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed wand of speed monster (0:3)\n        \u0017uncursed +25 ring of protection\n        #wizidentify\n.\n        i        #wizmap\n#levelchange\n20\n                                                                Ppl        #wizgenesis\npeaceful ogre\n        aoy        #wizmap\n"
+    }
+  ]
+}

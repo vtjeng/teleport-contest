@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first Prep28 v64 setup: {\"id\":\"v64-trapped-pet-whistle-departure-setup1\",\"source\":{\"file\":\"apply.c\",\"function\":\"magic_whistled\"},\"state\":\"Actual tame pony trapped in pit with boulder available for departure fill; use changed state from prior retreat probes\",\"expectedCObservation\":\"Clears mtrapped then fill_pit at old coordinates before relocation\",\"overlapHypothesis\":\"Earlier v63 attempt never had trapped pet. Current destination may already be admitted; only old departure callback is targeted.\"}. Source hypotheses are not runtime evidence. Actual branch reachability and independence will be checked from the new C recording. New source-directed continuation scout2 after C setup observations; no JavaScript comparison used. C source continuation scout3 selected from current C map/menu states. Castle CDECG is this independent C menu tune, not copied from an earlier session.",
+  "segments": [
+    {
+      "seed": 64132370,
+      "datetime": "20820407193721",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed magic whistle\n        \u0017uncursed wand of teleportation (0:20)\n        \u0017uncursed +25 ring of protection\n        #wizidentify\n.\n        i        #wizmap\nl        \u0017pit\n        #wizgenesis\ntame pony\n        #wizmap\nk        #wizmap\n"
+    }
+  ]
+}

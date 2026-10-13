@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first Prep28 mission {\"id\":\"v64-stair-shipped-object-arrival-setup1\",\"source\":{\"file\":\"dokick.c\",\"function\":\"obj_delivery\"},\"state\":\"Hero goesdownlevel2 then throws apple downward fromdownstairs toship it ahead, then follows staircase tolevel3\",\"expectedCObservation\":\"C ship_object queuesapple; goto_level invokesobj_delivery(FALSE), scattersapplearound arrivalupstairs beforepickup\",\"designBasis\":\"dokick.c1639-1674 ship_object +1769-1845 objectdelivery, do.c goto_level invokesarrivaltwice; JSdo.js3296 explicit migratingobject delivery omission.\"} C mapsetupherox40,y4 anddownstairsx61,y19: worncontrolq +teleportwandr permitgetposrelative21east15south. Sourcehomelevel1 stairshippingdrop_to rejects destination? Csourcecc.y returns0whenlevelbelowunvisited? stillcreatesdestmetadataandarrivalvalid; goindependentchosenlevel1->2.",
+  "segments": [
+    {
+      "seed": 64172529,
+      "datetime": "20871103151013",
+      "nethackrc": "OPTIONS=name:V64Source,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed apple\n        \u0017uncursed ring of teleport control\n        \u0017uncursed wand of teleportation (0:20)\n        #wizidentify\n.\n        i        #wizmap\nPql        zr.        @llllllllllllllllllllljjjjjjjjjjjjjjj.        tp>        tp>        tp>        >                                                                #wizmap\n"
+    }
+  ]
+}
