@@ -425,7 +425,7 @@ import { create_gas_cloud, m_in_out_region, visible_region_at } from './region.j
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { worm_move, wormhitu } from './worm.js';
-import { after_shk_move, inhishop, shk_move } from './shk.js';
+import { add_damage, after_shk_move, inhishop, shk_move } from './shk.js';
 import { findgold, mdrop_obj, mpickobj } from './steal.js';
 import { stairway_at, stairway_find_dir } from './stairs.js';
 import { collectMonsterMovementMessage, messageAt } from './startup_a11y.js';
@@ -3209,10 +3209,7 @@ async function maybe_spin_web(mtmp, env) {
                     trap.tseen = 1;
                 }
                 if ((in_rooms(mtmp.mx, mtmp.my, SHOPBASE, state)[0] ?? 0)) {
-                    // C: add_damage() is a discarded shop-accounting result;
-                    // its owner remains unported, so preserve the explicit
-                    // dependency without refusing the movement turn.
-                    note_unported('shk.c add_damage');
+                    add_damage(mtmp.mx, mtmp.my, 0, state);
                 }
             }
         }
@@ -3492,7 +3489,7 @@ export async function postmov(
                     }
                 }
                 if (in_rooms(monster.mx, monster.my, SHOPBASE, state)[0])
-                    note_unported('shk.c add_damage');
+                    add_damage(monster.mx, monster.my, 0, state);
             }
         } else if (here?.typ === IRONBARS) {
             // C ref: monmove.c:1624-1641, iron bars handling.

@@ -126,6 +126,7 @@ import {
     SDOOR,
     SHOCK_RES,
     SHOPBASE,
+    SHOP_HOLE_COST,
     SLEEP_RES,
     SLT_ENCUMBER,
     SLP_GAS_TRAP,
@@ -353,7 +354,7 @@ import { newsym, bot, shieldeff } from './display.js';
 import { m_next2u } from './mhitu.js';
 import { linedup } from './mthrowu.js';
 import { destroy_items } from './zap_destroy_items.js';
-import { costly_spot, sellobj, shop_keeper, shk_your, shopdig } from './shk.js';
+import { add_damage, costly_spot, sellobj, shop_keeper, shk_your, shopdig } from './shk.js';
 import { quest_info } from './questpgr.js';
 import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
@@ -1035,7 +1036,9 @@ export function maketrap(x, y, typ, rawEnv = {}) {
     case SPIKED_PIT:
         if (in_rooms(x, y, SHOPBASE, state).length
             && (IS_DOOR(location.typ) || IS_WALL(location.typ)))
-            note_unported('shk.c add_damage');
+            add_damage(x, y,
+                !state.context?.mon_moving ? SHOP_HOLE_COST : 0,
+                state);
         trap.conjoined = 0;
         {
             const exposed = pitTerrain(x, y, env);
@@ -1047,7 +1050,7 @@ export function maketrap(x, y, typ, rawEnv = {}) {
     case TRAPDOOR:
         hole_destination(trap.dst, env);
         if (in_rooms(x, y, SHOPBASE, state).length)
-            note_unported('shk.c add_damage');
+            add_damage(x, y, 0, state);
         {
             const exposed = pitTerrain(x, y, env);
             if (exposed && typeof exposed.then === 'function')
@@ -3137,8 +3140,7 @@ export async function untrap(force, rx, ry, container, state = game) {
                 unblock_point(x, y, state);
                 newsym(x, y);
                 if (in_rooms(x, y, SHOPBASE, state).length > 0) {
-                    // C: add_damage(x, y, 0L). shk.c, not ported.
-                    note_unported('shk.c add_damage');
+                    add_damage(x, y, 0, state);
                 }
             } else {
                 await ttyPline('You disarm it!', state);

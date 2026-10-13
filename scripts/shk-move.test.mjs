@@ -8,10 +8,14 @@ import {
     ROOM,
     ROOMOFFSET,
     ROWNO,
+    REPAIR_DELAY,
     SHOPBASE,
 } from '../js/const.js';
 import {
     after_shk_move,
+    find_damage,
+    repairable_damage,
+    shk_impaired,
     shk_move,
     UnsupportedShopError,
 } from '../js/shk.js';
@@ -221,21 +225,57 @@ test('shk_fixes_damage is a no-op when level has no damagelist', async () => {
     assert.equal(await shk_move(shkp, state), 0);
 });
 
-test('shk_fixes_damage refuses when damagelist exists', async () => {
-    // C ref: shk.c:4558-4576.  When find_damage() finds repairable damage,
-    // C whispers an incantation and repairs it.  This port refuses rather
-    // than implementing the repair path.
+test('shk_fixes_damage leaves newly recorded damage until REPAIR_DELAY', async () => {
+    // C ref: shk.c:4465 and 4558-4576. This fresh record is one turn old,
+    // below the source's five-turn repair delay, so shk_move must leave it.
+    const shkp = makeStationaryShopkeeper();
+    const state = makeShopState({ ux: 3, uy: 5 });
+    state.level.rooms[0].resident = shkp;
+    const damage = {
+        when: 0, // The new record was made at the start of this fixture.
+        place: { x: 4, y: 5 },
+        cost: 400, // A standard shop-door repair record.
+        typ: ROOM,
+        flags: 0,
+        next: null,
+    };
+    state.moves = 1;
+    state.level.damagelist = damage;
+
+    assert.equal(shk_impaired(shkp, state), false);
+    assert.equal(repairable_damage(damage, shkp, state), false);
+    assert.equal(find_damage(shkp, state), null);
+    await shk_move(shkp, state, {
+        random: {
+            rnd: () => 0, // Deterministic fallback if movement reaches it.
+            rn2: () => 0, // This fixture should not depend on global RNG.
+        },
+    });
+    assert.equal(state.level.damagelist, damage);
+});
+
+test('find_damage selects the first record after its source repair delay', () => {
+    // C ref: shk.c:4454-4506. ROOM damage skips terrain occupancy checks;
+    // the keeper owns this shop square, and five elapsed turns make it ready.
     const shkp = makeStationaryShopkeeper();
     const state = makeShopState();
     state.level.rooms[0].resident = shkp;
-    // Simulate existing damage on the level.
-    state.level.damagelist = { next: null, where: { x: 4, y: 5 } };
+    state.moves = REPAIR_DELAY;
+    const damage = {
+        when: 0, // This record is exactly REPAIR_DELAY turns old.
+        place: { x: 4, y: 5 },
+        cost: 400, // A standard shop-door repair record.
+        typ: ROOM,
+        flags: 0,
+        next: null,
+    };
+    state.level.damagelist = damage;
 
-    await assert.rejects(
-        () => shk_move(shkp, state),
-        (err) => err instanceof UnsupportedShopError
-            && err.message.includes('damage'),
-    );
+    assert.equal(repairable_damage(damage, shkp, state), true);
+    assert.equal(find_damage(shkp, state), damage);
+    shkp.mextra.eshk.following = true;
+    assert.equal(shk_impaired(shkp, state), true);
+    assert.equal(find_damage(shkp, state), null);
 });
 
 test('m_move dispatches isshk monsters to shk_move, returns MMOVE_NOTHING', async () => {
