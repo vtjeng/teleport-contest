@@ -752,29 +752,43 @@ test('cursetxt: a hero mimicking a strange object gets the general-direction lin
 
 // The unseen arm: with IN_SIGHT clear at (5,5) canseemon() is false, and
 // moves=100 satisfies !(moves % 4) without an rn2(4) draw.
-async function mumbledCurse(u) {
+async function mumbledCurse(u, { planning = false, injectNorep = true } = {}) {
     const state = makeState({ u });
     state.viz_array[5][5] = COULD_SEE;
     const messages = [];
+    const norepMessages = [];
     const random = scriptedRandom([2]);
-    await castmu(makeCaster({ mcan: true }), AD_CLRC_ATTACK, true, true, {
+    const env = {
         state, random, unsupported: refuse,
         message: (m) => messages.push(m),
-    });
+        planning,
+    };
+    if (injectNorep)
+        env.norepMessage = (m) => norepMessages.push(m);
+    await castmu(makeCaster({ mcan: true }), AD_CLRC_ATTACK, true, true, env);
     assert.deepEqual(random.draws, ['rn2(7)']);
-    return messages;
+    return { messages, norepMessages };
 }
 
 test('cursetxt: an unseen caster is heard mumbling', async () => {
-    assert.deepEqual(await mumbledCurse({ ux: 4, uy: 5, uprops: {} }),
-        ['You hear a mumbled curse.']);
+    assert.deepEqual(await mumbledCurse({ ux: 4, uy: 5, uprops: {} }), {
+        messages: [],
+        norepMessages: ['You hear a mumbled curse.'],
+    });
 });
 
 test('cursetxt: the deaf roleplay option silences the mumbled curse', async () => {
     // youprop.h:125 Deaf includes u.uroleplay.deaf; no DEAF property is set.
-    assert.deepEqual(
-        await mumbledCurse({ ux: 4, uy: 5, uprops: {}, uroleplay: { deaf: true } }),
-        []);
+    assert.deepEqual(await mumbledCurse({
+        ux: 4, uy: 5, uprops: {}, uroleplay: { deaf: true },
+    }), { messages: [], norepMessages: [] });
+});
+
+test('cursetxt: planned unseen curses use a silent Norep operation', async () => {
+    assert.deepEqual(await mumbledCurse(
+        { ux: 4, uy: 5, uprops: {} },
+        { planning: true, injectNorep: false },
+    ), { messages: [], norepMessages: [] });
 });
 
 test('castmu awaits the spell announcement before damage work', async () => {

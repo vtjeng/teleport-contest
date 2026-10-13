@@ -116,7 +116,7 @@ import {
     verbalize as plineVerbalize,
     youHear,
 } from './pline.js';
-import { ttyPline } from './tty_message.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
 
 // C ref: mcastu.c touch_of_death() (323-354). Both Death's melee touch
 // and the monster spell share this HP/killer path. Terminal death/recovery
@@ -430,6 +430,8 @@ async function cursetxt(mtmp, undirected, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };
     const message = env.message;
+    const norepMessage = env.planning ? async () => {}
+        : (env.norepMessage ?? ttyNorep);
 
     if (canseemon(mtmp, state)
         && couldsee(mtmp.mx, mtmp.my, state)) {
@@ -459,11 +461,10 @@ async function cursetxt(mtmp, undirected, env = {}) {
             );
         }
     } else if (!(state.moves % 4) || !random.rn2(4)) {
-        if (!Deaf(state) && message) {
-            // C uses Norep() here, which suppresses repeated identical lines.
-            // Norep is not ported; plain message is acceptable because this
-            // code path runs at most once per spell attempt.
-            await message('You hear a mumbled curse.', state);
+        if (!Deaf(state)) {
+            // mcastu.c calls Norep(), not pline(), so repeated curses from
+            // consecutive attack slots share pline.c's duplicate suppression.
+            await norepMessage('You hear a mumbled curse.', state, env);
         }
     }
 }
