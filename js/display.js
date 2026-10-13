@@ -5927,10 +5927,16 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
     const display = state.nhDisplay;
     if (!display?.grid || ystartBetweenMenuPages) return;
 
-    const statusRows = state._renderedStatusLayouts ?? statusLayouts();
-    const viewport = mapViewport(display.rows, statusRows.length, state);
-    const firstRow = Math.max(0, ystartBetweenMenuPages);
-    const lastRow = Math.min(ymax, viewport.height, display.rows - 1);
+    // wintty.c:docorner() calls cl_end() on physical terminal rows, then
+    // refreshes map glyphs only once the row reaches WIN_MAP.offy. Do not
+    // build status text here: C's docorner only calls bot() after the loop,
+    // and a map refresh must work in small TTY fixtures without inventory
+    // state just as it does before the status window is initialized.
+    const statusRowCount = state.iflags?.wc2_statuslines === 3 ? 3 : 2;
+    const viewport = mapViewport(display.rows, statusRowCount, state);
+    const mapWindow = state.wintty?.wins?.[state.wintty.WIN_MAP];
+    const mapOffy = mapWindow?.offy ?? 1;
+    const lastRow = Math.min(ymax, display.rows);
     const browserGlyphs = Boolean(display.spans);
     const decMap = browserGlyphs ? DEC_TO_UNICODE : SCORER_DEC_MAP;
     const unexplored = state.level
@@ -5945,11 +5951,12 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
         && state.gw?.wsettings?.map_frame_color !== undefined
         && state.gw.wsettings.map_frame_color !== NO_COLOR;
 
-    for (let row = firstRow; row < lastRow; ++row) {
-        const screenRow = row + 1;
-        const mapY = viewport.top + row;
+    for (let screenRow = 0; screenRow < lastRow; ++screenRow) {
         display.setCursor(Math.max(0, xmin - 1), screenRow);
         display.clearToEol();
+        const mapRow = screenRow - mapOffy;
+        if (mapRow < 0 || mapRow >= viewport.height) continue;
+        const mapY = viewport.top + mapRow;
         if (!state.level) continue;
 
         for (let x = Math.max(1, xmin); x < COLNO; ++x) {

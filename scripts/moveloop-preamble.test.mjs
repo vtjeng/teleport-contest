@@ -517,7 +517,8 @@ test('More cleanup distinguishes one-line, Escape, and multi-line messages', asy
             multiline.nhDisplay.grid[1][9].color,
             multiline.nhDisplay.grid[1][9].attr,
         ],
-        ['M', 4, 2],
+        [' ', CLR_GRAY, 0],
+        'docorner clears the physical row, then row_refresh paints only C gbuf cells',
     );
     assert.deepEqual(
         [multiline.nhDisplay.cursorCol, multiline.nhDisplay.cursorRow],

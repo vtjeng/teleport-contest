@@ -305,7 +305,9 @@ test('docorner skips an unexplored buffer glyph even when map memory is known',
         // source-ordered row_refresh() consults the live glyph number.
         state.nhDisplay.setCell(26, 1, '#', NO_COLOR, 0);
 
-        docorner(1, 1, 0, state);
+        // C's y=0 row is the message row; the first map row is physical y=1,
+        // so docorner(1, 2) clears the message row before repainting map row 0.
+        docorner(1, 2, 0, state);
 
         assert.equal(state.nhDisplay.grid[1][26].ch, ' ');
         // C row_refresh() still prints an unexplored glyph when its valid map
@@ -318,7 +320,7 @@ test('docorner skips an unexplored buffer glyph even when map memory is known',
             if (column === 26 && row === 1) painted.push(cell);
             return setCell(column, row, ...cell);
         };
-        docorner(1, 1, 0, state);
+        docorner(1, 2, 0, state);
         assert.equal(painted.length, 1);
         assert.equal(painted[0][0], ' ');
         assert.match(TOPL_C,
@@ -327,6 +329,23 @@ test('docorner skips an unexplored buffer glyph even when map memory is known',
             /if \(force \|\| glyph != GLYPH_UNEXPLORED\s*\|\| bkglyphinfo\.framecolor != NO_COLOR\)/u);
         assert.match(DISPLAY_JS,
             /const glyph = loc\.disp_glyph\?\.glyph \?\? GLYPH_UNEXPLORED_OFF/u);
+    });
+
+test('docorner clears physical rows without requiring status inventory state',
+    async () => {
+        const display = new GameDisplay(null);
+        display.setCell(3, 0, 'T', 4, 1);
+        display.setCell(3, 1, 'M', 5, 2);
+        const state = {
+            nhDisplay: display,
+            iflags: {},
+            wintty: { WIN_MAP: 1, wins: [null, { offy: 1 }] },
+        };
+
+        docorner(1, 2, 0, state);
+
+        assert.equal(display.grid[0][3].ch, ' ');
+        assert.equal(display.grid[1][3].ch, ' ');
     });
 
 test('putsyms stops at the first embedded NUL like the C byte-string loop', () => {

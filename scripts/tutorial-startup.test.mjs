@@ -198,7 +198,10 @@ test('pending welcome uses tty More before the tutorial menu', async () => {
     assert.deepEqual(boundaries[0].cursor, [8, 1]);
     assert.deepEqual(boundaries[1], boundaries[0]);
     assert.match(boundaries[2].rows[0], /Do you want a tutorial\?/u);
-    assert.equal(boundaries[2].rows[1], 'Z');
+    // wintty.c:docorner() clears the physical row and row_refresh() only
+    // restores glyphs present in C's current gbuf. This fixture seeds the
+    // stale screen cell, not gbuf, so the source result is blank.
+    assert.equal(boundaries[2].rows[1], '');
     assert.equal(state._pending_message, '');
 });
 

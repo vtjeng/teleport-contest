@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { GameDisplay } from '../js/game_display.js';
 
 import {
     AIR,
@@ -534,6 +535,9 @@ test('switch_terrain preserves source blocked masks and transition messages', as
     assert.match(HACK_SOURCE, /BLevitation \|= FROMOUTSIDE/u);
     assert.match(HACK_SOURCE, /BFlying \|= FROMOUTSIDE/u);
     const blocked = terrainState(STONE);
+    // switch_terrain() emits two adjacent pline() calls. Model the production
+    // TTY topline so C's TOPLINE_NEED_MORE state joins them on one line.
+    blocked.nhDisplay = new GameDisplay(null);
     blocked.u.uprops[LEVITATION].intrinsic = 1;
     blocked.u.uprops[FLYING].extrinsic = 1;
     await switch_terrain(blocked);
@@ -549,6 +553,7 @@ test('switch_terrain preserves source blocked masks and transition messages', as
     // reason survives, and the flight branch runs its canonical float check
     // before its source message.
     const clear = terrainState(FOUNTAIN);
+    clear.nhDisplay = new GameDisplay(null);
     // Keep levitation inactive so float_vs_flight() does not add C's
     // I_SPECIAL obstruction bit to the flying property.
     clear.u.uprops[LEVITATION].intrinsic = 0;
