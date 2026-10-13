@@ -15,6 +15,7 @@
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
 //         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/Hea-fila.lua,
 //         dat/Hea-filb.lua, dat/Cav-filb.lua,
+//         dat/Mon-fila.lua,
 //         dat/tower1.lua, dat/tower2.lua,
 //         dat/tower3.lua, dat/Val-strt.lua.
 
@@ -1556,6 +1557,47 @@ async function cavFilb(des) {
     for (let i = 0; i < 4; ++i) await des.monster({ id: 'bugbear', peaceful: 0 });
     for (let i = 0; i < 2; ++i) await des.monster({ class: 'h', peaceful: 0 });
     for (let i = 0; i < 2; ++i) await des.monster({ id: 'hill giant', peaceful: 0 });
+}
+
+// C ref: complete dat/Mon-fila.lua. The six room callbacks run immediately in
+// source order before the program creates random corridors.
+async function monFila(des) {
+    await des.room({ type: 'ordinary', async contents() {
+        await des.stair('up');
+        await des.object();
+        await des.monster({ class: 'E', peaceful: 0 });
+    } });
+    await des.room({ type: 'ordinary', async contents() {
+        await des.object();
+        await des.object();
+        await des.monster({ class: 'E', peaceful: 0 });
+    } });
+    await des.room({ type: 'ordinary', async contents() {
+        await des.object();
+        await des.trap();
+        await des.object();
+        await des.monster('xorn');
+        await des.monster('earth elemental');
+    } });
+    await des.room({ type: 'ordinary', async contents() {
+        await des.stair('down');
+        await des.object();
+        await des.trap();
+        await des.monster({ class: 'E', peaceful: 0 });
+        await des.monster('earth elemental');
+    } });
+    await des.room({ type: 'ordinary', async contents() {
+        await des.object();
+        await des.object();
+        await des.trap();
+        await des.monster({ class: 'X', peaceful: 0 });
+    } });
+    await des.room({ type: 'ordinary', async contents() {
+        await des.object();
+        await des.trap();
+        await des.monster('earth elemental');
+    } });
+    await des.random_corridors();
 }
 
 // C ref: dat/Pri-goal.lua. Priest quest goal level — lava-filled cave with
@@ -3109,6 +3151,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Hea-fila': heaFila,
     'Hea-filb': heaFilb,
     'Cav-filb': cavFilb,
+    'Mon-fila': monFila,
     'Kni-strt': kniStrt,
     astral,
     'Pri-strt': priStrt,
