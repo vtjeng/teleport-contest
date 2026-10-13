@@ -81,7 +81,7 @@
     ],
     "dependencies": [
       "do_name.c:a_monnam delegates to x_monnam with ARTICLE_A and SUPPRESS_SADDLE for named monsters; x_monnam changes the article to ARTICLE_THE when u.uswallow and the monster is u.ustuck. js/do_name.js already implements these branches.",
-      "insight.c:digests and sticks select the swallowed, held, or holding phrase before the monster name is appended."
+      "mondata.h:digests and mondata.c:sticks select the swallowed, held, or holding phrase before the monster name is appended."
     ]
   },
   "goalKind": "divergence-fix",
