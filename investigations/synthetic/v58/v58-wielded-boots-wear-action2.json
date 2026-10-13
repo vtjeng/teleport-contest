@@ -66,7 +66,7 @@
     "caseId": "v58-wielded-boots-wear-action2",
     "session": "synthetic/v58/v58-wielded-boots-wear-action2",
     "manifestPath": "challenges/manifests/v58.json",
-    "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8e2f68f891da4b51b28acf",
+    "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
     "recording": "challenges/cases/v58/v58-wielded-boots-wear-action2.session.json",
     "recordingPath": "challenges/cases/v58/v58-wielded-boots-wear-action2.session.json",
     "recordingSha256": "4c8766662d2ef5759b0728f9dbc77bc828fe38f4eaf9a18ea00a46c271e5e6c2",
@@ -101,7 +101,7 @@
   "batch": "v58",
   "caseId": "v58-wielded-boots-wear-action2",
   "manifestPath": "challenges/manifests/v58.json",
-  "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8e2f68f891da4b51b28acf",
+  "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
   "recordingSha256": "4c8766662d2ef5759b0728f9dbc77bc828fe38f4eaf9a18ea00a46c271e5e6c2",
   "evaluationPath": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v58.json",
   "evaluationCommit": "b151b2318fa82ab62868ad676c7f00823de614c0"
