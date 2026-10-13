@@ -299059,7 +299059,7 @@
     {
       "id": "divergence-mcastu-aggravation-unaware-prefix-v54-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mcast_spell from mcastu.c",
       "cFile": "mcastu.c",
       "sessions": [
@@ -299069,10 +299069,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "950ec0f9cb158d9841590142406090feb41fbc51",
       "delivered": null,
       "function": "mcast_spell",
-      "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3"
+      "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+      "closeStanding": {
+        "sha": "950ec0f9cb158d9841590142406090feb41fbc51",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "a3d5288a67d83e471f199ede2f2c35d4b78c29f0",
+        "target": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/950ec0f9cb158d9841590142406090feb41fbc51/run-hosted-K0ZxKI/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mcast_spell",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_spell",
+            "sourceReview": "Branch-scoped divergence fix, not a whole-function port. mcastu.c:826-830 calls You_feel(\"that monsters are aware of your presence.\") before aggravate() and clears dmg afterward. C pline.c:388-399 chooses the dream prefix when Unaware. JS now uses the existing heroUnaware(state) predicate to select the matching prefix while preserving message-before-aggravate ordering and no RNG changes.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "castmu",
+                "source": "mcastu.c:296-299 dispatches AD_SPEL/AD_CLRC to mcast_spell; JS castmu calls its private mcast_spell at line 612."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:930 calls castmu for the AT_MAGC attack arm."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:902 calls castmu for an undirected monster spell during monster movement."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 706,
+                "throughStep": 777,
+                "source": "Monster AT_MAGC spell reaches mcastu.c:castmu -> mcast_spell MCAST_AGGRAVATION -> You_feel while the hero is Unaware; following aggravate completes before the replay ends."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active source entry is monster spell casting: mhitu.c:mattacku calls castmu for AT_MAGC and monmove.c:dochug calls castmu for an undirected spell; mcastu.c:castmu calls mcast_spell for AD_SPEL/AD_CLRC. Both corresponding JS production call paths already exist. This change corrects the selected MCAST_AGGRAVATION message branch only.",
+        "entryPoints": [
+          {
+            "name": "Monster MCAST_AGGRAVATION spell against an Unaware hero",
+            "functions": [
+              "mcast_spell"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 706,
+                "throughStep": 777,
+                "source": "The admitted healer replay exercises MCAST_AGGRAVATION through the active castmu spell path and continues through the later monster action and input steps."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
