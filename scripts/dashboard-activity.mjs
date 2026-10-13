@@ -20,6 +20,7 @@ export function activityTimeline(activity, capturedAt) {
     if (start && Date.parse(at) >= Date.parse(start)) {
       segments.push({ task: task.id, goal: task.goal, worker: task.worker,
         kind: task.kind, ...(task.batch ? { batch: task.batch } : {}), phase, start, end: at, ...(ongoing ? { ongoing: true } : {}),
+        ...(task.prepGroup ? {prepGroup: task.prepGroup, integration: task.integration} : {}),
         ...(phase === 'parked' ? { reason: task.parkedReason } : {}),
         lane: ['working', 'rework', 'queued', 'parked'].includes(phase) ? task.worker : 'Main' });
     }
@@ -109,6 +110,7 @@ export function activityTimeline(activity, capturedAt) {
         close(task, 'queued', event.at);
         if (!task.starts.integrating) begin(task, 'integrating', event.at);
         task.integration = event.integration ?? task.integration;
+        task.prepGroup = event.prepGroup;
         task.status = 'integrating';
         break;
       case 'validated':
@@ -258,8 +260,15 @@ export function mainIntegrationDurations(activity) {
     const attempts = new Map();
     const recent = [];
     let sum = 0;
-    const grouped = points.filter(({ segment }) =>
-      (segment.kind === 'challenge-preparation') === (group === 'preparation'));
+    const seenGroups = new Set();
+    const grouped = points.filter(({ segment }) => {
+      if ((segment.kind === 'challenge-preparation') !== (group === 'preparation')) return false;
+      if (!segment.prepGroup) return true;
+      const key = `${segment.integration}/${segment.start}/${segment.end}`;
+      if (seenGroups.has(key)) return false;
+      seenGroups.add(key);
+      return true;
+    });
     return [group, grouped.map(({ segment, sourceIndex }) => {
       const durationMs = Date.parse(segment.end) - Date.parse(segment.start);
       const attempt = (attempts.get(segment.task) ?? 0) + 1;
@@ -268,6 +277,7 @@ export function mainIntegrationDurations(activity) {
       sum += durationMs;
       if (recent.length > windowSize) sum -= recent.shift();
       return { sourceIndex, task: segment.task, start: segment.start, end: segment.end,
+        ...(segment.prepGroup ? {prepGroup: segment.prepGroup} : {}),
         durationMs, attempt, rollingMeanMs: sum / recent.length, sampleSize: recent.length };
     })];
   }));

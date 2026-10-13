@@ -221,7 +221,7 @@ test('ready implementation precedes preparation even when workers lack independe
     assert.equal(nextActions(state, ['v47'], queue([])).integration.task, 'prep-v48',
         'preparation supplies new work once the ready implementation backlog is drained');
     assert.deepEqual(nextActions(state, ['v47'], queue([])).workerWork.admission,
-        { action: 'integrate-prepared-batch-next', task: 'prep-v48', batch: 'v48' });
+        { action: 'integrate-prepared-batches-next', task: 'prep-v48', batch: 'v48' });
 });
 
 test('active tasks count as worker work and ready implementation precedes preparation', () => {

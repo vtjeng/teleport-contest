@@ -13,6 +13,7 @@ import { admittedBatchIds } from './challenge-results.mjs';
 const EVENT_TYPES = new Set([
   'assign', 'implement', 'ready', 'received', 'feedback', 'resume', 'park',
   'integrating', 'validated', 'accepted', 'published', 'publication-confirmed', 'activity', 'turn', 'register', 'observe',
+  'prep-integrating',
 ]);
 
 export function activityFromLedger(ledger) {
@@ -22,7 +23,9 @@ export function activityFromLedger(ledger) {
   }
   return {
     runId: ledger.runId,
-    events: ledger.events.filter(event => EVENT_TYPES.has(event.type)).map(event => ({
+    events: ledger.events.filter(event => EVENT_TYPES.has(event.type)).flatMap(event =>
+      event.type === 'prep-integrating' ? event.tasks.map(task => ({...event,
+        id: `${event.id}-${task}`, type: 'integrating', task, prepGroup: event.tasks})) : [event]).map(event => ({
       runId: ledger.runId, id: event.id, type: event.type, at: event.at,
       ...(event.task ? { task: event.task } : {}),
       ...(event.worker ? { worker: event.worker } : {}),
@@ -33,6 +36,7 @@ export function activityFromLedger(ledger) {
         ? { batch: event.reservations.find(key => /^challenge-batch:v[1-9]\d*$/u.test(key)).split(':')[1] } : {}),
       ...(event.delivery ? { delivery: event.delivery } : {}),
       ...(event.integration ? { integration: event.integration } : {}),
+      ...(event.prepGroup ? { prepGroup: event.prepGroup } : {}),
       ...(event.commit ? { commit: event.commit } : {}),
       ...(event.knownBy ? { knownBy: event.knownBy } : {}),
       ...(event.passed !== undefined ? { passed: event.passed } : {}),
