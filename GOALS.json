@@ -296431,6 +296431,34 @@
           }
         ]
       }
+    },
+    {
+      "id": "port-mcastu-weaken-you-v54-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement mcast_weaken_you from mcastu.c",
+      "cFile": "mcastu.c",
+      "sessions": [
+        "synthetic/v54/v54-rogue-fast-apprentice-stun-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mcast_weaken_you",
+          "line": 466,
+          "endLine": 489,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 466,
+        "to": 489
+      }
     }
   ]
 }
