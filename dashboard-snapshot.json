@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T03:29:37.693Z",
+  "capturedAt": "2026-10-13T03:39:33.835Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -100615,6 +100615,64 @@
         "type": "accepted",
         "at": "2026-10-13T03:28:46.139Z",
         "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v54-healer-unpaid-library-novel-action4-20261013-9d9b7782dab5e3e0b798ee1ebe0385aea1fc049c",
+        "type": "published",
+        "at": "2026-10-13T03:29:53.909Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "commit": "9d9b7782dab5e3e0b798ee1ebe0385aea1fc049c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-c-weakening-unblocks-b-20261013",
+        "type": "activity",
+        "at": "2026-10-13T03:30:25.688Z",
+        "task": "C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
+        "phase": "review",
+        "reason": "Prioritizing the ready weakening delivery because its acceptance releases mcast_spell for B’s parked insect-spell investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-c-weakening-00783478f-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T03:31:01.535Z",
+        "task": "C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
+        "integration": "00783478fe07117bdce7e0113d340094fff9ec35"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-post-fee-acceptance-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T03:31:20.730Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C merged accepted Main and is checking the refreshed queue for an independent source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-fee-sync-20261013",
+        "type": "turn",
+        "at": "2026-10-13T03:31:36.515Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent v54 source case is free: spell mismatches depend on C’s pending dispatcher delivery, other cases are A2/B-owned, and v48 remains held. Waiting for Root’s weakening acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013-00783478fe07117bdce7e0113d340094fff9ec35-validated",
+        "type": "validated",
+        "at": "2026-10-13T03:37:52.390Z",
+        "task": "C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013-00783478fe07117bdce7e0113d340094fff9ec35-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T03:38:19.671Z",
+        "task": "C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013"
       }
     ]
   },
@@ -100713,17 +100771,6 @@
         "status": "ready",
         "delivery": "e1274be5f6277c6e05d37bb72bf827c23254af26",
         "since": "2026-10-13T02:44:50.582Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
-        "worker": "C",
-        "goal": "port-mcastu-weaken-you-v54-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "8ab50eca20f6ca0ec220faaaad46bbbee166450e",
-        "since": "2026-10-13T03:09:21.798Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -101230,8 +101277,8 @@
     ]
   },
   "development": {
-    "executionCommit": "f3648d25fabdfcda63bed663c9c81c5681e7c469",
-    "measuredAt": "2026-10-13T03:26:10.002Z",
+    "executionCommit": "00783478fe07117bdce7e0113d340094fff9ec35",
+    "measuredAt": "2026-10-13T03:36:01.101Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

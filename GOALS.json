@@ -296435,7 +296435,7 @@
     {
       "id": "port-mcastu-weaken-you-v54-20261013",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mcast_weaken_you from mcastu.c",
       "cFile": "mcastu.c",
       "sessions": [
@@ -296445,7 +296445,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "00783478fe07117bdce7e0113d340094fff9ec35",
       "delivered": null,
       "functions": [
         {
@@ -296458,6 +296458,74 @@
       "range": {
         "from": 466,
         "to": 489
+      },
+      "closeStanding": {
+        "sha": "00783478fe07117bdce7e0113d340094fff9ec35",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f3648d25fabdfcda63bed663c9c81c5681e7c469",
+        "target": "synthetic/v54/v54-rogue-fast-apprentice-stun-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/00783478fe07117bdce7e0113d340094fff9ec35/run-hosted-flgJDA/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mcast_weaken_you",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_weaken_you",
+            "sourceReview": "Whole mcastu.c definition 466-487. Antimagic preserves shield effect, resistance observation, and momentarily weakened message without a damage draw. The ordinary branch emits the source message, derives m_lev-6 with minimum 1, rounds Half_spell_damage upward, uses rnd(dmg), calls existing void attrib.c:losestr with death_inflicted_by(\"strength loss\", caster) and KILLED_BY, clears only the killer name after losestr returns, then clears the caster magic-resistance observation. losestr consumes the returnless minimum-strength HP-damage path; no return-valued source callee is missing. Replaced the MCAST_WEAKEN_YOU note_unported gap.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:mcast_spell case MCAST_WEAKEN_YOU calls mcast_weaken_you and then clears dmg."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "attackHeroWithMattacku",
+                "source": "mhitu.c:mattacku AT_MAGC adjacent arm calls castmu(mtmp,mattk,TRUE,foundyou); this adapter binds state-owned losehp and encumberMessage for attrib.c:losestr and preserves the planner death owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-rogue-fast-apprentice-stun-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 929,
+                "source": "mhitu.c:mattacku AT_MAGC -> castmu -> mcastu.c:mcast_spell MCAST_WEAKEN_YOU -> mcast_weaken_you"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active C runtime entry is mhitu.c:mattacku AT_MAGC, through mcastu.c:castmu and its mcast_spell MCAST_WEAKEN_YOU arm. monmove.c calls castmu(FALSE,FALSE) for undirected spell attempts; MCAST_WEAKEN_YOU is hostile/directed and castmu returns before this helper for that call, so it is not a second active entry to this function.",
+        "entryPoints": [
+          {
+            "name": "Monster wizard strength-drain attack",
+            "functions": [
+              "mcast_weaken_you"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-rogue-fast-apprentice-stun-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 929,
+                "source": "mhitu.c:mattacku AT_MAGC -> castmu -> mcastu.c:mcast_spell MCAST_WEAKEN_YOU -> mcast_weaken_you"
+              }
+            ]
+          }
+        ]
       }
     }
   ]
