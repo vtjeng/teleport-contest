@@ -1,0 +1,65 @@
+{
+  "session": "synthetic/v56/v56-blind-corpse-floor-loot-action2",
+  "remainingScreens": 21,
+  "recordedSteps": 332,
+  "corpus": "synthetic",
+  "batch": "v56",
+  "caseId": "v56-blind-corpse-floor-loot-action2",
+  "manifestPath": "challenges/manifests/v56.json",
+  "manifestSha256": "a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74",
+  "recordingSha256": "21718f561adf5d75fcb2864d762844e1150b864b7960db65635bea0c13e4efc7",
+  "recipeSha256": "3fc02285ef99756246c8bec10e875c276813c32179c2ae76999cbbf3ee42681c",
+  "evaluationPath": "challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json",
+  "evaluationCommit": "398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6",
+  "status": "complete",
+  "commit": "d94667a2bd6f38a514195d9552954ae31af9e9eb",
+  "mismatch": {
+    "session": "synthetic/v56/v56-blind-corpse-floor-loot-action2",
+    "remainingScreens": 21,
+    "step": 311,
+    "kind": "stop",
+    "sourceFile": "pickup.c",
+    "function": "doloot_core",
+    "sourceBranch": "With a container on the hero’s square, after able_to_loot succeeds, C checks Blind && !uarmg. It walks floor corpses through will_feel_cockatrice(nobj, FALSE), calls feel_cockatrice on the first fatal touch, then returns ECMD_TIME. JavaScript refuses that branch instead of running the existing helpers.",
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 311,
+        "total": 332
+      },
+      "rng": {
+        "matched": 2907,
+        "total": 2919
+      },
+      "cursors": {
+        "matched": 311,
+        "total": 332
+      }
+    }
+  },
+  "summary": "The blind ungloved #loot case is blocked at pickup.c:doloot_core’s floor-corpse precheck. C uses will_feel_cockatrice and feel_cockatrice before prompting for containers; JavaScript throws UnsupportedPickupError at that branch. Wiring the existing feel helper also requires completing invent.c:feel_cockatrice’s currently named trap.c:instapetrify boundary, since that helper is already implemented.",
+  "source": {
+    "file": "pickup.c",
+    "functions": [
+      "doloot_core"
+    ],
+    "branch": "pickup.c:doloot_core (2178-2346), container-at-hero arm 2223-2235: when a container is present, the hero can loot, and Blind && !uarmg, C iterates floor corpses; will_feel_cockatrice decides whether the corpse is unsafe, feel_cockatrice prints the touch warning and invokes instapetrify, then doloot_core returns ECMD_TIME.",
+    "callers": [
+      "pickup.c:doloot() calls doloot_core() and is reached through the #loot extended command.",
+      "js/cmd.js:runLootCommand calls js/pickup.js:doloot(), which calls doloot_core(); the selected replay currently stops at its UnsupportedPickupError refusal."
+    ],
+    "dependencies": [
+      "invent.c:will_feel_cockatrice is already ported as a pure predicate and has a source-pinned test; preserve its Stone_resistance, blindness, gloves, corpse, and touch_petrifies checks.",
+      "invent.c:feel_cockatrice is already declared in js/invent.js but leaves trap.c:instapetrify at note_unported. That trap helper is already implemented in js/trap.js and must be called to preserve the C fatal path.",
+      "The source requires the feel helper before doloot_core returns ECMD_TIME; do not substitute a refusal or a duplicated warning."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The selected saved v56 evaluation records 311/332 matched screens, 2907/2919 PRNG calls, and 311/332 cursors, with the first refusal at step 311.",
+    "Fresh node scripts/scan-sessions.mjs --json --synthetic v56/v56-blind-corpse-floor-loot-action2 stops at command #loot with boundary UnsupportedPickupError: doloot_core: blind cockatrice corpse on floor. Source context cites the recorded C warning at step 311.",
+    "Fresh node scripts/diff-fresh.mjs challenges/cases/v56/v56-blind-corpse-floor-loot-action2.recipe.session.json records 332 C boundaries but JS stops at 311; C’s PRNG log continues to 2919 while JS has 2907 values. Logs: /tmp/teleport-validation-1000/run-zeDakG/ and /tmp/teleport-validation-1000/run-XrybJs/.",
+    "Read complete pickup.c:doloot_core (2178-2346) and its production caller doloot() (2166-2174). The failing arm at 2223-2235 calls will_feel_cockatrice then feel_cockatrice before returning ECMD_TIME.",
+    "Read invent.c:will_feel_cockatrice (4334-4342) and feel_cockatrice (4343-4365). The latter warning is followed by killer text “touching <corpse> bare-handed” and instapetrify(kbuf); js/invent.js still notes that callee as unported although js/trap.js now implements it."
+  ]
+}
