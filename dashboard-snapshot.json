@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T09:17:39.918Z",
+  "capturedAt": "2026-10-13T09:30:02.657Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -103056,6 +103056,73 @@
         "type": "accepted",
         "at": "2026-10-13T09:15:55.600Z",
         "task": "A2-investigation-v55-lantern-save-restore-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep27-v63-claim-20261016",
+        "type": "assign",
+        "at": "2026-10-13T09:18:52.909Z",
+        "task": "Prep27",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v63"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-prep26-e0133530-20261013",
+        "type": "received",
+        "at": "2026-10-13T09:19:11.378Z",
+        "task": "Prep26",
+        "delivery": "e01335307fb606b19ee30b6248eb115201e20e30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v55-lantern-save-restore-action2-20261013-d97b56fbf5abbbb928df4f5e81c262b8542759a3",
+        "type": "published",
+        "at": "2026-10-13T09:19:29.048Z",
+        "task": "A2-investigation-v55-lantern-save-restore-action2-20261013",
+        "commit": "d97b56fbf5abbbb928df4f5e81c262b8542759a3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-b-named-20261013",
+        "type": "activity",
+        "at": "2026-10-13T09:20:07.764Z",
+        "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013",
+        "phase": "review",
+        "reason": "Integrating the oldest ready implementation after lantern acceptance and publication."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-named-ea1d6d9cbf8f79252bee6d2e93416a9a61ef658d-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T09:20:56.370Z",
+        "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013",
+        "integration": "ea1d6d9cbf8f79252bee6d2e93416a9a61ef658d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep27-v63-source-plan-active-20261016",
+        "type": "turn",
+        "at": "2026-10-13T09:26:56.354Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep27 selects twelve independent v63 C missions from source programs and retained gameplay blockers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v55-named-chaotic-artifact-action2-20261013-ea1d6d9cbf8f79252bee6d2e93416a9a61ef658d-validated",
+        "type": "validated",
+        "at": "2026-10-13T09:27:55.091Z",
+        "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v55-named-chaotic-artifact-action2-20261013-ea1d6d9cbf8f79252bee6d2e93416a9a61ef658d-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T09:28:30.671Z",
+        "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013"
       }
     ]
   },
@@ -103116,17 +103183,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013",
-        "worker": "B",
-        "goal": "div-do-oname-artifact-wipeout-rng-v55-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "7d6768654b48595f3dcabfad0e1819220ad17ede",
-        "since": "2026-10-13T06:02:11.160Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -103708,8 +103764,8 @@
     ]
   },
   "development": {
-    "executionCommit": "60a94ba634d9406a0fe41fb58ee5eb6c9956d242",
-    "measuredAt": "2026-10-13T09:13:51.015Z",
+    "executionCommit": "ea1d6d9cbf8f79252bee6d2e93416a9a61ef658d",
+    "measuredAt": "2026-10-13T09:25:58.857Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
