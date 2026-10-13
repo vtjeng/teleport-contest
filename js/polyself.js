@@ -2104,8 +2104,7 @@ export function mbodypart(monster, part) {
 // Unchanging refuses it, fatally when the polymorphed form is out of hit
 // points, and otherwise reports the amulet failing; the form's light source
 // is dropped; polyman() reverts the form; and a human form with no hit
-// points left dies. polyman() is not ported yet and C discards its result,
-// so that call records a gap.
+// points left dies. C does not use polyman()'s return value.
 export async function rehumanize(state = game, rawEnv = {}) {
     const u = state.u;
     const was_flying = Flying(state);
@@ -2193,7 +2192,7 @@ export async function rehumanize(state = game, rawEnv = {}) {
         );
     await retouch_equipment(2, state, env); // polyself.c:rehumanize
     if (!state.uarmg)
-        note_unported('trap.c selftouch');
+        await selftouch('No longer petrify-resistant, you', state, env);
 }
 
 // C ref: polyself.c dobreathe() (1420-1447). The poly'd hero's breath weapon,

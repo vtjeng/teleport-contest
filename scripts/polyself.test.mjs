@@ -99,6 +99,18 @@ const JS_POLYMON_END = JS_SOURCE.indexOf(
     '\n}\n\n// ---------- polyman', JS_POLYMON_START,
 ) + 2;
 const JS_POLYMON_FUNCTION = JS_SOURCE.slice(JS_POLYMON_START, JS_POLYMON_END);
+const C_REHUMANIZE_START = C_SOURCE.indexOf('rehumanize(void)');
+const C_REHUMANIZE_END = C_SOURCE.indexOf('\n}\n\nint\ndobreathe', C_REHUMANIZE_START) + 2;
+const C_REHUMANIZE_FUNCTION = C_SOURCE.slice(
+    C_REHUMANIZE_START, C_REHUMANIZE_END,
+);
+const JS_REHUMANIZE_START = JS_SOURCE.indexOf('export async function rehumanize(');
+const JS_REHUMANIZE_END = JS_SOURCE.indexOf(
+    '// C ref: polyself.c dobreathe()', JS_REHUMANIZE_START,
+);
+const JS_REHUMANIZE_FUNCTION = JS_SOURCE.slice(
+    JS_REHUMANIZE_START, JS_REHUMANIZE_END,
+);
 
 test('were_beastie maps every C were.c family member and rejects others', () => {
     const ratForms = [PM_WERERAT, PM_SEWER_RAT, PM_GIANT_RAT, PM_RABID_RAT];
@@ -137,6 +149,18 @@ test('polymon self-touches after losing glove protection', () => {
     assert.match(JS_POLYMON_FUNCTION,
         /await retouch_equipment\(2, state, env\);[^\n]*\n\s*if \(!state\.uarmg\)\s*await selftouch\('No longer petrify-resistant, you', state, env\);/u);
     assert.doesNotMatch(JS_POLYMON_FUNCTION,
+        /note_unported\('trap\.c selftouch'\)/u);
+});
+
+test('rehumanize self-touches after equipment retouch removes gloves', () => {
+    // polyself.c:1415-1417 makes corpse contact conditional on the glove slot
+    // after retouch_equipment(). The v60 self-zap recording reaches this
+    // branch with a cockatrice corpse wielded and no remaining gloves.
+    assert.match(C_REHUMANIZE_FUNCTION,
+        /retouch_equipment\(2\);\s*if \(!uarmg\)\s*selftouch\(no_longer_petrify_resistant\);/u);
+    assert.match(JS_REHUMANIZE_FUNCTION,
+        /await retouch_equipment\(2, state, env\);[^\n]*\n\s*if \(!state\.uarmg\)\s*await selftouch\('No longer petrify-resistant, you', state, env\);/u);
+    assert.doesNotMatch(JS_REHUMANIZE_FUNCTION,
         /note_unported\('trap\.c selftouch'\)/u);
 });
 
