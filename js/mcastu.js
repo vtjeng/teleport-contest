@@ -16,6 +16,7 @@ import {
     BZ_VALID_ADTYP,
     CONFUSION,
     DEAF,
+    DETECT_MONSTERS,
     DIED,
     EYE,
     KILLED_BY,
@@ -37,6 +38,8 @@ import {
     M_SEEN_MAGR,
     M_SEEN_REFL,
     MFAST,
+    MM_ANGRY,
+    MM_NOMSG,
     SEE_INVIS,
     SHOCK_RES,
     STUNNED,
@@ -48,18 +51,23 @@ import { game } from './gstate.js';
 import { HeroDeathPlanningError, losehp, nomul } from './hack.js';
 import { acurr, adjuhploss, losestr, minuhpmax, setuhpmax } from './attrib.js';
 import { done } from './end.js';
-import { sgn } from './hacklib.js';
-import { Monnam, Mgender, pmname } from './do_name.js';
-import { an, the_unique_pm } from './objnam.js';
-import { makeplural } from './fruit.js';
+import { sgn, upstart } from './hacklib.js';
+import { bogusmon, Monnam, Mgender, pmname } from './do_name.js';
+import { an, the_unique_pm, vtense } from './objnam.js';
+import { makeplural, makesingular } from './fruit.js';
 import {
     canspotmon,
     canseemon,
     map_invisible,
     map_invisible_planning,
     shieldeff,
+    tp_sensemon,
 } from './display.js';
 import { messageAt } from './startup_a11y.js';
+import { makemon_runtime } from './makemon_create.js';
+import { mkclass, set_malign } from './makemon.js';
+import { monster_census } from './minion.js';
+import { enexto } from './teleport.js';
 import { healmon } from './mon.js';
 import { make_blinded, make_confused, make_stunned } from './potion.js';
 import {
@@ -80,11 +88,13 @@ import {
     AD_SPEL,
     PM_CYCLOPS,
     PM_FLOATING_EYE,
+    S_ANT,
+    S_SNAKE,
 } from './monsters.js';
 import { STRANGE_OBJECT } from './objects.js';
 import { body_part, rehumanize } from './polyself.js';
 import { lined_up } from './mthrowu.js';
-import { rn2, rnd, d } from './rng.js';
+import { rn2, rn2_on_display_rng, rnd, d } from './rng.js';
 
 import { cansee, couldsee } from './vision.js';
 import { aggravate, has_aggravatables, nasty } from './wizard.js';
@@ -96,7 +106,13 @@ import { destroy_items } from './zap_destroy_items.js';
 import { ureflects } from './muse.js';
 import { note_unported } from './unported.js';
 import { buzz, flash_str, flashburn } from './zap.js';
-import { verbalize as plineVerbalize } from './pline.js';
+import {
+    heroDeaf,
+    heroUnaware,
+    pline_mon,
+    verbalize as plineVerbalize,
+    youHear,
+} from './pline.js';
 import { ttyPline } from './tty_message.js';
 
 // C ref: mcastu.c touch_of_death() (323-354). Both Death's melee touch
@@ -859,6 +875,106 @@ export async function mcast_summon_mons(mtmp, rawEnv = {}) {
     return count;
 }
 
+// C ref: mcastu.c mcast_insects() (645-744). Keep its selection, placement,
+// census, and message order together; mcast_spell() calls this for
+// MCAST_INSECTS and then clears the spell damage.
+export async function mcast_insects(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = { rn2, rnd, ...(rawEnv.random ?? {}) };
+    const env = { ...rawEnv, state, random };
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
+    const chooseClass = env.mkclass ?? mkclass;
+    const census = env.monsterCensus ?? monster_census;
+    const nextTo = env.enexto ?? enexto;
+    const createMonster = env.makemonRuntime ?? makemon_runtime;
+
+    // C first tries ants, then falls back to snakes if none can be generated.
+    let pm = chooseClass(S_ANT, 0, env);
+    const classSymbol = pm ? S_ANT : S_SNAKE;
+    let success = false;
+    const oldseen = census(true, { ...env, canSpotMonster: env.canspotmon });
+    let quan = mtmp.m_lev < 2 ? 1 : random.rnd(Math.trunc(mtmp.m_lev / 2));
+    if (quan < 3) quan = 3;
+
+    for (let i = 0; i <= quan; i++) {
+        const bypos = nextTo(mtmp.mux, mtmp.muy, mtmp.data, env);
+        if (!bypos) return;
+        pm = chooseClass(classSymbol, 0, env);
+        if (pm) {
+            const summoned = await createMonster(
+                pm,
+                bypos.x,
+                bypos.y,
+                MM_ANGRY | MM_NOMSG,
+                { ...env, message },
+            );
+            if (summoned) {
+                success = true;
+                summoned.msleeping = 0;
+                summoned.mpeaceful = 0;
+                summoned.mtame = 0;
+                (env.setMalign ?? set_malign)(summoned, state);
+            }
+        }
+    }
+    const newseen = census(true, { ...env, canSpotMonster: env.canspotmon });
+
+    // C deliberately excludes warning-only sensing from this visible-caster
+    // decision; telepathy and monster detection are separate alternatives.
+    const seesCaster = (env.canseemon ?? canseemon)(mtmp, state)
+        || (env.tpSensemon ?? tp_sensemon)(mtmp, state)
+        || heroProperty(state, DETECT_MONSTERS);
+    let what = classSymbol === S_SNAKE ? 'snakes' : 'insects';
+    if (Hallucination(state)) {
+        const displayRandom = env.displayRandom
+            ?? ((bound) => rn2_on_display_rng(bound, state));
+        what = makeplural((env.bogusmon ?? bogusmon)(
+            { state, random: displayRandom },
+        ).name);
+    }
+
+    if (!seesCaster) {
+        if (newseen <= oldseen || heroUnaware(state)) {
+            const heard = youHear(`someone summoning ${what}.`, state);
+            if (heard) await message(heard, state, env);
+        } else {
+            const arg = newseen === oldseen + 1
+                ? an(makesingular(what)) : what;
+            if (!heroDeaf(state)) {
+                // sndprocs.h compiles Soundeffect() to an empty macro in the
+                // recorder's tty build; preserve the following You_hear line.
+                const heard = youHear(
+                    `someone summoning something, and ${arg} ${vtense(arg, 'appear')}.`,
+                    state,
+                );
+                if (heard) await message(heard, state, env);
+            } else {
+                await message(`${upstart(arg)} ${vtense(arg, 'appear')}.`, state, env);
+            }
+        }
+        return;
+    }
+
+    let line;
+    if (!success) {
+        what = '';
+        line = `${Monnam(mtmp, state, env)} casts at a clump of sticks, but nothing happens.`;
+    } else if (classSymbol === S_SNAKE) {
+        line = `${Monnam(mtmp, state, env)} transforms a clump of sticks into ${what}!`;
+    } else if (activeHeroProperty(state, INVIS)
+        && !perceives(mtmp.data)
+        && (mtmp.mux !== state.u.ux || mtmp.muy !== state.u.uy)) {
+        line = `${Monnam(mtmp, state, env)} summons ${what} around a spot near you!`;
+    } else if (activeHeroProperty(state, DISPLACED)
+        && (mtmp.mux !== state.u.ux || mtmp.muy !== state.u.uy)) {
+        line = `${Monnam(mtmp, state, env)} summons ${what} around your displaced image!`;
+    } else {
+        line = `${Monnam(mtmp, state, env)} summons ${what}!`;
+    }
+    await pline_mon(mtmp, line, state, { ...env, message });
+}
+
 // C ref: mcastu.c mcast_stun_you() (503-520). The helper ignores castmu's
 // initial spell damage. It applies a one-turn stun through Antimagic or Free
 // action, otherwise rolls Dexterity-based stun damage and extends the current
@@ -999,7 +1115,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         resultDmg = await mcast_lightning(mtmp, dmg, env);
         break;
     case MCAST_INSECTS:
-        recordMcastGap('mcastu.c mcast_insects', env);
+        await mcast_insects(mtmp, env);
         break;
     case MCAST_BLIND_YOU:
         await mcast_blind_you(env);

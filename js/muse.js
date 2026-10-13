@@ -16,6 +16,8 @@ import {
     ANTIMAGIC,
     ARTICLE_A,
     BOLT_LIM,
+    BZ_M_WAND,
+    BZ_OFS_WAN,
     CORR,
     D_BROKEN,
     D_CLOSED,
@@ -240,7 +242,7 @@ import {
 import { mwelded, welded } from './wield.js';
 import { mon_has_amulet, mon_has_special } from './wizard.js';
 import {
-    bhito, cancel_monst, dobuzz, exclam, hit, miss, resist, unturn_dead,
+    bhito, buzz, cancel_monst, dobuzz, exclam, hit, miss, resist, unturn_dead,
     unturn_you, zhitm,
 } from './zap.js';
 import { which_armor } from './worn.js';
@@ -266,6 +268,7 @@ const MUSE_POT_CONFUSION = 11;
 const MUSE_POT_ACID = 14;
 const MUSE_SCR_EARTH = 17;
 const MUSE_CAMERA = 18;
+const MUSE_WAN_FIRE = 3;
 const MUSE_WAN_TELEPORTATION = 15;
 const MUSE_POT_SLEEPING = 16;
 const MUSE_WAN_STRIKING = 7;
@@ -2474,15 +2477,19 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
 // C ref: muse.c buzz_force_miss() (1815-1823). Wrapper around dobuzz() that
 // forces the first shot to miss, used when a monster fires a wand for the
 // first time (mwandexp is false).
-async function buzz_force_miss(type, nd, sx, sy, dx, dy, state) {
-    await dobuzz(type, nd, sx, sy, dx, dy, true, false, true, state);
+async function buzz_force_miss(
+    type, nd, sx, sy, dx, dy, state,
+    random = { d, rn1, rn2, rnd, rne, rnl, rnz }, rawEnv = {},
+) {
+    await dobuzz(type, nd, sx, sy, dx, dy, true, false, true,
+        state, random, rawEnv);
 }
 
 // C ref: muse.c find_offensive() (1420-1594). "Select an offensive
 // item/action for a monster. Returns TRUE iff one is found."
 //
-// Partial: the eight reflection-gated wand/horn arms and MUSE_CAMERA refuse
-// because their use_offensive() cases are not ported.
+// Partial: the reflection-gated wand/horn arms other than WAN_FIRE and
+// MUSE_CAMERA refuse because their use_offensive() cases are not ported.
 // MUSE_WAN_STRIKING, MUSE_WAN_UNDEAD_TURNING, and MUSE_WAN_TELEPORTATION are
 // fully wired and can select. The five MUSE_POT_* arms select as before.
 //
@@ -2536,14 +2543,15 @@ export function find_offensive(mtmp, rawEnv = {}) {
     for (let obj = mtmp.minvent; obj; obj = obj.nobj) {
         const otyp = obj.otyp;
         if (!reflection_skip) {
-            // C's nomore() skips for these eight arms: when has_offense holds
-            // one of these values the continue skips re-evaluation, but none
-            // of these arms can select because they all refuse.
+            // C's nomore() skips for these eight arms when has_offense holds
+            // the corresponding value. WAN_FIRE is wired below; the other
+            // unsupported arms retain the source refusal.
             if ((otyp === O.WAN_DEATH && obj.spe > 0 && !seenres(M_SEEN_MAGR))
                 || (otyp === O.WAN_SLEEP && obj.spe > 0
                     && (state.multi ?? 0) >= 0 && !seenres(M_SEEN_SLEEP))
                 || (otyp === O.WAN_FIRE && obj.spe > 0
-                    && !seenres(M_SEEN_FIRE))
+                    && !seenres(M_SEEN_FIRE)
+                    && has_offense !== MUSE_WAN_FIRE)
                 || (otyp === O.FIRE_HORN && obj.spe > 0 && can_blow(mtmp)
                     && !seenres(M_SEEN_FIRE))
                 || (otyp === O.WAN_COLD && obj.spe > 0
@@ -2554,7 +2562,8 @@ export function find_offensive(mtmp, rawEnv = {}) {
                     && !seenres(M_SEEN_ELEC))
                 || (otyp === O.WAN_MAGIC_MISSILE && obj.spe > 0
                     && !seenres(M_SEEN_MAGR))) {
-                refuse();
+                if (otyp === O.WAN_FIRE) select(MUSE_WAN_FIRE, obj);
+                else refuse();
             }
         }
         /* nomore(MUSE_WAN_UNDEAD_TURNING) */
@@ -2630,17 +2639,20 @@ export function find_offensive(mtmp, rawEnv = {}) {
 
 // C ref: muse.c use_offensive() (1824-2032). "Perform an offensive action for
 // a monster.  Must be called immediately after find_offensive()."
-// Ported arms: MUSE_SCR_EARTH, MUSE_WAN_TELEPORTATION, MUSE_WAN_UNDEAD_TURNING,
-// MUSE_WAN_STRIKING (via mbhit), and the five MUSE_POT_* throwable potions.
-// The eight reflection-gated wand/horn arms and MUSE_CAMERA still refuse in
-// find_offensive().
+// Ported arms: MUSE_WAN_FIRE, MUSE_SCR_EARTH, MUSE_WAN_TELEPORTATION,
+// MUSE_WAN_UNDEAD_TURNING, MUSE_WAN_STRIKING (via mbhit), and the five
+// MUSE_POT_* throwable potions. Other wand/horn arms and MUSE_CAMERA still
+// refuse in find_offensive().
 //
 // C's entry declares buzzfn and calls precheck(), but "offensive potions are
 // not drunk, they're thrown", so the potion case skips precheck() entirely.
 export async function use_offensive(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
-    const random = { rn1, ...(env.random ?? {}) };
+    const random = {
+        d, rn1, rn2, rnd, rne, rnl, rnz,
+        ...(env.random ?? {}),
+    };
     const unsupported = env.unsupported;
     if (typeof unsupported !== 'function')
         throw new TypeError('use_offensive requires an unsupported operation');
@@ -2652,10 +2664,8 @@ export async function use_offensive(mtmp, rawEnv = {}) {
     }
     const otmp = selection.offensive;
 
-    // C: buzzfn = mtmp->mwandexp ? buzz : buzz_force_miss;
-    // The first wand shot always misses when the monster has never used one.
-    // Not wired here because the buzz/horn arms still refuse in find_offensive.
-    // When they are ported, set buzzfn from mtmp.mwandexp and use it below.
+    // C: buzzfn = mtmp->mwandexp ? buzz : buzz_force_miss. The first wand
+    // shot always misses when the monster has never used one.
 
     /* offensive potions are not drunk, they're thrown */
     if (otmp.oclass !== O.POTION_CLASS) {
@@ -2665,6 +2675,33 @@ export async function use_offensive(mtmp, rawEnv = {}) {
     const oseen = canseemon(mtmp, state);
 
     switch (selection.has_offense) {
+    case MUSE_WAN_FIRE: {
+        await mzapwand(mtmp, otmp, false, state, env);
+        if (oseen)
+            discover_object(otmp.otyp, true, true, true, state, env);
+        state.m_using = true;
+        state.gc ??= {};
+        state.gc.current_wand = otmp;
+        state.gb ??= {};
+        state.gb.buzzer = mtmp;
+        const buzzFunction = mtmp.mwandexp ? buzz : buzz_force_miss;
+        await buzzFunction(
+            BZ_M_WAND(BZ_OFS_WAN(otmp.otyp)),
+            6,
+            mtmp.mx,
+            mtmp.my,
+            sgn(mtmp.mux - mtmp.mx),
+            sgn(mtmp.muy - mtmp.my),
+            state,
+            random,
+            env,
+        );
+        state.gb.buzzer = 0;
+        state.gc.current_wand = 0;
+        state.m_using = false;
+        mtmp.mwandexp = true;
+        return mtmp.mhp < 1 ? 1 : 2;
+    }
     case MUSE_POT_PARALYSIS:
     case MUSE_POT_BLINDNESS:
     case MUSE_POT_CONFUSION:

@@ -296435,7 +296435,7 @@
     {
       "id": "port-mcastu-weaken-you-v54-20261013",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mcast_weaken_you from mcastu.c",
       "cFile": "mcastu.c",
       "sessions": [
@@ -296445,7 +296445,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "00783478fe07117bdce7e0113d340094fff9ec35",
       "delivered": null,
       "functions": [
         {
@@ -296458,6 +296458,300 @@
       "range": {
         "from": 466,
         "to": 489
+      },
+      "closeStanding": {
+        "sha": "00783478fe07117bdce7e0113d340094fff9ec35",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f3648d25fabdfcda63bed663c9c81c5681e7c469",
+        "target": "synthetic/v54/v54-rogue-fast-apprentice-stun-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/00783478fe07117bdce7e0113d340094fff9ec35/run-hosted-flgJDA/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mcast_weaken_you",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_weaken_you",
+            "sourceReview": "Whole mcastu.c definition 466-487. Antimagic preserves shield effect, resistance observation, and momentarily weakened message without a damage draw. The ordinary branch emits the source message, derives m_lev-6 with minimum 1, rounds Half_spell_damage upward, uses rnd(dmg), calls existing void attrib.c:losestr with death_inflicted_by(\"strength loss\", caster) and KILLED_BY, clears only the killer name after losestr returns, then clears the caster magic-resistance observation. losestr consumes the returnless minimum-strength HP-damage path; no return-valued source callee is missing. Replaced the MCAST_WEAKEN_YOU note_unported gap.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:mcast_spell case MCAST_WEAKEN_YOU calls mcast_weaken_you and then clears dmg."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "attackHeroWithMattacku",
+                "source": "mhitu.c:mattacku AT_MAGC adjacent arm calls castmu(mtmp,mattk,TRUE,foundyou); this adapter binds state-owned losehp and encumberMessage for attrib.c:losestr and preserves the planner death owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-rogue-fast-apprentice-stun-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 929,
+                "source": "mhitu.c:mattacku AT_MAGC -> castmu -> mcastu.c:mcast_spell MCAST_WEAKEN_YOU -> mcast_weaken_you"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active C runtime entry is mhitu.c:mattacku AT_MAGC, through mcastu.c:castmu and its mcast_spell MCAST_WEAKEN_YOU arm. monmove.c calls castmu(FALSE,FALSE) for undirected spell attempts; MCAST_WEAKEN_YOU is hostile/directed and castmu returns before this helper for that call, so it is not a second active entry to this function.",
+        "entryPoints": [
+          {
+            "name": "Monster wizard strength-drain attack",
+            "functions": [
+              "mcast_weaken_you"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-rogue-fast-apprentice-stun-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 929,
+                "source": "mhitu.c:mattacku AT_MAGC -> castmu -> mcastu.c:mcast_spell MCAST_WEAKEN_YOU -> mcast_weaken_you"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fix-mon-meatmetal-acoustics-v54-20261013",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix the existing mon.c:meatmetal offscreen verbose crunch branch to use the already ported You_hear/acoustics behavior. The admitted v54 baseline first differs at step 634; the committed correction matches all 863 steps.",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v54/v54-knight-lich-armor-and-weakness-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "30086fe1228d698aeb6b419b169737dfbc6cde3a",
+      "delivered": null,
+      "function": "meatmetal",
+      "session": "synthetic/v54/v54-knight-lich-armor-and-weakness-action3",
+      "closeStanding": {
+        "sha": "30086fe1228d698aeb6b419b169737dfbc6cde3a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "00783478fe07117bdce7e0113d340094fff9ec35",
+        "target": "synthetic/v54/v54-knight-lich-armor-and-weakness-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/30086fe1228d698aeb6b419b169737dfbc6cde3a/run-hosted-wTVL2O/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "meatmetal",
+            "implementation": "js/mon.js",
+            "symbol": "meatmetal",
+            "sourceFile": "mon.c",
+            "sourceReview": "In mon.c:meatmetal, eligible offscreen metallic-object consumption enters the `!cansee` branch; under flags.verbose C calls You_hear(\"a crunching sound.\"). The already ported pline.c:You_hear suppresses output when Deaf (unless Unaware) or acoustics is disabled and adjusts the prefix underwater/unaware. JS now routes the phrase through existing youHear and sends only a non-null result to the existing message callback.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c:postmov (1663-1667) calls meatmetal for metallivorous monsters and checks its return value 2; caller behavior remains unchanged."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-consumption.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-knight-lich-armor-and-weakness-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 862,
+                "source": "Full admitted recording exercises the production postmov -> meatmetal offscreen consumption branch and now matches its C screen, RNG, and cursor output."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The existing complete mon.c:meatmetal port is reached through monmove.c:postmov for metallivorous monsters. The selected admitted case reaches the offscreen verbose object-consumption branch with !acoustics. The selected recording now matches all 863 screens, 3154 RNG entries, and 863 cursors; no whole-function completion claim is made.",
+        "entryPoints": [
+          {
+            "name": "Offscreen metallic-object consumption with acoustics disabled",
+            "functions": [
+              "meatmetal"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-knight-lich-armor-and-weakness-action3",
+                "segment": 0,
+                "fromStep": 633,
+                "throughStep": 635,
+                "source": "The selected wait step exercises offscreen meatmetal output; the prior source mismatch emitted the unfiltered crunch phrase, and the committed correction follows pline.c:You_hear."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "divergence-muse-monster-fire-wand-v54-20261013",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement find_offensive, use_offensive from muse.c",
+      "cFile": "muse.c",
+      "sessions": [
+        "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
+      "delivered": null,
+      "function": "find_offensive",
+      "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+      "closeStanding": {
+        "sha": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "30086fe1228d698aeb6b419b169737dfbc6cde3a",
+        "target": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/3d403994ae35fe3f31ee2f3b856002abe1c79933/run-hosted-0xYrTU/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "find_offensive",
+            "implementation": "js/muse.js",
+            "symbol": "find_offensive",
+            "sourceReview": "Bounded branch implementation at muse.c:1421-1594: the WAN_FIRE loop arm selects MUSE_WAN_FIRE only for a charged wand when the monster has not been seen resisting fire and the existing nomore condition allows it. Other C arms remain outside this correction and are not certified.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku:758 calls find_offensive before monster attacks; the admitted step 505 reaches this caller. js/monmove.js:dochug also calls find_offensive after movement, matching monmove.c:948."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 505,
+                "throughStep": 510,
+                "source": "mhitu.c:mattacku -> muse.c:find_offensive selects WAN_FIRE; the step 505–510 recorded continuation matches screens, cursor, and RNG."
+              }
+            ]
+          },
+          {
+            "name": "use_offensive",
+            "implementation": "js/muse.js",
+            "symbol": "use_offensive",
+            "sourceReview": "Bounded MUSE_WAN_FIRE branch implementation at muse.c:1824-1849: precheck first, identify if visible, set gm.m_using/current_wand/buzzer, use buzz_force_miss until mwandexp then buzz, use BZ_M_WAND(BZ_OFS_WAN), six dice, clear transient state, set mwandexp, and return 1 for dead or 2 otherwise. Other arms are not certified by this branch-specific correction.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "useOffensiveItem",
+                "source": "C mhitu.c:mattacku:758-762 calls use_offensive; JS adapter passes state, env and random to js/muse.js:use_offensive."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "C returns immediately only for use_offensive result 1; result 2 continues to ordinary processing. JS uses the same condition at js/mhitu.js:1841-1847."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs",
+              "scripts/muse-offensive.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 505,
+                "throughStep": 510,
+                "source": "C mhitu.c:mattacku -> muse.c:use_offensive MUSE_WAN_FIRE -> mzapwand/buzz_force_miss/dobuzz; matching runtime includes caller result 2 and later ordinary processing through step 510."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected impure entry point is a monster using a charged fire wand during mhitu.c:mattacku. JS path is js/mhitu.js:mattacku -> js/unported_monster_actions.js:useOffensiveItem -> js/muse.js. The replay matches all screens, cursors, and RNG through step 510, including the C caller return. The separate monmove.c:dochug post-movement selector remains an active caller and is not newly claimed as a distinct completed entry point.",
+        "entryPoints": [
+          {
+            "name": "Monster uses fire wand against hero",
+            "functions": [
+              "find_offensive",
+              "use_offensive"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 505,
+                "throughStep": 510,
+                "source": "mhitu.c:mattacku -> muse.c:find_offensive -> muse.c:use_offensive; JS mhitu.js -> unported_monster_actions.js -> muse.js."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "port-mcastu-insects-v54-healer-cleric-action2-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port mcastu.c:mcast_insects and wire its MCAST_INSECTS production dispatcher arm.",
+      "cFile": "mcastu.c",
+      "sessions": [
+        "synthetic/v54/v54-healer-cleric-insects-blindness-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mcast_insects",
+          "line": 645,
+          "endLine": 728,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 645,
+        "to": 728
       }
     }
   ]
