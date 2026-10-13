@@ -117,14 +117,14 @@
       "caseId": "v55-unpaid-beartrap-install-action5",
       "segment": 0,
       "fromStep": 0,
-      "throughStep": 226,
+      "throughStep": 379,
       "matchedScreens": 380,
       "matchedRng": 8439,
       "matchedCursors": 380,
       "error": null,
-      "replayCommit": "a710523298e01e23cd072bbf30721259ff9d7400"
+      "replayCommit": "92791b3310f8de0484913b4726fca4645ea4507d"
     },
-    "runtimeArtifact": ".cache/C-v55-unpaid-beartrap-replay.json",
+    "runtimeArtifact": ".cache/C-v55-unpaid-beartrap-merged-replay.json",
     "tests": [
       "scripts/shop-billing.test.mjs",
       "scripts/apply-trap.test.mjs"
