@@ -1,0 +1,70 @@
+{
+  "session": "synthetic/v60/v60-rust-rehumanize-corpse-touch-action4",
+  "corpus": "synthetic",
+  "batch": "v60",
+  "caseId": "v60-rust-rehumanize-corpse-touch-action4",
+  "remainingScreens": 6,
+  "recordedSteps": 386,
+  "status": "complete",
+  "commit": "0a25f5a21f03cce59f5b39841a998c967829b978",
+  "manifestPath": "challenges/manifests/v60.json",
+  "manifestSha256": "8d47d06f16ee303a31fae9b2226419578a27facb04cdf34ad408e2971932f5b0",
+  "recordingSha256": "ec563224d6d526e1a44baa49592cacd21de71a7bd8c3a124dd812c9c4f8f76ce",
+  "evaluationPath": "challenges/evaluations/accepted-cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec-v60.json",
+  "evaluationCommit": "cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v60",
+    "caseId": "v60-rust-rehumanize-corpse-touch-action4",
+    "session": "synthetic/v60/v60-rust-rehumanize-corpse-touch-action4",
+    "manifestPath": "challenges/manifests/v60.json",
+    "manifestSha256": "8d47d06f16ee303a31fae9b2226419578a27facb04cdf34ad408e2971932f5b0",
+    "recordingPath": "challenges/cases/v60/v60-rust-rehumanize-corpse-touch-action4.session.json",
+    "recordingSha256": "ec563224d6d526e1a44baa49592cacd21de71a7bd8c3a124dd812c9c4f8f76ce",
+    "recipe": "challenges/cases/v60/v60-rust-rehumanize-corpse-touch-action4.recipe.session.json",
+    "recipeSha256": "e25c09d17af3c29d8867a6e73d197624c982490652ab197735ba64e8b5ffa817",
+    "evaluationPath": "challenges/evaluations/accepted-cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec-v60.json",
+    "evaluationCommit": "cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec",
+    "remainingScreens": 6,
+    "recordedSteps": 386,
+    "previousScreensMatched": 380,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {"matched": 380, "total": 386},
+      "rng": {"matched": 2820, "total": 2820},
+      "cursors": {"matched": 381, "total": 386}
+    },
+    "firstMismatch": {
+      "screen": 333,
+      "segment": 0,
+      "owner": "polyself.c:rehumanize",
+      "source": "polyself.c:rehumanize() -> retouch_equipment(2) -> selftouch(no_longer_petrify_resistant)",
+      "observed": "C's human-form reversion removes the cockatrice corpse wielding gloves, then selftouch() emits the petrification message. JavaScript records note_unported('trap.c selftouch') instead of calling the already implemented helper, so screen 333 has an early More boundary and cursor mismatch."
+    }
+  },
+  "summary": "When a lightning self-zap reduces a resistant stone golem's form HP to zero, rehumanize() removes the gauntlets and must call selftouch() on the cockatrice corpse. JavaScript records the call as unported, omitting the petrification message and changing the first More boundary at step 333.",
+  "source": {
+    "file": "polyself.c",
+    "branch": "After polyman() returns the hero to human form and retouch_equipment(2) updates worn gear, if no gloves remain then rehumanize() invokes selftouch(no_longer_petrify_resistant). The case reaches this branch after three lightning self-zaps reduce the stone golem's form HP to zero while it wields a cockatrice corpse.",
+    "functions": ["rehumanize"],
+    "callers": [
+      "nethack-c/upstream/src/zap.c:3194 zapyourself() calls rehumanize() when self-zap damage reduces polymorphed hit points to zero.",
+      "js/zap.js:6377 zapyourself() calls rehumanize(state, env) in the corresponding lethal self-zap branch.",
+      "nethack-c/upstream/src/polyself.c:1415-1417 calls retouch_equipment(2), then selftouch(no_longer_petrify_resistant) when uarmg is absent."
+    ],
+    "dependencies": [
+      "trap.c:selftouch is already implemented in js/trap.js and imported by js/polyself.js; this task only wires the existing helper into rehumanize().",
+      "retouch_equipment(2) is already implemented and called before the missing selftouch branch."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The accepted v60 evaluation at cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec reports 380/386 screens, 2820/2820 RNG calls, 381/386 cursors, and no runtime error. The first mismatch is segment 0, step 333.",
+    "Fresh worker replay at 0a25f5a21f03cce59f5b39841a998c967829b978 reproduces those metrics; its full comparison is saved in .cache/Cv60-rehumanize-before.log.",
+    "C source nethack-c/upstream/src/polyself.c:1415-1417 performs retouch_equipment(2) and immediately calls selftouch(no_longer_petrify_resistant) if gloves are absent.",
+    "JavaScript js/polyself.js:2194-2196 performs the equipment retouch but records note_unported('trap.c selftouch'); js/trap.js:416-436 already implements selftouch() and js/polyself.js imports it.",
+    "The selected case uses a resistant stone golem wielding a cockatrice corpse. Its third lightning self-zap enters zap.c:zapyourself(), sets form HP to zero, and calls rehumanize()."
+  ]
+}
