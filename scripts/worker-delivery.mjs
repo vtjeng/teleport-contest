@@ -321,8 +321,7 @@ function checkCandidate(root, state, task, commit, visited = new Set(), patchIds
         for (const dependency of delivery.dependencies) {
             const required = state.tasks[state.deliveries[dependency]?.task];
             check(required && (state.deliveries[required.deliveries.at(-1)]?.acceptedAt
-                || (required.kind === 'challenge-preparation' && pendingPrep.has(dependency)
-                    && required.deliveries.at(-1) === dependency)),
+                || (required.kind === 'challenge-preparation' && pendingPrep.has(required.deliveries.at(-1)))),
                 `dependency is not accepted: ${dependency}`);
             // Acceptance of a repair is not enough: this candidate must also
             // contain the repair, including a selectively cherry-picked one.
@@ -418,6 +417,7 @@ export function verifyEvent(root, state, input) {
     const event = resolveEventCommits(root, input);
     const task = state.tasks[event.task];
     const delivery = task && state.deliveries[task.deliveries.at(-1)];
+    if (event.type === 'feedback' && delivery?.prepGroup) event.prepGroup = delivery.prepGroup;
     if (event.type === 'prep-integrating') {
         check(event.integration === resolveCommit(root, 'HEAD'), 'integration SHA must be the current combined HEAD');
         check(Array.isArray(event.tasks) && event.tasks.length > 0, 'Prep group needs tasks');

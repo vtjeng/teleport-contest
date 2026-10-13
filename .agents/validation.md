@@ -157,6 +157,10 @@ Retry the helper after an interruption; it retains the frozen submissions.
 If integration or CI fails, preserve the candidate and frozen plan, resolve the
 failure, and revalidate before acceptance. Do not accept a subset using the
 failed result or run a checkpoint per task.
+When a Prep task needs correction, record its usual `feedback` event. This
+releases its group siblings back to ready. After the corrected submission is
+received, retry `integrate`; it retains the original group and base, saves the
+earlier plan, and uses the corrected delivery. New arrivals still wait.
 
 ## Hosted admission baselines
 
