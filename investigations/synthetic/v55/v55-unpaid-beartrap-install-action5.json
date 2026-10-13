@@ -11,7 +11,7 @@
   "evaluationPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v55.json",
   "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
   "status": "complete",
-  "commit": "",
+  "commit": "a710523298e01e23cd072bbf30721259ff9d7400",
   "mismatch": {
     "session": "synthetic/v55/v55-unpaid-beartrap-install-action5",
     "remainingScreens": 1,
@@ -23,9 +23,18 @@
     "runtimeBoundary": "apply.c:use_trap calls use_unpaid_trapobj immediately after the begin-setting message and before starting the set_trap occupation.",
     "error": null,
     "metrics": {
-      "screens": { "matched": 379, "total": 380 },
-      "rng": { "matched": 8310, "total": 8439 },
-      "cursors": { "matched": 379, "total": 380 }
+      "screens": {
+        "matched": 379,
+        "total": 380
+      },
+      "rng": {
+        "matched": 8310,
+        "total": 8439
+      },
+      "cursors": {
+        "matched": 379,
+        "total": 380
+      }
     },
     "replayInputSha256": "0e782730c15d0dfe259c6d57228992bdf785f6de205d00db9501cafe95f6de54",
     "evaluationPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v55.json",
@@ -35,7 +44,9 @@
   "summary": "The unpaid beartrap install reaches the existing apply.c:use_trap source caller, whose only C call to shk.c:use_unpaid_trapobj is currently skipped in JS. The missing helper performs the shopkeeper quote and used-object billing before the trap occupation begins.",
   "source": {
     "file": "shk.c",
-    "functions": ["use_unpaid_trapobj"],
+    "functions": [
+      "use_unpaid_trapobj"
+    ],
     "branch": "Complete void helper: when otmp->unpaid, conditionally locate the object owner and speak unless deaf or muteshk, then bill_dummy_object. The helper’s return is void; its caller discards it.",
     "callers": [
       "apply.c:use_trap at 2909 is the sole active C caller. The JS use_trap already implements the surrounding source function and will receive a bounded helper binding."
@@ -70,11 +81,78 @@
     "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
     "replayInputSha256": "0e782730c15d0dfe259c6d57228992bdf785f6de205d00db9501cafe95f6de54",
     "metrics": {
-      "screens": { "matched": 379, "total": 380 },
-      "rng": { "matched": 8310, "total": 8439 },
-      "cursors": { "matched": 379, "total": 380 }
+      "screens": {
+        "matched": 379,
+        "total": 380
+      },
+      "rng": {
+        "matched": 8310,
+        "total": 8439
+      },
+      "cursors": {
+        "matched": 379,
+        "total": 380
+      }
     },
     "remainingScreens": 1,
     "note": "Accepted pre-implementation v55 evaluation; the manifest source trace identifies the first source divergence at step 226."
+  },
+  "history": [
+    {
+      "sourceRevision": "4dc49070477aba35421be1f06d7ba752188cb547",
+      "note": "Original diagnosis commit: apply.c:use_trap calls the missing shk.c:use_unpaid_trapobj body for an unpaid beartrap."
+    },
+    {
+      "sourceRevision": "a710523298e01e23cd072bbf30721259ff9d7400",
+      "note": "Ported and wired the complete unpaid-trap billing helper; strict selected replay now matches all screens, RNG calls and cursors."
+    }
+  ],
+  "implementationResult": {
+    "implementation": "js/shk.js:use_unpaid_trapobj preserves the unpaid guard, Deaf check, owner/muteshk quote condition, and used-object billing order through the canonical bill_dummy_object. Recorder-build SetVoice remains a documented no-op.",
+    "callers": [
+      "js/apply.js:use_trap awaits use_unpaid_trapobj after the begin-setting message and before set_occupation, passing the object, hero coordinates, state and caller environment."
+    ],
+    "selectedSynthetic": {
+      "batch": "v55",
+      "caseId": "v55-unpaid-beartrap-install-action5",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 226,
+      "matchedScreens": 380,
+      "matchedRng": 8439,
+      "matchedCursors": 380,
+      "error": null,
+      "replayCommit": "a710523298e01e23cd072bbf30721259ff9d7400"
+    },
+    "runtimeArtifact": ".cache/C-v55-unpaid-beartrap-replay.json",
+    "tests": [
+      "scripts/shop-billing.test.mjs",
+      "scripts/apply-trap.test.mjs"
+    ],
+    "checks": [
+      ".cache/C-v55-unpaid-beartrap-checks.json"
+    ],
+    "incomplete": []
+  },
+  "latestResult": {
+    "implementationCommit": "a710523298e01e23cd072bbf30721259ff9d7400",
+    "status": "complete",
+    "remainingScreens": 0,
+    "mismatch": null,
+    "metrics": {
+      "screens": {
+        "matched": 380,
+        "total": 380
+      },
+      "rng": {
+        "matched": 8439,
+        "total": 8439
+      },
+      "cursors": {
+        "matched": 380,
+        "total": 380
+      }
+    },
+    "note": "Strict selected replay exercises the unpaid-shop quote and used-object billing path through its C caller."
   }
 }
