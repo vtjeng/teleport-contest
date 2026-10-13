@@ -94,7 +94,7 @@ import {
 import { STRANGE_OBJECT } from './objects.js';
 import { body_part, rehumanize } from './polyself.js';
 import { lined_up } from './mthrowu.js';
-import { rn2, rn2_on_display_rng, rnd, d } from './rng.js';
+import { rn2, rn2_on_display_rng, rnd, d, rnl } from './rng.js';
 
 import { cansee, couldsee } from './vision.js';
 import { aggravate, has_aggravatables, nasty } from './wizard.js';
@@ -1040,6 +1040,34 @@ export async function mcast_weaken_you(mtmp, dmg, rawEnv = {}) {
     monstunseesu(M_SEEN_MAGR, state);
 }
 
+// C ref: mcastu.c:mcast_destroy_armor() (450-463). The consumed boolean from
+// do_wear.c:destroy_arm() decides whether monsters remember the hero's
+// resistance; an ineffective hit only makes the hero's skin itch.
+export async function mcast_destroy_armor(rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = { rn2, rnl, ...(rawEnv.random ?? {}) };
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+
+    if (heroProperty(state, ANTIMAGIC)) {
+        await shieldeff(state.u.ux, state.u.uy, state);
+        monstseesu(M_SEEN_MAGR, state);
+        await message('A field of force surrounds you!', state, rawEnv);
+        return;
+    }
+
+    const { destroy_arm } = await import('./do_wear.js');
+    if (!await destroy_arm(state, random, {
+        ...rawEnv,
+        message,
+    })) {
+        await message('Your skin itches.', state, rawEnv);
+    } else {
+        // C clears the seen-resistance bit only when armor was destroyed.
+        monstunseesu(M_SEEN_MAGR, state);
+    }
+}
+
 // ---- mcast_spell() ----
 // C ref: mcastu.c mcast_spell() (800-897).
 // The C dispatcher clears damage for void effects and sends every remaining
@@ -1082,7 +1110,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         }
         break;
     case MCAST_DESTRY_ARMR:
-        recordMcastGap('mcastu.c mcast_destroy_armor', env);
+        await mcast_destroy_armor(env);
         break;
     case MCAST_WEAKEN_YOU:
         await mcast_weaken_you(mtmp, dmg, env);
