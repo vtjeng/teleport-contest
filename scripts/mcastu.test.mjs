@@ -23,6 +23,8 @@ import {
     M_ATTK_MISS,
     M_SEEN_MAGR,
     MFAST,
+    MM_ANGRY,
+    MM_NOMSG,
     STUNNED,
     SEE_INVIS,
     STRAT_APPEARMSG,
@@ -31,7 +33,7 @@ import {
     TIMEOUT,
 } from '../js/const.js';
 import { GLYPH_INVISIBLE } from '../js/display.js';
-import { buzzmu, castmu, death_inflicted_by, touch_of_death, mcast_death_touch, mcast_summon_mons, mcast_weaken_you } from '../js/mcastu.js';
+import { buzzmu, castmu, death_inflicted_by, touch_of_death, mcast_death_touch, mcast_insects, mcast_summon_mons, mcast_weaken_you } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
 import {
     G_UNIQ,
@@ -47,6 +49,7 @@ import {
     AT_MAGC,
     monst_globals_init,
     PM_KOBOLD_SHAMAN,
+    S_ANT,
 } from '../js/monsters.js';
 import { DAGGER, STRANGE_OBJECT, WEAPON_CLASS } from '../js/objects.js';
 import { newObject } from '../js/obj.js';
@@ -126,6 +129,81 @@ function scriptedRandom(values, dice = 6, rndValue = 33) {
 
 const AD_CLRC_ATTACK = { aatyp: AT_MAGC, adtyp: AD_CLRC, damn: 0, damd: 0 };
 const AD_SPEL_ATTACK = { aatyp: AT_MAGC, adtyp: AD_SPEL, damn: 0, damd: 0 };
+
+test('mcast_insects preserves the ant probe, census, and extra spawn iteration', async () => {
+    const state = makeState({ flags: { acoustics: true } });
+    const caster = makeCaster({ m_lev: 1, mux: 4, muy: 5 });
+    const calls = [];
+    const messages = [];
+    const summoned = [];
+
+    await mcast_insects(caster, {
+        state,
+        random: scriptedRandom([]),
+        mkclass: (classSymbol, special) => {
+            calls.push(['mkclass', classSymbol, special]);
+            return { mlet: classSymbol };
+        },
+        monsterCensus: spotted => {
+            calls.push(['census', spotted]);
+            return calls.filter(([name]) => name === 'set-malign').length;
+        },
+        enexto: (x, y, species) => {
+            calls.push(['enexto', x, y, species]);
+            return { x: 6, y: 5 };
+        },
+        makemonRuntime: async (species, x, y, flags) => {
+            calls.push(['makemon', species, x, y, flags]);
+            const monster = { msleeping: 1, mpeaceful: 1, mtame: 1 };
+            summoned.push(monster);
+            return monster;
+        },
+        setMalign: monster => {
+            calls.push(['set-malign', monster]);
+        },
+        canseemon: () => false,
+        tpSensemon: () => false,
+        message: async line => messages.push(line),
+    });
+
+    assert.deepEqual(calls.filter(([name]) => name === 'mkclass')
+        .map(([, classSymbol, special]) => [classSymbol, special]),
+    [[S_ANT, 0], [S_ANT, 0], [S_ANT, 0], [S_ANT, 0], [S_ANT, 0]]);
+    assert.equal(calls.filter(([name]) => name === 'enexto').length, 4,
+        'quan is clamped to three and the inclusive C loop creates four placement attempts');
+    assert.equal(calls.filter(([name]) => name === 'makemon').length, 4);
+    assert.ok(calls.filter(([name]) => name === 'makemon')
+        .every(([, , , , flags]) => flags === (MM_ANGRY | MM_NOMSG)));
+    assert.equal(calls.filter(([name]) => name === 'census').length, 2);
+    assert.ok(summoned.every(monster => monster.msleeping === 0
+        && monster.mpeaceful === 0 && monster.mtame === 0));
+    assert.equal(messages[0], 'You hear someone summoning something, and insects appear.');
+});
+
+test('mcast_insects follows the C helper order and its dispatcher arm', () => {
+    const c = readFileSync('nethack-c/upstream/src/mcastu.c', 'utf8');
+    const js = readFileSync('js/mcastu.js', 'utf8');
+    const cBody = c.match(/mcast_insects\(struct monst \*mtmp\)\s*\{([\s\S]*?)\n\}\n\nstaticfn void\nmcast_blind_you/u)?.[1];
+    const jsBody = js.match(/export async function mcast_insects\(mtmp, rawEnv = \{\}\)\s*\{([\s\S]*?)\n\}\n\n\/\/ C ref: mcastu\.c mcast_stun_you/u)?.[1];
+    assert.ok(cBody, 'the complete upstream mcast_insects body exists');
+    assert.ok(jsBody, 'the complete JavaScript mcast_insects body exists');
+    const cPoints = [
+        'mkclass(S_ANT, 0)', 'monster_census(TRUE)',
+        'rnd((int) mtmp->m_lev / 2)', 'if (quan < 3)',
+        'for (i = 0; i <= quan; i++)',
+        'enexto(&bypos, mtmp->mux, mtmp->muy, mtmp->data)',
+        'mkclass(let, 0)', 'makemon(pm, bypos.x, bypos.y, MM_ANGRY | MM_NOMSG)',
+        'mtmp2->msleeping = mtmp2->mpeaceful = mtmp2->mtame = 0',
+        'set_malign(mtmp2)', 'newseen = monster_census(TRUE)',
+        'seecaster = canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters',
+    ];
+    const cIndices = cPoints.map(point => cBody.indexOf(point));
+    assert.ok(cIndices.every((index, i) => index >= 0
+        && (!i || cIndices[i - 1] < index)));
+    assert.match(jsBody, /chooseClass\(S_ANT, 0, env\)[\s\S]*census\(true[\s\S]*random\.rnd[\s\S]*i <= quan[\s\S]*nextTo\([\s\S]*createMonster\([\s\S]*summoned\.msleeping = 0[\s\S]*setMalign[\s\S]*census\(true/u);
+    assert.match(c, /case MCAST_INSECTS:\s*mcast_insects\(mtmp\);\s*dmg = 0;/u);
+    assert.match(js, /case MCAST_INSECTS:\s*await mcast_insects\(mtmp, env\);\s*break;/u);
+});
 
 // -- healmon -----------------------------------------------------------
 
