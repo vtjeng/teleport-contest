@@ -63,15 +63,17 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The direct V key is bound to versionshort/doversion in both C and the JavaScript command table, but JS rejects versionshort at the repeated-command boundary before command dispatch. It also has no doversion handler. C version.c:doversion prints getversionstring() and returns ECMD_OK when menu_requested is false, which is the branch this recording reaches. JS already has the matching getversionstring() and doextversion(); the missing behavior is the short command path and its admission.",
+  "summary": "The direct V key is rejected at the repeated-command boundary and has no doversion handler. After dispatch was added, the v48 recording exposed a second mismatch: JS reported the macOS recorder version while the patched C build reports Unix. The short branch therefore required both command admission/dispatch and the correct Unix getversionstring value. An independent mV recording now verifies the menu-requested path through doextversion.",
   "source": {
     "file": "version.c",
-    "branch": "doversion when iflags.menu_requested is false; print getversionstring() with pline and return ECMD_OK. The alternate true branch delegates to doextversion.",
+    "branch": "getversionstring emits the configured nomakedefs.version_id and optional build metadata; the patched recorder is a released Unix build with no optional metadata. doversion returns doextversion when menu_requested is set; otherwise it calls pline with getversionstring and returns ECMD_OK.",
     "functions": [
+      "getversionstring",
       "doversion"
     ],
     "callers": [
-      "cmd.c:commands_init binds V to the versionshort row and doversion; cmd.c:rhack dispatches that bound command"
+      "cmd.c:commands_init binds V to the versionshort row and doversion; cmd.c:rhack dispatches that bound command",
+      "cmd.c:doextcmd dispatches a selected versionshort row to doversion"
     ],
     "dependencies": [
       "version.c:getversionstring",
@@ -84,6 +86,8 @@
     "The accepted v48 evaluation reports 1/2 screens and cursors matched, all 2897 RNG calls matched, and a first stop at segment 0 step 1 because JS rejects the hero command at the repeated-command boundary. The saved queue preserves the exact manifest, recording and evaluation hashes above.",
     "The v48 manifest identifies the C entry point as version.c:doversion via V / #versionshort. In upstream cmd.c:1926-1927, the V row is named versionshort and maps to doversion. In upstream version.c:156-165, doversion returns doextversion when menu_requested is set; otherwise it calls pline(\"%s\", getversionstring(...)) and returns ECMD_OK.",
     "The production JavaScript key table has the corresponding V/versionshort/doversion row in js/extcmdlist_data.js. However, js/cmd.js:1905-1916 omits versionshort from ADMITTED_COMMANDS, so rhack refuses it before dispatch. The doextcmd switch has a doextversion case but no doversion case. js/version.js exports getversionstring() and doextversion(), but no doversion(). The recorder short-version string itself is already represented by getversionstring().",
-    "The recording has exactly one gameplay input, V, after its initial screen; C produces the short version message without an RNG call or turn. The implementation scope is version.c:doversion plus its existing V command dispatch/admission path; the version-string helper and extended-version branch already exist."
+    "The recording has exactly one gameplay input, V, after its initial screen; C produces the short version message without an RNG call or turn. The implementation scope is version.c:doversion plus its existing V command dispatch/admission path; the version-string helper and extended-version branch already exist.",
+    "After adding the command dispatch, the v48 recording reached the short-version output and exposed the platform identifier mismatch: the patched Unix C recorder emits Unix NetHack while JavaScript emitted MacOS NetHack. Correcting the release recorder version identifier resolves that output difference. scripts/version.test.mjs pins the exact C string.",
+    "The independent recipes/version/versionshort-menu-prefix-independent.session.json recording uses mV to reach iflags.menu_requested and matches JavaScript across all 3 screens, cursors, and 3096 RNG calls, exercising doversion -> doextversion."
   ]
 }
