@@ -66,6 +66,7 @@ by this command, not the caller. Required fields by type:
   accepted: task
   published: task, commit (published SHA, possibly a bookkeeping descendant)
              optional supplementalCheckpoint (passing summary for a validated descendant)
+             optional supplementalAdmission (hosted new-case baseline receipt)
   park: task, reason
   resume: task
 
@@ -110,7 +111,8 @@ do not interrupt an active checkpoint or waive baseline/admission checks.
 wakeups lists idle/blocked workers whose last report predates a new admitted
 baseline. Their next turn or assignment clears the reminder. Worker notifications
 follow .agents/loop.md, "Notifications". Ready implementation
-deliveries take priority over preparation and admission. When no implementation
+deliveries take priority over preparation. Accepted batches are admitted together
+at the next safe boundary under .agents/selection.md. When no implementation
 delivery is ready, prioritize an existing prepared batch if workers lack
 independent work, rather than requesting another batch.
 Feed actual completion observations into turn events; saved state is not proof of
@@ -167,7 +169,7 @@ const FIELDS = {
     'publication-confirmed': ['task', 'commit', 'knownBy', 'evidenceTask'],
     park: ['task', 'reason'], resume: ['task'],
 };
-const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span'], published: ['supplementalCheckpoint'],
+const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span'], published: ['supplementalCheckpoint', 'supplementalAdmission'],
     turn: ['summary'] };
 
 function check(condition, message) {
@@ -450,9 +452,11 @@ function applyEvent(state, event, at) {
     } else if (type === 'published') {
         requireStatus('accepted'); sha(event.commit, 'commit');
         if (event.supplementalCheckpoint !== undefined) absolute(event.supplementalCheckpoint, 'supplementalCheckpoint');
+        if (event.supplementalAdmission !== undefined) absolute(event.supplementalAdmission, 'supplementalAdmission');
         check(!delivery.publishedCommit, 'delivery already published');
         Object.assign(delivery, { publishedAt: at, publishedCommit: event.commit,
-            ...(event.supplementalCheckpoint ? { supplementalCheckpoint: event.supplementalCheckpoint } : {}) });
+            ...(event.supplementalCheckpoint ? { supplementalCheckpoint: event.supplementalCheckpoint } : {}),
+            ...(event.supplementalAdmission ? { supplementalAdmission: event.supplementalAdmission } : {}) });
     } else if (type === 'publication-confirmed') {
         requireStatus('accepted'); sha(event.commit, 'commit'); identifier(event.evidenceTask, 'evidence task');
         check(Number.isFinite(Date.parse(event.knownBy)) && event.knownBy >= delivery.acceptedAt
@@ -517,12 +521,13 @@ export function nextActions(state, admittedBatches = [], queue = null) {
             batch: preparing.reservations[0].split(':')[1] } : { action: 'prepare-more-work' };
     const readyImplementation = ready.find(row => row.kind !== 'challenge-preparation');
     const preferred = readyImplementation ?? readyPrep;
-    available.admission = available.candidateGroups === null ? { action: 'reassess-worker-work' }
+    available.admission = reserve ? {action: 'admit-all-at-next-safe-boundary',
+        batches: pending.preparedBatches.map(row => row.batch), tasks: pending.preparedBatches.map(row => row.task)}
+        : available.candidateGroups === null ? { action: 'reassess-worker-work' }
         : short && readyImplementation
             ? { action: 'integrate-ready-implementation-first', task: readyImplementation.task }
         : short
-            ? reserve ? { action: 'admit-at-next-safe-boundary', batch: reserve.batch, task: reserve.task }
-                : prepAction
+            ? prepAction
             : { action: 'check-independence' };
     return {
         wakeups: batchWakeups(state, admittedBatches, queue),

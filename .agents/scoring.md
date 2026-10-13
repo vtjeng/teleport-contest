@@ -78,7 +78,9 @@ and missing or incomparable evidence before acceptance.
 
 Synthetic failures now drive goal selection under `.agents/selection.md`.
 Save each new batch’s first evaluation before using its JavaScript failures to
-guide fixes. Evaluate one batch explicitly, or all admitted batches together:
+guide fixes. Routine admission baselines run on GitHub under
+`.agents/validation.md`, "Hosted admission baselines". The commands below are
+for explicit local diagnostics, not routine admission:
 
 ```
 node scripts/score-challenges.mjs --batch v1 --output challenges/evaluations/<new-name>.json
