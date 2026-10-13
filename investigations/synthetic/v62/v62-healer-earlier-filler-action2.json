@@ -1,0 +1,219 @@
+{
+  "session": "synthetic/v62/v62-healer-earlier-filler-action2",
+  "remainingScreens": 29,
+  "recordedSteps": 197,
+  "status": "complete",
+  "commit": "4b092ca3660ba2d7f15fa6385c321750b93f5662",
+  "mismatch": {
+    "kind": "rng",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": "nhlib.lua",
+    "sessions": [
+      "synthetic/v62/v62-healer-earlier-filler-action2"
+    ],
+    "remainingScreens": 29,
+    "remainingScreensUpperBound": null,
+    "caseId": "v62-healer-earlier-filler-action2",
+    "batch": "v62",
+    "recordingPath": "challenges/cases/v62/v62-healer-earlier-filler-action2.session.json",
+    "session": "synthetic/v62/v62-healer-earlier-filler-action2",
+    "originalQueueEntry": {
+      "corpus": "synthetic",
+      "batch": "v62",
+      "caseId": "v62-healer-earlier-filler-action2",
+      "session": "synthetic/v62/v62-healer-earlier-filler-action2",
+      "manifestPath": "challenges/manifests/v62.json",
+      "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+      "recording": "challenges/cases/v62/v62-healer-earlier-filler-action2.session.json",
+      "recordingPath": "challenges/cases/v62/v62-healer-earlier-filler-action2.session.json",
+      "recordingSha256": "930ca83fda8f874030f3d92c9264453d645e724f133d88d319d9e7bfd7bb69d5",
+      "recipe": "challenges/cases/v62/v62-healer-earlier-filler-action2.recipe.session.json",
+      "recipeSha256": "d11f97a9dfc6f17fd93f44b7bc7601d42d7f2adf5b791152d7368fa9662c93fb",
+      "replayInputSha256": "023ff182755a8d98f607868892e6c2dc2761257e0a74bf24826dffd583192d10",
+      "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+      "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+      "evaluationArtifact": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+      "evaluationUtc": "2026-10-13T16:41:18.013Z",
+      "remainingScreens": 29,
+      "recordedSteps": 197,
+      "previousScreensMatched": 168,
+      "regression": false,
+      "passed": false,
+      "error": null,
+      "metrics": {
+        "screens": {
+          "matched": 168,
+          "total": 197
+        },
+        "rng": {
+          "matched": 6749,
+          "total": 9962
+        },
+        "cursors": {
+          "matched": 175,
+          "total": 197
+        }
+      },
+      "investigation": {
+        "status": "missing",
+        "path": "investigations/synthetic/v62/v62-healer-earlier-filler-action2.json"
+      },
+      "firstMismatch": {
+        "screen": {
+          "index": 168,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 168,
+            "key": "\n"
+          },
+          "kind": "ch",
+          "row": 1,
+          "column": 0,
+          "cCell": {
+            "ch": "}",
+            "color": 4,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": " ",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "rng": {
+          "index": 6740,
+          "cEntry": "rn2(3)=1",
+          "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+          "jsEntry": "rn2(5)=2",
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 168,
+            "key": "\n"
+          },
+          "stepIndex": 168
+        },
+        "cursor": {
+          "index": 168,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 168,
+            "key": "\n"
+          },
+          "cCursor": [
+            68,
+            4,
+            1
+          ],
+          "jsCursor": [
+            73,
+            10,
+            1
+          ]
+        }
+      },
+      "step": 168,
+      "kind": "rng",
+      "sourceFile": "nhlib.lua",
+      "function": "shuffle",
+      "message": null,
+      "cFile": null,
+      "luaFile": "nhlib.lua",
+      "line": 19,
+      "helper": {
+        "function": "random",
+        "luaFile": "nhlib.lua",
+        "line": 8
+      }
+    },
+    "baseline": {
+      "screens": "168/197",
+      "rng": "6749/9962",
+      "cursors": "175/197"
+    },
+    "firstMismatch": {
+      "kind": "rng",
+      "message": null,
+      "step": 168
+    },
+    "step": 168,
+    "function": null,
+    "message": null,
+    "line": 19,
+    "helper": {
+      "function": "random",
+      "luaFile": "nhlib.lua",
+      "line": 8
+    }
+  },
+  "summary": "During a Healer quest filler level above Hea-loca, C selects and loads the complete dat/Hea-fila.lua program. The JavaScript mklev path computes the same fill name, but SPECIAL_LEVEL_LOADERS has no Hea-fila entry and falls through to ordinary room generation. The first screen and RNG divergence at step 168 are consequences of that missing program loader; the C-side alignment shuffle in nhlib.lua is already represented for registered special-level programs.",
+  "source": {
+    "file": "dat/Hea-fila.lua",
+    "branch": "For a Healer on a quest filler level above the locate level, mklev.c:makelevel() forms Hea-fila, mkmaze.c:makemaz() loads that Lua program, and the top-level statements initialize a solid-fill/mines map, set flags, place stairs, eight random objects, monsters by species/class, and four traps in source order. The current JavaScript computes Hea-fila but only calls makemaz() when the loader registry contains it; absence sends the level through ordinary room generation.",
+    "functions": [
+      "Hea-fila.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel() -> mkmaze.c:makemaz() -> sp_lev.c:load_special() -> dat/Hea-fila.lua top-level statements.",
+      "js/mklev.js:makelevel() computes fillName and looks it up in SPECIAL_LEVEL_LOADERS before calling makemaz()."
+    ],
+    "dependencies": [
+      "dat/nhlib.lua initialization shuffles the private alignment list before a registered program body; js/mklev.js:load_special() already implements that shuffle.",
+      "dat/Hea-fila.lua uses the existing des special-level API for level initialization, flags, stairs, objects, monsters, and traps; the port must register the program so the normal loader path runs."
+    ]
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "Source: nethack-c/upstream/src/mklev.c:1275-1285 selects the role-specific filler name and calls makemaz(); nethack-c/upstream/src/mkmaze.c:makemaz() delegates to sp_lev.c:load_special(). nethack-c/upstream/dat/Hea-fila.lua:1-38 contains the entire selected program.",
+    "Dispatch trace: js/mklev.js:764-772 computes the role filler name but only calls makemaz() if SPECIAL_LEVEL_LOADERS contains that key. The Hea-fila key is absent from js/quest_levels.js and the loader registry, so the branch falls through to ordinary room generation. The existing load_special path performs dat/nhlib.lua alignment initialization for registered loaders.",
+    "Accepted evaluation challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json reports 168/197 screens, 6749/9962 RNG calls, 175/197 cursors, no runner error; first divergence is step 168 at rng index 6740 (C rn2(3), caller nhlib.lua:8 parent shuffle at line 19; JS rn2(5)).",
+    "Runtime reproduction: `node frozen/ps_test_runner.mjs --worker-session=challenges/cases/v62/v62-healer-earlier-filler-action2.session.json` reproduces 168/197 screens, 6749/9962 RNG, 175/197 cursors, and null error; `.cache/c-healer-filler-replay.log` records the result.",
+    "The admitted v62 Healer later-filler case is a distinct dat/Hea-filb.lua program with the same missing-registry pattern; it is not included in this task because it is a separate Lua source program."
+  ],
+  "provenance": {
+    "corpus": "synthetic",
+    "batch": "v62",
+    "caseId": "v62-healer-earlier-filler-action2",
+    "session": "synthetic/v62/v62-healer-earlier-filler-action2",
+    "manifestPath": "challenges/manifests/v62.json",
+    "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+    "recording": "challenges/cases/v62/v62-healer-earlier-filler-action2.session.json",
+    "recordingPath": "challenges/cases/v62/v62-healer-earlier-filler-action2.session.json",
+    "recordingSha256": "930ca83fda8f874030f3d92c9264453d645e724f133d88d319d9e7bfd7bb69d5",
+    "recipe": "challenges/cases/v62/v62-healer-earlier-filler-action2.recipe.session.json",
+    "recipeSha256": "d11f97a9dfc6f17fd93f44b7bc7601d42d7f2adf5b791152d7368fa9662c93fb",
+    "replayInputSha256": "023ff182755a8d98f607868892e6c2dc2761257e0a74bf24826dffd583192d10",
+    "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+    "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+    "evaluationUtc": "2026-10-13T16:41:18.013Z",
+    "remainingScreens": 29,
+    "recordedSteps": 197,
+    "previousScreensMatched": 168,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "baseline": {
+      "screens": "168/197",
+      "rng": "6749/9962",
+      "cursors": "175/197"
+    },
+    "firstMismatch": {
+      "segment": 0,
+      "step": 168,
+      "key": "\n",
+      "kind": "rng",
+      "message": null
+    }
+  },
+  "corpus": "synthetic",
+  "batch": "v62",
+  "caseId": "v62-healer-earlier-filler-action2",
+  "manifestPath": "challenges/manifests/v62.json",
+  "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+  "recordingSha256": "930ca83fda8f874030f3d92c9264453d645e724f133d88d319d9e7bfd7bb69d5",
+  "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+  "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904"
+}
