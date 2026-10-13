@@ -1,0 +1,72 @@
+{
+  "session": "synthetic/v57/v57-traditional-container-menu-request-action3",
+  "remainingScreens": 1,
+  "recordedSteps": 196,
+  "corpus": "synthetic",
+  "batch": "v57",
+  "caseId": "v57-traditional-container-menu-request-action3",
+  "manifestPath": "challenges/manifests/v57.json",
+  "manifestSha256": "9d357944cc12ddc677f3afeccc2016496764f6ecb2cb5748aafdfa885fcd2007",
+  "recordingSha256": "094bcb36366afa01a5d1f1caef575363d01fea9666d4de708bfb9def8f19cd28",
+  "evaluationPath": "challenges/evaluations/admission-01813882f5ec9612667f08b17e1630f732d78381-v57.json",
+  "evaluationCommit": "01813882f5ec9612667f08b17e1630f732d78381",
+  "status": "complete",
+  "commit": "21c8bd543a08958badec3b96cc22b894fbb365ec",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v57",
+    "caseId": "v57-traditional-container-menu-request-action3",
+    "session": "synthetic/v57/v57-traditional-container-menu-request-action3",
+    "manifestPath": "challenges/manifests/v57.json",
+    "manifestSha256": "9d357944cc12ddc677f3afeccc2016496764f6ecb2cb5748aafdfa885fcd2007",
+    "recording": "challenges/cases/v57/v57-traditional-container-menu-request-action3.session.json",
+    "recordingPath": "challenges/cases/v57/v57-traditional-container-menu-request-action3.session.json",
+    "recordingSha256": "094bcb36366afa01a5d1f1caef575363d01fea9666d4de708bfb9def8f19cd28",
+    "recipe": "challenges/cases/v57/v57-traditional-container-menu-request-action3.recipe.session.json",
+    "recipeSha256": "d387d45feb6704b314c1dd09020411b910827d24112f7422daf796f14097ef9b",
+    "evaluationPath": "challenges/evaluations/admission-01813882f5ec9612667f08b17e1630f732d78381-v57.json",
+    "evaluationCommit": "01813882f5ec9612667f08b17e1630f732d78381",
+    "remainingScreens": 1,
+    "recordedSteps": 196,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 195, "total": 196 },
+      "rng": { "matched": 2300, "total": 2300 },
+      "cursors": { "matched": 195, "total": 196 }
+    },
+    "firstMismatch": null,
+    "step": 195,
+    "kind": "stop",
+    "sourceFile": "pickup.c",
+    "function": "traditional_loot",
+    "message": "unsupported hero command: an unported branch of this command: unsupported pickup: traditional_loot: menu_loot(menu_on_request, put_in)",
+    "cFile": "pickup.c",
+    "luaFile": null,
+    "line": 3257
+  },
+  "summary": "The v57 traditional-style container case reaches the requested take-out item menu and stops because js/pickup.js:traditional_loot refuses the source-supported menu_on_request path. pickup.c:traditional_loot passes the negative retry value to menu_loot; the JavaScript menu_loot implementation already handles retry -2 and can provide the requested item list.",
+  "source": {
+    "file": "pickup.c",
+    "branch": "In menustyle:traditional, the hero enters #loot for a container holding more than one object class, chooses take out, and enters m at query_classes. When itemcount is nonzero, query_classes sets menu_on_request to -2; traditional_loot must call menu_loot(-2, put_in) and turn a positive selected-item count into ECMD_TIME.",
+    "functions": ["traditional_loot"],
+    "callers": [
+      "pickup.c:use_container calls traditional_loot(FALSE) for take-out, traditional_loot(TRUE) for put-in, and traditional_loot(FALSE) for take-out during reversed looting.",
+      "js/pickup.js:use_container calls traditional_loot(false/true) in the matching take-out, put-in, and reversed branches; js/pickup.js:traditional_loot already calls query_classes and menu_loot is implemented in the same module."
+    ],
+    "dependencies": [
+      "pickup.c:query_classes returns menu_on_request -2 after an m request with a nonempty object list; its JavaScript port already returns the same field.",
+      "pickup.c:menu_loot handles retry -2 as selecting all categories; js/pickup.js:menu_loot maps this to ALL_TYPES_SELECTED and already renders the manual query_objlist item menu.",
+      "pickup.c:askchain handles the non-menu class path; the existing JavaScript askchain implementation remains the traditional class-selection caller."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v57 admission evaluation reports 195/196 screens and cursors with 2300/2300 RNG calls; the manifest and recording hashes match the queue entry.",
+    "Fresh diagnostic at 21c8bd543a08958badec3b96cc22b894fbb365ec stops at input step 195 while #loot is rendering the Take out what? item menu. The stop is UnsupportedPickupError at js/pickup.js:traditional_loot; all preceding RNG values match.",
+    "pickup.c:query_classes (140-261) sets menu_on_request=-2 for m when the selected container list has items; pickup.c:traditional_loot (3230-3261) passes that retry to menu_loot and uses its positive return as ECMD_TIME.",
+    "js/pickup.js:query_classes already sets -2, and js/pickup.js:menu_loot already implements the retry -2 all-categories branch and manual query_objlist path. The only missing behavior in the selected function is the source call/result handling currently represented by UnsupportedPickupError."
+  ]
+}
