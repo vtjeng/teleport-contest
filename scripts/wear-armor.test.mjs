@@ -1977,7 +1977,7 @@ test('a second helmet is refused by the name of the one worn', async () => {
     assert.equal(game.uarmh.otyp, FEDORA, 'the fedora is still the one worn');
 });
 
-test('the branches accessory_or_armor_on cannot run name themselves',
+test('accessory_or_armor_on handles the quest helm and releases wielded armor',
     async () => {
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
@@ -1994,13 +1994,15 @@ test('the branches accessory_or_armor_on cannot run name themselves',
     // HELM_OF_OPPOSITE_ALIGNMENT arm instead.
     delete game.qstart_level;
 
-    // do_wear.c:2363-2364 remove_worn_item(), for armor held in a weapon slot.
-    await assert.rejects(
-        () => accessory_or_armor_on(
-            armor(SMALL_SHIELD, { dknown: 1, owornmask: W_SWAPWEP }), game,
-        ),
-        refusal(UnsupportedWearError, 'remove_worn_item()'),
-    );
+    // do_wear.c:2363-2364 calls remove_worn_item() before setworn() when the
+    // selected armor is still in a weapon slot. LOW_BOOTS follows the v58 C
+    // recording's W_WEP -> W_ARMF transition and exercises the source helper.
+    const boots = armor(LOW_BOOTS, { dknown: 1, owornmask: W_WEP });
+    game.uwep = boots;
+    assert.equal(await accessory_or_armor_on(boots, game), ECMD_TIME);
+    assert.equal(game.uwep ?? null, null, 'the weapon slot was released first');
+    assert.equal(game.uarmf, boots, 'the same boots now occupy the armor slot');
+    assert.equal(boots.owornmask, W_ARMF, 'the worn mask changed in source order');
     // Gold now follows C's W_ARM callback selection rather than a refusal.
     // Light starts only after objects[].oc_delay helpless turns complete.
     const gold=armor(GOLD_DRAGON_SCALE_MAIL,{dknown:1});
