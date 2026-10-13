@@ -297232,7 +297232,7 @@
     {
       "id": "divergence-fix-v54-angel-admagm-action3-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement castmu from mcastu.c",
       "cFile": "mcastu.c",
       "sessions": [
@@ -297242,10 +297242,87 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
       "delivered": null,
       "function": "castmu",
-      "session": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3"
+      "session": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3",
+      "closeStanding": {
+        "sha": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "e058614e4b797160910f4abf0eeeafca20f0972a",
+        "target": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/71adf2891b4ccef846c2e0d5e01a907878e15ad6/run-hosted-bKJHrb/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "castmu",
+            "symbol": "castmu",
+            "implementation": "js/mcastu.js",
+            "pure": false,
+            "sourceReview": "Whole C mcastu.c:castmu was read (130-305), but only AD_MAGM (282-294) and its final positive-damage mdamageu effect are repaired. Preserves common rolls, source replacement of generic damage by d(ml/2+1,6), Antimagic branch, resistance observations, source order and return. No whole castmu completion claim.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "C mhitu.c:930 AT_MAGC in-range caller; existing adapter forwards state/random/message/mdamageu in order. No caller edit."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "C monmove.c:902 indirect spell caller filters to AD_SPEL/AD_CLRC and cannot call AD_MAGM."
+              }
+            ],
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/admagm-angel-tourist-independent.session.json",
+              "recordings/mcastu.c/admagm-angel-wizard-antimagic-variation.session.json"
+            ]
+          }
+        ],
+        "entryPointReview": "Bounded branch repair with complete independent runtime evidence for positive damage and Antimagic. Selected engraved-square v54 case passes the branch but later diverges at the discarded void zap.c:mon_spell_hits_spot helper; the task does not claim that helper or the complete case.",
+        "entryPoints": [
+          {
+            "name": "AD_MAGM positive-damage adjacent AT_MAGC attack",
+            "functions": [
+              "castmu"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/admagm-angel-tourist-independent.session.json"
+            ],
+            "metrics": {
+              "screens": "131/131",
+              "rng": "3202/3202",
+              "cursors": "131/131",
+              "error": null
+            },
+            "recipe": "recipes/mcastu.c/admagm-angel-tourist-independent.session.json"
+          },
+          {
+            "name": "AD_MAGM Antimagic resistance",
+            "functions": [
+              "castmu"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/admagm-angel-wizard-antimagic-variation.session.json"
+            ],
+            "metrics": {
+              "screens": "131/131",
+              "rng": "2390/2390",
+              "cursors": "131/131",
+              "error": null
+            },
+            "recipe": "recipes/mcastu.c/admagm-angel-wizard-antimagic-variation.session.json"
+          }
+        ],
+        "incompleteFunctions": []
+      }
     }
   ]
 }
