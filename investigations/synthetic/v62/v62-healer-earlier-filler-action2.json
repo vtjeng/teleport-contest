@@ -186,8 +186,8 @@
     "recipe": "challenges/cases/v62/v62-healer-earlier-filler-action2.recipe.session.json",
     "recipeSha256": "d11f97a9dfc6f17fd93f44b7bc7601d42d7f2adf5b791152d7368fa9662c93fb",
     "replayInputSha256": "023ff182755a8d98f607868892e6c2dc2761257e0a74bf24826dffd583192d10",
-    "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
-    "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+    "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v62.json",
+    "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
     "evaluationUtc": "2026-10-13T16:41:18.013Z",
     "remainingScreens": 29,
     "recordedSteps": 197,
@@ -206,6 +206,50 @@
       "key": "\n",
       "kind": "rng",
       "message": null
+    },
+    "validationBaselineRecovery": {
+      "reason": "The task-base checkout does not contain the saved queue evaluation artifact; use the accepted v62 artifact already in task-base history after confirming identical manifest and recording identities, metrics, and error.",
+      "sourceDiagnosticCommit": "4b092ca3660ba2d7f15fa6385c321750b93f5662",
+      "originalQueueEvaluation": {
+        "path": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+        "commit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+        "metrics": {
+          "screens": {
+            "matched": 168,
+            "total": 197
+          },
+          "rng": {
+            "matched": 6749,
+            "total": 9962
+          },
+          "cursors": {
+            "matched": 175,
+            "total": 197
+          }
+        }
+      },
+      "acceptedTaskBaseEvaluation": {
+        "path": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v62.json",
+        "commit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+        "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+        "recordingSha256": "930ca83fda8f874030f3d92c9264453d645e724f133d88d319d9e7bfd7bb69d5",
+        "passed": false,
+        "metrics": {
+          "screens": {
+            "matched": 168,
+            "total": 197
+          },
+          "rng": {
+            "matched": 6749,
+            "total": 9962
+          },
+          "cursors": {
+            "matched": 175,
+            "total": 197
+          }
+        },
+        "error": null
+      }
     }
   },
   "corpus": "synthetic",
@@ -214,6 +258,6 @@
   "manifestPath": "challenges/manifests/v62.json",
   "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
   "recordingSha256": "930ca83fda8f874030f3d92c9264453d645e724f133d88d319d9e7bfd7bb69d5",
-  "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
-  "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904"
+  "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v62.json",
+  "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678"
 }
