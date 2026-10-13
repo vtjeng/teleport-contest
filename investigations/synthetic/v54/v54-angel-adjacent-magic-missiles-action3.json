@@ -1,0 +1,76 @@
+{
+  "session": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3",
+  "remainingScreens": 86,
+  "recordedSteps": 280,
+  "corpus": "synthetic",
+  "batch": "v54",
+  "caseId": "v54-angel-adjacent-magic-missiles-action3",
+  "manifestPath": "challenges/manifests/v54.json",
+  "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+  "recordingSha256": "7a0d0b42039af195fef219fe72bfecea98f45b039f838c61bf17eab19626a8ca",
+  "evaluationPath": "challenges/evaluations/accepted-4a9094bc9f4f7e628235de5fd4774d64a4779fc0-v54.json",
+  "evaluationCommit": "4a9094bc9f4f7e628235de5fd4774d64a4779fc0",
+  "status": "partial",
+  "commit": "dcf29dc416c72f6142c38f53280dc292d8feeb6c",
+  "mismatch": {
+    "session": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3",
+    "remainingScreens": 86,
+    "step": 194,
+    "kind": "unsupported-source-branch",
+    "sourceFile": "mcastu.c",
+    "function": "castmu",
+    "sourceBranch": "C mcastu.c:castmu AD_MAGM branch (282-294) handles magic missiles; JS castmu falls through to unsupported at js/mcastu.js:617.",
+    "runtimeBoundary": "simple monster action requires castmu() elemental spell type",
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 194,
+        "total": 280
+      },
+      "rng": {
+        "matched": 2459,
+        "total": 2581
+      },
+      "cursors": {
+        "matched": 194,
+        "total": 280
+      }
+    }
+  },
+  "summary": "Diagnosis only: the angel magic-missiles action reaches the missing AD_MAGM handling in castmu. The selected scan stops at boundary 194 with \"simple monster action requires castmu() elemental spell type\"; the saved accepted v54 evaluation has 194/280 screens, 2459/2581 RNG calls and 194/280 cursors matched. B owns mcastu.c:castmu and mhitu.c:mattacku for a separate admitted investigation, so this case must wait for that source delivery before implementation scope can be claimed.",
+  "source": {
+    "file": "mcastu.c",
+    "functions": [
+      "castmu"
+    ],
+    "branch": "AD_MAGM magic-missile branch at lines 282-294",
+    "callers": [
+      "mhitu.c:930 calls castmu(mtmp, mattk, TRUE, foundyou)"
+    ]
+  },
+  "evidence": [
+    "Accepted baseline: challenges/evaluations/accepted-4a9094bc9f4f7e628235de5fd4774d64a4779fc0-v54.json; its v54 case metrics are 194/280 screens, 2459/2581 RNG, 194/280 cursors and error null.",
+    "Selected JS comparison at dcf29dc416c72f6142c38f53280dc292d8feeb6c stopped at behavioral boundary 194 with the unsupported castmu elemental spell type refusal. Saved output: .cache/C-v54-angel-magic-missiles-scan.json; SHA-256 9eb262b9fa4ead97a02985585d5cb2a0d429e47a736f8d167195cec16162bc40.",
+    "Source trace: nethack-c/upstream/src/mhitu.c:930 calls castmu for the monster attack; nethack-c/upstream/src/mcastu.c:282-294 implements AD_MAGM including antimagic handling, magic-missile damage and mon_spell_hits_spot. js/mcastu.js:615-617 rejects the corresponding attack type.",
+    "Current ledger ownership is B-investigation-v54-caveman-cleric-insects-residual-action2-20261013 for source:mcastu.c:castmu and source:mhitu.c:mattacku. No C code was edited."
+  ],
+  "blocker": {
+    "task": "B-investigation-v54-caveman-cleric-insects-residual-action2-20261013",
+    "owner": "B",
+    "sourceReservations": [
+      "source:mcastu.c:castmu",
+      "source:mhitu.c:mattacku"
+    ],
+    "reason": "The first source-traced divergence is inside B-owned castmu; implementation requires that reservation to be released."
+  },
+  "replay": {
+    "command": "node scripts/scan-sessions.mjs --json --synthetic v54/v54-angel-adjacent-magic-missiles-action3",
+    "replayCommit": "dcf29dc416c72f6142c38f53280dc292d8feeb6c",
+    "replayInputSha256": "dcd772795cefb4233d2965d01591ca4ebeff5c748d8a37560f9329a15dc07874",
+    "outputPath": ".cache/C-v54-angel-magic-missiles-scan.json",
+    "outputSha256": "9eb262b9fa4ead97a02985585d5cb2a0d429e47a736f8d167195cec16162bc40",
+    "boundary": "simple monster action requires castmu() elemental spell type",
+    "at": 194,
+    "error": null
+  }
+}
