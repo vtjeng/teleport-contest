@@ -296993,6 +296993,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-castmu-fumble-priest-monname-v54-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Use the existing mon_nam implementation for castmu's visible fumble message while preserving the injected monnam provider and C message gates/order.",
+      "cFile": "mcastu.c",
+      "sessions": [
+        "synthetic/v54/v54-caveman-cleric-insects-blindness-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v54-caveman-cleric-insects-residual-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "castmu",
+      "session": "synthetic/v54/v54-caveman-cleric-insects-blindness-action2"
     }
   ]
 }
