@@ -1,0 +1,62 @@
+{
+  "session": "synthetic/v58/v58-blind-fountain-drink-action2",
+  "corpus": "synthetic",
+  "batch": "v58",
+  "caseId": "v58-blind-fountain-drink-action2",
+  "manifestPath": "challenges/manifests/v58.json",
+  "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+  "recordingPath": "challenges/cases/v58/v58-blind-fountain-drink-action2.session.json",
+  "recordingSha256": "3f8cb21272b0b667b6af58ca874399ae11bf455630f1d31f51e387bfeb2d15f0",
+  "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v58.json",
+  "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+  "remainingScreens": 29,
+  "recordedSteps": 252,
+  "status": "complete",
+  "commit": "27305e72da1185df0a0c1b95101d722e070d80c9",
+  "mismatch": {
+    "kind": "unsupported command branch",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v58/v58-blind-fountain-drink-action2"
+    ],
+    "remainingScreens": 29,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 223,
+    "caseId": "v58-blind-fountain-drink-action2",
+    "batch": "v58",
+    "recordingPath": "challenges/cases/v58/v58-blind-fountain-drink-action2.session.json",
+    "session": "synthetic/v58/v58-blind-fountain-drink-action2",
+    "step": 223,
+    "error": "unsupported hero command: an unported branch of this command: fountain requires the blind water-snake fountain effect (fate 22)"
+  },
+  "summary": "At segment 0 step 223, potion.c:dodrink calls fountain.c:drinkfountain for a sightless Wizard on a fountain. C fate 22 invokes dowatersnakes; the reference implementation first draws rn1(5,2), then for a non-extinct water moccasin while Blind calls the recorder-no-op Soundeffect and You_hear (suppressed here because !acoustics), then spawns the snakes and checks traps. js/fountain.js:dowatersnakes instead throws for every blind hero before drawing or applying the effect. The whole C helper also has implemented but still-refused extinct and hallucinating branches, so the repair scope is the complete dowatersnakes function.",
+  "source": {
+    "file": "fountain.c",
+    "branch": "drinkfountain fate 22 or dipfountain fate 23 calls dowatersnakes; the helper draws rn1(5,2) before checking whether PM_WATER_MOCCASIN is gone, uses the blind You_hear path or the sighted normal/hallucinated line, then creates each moccasin and calls mintrap only when its square has a trap.",
+    "functions": [
+      "dowatersnakes"
+    ],
+    "callers": [
+      "drinkfountain (fountain.c:312)",
+      "dipfountain (fountain.c:483)"
+    ],
+    "dependencies": [
+      "pline.c:You_hear",
+      "do_name.c:rndmonnam",
+      "fruit.c:makeplural",
+      "makemon.c:makemon",
+      "trap.c:t_at",
+      "trap.c:mintrap"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Fresh scan run-16rdPj at HEAD 27305e72da1185df0a0c1b95101d722e070d80c9 stops on input step 223 with the UnsupportedFountainError in js/fountain.js:dowatersnakes; stack reaches potion.js:dodrink -> fountain.js:drinkfountain -> dowatersnakes. Receipt: /tmp/teleport-validation-1000/run-16rdPj/receipt.json.",
+    "Upstream nethack-c/upstream/src/fountain.c:38-60 draws rn1(5,2) first, then branches on G_GONE, Blind and Hallucination; the blind case calls Soundeffect(se_snakes_hissing,75), You_hear(\"%s hissing!\", something), and continues to the makemon/mintrap loop.",
+    "The recorded profile has a blindfold and !acoustics, so C suppresses only the hearing line; it still performs fate 22, monster generation and trap checks. The JS throw occurs before those required source effects.",
+    "Saved evaluation challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v58.json reports 223/252 screens, 2974/3213 RNG values and 223/252 cursors matched."
+  ]
+}
