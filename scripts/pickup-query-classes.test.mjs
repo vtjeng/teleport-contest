@@ -15,3 +15,8 @@ test('query_classes resumes its prompt after C look and inventory commands', () 
     assert.match(js, /else if \(sym === ':'\) \{\s*await simple_look\(objs, here, state\);[\s\S]*?objs\?\.where === OBJ_CONTAINED[\s\S]*?continue;\s*\} else if \(sym === 'i'\) \{[\s\S]*?await display_inventory\(null, true, state\);\s*continue;/u);
     assert.doesNotMatch(js, /query_classes: (?:simple_look|display_inventory)/u);
 });
+
+test('pickup and traditional_loot retain both source-owned callers', () => {
+    assert.match(c, /pickup\(int what\)[\s\S]*?query_classes\(oclasses,[\s\S]*?traditional_loot\(boolean put_in\)[\s\S]*?query_classes\(selection,[\s\S]*?\*objlist,\s*FALSE/u);
+    assert.match(js, /async function pickup\(what, state = game\)[\s\S]*?query_classes\('pick up', objchain, !swallowed, state\)[\s\S]*?async function traditional_loot\(put_in, state\)[\s\S]*?query_classes\(action, objlist_head, false, state\)/u);
+});

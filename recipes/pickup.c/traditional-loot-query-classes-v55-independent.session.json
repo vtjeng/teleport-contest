@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independently chosen Wizard setup to exercise pickup.c:traditional_loot -> query_classes from the container caller. Wish and drop an unlocked box, choose its put-in route, submit the class prompt's inventory-display option, dismiss it, then cancel the repeated class prompt.",
+  "segments": [
+    {
+      "seed": 55449917,
+      "datetime": "20611006143327",
+      "nethackrc": "OPTIONS=name:V55LootEvidence,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,menustyle:traditional\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nunlocked large box\ndo#loot\nii\n \u001b"
+    }
+  ]
+}
