@@ -299743,7 +299743,7 @@
     {
       "id": "port-zap-zap-updown-ceiling-striking-v58-20261013",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement zap_updown from zap.c",
       "cFile": "zap.c",
       "sessions": [
@@ -299753,7 +299753,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "5634567626a2300fafc2a91ef8a10ca138f5edab",
       "delivered": null,
       "functions": [
         {
@@ -299766,6 +299766,89 @@
       "range": {
         "from": 3219,
         "to": 3414
+      },
+      "closeStanding": {
+        "sha": "5634567626a2300fafc2a91ef8a10ca138f5edab",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "e32bef6c402ac1cb42eea64da25cadf784bc58be",
+        "target": "synthetic/v58/v58-ceiling-striking-helmet-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/5634567626a2300fafc2a91ef8a10ca138f5edab/run-hosted-ne8E9O/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "zap_updown",
+            "implementation": "js/zap.js",
+            "symbol": "zap_updown",
+            "pure": false,
+            "sourceReview": "Read zap.c:zap_updown() in full (3219-3411; selected range 3219-3414) and compared branch order, RNG, messages, state mutations, display updates, and the weffects caller. Ported WAN_PROBING, WAN_OPENING/SPE_KNOCK, WAN_STRIKING/SPE_FORCE_BOLT, WAN_LOCKING/SPE_WIZARD_LOCK, SPE_STONE_TO_FLESH, shared down-pile/map handling, and the upward hides-under path. The falling-rock branch preserves rn2(3), helmet-dependent rnd(2|6), rounded-up Maybe_Half_Phys damage, rock creation, xname discovery, stackobj, and newsym order. JS trap helpers return result/noticed objects; the caller uses result where C tests the boolean and merges noticed into disclose. Calls to dbridge.c open_drawbridge, close_drawbridge, and destroy_drawbridge remain note_unported gaps because their C results are void and discarded. The production caller is weffects()'s immediate directional arm; dozap() and spelleffects() reach that arm through weffects().",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "weffects",
+                "source": "zap.c:weffects() at 3438-3446 calls zap_updown(obj) when the effect is immediate and u.dz is nonzero."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "dozap",
+                "source": "zap.c:dozap() at 2673 calls weffects(obj) for the wand; JS dozap() dispatches to weffects()."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects() at 1510-1512 calls weffects(pseudo) for the directional spell; JS spelleffects() dispatches to weffects()."
+              }
+            ],
+            "tests": [],
+            "recordings": [
+              "recordings/zap.c/upward-force-bolt-spell-entrypoint-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-ceiling-striking-helmet-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 242,
+                "source": "zap.c:do_zap -> weffects -> zap_updown; upward WAN_STRIKING falling-rock branch"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "zap_updown has two production routes through weffects: a wand issued by zap.c:dozap and a directional spell issued by spell.c:spelleffects. The admitted v58 case executes the upward WAN_STRIKING branch from the wand command and matches through step 242. An independent force-bolt spell recipe executes spell.c:spelleffects -> weffects -> zap_updown with u.dz<0 and matches through its final step 44. Both routes use the same immediate-direction dispatch in weffects; the spell route is recorded separately to verify that caller. The three dbridge.c operations reached by vertical bridge effects remain note_unported gaps because their C return values are void and discarded in this function.",
+        "entryPoints": [
+          {
+            "name": "upward wand strike through the zap command",
+            "functions": [
+              "zap_updown"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-ceiling-striking-helmet-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 242,
+                "source": "zap.c:dozap -> weffects (immediate object with nonzero u.dz) -> zap_updown; WAN_STRIKING upward falling-rock branch"
+              }
+            ]
+          },
+          {
+            "name": "upward Force Bolt spell through spellcasting",
+            "functions": [
+              "zap_updown"
+            ],
+            "recordings": [
+              "recordings/zap.c/upward-force-bolt-spell-entrypoint-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
       }
     }
   ]
