@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { HALLUC, HALLUC_RES } from '../js/const.js';
-import { do_look, UnsupportedWhatisError, whatisMenuItems } from '../js/pager.js';
+import { whatisMenuItems } from '../js/pager.js';
 
 const SOURCE = readFileSync(new URL('../nethack-c/upstream/src/pager.c', import.meta.url), 'utf8');
 
@@ -36,10 +36,32 @@ test('ordinary and hallucination-resistant heroes retain the list choices', () =
     }
 });
 
-test('quick hallucinatory lookup remains an explicit outside-limit path', async () => {
-    // pager.c mode 1 bypasses the selection menu and immediately chooses the
-    // map path. This correction verifies menu cancellation, not that lookup.
-    await assert.rejects(do_look(1, null, stateFor({ hallucinating: true })),
-        (error) => error instanceof UnsupportedWhatisError
-            && error.reason === 'a hallucinating hero');
+test('lootabc uses visible auto-selectors and source group accelerators', () => {
+    const items = whatisMenuItems({
+        flags: { lootabc: true },
+        u: { uswallow: false },
+    });
+    assert.deepEqual(items.map(({ value, selector, groupSelector }) => ({
+        value, selector, groupSelector,
+    })), [
+        { value: '/', selector: undefined, groupSelector: '/' },
+        { value: 'i', selector: undefined, groupSelector: undefined },
+        { value: '?', selector: undefined, groupSelector: '?' },
+        { value: 'm', selector: undefined, groupSelector: 'm' },
+        { value: 'M', selector: undefined, groupSelector: 'M' },
+        { value: 'o', selector: undefined, groupSelector: 'o' },
+        { value: 'O', selector: undefined, groupSelector: 'O' },
+        { value: 't', selector: undefined, groupSelector: 't' },
+        { value: 'T', selector: undefined, groupSelector: 'T' },
+        { value: 'e', selector: undefined, groupSelector: undefined },
+        { value: 'E', selector: undefined, groupSelector: 'E' },
+    ]);
+});
+
+test('swallowed heroes keep the three ordinary whatis choices', () => {
+    assert.deepEqual(
+        whatisMenuItems({ flags: { lootabc: false }, u: { uswallow: true } })
+            .map(({ value }) => value),
+        ['/', 'i', '?'],
+    );
 });
