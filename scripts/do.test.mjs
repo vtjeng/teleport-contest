@@ -14,6 +14,7 @@ test('engulfer digests a Wraith corpse through awaited void-discarded grow_up', 
     assert.ok(c, 'do.c contains the complete swallowed-food helper');
     assert.match(c,
         /could_grow = \(obj->corpsenm == PM_WRAITH\)[\s\S]*?else if \(could_grow\)[\s\S]*?\(void\) grow_up\(u\.ustuck, \(struct monst \*\) 0\);/u);
+    // The JavaScript call preserves the digestion operation's callbacks as well as state.
     assert.match(DO_JS,
-        /couldGrow = obj\.corpsenm === PM_WRAITH[\s\S]*?else if \(couldGrow\)[\s\S]*?await grow_up\(swallower, null, \{ state \}\);/u);
+        /couldGrow = obj\.corpsenm === PM_WRAITH[\s\S]*?else if \(couldGrow\)[\s\S]*?await grow_up\(swallower, null, \{ \.\.\.env, state \}\);/u);
 });
