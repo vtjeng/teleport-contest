@@ -12,8 +12,8 @@
   "replayInputSha256": "68f27e6ff0211427a9f14f32d5761378682c2c211faa48787b15551c7dfb6787",
   "evaluationPath": "challenges/evaluations/baseline-261c3097d-v55.json",
   "evaluationCommit": "261c3097de5e63e488e143c622a3fa8157b750eb",
-  "status": "partial",
-  "commit": "24eb26d1d8cfb2476d6e2fd15583798481ab7c55",
+  "status": "complete",
+  "commit": "b6b335c9315d4f35bf6cc3cf6ad4a1f327f1eeec",
   "mismatch": {
     "session": "synthetic/v55/v55-worn-crystal-polymorph-dip-action3",
     "remainingScreens": 236,
@@ -29,14 +29,14 @@
       "message": "poly_obj reaches setworn with the old crystal plate still occupying the armor slot"
     }
   },
-  "summary": "C transforms the worn crystal plate and removes it before restoring the replacement armor. JavaScript skips that armor removal in poly_obj, then setworn throws because the old item still occupies the slot.",
+  "summary": "C removes the worn crystal plate before restoring the replacement. JavaScript now runs the existing armor removal and wear callbacks in that order; the admitted dip replay matches all 236 steps.",
   "sourceFile": "zap.c",
   "function": "poly_obj",
   "source": {
     "file": "zap.c",
     "functions": ["poly_obj"],
     "lines": "1702-1989",
-    "branch": "For an inventory object with old_wornmask, C computes the replacement slot, calls remove_worn_item(obj, TRUE), then assigns the replacement with setworn and calls set_wear before rereading the worn slot (zap.c:1929-1949). JavaScript excludes W_ARMOR from its removable branch, records the discarded call, and reaches setworn while the old armor remains in state.uarm.",
+    "branch": "For an inventory object with old_wornmask, C computes the replacement slot, calls remove_worn_item(obj, TRUE), then assigns the replacement with setworn and calls set_wear before rereading the worn slot (zap.c:1929-1949). JavaScript now calls the existing removal helper for supported armor, ring, and weapon masks with the caller environment, then runs set_wear for armor and rings. Accessory/ball-chain/quiver arms remain at their existing explicit discarded-call boundary.",
     "callers": [
       "potion.c:potion_dip calls poly_obj for the selected polymorph dip target (potion.c:2442-2492); js/potion.js:potion_dip reaches js/zap.js:poly_obj."
     ],
@@ -48,7 +48,9 @@
   "evidence": [
     "Admitted baseline-261c3097d-v55.json records the selected case at 0/236 screens, 0/2405 RNG calls, and 0/236 cursors, with runtime error 'worn requires cancelDoff for otyp 122'. The canonical queue identity has manifest digest 3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105, recording digest 54c23bf00954addc49c12419192ee2266f50e1972585dbd18b71b443e506a4d3, recipe digest bb9901d3e5dff5eaa8abedca802e216072c37a535dda52c8ec161c44a50d5a8b, and input digest 68f27e6ff0211427a9f14f32d5761378682c2c211faa48787b15551c7dfb6787.",
     "Single-case diagnostic before the fix: run-mmk8Kk, replay commit 24eb26d1d8cfb2476d6e2fd15583798481ab7c55, stops in js/zap.js:poly_obj at await setworn(replacement, newWornMask, env), with stack through js/potion.js:potion_dip. Log: /tmp/teleport-validation-1000/run-mmk8Kk/stdout.log.",
-    "Source comparison: zap.c:poly_obj at 1929-1949 always calls remove_worn_item(obj, TRUE) before setworn; js/zap.js previously skipped that helper whenever oldWornMask included W_ARMOR. The exact helper already supports armor removal through Armor_off and source-owned slot clearing."
+    "Source comparison: zap.c:poly_obj at 1929-1949 always calls remove_worn_item(obj, TRUE) before setworn; js/zap.js previously skipped that helper whenever oldWornMask included W_ARMOR. The exact helper already supports armor removal through Armor_off and source-owned slot clearing.",
+    "Committed fix b6b335c9315d4f35bf6cc3cf6ad4a1f327f1eeec; exact-commit scan run-epmVbd matches all 236 steps, screens, cursors, RNG values and input boundary with divergence null. Log: /tmp/teleport-validation-1000/run-epmVbd/stdout.log.",
+    "Focused source-pinned check `node --test scripts/zap-poly-obj.test.mjs` passes, including a worn crystal-plate to studded-leather replacement test. `npm run lint` exits 0. Logs: /tmp/teleport-loop-worker-b-20260925/.cache/v55-worn-poly-obj-focused.log and /tmp/teleport-loop-worker-b-20260925/.cache/v55-worn-poly-obj-lint.log."
   ],
   "goalKind": "divergence-fix"
 }
