@@ -1353,6 +1353,7 @@ test('find_offensive reads the conditions C attaches to each item',
 // potions can be selected; the values are read from the C #defines rather than
 // from the port, so a renumbering there fails here.
 const MUSE_WAN_STRIKING = 7;
+const MUSE_WAN_FIRE = 3;
 const MUSE_POT_PARALYSIS = 9;
 const MUSE_POT_BLINDNESS = 10;
 const MUSE_POT_CONFUSION = 11;
@@ -1386,7 +1387,8 @@ const OFFENSIVE_ARMS = [
     { name: 'wand of sleep at a helpless hero', otyp: WAN_SLEEP, spe: 1,
         distant: true, multi: -1, refuses: false },
     // muse.c:1461-1465
-    { name: 'wand of fire', otyp: WAN_FIRE, spe: 1, distant: true },
+    { name: 'wand of fire', otyp: WAN_FIRE, spe: 1, distant: true,
+        selects: MUSE_WAN_FIRE },
     { name: 'spent wand of fire', otyp: WAN_FIRE, spe: 0, distant: true,
         refuses: false },
     // muse.c:1467-1471
@@ -1628,7 +1630,7 @@ test('use_offensive locates the hurl line at the thrower under accessiblemsg',
     assert.deepEqual(messages, [located]);
 });
 
-test('use_offensive refuses every arm outside the hurled potion',
+test('use_offensive refuses the still-unported wand arms',
     async () => {
     const state = await offensiveHero();
     const env = offensiveEnv(state);
@@ -1642,6 +1644,85 @@ test('use_offensive refuses every arm outside the hurled potion',
     };
     await assert.rejects(() => use_offensive(gnome, env),
         (error) => error.reason === 'monster offensive item use');
+});
+
+test('use_offensive fires a monster fire wand and records its first-use state',
+    async () => {
+    const state = await offensiveHero();
+    const wand = carried(state, WAN_FIRE, { spe: 2 });
+    const gnome = offensiveMonster(state, PM_GNOME, wand, {
+        mx: state.u.ux + 3,
+        mwandexp: false,
+        mhp: 10,
+    });
+    for (let x = state.u.ux; x <= gnome.mx; ++x) {
+        const location = state.level.at(x, state.u.uy);
+        location.typ = ROOM;
+        location.flags = 0;
+        location.doormask = 0;
+        location.wall_info = 0;
+        state.viz_array[state.u.uy][x] |= COULD_SEE | IN_SIGHT;
+    }
+    state.context.mon_moving = true;
+    const messages = [];
+    const draws = [];
+    const random = {
+        d(count, sides) {
+            draws.push(['d', count, sides]);
+            return count;
+        },
+        rn1(bound, base) {
+            draws.push(['rn1', bound, base]);
+            return base;
+        },
+        rn2(bound) {
+            draws.push(['rn2', bound]);
+            return 0;
+        },
+        rnd(bound) {
+            draws.push(['rnd', bound]);
+            return 1;
+        },
+        rne(bound) {
+            draws.push(['rne', bound]);
+            return 1;
+        },
+        rnl(bound) {
+            draws.push(['rnl', bound]);
+            return 0;
+        },
+        rnz(value) {
+            draws.push(['rnz', value]);
+            return value;
+        },
+    };
+    const env = {
+        state,
+        random,
+        message: async (text) => { messages.push(text); },
+        unsupported(reason) {
+            throw new UnsupportedSimpleMonsterActionError(reason);
+        },
+    };
+
+    assert.equal(find_offensive(gnome, env), true);
+    assert.equal(state.m_offense.has_offense, MUSE_WAN_FIRE);
+    const result = await use_offensive(gnome, env);
+    assert.equal(result, 2,
+        JSON.stringify({ mhp: gnome.mhp, dead: gnome.mhp < 1, wand: wand.spe,
+            messages, draws }));
+
+    // muse.c:1848-1860: mzapwand spends a charge, the seen wand is known,
+    // and a monster without wand experience takes buzz_force_miss().
+    assert.equal(wand.spe, 1);
+    assert.equal(state.objects[WAN_FIRE].oc_name_known, 1);
+    assert.equal(gnome.mwandexp, true);
+    assert.equal(state.m_using, false);
+    assert.equal(state.gc.current_wand, 0);
+    assert.equal(state.gb.buzzer, 0);
+    assert.ok(messages.some((text) => text.includes('zaps')));
+    assert.ok(draws.length > 0,
+        'the monster-origin dobuzz path consumes the supplied RNG stream');
 });
 
 test('use_offensive keeps wand beam draws on the caller random stream',
