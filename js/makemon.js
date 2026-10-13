@@ -425,7 +425,9 @@ export async function grow_up(mtmp, victim, env = {}) {
 
     if ((++mtmp.m_lev) >= state.mons[newtype].mlevel && newtype !== oldtype) {
         ptr = state.mons[newtype];
-        const fem = is_male(ptr) ? 0 : is_female(ptr) ? 1 : mtmp.female;
+        // C's unsigned fem converts the preserved boolean sex bit to its
+        // MALE=0 / FEMALE=1 pmname index for species with no sex flag.
+        const fem = is_male(ptr) ? 0 : is_female(ptr) ? 1 : Number(mtmp.female);
 
         if (state.mvitals[newtype].mvflags & G_GENOD) {
             if (canspotmon(mtmp, state)) {
@@ -444,7 +446,7 @@ export async function grow_up(mtmp, victim, env = {}) {
             const prefix = (mtmp.female && !fem) ? 'male '
                 : (fem && !mtmp.female) ? 'female ' : '';
             const buf = `${prefix}${pmname(ptr, fem)}`;
-            const verb = fem !== mtmp.female ? 'changes into'
+            const verb = fem !== Number(mtmp.female) ? 'changes into'
                 : humanoid(ptr) ? 'becomes' : 'grows up into';
             await message(
                 messageAt(
@@ -463,7 +465,7 @@ export async function grow_up(mtmp, victim, env = {}) {
             mtmp.cham = newtype;
         newsym(mtmp.mx, mtmp.my);
         lev_limit = mtmp.m_lev; /* never undo an evolution's increment */
-        mtmp.female = fem;
+        mtmp.female = Boolean(fem);
         if (mtmp.mleashed) update_inventory();
     }
 

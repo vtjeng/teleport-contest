@@ -13,6 +13,7 @@ import {
     G_EXTINCT,
     G_GENOD,
     G_GONE,
+    IN_SIGHT,
 } from '../js/const.js';
 import { level_difficulty } from '../js/dungeon.js';
 import { adj_erinys } from '../js/mon.js';
@@ -53,6 +54,8 @@ import {
     PM_DOG,
     PM_EARTH_ELEMENTAL,
     PM_ELF,
+    PM_ELF_NOBLE,
+    PM_ELVEN_MONARCH,
     PM_ERINYS,
     PM_FIRE_ANT,
     PM_FIRE_ELEMENTAL,
@@ -88,6 +91,8 @@ import {
     PM_WOLF,
     PM_WATER_ELEMENTAL,
     PM_WIZARD_OF_YENDOR,
+    M2_FEMALE,
+    M2_MALE,
     M2_ORC,
     NON_PM,
     S_ANT,
@@ -917,6 +922,46 @@ test('grow_up changes species and supports level gain without a victim', async (
     assert.equal(fox.mhpmax, 14);
     assert.equal(fox.mhp, 10); // C assigns rnd(8) to both HP increases.
     assert.equal(fox.m_lev, 2);
+});
+
+// makemon.c:2141-2150 uses `fem` as an unsigned MALE/FEMALE index even when
+// the new species has neither explicit sex flag. The Elvenking record is
+// deliberately such a species, with distinct male and female pmnames.
+test('grow_up preserves a sex bit when the evolved species has no sex flag', async () => {
+    const state = growState();
+    const x = 10;
+    const y = 10;
+    state.u = { ...state.u, ux: x, uy: y };
+    state.viz_array = Array.from({ length: 21 }, () => Array(80).fill(0));
+    state.viz_array[y][x] = IN_SIGHT;
+    const source = cFunction(MAKEMON_C, 'grow_up', 'mongets');
+    assert.match(source, /unsigned fem;/u);
+    assert.match(source, /fem = is_male\(ptr\) \? 0\s*: is_female\(ptr\) \? 1\s*: mtmp->female;/u);
+    assert.match(source, /pmname\(ptr, fem\)/u);
+    assert.match(source, /fem != mtmp->female/u);
+    assert.equal(state.mons[PM_ELVEN_MONARCH].mflags2 & (M2_MALE | M2_FEMALE), 0,
+        'C target species has no M2_MALE or M2_FEMALE bit');
+
+    for (const { female, expectedName } of [
+        // C's false sex bit is integer MALE=0 and selects Elvenking.
+        { female: false, expectedName: 'Elvenking' },
+        // C's true sex bit is integer FEMALE=1 and selects Elvenqueen.
+        { female: true, expectedName: 'Elvenqueen' },
+    ]) {
+        const monster = grower(state, PM_ELF_NOBLE, {
+            // Level 8 plus rnd(1)=1 reaches the target species' level 9.
+            m_lev: 8, mhp: 64, mhpmax: 64, female, mx: x, my: y,
+        });
+        const env = growEnv(state, [1]);
+        const messages = [];
+        env.message = async text => messages.push(text);
+        assert.equal(await grow_up(monster, grower(state, PM_JACKAL, { m_lev: 0 }), env),
+            state.mons[PM_ELVEN_MONARCH]);
+        assert.deepEqual(env.bounds, ['rnd(1)']);
+        assert.equal(monster.female, female);
+        assert.equal(messages.length, 1);
+        assert.ok(messages[0].endsWith(`becomes an ${expectedName}.`), messages[0]);
+    }
 });
 
 // makemon.c:2089-2092, the crude upper limit and the raise that makes room for
