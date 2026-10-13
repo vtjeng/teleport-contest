@@ -11,7 +11,7 @@
   "evaluationPath": "challenges/evaluations/accepted-3d403994ae35fe3f31ee2f3b856002abe1c79933-v54.json",
   "evaluationCommit": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
   "status": "complete",
-  "commit": "e22b0430f9c5b92f507d9f11860a593a40d5885e",
+  "commit": "9fa6482c0c9a58400f19f791d19bc39ce29c820f",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v54",
@@ -56,7 +56,7 @@
     "function": null,
     "message": null
   },
-  "summary": "At admitted v54 step 511, the source-owned grow_up message selects the wrong grammatical species name. C prints “The elf-lord becomes an Elvenking.”; JS prints “The elf-lord becomes an elven monarch.” In makemon.c:grow_up, fem is an unsigned 0/1; JS keeps the fallback mtmp.female as a boolean, so pmname indexes no gender slot and falls back to neutral. The five-character longer neutral name explains the cursor offset. The later step 527 multishot missile ordinal remains a separate objnam.c:mshot_xname frontier.",
+  "summary": "The accepted baseline mismatch at step 511 came from makemon.c:grow_up preserving sex in unsigned fem while JS passed Boolean false/true to pmname as an array index, selecting the neutral species name. The source-aligned fix now preserves integer 0/1 for name selection and comparison, then stores the sex bit as Boolean. The exact committed v54 replay at 9fa6482c0c9a58400f19f791d19bc39ce29c820f matches all 527 emitted screens, cursors, and RNG boundaries through step 526. It then stops at step 527 on the separate objnam.c:mshot_xname multishot missile ordinal refusal.",
   "source": {
     "file": "makemon.c",
     "branch": "When grow_up advances a monster into another species with neither M2_MALE nor M2_FEMALE, C preserves mtmp->female in unsigned fem and uses that 0/1 index in pmname; the JS fallback currently passes Boolean false/true as the array index and therefore selects the neutral name.",
@@ -72,10 +72,12 @@
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "At makemon.c:grow_up:2095-2117, C sets unsigned fem to 0 for M2_MALE, 1 for M2_FEMALE, or mtmp->female (an integer boolean); its growth message formats pmname(ptr, fem) at 2141-2150. PM_ELVENKING in include/monsters.h:2679-2685 has neither male nor female flags and names [Elvenking, Elvenqueen, elven monarch].",
-    "At js/makemon.js:431-451, the same fallback assigns mtmp.female directly; Boolean false/true is not an array index in js/do_name.js:1239-1244, so pmname falls back to NEUTRAL. Replaying the admitted recording on e22b0430f9c5b92f507d9f11860a593a40d5885e emits `The elf-lord becomes an elven monarch.` with cursor [78,0,1]; the saved C step 511 emits `The elf-lord becomes an Elvenking.` with cursor [74,0,1].",
+    "At makemon.c:2095-2117, C sets unsigned fem to 0 for M2_MALE, 1 for M2_FEMALE, or mtmp->female (an integer boolean); the evolution message formats pmname(ptr, fem) and compares fem to mtmp->female at 2141-2150. PM_ELVENKING in include/monsters.h:2679-2685 has neither male nor female flags and names [Elvenking, Elvenqueen, elven monarch].",
+    "At js/makemon.js:431-451 before the fix, the fallback assigned mtmp.female directly; Boolean false/true was not an array index in js/do_name.js:1239-1244, so pmname fell back to NEUTRAL. JS also used strict number-versus-boolean comparison for the verb. The fix in 9fa6482c0 converts the fallback and comparison to C-compatible numbers and stores Boolean(fem), preserving JS game-state shape.",
     "The exact v54 session is unchanged (manifest cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e; recording b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c; recipe aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557). Accepted baseline 3d403994ae35fe3f31ee2f3b856002abe1c79933 reports 526/778 screens and cursors, 5001 RNG, error null, with 252 screens remaining.",
-    "C and JS both use the source branch `humanoid(ptr) ? becomes : grows up into`; the observed verb already matches. The remaining case boundary at step 527 is separately identified as unsupported multishot missile ordinal naming in objnam.c:mshot_xname and is outside grow_up."
+    "The exact committed scan at 9fa6482c0c9a58400f19f791d19bc39ce29c820f uses replay input SHA 21e2b7ff4073fff11eacb14adbd0b31ea7e53532f12fa86f767e92d39ee71731 and receipt /tmp/teleport-validation-1000/run-l4P7PY/receipt.json. It emits 527 of 778 screens with no divergence (steps 0-526, including step 511 and the completed growth caller path); step 527 remains blocked by the unsupported multishot missile ordinal branch in objnam.c:mshot_xname.",
+    "C and JS both use the source branch `humanoid(ptr) ? becomes : grows up into`; the observed verb already matched. `muse.c:use_misc` calls grow_up after the visible MUSE_POT_GAIN_LEVEL action, and existing JS js/muse.js:use_misc reaches js/makemon.js:grow_up.",
+    "Source-pinned regression test scripts/makemon.test.mjs exercises the actual PM_ELF_NOBLE -> PM_ELVEN_MONARCH evolution message for both false and true preserved sex bits and verifies the field remains Boolean after the update. The bounded focused suite passed 65/65 at grow_up code 9fa6482c0; npm run lint exited 0."
   ],
   "evaluationUtc": "2026-10-13T03:54:52.312Z"
 }
