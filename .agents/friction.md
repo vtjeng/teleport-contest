@@ -628,3 +628,11 @@ triage decisions or fix references.
   Its direct merge preserved submitted commits. The merged f075b7d93 was
   local accepted closure history at that time, not yet public; Root corrected
   that provenance description before publication.
+
+### 2026-10-13 — acceptance ledger contention
+
+- B partial-stack acceptance encountered a live ledger lock after its hosted
+  checks passed. Root retried the exact verified validation event, then
+  completed acceptance at the unchanged tested commit without replaying it.
+- Main receipt and publication writers also briefly blocked A and C submissions.
+  Root collected each writer handle and notified workers to retry unchanged.
