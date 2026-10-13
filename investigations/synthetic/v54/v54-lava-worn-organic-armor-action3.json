@@ -31,6 +31,7 @@
     "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
     "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
     "previousScreensMatched": 214,
+    "remainingScreens": 68,
     "error": null,
     "metrics": {
       "screens": { "matched": 214, "total": 282 },
@@ -57,6 +58,7 @@
   "source": {
     "file": "trap.c",
     "function": "lava_effects",
+    "branch": "For each doomed inventory item, C preserves the next link, conditionally emits a destruction message for worn gear, unconditionally removes every worn item through steal.c:remove_worn_item, and then calls invent.c:useupall. The selected body-armor branch was explicitly skipped in JavaScript, leaving otyp 134 worn when useupall ran.",
     "lines": "6794-6987",
     "functions": ["lava_effects"],
     "callers": [
@@ -68,6 +70,9 @@
     "scopeForImplementation": [
       "source:trap.c:lava_effects",
       "source:steal.c:remove_worn_item"
+    ],
+    "dependencies": [
+      "steal.c:remove_worn_item is already implemented in js/steal.js; the current call site explicitly skips it for armor other than cloaks."
     ]
   },
   "evidence": [
