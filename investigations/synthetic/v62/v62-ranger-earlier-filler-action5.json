@@ -1,0 +1,251 @@
+{
+  "session": "synthetic/v62/v62-ranger-earlier-filler-action5",
+  "remainingScreens": 29,
+  "recordedSteps": 328,
+  "status": "complete",
+  "commit": "207aceb86744f2307e789644b65cd558afab4fea",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v62",
+    "caseId": "v62-ranger-earlier-filler-action5",
+    "session": "synthetic/v62/v62-ranger-earlier-filler-action5",
+    "manifestPath": "challenges/manifests/v62.json",
+    "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+    "recording": "challenges/cases/v62/v62-ranger-earlier-filler-action5.session.json",
+    "recordingPath": "challenges/cases/v62/v62-ranger-earlier-filler-action5.session.json",
+    "recordingSha256": "9ea508b0e8df751ba548b1505b1773afd835d9906d2c43ffd2f7fe90794ca50f",
+    "recipe": "challenges/cases/v62/v62-ranger-earlier-filler-action5.recipe.session.json",
+    "recipeSha256": "a3e5497df168d3b572ea98f0f5adee80273956728eb5b8ef9067797d9582e35b",
+    "replayInputSha256": "023ff182755a8d98f607868892e6c2dc2761257e0a74bf24826dffd583192d10",
+    "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+    "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+    "evaluationArtifact": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+    "evaluationUtc": "2026-10-13T16:41:18.013Z",
+    "remainingScreens": 29,
+    "recordedSteps": 328,
+    "previousScreensMatched": 299,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 299,
+        "total": 328
+      },
+      "rng": {
+        "matched": 4120,
+        "total": 6305
+      },
+      "cursors": {
+        "matched": 306,
+        "total": 328
+      }
+    },
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v62/v62-ranger-earlier-filler-action5.json"
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 299,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 2,
+        "column": 12,
+        "cCell": {
+          "ch": "#",
+          "color": 2,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 4101,
+        "cEntry": "rn2(3)=0",
+        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+        "jsEntry": "rn2(5)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "stepIndex": 299
+      },
+      "cursor": {
+        "index": 299,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "cCursor": [
+          18,
+          12,
+          1
+        ],
+        "jsCursor": [
+          62,
+          15,
+          1
+        ]
+      }
+    },
+    "step": 299,
+    "kind": "rng",
+    "sourceFile": "nhlib.lua",
+    "function": "shuffle",
+    "message": null,
+    "cFile": null,
+    "luaFile": "nhlib.lua",
+    "line": 19,
+    "helper": {
+      "function": "random",
+      "luaFile": "nhlib.lua",
+      "line": 8
+    }
+  },
+  "firstMismatch": {
+    "kind": "rng",
+    "message": null,
+    "step": 299
+  },
+  "function": null,
+  "message": null,
+  "line": 19,
+  "helper": {
+    "function": "random",
+    "luaFile": "nhlib.lua",
+    "line": 8
+  },
+  "summary": "During Ranger quest filler generation above Ran-loca, C selects and loads the complete dat/Ran-fila.lua program. JavaScript computes Ran-fila but its special-level registry has no loader, so it generates ordinary rooms instead. The first mismatch occurs at step 299 when the filler level is generated.",
+  "source": {
+    "file": "dat/Ran-fila.lua",
+    "branch": "For a Ranger on a quest filler level above the locate level, mklev.c:makelevel() forms Ran-fila and mkmaze.c:makemaz() loads dat/Ran-fila.lua through sp_lev.c:load_special(). The program initializes solidfill and a smoothed Mines background, sets mazelevel/noflip, places up/down stairs, seven random objects, four traps, and the listed hostile monsters in source order. js/mklev.js computes the role-specific fill name but dispatches it only if SPECIAL_LEVEL_LOADERS contains it; Ran-fila is absent.",
+    "functions": [
+      "Ran-fila.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel() -> mkmaze.c:makemaz() -> sp_lev.c:load_special() -> dat/Ran-fila.lua top-level statements.",
+      "js/mklev.js:makelevel() computes the role-specific fill name and calls makemaz() only when SPECIAL_LEVEL_LOADERS contains it."
+    ],
+    "dependencies": [
+      "The registered special-level path already runs dat/nhlib.lua alignment initialization before the program body.",
+      "All level descriptors in Ran-fila.lua use the existing des API."
+    ]
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "Source: nethack-c/upstream/src/mklev.c:1275-1285 selects Ran-fila above Ran-loca; mkmaze.c:makemaz delegates to sp_lev.c:load_special; nethack-c/upstream/dat/Ran-fila.lua is the complete selected program.",
+    "Dispatch trace: js/mklev.js:764-772 computes Ran-fila but invokes makemaz only when SPECIAL_LEVEL_LOADERS contains that name. The absent registry entry causes ordinary room generation.",
+    "Accepted v62 evaluation challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json (56a0d96069756b3ea2c7b447b441e2765be3a904) reports 299/328 screens, 4120/6305 RNG, 306/328 cursors, error null. First mismatch at segment 0 step 299, RNG index 4101; C rn2(3)=0 from nhlib.lua:8 parent shuffle at line 19, JS rn2(5)=2.",
+    "Runtime reproduction: .cache/CRan-fila-replay-before.log reproduces 299/328 screens, 4120/6305 RNG calls, 306/328 cursors, and null error."
+  ],
+  "provenance": {
+    "corpus": "synthetic",
+    "batch": "v62",
+    "caseId": "v62-ranger-earlier-filler-action5",
+    "manifestPath": "challenges/manifests/v62.json",
+    "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+    "recordingPath": "challenges/cases/v62/v62-ranger-earlier-filler-action5.session.json",
+    "recordingSha256": "9ea508b0e8df751ba548b1505b1773afd835d9906d2c43ffd2f7fe90794ca50f",
+    "recipe": "challenges/cases/v62/v62-ranger-earlier-filler-action5.recipe.session.json",
+    "recipeSha256": "a3e5497df168d3b572ea98f0f5adee80273956728eb5b8ef9067797d9582e35b",
+    "replayInputSha256": "023ff182755a8d98f607868892e6c2dc2761257e0a74bf24826dffd583192d10",
+    "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+    "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+    "evaluationUtc": "2026-10-13T16:41:18.013Z",
+    "remainingScreens": 29,
+    "recordedSteps": 328,
+    "previousScreensMatched": 299,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 299,
+        "total": 328
+      },
+      "rng": {
+        "matched": 4120,
+        "total": 6305
+      },
+      "cursors": {
+        "matched": 306,
+        "total": 328
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 299,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 2,
+        "column": 12,
+        "cCell": {
+          "ch": "#",
+          "color": 2,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 4101,
+        "cEntry": "rn2(3)=0",
+        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+        "jsEntry": "rn2(5)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "stepIndex": 299
+      },
+      "cursor": {
+        "index": 299,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "cCursor": [
+          18,
+          12,
+          1
+        ],
+        "jsCursor": [
+          62,
+          15,
+          1
+        ]
+      }
+    }
+  },
+  "corpus": "synthetic",
+  "batch": "v62",
+  "caseId": "v62-ranger-earlier-filler-action5",
+  "manifestPath": "challenges/manifests/v62.json",
+  "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+  "recordingSha256": "9ea508b0e8df751ba548b1505b1773afd835d9906d2c43ffd2f7fe90794ca50f",
+  "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+  "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904"
+}
