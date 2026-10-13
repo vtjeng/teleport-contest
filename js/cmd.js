@@ -299,7 +299,7 @@ import {
     doturn,
     UnsupportedPrayerError,
 } from './pray.js';
-import { doextversion } from './version.js';
+import { doversion, doextversion } from './version.js';
 import { kill_genocided_monsters } from './mon.js';
 import { dosave, dosave0, savelev } from './save.js';
 import {
@@ -1904,7 +1904,7 @@ export function end_of_input(state = game) {
 // while the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'prevmsg',
+    'prevmsg', 'versionshort',
     'call', 'name',
     'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'droptype', 'pickup', 'pay',
     'takeoff', 'takeoffall', 'remove', 'wear',
@@ -5294,6 +5294,13 @@ async function doextcmd(key, state, onSelectedEntry = null) {
                 displayTextWindow: displayTtyTextWindow,
                 random: rn2,
             });
+        case 'doversion':
+            // C ref: version.c doversion(), reached from cmd.c's #versionshort row.
+            return await doversion(state, {
+                pline: ttyPline,
+                displayTextWindow: displayTtyTextWindow,
+                random: rn2,
+            });
         case 'doturn':
             // C ref: pray.c doturn(), which returns its own ECMD_* result.
             return await doturn(state);
@@ -5789,6 +5796,19 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             else if ((result & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
             if (result & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'versionshort') {
+            // C ref: rhack() dispatches cmd.c's V row to version.c:doversion().
+            const res = await doversion(state, {
+                pline: ttyPline,
+                displayTextWindow: displayTtyTextWindow,
+                random: rn2,
+            });
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
         if (command === 'wait') {
