@@ -294884,6 +294884,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "do-engulfer-corpse-timer-cleanup-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dropz, engulfer_digests_food from do.c",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dropz",
+      "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6"
     }
   ]
 }
