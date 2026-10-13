@@ -21,19 +21,44 @@
     "key": null,
     "kind": "screen mismatch",
     "source": "save.c:savelev_core -> saveobjchn; restore.c:getlev -> restobjchn",
-    "cCell": {"row": 7, "column": 57, "ch": "$", "color": 11, "attr": 0},
-    "jsCell": {"row": 7, "column": 57, "ch": ".", "color": 8, "attr": 0}
+    "cCell": {
+      "row": 7,
+      "column": 57,
+      "ch": "$",
+      "color": 11,
+      "attr": 0
+    },
+    "jsCell": {
+      "row": 7,
+      "column": 57,
+      "ch": ".",
+      "color": 8,
+      "attr": 0
+    }
   },
-  "summary": "The first divergence is after the second segment restores. C redraws floor gold at (58,6); JavaScript redraws floor at row 7 column 57. The admitted manifest's comparison found 30 floor objects before the save and only 14 after JS restoration; gold object id 23, type 438, quantity 5 is missing. JS save.js:safeStringify replaces all repeated object references with null, so the object graph loses aliases before restore.js:rebuildObjectList. A second branch of the same save/restore contract omits the global timer/light chains: the selected case later errors when turning off the restored lantern because end_burn cannot find its burn timer.",
+  "summary": "The saved game lost aliased floor objects and the lit lantern timer/light chain. The snapshot now preserves shared object identity, serializes global timers and light sources, and reconnects them before gameplay. The selected two-segment recording matches all 202 steps.",
   "source": {
     "file": "save.c / restore.c",
-    "branch": "save.c:savelev_core writes the floor list via saveobjchn; restore.c:getlev restores it via restobjchn. The top-level save also writes global timers/lights from savegamestate, and restgamestate restores them. JS serializes the object graph with safeStringify and restores floor ordering with rebuildObjectList, but duplicate object identities are truncated; dosave0's JSON snapshot also omits global timer/light chains.",
-    "functions": ["savegamestate", "savelev_core", "saveobjchn", "restgamestate", "getlev", "restobjchn", "save_timers", "restore_timers", "save_light_sources", "restore_light_sources"],
+    "branch": "save.c:savegamestate saves global timers and lights before inventory; save.c:savelev_core writes the floor chain through saveobjchn. restore.c:restgamestate restores global timers/lights and getlev/restobjchn rebuild floor objects. JS snapshots now preserve identity links and save timer_base/light_base; restore reconnects the graph before reinstating those roots.",
+    "functions": [
+      "savegamestate",
+      "savelev_core",
+      "saveobjchn",
+      "restgamestate",
+      "getlev",
+      "restobjchn",
+      "save_timers",
+      "restore_timers",
+      "save_light_sources",
+      "restore_light_sources"
+    ],
     "callers": [
       "C save.c:dosave0 calls savelev and savegamestate; JS save.js:dosave0 calls serializeGameState.",
       "C restore.c:dorecover calls restgamestate and getlev; JS jsmain.js restore entry calls restore.js:dorestore, which restores the snapshot and level objects."
     ],
-    "dependencies": []
+    "dependencies": [],
+    "javascriptOwner": "js/save.js:serializeSnapshot previously replaced every repeated object with null and dosave0 omitted global timer/light roots. js/restore.js:dorestore previously parsed ordinary JSON with those aliases permanently lost; it now reconnects saved paths and restores the timer/light chains before inventory.",
+    "fix": "Preserve shared object identity in JSON using first-path references and reconnect those references after parsing. Serialize global timer_base/light_base roots and restore them before inventory, matching restgamestate ordering."
   },
   "goalKind": "divergence-fix",
   "evidence": [
@@ -43,6 +68,16 @@
     "save.c:savegamestate calls save_timers(RANGE_GLOBAL) and save_light_sources(RANGE_GLOBAL) before saveobjchn for inventory; restore.c:restgamestate calls restore_timers(RANGE_GLOBAL) and restore_light_sources() before restoring inventory.",
     "JS save.js:safeStringify uses a WeakSet and writes null for every repeated reference, not only cycles on the active traversal stack; restore.js:rebuildObjectList can only recover objects still present in level.objects.",
     "JS save.js:dosave0 serializes the state snapshot without gt.timer_base or gl.light_base; restore.js:dorestore consequently has no saved global burn timer for the carried lantern, matching the later end_burn error.",
-    "At the current claimed base, the selected recording reaches segment 1 and stops at end_burn: lit object has no burn timer. The immutable accepted evaluation supplies the earlier mismatch and cell-level comparison; no new C recording was made."
-  ]
+    "At the current claimed base, the selected recording reaches segment 1 and stops at end_burn: lit object has no burn timer. The immutable accepted evaluation supplies the earlier mismatch and cell-level comparison; no new C recording was made.",
+    "The accepted baseline identifies segment 1 step 0 as the first mismatch: C shows gold at row 7 column 57 and JS shows floor. Its captured comparison reports 30 floor objects before save and 14 after JS restore, missing gold o_id 23/type 438/quantity 5.",
+    "C save.c:savegamestate calls save_timers(RANGE_GLOBAL), save_light_sources(RANGE_GLOBAL), then saveobjchn for inventory; restore.c:restgamestate restores global timers and lights before restobjchn. JS now preserves the shared object references and timer/light roots across the same boundary.",
+    "A bounded replay at the task base confirmed the later end_burn: lit object has no burn timer error, consistent with the baseline; the exact post-fix replay removes the error and matches both segments."
+  ],
+  "after": {
+    "codeCommit": "0817f0964dfea950ef4d9ed06fd2bac82b34ba9c",
+    "command": "node scripts/run-bounded.mjs focused -- node scripts/scan-sessions.mjs --json --synthetic v55/v55-lantern-save-restore-action2",
+    "replayInputSha256": "2ee71625f8ba42e088b33b56f2d0987d9fe01a64b646e62ce17afa16b781dc13",
+    "receipt": "/tmp/teleport-validation-1000/run-nAntfb/receipt.json",
+    "result": "All 202 recorded screens, cursors, RNG calls and input boundaries matched across both segments; the replay had no command refusal, runtime error or unported behavior."
+  }
 }
