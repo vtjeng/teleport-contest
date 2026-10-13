@@ -456,3 +456,13 @@ triage decisions or fix references.
   it did not repeat validation or append another score.
 - Root briefly serialized C submission and B's idle update to finish the
   handoffs. The current lock behavior still requires manual coordination.
+
+### 2026-10-13 — quest refusal test and metadata preview
+
+- Quest candidate `a26c3da2` failed hosted run `38332051839` in an obsolete
+  nemesis refusal test. A's correction `f2bfe0ad` supplies valid quest state
+  and checks the ported speech. Hosted run `38332806796` passed at
+  `65da8c69`; the failed summary remains preserved.
+- A preparation-packet preview applied `Object.keys` to the string-valued
+  mission plan and emitted character indices. The output was truncated.
+  The intended preview needed only the manifest's case IDs and rationales.
