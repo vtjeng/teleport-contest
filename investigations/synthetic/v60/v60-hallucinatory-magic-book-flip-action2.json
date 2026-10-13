@@ -1,0 +1,70 @@
+{
+  "session": "synthetic/v60/v60-hallucinatory-magic-book-flip-action2",
+  "corpus": "synthetic",
+  "batch": "v60",
+  "caseId": "v60-hallucinatory-magic-book-flip-action2",
+  "manifestPath": "challenges/manifests/v60.json",
+  "manifestSha256": "8d47d06f16ee303a31fae9b2226419578a27facb04cdf34ad408e2971932f5b0",
+  "recordingPath": "challenges/cases/v60/v60-hallucinatory-magic-book-flip-action2.session.json",
+  "recordingSha256": "866dbb6f0d574db39ac59ad93c0368d11dc951ec74c76e9c44047f5336bdab56",
+  "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v60.json",
+  "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+  "remainingScreens": 20,
+  "recordedSteps": 219,
+  "status": "complete",
+  "commit": "03e2ee274b2e337ec68c68a032bbd34971975e7d",
+  "mismatch": {
+    "step": 198,
+    "screen": {
+      "index": 198,
+      "row": 15,
+      "column": 28,
+      "c": "s",
+      "js": "z"
+    },
+    "rng": {
+      "index": 2868,
+      "cEntry": "rn2(21)=14",
+      "cCaller": "currency(invent.c:1550)"
+    }
+  },
+  "summary": "When hallucinating, invent.c:currency() chooses a currency with ROLL_FROM(currencies), which expands to gameplay rn2(21). JavaScript currency() currently draws from the display RNG, so it omits the recorded gameplay RNG call and shifts the #attributes output.",
+  "source": {
+    "file": "invent.c",
+    "branch": "Hallucination is active; when amount != 1L, pluralize the selected name.",
+    "functions": [
+      "currency"
+    ],
+    "callers": [
+      "insight.c:basics_enlightenment (called by doattributes for ^X)"
+    ],
+    "dependencies": [
+      "hack.h:ROLL_FROM -> rn2; objnam.c:makeplural"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/invent.c:1546-1555: currency() selects ROLL_FROM(currencies) only under Hallucination and pluralizes when amount != 1L.",
+    "nethack-c/upstream/include/hack.h:1493: ROLL_FROM(array) expands to array[rn2(SIZE(array))], proving the choice consumes the ordinary gameplay RNG.",
+    "nethack-c/upstream/src/insight.c:2009-2020 and 788-799: ^X calls enlightenment, whose basics_enlightenment invokes currency(umoney) for the wallet line. js/insight.js:3265 and 841-897 wires the same production path.",
+    "Saved v60 evaluation at challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v60.json: at step 198 screen cell row 15 column 28 differs (C s, JS z); C RNG index 2868 records rn2(21)=14 from currency(invent.c:1550), while JS has no corresponding core RNG call.",
+    "The fix is limited to js/invent.js:currency() and its focused currency test. The source function is otherwise already implemented; change the hallucinated selection to use rn2 and preserve the C currency list and pluralization."
+  ],
+  "provenance": {
+    "corpus": "synthetic",
+    "batch": "v60",
+    "caseId": "v60-hallucinatory-magic-book-flip-action2",
+    "session": "synthetic/v60/v60-hallucinatory-magic-book-flip-action2",
+    "manifestPath": "challenges/manifests/v60.json",
+    "manifestSha256": "8d47d06f16ee303a31fae9b2226419578a27facb04cdf34ad408e2971932f5b0",
+    "recording": "challenges/cases/v60/v60-hallucinatory-magic-book-flip-action2.session.json",
+    "recordingPath": "challenges/cases/v60/v60-hallucinatory-magic-book-flip-action2.session.json",
+    "recordingSha256": "866dbb6f0d574db39ac59ad93c0368d11dc951ec74c76e9c44047f5336bdab56",
+    "recipe": "challenges/cases/v60/v60-hallucinatory-magic-book-flip-action2.recipe.session.json",
+    "recipeSha256": "ee57d0e45042bed81b059bd4722c1108cdd50b0f7799fc1e22a21b2d7d1607a8",
+    "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v60.json",
+    "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+    "remainingScreens": 20,
+    "recordedSteps": 219
+  }
+}
