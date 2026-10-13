@@ -297569,7 +297569,7 @@
     {
       "id": "fix-pickup-burden-prompt-source-order-v55-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement pickup, pickup_object, lift_object from undefined",
       "cFile": "pickup.c",
       "sessions": [
@@ -297579,10 +297579,131 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "61c08bcc989875b3fd8a502d0c3414456317e8ec",
       "delivered": null,
       "function": "pickup",
-      "session": "synthetic/v55/v55-pickup-burden-armor-action2"
+      "session": "synthetic/v55/v55-pickup-burden-armor-action2",
+      "closeStanding": {
+        "sha": "61c08bcc989875b3fd8a502d0c3414456317e8ec",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "823d8044b9783901d18d24b0fe6d7469e286f498",
+        "target": "synthetic/v55/v55-pickup-burden-armor-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/61c08bcc989875b3fd8a502d0c3414456317e8ec/run-hosted-PyGVvk/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "pickup",
+            "implementation": "js/pickup.js",
+            "symbol": "pickup",
+            "sourceReview": "For the selected burden-prompt path, compared the production pickup caller and preflight with pickup.c:pickup. JavaScript no longer rejects this branch before pickup_object. This evidence does not certify other pickup branches.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup",
+                "source": "pickup.c:pickup reaches pickup_object for the selected manual floor pickup."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-pickup-burden-armor-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 159,
+                "source": "pickup.c:pickup manual comma command reaches the burden-prompt caller."
+              }
+            ]
+          },
+          {
+            "name": "pickup_object",
+            "implementation": "js/pickup.js",
+            "symbol": "pickup_object",
+            "sourceReview": "Compared the selected source order in pickup.c:pickup_object: lift_object precedes pick_obj, and res <= 0 returns before inventory addition. The JavaScript caller retains that order.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup",
+                "source": "pickup.c:pickup calls pickup_object for the selected item."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-pickup-burden-armor-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 159,
+                "source": "pickup.c:pickup_object calls lift_object before pick_obj."
+              }
+            ]
+          },
+          {
+            "name": "lift_object",
+            "implementation": "js/pickup.js",
+            "symbol": "lift_object",
+            "sourceReview": "Compared the burden branch in pickup.c:lift_object: calculate next_encumbr, compare with max(near_capacity(), flags.pickup_burden), format the prompt, consume ynq(qbuf), then clear WIN_MESSAGE. JavaScript now uses ynq(qbuf, state) and preserves the decline return.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup_object",
+                "source": "pickup.c:pickup_object calls lift_object; pickup() reaches pickup_object in the selected command path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-pickup-burden-armor-action2",
+                "segment": 0,
+                "fromStep": 117,
+                "throughStep": 117,
+                "source": "pickup.c:lift_object emits Continue, reads n through ynq, and returns before pick_obj."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is manual floor pickup via the comma command: pickup.c:pickup -> pickup_object -> lift_object -> ynq, followed by pick_obj only for an accepted answer. The admitted v55 case exercises this path at segment 0 step 117 and now matches through its final step 159. The task changes only the burden-prompt ordering and ynq answer path; it does not claim unrelated pickup entry points.",
+        "entryPoints": [
+          {
+            "name": "manual pickup that crosses the configured burden threshold",
+            "functions": [
+              "pickup",
+              "pickup_object",
+              "lift_object"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-pickup-burden-armor-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 159,
+                "source": "pickup.c:pickup -> pickup_object -> lift_object -> ynq; accepted branch continues to pick_obj"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
