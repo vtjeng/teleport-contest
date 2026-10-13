@@ -37,7 +37,7 @@
       "recordingPath": "challenges/cases/v58/v58-npc-magicbane-confusion-action2.session.json"
     }
   },
-  "summary": "The admitted NPC Magicbane case stops in the hero-defending stun branch because Mb_hit reads STUNNED without importing that property constant into artifacts.js. C artifact.c:Mb_hit uses HStun, which indexes u.uprops[STUNNED], then calls make_stunned with the existing timeout plus three. JavaScript has the matching property read and timeout arithmetic but the binding is absent. The earlier v44 monster-target probe follows the other target branch, so it does not execute this hero STUNNED lookup.",
+  "summary": "The v58 NPC Magicbane case initially stopped at STUNNED because artifact.js omitted the property constant. The correction keeps that source binding, calls the existing make_confused implementation from the later Mb_hit branch, and supplies canspotmon to the pronoun helper used by muse.c:mloot_container. The full admitted replay now matches 331 screens, 3538 RNG calls, 331 cursors, and 126 animation frames with no error.",
   "source": {
     "file": "artifact.c",
     "branch": "Mb_hit lines 1389-1393: when do_stun is selected and youdefend is true, call make_stunned((HStun & TIMEOUT) + 3L, FALSE); HStun is u.uprops[STUNNED].intrinsic.",
@@ -104,5 +104,28 @@
   "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
   "recordingSha256": "2f89a324233018374b7ccac5ddd23651b2bddd40b6398c44a44328081f2c2b14",
   "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v58.json",
-  "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678"
+  "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+  "correction": {
+    "sourceFiles": [
+      "artifact.c",
+      "potion.c",
+      "muse.c"
+    ],
+    "dependencies": [
+      "potion.c:make_confused is already implemented in js/potion.js; Mb_hit now applies C's (HConfusion & TIMEOUT)+4 update in the hero-defending branch.",
+      "muse.c:mloot_container stores mhe(mon) for the visible monster path; js/muse.js now passes display.c:canspotmon as the pronoun owner."
+    ],
+    "evidence": [
+      "The admitted v58 replay now passes all 331 screens, 3,538 RNG calls, 331 cursors, and 126 animation frames; error is null.",
+      "scripts/artifacts.test.mjs and scripts/muse.test.mjs pass; npm run lint passes.",
+      "scripts/synthetic-range-evidence.mjs verifies the v58 recording through segment 0 step 330."
+    ],
+    "after": {
+      "screens": "331/331",
+      "rng": "3538/3538",
+      "cursors": "331/331",
+      "animFrames": "126/126",
+      "error": null
+    }
+  }
 }
