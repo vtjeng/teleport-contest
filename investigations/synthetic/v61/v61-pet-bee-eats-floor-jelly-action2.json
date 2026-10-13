@@ -1,0 +1,148 @@
+{
+  "session": "synthetic/v61/v61-pet-bee-eats-floor-jelly-action2",
+  "remainingScreens": 535,
+  "recordedSteps": 737,
+  "status": "complete",
+  "commit": "819202120be22caa2ab014fc6fbdb9dd7a86e55c",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": "monmove.c",
+    "cFile": "monmove.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v61/v61-pet-bee-eats-floor-jelly-action2"
+    ],
+    "remainingScreens": 535,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 202,
+    "caseId": "v61-pet-bee-eats-floor-jelly-action2",
+    "batch": "v61",
+    "recordingPath": "challenges/cases/v61/v61-pet-bee-eats-floor-jelly-action2.session.json",
+    "session": "synthetic/v61/v61-pet-bee-eats-floor-jelly-action2",
+    "originalQueueEntry": {
+      "corpus": "synthetic",
+      "batch": "v61",
+      "caseId": "v61-pet-bee-eats-floor-jelly-action2",
+      "session": "synthetic/v61/v61-pet-bee-eats-floor-jelly-action2",
+      "manifestPath": "challenges/manifests/v61.json",
+      "manifestSha256": "febc3833cd1f31a86f513e8cc8c95a24b3d97bb5d80a16cd588b66d86fa8e0f8",
+      "recording": "challenges/cases/v61/v61-pet-bee-eats-floor-jelly-action2.session.json",
+      "recordingPath": "challenges/cases/v61/v61-pet-bee-eats-floor-jelly-action2.session.json",
+      "recordingSha256": "9c93c0cdf03fac3293dc5ffaac961ca64c858ee6d5148548e3829f6fb7f6bc87",
+      "recipe": "challenges/cases/v61/v61-pet-bee-eats-floor-jelly-action2.recipe.session.json",
+      "recipeSha256": "f4a6e27dd3fc4d078fa0cb944635fcd6766d2698a2b69b6d316d4b550f5a3362",
+      "replayInputSha256": "5b0b68f56559849b5e32fda99eaab17a23dfba46b04b0df427b04d387e153cac",
+      "evaluationPath": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v61.json",
+      "evaluationCommit": "b151b2318fa82ab62868ad676c7f00823de614c0",
+      "evaluationArtifact": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v61.json",
+      "evaluationUtc": "2026-10-13T15:57:57.263Z",
+      "remainingScreens": 535,
+      "recordedSteps": 737,
+      "previousScreensMatched": null,
+      "regression": false,
+      "passed": false,
+      "error": null,
+      "metrics": {
+        "screens": {
+          "matched": 202,
+          "total": 737
+        },
+        "rng": {
+          "matched": 2611,
+          "total": 3440
+        },
+        "cursors": {
+          "matched": 202,
+          "total": 737
+        }
+      },
+      "investigation": {
+        "status": "missing",
+        "path": "investigations/synthetic/v61/v61-pet-bee-eats-floor-jelly-action2.json"
+      },
+      "firstMismatch": {
+        "kind": "stop",
+        "message": "extractExternalObject is not available for otyp 286",
+        "step": 202
+      },
+      "step": 202,
+      "kind": "stop",
+      "sourceFile": null,
+      "function": null,
+      "message": "extractExternalObject is not available for otyp 286",
+      "cFile": null,
+      "luaFile": null,
+      "line": null
+    }
+  },
+  "summary": "The killer bee stops when bee_eat_jelly deletes the floor jelly because the helper passes its caller environment unchanged to splitobj and delobj. The pet dog_eat path and the ordinary m_move path both call this helper with an environment that lacks invent.c delobj_core’s extractExternalObject hook. C monmove.c:bee_eat_jelly calls splitobj/delobj on the floor object; JavaScript must compose the object-generation lifecycle hooks at this shared owner before either operation.",
+  "source": {
+    "file": "monmove.c",
+    "branch": "bee_eat_jelly lines 394-408: when no queen bee exists, split one jelly from a stack if needed, report consumption, delete the jelly with delobj(), grow the bee, then apply the frozen/mcanmove delay.",
+    "functions": [
+      "bee_eat_jelly"
+    ],
+    "callers": [
+      "dog_eat at dogmove.c:252-257, for a tame pet consuming a floor jelly",
+      "m_move at monmove.c:867-879, for a killer bee standing on a floor jelly"
+    ],
+    "dependencies": [
+      "invent.c:delobj/delobj_core requires mkobj.c:obj_extract_self lifecycle ownership for OBJ_FLOOR removal",
+      "mkobj.c:obj_extract_self removes an OBJ_FLOOR object with remove_object"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved admitted v61 evaluation reports 202/737 screens, 2611/3440 RNG calls, and 202/737 cursors matched; it stops before the next C rn2 call with extractExternalObject is not available for otyp 286.",
+    "The v61 recipe and recording show a tame killer bee reaches the royal-jelly consumption branch; C continues by deleting the floor jelly and growing the bee into a queen at step 204.",
+    "nethack-c/upstream/src/monmove.c:394-422 owns bee_eat_jelly and calls splitobj/delobj before grow_up. nethack-c/upstream/src/dogmove.c:252-257 calls it from dog_eat; monmove.c:867-879 calls it from m_move.",
+    "js/monmove.js:1935-1960 passes the raw environment to splitobj and delobj. js/invent.js:3311 requires extractExternalObject when deleting OBJ_FLOOR. js/object_generation.js:60-65 composes the canonical hook that calls obj.js:remove_object."
+  ],
+  "provenance": {
+    "corpus": "synthetic",
+    "batch": "v61",
+    "caseId": "v61-pet-bee-eats-floor-jelly-action2",
+    "session": "synthetic/v61/v61-pet-bee-eats-floor-jelly-action2",
+    "manifestPath": "challenges/manifests/v61.json",
+    "manifestSha256": "febc3833cd1f31a86f513e8cc8c95a24b3d97bb5d80a16cd588b66d86fa8e0f8",
+    "recording": "challenges/cases/v61/v61-pet-bee-eats-floor-jelly-action2.session.json",
+    "recordingPath": "challenges/cases/v61/v61-pet-bee-eats-floor-jelly-action2.session.json",
+    "recordingSha256": "9c93c0cdf03fac3293dc5ffaac961ca64c858ee6d5148548e3829f6fb7f6bc87",
+    "recipe": "challenges/cases/v61/v61-pet-bee-eats-floor-jelly-action2.recipe.session.json",
+    "recipePath": "challenges/cases/v61/v61-pet-bee-eats-floor-jelly-action2.recipe.session.json",
+    "recipeSha256": "f4a6e27dd3fc4d078fa0cb944635fcd6766d2698a2b69b6d316d4b550f5a3362",
+    "replayInputSha256": "5b0b68f56559849b5e32fda99eaab17a23dfba46b04b0df427b04d387e153cac",
+    "evaluationPath": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v61.json",
+    "evaluationCommit": "b151b2318fa82ab62868ad676c7f00823de614c0",
+    "evaluationArtifact": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v61.json",
+    "evaluationUtc": "2026-10-13T15:57:57.263Z",
+    "remainingScreens": 535,
+    "recordedSteps": 737,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "baseline": {
+      "screens": "202/737",
+      "rng": "2611/3440",
+      "cursors": "202/737"
+    },
+    "firstMismatch": {
+      "segment": 0,
+      "step": 202,
+      "key": null,
+      "kind": "stop",
+      "function": "bee_eat_jelly",
+      "message": "extractExternalObject is not available for otyp 286"
+    }
+  },
+  "corpus": "synthetic",
+  "batch": "v61",
+  "caseId": "v61-pet-bee-eats-floor-jelly-action2",
+  "manifestPath": "challenges/manifests/v61.json",
+  "manifestSha256": "febc3833cd1f31a86f513e8cc8c95a24b3d97bb5d80a16cd588b66d86fa8e0f8",
+  "recordingSha256": "9c93c0cdf03fac3293dc5ffaac961ca64c858ee6d5148548e3829f6fb7f6bc87",
+  "evaluationPath": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v61.json",
+  "evaluationCommit": "b151b2318fa82ab62868ad676c7f00823de614c0"
+}
