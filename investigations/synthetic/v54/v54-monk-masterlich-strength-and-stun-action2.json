@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v54/v54-monk-masterlich-strength-and-stun-action2",
-  "remainingScreens": 0,
+  "remainingScreens": 94,
   "recordedSteps": 399,
   "corpus": "synthetic",
   "batch": "v54",
@@ -24,38 +24,38 @@
     "recordingSha256": "83011de00f142b229de5020415575c4ba70e432f85c3e02182caf7405c0c826f",
     "recipe": "challenges/cases/v54/v54-monk-masterlich-strength-and-stun-action2.recipe.session.json",
     "recipeSha256": "9ad8d463fa0e38c3bd1853a61bad2911752bd6e8ef340d16212d9792dff8cfc2",
-    "replayInputSha256": "42be6fc78f6f14994f3653200be341ad3e391cea94a2afcd37befddf9bb825e8",
-    "evaluationPath": "challenges/evaluations/accepted-f7d9d863fc7a5de36299786e449d6a42bd585f03-v54.json",
-    "evaluationCommit": "f7d9d863fc7a5de36299786e449d6a42bd585f03",
-    "evaluationArtifact": "challenges/evaluations/accepted-f7d9d863fc7a5de36299786e449d6a42bd585f03-v54.json",
+    "replayInputSha256": "8d6e44d0cc3bf68f1d8ffda0e7ad41a5a92970979fe059c0a9a47546556ab9c7",
+    "evaluationPath": "challenges/evaluations/accepted-00783478fe07117bdce7e0113d340094fff9ec35-v54.json",
+    "evaluationCommit": "00783478fe07117bdce7e0113d340094fff9ec35",
+    "evaluationArtifact": "challenges/evaluations/accepted-00783478fe07117bdce7e0113d340094fff9ec35-v54.json",
     "evaluationUtc": "2026-10-13T03:35:12.119Z",
-    "remainingScreens": 0,
+    "remainingScreens": 94,
     "recordedSteps": 399,
-    "previousScreensMatched": 399,
+    "previousScreensMatched": 305,
     "regression": false,
-    "passed": true,
+    "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 399,
+        "matched": 305,
         "total": 399
       },
       "rng": {
-        "matched": 3378,
+        "matched": 3346,
         "total": 3378
       },
       "cursors": {
-        "matched": 399,
+        "matched": 396,
         "total": 399
       }
     },
     "investigation": {
-      "status": "complete",
+      "status": "missing",
       "path": "investigations/synthetic/v54/v54-monk-masterlich-strength-and-stun-action2.json"
     },
     "firstMismatch": null,
     "step": null,
-    "kind": null,
+    "kind": "rng",
     "sourceFile": null,
     "function": null,
     "message": null
