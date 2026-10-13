@@ -92,6 +92,7 @@ import {
     doname_with_price,
     isPoisonable,
     killer_xname,
+    mshot_xname,
     just_an,
     is_plural,
     not_fully_identified,
@@ -303,6 +304,57 @@ function objectOf(state, otyp, overrides = {}) {
         ...overrides,
     });
 }
+
+test('mshot_xname ports C multishot ordinal naming and preserves ordinary names', () => {
+    const cStart = OBJNAM_SOURCE.indexOf(
+        '/* xname() output augmented for multishot missile feedback */',
+    );
+    const cEnd = OBJNAM_SOURCE.indexOf(
+        '/* used for naming "the unique_item" instead of "a unique_item" */',
+        cStart,
+    );
+    const cBody = OBJNAM_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart, 'extract the whole C function');
+    assert.match(
+        cBody,
+        /char \*onm = xname\(obj\);[\s\S]*?if \(gm\.m_shot\.n > 1 && gm\.m_shot\.o == obj->otyp\)[\s\S]*?Sprintf\(tmpbuf, "the %d%s ", gm\.m_shot\.i, ordin\(gm\.m_shot\.i\)\);[\s\S]*?onm = strprepend\(onm, tmpbuf\);[\s\S]*?return onm;/u,
+    );
+
+    const jsStart = OBJNAM_JS_SOURCE.indexOf('export function mshot_xname(');
+    const jsEnd = OBJNAM_JS_SOURCE.indexOf('\n}', jsStart) + 2;
+    const jsBody = OBJNAM_JS_SOURCE.slice(jsStart, jsEnd);
+    assert.match(
+        jsBody,
+        /const name = xnameFresh\(obj, state\);[\s\S]*?if \(/u,
+        'construct xname before inspecting volley state as C does',
+    );
+    assert.ok(jsBody.includes('return strprepend(name, `the ${shot.i}${ordin(shot.i)} `);'));
+    assert.doesNotMatch(OBJNAM_JS_SOURCE, /UnsupportedObjectNameError|unsupported\('multishot missile ordinal'/u);
+    const mthrowuSource = readFileSync('nethack-c/upstream/src/mthrowu.c', 'utf8');
+    const mthrowuJs = readFileSync('js/mthrowu.js', 'utf8');
+    assert.match(mthrowuSource, /\(obj->quan > 1L\) \? doname\(obj\) : mshot_xname\(obj\)/u);
+    assert.match(mthrowuJs, /name = obj\.quan > 1 \? donameFresh\(obj, state\)[\s\S]*?: mshot_xname\(obj, state\)/u,
+        'the monster projectile hit caller remains wired to mshot_xname');
+
+    const state = namingState();
+    const arrow = objectOf(state, ARROW);
+    const ordinaryName = xnameFresh(arrow, state);
+    state.m_shot = { n: 1, o: ARROW, i: 1 };
+    assert.equal(mshot_xname(arrow, state), ordinaryName,
+        'a single missile keeps its ordinary xname');
+    state.m_shot = { n: 2, o: ARROW + 1, i: 1 };
+    assert.equal(mshot_xname(arrow, state), ordinaryName,
+        'a volley for a different object type keeps its ordinary xname');
+
+    for (const [index, suffix] of [
+        [1, 'st'], [2, 'nd'], [3, 'rd'], [4, 'th'], [11, 'th'],
+        [12, 'th'], [13, 'th'], [21, 'st'], [22, 'nd'], [23, 'rd'], [100, 'th'],
+    ]) {
+        state.m_shot = { n: 2, o: ARROW, i: index };
+        assert.equal(mshot_xname(arrow, state),
+            `the ${index}${suffix} ${ordinaryName}`);
+    }
+});
 
 test('An capitalizes the C article helper result for valid nonempty names', () => {
     assert.equal(An('ogre'), 'An ogre');
@@ -2223,7 +2275,7 @@ test('erosion_matters keeps the full C switch, weptool macro, and source callers
 
     const jsName = OBJNAM_JS_SOURCE.indexOf('export function erosion_matters(');
     const jsEnd = OBJNAM_JS_SOURCE.indexOf(
-        '\nexport class UnsupportedObjectNameError',
+        '\nfunction heroIsBlind',
         jsName,
     );
     const jsBody = OBJNAM_JS_SOURCE.slice(jsName, jsEnd);

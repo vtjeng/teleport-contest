@@ -66,7 +66,6 @@ import {
 } from './makemon_create.js';
 import { init_objects } from './o_init.js';
 import { maybe_shuffle_customizations } from './glyphs.js';
-import { UnsupportedObjectNameError } from './objnam.js';
 import { remove_object, UnsupportedObjectOperationError } from './obj.js';
 import { polyself } from './polyself.js';
 import { you_were } from './were.js';
@@ -1232,12 +1231,10 @@ function elapsedTurnPlanningRefusals() {
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedMonsterCreationError,
         // Both pickup arms -- dogmove.c dog_invent()'s and mon.c
-        // mpickstuff()'s -- call distant_name(), splitobj() and mpickobj()
-        // from inside the monster scan, so these three reach here from a path
-        // that used to stop at an injected refusal of the first class above.
-        // Without them a naming, split or pickup refusal discards the whole
-        // segment instead of stopping on its last matching screen.
-        UnsupportedObjectNameError,
+        // mpickstuff()'s -- call splitobj() and mpickobj() from inside the
+        // monster scan, so these classes reach here from a path that used to
+        // stop at an injected refusal. Without them a split or pickup refusal
+        // discards the segment instead of stopping on its last matching screen.
         UnsupportedObjectOperationError,
         UnsupportedMonsterPickupOperationError,
         // dogmove.c dog_invent() may split an unpaid stack through

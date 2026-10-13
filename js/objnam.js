@@ -37,8 +37,8 @@ import { tin_details } from './eat.js';
 import { game } from './gstate.js';
 import { count_contents, currency } from './invent.js';
 import {
-    digit, dist2, encodeUtf8ByteString, eos, highc, lowc, mungspaces, s_suffix,
-    strcasecpy, strstri, truncateByteString,
+    digit, dist2, encodeUtf8ByteString, eos, highc, lowc, mungspaces, ordin,
+    s_suffix, strcasecpy, strstri, truncateByteString,
     upstart,
 } from './hacklib.js';
 import { arti_light_description, find_mid, get_obj_location } from './light.js';
@@ -117,17 +117,6 @@ export function erosion_matters(obj, state = game) {
     }
 }
 
-export class UnsupportedObjectNameError extends Error {
-    constructor(branch, obj) {
-        super(`unsupported object name branch: ${branch}`);
-        this.name = 'UnsupportedObjectNameError';
-        this.branch = branch;
-        this.object = obj;
-    }
-}
-function unsupported(branch, obj) {
-    throw new UnsupportedObjectNameError(branch, obj);
-}
 function heroIsBlind(state) {
     const blinded = state.u?.uprops?.[BLINDED];
     return Boolean((blinded?.intrinsic || blinded?.extrinsic)
@@ -935,12 +924,14 @@ export function xname(obj, state, { withOffset = false } = {}) {
 }
 export const xnameFresh = xname;
 
-// C ref: objnam.c mshot_xname() (1088-1102), quantity-one arm. The multishot
-// prefix belongs to a volley this port still refuses before naming a missile.
+// C ref: objnam.c mshot_xname() (1088-1102). Format xname before applying the
+// active volley prefix, which C stores ahead of the returned xname buffer.
 export function mshot_xname(obj, state = game) {
-    if ((state.m_shot?.n ?? 0) > 1 && state.m_shot.o === obj.otyp)
-        unsupported('multishot missile ordinal', obj);
-    return xnameFresh(obj, state);
+    const name = xnameFresh(obj, state);
+    const shot = state.m_shot;
+    if ((shot?.n ?? 0) > 1 && shot.o === obj.otyp)
+        return strprepend(name, `the ${shot.i}${ordin(shot.i)} `);
+    return name;
 }
 
 // C ref: objnam.c minimal_xname() (1038-1086). Builds a bare object with

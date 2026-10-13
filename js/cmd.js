@@ -284,7 +284,7 @@ import {
 import {
     doclassdisco, dodiscovered, UnsupportedDiscoveryDisplayError,
 } from './o_init.js';
-import { donameFresh, UnsupportedObjectNameError } from './objnam.js';
+import { donameFresh } from './objnam.js';
 import {
     doset,
     doset_simple,
@@ -2879,7 +2879,6 @@ function restoreParsedCommand(pending, state) {
 export function failClosedCommandRefusals() {
     return [
         UnsupportedFeatureDescriptionError,
-        UnsupportedObjectNameError,
         // spell.c spelleffects_check() and spelleffects() raise this from
         // the forgotten-spell, amulet-drain, and non-healing spell paths
         // that this port has not reached.
