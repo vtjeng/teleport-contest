@@ -1242,6 +1242,8 @@ test('pickup defers planning through the source partial-stack lift path', async 
     const state = await heroOnAnEmptySquare();
     state.flags.pickup = true;
     const arrows = typedObjectUnderHero(state, ELVEN_ARROW);
+    // This 5000-arrow stack exceeds the test hero's capacity but leaves a
+    // nonzero partial lift, exercising carry_count's adjusted quantity path.
     arrows.quan = 5000;
     arrows.owt = weight(arrows, { state });
     quiet(state);
