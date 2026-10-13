@@ -26,7 +26,9 @@
       "index": 2868,
       "cEntry": "rn2(21)=14",
       "cCaller": "currency(invent.c:1550)"
-    }
+    },
+    "session": "synthetic/v60/v60-hallucinatory-magic-book-flip-action2",
+    "remainingScreens": 20
   },
   "summary": "When hallucinating, invent.c:currency() chooses a currency with ROLL_FROM(currencies), which expands to gameplay rn2(21). JavaScript currency() currently draws from the display RNG, so it omits the recorded gameplay RNG call and shifts the #attributes output.",
   "source": {
