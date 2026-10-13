@@ -6,11 +6,11 @@
   "batch": "v56",
   "caseId": "v56-magic-whistle-firetrap-pet-action2",
   "manifestPath": "challenges/manifests/v56.json",
-  "manifestSha256": "4aa0cf52cd2e315fae1c6b13dd2e5bf5317121d64ab04eacf9e4576fb86b8e19",
+  "manifestSha256": "a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74",
   "recordingSha256": "c4a85e22cb0c01a18cf3e7a828247eaa00ba8880c84a1a8f5b6a538fad632b70",
   "recipeSha256": "2d87057ca14222ef7248f49dda2d0e4c021349a7c2afac003c885124b230ff49",
   "evaluationPath": "challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json",
-  "evaluationCommit": "0d400b2cebd59331654cc50a21f5a871c0a25d29",
+  "evaluationCommit": "398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6",
   "status": "complete",
   "commit": "6c31426f84f57beee4409a8c9feec930e84c5d29",
   "mismatch": {
@@ -96,5 +96,6 @@
       "error": null
     },
     "result": "The selected admitted recording now matches through its final step; the original baseline mismatch and its provenance remain unchanged above."
-  }
+  },
+  "manifestFileSha256": "4aa0cf52cd2e315fae1c6b13dd2e5bf5317121d64ab04eacf9e4576fb86b8e19"
 }
