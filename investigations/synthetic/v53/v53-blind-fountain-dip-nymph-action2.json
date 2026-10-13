@@ -5,58 +5,72 @@
   "caseId": "v53-blind-fountain-dip-nymph-action2",
   "manifestPath": "challenges/manifests/v53.json",
   "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+  "recordingPath": "challenges/cases/v53/v53-blind-fountain-dip-nymph-action2.session.json",
   "recordingSha256": "8cc326b23b43cdf6138070ed9f82f260abe5c18210dbc2121e896111f4e86efc",
-  "evaluationPath": "challenges/evaluations/accepted-26748832bec4c8d55150cd96f4f870355f5d2bbd-v53.json",
-  "evaluationCommit": "26748832bec4c8d55150cd96f4f870355f5d2bbd",
-  "remainingScreens": 122,
-  "recordedSteps": 223,
+  "evaluationPath": "challenges/evaluations/accepted-f198de1914d3503813ea7333d0fe355f6d3fdc5f-v53.json",
+  "evaluationCommit": "f198de1914d3503813ea7333d0fe355f6d3fdc5f",
   "status": "complete",
-  "commit": "f81c67bf7435760e0d1d6cf8fb09278d9a3a30d1",
-  "mismatch": {
-    "kind": "rng",
-    "corpus": "synthetic",
-    "session": "synthetic/v53/v53-blind-fountain-dip-nymph-action2",
-    "sourceFile": "fountain.c",
-    "cFile": "fountain.c",
-    "luaFile": null,
-    "sessions": [
-      "synthetic/v53/v53-blind-fountain-dip-nymph-action2"
-    ],
-    "remainingScreens": 122,
-    "remainingScreensUpperBound": null,
-    "earliestStep": 102,
-    "caseId": "v53-blind-fountain-dip-nymph-action2",
-    "batch": "v53",
-    "recordingPath": "challenges/cases/v53/v53-blind-fountain-dip-nymph-action2.session.json",
-    "error": null
-  },
-  "summary": "A blinded hero dips an item into a fountain and the source attracts a water nymph. C continues through the You_hear suppression and later dryup draw, but JS stops at a fail-closed blind-message refusal in dowaternymph. The source function has no completion evidence, so the follow-up is a whole-function port.",
+  "commit": "ca1dc3aa672dd890654deb518a096f0c5c4ebd85",
+  "summary": "The accepted fountain helper advances this case to a TTY message-state mismatch at segment 0 step 140. C replaces the answered dry-up prompt when the nymph removes a blindfold; JS appends the new theft message to the stale prompt and reaches More before the next source message. The owner is topl.c:update_topl, which B currently reserves.",
   "source": {
-    "file": "fountain.c",
+    "file": "topl.c",
     "functions": [
-      "dowaternymph"
+      "update_topl"
     ],
-    "branch": "At step 101, potion.c:dodip reaches fountain.c:dipfountain fate 22 and calls dowaternymph. C fountain.c:dowaternymph:103-105 calls You_hear('a seductive voice.') when Blind; the recorder has !acoustics so You_hear emits nothing and the function continues by clearing mtmp->msleeping. It then returns to dipfountain, which reaches dryup at step 102 and consumes rn2(3)=1. JS fountain.js:dowaternymph instead unconditionally throws UnsupportedFountainError in the blind branch before sleeping-state update and the caller continuation. Fresh replay matches all 101 preceding screens and 3059 preceding RNG calls, then C consumes rn2(3)=1 at step 102 while JS has stopped; C has 223 screens and 3123 RNG values, JS has 101 screens and 3059 RNG values. The correction implements C You_hear output semantics in JS for both blind arms.",
+    "branch": "C update_topl() appends only when ttyDisplay->toplin is TOPLINE_NEED_MORE or WIN_STOP is set. Otherwise it replaces gt.toplines with the new message. JS update_topl() treats every state except TOPLINE_NON_EMPTY as a pending message, so TOPLINE_EMPTY also reuses _pending_message. The answered fountain dry-up prompt is cleared to TOPLINE_EMPTY by cmd.js:finishCommandParse; the next pline therefore appends it. The prefix takes room needed by do_wear.c:off_msg's 'You were wearing a blindfold.' message, moving the More boundary and following theft/sight messages.",
     "callers": [
-      "C potion.c:dodip -> fountain.c:dipfountain fate 22 -> dowaternymph. JS potion.js:dodip awaits fountain.js:dipfountain, which already calls dowaternymph with state, RNG and message environment.",
-      "C potion.c:dodrink -> fountain.c:drinkfountain fate 28 -> dowaternymph. JS potion.js:dodrink awaits fountain.js:drinkfountain, which already calls dowaternymph. This second production caller needs independent runtime evidence for whole-function completion."
+      "C fountain.c:dipfountain -> dryup -> cmd.c:y_n/yn_function -> topl.c:tty_yn_function; the turn then reaches steal.c:steal and do_wear.c:Blindf_off/off_msg.",
+      "JS fountain.js:dipfountain -> dryup -> cmd.js:y_n/yn_function -> topl.js:tty_yn_function; cmd.js:finishCommandParse clears the answered prompt before tty_message.js:ttyPlineCore calls topl.js:update_topl for the nymph theft messages."
     ],
-    "priorCompletion": "GOALS.json and goal-log verifiedNames('fountain.c') do not list dowaternymph as complete. The earlier complete drinkfountain evidence expressly reused dowaternymph without whole-source credit and names the blind You_hear/Soundeffect arms as gaps.",
-    "calleeReview": "The helper consumes makemon's returned monster to choose success/failure. The existing JS call uses makemon_runtime, which already reaches the selected explicit-coordinate MM_NOMSG source path with matching RNG, state and return behavior through the first divergence. C's mintrap result is discarded; current JS has the source-named mintrap adapter. Do not claim whole completion for either unrelated callee.",
-    "dependencies": [],
+    "dependencies": [
+      "Accepted fountain helper delivery f198de1914d3503813ea7333d0fe355f6d3fdc5f advances the recorded case past the original blind-message refusal."
+    ],
     "sourcePointers": [
-      "fountain.c:dowaternymph 93-116",
-      "fountain.c:dryup 201-239",
-      "fountain.c:drinkfountain 243-390",
-      "fountain.c:dipfountain 394-554",
-      "potion.c:dodip -> fountain.c:dipfountain fate 22"
+      "nethack-c/upstream/win/tty/topl.c:update_topl, lines 259-282",
+      "js/topl.js:update_topl, lines 223-282",
+      "js/cmd.js:finishCommandParse, lines 1802-1816",
+      "nethack-c/upstream/src/fountain.c:dryup, lines 216-218",
+      "nethack-c/upstream/src/steal.c:remove_worn_item and steal, lines 195-270 and 500-575",
+      "nethack-c/upstream/src/do_wear.c:Blindf_off, lines 1495-1535"
     ]
   },
+  "goalKind": "divergence-fix",
+  "remainingScreens": 3,
+  "recordedSteps": 223,
+  "mismatch": {
+    "kind": "screen-and-cursor",
+    "step": 140,
+    "sourceFile": "topl.c",
+    "function": "update_topl",
+    "cCell": {
+      "row": 0,
+      "column": 0,
+      "ch": "S"
+    },
+    "jsCell": {
+      "row": 0,
+      "column": 0,
+      "ch": "D"
+    },
+    "cCursor": [
+      70,
+      0,
+      1
+    ],
+    "jsCursor": [
+      67,
+      0,
+      1
+    ],
+    "session": "synthetic/v53/v53-blind-fountain-dip-nymph-action2",
+    "remainingScreens": 3
+  },
   "evidence": [
-    "The accepted v53 baseline evaluation identifies this recording by its SHA-256 and canonical manifest digest above: 101/223 screens, 3059/3123 RNG calls, 101/223 cursors, error null.",
-    "A fresh diff-fresh replay of the input-only recipe reaches a mismatching C dryup draw at segment 1, step 102: C rn2(3)=1 in fountain.c:dryup; JS has stopped after the blind dowaternymph refusal. C ends at 223 screens/3123 RNG; JS ends at 101 screens/3059 RNG. Log: /tmp/teleport-validation-1000/run-tSQTQR/stdout.log.",
-    "Manifest source trace names the blinded dowaternymph success branch: creation succeeds, You_hear is suppressed under !acoustics, then fountain.c:dryup executes. The ordinary JS branch currently throws before those post-message source statements.",
-    "Independent full drinkfountain caller recording now passes fate 28: recordings/fountain.c/dowaternymph-drinkfountain-fate28-independent-b116.session.json, with all 3090 RNG calls and 13 screens/cursors matching. The selected v53 dip caller now matches through step 139; the full case first diverges later at boundary 141 on an unrelated map glyph."
+    "The exact hosted v53 artifact for accepted commit f198de1914d3503813ea7333d0fe355f6d3fdc5f reports 220/223 screens, 3123/3123 RNG values, and 221/223 cursors for this recording.",
+    "A single-case scan of the admitted recording on worker commit b9465d4a0ed2d324221360e6053d5a680b6c356b completed in bounded run-tNt1S5. It found the first screen/cursor mismatch at segment 0 step 140: C row 0 column 0 is 'S', JS is 'D'; C cursor [70,0,1], JS [67,0,1]. Every RNG value matched.",
+    "The saved C frames show step 140 'Someone removes your blindfold.  You were wearing a blindfold.--More--', step 141 'You can see again.  The water nymph stole a blindfold.--More--', and step 142 'The water nymph vanishes!'. The exact JS replay shows the old 'Dry up fountain? [yn] (n)' prompt prefixed to 'Someone removes your blindfold.--More--', then shifts 'You were wearing a blindfold.' and the final theft message into later frames.",
+    "Source comparison confirms the branch difference: topl.c:update_topl only shares a line when toplin is TOPLINE_NEED_MORE or WIN_STOP is active, while js/topl.js:update_topl derives current from _pending_message whenever toplin is not TOPLINE_NON_EMPTY. No C recording or source edit was made for this diagnosis.",
+    "The canonical committed copy uses the tracked accepted evaluation challenges/evaluations/accepted-f198de1914d3503813ea7333d0fe355f6d3fdc5f-v53.json and records accepted-base ca1dc3aa672dd890654deb518a096f0c5c4ebd85, where the 3-screen source mismatch was diagnosed. The correction and exact-commit full replay are recorded in the parent mounted-row investigation and worker delivery."
   ],
-  "goalKind": "file-port"
+  "blockedBy": "Transferred from A to B after the source diagnosis; B owns the update_topl and TTY row-redraw correction."
 }
