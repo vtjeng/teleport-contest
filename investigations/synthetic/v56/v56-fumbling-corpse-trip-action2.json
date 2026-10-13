@@ -1,0 +1,82 @@
+{
+  "session": "synthetic/v56/v56-fumbling-corpse-trip-action2",
+  "corpus": "synthetic",
+  "batch": "v56",
+  "caseId": "v56-fumbling-corpse-trip-action2",
+  "manifestPath": "challenges/manifests/v56.json",
+  "manifestSha256": "a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74",
+  "recordingPath": "challenges/cases/v56/v56-fumbling-corpse-trip-action2.session.json",
+  "recordingSha256": "7874dc5827ee0fb5b9d40f26d8de4fab55d78c4a2a280846a7a631589255b0b8",
+  "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v56.json",
+  "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+  "remainingScreens": 18,
+  "recordedSteps": 360,
+  "status": "complete",
+  "commit": "a7c565dc80155e5c934fbb92aaab3474b12f63ba",
+  "mismatch": {
+    "screen": {
+      "index": 342,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 342,
+        "key": " "
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 4,
+      "cCell": {
+        "ch": "t",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "m",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "rng": {
+      "index": 3198,
+      "cCaller": null,
+      "jsEntry": "rn2(5)=4",
+      "stepIndex": null
+    },
+    "cursor": {
+      "index": 342,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 342,
+        "key": " "
+      },
+      "cCursor": [28, 0, 1],
+      "jsCursor": [74, 13, 1]
+    },
+    "session": "synthetic/v56/v56-fumbling-corpse-trip-action2",
+    "remainingScreens": 18
+  },
+  "summary": "When the hero ends Fumbling over a petrifying floor corpse without foot armor or Stone_resistance, timeout.c:slip_or_trip sets the killer name and calls trap.c:instapetrify. JavaScript already detects the same condition and sets the same killer name, but replaces the void call with note_unported('trap.c instapetrify'). The omitted helper emits the urgent stoning message and enters the normal hero-death path, so the recorded trip at step 341 is followed by petrification in C at step 342 while JavaScript continues the turn.",
+  "source": {
+    "file": "timeout.c",
+    "functions": [
+      "slip_or_trip"
+    ],
+    "branch": "When an object is under the hero on foot, uarmf is absent, the object is a corpse whose species touch-petrifies, and Stone_resistance is false, C writes the tripping-over killer cause and calls the void trap.c:instapetrify helper.",
+    "callers": [
+      "timeout.c:nh_timeout calls slip_or_trip after the Fumbling timeout reaches zero; the case expires Fumbling while the hero stands over the corpse.",
+      "js/timeout.js:nh_timeout reaches slip_or_trip after property expiry. Its matching corpse branch currently records trap.c instapetrify as unported rather than calling the existing js/trap.js helper."
+    ],
+    "dependencies": [
+      "trap.c:instapetrify is already implemented and exported as async instapetrify() from js/trap.js. C discards its void return; JavaScript must await the helper so its urgent stoning message and done(STONING) effects complete before the turn continues.",
+      "js/trap.js imports timeout.js helpers, so use a function-local dynamic import from timeout.js to avoid adding a static cycle."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The v56 manifest identifies timeout.c:slip_or_trip lines 1253-1259 and describes the missing existing trap.js instapetrify caller for an ungloved hero who trips over a petrifying corpse.",
+    "Read upstream nethack-c/upstream/src/timeout.c:slip_or_trip (1222-1341), especially lines 1256-1260: C checks !uarmf, CORPSE, touch_petrifies, and !Stone_resistance; it sets svk.killer.name to 'tripping over ... corpse' and calls instapetrify(svk.killer.name). Read trap.c:instapetrify (3844-3855): it emits the urgent 'You turn to stone...' message, sets KILLED_BY, preserves the killer cause, and calls done(STONING).",
+    "The baseline scan at a7c565dc80155e5c934fbb92aaab3474b12f63ba reproduces the v56 divergence at segment 0 step 342. C and JS match through step 341; at step 342 C shows the urgent petrification message while JS continues with an unrelated turn message and later draws rn2(5). The scan's unported set contains trap.c instapetrify.",
+    "js/timeout.js:slip_or_trip already computes the same source predicate and killer cause at lines 822-830, then calls note_unported('trap.c instapetrify'). The helper exists at js/trap.js:instapetrify. The bounded correction is to call and await the existing helper through a function-local dynamic import, preserving the existing planning guard and the C void-result behavior."
+  ]
+}
