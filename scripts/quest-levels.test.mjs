@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { PM_BUGBEAR, PM_HILL_GIANT, S_HUMANOID } from '../js/monsters.js';
 import { QUEST_LEVEL_LOADERS } from '../js/quest_levels.js';
 
 function delayedDescriptor(events) {
@@ -60,4 +61,50 @@ test('Pri-fila waits for nested room contents before closing each room', async (
     assert.ok(firstEnd > 0);
     assert.ok(secondStart > firstEnd);
     assert.ok(events.indexOf('object:end') < firstEnd);
+});
+
+test('Cav-fila registers and follows the Lua program descriptor order', async () => {
+    const calls = [];
+    const des = new Proxy({}, {
+        get(_target, method) {
+            return async (...args) => calls.push({ method, args });
+        },
+    });
+
+    assert.equal(typeof QUEST_LEVEL_LOADERS['Cav-fila'], 'function');
+    await QUEST_LEVEL_LOADERS['Cav-fila'](des);
+
+    // The first three calls mirror Cav-fila.lua lines 6, 8 and 10-12: reset
+    // to solid fill, mark a maze level without flipping it, then use mines
+    // terrain with '.' floor, space background and all three generation flags.
+    assert.deepEqual(calls.slice(0, 3), [
+        { method: 'level_init', args: [{ style: 'solidfill', fg: ' ' }] },
+        { method: 'level_flags', args: ['mazelevel', 'noflip'] },
+        {
+            method: 'level_init',
+            args: [{
+                style: 'mines', fg: '.', bg: ' ',
+                smoothed: true, joined: true, walled: true,
+            }],
+        },
+    ]);
+    // Cav-fila.lua lines 14-15 place an up stair before a down stair.
+    assert.deepEqual(calls.slice(3, 5), [
+        { method: 'stair', args: ['up'] },
+        { method: 'stair', args: ['down'] },
+    ]);
+    // Cav-fila.lua calls des.object() seven times at source lines 16-22.
+    assert.equal(calls.filter(call => call.method === 'object').length, 7);
+    // Cav-fila.lua calls des.trap() four times at source lines 24-27.
+    assert.equal(calls.filter(call => call.method === 'trap').length, 4);
+    // Cav-fila.lua lines 29-35 list five bugbears, one class-h monster and
+    // one hill giant; peaceful=0 makes each explicitly hostile.
+    assert.deepEqual(
+        calls.filter(call => call.method === 'monster').map(call => call.args[0]),
+        [
+            ...Array(5).fill({ id: PM_BUGBEAR, peaceful: 0 }),
+            { class: S_HUMANOID, peaceful: 0 },
+            { id: PM_HILL_GIANT, peaceful: 0 },
+        ],
+    );
 });
