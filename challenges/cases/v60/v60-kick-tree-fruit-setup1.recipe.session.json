@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first expansion dokick.c:kick_nondoor tree fruit shake branch. Wish tree then leave and kick it from adjacent dry floor; preserve fruit/bee/injury outcomes and identify actual source branch. Expected Fruit falls from tree and created object metadata or bees; different terrain state from throne and passage.. Planned before this case's JS results.",
+  "segments": [
+    {
+      "seed": 60161104,
+      "datetime": "20681117192021",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed gauntlets of power\n                    i                    #wizmap\n"
+    }
+  ]
+}

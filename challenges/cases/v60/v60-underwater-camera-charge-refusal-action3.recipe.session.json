@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: apply.c:use_camera 79-84 Underwater return before getdir/charge. Human wearing magical breathing ring; wish pool and enter Underwater, apply camera then inspect charges. Expected: Warranty refusal before direction prompt, charge unchanged. C-only correction: Source object inventory confirms magical breathing is an AMULET, not ring. Initial ring wish produced another ring and hero escaped pool. New amulet q supplies Amphibious before entering pool; preserve wrong ring setup.",
+  "segments": [
+    {
+      "seed": 60161007,
+      "datetime": "20681016171819",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of magical breathing\n                    \u0017uncursed expensive camera (0:7)\n                    i                    #wizmap\n\u0017uncursed amulet of magical breathing\n                    Pq                    \u0017pool\n                    #sit\n                    ap                    i                    "
+    }
+  ]
+}

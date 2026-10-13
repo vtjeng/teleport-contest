@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first expansion apply.c:use_stethoscope 370-375 Underwater dz !=0 sound branch. Human wears independently wished magical-breathing amulet, enters pool and probes down with stethoscope. Expected Faint splashing without floor-corpse status or camera charge effects; source-owned underwater branch.. Planned before this case's JS results. C-only action: Own C amulet k, stethoscope l. Enter pool with amulet then downward stethoscope while Underwater.",
+  "segments": [
+    {
+      "seed": 60161106,
+      "datetime": "20681117192021",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed amulet of magical breathing\n                    \u0017uncursed stethoscope\n                    i                    #wizmap\nPk                    \u0017pool\n                    #sit\n                    al>                    #attributes\n                    "
+    }
+  ]
+}

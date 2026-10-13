@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: mcastu.c:mcast_geyser 523-539 physical d(8,6), no inventory water damage. High level high HP human, hostile high cleric, no incidental generation; retain bounded attack history and all earlier cast branches. Expected: Sudden geyser, d(8,6) reaches direct owner; earlier submitted spell defects may exclude first-owner count. C-only action protocol: Level30 human, protection p and slow digestion q. Generate unique hostile high cleric, bounded twenty waits seek geyser; capture prior cast owners without counting overlap.",
+  "segments": [
+    {
+      "seed": 60161012,
+      "datetime": "20681016171819",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017blessed potion of full healing\n                    \u0017uncursed ring of protection +35\n                    \u0017uncursed ring of slow digestion\n                    i                    #wizmap\n#levelchange\n30\n                                                                                qoq                    Ppl                    Pqr                    #wizgenesis\nhostile high cleric\ny                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    #attributes\n                    "
+    }
+  ]
+}

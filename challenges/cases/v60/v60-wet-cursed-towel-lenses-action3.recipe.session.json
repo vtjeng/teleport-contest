@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: apply.c:use_towel 140-168 cursed pushes uncursed eyewear off, dropx then drying. Wear uncursed lenses, wet cursed towel with independent water dip, then apply towel while lenses remain worn. Expected: Push lenses off; inventory ownership and towel dries at this specific curse branch. C-only correction: Water dip reached but pending Call swallowed later actions. Acknowledge More then newline to close naming before repeated towel use.",
+  "segments": [
+    {
+      "seed": 60161004,
+      "datetime": "20681016171819",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017cursed towel\n                    \u0017uncursed lenses\n                    \u0017uncursed potion of water\n                    i                    #wizmap\nPo                    #dip\nnp \n                    an                    an                    an                    an                    an                    an                    an                    i                    "
+    }
+  ]
+}

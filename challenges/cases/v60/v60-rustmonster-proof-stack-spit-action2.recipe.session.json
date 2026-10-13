@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first expansion eat.c:doeat 2876-2907 metallic erodeproof split/clear/Stun/drop. Polymorph rust monster and choose independently wished rustproof dagger stack to eat. Source clears proof on one regurgitated item and Stuns; compare saved nonfood eating branches. Expected Ulch rustproofed, one object spit to floor and proof removed; remaining stack distinct.. Planned before this case's JS results. C-only action: Rust monster selects own C dagger stack o; inspect split/spit instead of ordinary metallic meal.",
+  "segments": [
+    {
+      "seed": 60161105,
+      "datetime": "20681117192021",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u00173 uncursed rustproof daggers\n                    i                    #wizmap\n#polyself\nrust monster\n                    eo                    i                    "
+    }
+  ]
+}

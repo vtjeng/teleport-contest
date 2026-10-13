@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source mission dokick.c:kick_nondoor 1194-1205 sink Deaf Klunk no pipes-vibrate wording. Deaf option active; create sink and leave to adjacent clear square, kick pipes. Expected Klunk rather than noisy pipe phrase; pudding/dishwasher alternatives retained with source attribution.. C-only action: Own C birth Deaf option; wished gloves j. Create sink then leave to adjacent clear C floor and kick back five times.",
+  "segments": [
+    {
+      "seed": 60161203,
+      "datetime": "20681218202122",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics,deaf\n",
+      "moves": "     \u0017uncursed gauntlets of power\n                    i                    #wizmap\nWj                    \u0017sink\n                    h                    \u0004l                    \u0004l                    \u0004l                    \u0004l                    \u0004l                    #attributes\n                    "
+    }
+  ]
+}

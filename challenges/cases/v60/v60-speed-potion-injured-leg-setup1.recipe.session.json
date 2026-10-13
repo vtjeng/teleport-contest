@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source mission potion.c:peffect_speed 1052-1060 wounded leg early heal and return. Cause bounded terrain-kick leg injury, quaff uncursed speed. Physical branch must cure wound instead of granting speed; no riding. Expected Leg feels better and later movement state verifies, no usual speeding message; if no injury target missed..",
+  "segments": [
+    {
+      "seed": 60161206,
+      "datetime": "20681218202122",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed potion of speed\n                    i                    #wizmap\n"
+    }
+  ]
+}

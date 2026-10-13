@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first expansion dokick.c:kick_nondoor 1037-1064 Luck>0 first loot then T_LOOTED destruction. Carry blessed luckstone for Moreluck, wish throne on clear floor, leave one square and kick repeatedly. Expected Ornamental coins/gems once then destroyed throne; loot flag prevents unlimited milking.. Planned before this case's JS results. C-only action: Own C room has clear h square; wish throne at old square, move h then kick back l seven bounded times. Gloves f. Preserve exact injuries/target misses.",
+  "segments": [
+    {
+      "seed": 60161103,
+      "datetime": "20681117192021",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017blessed luckstone\n                    \u0017uncursed gauntlets of power\n                    i                    #wizmap\nWf                    \u0017throne\n                    h                    \u0004l                    \u0004l                    \u0004l                    \u0004l                    \u0004l                    \u0004l                    \u0004l                    #wizmap\n"
+    }
+  ]
+}

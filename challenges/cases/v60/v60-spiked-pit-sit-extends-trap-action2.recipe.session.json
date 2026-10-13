@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: sit.c:dosit 469-482 spiked TT_PIT damage and utrap extension. Move off stairs to clear square, create spiked pit and enter, then sit repeatedly while actually trapped. Expected: Sit down on spike, 1 damage and rn2(5) trap extension; not ordinary plain pit. C-only action protocol: Move east off initial stairs, create pit; sit first may trigger trap, later trapped sit exercises spike arm.",
+  "segments": [
+    {
+      "seed": 60161009,
+      "datetime": "20681016171819",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed potion of healing\n                    i                    #wizmap\nl                    \u0017spiked pit\n                    #sit\n                    #sit\n                    #sit\n                    #attributes\n                    "
+    }
+  ]
+}

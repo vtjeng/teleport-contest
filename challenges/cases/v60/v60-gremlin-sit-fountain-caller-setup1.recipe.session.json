@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: sit.c:dosit 431-435 -> in_water 503-508 split_mon and dryup. Polymorph gremlin then sit on fountain, using sit caller rather than domonability. Expected: Sit in water and multiply/dry fountain; cite separate caller, check earlier v57 shared first owner before counting.",
+  "segments": [
+    {
+      "seed": 60161010,
+      "datetime": "20681016171819",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of slow digestion\n                    i                    #wizmap\n"
+    }
+  ]
+}

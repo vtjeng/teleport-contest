@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: apply.c:use_stone 2713-2727 cursed non-gray gem shatter while Blind. Wear blindfold and rub stack of diamonds on cursed touchstone, preserving resistant draws. Expected: Feel something shatter and one gem removed; distinct Blind message and stack split from visible shatter.",
+  "segments": [
+    {
+      "seed": 60161005,
+      "datetime": "20681016171819",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017cursed touchstone\n                    \u00175 diamonds\n                    \u0017uncursed blindfold\n                    i                    #wizmap\n"
+    }
+  ]
+}

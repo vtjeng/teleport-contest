@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source mission fountain.c:dipsink 734-739 nonpotion water_damage. Dip independently wished scroll in sink; observe water_damage rather than potion drain/vapor. Expected Hold scroll under tap then fades/blanking; pipe-break chance preserved.. C-only action: Own carried scroll j stack; nonpotion sink water_damage and stack splitting observed.",
+  "segments": [
+    {
+      "seed": 60161205,
+      "datetime": "20681218202122",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed scroll of enchant weapon\n                    i                    #wizmap\n\u0017sink\n                    #dip\njy                    i                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: apply.c:use_grapple 3830-3848 verysmall monster rloc_to. Wield grappling hook and choose visible adjacent newt; bounded repeated grapple attempts, high HP if needed. Expected: Pull in newt with no damage; attack or surface pull are misses. C-only correction: Own C map places newt northeast; use getpos northeast u then dot selects. Bounded eight casts preserve surface/attack misses and any pull-in.",
+  "segments": [
+    {
+      "seed": 60161003,
+      "datetime": "20681016171819",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed grappling hook\n                    \u0017uncursed ring of protection +20\n                    i                    #wizmap\nwg                    #wizgenesis\npeaceful newt\n                    agu.                    agu.                    agu.                    agu.                    agu.                    agu.                    agu.                    agu.                    #wizmap\n"
+    }
+  ]
+}

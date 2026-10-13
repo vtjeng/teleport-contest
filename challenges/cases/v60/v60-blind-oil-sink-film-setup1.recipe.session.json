@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source mission fountain.c:dipsink 748-754 POT_OIL Blind -> nothing no trycall. Wear blindfold before pouring unlit oil into wished sink; no curse-dip Glib target. Expected Nothing seems happen without oily-film appearance and no trycall; potion consumed..",
+  "segments": [
+    {
+      "seed": 60161204,
+      "datetime": "20681218202122",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed blindfold\n                    \u0017uncursed potion of oil\n                    i                    #wizmap\n"
+    }
+  ]
+}

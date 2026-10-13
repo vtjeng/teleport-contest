@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source mission sit.c:dosit 547-551 ice Cold_resistance feedback. Sit on wished ice once without cold resistance, wear own wished cold-resistance ring, sit again. Expected Cold feedback before ring and no cold feedback after, same ice terrain..",
+  "segments": [
+    {
+      "seed": 60161202,
+      "datetime": "20681218202122",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of cold resistance\n                    i                    #wizmap\n"
+    }
+  ]
+}

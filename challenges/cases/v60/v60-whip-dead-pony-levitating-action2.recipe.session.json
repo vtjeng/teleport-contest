@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: apply.c:use_whip 3037-3048 dead horse corpse floor refusal. Archeologist wielding whip while levitating; put pony corpse on floor and apply down. Expected: Why beat a dead horse, preceding ordinary floor snag/pickup. C-only action protocol: C pony corpse already dropped to floor during wish. Wear levitation j left; original wielded whip a down targets corpse.",
+  "segments": [
+    {
+      "seed": 60161002,
+      "datetime": "20681016171819",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed bullwhip\n                    \u0017uncursed ring of levitation\n                    \u0017pony corpse\n                    i                    #wizmap\nPjl                    aa>                    i                    "
+    }
+  ]
+}

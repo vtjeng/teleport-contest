@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source mission apply.c:use_camera 85-93 getdir before spe<=0 ECMD_TIME. Empty camera aimed down on dry terrain; compare with charged and underwater rejection branches. Expected Nothing happens after valid direction, no flash/charge draw.. C-only action: Own C empty wished camera n, separate charged starting camera k. Down direction then inspect charge.",
+  "segments": [
+    {
+      "seed": 60161201,
+      "datetime": "20681218202122",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed expensive camera (0:0)\n                    i                    #wizmap\nan>                    i                    "
+    }
+  ]
+}

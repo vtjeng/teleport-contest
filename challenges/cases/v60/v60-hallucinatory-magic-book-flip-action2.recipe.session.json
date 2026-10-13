@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: apply.c:flip_through_book 4505-4511 visible hallucinating animated initials. Quaff hallucination potion while sighted, apply an ordinary magical spellbook. Expected: Enjoy animated initials instead of ink fade, blank book or dead-book pages. C-only action protocol: Observed hallucination potion k and magical book l; apply rather than read.",
+  "segments": [
+    {
+      "seed": 60161006,
+      "datetime": "20681016171819",
+      "nethackrc": "OPTIONS=name:V60Prep,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed potion of hallucination\n                    \u0017uncursed spellbook of force bolt\n                    i                    #wizmap\nqk                    al                    #attributes\n                    "
+    }
+  ]
+}
