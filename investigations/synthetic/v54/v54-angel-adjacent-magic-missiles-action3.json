@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3",
-  "remainingScreens": 86,
+  "remainingScreens": 83,
   "recordedSteps": 280,
   "corpus": "synthetic",
   "batch": "v54",
@@ -8,89 +8,95 @@
   "manifestPath": "challenges/manifests/v54.json",
   "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
   "recordingSha256": "7a0d0b42039af195fef219fe72bfecea98f45b039f838c61bf17eab19626a8ca",
-  "evaluationPath": "challenges/evaluations/accepted-29e87d84ecdc23bec49894556749298f61677af6-v54.json",
-  "evaluationCommit": "29e87d84ecdc23bec49894556749298f61677af6",
-  "status": "partial",
-  "commit": "0dd06dd535426d0cb6108ae7cd7aeee921e32d44",
+  "evaluationPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v54.json",
+  "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
+  "status": "complete",
+  "commit": "f13fa8c0b3e7fa962c90c050c14fb175c2933b35",
   "mismatch": {
     "session": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3",
-    "remainingScreens": 86,
-    "step": 194,
-    "kind": "unsupported-source-branch",
-    "sourceFile": "mcastu.c",
-    "function": "castmu",
-    "sourceBranch": "C mcastu.c:castmu AD_MAGM branch (282-294) handles magic missiles; JS castmu falls through to unsupported at js/mcastu.js:617.",
-    "runtimeBoundary": "simple monster action requires castmu() elemental spell type",
+    "remainingScreens": 83,
+    "step": 197,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "mon_spell_hits_spot",
+    "sourceBranch": "zap.c:mon_spell_hits_spot (5501-5535): for AD_MAGM/AD_ACID, reads actual engraving text and calls wipe_engr_at with strlen(text)+d(6,6); then for AD_MAGM through AD_ACID it calls zap_over_floor with the negative monster-spell equivalent. C discards zap_over_floor result.",
+    "runtimeBoundary": "AD_MAGM call from mcastu.c:castmu after missile message/resistance/damage; C engraving erosion roll is the first remaining mismatch.",
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 194,
+        "matched": 197,
         "total": 280
       },
       "rng": {
-        "matched": 2459,
+        "matched": 2471,
         "total": 2581
       },
       "cursors": {
-        "matched": 194,
+        "matched": 279,
         "total": 280
       }
     },
-    "replayInputSha256": "b19d7469db037a1ac5e6423e2eac1bc8cfd69f121bfbec672f2e21b5d8262f0a",
-    "evaluationPath": "challenges/evaluations/accepted-29e87d84ecdc23bec49894556749298f61677af6-v54.json",
-    "evaluationCommit": "29e87d84ecdc23bec49894556749298f61677af6",
+    "replayInputSha256": "791fbdf7fe770552d28639ef80669e05b21b7a1ecbb3b7275adfd47aa20bffb0",
+    "evaluationPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v54.json",
+    "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
     "recordedSteps": 280
   },
-  "summary": "The accepted baseline remains 194/280 screens, 2459/2581 RNG calls and 194/280 cursors. The AD_MAGM branch is now implemented and independently verified on both positive-damage and Antimagic routes. On the selected engraved-square case, the branch runs, then the remaining frontier is the discarded void zap.c:mon_spell_hits_spot helper at step 197; current selected metrics are 197/280 screens, 2471/2581 RNG calls and 279/280 cursors, error null. The case is not complete.",
+  "summary": "The remaining mismatch is the wholly missing zap.c:mon_spell_hits_spot helper. C first erodes an actual AD_MAGM/AD_ACID engraving using strlen(text)+d(6,6), then applies zap_over_floor for AD_MAGM through AD_ACID; both effects are observable although the zap_over_floor return is discarded. The active JavaScript callers are castmu AD_MAGM, mcast_fire_pillar fire, and mcast_lightning electric. C also calls the helper from castmu fire/cold arms, which remain unsupported in JavaScript and are outside this helper task. Current accepted v54 baseline is 197/280 screens, 2471/2581 RNG calls, 279/280 cursors, error null; first mismatch is the helper RNG at step 197.",
   "source": {
-    "file": "mcastu.c",
+    "file": "zap.c",
     "functions": [
-      "castmu"
+      "mon_spell_hits_spot"
     ],
-    "branch": "AD_MAGM magic-missile branch at lines 282-294 and the source-ordered final positive-damage callback; no whole castmu completion claim.",
+    "branch": "Complete helper: conditional engraving erosion for AD_MAGM/AD_ACID, then source-ordered zap_over_floor for AD_MAGM through AD_ACID. It reuses canonical engrave.c:wipe_engr_at and zap.c:zap_over_floor implementations.",
     "callers": [
-      "mhitu.c:930 calls castmu(mtmp, mattk, TRUE, foundyou)"
+      "mcastu.c:castmu AD_MAGM at 294 (active JS caller); AD_FIRE/AD_COLD callsites at 265/280 are in unsupported JS arms and excluded from this task.",
+      "mcastu.c:mcast_fire_pillar at 561; JS mcast_fire_pillar is an existing implemented caller with a gap marker.",
+      "mcastu.c:mcast_lightning at 594; JS mcast_lightning is an existing implemented caller with a gap marker."
+    ],
+    "dependencies": [
+      "engrave.c:wipe_engr_at (existing JS implementation; result discarded by C helper)",
+      "zap.c:zap_over_floor (existing JS implementation; result discarded by C helper)"
     ]
   },
   "evidence": [
-    "Accepted baseline challenges/evaluations/accepted-29e87d84ecdc23bec49894556749298f61677af6-v54.json at 29e87d84ecdc23bec49894556749298f61677af6: 194/280 screens, 2459/2581 RNG, 194/280 cursors, error null.",
-    "On the implementation commit 0dd06dd535426d0cb6108ae7cd7aeee921e32d44, selected v54 replay matches 197/280 screens, 2471/2581 RNG calls, 279/280 cursors, error null. First remaining mismatch is step 197 at zap.c:mon_spell_hits_spot (C d(6,6)=26 vs the later JS rn2(5)=4); it is a void helper whose result C discards, so the source rule requires note_unported and skipping this call. Saved selected artifact .cache/C-v54-angel-admagm-selected-replay.json.",
-    "Independent positive-damage entry point: recipes/mcastu.c/admagm-angel-tourist-independent.session.json and recordings/mcastu.c/admagm-angel-tourist-independent.session.json strictly match 131/131 screens/cursors and 3202/3202 RNG calls, error null. Recipe SHA-256 06101416ba11ba907371d33d177338fc9fb4c5492953bdd4e9a879def6e85d42; recording SHA-256 8cff936049d16bcaa2191e345e145608b6e9d0d52253c46da41b4dbb548c8c2f.",
-    "Independent Antimagic entry point: recipes/mcastu.c/admagm-angel-wizard-antimagic-variation.session.json and recordings/mcastu.c/admagm-angel-wizard-antimagic-variation.session.json strictly match 131/131 screens/cursors and 2390/2390 RNG calls, error null (including 22 animation frames). Recipe SHA-256 2e088dddb13b54d6ab648ca7ab13c17b2391eb9ab848bea3c79289117402adf6; recording SHA-256 03035db33345bd5d933079815a0c79ea903494459b33c68b39a521b58564ccb9.",
-    "Focused scripts/mcastu.test.mjs and npm run lint pass on the implementation tree. The tests assert exact random draw order, Antimagic resistance observation, explicit discarded-void gap, and final mdamageu argument/order."
+    "Current accepted baseline challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v54.json at 71adf2891b4ccef846c2e0d5e01a907878e15ad6 records 197/280 screens, 2471/2581 RNG calls, 279/280 cursors, error null; remainingScreens is 83.",
+    "C source zap.c:5501-5535 reads engr_at(x,y), then for AD_MAGM or AD_ACID uses actual_text and strlen(etext)+d(6,6) as wipe_engr_at count. This d(6,6) is the first selected-case mismatch. It next converts AD_xxxx to ZT_xxxx and invokes zap_over_floor with a negative monster spell type, shopdummy=false, ignoremon=true, exploding_wand_typ=0; its return is discarded.",
+    "The helper is called from all these C locations: mcastu.c:265 AD_FIRE and :280 AD_COLD in castmu; :294 AD_MAGM in castmu; :561 in mcast_fire_pillar; :594 in mcast_lightning. Existing active JS gaps are at mcastu.js:629, :771, and :805. The FIRE/COLD castmu switch currently refuses those arms and remains outside this helper repair.",
+    "Direct effects already have canonical JS owners: engrave.js:wipe_engr_at mutates the linked engraving and receives state/random; zap.js:zap_over_floor performs source floor/terrain effects. The new helper must forward those effects in C order and must not model the discarded range return as data.",
+    "Existing independent AD_MAGM Tourist positive-damage and Wizard Antimagic recordings both strictly match their complete plays; the engraved selected case uniquely reaches the d(6,6) erosion branch."
   ],
   "blocker": null,
   "replay": {
-    "command": "node scripts/scan-sessions.mjs --json --synthetic v54/v54-angel-adjacent-magic-missiles-action3",
-    "replayCommit": "0dd06dd535426d0cb6108ae7cd7aeee921e32d44",
-    "replayInputSha256": "b19d7469db037a1ac5e6423e2eac1bc8cfd69f121bfbec672f2e21b5d8262f0a",
-    "outputPath": ".cache/C-v54-angel-admagm-scan.json",
-    "outputSha256": "e61c09594ea253e6bddaf9f911585bf5f726d70d661b1a088491b6351b4a3f9e",
-    "boundary": "zap.c mon_spell_hits_spot unported discarded-void helper",
+    "command": "saved admitted synthetic evaluation",
+    "replayCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
+    "replayInputSha256": "791fbdf7fe770552d28639ef80669e05b21b7a1ecbb3b7275adfd47aa20bffb0",
+    "outputPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v54.json",
+    "outputSha256": null,
+    "boundary": "C d(6,6) inside zap.c:mon_spell_hits_spot at step 197",
     "at": 197,
     "error": null
   },
-  "replayInputSha256": "b19d7469db037a1ac5e6423e2eac1bc8cfd69f121bfbec672f2e21b5d8262f0a",
+  "replayInputSha256": "791fbdf7fe770552d28639ef80669e05b21b7a1ecbb3b7275adfd47aa20bffb0",
   "currentBaseline": {
-    "evaluationPath": "challenges/evaluations/accepted-29e87d84ecdc23bec49894556749298f61677af6-v54.json",
-    "evaluationCommit": "29e87d84ecdc23bec49894556749298f61677af6",
-    "replayInputSha256": "b19d7469db037a1ac5e6423e2eac1bc8cfd69f121bfbec672f2e21b5d8262f0a",
+    "evaluationPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v54.json",
+    "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
+    "replayInputSha256": "791fbdf7fe770552d28639ef80669e05b21b7a1ecbb3b7275adfd47aa20bffb0",
     "metrics": {
       "screens": {
-        "matched": 194,
+        "matched": 197,
         "total": 280
       },
       "rng": {
-        "matched": 2459,
+        "matched": 2471,
         "total": 2581
       },
       "cursors": {
-        "matched": 194,
+        "matched": 279,
         "total": 280
       }
     },
-    "remainingScreens": 86,
-    "note": "Accepted v54 evaluation after B’s castmu naming repair; the per-case baseline is unchanged."
+    "remainingScreens": 83,
+    "note": "Accepted evaluation on f13fa8c0; current v54 queue entry for the residual."
   },
   "history": [
     {
@@ -100,6 +106,10 @@
     {
       "sourceRevision": "0dd06dd535426d0cb6108ae7cd7aeee921e32d44",
       "note": "AD_MAGM branch implemented. Selected replay advances from the saved baseline to the explicit mon_spell_hits_spot void-gap frontier; independent Tourist and Wizard recordings match completely."
+    },
+    {
+      "sourceRevision": "f13fa8c0b3e7fa962c90c050c14fb175c2933b35",
+      "note": "Accepted v54 evaluation refresh confirms the unresolved step-197 engraving erosion roll. Source trace now identifies the complete zap.c helper and all direct callers."
     }
   ],
   "latestResult": {
@@ -108,7 +118,7 @@
     "remainingScreens": 83,
     "mismatch": {
       "step": 197,
-      "kind": "unported-discarded-void-helper",
+      "kind": "rng",
       "sourceFile": "zap.c",
       "function": "mon_spell_hits_spot",
       "error": null,
@@ -127,6 +137,7 @@
         }
       }
     },
-    "note": "Selected case has an engraving on the hero square; the void helper call is skipped as required, leaving its C floor-effect RNG draw unmatched."
-  }
+    "note": "This is the accepted v54 baseline for the next source task; the AD_MAGM branch is implemented but helper behavior remains absent."
+  },
+  "goalKind": "file-port"
 }
