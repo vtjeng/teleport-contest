@@ -1,0 +1,127 @@
+{
+  "session": "synthetic/v59/v59-fumbling-magic-alchemy-action2",
+  "remainingScreens": 1,
+  "recordedSteps": 261,
+  "corpus": "synthetic",
+  "batch": "v59",
+  "caseId": "v59-fumbling-magic-alchemy-action2",
+  "manifestPath": "challenges/manifests/v59.json",
+  "manifestSha256": "2f55f6f34298abb9bb979d1586361bbf220ac4367059378a60717c31158bbfdf",
+  "recordingSha256": "1662c8b966017aa61af768d464a6614adfc0821ed665f04a6f2185bb214991c0",
+  "evaluationPath": "challenges/evaluations/accepted-5634567626a2300fafc2a91ef8a10ca138f5edab-v59.json",
+  "evaluationCommit": "5634567626a2300fafc2a91ef8a10ca138f5edab",
+  "status": "complete",
+  "commit": "bb63d62ec29066b8043932201d9c9ed86a68abc5",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v59",
+    "caseId": "v59-fumbling-magic-alchemy-action2",
+    "session": "synthetic/v59/v59-fumbling-magic-alchemy-action2",
+    "manifestPath": "challenges/manifests/v59.json",
+    "manifestSha256": "2f55f6f34298abb9bb979d1586361bbf220ac4367059378a60717c31158bbfdf",
+    "recording": "challenges/cases/v59/v59-fumbling-magic-alchemy-action2.session.json",
+    "recordingPath": "challenges/cases/v59/v59-fumbling-magic-alchemy-action2.session.json",
+    "recordingSha256": "1662c8b966017aa61af768d464a6614adfc0821ed665f04a6f2185bb214991c0",
+    "recipe": "challenges/cases/v59/v59-fumbling-magic-alchemy-action2.recipe.session.json",
+    "recipeSha256": "78b787fddfb2052c34f50f2444685e50e9193d1827e524832247fea5f5d2eff4",
+    "replayInputSha256": "127bbd64e95018ed9e2d8de43ac0184dccadb0f51566a773062d39f73e8f5273",
+    "evaluationPath": "challenges/evaluations/accepted-5634567626a2300fafc2a91ef8a10ca138f5edab-v59.json",
+    "evaluationCommit": "5634567626a2300fafc2a91ef8a10ca138f5edab",
+    "evaluationArtifact": "challenges/evaluations/accepted-5634567626a2300fafc2a91ef8a10ca138f5edab-v59.json",
+    "evaluationUtc": "2026-10-13T18:33:15.697Z",
+    "remainingScreens": 1,
+    "recordedSteps": 261,
+    "previousScreensMatched": 260,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 260,
+        "total": 261
+      },
+      "rng": {
+        "matched": 2934,
+        "total": 2934
+      },
+      "cursors": {
+        "matched": 260,
+        "total": 261
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 240,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 240,
+          "key": "i"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 1,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "W",
+          "color": 8,
+          "attr": 1,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 240,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 240,
+          "key": "i"
+        },
+        "cCursor": [
+          27,
+          22,
+          1
+        ],
+        "jsCursor": [
+          7,
+          23,
+          1
+        ]
+      }
+    },
+    "step": 240,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "When Fumbling is active, alchemy that transforms a carried potion calls C hold_potion, which removes the transformed object and passes it to hold_another_object. C adds it to inventory, then takes the Fumbling drop_it branch and calls do.c:dropx. JS reaches invent.js:gotoDrop but drinkEnvironment supplies no dropObject hook, so it records do.c dropx as unported and leaves the transformed potion in inventory. The next inventory menu differs at step 240.",
+  "source": {
+    "file": "invent.c",
+    "branch": "hold_another_object, Fumbling branch: after marking nomerge, add the object to inventory and jump to drop_it; drop_it calls dropx when the hero can reach the floor or is swallowed.",
+    "functions": [
+      "hold_another_object"
+    ],
+    "callers": [
+      "potion.c:dip_into -> hold_potion -> hold_another_object"
+    ],
+    "dependencies": [
+      "do.c:dropx"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v59 queue evaluation reports 260/261 screens and cursors matched, all 2934 RNG calls matched, and the first mismatch at segment 0 step 240 on key i; C cursor is [27,22,1] and JS cursor is [7,23,1]. The queue retains the exact manifest, recording and evaluation hashes above.",
+    "The v59 manifest source trace identifies potion.c:dip_into -> hold_potion -> invent.c:hold_another_object. In upstream potion.c:2587-2592, the alchemy branch frees the carried object and calls hold_potion; potion.c:2239-2264 extracts it, then calls hold_another_object and consumes its return value.",
+    "Upstream invent.c:1208-1306 marks the Fumbling branch by setting nomerge, adding the object to inventory, and jumping to drop_it; at drop_it it clears nomerge and calls dropx when floor access is possible, otherwise it frees the object and calls hitfloor.",
+    "At examined commit bb63d62ec29066b8043932201d9c9ed86a68abc5, js/potion.js:3253-3263 follows the C extraction and hold_another_object order. js/invent.js:4795-4887 implements the Fumbling branch and drop message, but gotoDrop only invokes normalized.hooks.dropObject; when absent it calls note_unported(\"do.c dropx\"). drinkEnvironment from potion.js does not supply this hook. js/do.js already exports dropx and dropCommandEnv, so the actionable fix is to wire the existing dropx behavior into this production caller without changing potion transformation logic.",
+    "The same replay confirms the defect is after potion transformation: RNG totals match exactly and all screens before step 240 match. The inventory at the differing menu contains the transformed mixture in JS because the missing dropx call did not remove it."
+  ]
+}
