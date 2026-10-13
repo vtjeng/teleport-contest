@@ -299418,7 +299418,7 @@
     {
       "id": "fix-pickup-partial-stack-lift-v56-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Allow an overweight floor stack through pickup preflight so the source pickup_object/lift_object/carry_count flow can choose a partial lift before deferred inventory planning.",
       "cFile": "pickup.c",
       "sessions": [
@@ -299428,10 +299428,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84",
       "delivered": null,
       "function": "pickup",
-      "session": "synthetic/v56/v56-partial-arrow-lift-action2"
+      "session": "synthetic/v56/v56-partial-arrow-lift-action2",
+      "closeStanding": {
+        "sha": "d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+        "target": "synthetic/v56/v56-partial-arrow-lift-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84/run-hosted-FFbRcr/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "pickup",
+            "implementation": "js/pickup.js",
+            "symbol": "pickup",
+            "sourceReview": "Divergence-specific branch trace of pickup.c:672-910: when the selected floor object exceeds full carry capacity, pickup_object owns the lift path and consumes lift_object/carry_count before addinv planning. This evidence covers the assigned preflight branch only and makes no whole-function completion claim.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "dopickup",
+                "source": "hack.c:dopickup calls pickup(-count) for the comma pickup command."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-partial-arrow-lift-action2",
+                "segment": 0,
+                "fromStep": 77,
+                "throughStep": 97,
+                "source": "hack.c:dopickup -> pickup.c:pickup -> pickup_object -> lift_object -> carry_count partial-count path -> burden prompt -> accepted pickup/addinv planning"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted comma-pickup command exercises the selected overweight floor-stack branch through js/cmd.js:dopickup and js/pickup.js:pickup. The cited range reaches the C partial-count message, burden prompt and accepted pickup continuation; this is evidence for the divergence branch, not a certification of all pickup.c entry points or the whole pickup() source function.",
+        "entryPoints": [
+          {
+            "name": "Comma pickup of an overweight floor stack with a nonzero partial lift",
+            "functions": [
+              "pickup"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-partial-arrow-lift-action2",
+                "segment": 0,
+                "fromStep": 77,
+                "throughStep": 97,
+                "source": "hack.c:dopickup -> pickup.c:pickup -> pickup_object -> lift_object -> carry_count partial-count path -> burden prompt -> accepted pickup/addinv planning"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
