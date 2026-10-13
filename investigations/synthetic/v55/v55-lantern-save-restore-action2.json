@@ -1,0 +1,48 @@
+{
+  "session": "synthetic/v55/v55-lantern-save-restore-action2",
+  "corpus": "synthetic",
+  "batch": "v55",
+  "caseId": "v55-lantern-save-restore-action2",
+  "manifestPath": "challenges/manifests/v55.json",
+  "manifestSha256": "3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105",
+  "recordingSha256": "f4655a399bd639d13b4ef95d2fbf14a6fa956c06e76a08af3aed40f2df83993f",
+  "recipeSha256": "821a2e1f6cfc3b6f81bf48301d23fe52a4f32f968889a5e31e088448172b62d5",
+  "evaluationPath": "challenges/evaluations/baseline-261c3097d-v55.json",
+  "evaluationCommit": "261c3097de5e63e488e143c622a3fa8157b750eb",
+  "remainingScreens": 73,
+  "recordedSteps": 202,
+  "status": "complete",
+  "commit": "d8458f7a9b5609483a99f7d1fb788f3eb3048fef",
+  "mismatch": {
+    "session": "synthetic/v55/v55-lantern-save-restore-action2",
+    "remainingScreens": 73,
+    "segment": 1,
+    "step": 0,
+    "key": null,
+    "kind": "screen mismatch",
+    "source": "save.c:savelev_core -> saveobjchn; restore.c:getlev -> restobjchn",
+    "cCell": {"row": 7, "column": 57, "ch": "$", "color": 11, "attr": 0},
+    "jsCell": {"row": 7, "column": 57, "ch": ".", "color": 8, "attr": 0}
+  },
+  "summary": "The first divergence is after the second segment restores. C redraws floor gold at (58,6); JavaScript redraws floor at row 7 column 57. The admitted manifest's comparison found 30 floor objects before the save and only 14 after JS restoration; gold object id 23, type 438, quantity 5 is missing. JS save.js:safeStringify replaces all repeated object references with null, so the object graph loses aliases before restore.js:rebuildObjectList. A second branch of the same save/restore contract omits the global timer/light chains: the selected case later errors when turning off the restored lantern because end_burn cannot find its burn timer.",
+  "source": {
+    "file": "save.c / restore.c",
+    "branch": "save.c:savelev_core writes the floor list via saveobjchn; restore.c:getlev restores it via restobjchn. The top-level save also writes global timers/lights from savegamestate, and restgamestate restores them. JS serializes the object graph with safeStringify and restores floor ordering with rebuildObjectList, but duplicate object identities are truncated; dosave0's JSON snapshot also omits global timer/light chains.",
+    "functions": ["savegamestate", "savelev_core", "saveobjchn", "restgamestate", "getlev", "restobjchn", "save_timers", "restore_timers", "save_light_sources", "restore_light_sources"],
+    "callers": [
+      "C save.c:dosave0 calls savelev and savegamestate; JS save.js:dosave0 calls serializeGameState.",
+      "C restore.c:dorecover calls restgamestate and getlev; JS jsmain.js restore entry calls restore.js:dorestore, which restores the snapshot and level objects."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted v55 manifest firstMismatch identifies segment 1 step 0: C row 7 column 57 contains gold while JS contains floor; the source trace counts 30 floor objects before save and 14 after restoration, with gold o_id 23 absent.",
+    "save.c:savelev_core calls saveobjchn for fobj at lines 545-547; restore.c:getlev calls restobjchn for fobj at line 1166 then find_lev_obj().",
+    "restore.c:restobjchn constructs one object per saved chain record and links the nobj chain; saveobjchn writes each floor object and recursively writes container contents.",
+    "save.c:savegamestate calls save_timers(RANGE_GLOBAL) and save_light_sources(RANGE_GLOBAL) before saveobjchn for inventory; restore.c:restgamestate calls restore_timers(RANGE_GLOBAL) and restore_light_sources() before restoring inventory.",
+    "JS save.js:safeStringify uses a WeakSet and writes null for every repeated reference, not only cycles on the active traversal stack; restore.js:rebuildObjectList can only recover objects still present in level.objects.",
+    "JS save.js:dosave0 serializes the state snapshot without gt.timer_base or gl.light_base; restore.js:dorestore consequently has no saved global burn timer for the carried lantern, matching the later end_burn error.",
+    "At the current claimed base, the selected recording reaches segment 1 and stops at end_burn: lit object has no burn timer. The immutable accepted evaluation supplies the earlier mismatch and cell-level comparison; no new C recording was made."
+  ]
+}
