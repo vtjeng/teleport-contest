@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T09:59:59.827Z",
+  "capturedAt": "2026-10-13T10:15:11.018Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -103306,23 +103306,123 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep27 expands its source search after seven provisional Lua-program failures and four matching gameplay cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v54-healer-dream-message-action6-20261013-e97e450d64cbcc9d01a6714f56788e592ca12d03",
+        "type": "published",
+        "at": "2026-10-13T10:00:12.863Z",
+        "task": "A2-investigation-v54-healer-dream-message-action6-20261013",
+        "commit": "e97e450d64cbcc9d01a6714f56788e592ca12d03"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-prep20-v56-20261013",
+        "type": "activity",
+        "at": "2026-10-13T10:00:49.881Z",
+        "task": "Prep20",
+        "phase": "review",
+        "reason": "Integrating the oldest prepared batch: no independent admitted source work remains; saved C mission, replay logs, and input hashes are verified."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-prep20-1b405e63-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T10:01:13.059Z",
+        "task": "Prep20",
+        "integration": "1b405e63a0af47fb704e4901991501498c2cf2f4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep27-v63-expanded-actions-20261016",
+        "type": "turn",
+        "at": "2026-10-13T10:02:13.204Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep27 records independent C setup paths for tiny-target grappling, body collision, weapon snatching, drawbridge terrain and invocation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep27-v63-expanded-actions3-20261016",
+        "type": "turn",
+        "at": "2026-10-13T10:04:37.726Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep27 follows actual C monster coordinates, potion slots and cross-branch teleport behavior in the expanded source search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep20-1b405e63a0af47fb704e4901991501498c2cf2f4-validated",
+        "type": "validated",
+        "at": "2026-10-13T10:07:50.615Z",
+        "task": "Prep20",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep20-1b405e63a0af47fb704e4901991501498c2cf2f4-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T10:07:54.252Z",
+        "task": "Prep20"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep27-v63-expanded-actions4-20261016",
+        "type": "turn",
+        "at": "2026-10-13T10:08:06.687Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep27 tries bounded source-proven alternatives for the expanded missions while preserving earlier C recordings."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-admit-prep20-v56-20261013",
+        "type": "activity",
+        "at": "2026-10-13T10:08:22.919Z",
+        "task": "Prep20",
+        "phase": "admission",
+        "reason": "Admitting all accepted unadmitted batches at the passing checkpoint boundary; v56 saved overlap and control rationales are verified."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-baseline-prep20-v56-20261013",
+        "type": "activity",
+        "at": "2026-10-13T10:08:58.710Z",
+        "task": "Prep20",
+        "phase": "baseline",
+        "reason": "Running hosted new-case baselines for v56 under the approved Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep27-v63-ritual-and-collision-20261016",
+        "type": "turn",
+        "at": "2026-10-13T10:12:17.395Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep27 reaches a bare-body grapple collision death path and the actual invocation square; bounded C follow-ups continue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep20-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6",
+        "type": "activity",
+        "at": "2026-10-13T10:12:56.816Z",
+        "task": "Prep20",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep20-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6",
+        "type": "activity",
+        "at": "2026-10-13T10:12:57.634Z",
+        "task": "Prep20",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "Prep20",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "2d7c71ffbd3ec47af45b3bfab78c10301d28ca57",
-        "batch": "v56",
-        "since": "2026-10-12T16:37:35.940Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "Prep21",
         "worker": "Prep",
@@ -103332,10 +103432,8 @@
         "delivery": "9774b5d259f1448c19fea2bd1b334845f25b9b46",
         "batch": "v57",
         "since": "2026-10-12T17:57:01.432Z",
-        "blockedBy": [
-          "Prep20"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "Prep22",
@@ -103347,7 +103445,6 @@
         "batch": "v58",
         "since": "2026-10-12T19:55:18.218Z",
         "blockedBy": [
-          "Prep20",
           "Prep21"
         ],
         "unblocks": 0
@@ -103362,7 +103459,6 @@
         "batch": "v59",
         "since": "2026-10-12T20:51:26.895Z",
         "blockedBy": [
-          "Prep20",
           "Prep21",
           "Prep22"
         ],
@@ -103378,7 +103474,6 @@
         "batch": "v60",
         "since": "2026-10-13T06:25:55.304Z",
         "blockedBy": [
-          "Prep20",
           "Prep21",
           "Prep22",
           "Prep23"
@@ -103395,7 +103490,6 @@
         "batch": "v61",
         "since": "2026-10-13T07:46:50.404Z",
         "blockedBy": [
-          "Prep20",
           "Prep21",
           "Prep22",
           "Prep23",
@@ -103413,7 +103507,6 @@
         "batch": "v62",
         "since": "2026-10-13T09:15:26.126Z",
         "blockedBy": [
-          "Prep20",
           "Prep21",
           "Prep22",
           "Prep23",
@@ -103914,8 +104007,8 @@
     ]
   },
   "development": {
-    "executionCommit": "950ec0f9cb158d9841590142406090feb41fbc51",
-    "measuredAt": "2026-10-13T09:56:32.614Z",
+    "executionCommit": "1b405e63a0af47fb704e4901991501498c2cf2f4",
+    "measuredAt": "2026-10-13T10:06:16.375Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
