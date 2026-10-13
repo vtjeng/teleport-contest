@@ -14,6 +14,7 @@
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
 //         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/Hea-fila.lua,
+//         dat/Hea-filb.lua,
 //         dat/tower1.lua, dat/tower2.lua,
 //         dat/tower3.lua, dat/Val-strt.lua.
 
@@ -1513,6 +1514,27 @@ async function heaFila(des) {
     for (let i = 0; i < 2; ++i) await des.monster({ class: 'r', peaceful: 0 });
     for (let i = 0; i < 2; ++i) await des.monster('giant eel');
     await des.monster('electric eel');
+    for (let i = 0; i < 4; ++i) await des.monster({ class: 'D', peaceful: 0 });
+    for (let i = 0; i < 3; ++i) await des.monster({ class: 'S', peaceful: 0 });
+    for (let i = 0; i < 4; ++i) await des.trap();
+}
+
+// C ref: complete dat/Hea-filb.lua. This later quest filler has the same
+// initialization as Hea-fila, with its own source-ordered population counts.
+async function heaFilb(des) {
+    await des.level_init({ style: 'solidfill', fg: 'P' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'P',
+        smoothed: false, joined: true, lit: 1, walled: false });
+
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 11; ++i) await des.object();
+
+    for (let i = 0; i < 2; ++i) await des.monster('rabid rat');
+    for (let i = 0; i < 2; ++i) await des.monster({ class: 'r', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.monster('giant eel');
+    for (let i = 0; i < 2; ++i) await des.monster('electric eel');
     for (let i = 0; i < 4; ++i) await des.monster({ class: 'D', peaceful: 0 });
     for (let i = 0; i < 3; ++i) await des.monster({ class: 'S', peaceful: 0 });
     for (let i = 0; i < 4; ++i) await des.trap();
@@ -3067,6 +3089,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Cav-strt': cavStrt,
     'Hea-loca': heaLoca,
     'Hea-fila': heaFila,
+    'Hea-filb': heaFilb,
     'Kni-strt': kniStrt,
     astral,
     'Pri-strt': priStrt,
