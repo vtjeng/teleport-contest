@@ -636,3 +636,18 @@ triage decisions or fix references.
   completed acceptance at the unchanged tested commit without replaying it.
 - Main receipt and publication writers also briefly blocked A and C submissions.
   Root collected each writer handle and notified workers to retry unchanged.
+
+### 2026-10-13 — correction checkout ancestry
+
+- Blind-floor CI exposed an older tactile-pile fixture without the game
+  context required by the newly reachable death path. The worker corrected
+  the fixture and retained production behavior.
+- A correction branch first failed the immutable worker-registration check.
+  Renaming the preserved old branch and the correction branch retained both
+  histories while restoring the registered name.
+- Submission then required assignment-base ancestry, which Main cherry-picks
+  do not retain. A tree-identical bridge recorded the already accepted worker
+  base before replaying the correction. Main integrated only its two correction
+  commits; the bridge tree equals the failed candidate tree.
+- Worker CLI rejects parking implemented investigations as coordinator-only;
+  Root recorded the v48 build-profile park with unchanged raw target evidence.
