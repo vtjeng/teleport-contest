@@ -3347,8 +3347,11 @@ async function traditional_loot(put_in, state) {
             actionfunc, checkfunc, 0, action, state);
         if (cnt) return ECMD_TIME;
     } else if (qc.menu_on_request < 0) {
-        throw new UnsupportedPickupError(
-            'traditional_loot: menu_loot(menu_on_request, put_in)');
+        // C: pickup.c traditional_loot() calls menu_loot() when
+        // query_classes() receives the menu-request prefix. A positive count
+        // means at least one item was moved and spends this turn.
+        if (await menu_loot(qc.menu_on_request, put_in, state) > 0)
+            return ECMD_TIME;
     }
     return ECMD_OK;
 }
