@@ -1,0 +1,86 @@
+{
+  "session": "synthetic/v56/v56-partial-arrow-lift-action2",
+  "remainingScreens": 21,
+  "recordedSteps": 98,
+  "corpus": "synthetic",
+  "batch": "v56",
+  "caseId": "v56-partial-arrow-lift-action2",
+  "manifestPath": "challenges/manifests/v56.json",
+  "manifestSha256": "a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74",
+  "recordingSha256": "c11c14255290244d40202a68feb314faba8b6ff81a0d0d5936e5a1b5df8d412a",
+  "evaluationPath": "challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json",
+  "evaluationCommit": "398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6",
+  "status": "complete",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v56",
+    "caseId": "v56-partial-arrow-lift-action2",
+    "session": "synthetic/v56/v56-partial-arrow-lift-action2",
+    "manifestPath": "challenges/manifests/v56.json",
+    "manifestSha256": "a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74",
+    "recording": "challenges/cases/v56/v56-partial-arrow-lift-action2.session.json",
+    "recordingPath": "challenges/cases/v56/v56-partial-arrow-lift-action2.session.json",
+    "recordingSha256": "c11c14255290244d40202a68feb314faba8b6ff81a0d0d5936e5a1b5df8d412a",
+    "recipe": "challenges/cases/v56/v56-partial-arrow-lift-action2.recipe.session.json",
+    "recipeSha256": "219758f24ce03e9a0d11cc1ed5aac8650250c057e5d99d8ac64af816815cd8a5",
+    "evaluationPath": "challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json",
+    "evaluationCommit": "398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6",
+    "evaluationUtc": "2026-10-13T10:10:53.353Z",
+    "remainingScreens": 21,
+    "recordedSteps": 98,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 77,
+        "total": 98
+      },
+      "rng": {
+        "matched": 2975,
+        "total": 2981
+      },
+      "cursors": {
+        "matched": 77,
+        "total": 98
+      }
+    },
+    "firstMismatch": null,
+    "step": 77,
+    "kind": "unsupported",
+    "sourceFile": "pickup.c",
+    "function": "pickup",
+    "message": "pickup() requiring a partial or failed lift"
+  },
+  "summary": "The admitted 5000-arrow pickup reaches JS preflightPickupObjects, which refuses stacks requiring a partial lift before the existing carry_count/lift_object path can compute and offer the C-selected quantity.",
+  "source": {
+    "file": "pickup.c",
+    "functions": [
+      "pickup",
+      "pickup_object",
+      "lift_object",
+      "carry_count"
+    ],
+    "branch": "The pickup command selects the floor stack, pickup_object calls lift_object, and lift_object stores carry_count’s returned quantity before offering the burden prompt. carry_count computes a partial count for a stack whose full weight exceeds max_capacity, emits the partial-lift line, restores object fields, and returns the count.",
+    "callers": [
+      "hack.c:dopickup calls pickup(-count) after pickup_checks; the admitted comma command uses this production route.",
+      "pickup.c:pickup walks the selected floor objects and calls pickup_object in source order.",
+      "pickup.c:pickup_object observes the object and consumes lift_object’s return before calling pick_obj."
+    ],
+    "dependencies": [
+      "pickup.c:carry_count returns a quantity consumed by pickup.c:lift_object. The corresponding JS helper is implemented and scripts/pickup.test.mjs pins its partial and zero-lift messages.",
+      "pickup.c:lift_object writes the adjusted count returned by carry_count and may ask the burden prompt before pickup_object reaches pick_obj.",
+      "pickup.c:pickup_object calls lift_object and only extracts/adds the object after a positive result.",
+      "JS preflightPickupObjects is an additional admission/planning layer; its UnsupportedPickupError for partial-or-failed lifts blocks those existing source owners."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved v56 admission evaluation challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json at 398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6 is tied to manifest digest a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74 and recording digest c11c14255290244d40202a68feb314faba8b6ff81a0d0d5936e5a1b5df8d412a; this case has 77/98 matched screens and cursors, 2975/2981 RNG, runner error null, and 21 remaining screens.",
+    "A selected-case diagnostic at execution commit e8f757faa235cac634efac291cb0622a527e215f stops at command step 77 with the boundary “unsupported pickup: pickup() requiring a partial or failed lift”; the mismatch is a deliberate preflight refusal, not a runner exception.",
+    "The recorded C path emits “You can only lift some of the 5000 arrows lying here.” at step 77, then asks “You have extreme difficulty lifting 1859 arrows. Continue? [ynq] (q)” at step 78. The subsequent input accepts the pickup and reaches normal turn processing.",
+    "nethack-c/upstream/src/hack.c:dopickup routes the comma command through pickup(-count). pickup.c:672-910 selects the floor object and calls pickup_object; pickup.c:1803-1892 calls lift_object; pickup.c:1705-1794 consumes carry_count’s returned count and handles the burden prompt; pickup.c:1570-1701 computes partial stack quantity and prints the corresponding message.",
+    "js/pickup.js:preflightPickupObjects currently throws “pickup() requiring a partial or failed lift” whenever its aggregate weight estimate exceeds the threshold except a one-item zero-lift case. That guard runs before js/pickup.js:pickup_object -> lift_object -> carry_count can produce C’s partial quantity. The whole carry_count implementation is already pinned by scripts/pickup.test.mjs: carry_count prints both C partial-lift and zero-lift branches."
+  ]
+}
