@@ -1,0 +1,97 @@
+{
+  "session": "synthetic/v58/v58-castle-passtune-action3",
+  "corpus": "synthetic",
+  "batch": "v58",
+  "caseId": "v58-castle-passtune-action3",
+  "manifestPath": "challenges/manifests/v58.json",
+  "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+  "recordingPath": "challenges/cases/v58/v58-castle-passtune-action3.session.json",
+  "recordingSha256": "f4aa95e466808a3f3d76662e3132ae186765196bf63c49a5c1cebd94eaf3c5d8",
+  "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v58.json",
+  "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+  "remainingScreens": 29,
+  "recordedSteps": 271,
+  "status": "complete",
+  "commit": "e979f06adac942a07c087b92344808bf1406c267",
+  "mismatch": {
+    "session": "synthetic/v58/v58-castle-passtune-action3",
+    "remainingScreens": 29,
+    "step": 242,
+    "screen": {
+      "index": 242,
+      "row": 0,
+      "column": 43,
+      "c": "-",
+      "js": " "
+    },
+    "rng": {
+      "index": 14292,
+      "cEntry": "rnd(8)=5",
+      "cCaller": "e_missed(dbridge.c:524)",
+      "jsEntry": "rn2(5)=1",
+      "stepIndex": 243
+    },
+    "unported": [
+      "sounds.c SoundAchievement",
+      "dbridge.c open_drawbridge"
+    ]
+  },
+  "summary": "Playing the known castle passtune reaches dbridge.c:open_drawbridge. C runs do_entity() for bridge occupants; e_missed() consumes rnd(8), then the bridge crushes or relocates occupants. JavaScript do_play_instrument() records the unported open_drawbridge call and skips these effects, so the screen, RNG, and later steps diverge.",
+  "source": {
+    "file": "dbridge.c",
+    "branch": "The hero plays the saved passtune on the Stronghold level while a drawbridge is raised, and an entity occupies its bridge or portcullis square; open_drawbridge() lowers the bridge and do_entity() resolves that occupant.",
+    "functions": [
+      "open_drawbridge",
+      "do_entity",
+      "e_missed",
+      "automiss",
+      "e_jumps",
+      "e_survives_at",
+      "e_died",
+      "set_entity",
+      "m_to_e",
+      "u_to_e",
+      "e_at",
+      "e_nam",
+      "E_phrase",
+      "nokiller"
+    ],
+    "callers": [
+      "music.c:do_play_instrument() calls open_drawbridge() when the saved Stronghold passtune matches and the nearby bridge is raised.",
+      "detect.c:openone() calls open_drawbridge() for a raised drawbridge found by do_clear_area().",
+      "zap.c:bhit() and zap_map() call open_drawbridge() for opening/knock effects at a portcullis."
+    ],
+    "dependencies": [
+      "dbridge.c:get_wall_for_db and find_drawbridge.",
+      "revive_nasty() return values are discarded; record this gap and skip the calls as required.",
+      "e_died() invokes hero drown/lava/done/teleds and monster xkilled/monkilled; preserve those state changes.",
+      "do_entity() relocation uses remove_monster/place_monster/update_monster_region and recursively handles occupant conflicts."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "nethack-c/upstream/src/dbridge.c:496-524: e_missed() bypasses the draw when automiss applies, otherwise computes the flyer/floater/chunks miss chance, subtracts three at a portcullis, and evaluates misses >= rnd(8).",
+    "nethack-c/upstream/src/dbridge.c:554-759: do_entity() applies automiss/e_missed, crushes an entity under a lowered bridge, handles jump/relocation conflicts, and resolves survival on pool, lava, drawbridge and portcullis squares.",
+    "nethack-c/upstream/src/dbridge.c:840-882: open_drawbridge() changes DRAWBRIDGE_UP to DRAWBRIDGE_DOWN/DOOR, snapshots two occupants, runs do_entity() in order, removes objects/traps/engraving, redraws, unblocks vision, records uopened_dbridge, and clears stale killer/entity state.",
+    "nethack-c/upstream/src/music.c:759-833 and js/music.js:693-705: the correct saved passtune calls open_drawbridge(); JS currently records the gap instead.",
+    "nethack-c/upstream/src/detect.c:1729-1790 and js/detect.js:2661-2666: openone() also calls open_drawbridge(); JS records the gap. zap.c has two more call sites in bhit() and zap_map().",
+    "Fresh selected diagnostic .cache/v58-castle-diagnostic.log: the saved v58 evaluation is 242/271 screens and 268/271 cursors; at screen 242 row 0 column 43 C has \"-\" and JS has a space. At step 243 C logs rnd(8)=5 from dbridge.c:e_missed, while the caller path identifies dbridge.c:open_drawbridge as unported. The fix must implement the source entity effects rather than add an isolated RNG draw."
+  ],
+  "provenance": {
+    "corpus": "synthetic",
+    "batch": "v58",
+    "caseId": "v58-castle-passtune-action3",
+    "session": "synthetic/v58/v58-castle-passtune-action3",
+    "manifestPath": "challenges/manifests/v58.json",
+    "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+    "recording": "challenges/cases/v58/v58-castle-passtune-action3.session.json",
+    "recordingPath": "challenges/cases/v58/v58-castle-passtune-action3.session.json",
+    "recordingSha256": "f4aa95e466808a3f3d76662e3132ae186765196bf63c49a5c1cebd94eaf3c5d8",
+    "recipe": "challenges/cases/v58/v58-castle-passtune-action3.recipe.session.json",
+    "recipeSha256": "cf41f6566140bb092c3fc25fd734d883cf39456f1dfbb124f39bd010e7309a31",
+    "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v58.json",
+    "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+    "remainingScreens": 29,
+    "recordedSteps": 271
+  }
+}
