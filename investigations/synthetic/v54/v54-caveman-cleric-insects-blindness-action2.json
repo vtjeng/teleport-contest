@@ -1,0 +1,53 @@
+{
+  "session": "synthetic/v54/v54-caveman-cleric-insects-blindness-action2",
+  "remainingScreens": 4,
+  "recordedSteps": 724,
+  "corpus": "synthetic",
+  "batch": "v54",
+  "caseId": "v54-caveman-cleric-insects-blindness-action2",
+  "manifestPath": "challenges/manifests/v54.json",
+  "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+  "recordingSha256": "68c145ada08ab30c147655dd4fa2d8383c4cab3075a1dd4955208c18b4ee144e",
+  "evaluationPath": "challenges/evaluations/accepted-f7d9d863fc7a5de36299786e449d6a42bd585f03-v54.json",
+  "evaluationCommit": "f7d9d863fc7a5de36299786e449d6a42bd585f03",
+  "status": "complete",
+  "commit": "bd88586f96c41d70cc1ff283da780389b903cd8c",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v54/v54-caveman-cleric-insects-blindness-action2"
+    ],
+    "remainingScreens": 4,
+    "remainingScreensUpperBound": null,
+    "earliestStep": null,
+    "caseId": "v54-caveman-cleric-insects-blindness-action2",
+    "batch": "v54",
+    "recordingPath": "challenges/cases/v54/v54-caveman-cleric-insects-blindness-action2.session.json"
+  },
+  "summary": "The first residual mismatch is the castmu fumble notice at step 242: C displays “The air crackles around the curate,” while JavaScript displays a different species name. C calls mon_nam(mtmp); the JavaScript caller uses monnamFallback(), which reads only mtmp.data.pmnames and bypasses x_monnam's priest/minion naming path. Replace that fallback with the existing mon_nam implementation while preserving the injected monnam provider, visibility/deafness gates, and message order.",
+  "source": {
+    "file": "mcastu.c",
+    "branch": "In castmu's random-fumble branch (mcastu.c:205-214), when the visible caster is not deaf, C sets the message coordinate and formats the caster with mon_nam(mtmp). The JS branch instead falls back to the raw species pmnames when no injected monnam provider is present.",
+    "functions": [
+      "castmu"
+    ],
+    "callers": [
+      "mhitu.c:mattacku calls castmu at mhitu.c:930; the recorded monster melee spell reaches this caller.",
+      "js/unported_monster_actions.js:mattacku delegates the corresponding production attack to js/mcastu.js:castmu."
+    ],
+    "dependencies": [
+      "do_name.c:mon_nam -> x_monnam -> priestname; existing js/do_name.js implementations already preserve the priest/minion naming rules."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Fresh replay on bd88586f96c41d70cc1ff283da780389b903cd8c: run-S3qGwK, synthetic/v54/v54-caveman-cleric-insects-blindness-action2, segment 0 step 242 is the first screen divergence; C row 0 column 29 is 'u', JS is 'l'; RNG and cursor remain equal at that boundary. Log: /tmp/b-v54-caveman-insects-current.log.",
+    "The immutable step-242 recording prompt is 'The air crackles around the curate. The kobold hits!--More--'; C source mcastu.c:205-214 invokes mon_nam(mtmp) only after the visible-and-not-deaf fumble gate.",
+    "The JS fumble branch is js/mcastu.js:552-562 and currently calls monnamFallback(mtmp,state) at line 558. That fallback at js/mcastu.js:626-631 reads the raw species pmnames. Existing js/do_name.js: x_monnam contains the priest/minion special naming branch corresponding to do_name.c:876-909; use exported mon_nam rather than recreating those rules.",
+    "This is a bounded castmu message-argument divergence. It does not require the mcast_spell dispatcher or mcast_destroy_armor arm, which remain C-owned."
+  ]
+}
