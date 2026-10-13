@@ -136,6 +136,8 @@ import {
     TELEPORT,
     TELEP_TRAP,
     ROLLING_BOULDER_TRAP,
+    ROLL,
+    LAUNCH_KNOWN,
     TELEPORT_CONTROL,
     TEST_TRAV,
     TEST_TRAP,
@@ -2632,8 +2634,20 @@ async function moverock_core(sx, sy, state, env) {
                     state,
                 );
                 await feeltrap(ttmp, { ...effectEnv, redraw });
-                // trap.c:launch_obj() is not ported; C discards its result.
-                note_unported('trap.c launch_obj');
+                // hack.c:614. Keep trap_effects.js behind a dynamic import:
+                // trap_effects.js imports hack.js for other trap callbacks.
+                const { launch_obj } = await import('./trap_effects.js');
+                // C discards launch_obj()'s result in moverock_core.
+                await launch_obj(
+                    BOULDER,
+                    sx,
+                    sy,
+                    tox,
+                    toy,
+                    ROLL | LAUNCH_KNOWN,
+                    state,
+                    effectEnv,
+                );
                 return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
             }
             default:
