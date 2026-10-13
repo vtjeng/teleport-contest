@@ -1,0 +1,38 @@
+{
+  "session": "synthetic/v55/v55-blind-ogre-extra-healing-action5",
+  "remainingScreens": 4,
+  "recordedSteps": 299,
+  "corpus": "synthetic",
+  "batch": "v55",
+  "caseId": "v55-blind-ogre-extra-healing-action5",
+  "manifestPath": "challenges/manifests/v55.json",
+  "manifestSha256": "3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105",
+  "recordingSha256": "469a77d1a558e6091736b476956ad059056adcffab0d1b704916e402a66c1709",
+  "evaluationPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v55.json",
+  "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
+  "status": "complete",
+  "commit": "24ff7c63957e12c23afde9858083454ce03ea36c",
+  "mismatch": {
+    "session": "synthetic/v55/v55-blind-ogre-extra-healing-action5",
+    "remainingScreens": 4
+  },
+  "summary": "A blind ogre drinks an extra-healing ray after the hero directs a stethoscope at it. zap.c:bhitm heals the ogre and calls muse.c:mcureblindness before its visible improvement message. JS skips that void call with note_unported, so the cure message and sight-state transition are missing.",
+  "source": {
+    "file": "zap.c",
+    "functions": ["bhitm"],
+    "branch": "For SPE_EXTRA_HEALING (or skilled SPE_HEALING) on a non-Pestilence monster, bhitm saves the HP delta, prevents wakeup anger, heals the monster, then calls mcureblindness(mtmp, canseemon(mtmp)) before mimic/visible-improvement output. The selected ogre is blind and visible, so mcureblindness clears mcansee/mblinded and emits its cure line before 'looks much better.'",
+    "callers": [
+      "zap.c:weffects sends a monster-target ray through zap.c:bhit with bhitm as callback; js/zap.js:weffects -> bhit -> bhitm is the production route exercised by the recording."
+    ],
+    "dependencies": [
+      "muse.c:mcureblindness is already implemented in js/muse.js and returns void; bhitm discards its result. This correction replaces only the existing skipped call and does not claim new completion credit for the helper."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The accepted v55 baseline is challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v55.json: 295/299 screens and cursors match, all 2784 RNG calls match, and error is null.",
+    "A fresh selected replay at 24ff7c63957e12c23afde9858083454ce03ea36c first differs at zero-based step 255 on screen row 0 column 9; C shows the cure-and-improvement text, while JS lacks the cure message and has the shifted cursor. It reaches the explicit unported set entry mon.c mcureblindness. Receipt: /tmp/teleport-validation-1000/run-E9lcSp/receipt.json.",
+    "upstream/src/zap.c:448-460 heals the selected non-Pestilence target and calls mcureblindness(mtmp, canseemon(mtmp)) for SPE_EXTRA_HEALING before the visible 'looks much better' line. upstream/src/muse.c:2872-2883 clears mcansee/mblinded and emits the 'can see again' message only for a visible monster with eyes.",
+    "js/zap.js:3472-3477 follows the same healing order but substitutes note_unported('mon.c mcureblindness'); js/muse.js:722-733 already implements the matching muse.c helper. The selected branch is a bounded caller divergence in the previously source-reviewed bhitm body."
+  ]
+}
