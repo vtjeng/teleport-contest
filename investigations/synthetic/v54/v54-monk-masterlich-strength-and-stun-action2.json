@@ -60,10 +60,10 @@
     "function": null,
     "message": null
   },
-  "summary": "On accepted weakening Main 00783478, the monk case now reaches step 303 before diverging. C dispatches MCAST_DESTRY_ARMR to mcast_destroy_armor; JavaScript records that helper as unported. The first missing draw is rn2(4) inside destroy_arm. The necessary dispatcher arm is in mcastu.c:mcast_spell, which B owns for the insect continuation, so implementation is parked until that source reservation releases.",
+  "summary": "On accepted Main f7d9d863, the monk case still diverges at step 303. C dispatches MCAST_DESTRY_ARMR to mcast_destroy_armor; JavaScript still records that helper as unported. The first missing draw is rn2(4) inside destroy_arm, whose return determines whether the monster learns resistance.",
   "source": {
     "file": "mcastu.c",
-    "branch": "MCAST_DESTRY_ARMR reaches mcast_destroy_armor while Antimagic is false; destroy_arm is called and its return selects the skin-itch or armor-destruction path.",
+    "branch": "When the caster reaches MCAST_DESTRY_ARMR and the hero lacks Antimagic, mcast_destroy_armor calls destroy_arm. If the consumed result is false, C says “Your skin itches.”; if true, C marks the monster as having understood the resistance. With Antimagic, it calls shieldeff, marks seen resistance, and emits “A field of force surrounds you!”.",
     "functions": [
       "mcast_destroy_armor",
       "mcast_spell"
@@ -72,20 +72,20 @@
       "mcastu.c:castmu -> mcast_spell -> MCAST_DESTRY_ARMR -> mcast_destroy_armor"
     ],
     "dependencies": [
-      "do_wear.c:destroy_arm (return value consumed; existing async implementation is js/do_wear.js:destroy_arm)"
+      "do_wear.c:destroy_arm (its boolean result is consumed; existing implementation is js/do_wear.js:4241-4280 and must be awaited)"
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Accepted queue row challenges/evaluations/accepted-00783478fe07117bdce7e0113d340094fff9ec35-v54.json at 00783478fe07117bdce7e0113d340094fff9ec35 records the post-weakening monk case at 305/399 matched screens, 3346/3378 RNG calls, and 396/399 cursors; the saved first mismatch is step 303.",
-    "A fresh JavaScript-only replay of the unchanged admitted recording used 8d6e44d0cc3bf68f1d8ffda0e7ad41a5a92970979fe059c0a9a47546556ab9c7; .cache/C-v54-monk-after-weakening-scan.json (SHA-256 1a7a1bd2f6643564c985b55fcca09392f0e3d7b4fd8bb94e5ce1f4d6fb67b434) places the first screen and RNG divergence at segment 0, step 303. C calls rn2(4)=2 @ destroy_arm(do_wear.c:3282); JavaScript next logs rn2(5)=4 and reports the gap mcastu.c mcast_destroy_armor.",
-    "Source comparison: nethack-c/upstream/src/mcastu.c:450-462 implements mcast_destroy_armor; mcastu.c:801-840 dispatches MCAST_DESTRY_ARMR; castmu reaches mcast_spell. The source consumes destroy_arm’s return value. Its existing implementation is js/do_wear.js:4241-4280 and must be awaited by the future mcastu port.",
-    "Production caller change is blocked by B’s resumed insect task, which owns source:mcastu.c:mcast_spell. No JavaScript or test code was edited; the investigation is parked until that reservation releases."
+    "The accepted combined queue at f7d9d863 records v54-monk-masterlich-strength-and-stun-action2 at 305/399 screens, 3346/3378 RNG calls, and 396/399 cursors, with 94 screens remaining and error null. The queue names challenges/evaluations/accepted-f7d9d863fc7a5de36299786e449d6a42bd585f03-v54.json at commit f7d9d863; that artifact is not present in the accepted Git tree.",
+    "A fresh JavaScript-only replay of the unchanged admitted recording ran at 94708482d1fdaa944784b1eb217239469fd2f377 using replay input SHA-256 355d304b32a3eb9593b0b31efd65cc19a4f5941f2aa6dd966e29db0ea6c71fff. The output .cache/C-v54-monk-after-insects-scan.json has SHA-256 4e6ccbe042a3eb9593b0b31efd65cc19a4f5941f2aa6dd966e29db0ea6c71fff. It places the screen and RNG divergence at segment 0, step 303: C calls rn2(4)=2 at destroy_arm(do_wear.c:3282), while JavaScript next logs rn2(5)=4 and reports mcastu.c mcast_destroy_armor.",
+    "Source review: mcastu.c:450-462 implements mcast_destroy_armor; mcastu.c:801-840 dispatches MCAST_DESTRY_ARMR; castmu calls mcast_spell for AD_SPEL and AD_CLRC. do_wear.c:3278-3316 implements destroy_arm, and js/do_wear.js:4241-4280 already mirrors its worn-slot order, RNG sequence, erode_obj result handling, and boolean return.",
+    "The required implementation scope is the complete mcast_destroy_armor helper and its MCAST_DESTRY_ARMR dispatcher arm. The dispatcher as a whole is outside the completion claim. B accepted its separate MCAST_INSECTS repair at f7d9d863, releasing mcastu.c:mcast_spell before this task resumed."
   ],
   "currentBaseline": {
-    "evaluationPath": "challenges/evaluations/accepted-00783478fe07117bdce7e0113d340094fff9ec35-v54.json",
-    "evaluationCommit": "00783478fe07117bdce7e0113d340094fff9ec35",
-    "replayInputSha256": "8d6e44d0cc3bf68f1d8ffda0e7ad41a5a92970979fe059c0a9a47546556ab9c7",
+    "evaluationPath": "challenges/evaluations/accepted-f7d9d863fc7a5de36299786e449d6a42bd585f03-v54.json",
+    "evaluationCommit": "f7d9d863fc7a5de36299786e449d6a42bd585f03",
+    "replayInputSha256": "355d304b32a3eb9593b0b31efd65cc19a4f5941f2aa6dd966e29db0ea6c71fff",
     "metrics": {
       "screens": {
         "matched": 305,
@@ -101,15 +101,21 @@
       }
     },
     "remainingScreens": 94,
-    "note": "Current accepted queue measurement after C’s weakening delivery; previous mcast_weaken_you evidence belongs to its separate case and is not reused as the monk baseline."
+    "note": "Current accepted queue measurement after B’s insect dispatcher delivery. Its referenced evaluation artifact is absent from commit f7d9d863 in this worktree; preserve this queue provenance and disclose the missing file to the coordinator."
   },
   "currentReplay": {
     "command": "node scripts/scan-sessions.mjs --json --synthetic v54/v54-monk-masterlich-strength-and-stun-action2",
-    "replayCommit": "f45a6cfbaf17aa95a32b7042d95f8e5013a40bfb",
-    "replayInputSha256": "8d6e44d0cc3bf68f1d8ffda0e7ad41a5a92970979fe059c0a9a47546556ab9c7",
+    "replayCommit": "94708482d1fdaa944784b1eb217239469fd2f377",
+    "replayInputSha256": "355d304b32a3eb9593b0b31efd65cc19a4f5941f2aa6dd966e29db0ea6c71fff",
     "diagnosticToolSha256": "707e173e6aeed4e4cb3007e741daff592f5f2d209f7fef0cf19d18a56b841dd0",
-    "outputPath": ".cache/C-v54-monk-after-weakening-scan.json",
-    "outputSha256": "1a7a1bd2f6643564c985b55fcca09392f0e3d7b4fd8bb94e5ce1f4d6fb67b434",
+    "outputPath": ".cache/C-v54-monk-after-insects-scan.json",
+    "outputSha256": "e23cc1eaab6c835411d30eb99b87f728cc8a2ed36d768e31dc38cdeaa2048be4",
+    "commandRefusal": false,
+    "unported": [
+      "sounds.c SoundAchievement",
+      "mcastu.c mcast_destroy_armor"
+    ],
+    "note": "The accepted f7d9d863 tree still mismatches at the same source gap. This replay is diagnosis, not completion evidence.",
     "divergence": {
       "screen": {
         "index": 303,
@@ -164,13 +170,104 @@
           1
         ]
       }
-    },
-    "commandRefusal": false,
-    "unported": [
-      "sounds.c SoundAchievement",
-      "mcastu.c mcast_destroy_armor"
-    ],
-    "note": "The case remains intentionally mismatching; this is source diagnosis only, not completion evidence."
+    }
   },
-  "blocker": "B owns mcastu.c:mcast_spell for the resumed insect continuation; keep the whole dispatcher unchanged until B accepts or releases that scope."
+  "blocker": null,
+  "history": [
+    {
+      "sourceRevision": "1ef20118a",
+      "note": "Original diagnosis while B owned the MCAST_INSECTS dispatcher arm. Preserved in Git at 1ef20118a.",
+      "baseline": {
+        "evaluationPath": "challenges/evaluations/accepted-00783478fe07117bdce7e0113d340094fff9ec35-v54.json",
+        "evaluationCommit": "00783478fe07117bdce7e0113d340094fff9ec35",
+        "replayInputSha256": "8d6e44d0cc3bf68f1d8ffda0e7ad41a5a92970979fe059c0a9a47546556ab9c7",
+        "metrics": {
+          "screens": {
+            "matched": 305,
+            "total": 399
+          },
+          "rng": {
+            "matched": 3346,
+            "total": 3378
+          },
+          "cursors": {
+            "matched": 396,
+            "total": 399
+          }
+        },
+        "remainingScreens": 94,
+        "note": "Current accepted queue measurement after C’s weakening delivery; previous mcast_weaken_you evidence belongs to its separate case and is not reused as the monk baseline."
+      },
+      "replay": {
+        "command": "node scripts/scan-sessions.mjs --json --synthetic v54/v54-monk-masterlich-strength-and-stun-action2",
+        "replayCommit": "f45a6cfbaf17aa95a32b7042d95f8e5013a40bfb",
+        "replayInputSha256": "8d6e44d0cc3bf68f1d8ffda0e7ad41a5a92970979fe059c0a9a47546556ab9c7",
+        "diagnosticToolSha256": "707e173e6aeed4e4cb3007e741daff592f5f2d209f7fef0cf19d18a56b841dd0",
+        "outputPath": ".cache/C-v54-monk-after-weakening-scan.json",
+        "outputSha256": "1a7a1bd2f6643564c985b55fcca09392f0e3d7b4fd8bb94e5ce1f4d6fb67b434",
+        "divergence": {
+          "screen": {
+            "index": 303,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 303,
+              "key": "."
+            },
+            "kind": "ch",
+            "row": 0,
+            "column": 67,
+            "cCell": {
+              "ch": "-",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": " ",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "rng": {
+            "index": 3346,
+            "cEntry": "rn2(4)=2",
+            "cCaller": "destroy_arm(do_wear.c:3282)",
+            "jsEntry": "rn2(5)=4",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 303,
+              "key": "."
+            },
+            "stepIndex": 303
+          },
+          "cursor": {
+            "index": 303,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 303,
+              "key": "."
+            },
+            "cCursor": [
+              75,
+              0,
+              1
+            ],
+            "jsCursor": [
+              6,
+              12,
+              1
+            ]
+          }
+        },
+        "commandRefusal": false,
+        "unported": [
+          "sounds.c SoundAchievement",
+          "mcastu.c mcast_destroy_armor"
+        ],
+        "note": "The case remains intentionally mismatching; this is source diagnosis only, not completion evidence."
+      },
+      "blocker": "B owns mcastu.c:mcast_spell for the resumed insect continuation; keep the whole dispatcher unchanged until B accepts or releases that scope."
+    }
+  ]
 }
