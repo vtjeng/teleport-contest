@@ -1431,6 +1431,25 @@ async function ranFilb(des) {
     for (let i = 0; i < 2; ++i) await des.monster({ id: 'scorpion', peaceful: 0 });
 }
 
+// C ref: complete dat/Tou-filb.lua. Keep the Tourist monster descriptors in
+// source order, including its final random spider-class monster.
+async function touFilb(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({ style: 'mines', fg: '.', bg: ' ',
+        smoothed: true, joined: true, walled: true });
+
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 11; ++i) await des.object();
+    for (let i = 0; i < 4; ++i) await des.trap();
+    await des.monster({ id: 'soldier', peaceful: 0 });
+    for (let i = 0; i < 2; ++i) await des.monster({ id: 'captain', peaceful: 0 });
+    for (let i = 0; i < 2; ++i) await des.monster({ class: 'H', peaceful: 0 });
+    await des.monster({ class: 'C', peaceful: 0 });
+    await des.monster('s');
+}
+
 // C ref: complete dat/Ran-goal.lua. Generated tables preserve its map and
 // descriptor order while every des call stays at its original top-level site.
 async function ranGoal(des) {
@@ -3215,6 +3234,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Sam-goal': samGoal,
     'Tou-strt': touStrt,
     'Tou-loca': touLoca,
+    'Tou-filb': touFilb,
     'Tou-goal': touGoal,
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
