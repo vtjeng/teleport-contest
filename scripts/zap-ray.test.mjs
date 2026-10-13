@@ -174,13 +174,15 @@ test('disintegrate_mon uses C Monnam capitalization for its visible message', ()
     ), 'utf8');
     const jsSource = readFileSync(new URL('../js/zap.js', import.meta.url), 'utf8');
     const cStart = cSource.indexOf('\ndisintegrate_mon(\n    struct monst *mon,');
+    const cEnd = cSource.indexOf('\nvoid\nubuzz(', cStart);
     const jsStart = jsSource.indexOf('async function disintegrate_mon(');
     const jsEnd = jsSource.indexOf('\n}', jsStart);
 
     // C's visible, non-lifesaving branch calls Monnam; its first character
     // is uppercase, matching the recorded vampire-bat message at v54 step 598.
     assert.notEqual(cStart, -1);
-    assert.match(cSource.slice(cStart, cStart + 900),
+    assert.notEqual(cEnd, -1);
+    assert.match(cSource.slice(cStart, cEnd),
         /pline\("%s is disintegrated!", Monnam\(mon\)\)/u);
     assert.notEqual(jsStart, -1);
     assert.match(jsSource.slice(jsStart, jsEnd),
