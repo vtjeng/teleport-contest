@@ -12,6 +12,7 @@ import {
     BLINDED,
     BLND_RES,
     COLD_RES,
+    CONFUSION,
     CONFLICT,
     DISINT_RES,
     DRAIN_RES,
@@ -278,7 +279,8 @@ import { spelleffects } from './spell.js';
 import { litroom, seffects } from './read.js';
 import { charge_ok, recharge } from './read.js';
 import {
-    healup, make_blinded, make_sick, make_slimed, make_stunned, make_hallucinated,
+    healup, make_blinded, make_sick, make_slimed, make_stunned,
+    make_confused, make_hallucinated,
 } from './potion.js';
 import { dropCommandEnv, dropx, maybe_lvltport_feedback, goto_level } from './do.js';
 import { select_menu } from './windows.js';
@@ -1938,7 +1940,10 @@ export async function Mb_hit(
     let do_confuse = !random.rn2(12);
     if (do_confuse) {
         if (youdefend) {
-            note_unported('timeout.c make_confused');
+            const confusionTimeout = (
+                (state.u?.uprops?.[CONFUSION]?.intrinsic ?? 0) & TIMEOUT
+            ) + 4;
+            await make_confused(confusionTimeout, false, state, env);
         } else {
             mdef.mconf = 1;
         }

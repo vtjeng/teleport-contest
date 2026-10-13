@@ -55,9 +55,11 @@ import {
     find_misc,
     mon_reflects,
     ureflects,
+    mloot_container,
 } from '../js/muse.js';
 import { can_blow } from '../js/mondata.js';
 import { canseemon, sensemon } from '../js/display.js';
+import { add_to_container } from '../js/invent.js';
 import { mksobj, place_object, remove_object } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import {
@@ -1130,6 +1132,37 @@ async function offensiveHero() {
     });
     return game;
 }
+
+test('mloot_container passes the source visibility owner to mhe', async () => {
+    const cAt = MUSE_C.indexOf('\nmloot_container(');
+    const cEnd = MUSE_C.indexOf('\n/*', cAt);
+    const cSource = MUSE_C.slice(cAt, cEnd);
+    const jsAt = MUSE_JS.indexOf('export async function mloot_container(');
+    const jsEnd = MUSE_JS.indexOf('\n// C ref:', jsAt + 1);
+    const jsSource = MUSE_JS.slice(jsAt, jsEnd);
+    assert.match(cSource, /Strcpy\(mpronounbuf, mhe\(mon\)\)/u);
+    assert.match(jsSource,
+        /canSpotMonster:\s*\(subject, currentState\)\s*=>\s*canspotmon\(subject, currentState\)/u);
+
+    const state = await offensiveHero();
+    const box = makeObject(state, LARGE_BOX, {
+        where: OBJ_MINVENT,
+        olocked: false,
+        otrapped: false,
+    });
+    add_to_container(box, makeObject(state, DAGGER), { state });
+    const monster = offensiveMonster(state, PM_GNOME, box, {
+        mhp: 10,
+        mhpmax: 10,
+    });
+
+    // The visible C path calls mhe(mon), which asks the caller to provide
+    // canspotmon() for this pronoun lookup. Later RNG outcomes are unrelated
+    // to this owner binding.
+    await assert.doesNotReject(
+        () => mloot_container(monster, box, true, { state }),
+    );
+});
 
 // An attacker beside the hero, believing the hero is where the hero is, and
 // carrying whatever the case hands it.

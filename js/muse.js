@@ -1395,7 +1395,14 @@ export async function mloot_container(mon, container, vismon, rawEnv = {}) {
     if (vismon) {
         // do this once so that when hallucinating it won't change
         // from one item to the next
-        mpronounbuf = mhe(mon, { state });
+        mpronounbuf = mhe(mon, {
+            state,
+            // muse.c:mloot_container() uses C's global canspotmon() through
+            // mhe(); the JavaScript pronoun helper receives that owner from
+            // this caller instead.
+            canSpotMonster: (subject, currentState) =>
+                canspotmon(subject, currentState),
+        });
     }
 
     for (let takeout_indx = 0; takeout_indx < takeout_count; ++takeout_indx) {

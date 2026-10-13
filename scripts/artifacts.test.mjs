@@ -1098,6 +1098,22 @@ test('Mb_hit follows C probe ordering and calls the canonical zap helper', () =>
         /\(state\.u\?\.uprops\?\.\[STUNNED\]\?\.intrinsic \?\? 0\) & TIMEOUT/u,
         'JavaScript reads the corresponding STUNNED property',
     );
+    assert.match(
+        C_MB_HIT,
+        /make_confused\(\(HConfusion & TIMEOUT\) \+ 4L, FALSE\)/u,
+        'C extends the hero confusion timeout after the stun branch',
+    );
+    assert.match(
+        JS_ARTIFACT_SOURCE,
+        /\bmake_confused\b[\s\S]*from '\.\/potion\.js';/u,
+        'Mb_hit imports the existing potion.c implementation',
+    );
+    assert.match(
+        JS_MB_HIT,
+        /CONFUSION[\s\S]*await make_confused\(confusionTimeout, false, state, env\)/u,
+        'JavaScript applies the same source-ordered timeout update',
+    );
+    assert.doesNotMatch(JS_MB_HIT, /note_unported\(['"]timeout\.c make_confused/u);
 });
 
 // Helper: minimal state with artilist, artiexist, and artidisco initialized.
