@@ -25,7 +25,11 @@ export function activityFromLedger(ledger) {
     runId: ledger.runId,
     events: ledger.events.filter(event => EVENT_TYPES.has(event.type)).flatMap(event =>
       event.type === 'prep-integrating' ? event.tasks.map(task => ({...event,
-        id: `${event.id}-${task}`, type: 'integrating', task, prepGroup: event.tasks})) : [event]).map(event => ({
+        id: `${event.id}-${task}`, type: 'integrating', task, prepGroup: event.tasks}))
+        : event.type === 'feedback' && event.prepGroup ? event.prepGroup.flatMap(task => [
+          {...event, id: `${event.id}-${task}`, task},
+          ...(task !== event.task ? [{...event, id: `${event.id}-${task}-released`, type: 'ready', task}] : []),
+        ]) : [event]).map(event => ({
       runId: ledger.runId, id: event.id, type: event.type, at: event.at,
       ...(event.task ? { task: event.task } : {}),
       ...(event.worker ? { worker: event.worker } : {}),

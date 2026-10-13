@@ -173,7 +173,7 @@ const FIELDS = {
     park: ['task', 'reason'], resume: ['task'],
 };
 const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span'], published: ['supplementalCheckpoint', 'supplementalAdmission'],
-    turn: ['summary'] };
+    feedback: ['prepGroup'], turn: ['summary'] };
 
 function check(condition, message) {
     if (!condition) throw new Error(message);
@@ -277,7 +277,8 @@ function applyEvent(state, event, at) {
             'Prep group must contain consecutive batches in version order');
         const included = new Set(deliveries.map(delivery => delivery.delivery));
         for (const delivery of deliveries) for (const dependency of delivery.dependencies)
-            check(acceptedDependency(state, dependency) || included.has(dependency),
+            check(acceptedDependency(state, dependency)
+                || included.has(state.tasks[state.deliveries[dependency]?.task]?.deliveries.at(-1)),
                 `dependency is outside the Prep group and not accepted: ${dependency}`);
         for (const delivery of deliveries) {
             Object.assign(delivery, {integratingAt: at, integration: event.integration, prepGroup: [...event.tasks]});
@@ -466,6 +467,12 @@ function applyEvent(state, event, at) {
         requireStatus('ready', 'integrating', 'changes-required');
         check(delivery?.delivery === event.delivery, 'feedback must identify the current delivery SHA');
         string(event.reason, 'reason');
+        if (delivery.prepGroup) for (const id of delivery.prepGroup) {
+            const sibling = state.tasks[id], submitted = state.deliveries[sibling.deliveries.at(-1)];
+            check(!submitted.acceptedAt, 'cannot withdraw a partially accepted Prep group');
+            if (id !== task.id && submitted.integration === delivery.integration
+                && ['integrating', 'validated'].includes(sibling.status)) sibling.status = 'ready';
+        }
         Object.assign(delivery, { feedbackAt: at, feedback: event.reason });
         task.status = 'changes-required';
     } else if (type === 'validated') {
@@ -726,12 +733,14 @@ export function main(argv = process.argv.slice(2)) {
         }
         check(current, 'initialize the ledger first');
         const state = summarizeLedger(current);
+        const previous = command === 'event' ? current.events.find(event => event.id === input.id) : null;
+        const retry = previous?.prepGroup && input.type === 'feedback'
+            ? {...input, prepGroup: input.prepGroup ?? previous.prepGroup} : input;
         const event = command === 'submit' ? submitDelivery({ root, file, state,
             taskId: options['--task'], contextPath: options['--context'], evidencePath: options['--evidence'],
             checksPath: options['--checks'], base: options['--base'], head: options['--head'],
             dependencies: options['--dependencies'] === 'none' ? [] : options['--dependencies']?.split(',') })
-            : current.events.some(event => event.id === input.id)
-                ? resolveEventCommits(root, input) : verifyEvent(root, state, input);
+            : previous ? resolveEventCommits(root, retry) : verifyEvent(root, state, input);
         let next = recordEvent(current, event);
         if (event.type === 'published') {
             for (const confirmed of publicationConfirmations(root, summarizeLedger(next)))

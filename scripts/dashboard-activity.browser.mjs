@@ -241,7 +241,7 @@ try {
   await page.reload();
   assert.match(await page.locator('#prepIntegrationDurationSummary').innerText(), /1 attempt/u);
   const groupBar = page.locator('.activity-bar.phase-integrating').first();
-  assert.match(await groupBar.innerText(), /Prep group · 4 tasks/u);
+  assert.match(await groupBar.getAttribute('aria-label'), /Prep group · 4 tasks/u);
   const groupFrame = await page.locator('#timeline').boundingBox();
   await groupBar.click();
   assert.match(await page.locator('#timelineReadout').innerText(), /Shared CI run/u);

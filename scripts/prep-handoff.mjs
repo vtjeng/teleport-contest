@@ -10,7 +10,6 @@ import {acceptedDependency} from './worker-backlog.mjs';
 import {readCheckpointResult} from './checkpoint-results.mjs';
 import {digest} from './challenge-results.mjs';
 import {publishTask} from './task-handoff.mjs';
-import {publicationConfirmations} from './worker-publication.mjs';
 import {boundedMain} from './run-bounded.mjs';
 
 const USAGE = `Usage: node scripts/prep-handoff.mjs <plan|integrate|accept|publish> --ledger <shared-ledger>
@@ -57,7 +56,8 @@ export function planPrepGroup(options, root = process.cwd()) {
     let held = null;
     for (const task of pending) {
         const delivery = latest(ctx.state, task);
-        const blocked = delivery?.dependencies.filter(sha => !acceptedDependency(ctx.state, sha) && !deliveries.has(sha));
+        const blocked = delivery?.dependencies.filter(sha => !acceptedDependency(ctx.state, sha)
+            && !deliveries.has(ctx.state.tasks[ctx.state.deliveries[sha]?.task]?.deliveries.at(-1)));
         if (task.status !== 'ready' || !delivery?.receivedAt || blocked?.length
             || (tasks.length && version(task) !== tasks.at(-1).version + 1)) {
             held = {task: task.id, status: task.status, reason: !delivery?.receivedAt ? 'receipt required'
@@ -75,10 +75,10 @@ export function planPrepGroup(options, root = process.cwd()) {
     return {version: 1, base: git(ctx.root, 'rev-parse', 'HEAD'), tasks, held};
 }
 
-function frozenGroup(ctx) {
+function frozenGroup(ctx, plan = null) {
     const path = join(ctx.root, '.cache/prep-group.json');
     if (!existsSync(path)) throw new Error('integrate a Prep group first');
-    const plan = JSON.parse(readFileSync(path, 'utf8'));
+    plan ??= JSON.parse(readFileSync(path, 'utf8'));
     if (plan.version !== 1 || !Array.isArray(plan.tasks) || !plan.tasks.length)
         throw new Error('invalid frozen Prep group');
     for (const member of plan.tasks) {
@@ -90,6 +90,36 @@ function frozenGroup(ctx) {
     return plan;
 }
 
+function saveGroup(ctx, plan) {
+    const bytes = JSON.stringify(plan, null, 2) + '\n';
+    mkdirSync(join(ctx.root, '.cache/prep-groups'), {recursive: true});
+    writeFileSync(join(ctx.root, '.cache/prep-groups', `${digest(bytes)}.json`), bytes);
+    writeFileSync(join(ctx.root, '.cache/prep-group.json'), bytes);
+}
+
+function checkGroupFiles(ctx, plan, commit, complete) {
+    const expected = new Map(), permitted = new Map();
+    for (const member of plan.tasks) {
+        const task = ctx.state.tasks[member.task];
+        for (const sha of task.deliveries) {
+            const delivery = ctx.state.deliveries[sha];
+            for (const path of delivery.paths) {
+                const variants = permitted.get(path) ?? new Set();
+                for (const source of [delivery.base, ...delivery.commits])
+                    variants.add(git(ctx.root, 'ls-tree', source, '--', path));
+                permitted.set(path, variants);
+                expected.set(path, git(ctx.root, 'ls-tree', member.delivery, '--', path));
+            }
+        }
+    }
+    const changed = git(ctx.root, 'diff', '--name-only', plan.base, commit).split('\n').filter(Boolean);
+    for (const path of new Set([...changed, ...(complete ? expected.keys() : [])])) {
+        const blob = git(ctx.root, 'ls-tree', commit, '--', path);
+        if (!permitted.get(path)?.has(blob) || (complete && expected.get(path) !== blob))
+            throw new Error(`candidate file differs from the frozen Prep deliveries: ${path}`);
+    }
+}
+
 export function integratePrepGroup(options, root = process.cwd()) {
     let ctx = context(options, root);
     if (git(ctx.root, 'status', '--porcelain')) throw new Error('integrate Prep from a clean worktree');
@@ -98,24 +128,32 @@ export function integratePrepGroup(options, root = process.cwd()) {
     const path = join(ctx.root, '.cache/prep-group.json');
     let plan;
     if (existsSync(path)) {
-        plan = frozenGroup(ctx);
-        if (plan.tasks.every(member => ctx.state.tasks[member.task].status === 'accepted')) plan = null;
+        plan = JSON.parse(readFileSync(path, 'utf8'));
+        const members = plan.tasks.map(member => ctx.state.tasks[member.task]);
+        if (members.every(task => task?.status === 'accepted')) plan = null;
+        else if (members.every(task => task?.status === 'ready')) {
+            // Feedback releases the sibling tasks. Re-freeze only this group's corrected
+            // submissions, keeping its original base and excluding later arrivals.
+            plan = {...plan, tasks: members.map(task => ({task: task.id, version: version(task),
+                delivery: latest(ctx.state, task).delivery, commits: latest(ctx.state, task).commits}))};
+            saveGroup(ctx, plan);
+        } else plan = frozenGroup(ctx, plan);
     }
     if (!plan) {
         plan = planPrepGroup(options, ctx.root);
         if (!plan.tasks.length) return {commit: plan.base, tasks: [], held: plan.held};
-        mkdirSync(join(ctx.root, '.cache'), {recursive: true});
-        writeFileSync(path, JSON.stringify(plan, null, 2) + '\n');
+        saveGroup(ctx, plan);
     }
     const tasks = plan.tasks.map(member => member.task);
     const head = git(ctx.root, 'rev-parse', 'HEAD');
     const active = plan.tasks.map(member => latest(ctx.state, ctx.state.tasks[member.task]));
-    if (active.every(delivery => delivery.integration === head && isDeepStrictEqual(delivery.prepGroup, tasks)))
+    if (active.every(delivery => delivery.integration === head && isDeepStrictEqual(delivery.prepGroup, tasks)
+        && ['integrating', 'validated', 'accepted'].includes(ctx.state.tasks[delivery.task].status)))
         return {commit: head, tasks, checkpointRequired: !active.every(delivery => delivery.acceptedAt)};
     if (!isAncestor(ctx.root, plan.base, head)) throw new Error('candidate no longer contains the frozen group base');
-    const allowed = path => plan.tasks.some(member => path.startsWith(`challenges/cases/v${member.version}/`));
-    if (git(ctx.root, 'diff', '--name-only', plan.base, head).split('\n').filter(Boolean).some(path => !allowed(path)))
-        throw new Error('candidate has changes outside the frozen Prep group');
+    checkGroupFiles(ctx, plan, head, false);
+    if (plan.tasks.some(member => ctx.state.tasks[member.task].status !== 'ready'))
+        throw new Error('finish the requested Prep corrections before retrying the group');
     for (const member of plan.tasks) {
         const delivery = latest(ctx.state, ctx.state.tasks[member.task]);
         const missing = new Set(git(ctx.root, 'cherry', 'HEAD', delivery.delivery, delivery.base)
@@ -124,6 +162,7 @@ export function integratePrepGroup(options, root = process.cwd()) {
     }
     const commit = git(ctx.root, 'rev-parse', 'HEAD');
     ctx = context(options, ctx.root);
+    checkGroupFiles(ctx, plan, commit, true);
     const pendingPrep = new Set(plan.tasks.map(member => member.delivery));
     const preflight = tasks.map(taskId => preflightDelivery({root: ctx.root, state: ctx.state, taskId, commit, pendingPrep}));
     if (preflight.some(result => !result.passed)) throw new Error(`Prep group preflight failed: ${JSON.stringify(preflight)}`);
@@ -174,11 +213,8 @@ export function publishPrepGroup(options, root = process.cwd(), dependencies) {
     const ctx = context(options, root), plan = frozenGroup(ctx), tasks = plan.tasks.map(member => member.task);
     for (const task of tasks) if (ctx.state.tasks[task].status !== 'accepted') throw new Error('accept the entire Prep group before publishing');
     const result = publishTask({...options, task: tasks[0]}, ctx.root, dependencies);
-    updateLedger(ctx.file, ctx.root, ledger => {
-        for (const event of publicationConfirmations(ctx.root, summarizeLedger(ledger)))
-            if (tasks.includes(event.task)) ledger = recordEvent(ledger, verifyEvent(ctx.root, summarizeLedger(ledger), event));
-        return ledger;
-    });
+    // The first task anchors the push; its published event also confirms the
+    // other accepted deliveries covered by that commit in the same ledger update.
     return {...result, tasks};
 }
 
