@@ -573,3 +573,16 @@ triage decisions or fix references.
   when the ready implementation queue empties. Its saved C evidence is
   verified. The approved Admission workflow will baseline accepted manifests
   at the next safe boundary.
+
+### 2026-10-13 — admission lock and manifest handoff timing
+
+- Prep20 acceptance completed, but its first admission-activity event met a
+  transient shared-ledger lock. Root observed that the lock had cleared and
+  retried the same event; admission then wrote only the v56 manifest.
+- The required wakeups before publication reached A and B while
+  `accepted-main` still named the tested preparation commit without the new
+  manifest. Both held their claims. After publication, Root sent the cleared
+  dependency once so they could sync the manifest and proceed.
+- C initially returned its previous completed read-only findings after the
+  new-batch wakeup. Root confirmed that turn was completed and followed up
+  on the same worker with the published manifest and source-work request.
