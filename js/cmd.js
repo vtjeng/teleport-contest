@@ -351,7 +351,7 @@ import {
     UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { nhgetch } from './input.js';
-import { doride, Punished, UnsupportedSteedError } from './steed.js';
+import { doride, Punished } from './steed.js';
 import { done2, UnsupportedEndOfGameError } from './end.js';
 import {
     exercise_nonphysical,
@@ -2918,7 +2918,6 @@ export function failClosedCommandRefusals() {
         // before pickup_prev or any reading effect changes state. Cancellation
         // completes normally, so only selected objects reach this refusal.
         UnsupportedReadError,
-        UnsupportedSteedError,
         // The `f` command's three files. dothrow.c collects every branch of
         // the throw itself, wield.c the ones ready_weapon() reaches when the
         // swap-and-retry arm puts a launcher in the hero's hand, zap.c the
