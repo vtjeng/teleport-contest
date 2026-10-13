@@ -854,9 +854,9 @@ export async function do_oname(obj, state = game) {
         do {
             const prefix = finalName.slice(0, offset);
             const target = finalName.slice(offset);
-            finalName = prefix + wipeout_text(target, rnd_on_display_rng(2), 0, {
-                random: { rn2: rn2_on_display_rng, rnd: rn2 },
-            });
+            // C uses display RNG for the scuff count, but seed zero leaves
+            // wipeout_text's character degradation on the core RNG stream.
+            finalName = prefix + wipeout_text(target, rnd_on_display_rng(2), 0);
         } while (finalName === original);
         await ttyPline(`While engraving, your ${body_part(HAND, state.youmonst)} slips.`, state);
         await displayPendingTtyMessageWindow(state);
