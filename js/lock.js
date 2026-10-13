@@ -34,6 +34,7 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     SHOPBASE,
+    SHOP_DOOR_COST,
     P_DAGGER,
     P_FLAIL,
     P_LANCE,
@@ -132,7 +133,7 @@ import {
 import { container_at, doloot, encumber_msg } from './pickup.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn2, rnd, rnl } from './rng.js';
-import { costly_spot } from './shk.js';
+import { add_damage, costly_spot } from './shk.js';
 import {
     b_trapped,
     chest_trap,
@@ -590,7 +591,7 @@ async function picklock(state = game) {
             setDoorMask(xlock.door, D_NODOOR);
             unblock_point(u.ux + u.dx, u.uy + u.dy, state);
             if (in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE, state).length)
-                note_unported('shk.c add_damage');
+                add_damage(u.ux + u.dx, u.uy + u.dy, SHOP_DOOR_COST, state);
             newsym(u.ux + u.dx, u.uy + u.dy, state);
         } else if (doorMask(xlock.door) & D_LOCKED) {
             xlock.door.flags = D_CLOSED;
@@ -1212,7 +1213,7 @@ export async function doopen_indir(x, y, state = game, env = {}) {
             await b_trapped('door', FINGER, state, { ...env, random, message });
             setDoorMask(door, D_NODOOR);
             if (in_rooms(cc.x, cc.y, SHOPBASE, state).length)
-                note_unported('shk.c add_damage');
+                add_damage(cc.x, cc.y, SHOP_DOOR_COST, state);
         } else {
             setDoorMask(door, D_ISOPEN);
         }
@@ -1473,7 +1474,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
     if (loudness > 0) {
         await wake_nearto(x, y, loudness, { ...rawEnv, state });
         if (in_rooms(x, y, SHOPBASE, state).length)
-            note_unported('shk.c add_damage');
+            add_damage(x, y, 0, state);
     }
 
     if (result && picking_at(x, y, state)) {

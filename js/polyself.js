@@ -109,6 +109,7 @@ import {
     SEE_INVIS,
     SHOCK_RES,
     SHOPBASE,
+    SHOP_WEB_COST,
     SICK,
     SICK_ALL,
     SICK_RES,
@@ -262,6 +263,7 @@ import { On_stairs } from './stairs.js';
 import { couldsee } from './vision.js';
 import { throwit } from './dothrow.js';
 import { in_rooms } from './rooms.js';
+import { add_damage } from './shk.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import {
@@ -2433,7 +2435,7 @@ export async function dospinweb(state = game) {
         ttmp.madeby_u = 1;
         feeltrap(ttmp, { state, redraw: newsym });
         if (in_rooms(x, y, SHOPBASE, state).length)
-            note_unported('shk.c add_damage');
+            add_damage(x, y, SHOP_WEB_COST, state);
     }
     return ECMD_TIME;
 }

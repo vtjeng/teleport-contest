@@ -177,6 +177,7 @@ import {
     addtobill,
     costly_spot,
     credit_report,
+    pay_for_damage,
     shop_keeper,
 } from './shk.js';
 import { deltrap, t_at } from './trap.js';
@@ -740,7 +741,12 @@ export async function explode(
         });
     }
 
-    if (shopdamage.value) note_unported('shk.c pay_for_damage');
+    if (shopdamage.value) {
+        const damageText = type === AD_FIRE ? 'burn away'
+            : type === AD_COLD ? 'shatter'
+                : type === AD_DISN ? 'disintegrate' : 'destroy';
+        await pay_for_damage(damageText, false, state, { ...env, random });
+    }
     let noise = dam * dam;
     if (noise < 50) noise = 50;
     if (insideEngulfer) noise = Math.trunc((noise + 3) / 4);

@@ -233,6 +233,7 @@ import {
     costly_spot,
     find_objowner,
     inhishop,
+    onshopbill,
     stolen_value,
     subfrombill,
     u_left_shop,

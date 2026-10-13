@@ -190,7 +190,7 @@ import { encumber_msg, removed_from_icebox } from './pickup.js';
 import { in_your_sanctuary } from './priest.js';
 import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
-import { inhishop } from './shk.js';
+import { add_damage, inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { messageAt } from './startup_a11y.js';
 import { pline_mon } from './pline.js';
@@ -2455,7 +2455,7 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
                             SHOPBASE,
                             state,
                         ).length) {
-                        note_unported('shk.c add_damage');
+                        add_damage(gb.bhitpos.x, gb.bhitpos.y, 0, state);
                     }
                 }
                 break;

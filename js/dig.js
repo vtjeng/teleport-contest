@@ -109,6 +109,8 @@ import {
     SCORR,
     SDOOR,
     SHOPBASE,
+    SHOP_DOOR_COST,
+    SHOP_PIT_COST,
     STONE,
     TRAP_EXPLODE,
     TT_BURIEDBALL,
@@ -167,7 +169,7 @@ import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj, update_i
 import { bury_an_obj } from './bury.js';
 import { punish } from './read.js';
 import { stop_timer, obj_stop_timers } from './timeout.js';
-import { costly_spot, shop_keeper, shopdig, stolen_value } from './shk.js';
+import { add_damage, costly_spot, pay_for_damage, shop_keeper, shopdig, stolen_value } from './shk.js';
 import { shkname } from './shknam.js';
 import {
     grounded, hides_under, is_flyer, is_floater, is_watch, passes_walls,
@@ -201,7 +203,7 @@ import { cvt_sdoor_to_door } from './detect.js';
 import { feel_newsym, flush_screen, newsym } from './display.js';
 import { verbalize } from './pline.js';
 import { in_rooms } from './rooms.js';
-import { acurr, adjalign, exercise } from './attrib.js';
+import { acurr, acurrstr, adjalign, exercise } from './attrib.js';
 import {
     greatest_erosion,
     is_axe,
@@ -799,7 +801,7 @@ export async function dig(state = game, rawEnv = {}) {
             }
         } else if (IS_WALL(location.typ, state)) {
             if (shopedge) {
-                note_unported('shk.c add_damage');
+                add_damage(x, y, 10 * acurrstr(state), state);
                 damageText = 'damage';
             }
             if (state.level.flags?.is_maze_lev) {
@@ -819,7 +821,7 @@ export async function dig(state = game, rawEnv = {}) {
         } else if (closed_door(x, y, state)) {
             digtext = `You break through the door with your ${simpleonames(weapon, state)}.`;
             if (shopedge) {
-                note_unported('shk.c add_damage');
+                add_damage(x, y, SHOP_DOOR_COST, state);
                 damageText = 'break';
             }
             if (!(location.doormask & D_TRAPPED))
@@ -832,7 +834,7 @@ export async function dig(state = game, rawEnv = {}) {
         feel_newsym(x, y, state);
         if (digtext && !digging.quiet)
             await message(digtext, state, rawEnv);
-        if (damageText) note_unported('shk.c pay_for_damage');
+        if (damageText) await pay_for_damage(damageText, false, state, rawEnv);
 
         if (Is_earthlevel(u.uz, state) && !random.rn2(3)) {
             const monsterIndex = random.rn2(2)
@@ -1277,7 +1279,7 @@ export async function use_pick_axe2(obj, state = game, env = {}) {
             await message(`You start ${verbing} downward.`, state);
             if (state.u?.ushops?.[0]) {
                 await shopdig(0, state, { ...env, random, message });
-                note_unported('shk.c add_damage');
+                add_damage(state.u.ux, state.u.uy, SHOP_PIT_COST, state);
             }
         } else {
             await message(`You continue ${verbing} downward.`, state);
@@ -1556,8 +1558,9 @@ export async function digactualhole(
         await desecrate_altar(false, oldAlignment, state);
 
     if (trapType === PIT) {
-        if (shopdoor && herosFault) note_unported('shk.c pay_for_damage');
-        else note_unported('shk.c add_damage');
+        if (shopdoor && herosFault)
+            await pay_for_damage('ruin', false, state, env);
+        else add_damage(x, y, herosFault ? SHOP_PIT_COST : 0, state);
         if (madebyU) await wake_nearby(false, env);
         await switch_terrain(state, rawEnv);
         if (Levitation(state) || Flying(state)) wontFall = true;
@@ -1592,18 +1595,20 @@ export async function digactualhole(
                 const { pickup } = await import('./pickup.js');
                 await pickup(1, state);
             }
-            if (shopdoor && herosFault) note_unported('shk.c pay_for_damage');
+            if (shopdoor && herosFault)
+                await pay_for_damage('ruin', false, state, env);
         } else {
             if (state.u.ushops[0] && herosFault)
                 await shopdig(1, state, env);
-            else note_unported('shk.c pay_for_damage');
+            else await pay_for_damage('dig into', true, state, env);
             await message('You fall through...', state, rawEnv);
             const newLevel = { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel + 1 };
             await goto_level(newLevel, false, true, false, state);
             await spoteffects(false, state, rawEnv);
         }
     } else {
-        if (shopdoor && herosFault) note_unported('shk.c pay_for_damage');
+        if (shopdoor && herosFault)
+            await pay_for_damage('ruin', false, state, env);
         if (newObjects) await impact_drop(null, x, y, 0, env);
         if (monster) {
             if (!grounded(monster.data, state)
@@ -1935,34 +1940,6 @@ function setTerrain(location, typ, flags = 0) {
     location.doormask = flags;
 }
 
-// C ref: shk.c add_damage(). Monster tunneling can damage a shop wall or a
-// real shop door. The common development path has no shop, but keeping the
-// small save-state record here prevents the terrain mutation from losing the
-// repair obligation when that branch is reached.
-function addShopDamage(x, y, cost, state) {
-    const location = state.level?.at(x, y);
-    if (!location) return;
-    if (location.typ === DOOR
-        && !in_rooms(x, y, SHOPBASE, state).length) return;
-    let damage = state.level.damagelist ?? null;
-    while (damage) {
-        if (damage.place?.x === x && damage.place?.y === y) {
-            damage.cost = (damage.cost ?? 0) + cost;
-            damage.when = state.moves ?? 0;
-            return;
-        }
-        damage = damage.next ?? null;
-    }
-    state.level.damagelist = {
-        when: state.moves ?? 0,
-        place: { x, y },
-        cost,
-        typ: location.typ,
-        flags: location.flags ?? location.doormask ?? 0,
-        next: state.level.damagelist ?? null,
-    };
-}
-
 async function draft_message(unexpected, env) {
     const state = env.state;
     const random = env.random ?? { rn1 };
@@ -2021,7 +1998,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
 
     if (closed_door(x, y, state)) {
         if (in_rooms(x, y, SHOPBASE, state).length)
-            addShopDamage(x, y, 0, state);
+            add_damage(x, y, 0, state);
         const sawit = canseemon(monster, state);
         const trapped = Boolean((location.doormask ?? location.flags ?? 0) & D_TRAPPED);
         setTerrain(location, DOOR, trapped ? D_NODOOR : D_BROKEN);
@@ -2070,7 +2047,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
             if (heard) await message(heard, state, rawEnv);
         }
         if (in_rooms(x, y, SHOPBASE, state).length)
-            addShopDamage(x, y, 0, state);
+            add_damage(x, y, 0, state);
         if (state.level.flags?.is_maze_lev) {
             setTerrain(location, ROOM, 0);
         } else if (state.level.flags?.is_cavernous_lev && !in_town(x, y, state)) {

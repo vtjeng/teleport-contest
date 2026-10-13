@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first diagnosis recipe for add_damage/pay_for_damage. The debug Healer enters a generated general store, wishes an uncursed wand of digging, damages an interior wall, and accepts the bill. This yes-payment path is retained as an input-only recipe, not a passing recording: the next source frontier is the home_shk relocation path and its priest.c:move_special call. The completed, strictly matching pay_for_damage decline route is covered by the separate Wizard role variation.",
+  "segments": [
+    {
+      "seed": 8510304,
+      "datetime": "20490313081746",
+      "nethackrc": "OPTIONS=name:DamageProbe,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  \u00165\n \u0014  lllllllllllllllllllllllllllllllllllllllllllllllllllllllkkkkk. j#wizmap\n\u0017uncursed wand of digging\nzkk y "
+    }
+  ]
+}

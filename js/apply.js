@@ -559,9 +559,11 @@ import {
 import { genders } from './roles.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import {
+    add_damage,
     check_unpaid,
     check_unpaid_usage,
     costly_spot,
+    pay_for_damage,
     shop_keeper,
     shk_your,
     UnsupportedShopError,
@@ -2084,7 +2086,7 @@ export async function set_trap(state = game, env = {}) {
             redraw: (x, y) => newsym(x, y, state),
         });
         if (in_rooms(state.u.ux, state.u.uy, SHOPBASE, state).length)
-            note_unported('shk.c add_damage');
+            add_damage(state.u.ux, state.u.uy, 0, state);
         if (!trapinfo.force_bungle) {
             await ttyPline(
                 `You finish arming ${the(trapname(ttyp, false, state), state)}.`,
@@ -4957,7 +4959,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
     }
 
     await zapwrapup(state, env);
-    if (shopDamage) note_unported('shk.c pay_for_damage');
+    if (shopDamage) await pay_for_damage('dig into', false, state, env);
     if (obj.otyp === WAN_LIGHT)
         await litroom(true, obj, state);
     discard_broken_wand(state, env);

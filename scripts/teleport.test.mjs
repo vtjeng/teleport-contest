@@ -1502,6 +1502,29 @@ test('rloc_to_core follows C placement, shop, occupation, and trap tail order', 
     assert.match(jsBody, /stolen_value\(/u);
 });
 
+test('rloc_to_core binds the shop-bill predicate used before stolen_value', () => {
+    const cStart = C_TELEPORT_SOURCE.indexOf('rloc_to_core(\n',
+        C_TELEPORT_SOURCE.indexOf('/*\n * rloc_to()'));
+    const cEnd = C_TELEPORT_SOURCE.indexOf('\nvoid\nrloc_to(', cStart);
+    const jsStart = JS_TELEPORT_SOURCE.indexOf('function rloc_to_core(');
+    const jsEnd = JS_TELEPORT_SOURCE.indexOf(
+        '\n// C ref: teleport.c rloc_to_flag()', jsStart,
+    );
+    const cBody = C_TELEPORT_SOURCE.slice(cStart, cEnd);
+    const jsBody = JS_TELEPORT_SOURCE.slice(jsStart, jsEnd);
+    const shkImports = JS_TELEPORT_SOURCE.match(
+        /import \{[\s\S]*?\} from '\.\/shk\.js';/u,
+    )?.[0] ?? '';
+
+    // C checks the keeper's bill before charging for carried goods, and the
+    // existing shk.c predicate is the caller's required binding.
+    assert.match(cBody,
+        /else if \(shkp && onshopbill\(otmp, shkp, TRUE\)\)[\s\S]*?stolen_value\(otmp, oldx, oldy, peaceful, FALSE\)/u);
+    assert.match(shkImports, /\bonshopbill\b/u);
+    assert.match(jsBody,
+        /else if \(owner && onshopbill\(object, owner, true\)\)[\s\S]*?stolen_value\(/u);
+});
+
 test('rloc exhausts fifty trials before its unshuffled fallback and backup',
     () => {
         const state = positionState();

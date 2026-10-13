@@ -903,7 +903,7 @@ test('shopdig warns in source order and all active callers use the owner', async
     assert.match(C_DIG,
         /shopdig\(0\);\s*add_damage\(u\.ux, u\.uy, SHOP_PIT_COST\);/u);
     assert.match(JS_DIG,
-        /await shopdig\(0, state, \{ \.\.\.env, random, message \}\);\s*note_unported\('shk\.c add_damage'\);/u);
+        /await shopdig\(0, state, \{ \.\.\.env, random, message \}\);\s*add_damage\(state\.u\.ux, state\.u\.uy, SHOP_PIT_COST, state\);/u);
     assert.match(C_DIG,
         /if \(\*u\.ushops && heros_fault\)\s*shopdig\(1\);/u);
     assert.match(JS_DIG,

@@ -166,8 +166,9 @@ import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { obj_resists } from './bury.js';
 import {
+    add_damage,
     addtobill, costly_adjacent, costly_gold, contained_gold, donate_gold, find_objowner, subfrombill,
-    costly_spot, inside_shop, is_unpaid, picked_container, shop_keeper,
+    costly_spot, inside_shop, is_unpaid, pay_for_damage, picked_container, shop_keeper,
     stolen_value,
 } from './shk.js';
 import { shkname, Shknam } from './shknam.js';
@@ -962,8 +963,8 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
         feel_newsym(x, y, state);
         recalc_block_point(x, y, state);
         if (shopdoor) {
-            note_unported('shk.c add_damage');
-            note_unported('shk.c pay_for_damage');
+            add_damage(x, y, SHOP_DOOR_COST, state);
+            await pay_for_damage('break', false, state);
         }
         if (in_town(x, y, state))
             note_unported('mon.c get_iter_mons watchman_thief_arrest');

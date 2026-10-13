@@ -43,7 +43,7 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
-    ACID_RES, A_INT, A_STR, A_DEX, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BLINDED, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, DIR_180, DIR_ERR, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALF_PHDAM, HALLUC, HALLUC_RES, HEAD, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_OBSTRUCTED, IS_ROOM, IS_SINK, IS_TREE, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DOOR, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_earthlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STOMACH, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, TT_PIT, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_BALL, W_CHAIN, W_RING, W_RINGL, W_QUIVER, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, } from './const.js';
+    ACID_RES, A_INT, A_STR, A_DEX, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BLINDED, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, DIR_180, DIR_ERR, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALF_PHDAM, HALLUC, HALLUC_RES, HEAD, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_OBSTRUCTED, IS_ROOM, IS_SINK, IS_TREE, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DOOR, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_earthlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, SHOP_WALL_COST, STONE, STOMACH, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, TT_PIT, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_BALL, W_CHAIN, W_RING, W_RINGL, W_QUIVER, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { acurr, adjalign, exercise, poisoned } from './attrib.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
@@ -176,7 +176,7 @@ import {
 import { mon_reflects, ureflects } from './muse.js';
 import { in_rooms } from './rooms.js';
 import {
-    check_unpaid, billable, contained_cost, costly_spot, inhishop, inside_shop, shkcatch, shop_keeper, shk_your, stolen_value, } from './shk.js';
+    check_unpaid, billable, contained_cost, costly_spot, inhishop, inside_shop, add_damage, pay_for_damage, shkcatch, shop_keeper, shk_your, stolen_value, } from './shk.js';
 import { Shknam, shkname } from './shknam.js';
 import { messageAt } from './startup_a11y.js';
 import { MIM_OMIT_WAIT, MIM_REVEAL } from './const.js';
@@ -4276,7 +4276,7 @@ export async function bhit(
                         || hitDoor.flags === D_BROKEN)
                         && in_rooms(x, y, SHOPBASE, state).length) {
                         shopdoor = true;
-                        note_unported('shk.c add_damage');
+                        add_damage(x, y, SHOP_DOOR_COST, state);
                     }
                 }
                 break;
@@ -4346,7 +4346,8 @@ export async function bhit(
         || (wasReturning
             && wasReturning !== state.iflags?.returning_missile))
         await tmp_at(DISP_END, 0, state);
-    if (shopdoor) note_unported('shk.c pay_for_damage');
+    if (shopdoor)
+        await pay_for_damage('destroy', false, state, { ...rawEnv, random });
     await bhitTransientLightCleanup(
         weapon, tetheredWeapon, state, random, rawEnv,
     );
@@ -5305,11 +5306,7 @@ export async function zap_over_floor(
                     );
                 await dissolve_bars(x, y, state);
                 if (in_rooms(x, y, SHOPBASE, state).length) {
-                    if (typeof env.addDamage === 'function')
-                        await env.addDamage(
-                            x, y, type >= 0 ? SHOP_BARS_COST : 0, state, env,
-                        );
-                    else note_unported('shk.c add_damage');
+                    add_damage(x, y, type >= 0 ? SHOP_BARS_COST : 0, state);
                     if (type >= 0) {
                         if (shopdamage && typeof shopdamage === 'object')
                             shopdamage.value = true;
@@ -5399,13 +5396,7 @@ export async function zap_over_floor(
         }
         if (newDoormask >= 0) {
             if (in_rooms(x, y, SHOPBASE, state).length) {
-                if (typeof env.addDamage === 'function') {
-                    await env.addDamage(
-                        x, y, type >= 0 ? SHOP_DOOR_COST : 0, state, env,
-                    );
-                } else {
-                    note_unported('shk.c add_damage');
-                }
+                add_damage(x, y, type >= 0 ? SHOP_DOOR_COST : 0, state);
                 if (type >= 0 && shopdamage
                     && typeof shopdamage === 'object')
                     shopdamage.value = true;
@@ -5946,8 +5937,13 @@ export async function dobuzz(
     if (fireball)
         await explode(sx, sy, type, random.d(12, 6), 0, EXPL_FIERY, state,
             env);
-    if (shopdamage.value)
-        note_unported('shk.c pay_for_damage');
+    if (shopdamage.value) {
+        const damageText = damgtype === ZT_FIRE ? 'burn away'
+            : damgtype === ZT_COLD ? 'shatter'
+                : damgtype === ZT_ACID ? 'damage'
+                    : damgtype === ZT_DEATH ? 'disintegrate' : 'destroy';
+        await pay_for_damage(damageText, false, state, env);
+    }
     state.gb.bhitpos = save_bhitpos;
 }
 
@@ -6218,7 +6214,7 @@ export async function zap_dig(
             }
         } else if (closed_door(zx, zy, state) || room.typ === SDOOR) {
             if (in_rooms(zx, zy, SHOPBASE, state).length) {
-                note_unported('shk.c add_damage');
+                add_damage(zx, zy, SHOP_DOOR_COST, state);
                 shopdoor = true;
             }
             if (room.typ === SDOOR) {
@@ -6236,7 +6232,7 @@ export async function zap_dig(
             if (IS_WALL(room.typ)) {
                 if (!(room.wall_info & W_NONDIGGABLE)) {
                     if (in_rooms(zx, zy, SHOPBASE, state).length) {
-                        note_unported('shk.c add_damage');
+                        add_damage(zx, zy, SHOP_WALL_COST, state);
                         shopwall = true;
                     }
                     room.typ = ROOM;
@@ -6272,7 +6268,7 @@ export async function zap_dig(
             if (!may_dig(zx, zy, state)) break;
             if (IS_WALL(room.typ) || room.typ === SDOOR) {
                 if (in_rooms(zx, zy, SHOPBASE, state).length) {
-                    note_unported('shk.c add_damage');
+                    add_damage(zx, zy, SHOP_WALL_COST, state);
                     shopwall = true;
                 }
                 await watch_dig(null, zx, zy, true, { state });
@@ -6314,7 +6310,8 @@ export async function zap_dig(
         }
     }
     if (shopdoor || shopwall)
-        note_unported('shk.c pay_for_damage');
+        await pay_for_damage(shopdoor ? 'destroy' : 'dig into', false,
+            state, { random });
 }
 
 // C ref: zap.c zapsetup() (3413-3418).  The object-zap feedback flag is one
