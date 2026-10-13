@@ -297116,7 +297116,7 @@
     {
       "id": "port-objnam-mshot-xname-ordinal-v54-20261013",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mshot_xname from objnam.c",
       "cFile": "objnam.c",
       "sessions": [
@@ -297126,7 +297126,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "41d08db2691f23faf22c72efc70b2497b78f13cc",
       "delivered": null,
       "functions": [
         {
@@ -297139,6 +297139,94 @@
       "range": {
         "from": 1090,
         "to": 1105
+      },
+      "closeStanding": {
+        "sha": "41d08db2691f23faf22c72efc70b2497b78f13cc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "29e87d84ecdc23bec49894556749298f61677af6",
+        "target": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/41d08db2691f23faf22c72efc70b2497b78f13cc/run-hosted-DEmBvh/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mshot_xname",
+            "implementation": "js/objnam.js",
+            "symbol": "mshot_xname",
+            "sourceReview": "Read complete objnam.c:mshot_xname at 1090-1102. C evaluates xname(obj) before checking gm.m_shot.n > 1 and gm.m_shot.o == obj->otyp. On a matching volley it formats the current index with hacklib.c:ordin, prepends \"the Nth \" through objnam.c:strprepend, and returns the new pointer; otherwise it returns xname unchanged. JS now follows that order, removes the only UnsupportedObjectNameError throw site and stale registrations, and uses the existing xname, ordin, and strprepend implementations. xname observes the object and can update identification state, so the function is treated as impure. The bounded mthrowu.c:m_throw sink and missed-volley callers now evaluate The(mshot_xname(singleobj)) and deliver the matching formatted line through the existing message operation.",
+            "callers": [
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "thitu",
+                "source": "mthrowu.c:thitu chooses mshot_xname(obj) when a quantity-one missile hits the hero."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ohitmon",
+                "source": "mthrowu.c:ohitmon passes mshot_xname to distant_name for visible thrown-missile hit/miss output. The selected admitted range reaches an Elvenking missile miss against the xan."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "m_throw",
+                "source": "mthrowu.c:m_throw evaluates The(mshot_xname(singleobj)) for visible sink-drop and missed-volley output; JS formats these two lines through env.message or ttyPline."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_do_hit",
+                "source": "uhitm.c:hmon_hitmon_do_hit names a thrown or kicked object that harmlessly passes through a target."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_msg_hit",
+                "source": "uhitm.c:hmon_hitmon_msg_hit names thrown-object hit feedback."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "tmiss",
+                "source": "dothrow.c:tmiss names a hero-thrown object in miss feedback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 527,
+                "throughStep": 529,
+                "source": "mthrowu.c:m_throw -> ohitmon -> distant_name(otmp,mshot_xname) -> missile miss against the xan; JS js/mthrowu.js follows the same callback path and emits the C ordinal name."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The completed source unit is objnam.c:mshot_xname. Its active entry paths are monster projectile feedback through mthrowu.c:thitu, ohitmon and m_throw, player thrown/kicked feedback through uhitm.c:hmon_hitmon_do_hit/hmon_hitmon_msg_hit, and player throw miss feedback through dothrow.c:tmiss. Existing JS callers route to js/objnam.js:mshot_xname; the m_throw sink and missed-volley branches also use its name result in their formatted lines. The admitted v54 healer replay covers the selected monster multishot path from the Elvenking volley through the 1st runed arrow miss. It continues matching through step 597; a distinct capitalization screen mismatch appears at step 598, with a later monster offensive-item-use refusal at 659.",
+        "entryPoints": [
+          {
+            "name": "Monster multishot missile feedback",
+            "functions": [
+              "mshot_xname"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 527,
+                "throughStep": 529,
+                "source": "mthrowu.c:m_throw -> ohitmon -> mshot_xname for the Elvenking arrow volley miss against the xan."
+              }
+            ]
+          }
+        ]
       }
     }
   ]
