@@ -296997,7 +296997,7 @@
     {
       "id": "fix-castmu-fumble-priest-monname-v54-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Use the existing mon_nam implementation for castmu's visible fumble message while preserving the injected monnam provider and C message gates/order.",
       "cFile": "mcastu.c",
       "sessions": [
@@ -297007,10 +297007,111 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "29e87d84ecdc23bec49894556749298f61677af6",
       "delivered": null,
       "function": "castmu",
-      "session": "synthetic/v54/v54-caveman-cleric-insects-blindness-action2"
+      "session": "synthetic/v54/v54-caveman-cleric-insects-blindness-action2",
+      "closeStanding": {
+        "sha": "29e87d84ecdc23bec49894556749298f61677af6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "4a9094bc9f4f7e628235de5fd4774d64a4779fc0",
+        "target": "synthetic/v54/v54-caveman-cleric-insects-blindness-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/29e87d84ecdc23bec49894556749298f61677af6/run-hosted-tA9fRa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "castmu",
+            "implementation": "js/mcastu.js",
+            "symbol": "castmu",
+            "sourceFile": "mcastu.c",
+            "sourceReview": "Repaired only the already implemented random-fumble message formatter. C mcastu.c:205-214 consumes rn2(ml*10), returns a miss, and after the canseemon && !Deaf gate sets the caster message coordinate and formats through mon_nam(mtmp). JS preserves that order and injection seam; its fallback now calls existing mon_nam(mtmp,state,env), which uses x_monnam/priestname for priest/minion names. This does not certify the rest of castmu.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "attackHeroWithMattacku",
+                "source": "mhitu.c:mattacku calls castmu(mtmp,mattk,TRUE,foundyou) at line 930; the production adapter now forwards the active state and spellEnv to mon_nam instead of replacing it with raw species pmnames."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-caveman-cleric-insects-blindness-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 723,
+                "source": "Production mhitu.c:mattacku -> mcastu.c:castmu path; complete selected case matches through the fumble message and caller continuation."
+              }
+            ]
+          },
+          {
+            "name": "mattacku",
+            "implementation": "js/unported_monster_actions.js",
+            "symbol": "attackHeroWithMattacku",
+            "sourceFile": "mhitu.c",
+            "sourceReview": "The bounded castmu adapter now supplies mon_nam(mtmp,state,spellEnv), retaining current state, planning/display providers, and message callback behavior. It removes only the raw pmnames name substitute from the AD_MAGC -> castmu caller path; other mattacku arms and mcast_spell dispatch are unchanged.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "The normal monster action path reaches mhitu.c:mattacku from monmove.c:movemon/dochug; mattacku calls castmu in its AD_SPEL/AD_CLRC magic attack arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-caveman-cleric-insects-blindness-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 723,
+                "source": "Production monster action -> mhitu.c:mattacku -> mcastu.c:castmu fumble path."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The task repairs the visible/audible castmu fumble naming branch and its production mhitu.c:mattacku adapter. Runtime evidence reaches both through the admitted v54 monster-to-hero attack and now matches the full case. The dispatcher mcast_spell and its pending armor-destruction arm are outside this task.",
+        "entryPoints": [
+          {
+            "name": "Monster-to-hero magic attack fumble message",
+            "functions": [
+              {
+                "sourceFile": "mhitu.c",
+                "name": "mattacku"
+              },
+              {
+                "sourceFile": "mcastu.c",
+                "name": "castmu"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-caveman-cleric-insects-blindness-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 723,
+                "source": "Normal monster action reaches mhitu.c:mattacku, which calls mcastu.c:castmu; the matched range includes the visible fumble message and the full caller continuation."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
