@@ -85,6 +85,7 @@ import {
     AD_CLRC,
     AD_ELEC,
     AD_FIRE,
+    AD_MAGM,
     AD_SPEL,
     PM_CYCLOPS,
     PM_FLOATING_EYE,
@@ -494,7 +495,7 @@ export async function castmu(
 ) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2, d, rnd };
-    // The unported arms below -- AD_FIRE, AD_COLD and AD_MAGM here, and most
+    // The unported arms below -- AD_FIRE and AD_COLD here, and most
     // spell effects in mcast_spell() -- refuse through this rather than
     // running as a spell that quietly does nothing.
     const unsupported = requireCastmuOperation(rawEnv, 'unsupported');
@@ -611,15 +612,33 @@ export async function castmu(
         await mcast_spell(mtmp, dmg, spellnum, env);
         dmg = 0; /* done by the spell casting functions */
         break;
+    case AD_MAGM:
+        if (message)
+            await message('You are hit by a shower of missiles!', state, env);
+        if (heroProperty(state, ANTIMAGIC)) {
+            await shieldeff(state.u.ux, state.u.uy, state);
+            if (message)
+                await message('The missiles bounce off!', state, env);
+            monstseesu(M_SEEN_MAGR, state);
+            dmg = 0;
+        } else {
+            // C replaces the generic damage roll above with this roll.
+            dmg = random.d(Math.trunc(ml / 2) + 1, 6);
+            monstunseesu(M_SEEN_MAGR, state);
+        }
+        // C's mon_spell_hits_spot() returns void and castmu discards it.
+        recordMcastGap('zap.c mon_spell_hits_spot', env);
+        break;
     default:
-        // AD_FIRE, AD_COLD, AD_MAGM are ranged-only attack types.
+        // AD_FIRE and AD_COLD are ranged-only attack types.
         // Adjacent AT_MAGC attacks always carry AD_SPEL or AD_CLRC.
         unsupported('castmu() elemental spell type');
         break;
     }
-    // C's trailing `if (dmg) mdamageu(mtmp, dmg)` serves only the three
-    // elemental arms above; the AD_SPEL/AD_CLRC arm zeroes dmg because
-    // mcast_spell() calls mdamageu() itself.
+    if (dmg) {
+        const mdamageu = requireCastmuOperation(env, 'mdamageu');
+        await mdamageu(mtmp, dmg, state, env);
+    }
     return ret;
 }
 
