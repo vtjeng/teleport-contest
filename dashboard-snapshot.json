@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T00:39:29.614Z",
+  "capturedAt": "2026-10-13T00:53:53.988Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -99539,6 +99539,61 @@
         "type": "accepted",
         "at": "2026-10-13T00:38:22.659Z",
         "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012-ccac15665d4c5140847d731d2f898632f0e57216",
+        "type": "published",
+        "at": "2026-10-13T00:39:48.245Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "commit": "ccac15665d4c5140847d731d2f898632f0e57216"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-questchat53-68ca32057-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T00:41:27.611Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "integration": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-quest-nemesis-nearby-action5-20261012-68ca32057bc676b09a8eda1f0c88ee3cb9de83c9-validated",
+        "type": "validated",
+        "at": "2026-10-13T00:48:42.685Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-quest-nemesis-nearby-action5-20261012-68ca32057bc676b09a8eda1f0c88ee3cb9de83c9-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T00:49:21.554Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4dea0a98ec32ded03c0cc553340b7a589f43c9f4",
+        "type": "ready",
+        "at": "2026-10-13T00:52:14.662Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "delivery": "4dea0a98ec32ded03c0cc553340b7a589f43c9f4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-mounted-nymph-residual-4dea0a98-20261013",
+        "type": "received",
+        "at": "2026-10-13T00:53:29.397Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "delivery": "4dea0a98ec32ded03c0cc553340b7a589f43c9f4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v53-quest-nemesis-stun-investigation-20261013",
+        "type": "turn",
+        "at": "2026-10-13T00:53:46.824Z",
+        "worker": "A2",
+        "state": "active"
       }
     ]
   },
@@ -99619,13 +99674,13 @@
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
-        "worker": "A2",
-        "goal": "port-quest-nemesis-chat-v53-20261012",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "worker": "B",
+        "goal": "div-fix-topl-clear-after-more-v53-20261012",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "a9dfe69f128a7a3c4033d7b9eaaf0567fd278c29",
-        "since": "2026-10-12T23:43:00.631Z",
+        "delivery": "4dea0a98ec32ded03c0cc553340b7a589f43c9f4",
+        "since": "2026-10-13T00:52:14.662Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -100122,8 +100177,8 @@
     ]
   },
   "development": {
-    "executionCommit": "a3a97d12c7c3f58f801308f12088b23f2ae3a167",
-    "measuredAt": "2026-10-13T00:30:15.651Z",
+    "executionCommit": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9",
+    "measuredAt": "2026-10-13T00:46:16.936Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
