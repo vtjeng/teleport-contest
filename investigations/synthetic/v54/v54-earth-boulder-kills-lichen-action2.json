@@ -1,0 +1,82 @@
+{
+  "session": "synthetic/v54/v54-earth-boulder-kills-lichen-action2",
+  "corpus": "synthetic",
+  "batch": "v54",
+  "caseId": "v54-earth-boulder-kills-lichen-action2",
+  "manifestPath": "challenges/manifests/v54.json",
+  "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+  "recordingSha256": "6ac667e947322bf8c0609df158143dbe36f8714b2a0bcadad91cc1d32bbd0fdf",
+  "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+  "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
+  "remainingScreens": 218,
+  "recordedSteps": 218,
+  "status": "complete",
+  "commit": "a22c3632232822d4d49a9582c3d6d72bfd1ed874",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v54",
+    "caseId": "v54-earth-boulder-kills-lichen-action2",
+    "session": "synthetic/v54/v54-earth-boulder-kills-lichen-action2",
+    "manifestPath": "challenges/manifests/v54.json",
+    "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+    "recording": "challenges/cases/v54/v54-earth-boulder-kills-lichen-action2.session.json",
+    "recordingPath": "challenges/cases/v54/v54-earth-boulder-kills-lichen-action2.session.json",
+    "recordingSha256": "6ac667e947322bf8c0609df158143dbe36f8714b2a0bcadad91cc1d32bbd0fdf",
+    "recipe": "challenges/cases/v54/v54-earth-boulder-kills-lichen-action2.recipe.session.json",
+    "recipeSha256": "9b5e484a55ed9adc11ddf7699034f4cec7bb6b513c6ece931851066c7ebeccc4",
+    "replayInputSha256": "45d90454248a4bc3c97d75d60b021c6c51189f320359df542992f70d10d86993",
+    "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+    "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
+    "evaluationArtifact": "challenges/evaluations/baseline-78195d815-v54.json",
+    "evaluationUtc": "2026-10-13T01:55:42.579Z",
+    "remainingScreens": 218,
+    "recordedSteps": 218,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "dmonsfree: 1 removed does not match 0 pending",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 218
+      },
+      "rng": {
+        "matched": 0,
+        "total": 2865
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 218
+      }
+    },
+    "firstMismatch": null,
+    "step": null,
+    "kind": "rng",
+    "sourceFile": null,
+    "function": null,
+    "message": "dmonsfree: 1 removed does not match 0 pending"
+  },
+  "summary": "The saved v54 baseline reports a runner error rather than a positional match count: dmonsfree sees one removed monster but no pending removal. In the C recording, the earth-scroll boulder hits the lichen lethally at input step 190. C read.c:drop_boulder_on_monster calls mon.c:killed when byu is true; JS reaches the same branch but calls note_unported(\"mon.c killed\"), skipping the already implemented kill cleanup. This bounded divergence is in the by-you lethal-hit caller branch; it does not claim whole-function completion.",
+  "source": {
+    "file": "read.c",
+    "branch": "When a solid monster is at (x,y), the falling boulder reduces mhp below one, and byu is true, read.c:drop_boulder_on_monster calls killed(mtmp) before waking nearby monsters and placing the boulder. killed() calls xkilled(XKILL_GIVEMSG), which performs the monster detach/death cleanup that dmonsfree later checks. JS read.js has the same damage and byu test, but substitutes note_unported(\"mon.c killed\"), so the monster never enters the pending removal path.",
+    "functions": [
+      "drop_boulder_on_monster"
+    ],
+    "callers": [
+      "C read.c:seffect_earth (1963) passes TRUE as byu for each surrounding monster; js/read.js:seffect_earth passes true to drop_boulder_on_monster.",
+      "C mon.c:killed (3470-3473) forwards XKILL_GIVEMSG to xkilled; existing js/mon.js exports killed() and xkilled() and accepts the caller state and environment."
+    ],
+    "dependencies": [
+      "The selected lethal branch consumes no return value from killed(). The existing mon.js killed/xkilled implementation is the required callee and is not part of this edit scope.",
+      "The separate byu=false branch calls mondied after its own message. It is not reached by the selected case and remains represented by note_unported(\"mon.c mondied\")."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved admitted baseline challenges/evaluations/baseline-78195d815-v54.json records this case as 0/218 screens, 0/2865 RNG calls, and error \"dmonsfree: 1 removed does not match 0 pending\". The combined queue identifies the exact case, v54 manifest, recording SHA-256 6ac667e947322bf8c0609df158143dbe36f8714b2a0bcadad91cc1d32bbd0fdf, canonical manifest digest cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e, and 218 recorded steps.",
+    "The admitted manifest source trace distinguishes the 189-step captured prefix and first missing screen at step 190 from the runner exception index; the first missing behavior is the lethal boulder-hit result, not an index-zero failure.",
+    "Upstream nethack-c/upstream/src/read.c:drop_boulder_on_monster (2341-2410) subtracts damage and calls killed(mtmp) on a by-you death at 2385-2390. mon.c:killed (3470-3473) calls xkilled with XKILL_GIVEMSG; JS read.js currently omits this call despite an existing killed() implementation in js/mon.js.",
+    "The production entry is cmd.c read command -> read.c:doread -> seffects -> seffect_earth -> drop_boulder_on_monster. The source port of seffect_earth and boulder helper is retained in GOALS.json; this diagnosis requests only the missing call in the lethal by-you branch."
+  ]
+}

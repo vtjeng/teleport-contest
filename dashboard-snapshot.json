@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T02:29:38.398Z",
+  "capturedAt": "2026-10-13T02:38:54.649Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -100178,6 +100178,137 @@
         "at": "2026-10-13T02:29:12.360Z",
         "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
         "delivery": "f371831b92f7a04f053d73de2289d70ef88a488f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013-c5187612fa6d4bf7e87201143ce16dc4268b38f2",
+        "type": "published",
+        "at": "2026-10-13T02:29:51.459Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-action3-20261013",
+        "commit": "c5187612fa6d4bf7e87201143ce16dc4268b38f2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-b-earth-v54-20261013",
+        "type": "activity",
+        "at": "2026-10-13T02:30:04.745Z",
+        "task": "B-investigation-v54-earth-boulder-kills-lichen-action2-20261013",
+        "phase": "review",
+        "reason": "Reviewing the saved complete Earth-boulder kill-path evidence and independent delivery before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-earth-0d2136a71-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T02:30:29.381Z",
+        "task": "B-investigation-v54-earth-boulder-kills-lichen-action2-20261013",
+        "integration": "0d2136a71ac142dd32ebe8b3480f7f39b5f7f3f8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-lava-ready-idle-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:30:38.192Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Lava delivery submitted; awaiting integration and refreshed queue to select independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-lava-f371831b-20261013",
+        "type": "received",
+        "at": "2026-10-13T02:31:07.615Z",
+        "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
+        "delivery": "f371831b92f7a04f053d73de2289d70ef88a488f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v54-healer-offensive-item-use-20261013",
+        "type": "assign",
+        "at": "2026-10-13T02:31:39.670Z",
+        "task": "A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v54-healer-offensive-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:31:51.854Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v54-knight-lich-meatmetal-acoustics-20261013",
+        "type": "implement",
+        "at": "2026-10-13T02:33:47.196Z",
+        "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
+        "goal": "fix-mon-meatmetal-acoustics-v54-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v54-healer-fire-wand-20261013",
+        "type": "implement",
+        "at": "2026-10-13T02:34:03.555Z",
+        "task": "A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013",
+        "goal": "divergence-muse-monster-fire-wand-v54-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0dec329225648f2f2fbc10fee4f8831667aaf38b",
+        "type": "ready",
+        "at": "2026-10-13T02:34:24.818Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "delivery": "0dec329225648f2f2fbc10fee4f8831667aaf38b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-unpaid-0dec3292-20261013",
+        "type": "received",
+        "at": "2026-10-13T02:34:59.031Z",
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "delivery": "0dec329225648f2f2fbc10fee4f8831667aaf38b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v54-next-rogue-fast-apprentice-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:36:19.053Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-v54-spell-dispatch-owner-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:37:16.080Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent unreserved mismatch is available. Resume when B monster spell dispatcher work is accepted or a new admitted batch opens independent cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v54-earth-boulder-kills-lichen-action2-20261013-0d2136a71ac142dd32ebe8b3480f7f39b5f7f3f8-validated",
+        "type": "validated",
+        "at": "2026-10-13T02:37:23.868Z",
+        "task": "B-investigation-v54-earth-boulder-kills-lichen-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v54-earth-boulder-kills-lichen-action2-20261013-0d2136a71ac142dd32ebe8b3480f7f39b5f7f3f8-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T02:38:04.314Z",
+        "task": "B-investigation-v54-earth-boulder-kills-lichen-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8b7737edf564a893a3f9ed8ee07a62eb1552ba7c",
+        "type": "ready",
+        "at": "2026-10-13T02:38:42.110Z",
+        "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
+        "delivery": "8b7737edf564a893a3f9ed8ee07a62eb1552ba7c"
       }
     ]
   },
@@ -100258,17 +100389,6 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v54-earth-boulder-kills-lichen-action2-20261013",
-        "worker": "B",
-        "goal": "fix-read-drop-boulder-killed-caller-v54-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "d54efaeb9c3c290fc7da9f9d68603b084ba78645",
-        "since": "2026-10-13T02:16:13.086Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013",
         "worker": "B",
         "goal": "fix-mcastu-clerical-blindness-body-v54-20261013",
@@ -100287,6 +100407,28 @@
         "status": "ready",
         "delivery": "f371831b92f7a04f053d73de2289d70ef88a488f",
         "since": "2026-10-13T02:29:12.360Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+        "worker": "C",
+        "goal": "C-v54-unpaid-library-fee-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "0dec329225648f2f2fbc10fee4f8831667aaf38b",
+        "since": "2026-10-13T02:34:24.818Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
+        "worker": "B",
+        "goal": "fix-mon-meatmetal-acoustics-v54-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "8b7737edf564a893a3f9ed8ee07a62eb1552ba7c",
+        "since": "2026-10-13T02:38:42.110Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -100782,8 +100924,8 @@
     ]
   },
   "development": {
-    "executionCommit": "df5ff0a2196351b29a774a3be604914535a2a147",
-    "measuredAt": "2026-10-13T02:26:31.971Z",
+    "executionCommit": "0d2136a71ac142dd32ebe8b3480f7f39b5f7f3f8",
+    "measuredAt": "2026-10-13T02:35:45.052Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
