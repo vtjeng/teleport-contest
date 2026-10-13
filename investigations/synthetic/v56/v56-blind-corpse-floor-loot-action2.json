@@ -73,17 +73,17 @@
       {
         "command": "node scripts/run-bounded.mjs focused -- node --test scripts/objnam.test.mjs",
         "result": "passed: 104 tests, 0 failures",
-        "log": "/tmp/teleport-validation-1000/run-rUTEbe/stdout.log"
+        "log": "/tmp/teleport-validation-1000/run-jMdQR1/stdout.log"
       },
       {
         "command": "npm run lint",
         "result": "passed",
-        "log": "/tmp/teleport-validation-1000/A2-blind-floor-correction-lint.log"
+        "log": "/tmp/teleport-validation-1000/A2-blind-floor-correction-lint-final.log"
       },
       {
         "command": "node scripts/synthetic-range-evidence.mjs .cache/A2-blind-floor-correction-evidence.json",
         "result": "passed: v56/v56-blind-corpse-floor-loot-action2 segment 0 through step 331 matched",
-        "log": "/tmp/teleport-validation-1000/A2-blind-floor-synthetic-range.log"
+        "log": "/tmp/teleport-validation-1000/A2-blind-floor-synthetic-range-final.log"
       }
     ]
   }
