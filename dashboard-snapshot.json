@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T03:39:33.835Z",
+  "capturedAt": "2026-10-13T03:49:00.147Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -100673,6 +100673,131 @@
         "type": "accepted",
         "at": "2026-10-13T03:38:19.671Z",
         "task": "C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-post-weakening-acceptance-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T03:39:36.116Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C merged accepted weakening Main and is tracing the refreshed queue for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013-ad690b7bd908a52aeb7aadb94413558a096db167",
+        "type": "published",
+        "at": "2026-10-13T03:39:50.124Z",
+        "task": "C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
+        "commit": "ad690b7bd908a52aeb7aadb94413558a096db167"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-monk-after-weakening-20261013",
+        "type": "assign",
+        "at": "2026-10-13T03:40:00.700Z",
+        "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-b-meatmetal-20261013",
+        "type": "activity",
+        "at": "2026-10-13T03:40:18.080Z",
+        "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
+        "phase": "review",
+        "reason": "Reviewing the oldest ready independent acoustics correction and its complete selected recording evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-meatmetal-30086fe12-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T03:40:45.225Z",
+        "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
+        "integration": "30086fe1228d698aeb6b419b169737dfbc6cde3a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-park-monk-on-mcast-spell-owner-20261013",
+        "type": "park",
+        "at": "2026-10-13T03:42:42.447Z",
+        "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013",
+        "reason": "Committed source diagnosis 1ef20118a. Step 303 now reaches mcastu.c:mcast_destroy_armor; complete wiring requires the MCAST_DESTRY_ARMR arm in mcastu.c:mcast_spell, which Root assigned to B for the resumed insect continuation. Preserve the accepted-Main replay and do_wear.c:destroy_arm dependency; resume after B releases the dispatcher."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-healer-cleric-mcast-insects-20261013",
+        "type": "resume",
+        "at": "2026-10-13T03:42:49.308Z",
+        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-healer-cleric-mcast-insects-20261013",
+        "type": "turn",
+        "at": "2026-10-13T03:42:53.580Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resuming the healer-cleric MCAST_INSECTS source port after its dispatcher dependency cleared."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-monk-dispatcher-held-20261013",
+        "type": "turn",
+        "at": "2026-10-13T03:43:16.614Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent v54 case is free: remaining spell mismatches depend on the B mcast_spell continuation, while healer kirin and knight lich are owned and v48 remains held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-refined-b-insect-investigation-20261013",
+        "type": "turn",
+        "at": "2026-10-13T03:43:38.272Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent v54 source case is free: remaining spell cases depend on the mcast_spell dispatcher Root assigned to B, while other candidates are owned or held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-one-case-official-score-20261013",
+        "type": "turn",
+        "at": "2026-10-13T03:43:44.768Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-one-case-official-score-20261013",
+        "type": "turn",
+        "at": "2026-10-13T03:43:52.726Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "The e127 one-case scorer confirms error null. No source correction is needed, and A2 remains idle while the ready delivery retains healer/muse reservations."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-healer-cleric-mcast-insects-20261013",
+        "type": "implement",
+        "at": "2026-10-13T03:44:46.744Z",
+        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
+        "goal": "port-mcastu-insects-v54-healer-cleric-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013-30086fe1228d698aeb6b419b169737dfbc6cde3a-validated",
+        "type": "validated",
+        "at": "2026-10-13T03:47:40.091Z",
+        "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013-30086fe1228d698aeb6b419b169737dfbc6cde3a-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T03:48:10.295Z",
+        "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013"
       }
     ]
   },
@@ -100750,17 +100875,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
-        "worker": "B",
-        "goal": "fix-mon-meatmetal-acoustics-v54-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "8b7737edf564a893a3f9ed8ee07a62eb1552ba7c",
-        "since": "2026-10-13T02:38:42.110Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -101264,21 +101378,21 @@
         "reason": "Diagnosis committed at f70875423; required mcastu.c:mcast_spell dispatcher edit is held by B active blindness task. No game code changes made; retaining this source finding for later continuation."
       },
       {
-        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
-        "worker": "B",
+        "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013",
+        "worker": "C",
         "goal": null,
         "kind": "investigation",
         "status": "parked",
         "delivery": null,
-        "since": "2026-10-13T02:52:50.338Z",
+        "since": "2026-10-13T03:42:42.447Z",
         "blockedBy": [],
-        "reason": "Diagnosis is preserved in b6da78920. Step 386 is caused by the missing MCAST_INSECTS helper/caller, whose dispatcher is in source:mcastu.c:mcast_spell, currently owned by C-investigation-v54-rogue-fast-apprentice-stun-action3-20261013. Resume after C acceptance releases the dispatcher reservation, then claim the complete helper/caller scope if still needed."
+        "reason": "Committed source diagnosis 1ef20118a. Step 303 now reaches mcastu.c:mcast_destroy_armor; complete wiring requires the MCAST_DESTRY_ARMR arm in mcastu.c:mcast_spell, which Root assigned to B for the resumed insect continuation. Preserve the accepted-Main replay and do_wear.c:destroy_arm dependency; resume after B releases the dispatcher."
       }
     ]
   },
   "development": {
-    "executionCommit": "00783478fe07117bdce7e0113d340094fff9ec35",
-    "measuredAt": "2026-10-13T03:36:01.101Z",
+    "executionCommit": "30086fe1228d698aeb6b419b169737dfbc6cde3a",
+    "measuredAt": "2026-10-13T03:45:46.897Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

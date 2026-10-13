@@ -296531,7 +296531,7 @@
     {
       "id": "fix-mon-meatmetal-acoustics-v54-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Fix the existing mon.c:meatmetal offscreen verbose crunch branch to use the already ported You_hear/acoustics behavior. The admitted v54 baseline first differs at step 634; the committed correction matches all 863 steps.",
       "cFile": "mon.c",
       "sessions": [
@@ -296541,10 +296541,74 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "30086fe1228d698aeb6b419b169737dfbc6cde3a",
       "delivered": null,
       "function": "meatmetal",
-      "session": "synthetic/v54/v54-knight-lich-armor-and-weakness-action3"
+      "session": "synthetic/v54/v54-knight-lich-armor-and-weakness-action3",
+      "closeStanding": {
+        "sha": "30086fe1228d698aeb6b419b169737dfbc6cde3a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "00783478fe07117bdce7e0113d340094fff9ec35",
+        "target": "synthetic/v54/v54-knight-lich-armor-and-weakness-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/30086fe1228d698aeb6b419b169737dfbc6cde3a/run-hosted-wTVL2O/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "meatmetal",
+            "implementation": "js/mon.js",
+            "symbol": "meatmetal",
+            "sourceFile": "mon.c",
+            "sourceReview": "In mon.c:meatmetal, eligible offscreen metallic-object consumption enters the `!cansee` branch; under flags.verbose C calls You_hear(\"a crunching sound.\"). The already ported pline.c:You_hear suppresses output when Deaf (unless Unaware) or acoustics is disabled and adjusts the prefix underwater/unaware. JS now routes the phrase through existing youHear and sends only a non-null result to the existing message callback.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c:postmov (1663-1667) calls meatmetal for metallivorous monsters and checks its return value 2; caller behavior remains unchanged."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-consumption.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-knight-lich-armor-and-weakness-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 862,
+                "source": "Full admitted recording exercises the production postmov -> meatmetal offscreen consumption branch and now matches its C screen, RNG, and cursor output."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The existing complete mon.c:meatmetal port is reached through monmove.c:postmov for metallivorous monsters. The selected admitted case reaches the offscreen verbose object-consumption branch with !acoustics. The selected recording now matches all 863 screens, 3154 RNG entries, and 863 cursors; no whole-function completion claim is made.",
+        "entryPoints": [
+          {
+            "name": "Offscreen metallic-object consumption with acoustics disabled",
+            "functions": [
+              "meatmetal"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-knight-lich-armor-and-weakness-action3",
+                "segment": 0,
+                "fromStep": 633,
+                "throughStep": 635,
+                "source": "The selected wait step exercises offscreen meatmetal output; the prior source mismatch emitted the unfiltered crunch phrase, and the committed correction follows pline.c:You_hear."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
