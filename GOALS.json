@@ -296159,6 +296159,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "C-v54-unpaid-library-fee-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement check_unpaid_usage from shk.c",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v54/v54-healer-unpaid-library-novel-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v54-healer-unpaid-library-novel-action4-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "check_unpaid_usage",
+      "session": "synthetic/v54/v54-healer-unpaid-library-novel-action4"
     }
   ]
 }
