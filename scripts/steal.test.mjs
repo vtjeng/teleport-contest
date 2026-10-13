@@ -24,13 +24,16 @@ import {
     ROOM,
     ROOMOFFSET,
     SHOPBASE,
+    TELEPAT,
     W_ARM,
     W_ARMF,
     W_ARMH,
     W_SADDLE,
+    W_TOOL,
     W_WEP,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
 import { count_unpaid } from '../js/invent.js';
 import { AT_ENGL, PM_WOOD_NYMPH, monst_globals_init } from '../js/monsters.js';
@@ -42,6 +45,7 @@ import {
     preflight_mpickobj,
     relobj,
     steal,
+    remove_worn_item,
     unresponsive,
     UnsupportedMonsterPickupOperationError,
 } from '../js/steal.js';
@@ -52,6 +56,7 @@ import {
     APPLE,
     ARMOR_CLASS,
     BOULDER,
+    BLINDFOLD,
     COIN_CLASS,
     FIGURINE,
     FOOD_CLASS,
@@ -61,6 +66,7 @@ import {
     ORCISH_DAGGER,
     ORCISH_HELM,
     SPEED_BOOTS,
+    TOOL_CLASS,
     POTION_CLASS,
     POT_BOOZE,
     ROCK_CLASS,
@@ -83,6 +89,48 @@ test('worn armor removal preserves the environment for petrifying protection los
     assert.match(removal, /await Armor_off\(state, env\)/u);
     assert.match(removal, /await Gloves_off\(state, env\)/u);
 });
+
+test('worn blindfold removal keeps its source-ordered planning message callback',
+    async () => {
+        const source = readFileSync(
+            new URL('../js/steal.js', import.meta.url), 'utf8',
+        );
+        const removal = source.slice(
+            source.indexOf('export async function remove_worn_item('),
+            source.indexOf('// C ref:',
+                source.indexOf('export async function remove_worn_item(') + 1),
+        );
+        assert.match(STEAL_C,
+            /obj->owornmask & W_TOOL\)\s*\{\s*Blindf_off\(obj\)/u);
+        assert.match(STEAL_C,
+            /pline\("%s %s %s\.", Some_Monnam\(mon\), verb, objbuf\);[\s\S]*?remove_worn_item\(obj, TRUE\)/u);
+        assert.match(removal, /await Blindf_off\(obj, state, env\)/u);
+
+        const gameState = state({
+            flags: { verbose: true },
+            nhDisplay: new GameDisplay(null),
+        });
+        const blindfold = object({
+            otyp: BLINDFOLD,
+            oclass: TOOL_CLASS,
+            spe: 0,
+            quan: 1,
+            owornmask: W_TOOL,
+        });
+        gameState.ublindf = blindfold;
+        let plannedMessageCalls = 0;
+
+        await remove_worn_item(blindfold, true, gameState, {
+            planning: true,
+            message: async () => { plannedMessageCalls += 1; },
+        });
+
+        // The planning adapter supplied by mattacku is silent; losing it here
+        // would let Blindf_off() write through ttyPline() into this display.
+        assert.equal(plannedMessageCalls, 1);
+        assert.equal(gameState._pending_message, undefined);
+        assert.equal(gameState.nhDisplay.grid[0][0].ch, ' ');
+    });
 
 // Distinct coordinates make the post-transfer snuff callback observable.
 const CARRIER_X = 7;
@@ -149,6 +197,7 @@ function state(overrides = {}) {
             uprops: {
                 [HALLUC]: { intrinsic: 0, extrinsic: 0 },
                 [HALLUC_RES]: { intrinsic: 0, extrinsic: 0 },
+                [TELEPAT]: { intrinsic: 0, extrinsic: 0 },
                 [BLINDED]: {
                     intrinsic: 0,
                     extrinsic: 0,

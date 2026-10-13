@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8310085,
+      "datetime": "20310418123000",
+      "nethackrc": "OPTIONS=name:NymphDrinkB,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,!acoustics\n",
+      "moves": "\u0017fountain\nqy"
+    }
+  ],
+  "comment": "Independent wizard-wished starting-square fountain witness for potion.c:dodrink -> fountain.c:drinkfountain fate 28 -> dowaternymph. I selected seed 8310085 with the documented JS scan over 8310056–8310255 (30 seeds replayed); the seed/date/profile were chosen independently from the v53 dip case."
+}

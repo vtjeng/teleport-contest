@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T23:38:47.386Z",
+  "capturedAt": "2026-10-13T01:43:07.775Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -99202,6 +99202,658 @@
         "type": "accepted",
         "at": "2026-10-12T23:37:56.618Z",
         "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012-8d1e7865eb249438ad4e15cac2c58d9607f4b3b6",
+        "type": "published",
+        "at": "2026-10-12T23:39:01.784Z",
+        "task": "C-investigation-v53-mounted-dragon-purpleworm-engulf-action4-20261012",
+        "commit": "8d1e7865eb249438ad4e15cac2c58d9607f4b3b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v53-mounted-residual-action4-20261012",
+        "type": "assign",
+        "at": "2026-10-12T23:39:08.435Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-barefoot53-a09ed76e7-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T23:39:44.115Z",
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
+        "integration": "a09ed76e70057094ef1a3e0202eed78b6814c58f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-topl-pager-redraw-v53-20261012",
+        "type": "implement",
+        "at": "2026-10-12T23:42:41.029Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "goal": "div-fix-topl-clear-after-more-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a9dfe69f128a7a3c4033d7b9eaaf0567fd278c29",
+        "type": "ready",
+        "at": "2026-10-12T23:43:00.631Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "delivery": "a9dfe69f128a7a3c4033d7b9eaaf0567fd278c29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-quest-chat-a9dfe69f-20261012",
+        "type": "received",
+        "at": "2026-10-12T23:43:51.532Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "delivery": "a9dfe69f128a7a3c4033d7b9eaaf0567fd278c29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v53-shop-damage-active-after-scope-20261012",
+        "type": "turn",
+        "at": "2026-10-12T23:44:05.386Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-idle-after-quest-chat-v53-20261012",
+        "type": "turn",
+        "at": "2026-10-12T23:44:33.545Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent queue case is available: remaining sessions are already owned, under validation, or held. Waiting for the next refreshed queue or a released reservation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012-a09ed76e70057094ef1a3e0202eed78b6814c58f-validated",
+        "type": "validated",
+        "at": "2026-10-12T23:45:40.514Z",
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012-a09ed76e70057094ef1a3e0202eed78b6814c58f-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T23:46:06.742Z",
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012-7b896634e6e99d5c325fbb535810ae65af3b1404",
+        "type": "published",
+        "at": "2026-10-12T23:47:10.516Z",
+        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
+        "commit": "7b896634e6e99d5c325fbb535810ae65af3b1404"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-blindfold53-45acbc4dc-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T23:47:48.124Z",
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+        "integration": "45acbc4dcb4b43e3172bf00f80e584e81001fd81"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-blind-fountain-water-snakes-action2-20261012-45acbc4dcb4b43e3172bf00f80e584e81001fd81-validated",
+        "type": "validated",
+        "at": "2026-10-12T23:53:40.741Z",
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-blind-fountain-water-snakes-action2-20261012-45acbc4dcb4b43e3172bf00f80e584e81001fd81-accepted",
+        "type": "accepted",
+        "at": "2026-10-12T23:54:11.561Z",
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v53-blind-fountain-water-snakes-action2-20261012-97b147c6c1be7eaf36942bed06f66b59925473e0",
+        "type": "published",
+        "at": "2026-10-12T23:55:09.114Z",
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+        "commit": "97b147c6c1be7eaf36942bed06f66b59925473e0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-nymph53-f198de191-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T23:56:00.578Z",
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+        "integration": "f198de1914d3503813ea7333d0fe355f6d3fdc5f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-mounted-residual-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T23:57:21.554Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the selected mounted replay’s remaining one-cell screen mismatch through the TTY repaint and map glyph paths."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-mounted-residual-active-refresh-20261012",
+        "type": "turn",
+        "at": "2026-10-12T23:59:03.974Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the remaining mounted-engulf screen mismatch through source-backed map-cell writes and clears; no live commands."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-blind-fountain-dip-nymph-action2-20261012-f198de1914d3503813ea7333d0fe355f6d3fdc5f-validated",
+        "type": "validated",
+        "at": "2026-10-13T00:02:01.218Z",
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-blind-fountain-dip-nymph-action2-20261012-f198de1914d3503813ea7333d0fe355f6d3fdc5f-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T00:02:29.020Z",
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v53-blind-fountain-dip-nymph-residual-20261012",
+        "type": "assign",
+        "at": "2026-10-13T00:03:07.595Z",
+        "task": "A2-investigation-v53-blind-fountain-dip-nymph-residual-action2-20261012",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-active-v53-blind-fountain-nymph-residual-20261012",
+        "type": "turn",
+        "at": "2026-10-13T00:03:25.917Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing the remaining fountain-nymph glyph and cursor mismatch against the exact C source and saved case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v53-blind-fountain-dip-nymph-action2-20261012-ecaaca660cbf4dd1f9d73d9195f0fc6be58e0f9a",
+        "type": "published",
+        "at": "2026-10-13T00:04:01.595Z",
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+        "commit": "ecaaca660cbf4dd1f9d73d9195f0fc6be58e0f9a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-leader53-8f096a2f3-20261012",
+        "type": "integrating",
+        "at": "2026-10-13T00:04:48.538Z",
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
+        "integration": "8f096a2f3d681e51339722d94b668dfaa7ba5075"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v53-nymph-yn-prompt-cleanup-20261012",
+        "type": "implement",
+        "at": "2026-10-13T00:05:36.974Z",
+        "task": "A2-investigation-v53-blind-fountain-dip-nymph-residual-action2-20261012",
+        "goal": "fix-tty-yn-cleanup-topline-nymph-v53-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-park-a-nymph-residual-b-topl-owner-20261013",
+        "type": "park",
+        "at": "2026-10-13T00:10:29.550Z",
+        "task": "A2-investigation-v53-blind-fountain-dip-nymph-residual-action2-20261012",
+        "reason": "Source trace identifies topl.c:update_topl, already owned by B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012. Preserve A diagnosis deec7a41ae6b854f77de995406a4795cae466b0b and saved replay; release the nymph session and obsolete tty_yn_function reservation for B to claim as an additional target."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-quest-underlevel-leader-action3-20261012-8f096a2f3d681e51339722d94b668dfaa7ba5075-validated",
+        "type": "validated",
+        "at": "2026-10-13T00:11:08.547Z",
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-quest-underlevel-leader-action3-20261012-8f096a2f3d681e51339722d94b668dfaa7ba5075-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T00:11:59.652Z",
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-await-B-update-topl-fountain-residual-20261012",
+        "type": "turn",
+        "at": "2026-10-13T00:12:07.793Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v53-quest-underlevel-leader-action3-20261012-c83242af873cbcc68d7345ec6ba436bd889499c2",
+        "type": "published",
+        "at": "2026-10-13T00:14:07.015Z",
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
+        "commit": "c83242af873cbcc68d7345ec6ba436bd889499c2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-timerowner53-1f6bce042-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T00:15:17.246Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "integration": "1f6bce042fe094a521136800ac1c69854c16bb3d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-display-and-topl-trace-20261013",
+        "type": "turn",
+        "at": "2026-10-13T00:18:24.921Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing two accepted-base terminal mismatches to C topline and map-buffer behavior; no implementation edit is active."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-timerowner53-failed-verdict-38326334383-20261013",
+        "type": "validated",
+        "at": "2026-10-13T00:23:32.605Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-park-c-billing-for-timer-receipt-20261013",
+        "type": "park",
+        "at": "2026-10-13T00:28:47.553Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "reason": "Temporary safe-boundary park while C resubmits the timer assertion correction; billing code, tests and the independent recipe are preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-resume-c-timer-assertion-correction-20261013",
+        "type": "resume",
+        "at": "2026-10-13T00:28:51.828Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-73b2a3b759b5167d49bf4d35dfc1bc40324d38ab",
+        "type": "ready",
+        "at": "2026-10-13T00:33:13.438Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "delivery": "73b2a3b759b5167d49bf4d35dfc1bc40324d38ab"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-timer-correction-73b2a3b7-20261013",
+        "type": "received",
+        "at": "2026-10-13T00:34:08.329Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "delivery": "73b2a3b759b5167d49bf4d35dfc1bc40324d38ab"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v53-ring-shop-billing-after-timer-receipt-20261013",
+        "type": "resume",
+        "at": "2026-10-13T00:34:25.971Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-shop-damage-mnexto-20261013",
+        "type": "turn",
+        "at": "2026-10-13T00:34:33.900Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Billing source task resumed after the timer correction receipt. Preserving current source edits and independent recipe while tracing the mnexto/enexto mismatch before final evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-timerowner53-correction-a3a97d12c-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T00:35:15.538Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "integration": "a3a97d12c7c3f58f801308f12088b23f2ae3a167"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012-a3a97d12c7c3f58f801308f12088b23f2ae3a167-validated",
+        "type": "validated",
+        "at": "2026-10-13T00:36:21.233Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012-a3a97d12c7c3f58f801308f12088b23f2ae3a167-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T00:38:22.659Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012-ccac15665d4c5140847d731d2f898632f0e57216",
+        "type": "published",
+        "at": "2026-10-13T00:39:48.245Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "commit": "ccac15665d4c5140847d731d2f898632f0e57216"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-questchat53-68ca32057-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T00:41:27.611Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "integration": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-quest-nemesis-nearby-action5-20261012-68ca32057bc676b09a8eda1f0c88ee3cb9de83c9-validated",
+        "type": "validated",
+        "at": "2026-10-13T00:48:42.685Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-quest-nemesis-nearby-action5-20261012-68ca32057bc676b09a8eda1f0c88ee3cb9de83c9-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T00:49:21.554Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4dea0a98ec32ded03c0cc553340b7a589f43c9f4",
+        "type": "ready",
+        "at": "2026-10-13T00:52:14.662Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "delivery": "4dea0a98ec32ded03c0cc553340b7a589f43c9f4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-mounted-nymph-residual-4dea0a98-20261013",
+        "type": "received",
+        "at": "2026-10-13T00:53:29.397Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "delivery": "4dea0a98ec32ded03c0cc553340b7a589f43c9f4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v53-quest-nemesis-stun-investigation-20261013",
+        "type": "turn",
+        "at": "2026-10-13T00:53:46.824Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v53-quest-nemesis-nearby-action5-20261012-08f0d36cc8546733a6339581f9a97937a2c55edd",
+        "type": "published",
+        "at": "2026-10-13T00:54:09.848Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "commit": "08f0d36cc8546733a6339581f9a97937a2c55edd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v53-quest-nemesis-stun-residual-action5-20261013",
+        "type": "assign",
+        "at": "2026-10-13T00:54:30.337Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-mounted-nymph-f9e5fb07-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T00:55:00.848Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "integration": "f9e5fb07c84d24216dca852d6ff78fdf0b80dabc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-mcast-stun-you-v53-step210-20261013",
+        "type": "implement",
+        "at": "2026-10-13T00:59:14.105Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "goal": "mcast-stun-you-v53-quest-nemesis-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-validated-b-mounted-nymph-failed-38329610659-20261013",
+        "type": "validated",
+        "at": "2026-10-13T01:02:15.379Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-waiting-b-mounted-nymph-correction-20261013",
+        "type": "activity",
+        "at": "2026-10-13T01:05:08.398Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "phase": "waiting",
+        "reason": "B is correcting hosted test failures in message cleanup and display fixtures before submitting a new delivery; Main preserves the failed candidate and its artifacts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-mounted-nymph-hosted-correction-20261013",
+        "type": "resume",
+        "at": "2026-10-13T01:06:29.642Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fb5cf722e9f81979a2ff8e5fdd9b3132dffa2a49",
+        "type": "ready",
+        "at": "2026-10-13T01:13:15.899Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "delivery": "fb5cf722e9f81979a2ff8e5fdd9b3132dffa2a49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-mounted-nymph-correction-fb5cf722-20261013",
+        "type": "received",
+        "at": "2026-10-13T01:13:33.102Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "delivery": "fb5cf722e9f81979a2ff8e5fdd9b3132dffa2a49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-mounted-nymph-correction-644903f4-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T01:14:28.710Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "integration": "644903f4dfbf2fb72ed95dab9297dbba854f81cf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ca3ca09ea4abb5210f8e525148199a6dcd340616",
+        "type": "ready",
+        "at": "2026-10-13T01:14:43.595Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "delivery": "ca3ca09ea4abb5210f8e525148199a6dcd340616"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9e2470b0b07e4f4ab68703c4965423a859f923ff",
+        "type": "ready",
+        "at": "2026-10-13T01:15:12.641Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "delivery": "9e2470b0b07e4f4ab68703c4965423a859f923ff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-mounted-nymph-correction-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:15:32.891Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Correction is queued for Main validation. Remaining admitted cases are assigned or held; waiting for the next batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-billing-9e2470b0-20261013",
+        "type": "received",
+        "at": "2026-10-13T01:15:57.657Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "delivery": "9e2470b0b07e4f4ab68703c4965423a859f923ff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-nemesis-ca3ca09e-20261013",
+        "type": "received",
+        "at": "2026-10-13T01:16:04.897Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "delivery": "ca3ca09ea4abb5210f8e525148199a6dcd340616"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-observed-c-idle-after-billing-delivery-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:16:15.812Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Billing fix submitted. Remaining admitted work is reserved or held; waiting for acceptance and the next prepared batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-observed-a-idle-after-nemesis-delivery-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:16:24.417Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Quest-nemesis fix submitted. Remaining admitted work is reserved or held; waiting for acceptance and the next prepared batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012-644903f4dfbf2fb72ed95dab9297dbba854f81cf-validated",
+        "type": "validated",
+        "at": "2026-10-13T01:20:37.169Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012-644903f4dfbf2fb72ed95dab9297dbba854f81cf-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T01:21:13.264Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-accepted-mounted-nymph-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:23:09.972Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Waiting on Root-owned publication/integration and v54 admission; all remaining admitted sessions are owned or held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012-d58f2c00e45787745fa4c336014482c78e925f3f",
+        "type": "published",
+        "at": "2026-10-13T01:23:39.557Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "commit": "d58f2c00e45787745fa4c336014482c78e925f3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-nemesis-a26c3da2-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T01:25:10.574Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "integration": "a26c3da2d2ab4372f422e8856b52b0bd3ca5e8c9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-validated-a-nemesis-failed-38332051839-20261013",
+        "type": "validated",
+        "at": "2026-10-13T01:31:19.540Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v53-quest-nemesis-correction-20261013",
+        "type": "resume",
+        "at": "2026-10-13T01:31:48.937Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-waiting-a-nemesis-obsolete-test-correction-20261013",
+        "type": "activity",
+        "at": "2026-10-13T01:32:07.338Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "phase": "waiting",
+        "reason": "A is replacing the obsolete nemesis refusal test with source-backed behavior before submitting a correction; Root preserves the failed candidate and saved checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f2bfe0ada46bffb6fa3a92e20d41a18255836f0b",
+        "type": "ready",
+        "at": "2026-10-13T01:33:40.899Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "delivery": "f2bfe0ada46bffb6fa3a92e20d41a18255836f0b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-nemesis-correction-f2bfe0ad-20261013",
+        "type": "received",
+        "at": "2026-10-13T01:33:59.157Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "delivery": "f2bfe0ada46bffb6fa3a92e20d41a18255836f0b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-nemesis-correction-65da8c69-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T01:34:40.831Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "integration": "65da8c69c8e214b155c129c3ecd975d3c48e47af"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-observed-a-idle-after-nemesis-correction-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:35:14.605Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Quest test correction submitted. Waiting for Root validation and the next prepared batch; remaining admitted work is owned or held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013-65da8c69c8e214b155c129c3ecd975d3c48e47af-validated",
+        "type": "validated",
+        "at": "2026-10-13T01:40:53.424Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013-65da8c69c8e214b155c129c3ecd975d3c48e47af-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T01:41:24.449Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-quest-accepted-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:42:43.694Z",
+        "worker": "A2",
+        "state": "idle"
       }
     ]
   },
@@ -99282,57 +99934,13 @@
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v53-barefoot-kick-cockatrice-corpse-action1-20261012",
-        "worker": "A2",
-        "goal": "fix-dokick-barefoot-corpse-instapetrify-v53-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "ec477816056fdc8d518fa4cbc07feb48013b0462",
-        "since": "2026-10-12T22:59:10.440Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
-        "worker": "A2",
-        "goal": "fix-insight-blindfolded-only-status-v53-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "5db9063c8a9da92ee1fa01b6b2555eaf9a07eae3",
-        "since": "2026-10-12T23:07:32.606Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
-        "worker": "B",
-        "goal": "port-fountain-dowaternymph-v53-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "fdd8724c8966eb89395f91c794fc604ba59d5867",
-        "since": "2026-10-12T23:14:02.088Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
-        "worker": "A2",
-        "goal": "fix-quest-underlevel-leader-expulsion-v53-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "bb6370184cf3613c0760edc01f5bfecf7c85668c",
-        "since": "2026-10-12T23:15:39.443Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
         "worker": "C",
-        "goal": "do-engulfer-corpse-timer-cleanup-v53-20261012",
+        "goal": "C-port-pay-for-damage-v53-20261012",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "6ab2a02d0a0321a65e1bbfed31730eabd94051df",
-        "since": "2026-10-12T23:21:01.368Z",
+        "delivery": "9e2470b0b07e4f4ab68703c4965423a859f923ff",
+        "since": "2026-10-13T01:15:12.641Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -99814,12 +100422,23 @@
         "since": "2026-10-12T20:29:41.779Z",
         "blockedBy": [],
         "reason": "Superseded by accepted hot-pursuit correction 575ed936 at b656ad046. Its source-defined shk_move threshold change and full matching Minetown replay are preserved in the accepted correction; the original movement packet remains historical evidence."
+      },
+      {
+        "task": "A2-investigation-v53-blind-fountain-dip-nymph-residual-action2-20261012",
+        "worker": "A2",
+        "goal": "fix-tty-yn-cleanup-topline-nymph-v53-20261012",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-13T00:10:29.550Z",
+        "blockedBy": [],
+        "reason": "Source trace identifies topl.c:update_topl, already owned by B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012. Preserve A diagnosis deec7a41ae6b854f77de995406a4795cae466b0b and saved replay; release the nymph session and obsolete tty_yn_function reservation for B to claim as an additional target."
       }
     ]
   },
   "development": {
-    "executionCommit": "ce966d4bd4812d2d625f234fde8f87b1d105ebdc",
-    "measuredAt": "2026-10-12T23:36:11.314Z",
+    "executionCommit": "65da8c69c8e214b155c129c3ecd975d3c48e47af",
+    "measuredAt": "2026-10-13T01:39:43.509Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

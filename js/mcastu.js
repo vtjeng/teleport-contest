@@ -8,6 +8,7 @@
 // lands; the dispatcher still preserves its source case and damage order.
 
 import {
+    A_DEX,
     ANTIMAGIC,
     BLINDED,
     BZ_M_SPELL,
@@ -37,12 +38,14 @@ import {
     MFAST,
     SEE_INVIS,
     SHOCK_RES,
+    STUNNED,
+    TIMEOUT,
     u_at,
     ismnum,
 } from './const.js';
 import { game } from './gstate.js';
 import { HeroDeathPlanningError, losehp, nomul } from './hack.js';
-import { adjuhploss, minuhpmax, setuhpmax } from './attrib.js';
+import { acurr, adjuhploss, minuhpmax, setuhpmax } from './attrib.js';
 import { done } from './end.js';
 import { sgn } from './hacklib.js';
 import { Monnam, Mgender, pmname } from './do_name.js';
@@ -56,7 +59,7 @@ import {
 } from './display.js';
 import { messageAt } from './startup_a11y.js';
 import { healmon } from './mon.js';
-import { make_confused } from './potion.js';
+import { make_confused, make_stunned } from './potion.js';
 import {
     cvt_adtyp_to_mseenres,
     monstseesu,
@@ -851,6 +854,38 @@ export async function mcast_summon_mons(mtmp, rawEnv = {}) {
     return count;
 }
 
+// C ref: mcastu.c mcast_stun_you() (503-520). The helper ignores castmu's
+// initial spell damage. It applies a one-turn stun through Antimagic or Free
+// action, otherwise rolls Dexterity-based stun damage and extends the current
+// timeout before clearing the caster's remembered magic resistance.
+async function mcast_stun_you(dmg, env = {}) {
+    const state = env.state ?? game;
+    const random = { d, ...(env.random ?? {}) };
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
+    const hStun = state.u?.uprops?.[STUNNED]?.intrinsic ?? 0;
+
+    if (heroProperty(state, ANTIMAGIC) || heroProperty(state, FREE_ACTION)) {
+        await shieldeff(state.u.ux, state.u.uy, state);
+        monstseesu(M_SEEN_MAGR, state);
+        if (!hStun)
+            await message('You feel momentarily disoriented.', state, env);
+        await make_stunned(1, false, state, { ...env, message });
+    } else {
+        await message(
+            hStun ? 'You struggle to keep your balance.' : 'You reel...',
+            state,
+            env,
+        );
+        dmg = random.d(acurr(state, A_DEX) < 12 ? 6 : 4, 4);
+        if (heroProperty(state, HALF_SPDAM))
+            dmg = Math.trunc((dmg + 1) / 2);
+        await make_stunned((hStun & TIMEOUT) + dmg, false, state,
+            { ...env, message });
+        monstunseesu(M_SEEN_MAGR, state);
+    }
+}
+
 // ---- mcast_spell() ----
 // C ref: mcastu.c mcast_spell() (800-897).
 // The C dispatcher clears damage for void effects and sends every remaining
@@ -902,7 +937,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         await mcast_disappear(mtmp, env);
         break;
     case MCAST_STUN_YOU:
-        recordMcastGap('mcastu.c mcast_stun_you', env);
+        await mcast_stun_you(dmg, env);
         break;
     case MCAST_PSI_BOLT:
         resultDmg = await mcast_psi_bolt(dmg, env);

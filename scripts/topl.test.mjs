@@ -6,13 +6,17 @@ import test from 'node:test';
 
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import {
+    MSGTYP_NORMAL,
     NHW_MESSAGE,
     SUPPRESS_HISTORY,
     WIN_LOCKHISTORY,
 } from '../js/const.js';
+import { GLYPH_CMAP_STONE_OFF, GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { GameDisplay } from '../js/game_display.js';
-import { ATR_INVERSE } from '../js/terminal.js';
+import { game } from '../js/gstate.js';
+import { ATR_INVERSE, CLR_RED, NO_COLOR } from '../js/terminal.js';
 import { tty_create_nhwindow } from '../js/wintty.js';
+import { docorner } from '../js/display.js';
 import {
     addtopl,
     free_msghistory_snapshot,
@@ -23,8 +27,13 @@ import {
     tty_doprev_message,
     tty_getmsghistory,
     tty_putmsghistory,
+    update_topl,
 } from '../js/topl.js';
-import { ttyCustomPline } from '../js/tty_message.js';
+import {
+    TOPLINE_EMPTY,
+    TOPLINE_NEED_MORE,
+    ttyCustomPline,
+} from '../js/tty_message.js';
 import { runSegment } from '../js/jsmain.js';
 import { QUEST_PAGER_OUTPUT } from '../js/questpgr.js';
 
@@ -34,6 +43,12 @@ const wrappedStartupRecording = normalizeSession(JSON.parse(readFileSync(
 )));
 const TOPL_C = readFileSync(
     new URL('../nethack-c/upstream/win/tty/topl.c', import.meta.url), 'utf8',
+);
+const DISPLAY_C = readFileSync(
+    new URL('../nethack-c/upstream/src/display.c', import.meta.url), 'utf8',
+);
+const DISPLAY_JS = readFileSync(
+    new URL('../js/display.js', import.meta.url), 'utf8',
 );
 const QUESTPGR_C = readFileSync(
     new URL('../nethack-c/upstream/src/questpgr.c', import.meta.url), 'utf8',
@@ -81,6 +96,25 @@ test('remember_topl advances the C message ring and respects its lock', () => {
     remember_topl(state);
     assert.equal(win.data[1], null);
     assert.equal(state._ttyToplines, 'locked');
+});
+
+test('update_topl replaces stale pending text after an answered prompt', async () => {
+    const state = historyState();
+    // This exact answered query appears in the admitted fountain recording.
+    const stalePrompt = 'Dry up fountain? [yn] (n) ';
+    state._pending_message = stalePrompt;
+    state._ttyToplines = stalePrompt;
+    state.nhDisplay.toplines = stalePrompt;
+    state.nhDisplay.toplin = TOPLINE_EMPTY;
+
+    await update_topl('Someone removes your blindfold.', state, {
+        msgtype: MSGTYP_NORMAL,
+    });
+
+    assert.equal(state._pending_message, 'Someone removes your blindfold.');
+    assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
+    assert.match(TOPL_C,
+        /ttyDisplay->toplin == TOPLINE_NEED_MORE \|\| skip/u);
 });
 
 test('addtopl keeps the terminal cursor aligned while wrapping', () => {
@@ -218,7 +252,7 @@ test('more always writes its marker and honors standout on a blank topline',
         assert.equal(state.nhDisplay.toplin, 0);
     });
 
-test('wrapped Escape more restores lower rows, homes, and keeps the stop state',
+test('wrapped Escape more redraws lower rows from the current glyph buffer',
     async () => {
         const state = historyState();
         const display = state.nhDisplay;
@@ -231,7 +265,6 @@ test('wrapped Escape more restores lower rows, homes, and keeps the stop state',
         display.toplin = 1;
         for (let column = 0; column < display.cols; ++column)
             display.setCell(column, 1, 'M', 0, 0);
-        const preservedRow = display.grid[1].map((cell) => ({ ...cell }));
         display.pushKey(27);
 
         let markerCell = null;
@@ -241,12 +274,78 @@ test('wrapped Escape more restores lower rows, homes, and keeps the stop state',
         await more(state);
 
         assert.equal(markerCell?.attr ?? 0, 0);
-        assert.deepEqual(display.grid[1], preservedRow);
+        assert.ok(display.grid[1].every((cell) => cell.ch === ' '));
         assert.equal(display.cursorCol, 0);
         assert.equal(display.cursorRow, 0);
         assert.equal(display.inmore, 0);
         assert.equal(display.toplin, 0);
         assert.equal(state._ttyMessageStopped, true);
+    });
+
+test('docorner skips an unexplored buffer glyph even when map memory is known',
+    async () => {
+        // The wrapped-startup recording initializes the full glyph map. Game
+        // coordinate 27,0 maps to terminal column 26, row 1 in this fixture.
+        const [segment] = wrappedStartupRecording.segments;
+        await runSegment(segment);
+        const state = game;
+        const location = state.level.at(27, 0);
+        location.remembered_glyph = { glyph: GLYPH_CMAP_STONE_OFF };
+        location.disp_glyph = {
+            glyph: GLYPH_UNEXPLORED_OFF,
+            ch: '#',
+            color: NO_COLOR,
+            dec: false,
+        };
+        location.disp_ch = '#';
+        location.disp_color = NO_COLOR;
+        location.disp_decgfx = false;
+        location.disp_attr = 0;
+        // Seed the stale physical cell that docorner() must clear before its
+        // source-ordered row_refresh() consults the live glyph number.
+        state.nhDisplay.setCell(26, 1, '#', NO_COLOR, 0);
+
+        // C's y=0 row is the message row; the first map row is physical y=1,
+        // so docorner(1, 2) clears the message row before repainting map row 0.
+        docorner(1, 2, 0, state);
+
+        assert.equal(state.nhDisplay.grid[1][26].ch, ' ');
+        // C row_refresh() still prints an unexplored glyph when its valid map
+        // cell has an active frame colour; this records that exceptional draw.
+        state.iflags.bgcolors = true;
+        state.gw = { wsettings: { map_frame_color: CLR_RED } };
+        const setCell = state.nhDisplay.setCell.bind(state.nhDisplay);
+        const painted = [];
+        state.nhDisplay.setCell = (column, row, ...cell) => {
+            if (column === 26 && row === 1) painted.push(cell);
+            return setCell(column, row, ...cell);
+        };
+        docorner(1, 2, 0, state);
+        assert.equal(painted.length, 1);
+        assert.equal(painted[0][0], ' ');
+        assert.match(TOPL_C,
+            /case '\\n':\s*cl_end\(\);\s*ttyDisplay->curx = 0;\s*ttyDisplay->cury\+\+/u);
+        assert.match(DISPLAY_C,
+            /if \(force \|\| glyph != GLYPH_UNEXPLORED\s*\|\| bkglyphinfo\.framecolor != NO_COLOR\)/u);
+        assert.match(DISPLAY_JS,
+            /const glyph = loc\.disp_glyph\?\.glyph \?\? GLYPH_UNEXPLORED_OFF/u);
+    });
+
+test('docorner clears physical rows without requiring status inventory state',
+    async () => {
+        const display = new GameDisplay(null);
+        display.setCell(3, 0, 'T', 4, 1);
+        display.setCell(3, 1, 'M', 5, 2);
+        const state = {
+            nhDisplay: display,
+            iflags: {},
+            wintty: { WIN_MAP: 1, wins: [null, { offy: 1 }] },
+        };
+
+        docorner(1, 2, 0, state);
+
+        assert.equal(display.grid[0][3].ch, ' ');
+        assert.equal(display.grid[1][3].ch, ' ');
     });
 
 test('putsyms stops at the first embedded NUL like the C byte-string loop', () => {

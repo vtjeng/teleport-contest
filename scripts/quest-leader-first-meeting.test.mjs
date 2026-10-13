@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { A_NEUTRAL, LL_ACHIEVE, MIN_QUEST_ALIGN } from '../js/const.js';
+import {
+    A_NEUTRAL,
+    LL_ACHIEVE,
+    MIN_QUEST_ALIGN,
+    MIN_QUEST_LEVEL,
+    UTOTYPE_DEFERRED,
+    UTOTYPE_PORTAL,
+} from '../js/const.js';
 import { qt_pager } from '../js/questpgr.js';
 import { QUEST_TEXT } from '../js/quest_text_data.js';
 import { quest_chat, quest_stat_check, quest_talk } from '../js/quest.js';
@@ -87,6 +95,64 @@ test('worthy first quest meeting records the granting leader', async () => {
     }]);
 });
 
+test('an under-level first audience receives badlevel before expulsion',
+    async () => {
+        const events = [];
+        const priest = roles.find((role) => role.filecode === 'Pri');
+        const state = {
+            moves: 0,
+            multi: 0,
+            context: {},
+            urole: { ...priest, lgod: 'L', ngod: 'N', cgod: 'C' },
+            qstart_level: { dnum: 1, dlevel: 5 },
+            dungeons: [{ dname: 'The Dungeons' }, { dname: 'The Quest' }],
+            branches: [{ end1: { dnum: 0, dlevel: 10 }, end2: { dnum: 1, dlevel: 1 } }],
+            u: {
+                ulevel: MIN_QUEST_LEVEL - 1,
+                uz: { dnum: 1, dlevel: 5 },
+                uevent: {},
+                ualign: { type: A_NEUTRAL, record: MIN_QUEST_ALIGN },
+                ualignbase: [A_NEUTRAL, A_NEUTRAL],
+                uhave: { questart: false },
+                utolev: { dnum: 0, dlevel: 0 },
+            },
+            svq: {
+                quest_status: {
+                    leader_m_id: 77,
+                    got_quest: false,
+                    got_thanks: false,
+                    pissed_off: false,
+                    met_leader: false,
+                },
+            },
+        };
+        monst_globals_init(state);
+        const leader = {
+            m_id: 77,
+            mpeaceful: true,
+            data: state.mons[PM_CLERIC],
+            female: false,
+            mextra: {},
+        };
+        await quest_chat(leader, state, {
+            random: { rn2: (bound) => (events.push(`rn2:${bound}`), 0) },
+            pager: async (id) => events.push(`pager:${id}`),
+            unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
+        });
+
+        assert.deepEqual(events, ['pager:leader_first', 'pager:badlevel', 'rn2:19']);
+        assert.equal(state.svq.quest_status.met_leader, true);
+        assert.equal(state.svq.quest_status.not_ready, 0);
+        assert.equal(state.u.utotype, UTOTYPE_PORTAL | UTOTYPE_DEFERRED);
+        assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 10 });
+
+        const c = readFileSync(new URL('../nethack-c/upstream/src/quest.c',
+            import.meta.url), 'utf8');
+        const js = readFileSync(new URL('../js/quest.js', import.meta.url), 'utf8');
+        assert.match(c, /if \(not_capable\(\)\) \{\s*qt_pager\("badlevel"\);\s*exercise\(A_WIS, TRUE\);\s*expulsion\(FALSE\);/u);
+        assert.match(js, /if \(not_capable\(state\)\) \{\s*await ops\.pager\('badlevel'\);\s*await exercise\(A_WIS, true, state, ops\.random\);\s*expulsion\(false, ops\);/u);
+    });
+
 test('every role has the badalign text chat_with_leader() delivers', () => {
     // dat/quest.lua gives every role its own badalign entry, so qt_pager()
     // never falls through to the common section for it.
@@ -143,8 +209,16 @@ test('qt_pager substitutes the hero rank into the badalign text', async () => {
 // C ref: quest.c quest_talk() (494-511) and quest_stat_check() (513-518).
 function questTalkState() {
     return {
-        u: { ux: 5, uy: 4, uz: { dnum: 3, dlevel: 1 } },
-        svq: { quest_status: { leader_m_id: 77 } },
+        u: {
+            ux: 5, uy: 4, uz: { dnum: 3, dlevel: 1 },
+            uhave: { questart: false },
+        },
+        svq: { quest_status: {
+            leader_m_id: 77,
+            made_goal: 0,
+            met_nemesis: false,
+            in_battle: false,
+        } },
     };
 }
 
@@ -159,14 +233,21 @@ test('quest_talk stays silent for a monster with no quest voice', async () => {
     );
 });
 
-test('quest_talk refuses the nemesis it cannot speak for', async () => {
+test('quest_talk dispatches the nemesis first-meeting speech', async () => {
     const state = questTalkState();
-    const refusals = [];
+    const pages = [];
     await quest_talk(
         { m_id: 12, data: { msound: MS_NEMESIS } },
-        { state, unsupported: (reason) => refusals.push(reason) },
+        {
+            state,
+            pager: async (msgid) => pages.push(msgid),
+            random: () => assert.fail('first nemesis speech does not draw RNG'),
+            unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
+        },
     );
-    assert.deepEqual(refusals, ['the quest nemesis speaking']);
+    assert.deepEqual(pages, ['nemesis_first']);
+    assert.equal(state.svq.quest_status.made_goal, 1);
+    assert.equal(state.svq.quest_status.met_nemesis, true);
 });
 
 test('quest_stat_check tracks only the nemesis in_battle flag', () => {

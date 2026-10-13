@@ -64,7 +64,9 @@ import { withSerializedGrids } from './terminal-grid-capture.mjs';
 // and cursor triples from the fresh C-matched help recordings. Count-only
 // assertions would not notice a changed row, --More-- cursor, or map repair.
 const HELP_REPLAY_DIGESTS = new Map(Object.entries({
-    option: ['1e1675121c9640cb7060c8793628aca747625fb07a97e13e129b595911db1ed0', '8aba73df59ed89da83cd843fda37eceddbb325e8e6e77fe9c9a837cfa74afc27'],
+    // Return screens now reflect wintty.c:docorner() clearing physical rows
+    // and restoring them from display.c:row_refresh()'s current glyph buffer.
+    option: ['337b45806ba106d8881e85c40f0b2f31997df2f4defbb719b07a4dd49787a54c', '8aba73df59ed89da83cd843fda37eceddbb325e8e6e77fe9c9a837cfa74afc27'],
     extended: ['6c7d335c9c14d55e6fce889ef4b69b79f806da891054b5aafb7a298c131471e2', 'f2dd7afb6b140528e80002531f1c7a6a7c265da37c0713bb917978a7fbd81587'],
     controls: ['bcd7512fae63c8a3bf2cec7675982ed9874679b9a5690ed8008f651cc8ed7b68', '352687a17dba550e986b4ce382f7f3e902a4283e96c078d7e4c1c393a431a104'],
     contact: ['d2485ad1b76ad015f55e24eae39c19b40c42d023258db28f833a33898caa8747', 'ea518409b9490ca1b0f02dd5eb253714c9bc4f3f00dce35756be29e6b9f6d670'],
@@ -73,9 +75,9 @@ const HELP_REPLAY_DIGESTS = new Map(Object.entries({
     whatdoes: ['7cf0436f9b22df5247246625dfc2d192d6e700d2d7bd1bff05fb1d7198ec81fd', 'ef740e0cf4a1b1f0cd598ce479e9b2a7daa55c7c4db4a0dd252df0ca761c60c7'],
     version: ['81355b14b16f5ba33dcdb16d4c01d9afd55207ee629c794385aec7386e9045c2', '7eea516c376ea5502e88230792f2d93479609b80e6c6cc6584b438d3a77192c2'],
     'static:help': ['f09497b040bc3e7ba3b392e5f1b023a9af617cfb87ae3b531d6a1f2b5e88f50f', '6e4d58a12c2736c31e567ea6967c179702d6276cd046e880a3ac3bce5b85c6be'],
-    'static:hh': ['e1578b2fd66c5487957d266edcdcd71aa7f7c85ac7695f17e73b09434e1e710c', '328ad57a88ca664a4deca5186b89afb527b8f3aaef1fd067792502399e40be31'],
-    'static:history': ['6f20e67d47aa41a9b20b21a11fceeed685279c859617c31d0e8c7e3c10b2cea3', 'efe43c525e0ac0b65672e1c6d434b796088a9aa447b89f81a82e28292e160795'],
-    'static:opthelp': ['ccc3e15c48269730d132d2fff3c2eb0099000ec0842667656056440c6b5b91d5', '9224ec1fcec74bd79ec6eb338672ee05aee8dffa4cbd6d53cb277d3a4834adfe'],
+    'static:hh': ['c536a7ac4ad8b23c4cbc8b7d439d14aa64756348c57ab220c5bcafe3d998566d', '328ad57a88ca664a4deca5186b89afb527b8f3aaef1fd067792502399e40be31'],
+    'static:history': ['6ee9eb8b0f512b980253d294b55cb9d5412cc76ccc38ea74e466f850ab46941c', 'efe43c525e0ac0b65672e1c6d434b796088a9aa447b89f81a82e28292e160795'],
+    'static:opthelp': ['03f4a80f632cbee416b52f3916401a519fcd0313ba94ee716fd388db8d9c57d8', '9224ec1fcec74bd79ec6eb338672ee05aee8dffa4cbd6d53cb277d3a4834adfe'],
     'static:optmenu': ['26d61179fe2a600f277ab8efdd5218ad8f5011dbf702a2c6cd8006fd4cbae059', '42d2625acd1b2622150908b37c9add272e3f33d40607c0329ab355e2483d3fbe'],
     'static:usagehlp': ['3b21c1d18f082c88fe4b4176f17b951430bbc0613a79e7c5e6f17437136c8737', '0c9f4a95a69b636f639064df38df7ec81bbe1fe7600d26580a951d44ea050502'],
     'static:license': ['149098fc0902f74f7405f73de988ceb30904e58660bec00056b2ee7d27791b4c', '9a1e84f62773406e0a40d9d19add384ffc52e5b0a042ea80796556a16b8ab102'],

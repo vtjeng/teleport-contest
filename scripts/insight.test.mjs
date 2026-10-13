@@ -46,6 +46,7 @@ import {
     FLYING,
     ROOM,
     M_AP_NOTHING,
+    W_TOOL,
     HALLUC,
     FROMOUTSIDE,
     I_SPECIAL,
@@ -563,6 +564,36 @@ test('Lev_at_will preserves both source mask restrictions', async () => {
 // and each trouble keeps the source's independent intrinsic bit. These
 // combinations pin the branch order instead of merely checking that a
 // property no longer throws.
+test('status enlightenment uses C Blindfolded_only for deliberate blindness',
+    async () => {
+        const state = await readyGame();
+        state.u.uprops[BLINDED] = {
+            intrinsic: 0, extrinsic: W_TOOL, blocked: 0,
+        };
+        const lines = await enlightenment(
+            BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+        );
+        assert.ok(lines.some((line) =>
+            line.startsWith(' You are deliberately blind'),
+        ));
+
+        // C youprop.h:97 tests EBlinded against Blinded (HBlinded with
+        // BBlinded applied), so a simultaneous timed cause is temporary.
+        state.u.uprops[BLINDED].intrinsic = TIMEOUT;
+        const timed = await enlightenment(
+            BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+        );
+        assert.ok(timed.some((line) =>
+            line.startsWith(' You are temporarily blind'),
+        ));
+
+        const c = readFileSync(new URL('../nethack-c/upstream/include/youprop.h',
+            import.meta.url), 'utf8');
+        const js = readFileSync(new URL('../js/insight.js', import.meta.url), 'utf8');
+        assert.match(c, /#define Blindfolded_only \(Blindfolded && !Blinded\)/u);
+        assert.match(js, /const blindfoldedOnly = Boolean\(E\(BLINDED\)\s*&&\s*!\(H\(BLINDED\) && !B\(BLINDED\)\)\);/u);
+    });
+
 test('status enlightenment reports movement and trouble branches in C order',
     async () => {
         const state = await readyGame();

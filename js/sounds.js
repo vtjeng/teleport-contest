@@ -1030,7 +1030,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
         if (!await quest_chat(mtmp, state, {
             unsupported: (reason) => { throw new UnsupportedChatError(reason); },
         })) {
-            note_unported('quest.c quest_chat nemesis/guardian dialogue');
+            note_unported('quest.c quest_chat impossible unknown character');
         }
         break;
     case MS_SELL:

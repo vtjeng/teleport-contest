@@ -5896,7 +5896,7 @@ function _statusStyleRows(layouts) {
     });
 }
 
-function mapViewport(rows, statusRowCount) {
+function mapViewport(rows, statusRowCount, state = game) {
     const height = Math.min(ROWNO, rows - 1 - statusRowCount);
     if (height >= ROWNO) return { height: ROWNO, top: 0 };
 
@@ -5904,7 +5904,7 @@ function mapViewport(rows, statusRowCount) {
     // with clipy=0; one cliparound() follows initial hero placement.
     let top = 0;
     let bottom = height;
-    const heroY = game.u?.uy ?? 0;
+    const heroY = state.u?.uy ?? 0;
     if (heroY < top + 2) {
         top = Math.max(0, heroY - Math.trunc((bottom - top) / 2));
         bottom = top + height;
@@ -5916,6 +5916,81 @@ function mapViewport(rows, statusRowCount) {
         top = bottom - height;
     }
     return { height, top };
+}
+
+// C ref: win/tty/wintty.c docorner()'s ordinary map-window path and
+// display.c row_refresh(). More can overwrite the top map rows with its
+// wrapped prompt. Once it is dismissed, C clears each physical row and
+// redraws from gg.gbuf, skipping GLYPH_UNEXPLORED unless its resolved glyph
+// differs from the blank null entry or a background frame colour is active.
+export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
+    const display = state.nhDisplay;
+    if (!display?.grid || ystartBetweenMenuPages) return;
+
+    // wintty.c:docorner() calls cl_end() on physical terminal rows, then
+    // refreshes map glyphs only once the row reaches WIN_MAP.offy. Do not
+    // build status text here: C's docorner only calls bot() after the loop,
+    // and a map refresh must work in small TTY fixtures without inventory
+    // state just as it does before the status window is initialized.
+    const statusRowCount = state.iflags?.wc2_statuslines === 3 ? 3 : 2;
+    const viewport = mapViewport(display.rows, statusRowCount, state);
+    const mapWindow = state.wintty?.wins?.[state.wintty.WIN_MAP];
+    const mapOffy = mapWindow?.offy ?? 1;
+    const lastRow = Math.min(ymax, display.rows);
+    const browserGlyphs = Boolean(display.spans);
+    const decMap = browserGlyphs ? DEC_TO_UNICODE : SCORER_DEC_MAP;
+    const unexplored = state.level
+        ? map_glyphinfo(GLYPH_UNEXPLORED_OFF, state) : null;
+    // display.c:2163-2168 compares the unexplored glyph entry with nul_gbuf.
+    // C's null entry is a space, NO_COLOR, MG_UNEXPL and no customization.
+    const forceUnexplored = Boolean(unexplored)
+        && (unexplored.ttychar !== ' '.charCodeAt(0)
+            || unexplored.color !== NO_COLOR
+            || unexplored.rgb !== undefined);
+    const frameColorActive = Boolean(state.iflags?.bgcolors)
+        && state.gw?.wsettings?.map_frame_color !== undefined
+        && state.gw.wsettings.map_frame_color !== NO_COLOR;
+
+    for (let screenRow = 0; screenRow < lastRow; ++screenRow) {
+        display.setCursor(Math.max(0, xmin - 1), screenRow);
+        display.clearToEol();
+        const mapRow = screenRow - mapOffy;
+        if (mapRow < 0 || mapRow >= viewport.height) continue;
+        const mapY = viewport.top + mapRow;
+        if (!state.level) continue;
+
+        for (let x = Math.max(1, xmin); x < COLNO; ++x) {
+            const loc = state.level?.at(x, mapY);
+            if (!loc) continue;
+            // C row_refresh reads gg.gbuf's current glyph number, never
+            // levl[x][y].glyph. Remembered terrain is a separate C value.
+            const glyph = loc.disp_glyph?.glyph ?? GLYPH_UNEXPLORED_OFF;
+            const frameColor = frameColorActive
+                && x > 0 && x < COLNO && mapY >= 0 && mapY < ROWNO;
+            if (glyph === GLYPH_UNEXPLORED_OFF
+                && !forceUnexplored && !frameColor) continue;
+
+            const presentation = map_glyphinfo(glyph, state, { x, y: mapY });
+            const ch = browserGlyphs && presentation.displayCh
+                ? presentation.displayCh
+                : (presentation.dec
+                    ? decMap[presentation.ch] || presentation.ch
+                    : presentation.ch);
+            // tty_print_glyph()'s UTF-8 path does not update the recorder
+            // shadow cell, which is represented by a null character here.
+            if (ch === null || ch === undefined) continue;
+            display.setCell(
+                x - 1,
+                screenRow,
+                ch,
+                browserGlyphs
+                    ? presentation.displayColor ?? presentation.color
+                        ?? NO_COLOR
+                    : presentation.color ?? NO_COLOR,
+                presentation.attr ?? 0,
+            );
+        }
+    }
 }
 
 function writeStatusRows(

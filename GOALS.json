@@ -294532,7 +294532,7 @@
     {
       "id": "fix-dokick-barefoot-corpse-instapetrify-v53-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement really_kick_object from dokick.c",
       "cFile": "dokick.c",
       "sessions": [
@@ -294542,10 +294542,1031 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a09ed76e70057094ef1a3e0202eed78b6814c58f",
       "delivered": null,
       "function": "really_kick_object",
-      "session": "synthetic/v53/v53-barefoot-kick-cockatrice-corpse-action1"
+      "session": "synthetic/v53/v53-barefoot-kick-cockatrice-corpse-action1",
+      "closeStanding": {
+        "sha": "a09ed76e70057094ef1a3e0202eed78b6814c58f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "ce966d4bd4812d2d625f234fde8f87b1d105ebdc",
+        "target": "synthetic/v53/v53-barefoot-kick-cockatrice-corpse-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/a09ed76e70057094ef1a3e0202eed78b6814c58f/run-hosted-kyZxLC/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "really_kick_object",
+            "implementation": "js/dokick.js",
+            "symbol": "really_kick_object",
+            "sourceReview": "Read the complete dokick.c:really_kick_object body at lines 508-790 and the matching JavaScript function. This correction covers only the branch at C lines 542-555: with no kicking boots, a touch-petrifying corpse, and no Stone resistance, C prints the bare-foot message; if polymon(PM_STONE_GOLEM) does not save the hero, it sets the normalized killer name and calls instapetrify before continuing after any recovery. JavaScript now awaits the existing js/trap.js:instapetrify helper at the same point. The helper and its terminal/recovery behavior are unchanged. Other really_kick_object branches and their named gaps remain outside this correction.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "kick_object",
+                "source": "C dokick.c:dokick dispatches the floor object through kick_object to really_kick_object; JavaScript dokick -> kick_object -> really_kick_object uses the same production path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dokick.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-barefoot-kick-cockatrice-corpse-action1",
+                "segment": 0,
+                "fromStep": 217,
+                "throughStep": 222,
+                "source": "dokick.c:dokick -> kick_object -> really_kick_object barefoot-corpse branch -> trap.c:instapetrify -> end.c:done(STONING); the recorded wizard recovery returns to the kick continuation."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected production entry point is #kick on a floor cockatrice corpse while the hero is barefoot and lacks Stone resistance. C dokick.c:dokick -> kick_object -> really_kick_object calls trap.c:instapetrify before continuing after the wizard death refusal. JavaScript already wires the same #kick path; this correction replaces the named gap at that caller and does not claim whole really_kick_object or trap.c:instapetrify completion.",
+        "entryPoints": [
+          {
+            "name": "Kick a cockatrice corpse barefoot",
+            "functions": [
+              "really_kick_object"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-barefoot-kick-cockatrice-corpse-action1",
+                "segment": 0,
+                "fromStep": 217,
+                "throughStep": 222,
+                "source": "dokick.c:dokick -> kick_object -> really_kick_object -> trap.c:instapetrify -> end.c:done(STONING), including the recorded recovery and continued kick."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fix-insight-blindfolded-only-status-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement status_enlightenment from insight.c",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v53/v53-blind-fountain-water-snakes-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "45acbc4dcb4b43e3172bf00f80e584e81001fd81",
+      "delivered": null,
+      "function": "status_enlightenment",
+      "session": "synthetic/v53/v53-blind-fountain-water-snakes-action2",
+      "closeStanding": {
+        "sha": "45acbc4dcb4b43e3172bf00f80e584e81001fd81",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "a09ed76e70057094ef1a3e0202eed78b6814c58f",
+        "target": "synthetic/v53/v53-blind-fountain-water-snakes-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/45acbc4dcb4b43e3172bf00f80e584e81001fd81/run-hosted-W820pN/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "status_enlightenment",
+            "implementation": "js/insight.js",
+            "symbol": "status_enlightenment",
+            "sourceReview": "This is a branch-level correction, not whole-function certification. Compare insight.c:status_enlightenment lines 1060-1071 with js/insight.js:status_enlightenment. C chooses \"deliberately\" under Blindfolded_only (youprop.h:97), defined as EBlinded && !Blinded; Blinded is HBlinded && !BBlinded (youprop.h:92), while Blind includes HBlinded or EBlinded (youprop.h:103). The JS branch now computes blindfoldedOnly from E(BLINDED) and the intrinsic-only Blinded predicate H(BLINDED) && !B(BLINDED), then consumes it only after the permanent and innate causes. Other status_enlightenment branches are outside this task.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "enlightenment",
+                "source": "C fountain.c:drinkfountain fate 19 calls insight.c:enlightenment, which calls status_enlightenment at insight.c:417; JavaScript fountain.js:drinkfountain imports insight.js:enlightenment, whose body calls status_enlightenment at js/insight.js:2047."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-blind-fountain-water-snakes-action2",
+                "segment": 0,
+                "fromStep": 96,
+                "throughStep": 97,
+                "source": "fountain.c:drinkfountain fate 19 -> insight.c:enlightenment -> insight.c:status_enlightenment Blindfolded_only branch; self-knowledge step 96 opens the status menu at step 97."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The verified active entry for this branch is fountain self-knowledge fate 19. The C caller reaches enlightenment and status_enlightenment; the JavaScript fountain caller already wires the same path. The case title mentions water snakes, but the recording diverges on self-knowledge before any water-snake fountain fate. This task does not certify the full status_enlightenment function or the fountain water-snake branch.",
+        "entryPoints": [
+          {
+            "name": "Fountain self-knowledge status display while wearing a blindfold",
+            "functions": [
+              "status_enlightenment"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-blind-fountain-water-snakes-action2",
+                "segment": 0,
+                "fromStep": 96,
+                "throughStep": 97,
+                "source": "fountain.c:drinkfountain -> insight.c:enlightenment -> status_enlightenment; C displays the deliberate-blindness explanation."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fix-quest-underlevel-leader-expulsion-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement chat_with_leader from quest.c",
+      "cFile": "quest.c",
+      "sessions": [
+        "synthetic/v53/v53-quest-underlevel-leader-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v53-quest-underlevel-leader-action3-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "8f096a2f3d681e51339722d94b668dfaa7ba5075",
+      "delivered": null,
+      "function": "chat_with_leader",
+      "session": "synthetic/v53/v53-quest-underlevel-leader-action3",
+      "closeStanding": {
+        "sha": "8f096a2f3d681e51339722d94b668dfaa7ba5075",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f198de1914d3503813ea7333d0fe355f6d3fdc5f",
+        "target": "synthetic/v53/v53-quest-underlevel-leader-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/8f096a2f3d681e51339722d94b668dfaa7ba5075/run-hosted-vFlJ9s/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "chat_with_leader",
+            "implementation": "js/quest.js",
+            "symbol": "chat_with_leader",
+            "sourceReview": "Branch-level correction only; not whole-function certification. Upstream quest.c:chat_with_leader lines 321-336 delivers leader_first or leader_next, marks first meeting, checks qstart_level, then for not_capable() calls qt_pager(\"badlevel\"), exercise(A_WIS, TRUE), and expulsion(FALSE) in source order. The JavaScript branch now awaits ops.pager(\"badlevel\"), awaits the existing exercise(A_WIS, true, state, ops.random), and calls existing expulsion(false, ops) at the same point. The existing expulsion(false) branch uses dungeon_branch(), nomul(), and schedule_goto(); all return values from pager/exercise/expulsion are discarded by C. Other chat_with_leader verdicts and both caller functions remain outside this correction.",
+            "callers": [
+              {
+                "path": "js/quest.js",
+                "symbol": "quest_chat",
+                "source": "C cmd.c:dotalk -> sounds.c:dotalk/dochat -> domonnoise; MS_LEADER dispatches quest.c:quest_chat, whose quest-leader identity branch calls chat_with_leader. JavaScript command -> sounds.js:dotalk/dochat/domonnoise -> quest.js:quest_chat -> chat_with_leader."
+              },
+              {
+                "path": "js/quest.js",
+                "symbol": "leader_speaks",
+                "source": "C monmove.c:dochug -> quest_talk -> quest.c:leader_speaks -> chat_with_leader for a peaceful leader on qstart_level. JavaScript monmove.js -> quest_talk -> leader_speaks -> chat_with_leader. The admitted recording exercises the first direct caller via #chat."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-leader-first-meeting.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-underlevel-leader-action3",
+                "segment": 0,
+                "fromStep": 93,
+                "throughStep": 96,
+                "source": "sounds.c:dotalk/dochat -> domonnoise MS_LEADER -> quest.c:quest_chat -> chat_with_leader; first-meeting pager, not_capable branch, Wisdom exercise, expulsion(FALSE), and resulting parent-level transition."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This correction follows the admitted #chat command on a peaceful quest leader at qstart_level while the hero is below MIN_QUEST_LEVEL. C and JavaScript callers are already wired through dotalk/dochat/domonnoise -> quest_chat -> chat_with_leader; the recorded replay matches the same path through the complete input. A second active caller uses monmove.c:dochug -> quest_talk -> leader_speaks -> chat_with_leader; this patch leaves that existing wiring and leader_speaks behavior unchanged. No whole quest.c function or whole quest.js program is certified.",
+        "entryPoints": [
+          {
+            "name": "Chat with the quest leader while below MIN_QUEST_LEVEL",
+            "functions": [
+              "chat_with_leader"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-underlevel-leader-action3",
+                "segment": 0,
+                "fromStep": 93,
+                "throughStep": 96,
+                "source": "C #chat path through quest_chat -> chat_with_leader badlevel pager, Wisdom exercise and parent-dungeon expulsion."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "port-fountain-dowaternymph-v53-20261012",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the complete previously incomplete water-nymph fountain effect and verify both production fountain callers.",
+      "cFile": "fountain.c",
+      "sessions": [
+        "synthetic/v53/v53-blind-fountain-dip-nymph-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "f198de1914d3503813ea7333d0fe355f6d3fdc5f",
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dowaternymph",
+          "line": 94,
+          "endLine": 119,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 94,
+        "to": 119
+      },
+      "closeStanding": {
+        "sha": "f198de1914d3503813ea7333d0fe355f6d3fdc5f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "45acbc4dcb4b43e3172bf00f80e584e81001fd81",
+        "target": "synthetic/v53/v53-blind-fountain-dip-nymph-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/f198de1914d3503813ea7333d0fe355f6d3fdc5f/run-hosted-5z6O95/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dowaternymph",
+            "implementation": "js/fountain.js",
+            "symbol": "dowaternymph",
+            "sourceReview": "Read the complete upstream fountain.c:dowaternymph() body, lines 93-116. Match G_GONE short-circuiting before makemon; consume makemon's returned monster; preserve sighted You attraction versus blind You_hear, sleeping-state clear, and optional mintrap call whose return is discarded. Preserve the failed/extinct sighted Soundeffect calls (no-op in the recorder TTY backend) before the bubble message, and blind Soundeffect before You_hear. The JS uses existing makemon_runtime and youHear; no random draw or game mutation was invented. Both existing production callers remain at their source positions.",
+            "callers": [
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "fountain.c:drinkfountain case 28"
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipfountain",
+                "source": "fountain.c:dipfountain fate 22"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain-nymph.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/dowaternymph-drinkfountain-fate28-independent-b116.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-blind-fountain-dip-nymph-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 139,
+                "source": "potion.c:dodip -> fountain.c:dipfountain fate 22 -> fountain.c:dowaternymph"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Read fountain.c:dowaternymph (93-116) and both source call sites: drinkfountain fate 28 and dipfountain fate 22. Both are active in the recorder build. JS keeps their existing dispatch in fountain.js, which is reached from potion.c:dodrink / js/potion.js:dodrink and potion.c:dodip / js/potion.js:dodip. The new independent recording exercises the drinkfountain caller; the cited v53 range exercises dipfountain. No caller or build branch is inactive. The v53 full fresh replay has a later map glyph mismatch at boundary 141 after the cited matching prefix; the complete drinkfountain witness passes all 13 screen/cursor boundaries and RNG values.",
+        "entryPoints": [
+          {
+            "name": "Quaff at a fountain, drinkfountain fate 28",
+            "functions": [
+              "dowaternymph"
+            ],
+            "recordings": [
+              "recordings/fountain.c/dowaternymph-drinkfountain-fate28-independent-b116.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Dip an item at a fountain, dipfountain fate 22",
+            "functions": [
+              "dowaternymph"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-blind-fountain-dip-nymph-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 139,
+                "source": "potion.c:dodip -> fountain.c:dipfountain fate 22 -> fountain.c:dowaternymph"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "do-engulfer-corpse-timer-cleanup-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement dropz, engulfer_digests_food from do.c",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "a3a97d12c7c3f58f801308f12088b23f2ae3a167",
+      "delivered": null,
+      "function": "dropz",
+      "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
+      "closeStanding": {
+        "sha": "a3a97d12c7c3f58f801308f12088b23f2ae3a167",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "8f096a2f3d681e51339722d94b668dfaa7ba5075",
+        "target": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/a3a97d12c7c3f58f801308f12088b23f2ae3a167/run-hosted-vnXtdJ/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dropz",
+            "implementation": "js/do.js",
+            "symbol": "dropz",
+            "sourceReview": "Reviewed do.c:807-843. This delivery repairs only the swallowed branch caller environment: after C calls engulfer_digests_food, the existing dropz path continues to encumber_msg. No whole-function completion is claimed.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropx",
+                "source": "do.c:dropx calls dropy at 797; JavaScript dropx enters the dropz tail after its admission and shop checks."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "dropy",
+                "source": "do.c:dropy calls dropz at 804; JavaScript dropy forwards its operation environment to dropz."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/engulfer-digests-food.test.mjs",
+              "scripts/do.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+                "segment": 0,
+                "fromStep": 263,
+                "throughStep": 289,
+                "source": "do.c:dropz -> do.c:engulfer_digests_food -> invent.c:delobj -> timeout.c:obj_stop_timers; js/do.js:dropz -> engulfer_digests_food -> delobj with the preserved stopObjectTimers hook."
+              }
+            ]
+          },
+          {
+            "name": "engulfer_digests_food",
+            "implementation": "js/do.js",
+            "symbol": "engulfer_digests_food",
+            "sourceReview": "Reviewed do.c:849-885. C selects the corpse effect, calls minstapetrify before delobj, and always consumes the object. This delivery only forwards the caller operation environment to existing source callees; it does not claim the full source function as newly complete.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropz",
+                "source": "do.c:dropz calls engulfer_digests_food at 823 and consumes its boolean return to decide whether to call mpickobj."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/engulfer-digests-food.test.mjs",
+              "scripts/do.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+                "segment": 0,
+                "fromStep": 263,
+                "throughStep": 289,
+                "source": "do.c:dropz -> do.c:engulfer_digests_food -> invent.c:delobj -> timeout.c:obj_stop_timers; js/do.js:dropz -> engulfer_digests_food -> delobj with the preserved stopObjectTimers hook."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected runtime entry point is the drop command while the hero is swallowed by a digesting purple worm. The C route is dropx -> dropy -> dropz -> engulfer_digests_food; the matching JavaScript drop path reaches dropz, then forwards its operation environment through digestion. This delivery repairs only the timer-owner call contract and makes no whole-function completion claim.",
+        "entryPoints": [
+          {
+            "name": "drop command while swallowed",
+            "functions": [
+              "dropz",
+              "engulfer_digests_food"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+                "segment": 0,
+                "fromStep": 263,
+                "throughStep": 289,
+                "source": "do.c:dropz -> do.c:engulfer_digests_food -> invent.c:delobj -> timeout.c:obj_stop_timers; js/do.js:dropz -> engulfer_digests_food -> delobj with the preserved stopObjectTimers hook."
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": []
+      }
+    },
+    {
+      "id": "port-quest-nemesis-chat-v53-20261012",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Implement chat_with_nemesis, chat_with_guardian, quest_chat from quest.c",
+      "cFile": "quest.c",
+      "sessions": [
+        "synthetic/v53/v53-quest-nemesis-nearby-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9",
+      "delivered": null,
+      "functions": [
+        {
+          "name": "chat_with_nemesis",
+          "line": 394,
+          "endLine": 402,
+          "declared": false
+        },
+        {
+          "name": "nemesis_speaks",
+          "line": 403,
+          "endLine": 425,
+          "declared": false
+        },
+        {
+          "name": "nemesis_stinks",
+          "line": 426,
+          "endLine": 440,
+          "declared": true
+        },
+        {
+          "name": "chat_with_guardian",
+          "line": 441,
+          "endLine": 450,
+          "declared": false
+        },
+        {
+          "name": "prisoner_speaks",
+          "line": 451,
+          "endLine": 472,
+          "declared": false
+        },
+        {
+          "name": "quest_chat",
+          "line": 473,
+          "endLine": 494,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 394,
+        "to": 494
+      },
+      "closeStanding": {
+        "sha": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "a3a97d12c7c3f58f801308f12088b23f2ae3a167",
+        "target": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/68ca32057bc676b09a8eda1f0c88ee3cb9de83c9/run-hosted-ycGofg/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "chat_with_nemesis",
+            "implementation": "js/quest.js",
+            "symbol": "chat_with_nemesis",
+            "sourceReview": "Read quest.c:394-400. The helper calls qt_pager(\"discourage\") before checking met_nemesis and increments that bitfield only when it was false. qt_pager's return is discarded in C, and its implementation already exists in js/questpgr.js. JavaScript preserves pager-before-state order and the false-to-true transition.",
+            "callers": [
+              {
+                "path": "js/quest.js",
+                "symbol": "quest_chat",
+                "source": "quest.c:473-492 checks leader_m_id first, then dispatches MS_NEMESIS to chat_with_nemesis."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:729-731 dispatches MS_NEMESIS to quest_chat; sounds.c:1257-1408 dochat reaches domonnoise for the selected adjacent monster."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-chat.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 207,
+                "throughStep": 209,
+                "source": "sounds.c:dochat -> domonnoise -> quest.c:quest_chat -> chat_with_nemesis -> qt_pager(\"discourage\"); JavaScript sounds.js:dochat -> domonnoise -> quest.js:quest_chat -> chat_with_nemesis."
+              }
+            ]
+          },
+          {
+            "name": "chat_with_guardian",
+            "implementation": "js/quest.js",
+            "symbol": "chat_with_guardian",
+            "sourceReview": "Read quest.c:441-448. The helper selects guardtalk_after only when both u.uhave.questart and Qstat(killed_nemesis) are true; otherwise it selects guardtalk_before. It then invokes qt_pager and discards its return. JavaScript preserves this condition and pager selection. The focused test pins both state branches; the two production recordings below exercise the before branch through distinct role guardian types.",
+            "callers": [
+              {
+                "path": "js/quest.js",
+                "symbol": "quest_chat",
+                "source": "quest.c:483-488 dispatches MS_GUARDIAN to chat_with_guardian after the quest-leader identity branch."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:729-731 dispatches MS_GUARDIAN to quest_chat; sounds.c:1257-1408 dochat reaches domonnoise for the selected adjacent monster."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-chat.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/guardian-wizard-chat-a2-v53.session.json",
+              "recordings/quest.c/guardian-valkyrie-chat-a2-v53.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "quest_chat",
+            "implementation": "js/quest.js",
+            "symbol": "quest_chat",
+            "sourceReview": "Read quest.c:473-492. The helper preserves the leader m_id check and return before switching on msound; it routes MS_NEMESIS and MS_GUARDIAN to their helpers, breaks after either dispatch, and uses impossible() for the default. JavaScript retains the leader path and routes both active role character sounds; the default branch uses the existing source-specific unported marker for the source's impossible unknown character case.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:729-731 calls quest_chat for the leader, nemesis and guardian sound classes."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "dochat",
+                "source": "sounds.c:1257-1408 calls domonnoise for the selected adjacent monster, which dispatches the active quest-character sounds."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-chat.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/finish-quest-chat-wizard-neferet-cfirst-20261011.session.json",
+              "recordings/quest.c/guardian-wizard-chat-a2-v53.session.json",
+              "recordings/quest.c/guardian-valkyrie-chat-a2-v53.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 207,
+                "throughStep": 209,
+                "source": "sounds.c:dochat -> domonnoise -> quest.c:quest_chat -> chat_with_nemesis."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active #chat paths reach sounds.c:dochat -> sounds.c:domonnoise -> quest.c:quest_chat; domonnoise calls quest_chat for MS_NEMESIS and MS_GUARDIAN, while quest_chat first preserves the quest-leader m_id branch. The admitted v53 case covers the nemesis branch through step 209. Two independent C-recorded recipes create the Wizard's Apprentice guardian and Valkyrie's Warrior guardian, then exercise #chat through the production caller. A preexisting C recording covers the quest leader path. JavaScript sound dispatch is sounds.js:dochat -> domonnoise -> quest.js:quest_chat.",
+        "entryPoints": [
+          {
+            "name": "#chat with the role quest leader",
+            "functions": [
+              "quest_chat"
+            ],
+            "recordings": [
+              "recordings/quest.c/finish-quest-chat-wizard-neferet-cfirst-20261011.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#chat with the role quest nemesis",
+            "functions": [
+              "quest_chat",
+              "chat_with_nemesis"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 207,
+                "throughStep": 209,
+                "source": "sounds.c:dochat -> domonnoise -> quest.c:quest_chat -> chat_with_nemesis."
+              }
+            ]
+          },
+          {
+            "name": "#chat with the role quest guardian",
+            "functions": [
+              "quest_chat",
+              "chat_with_guardian"
+            ],
+            "recordings": [
+              "recordings/quest.c/guardian-wizard-chat-a2-v53.session.json",
+              "recordings/quest.c/guardian-valkyrie-chat-a2-v53.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "div-fix-topl-clear-after-more-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Repair the wrapped TTY More row lifecycle: clear the newline destination before writing the prompt, then reproduce docorner row clearing and row_refresh from the live display glyph buffer.",
+      "cFile": "topl.c",
+      "sessions": [
+        "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4",
+        "synthetic/v53/v53-blind-fountain-dip-nymph-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "644903f4dfbf2fb72ed95dab9297dbba854f81cf",
+      "delivered": null,
+      "function": "more",
+      "session": "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4",
+      "closeStanding": {
+        "sha": "644903f4dfbf2fb72ed95dab9297dbba854f81cf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9",
+        "target": "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/644903f4dfbf2fb72ed95dab9297dbba854f81cf/run-hosted-oZC4ED/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "more",
+            "implementation": "js/topl.js",
+            "symbol": "more",
+            "pure": false,
+            "sourceReview": "Compared topl.c:more() and topl_putsym() with the wrapped message route. The C newline calls cl_end() before advancing to the next row, then calls cl_end() again at column zero before writing --More--. After the input boundary, more() calls docorner(1, cw->cury + 1, 0) for a wrapped line; docorner clears affected map rows and row_refresh reads gg.gbuf[y][x].glyph. The JS path now performs those clears in that order and resolves each current glyph number, skipping GLYPH_UNEXPLORED when its glyph-map entry is the blank null entry and no valid frame color is active. This does not use levl[x][y].glyph / remembered_glyph as the current display buffer. update_topl additionally replaces stale answered-query text at TOPLINE_EMPTY, and steal.c:remove_worn_item forwards the planning message callback into Blindf_off. wintty.c:tty_create_nhwindow(NHW_MAP) sets offy=1, so docorner clears physical row 0 then refreshes the map beginning on physical row 1. The JS fallback now uses that source value when the test/minimal state has no saved window descriptor.",
+            "callers": [
+              {
+                "path": "js/topl.js",
+                "symbol": "redotoplin",
+                "source": "topl.c:redotoplin calls more() when the topline wraps."
+              }
+            ],
+            "tests": [
+              "scripts/topl.test.mjs",
+              "scripts/moveloop-preamble.test.mjs",
+              "scripts/tutorial-startup.test.mjs",
+              "scripts/hack.test.mjs",
+              "scripts/help-command.test.mjs",
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-mounted-dragon-purpleworm-engulf-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 358,
+                "source": "mhitu.c:gulpmu -> topl.c:more -> topl_putsym newline -> wintty.c:docorner -> display.c:row_refresh."
+              },
+              {
+                "batch": "v53",
+                "caseId": "v53-blind-fountain-dip-nymph-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 222,
+                "source": "fountain.c:dipfountain -> steal.c:remove_worn_item -> topl.c:update_topl and topl.c:more -> wintty.c:docorner."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Both admitted TTY paths now match their full C recordings after the hosted correction: the purple-worm wrapped More path covers 359 screens/cursors and 3336 RNG calls; the blind fountain path covers 223 screens/cursors and 3123 RNG calls. C wintty.c:tty_create_nhwindow sets the NHW_MAP offy to 1; docorner clears physical row 0 and repaints map rows from the current glyph buffer. Saved wizard help C recordings also match cell-for-cell with the corrected redraw path. Focused regressions cover empty and stale screen rows, the minimal TTY fixture, terrain-message topline setup, help return frames, and pet-swap TTY handoff.",
+        "entryPoints": [
+          {
+            "name": "Wrapped monster-engulf More prompt and map-row repaint",
+            "functions": [
+              "more"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-mounted-dragon-purpleworm-engulf-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 358,
+                "source": "mhitu.c:gulpmu -> topl.c:more -> topl_putsym -> wintty.c:docorner -> display.c:row_refresh."
+              }
+            ]
+          },
+          {
+            "name": "Blind fountain-nymph message after an answered query",
+            "functions": [
+              "more"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-blind-fountain-dip-nymph-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 222,
+                "source": "fountain.c:dipfountain -> steal.c:remove_worn_item -> topl.c:update_topl/more."
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": []
+      }
+    },
+    {
+      "id": "C-port-pay-for-damage-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement pay_for_damage, add_damage, shk_impaired, repairable_damage, find_damage, shk_fixes_damage from shk.c",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v53/v53-ring-shop-wall-digging-damage-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "add_damage and pay_for_damage",
+      "session": "synthetic/v53/v53-ring-shop-wall-digging-damage-action3"
+    },
+    {
+      "id": "mcast-stun-you-v53-quest-nemesis-20261013",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement quest_stat_check, nemesis_speaks, quest_talk from mcastu.c",
+      "cFile": "quest.c",
+      "sessions": [
+        "synthetic/v53/v53-quest-nemesis-nearby-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "65da8c69c8e214b155c129c3ecd975d3c48e47af",
+      "delivered": null,
+      "function": "quest_stat_check",
+      "session": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+      "closeStanding": {
+        "sha": "65da8c69c8e214b155c129c3ecd975d3c48e47af",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "644903f4dfbf2fb72ed95dab9297dbba854f81cf",
+        "target": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/65da8c69c8e214b155c129c3ecd975d3c48e47af/run-hosted-BCazlz/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mcast_stun_you",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_stun_you",
+            "sourceReview": "mcastu.c:503-520 checked in source order. Antimagic/Free_action emits the shield/resistance message only for a new stun and calls make_stunned(1,FALSE); the other arm chooses d(6 or 4,4) from Dexterity, rounds Half_spell_damage up, extends HStun timeout, and clears remembered magic resistance. Existing callers preserve damage-roll and cast effect order.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:mcast_spell MCAST_STUN_YOU arm calls mcast_stun_you; mcastu.c:castmu calls mcast_spell after announcement and damage roll."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "mhitu.c hostile attack -> mcastu.c:castmu -> mcast_spell -> mcast_stun_you; complete admitted segment matches."
+              }
+            ],
+            "sourceFile": "mcastu.c"
+          },
+          {
+            "name": "mcast_spell",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_spell",
+            "sourceReview": "mcastu.c:832-853 checked for dispatcher ordering. The selected MCAST_STUN_YOU arm awaits mcast_stun_you and then clears dmg to zero, matching C. Other spell arms remain unchanged; the dispatch path is verified as a bounded divergence fix rather than a whole-function port.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "castmu",
+                "source": "mcastu.c:castmu invokes mcast_spell after the spell announcement and damage calculation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "mhitu.c hostile attack -> mcastu.c:castmu -> mcast_spell; the recorded stun branch is reached at step 210."
+              }
+            ],
+            "sourceFile": "mcastu.c"
+          },
+          {
+            "name": "quest_stat_check",
+            "implementation": "js/quest.js",
+            "symbol": "quest_stat_check",
+            "sourceReview": "quest.c:quest_stat_check (513-518) has one branch: for MS_NEMESIS, set Qstat(in_battle) to !helpless(mtmp) && monnear(mtmp,u.ux,u.uy); all other monster sounds leave the field untouched. Its reader nemesis_speaks follows this state.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:dochug calls quest_stat_check at line 714 before movement and speech."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-talk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "monmove.c:dochug -> quest_stat_check -> quest_talk -> nemesis_speaks; full segment matches."
+              }
+            ]
+          },
+          {
+            "name": "nemesis_speaks",
+            "implementation": "js/quest.js",
+            "symbol": "nemesis_speaks",
+            "sourceReview": "quest.c:403-422 checked branch-by-branch. Outside battle, u.uhave.questart selects nemesis_wantsit; otherwise made_goal/met_nemesis select first/next/other dialogue, with the late 1-in-5 discourage branch. made_goal increments up to seven and met_nemesis is set after paging. In battle, rn2(5) precedes optional discourage paging and no progress fields change. questpgr.c:qt_pager is already implemented and its void result is discarded by C.",
+            "callers": [
+              {
+                "path": "js/quest.js",
+                "symbol": "quest_talk",
+                "source": "quest.c:quest_talk MS_NEMESIS arm calls nemesis_speaks."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-talk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "monmove.c:dochug ordinary nearby gate -> quest.c:quest_talk -> nemesis_speaks; in-battle rng and pager path match."
+              }
+            ]
+          },
+          {
+            "name": "quest_talk",
+            "implementation": "js/quest.js",
+            "symbol": "quest_talk",
+            "sourceReview": "quest.c:495-511 checked for all arms. The leader m_id arm calls the existing leader_speaks port; MS_NEMESIS now awaits nemesis_speaks; MS_DJINNI records note_unported(quest.c prisoner_speaks) because the C void return is discarded; default is silent. Both active monmove.c callers are traced and wired in js/monmove.js.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:dochug wait-mask branch lines 720-722 and ordinary post-action !helpless(mtmp) && nearby gate lines 980-982 call quest_talk."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-nemesis-talk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "monmove.c:dochug ordinary nearby gate -> quest_talk -> nemesis_speaks; full admitted segment matches."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The scoped runtime routes are the hostile monster stun spell path and the active nearby quest-nemesis speech path. C monmove.c:dochug calls quest_stat_check before its turn, calls quest_talk for wait-mask monsters, and calls quest_talk again after movement/attack when !helpless(mtmp) && nearby; js/monmove.js now mirrors both talk calls. mcastu.c:castmu dispatches through mcast_spell into mcast_stun_you. The selected admitted v53 segment covers the nearby nemesis and stun spell path through completion. quest_talk retains the unrelated MS_DJINNI prisoner_speaks side-effect gap explicitly via note_unported; no completion claim is made for those effects.",
+        "entryPoints": [
+          {
+            "name": "Hostile caster stuns the hero",
+            "functions": [
+              {
+                "sourceFile": "mcastu.c",
+                "name": "mcast_spell"
+              },
+              {
+                "sourceFile": "mcastu.c",
+                "name": "mcast_stun_you"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "mhitu.c:mattacku -> mcastu.c:castmu -> mcast_spell -> mcast_stun_you."
+              }
+            ]
+          },
+          {
+            "name": "Nearby quest nemesis speaks during monster movement",
+            "functions": [
+              "quest_stat_check",
+              "quest_talk",
+              "nemesis_speaks"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-quest-nemesis-nearby-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "monmove.c:dochug -> quest_stat_check -> ordinary !helpless && nearby quest_talk call -> nemesis_speaks -> qt_pager."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

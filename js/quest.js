@@ -30,7 +30,7 @@ import { carrying, fully_identify_obj, update_inventory } from './invent.js';
 import { setmangry } from './mon.js';
 import { align_str } from './insight.js';
 import { monnear } from './monmove.js';
-import { MS_DJINNI, MS_NEMESIS } from './monsters.js';
+import { MS_DJINNI, MS_GUARDIAN, MS_NEMESIS } from './monsters.js';
 import {
     com_pager,
     is_quest_artifact,
@@ -47,6 +47,7 @@ import {
     verbalize,
 } from './pline.js';
 import { observe_object } from './o_init.js';
+import { note_unported } from './unported.js';
 
 // Everything a quest conversation needs from the world outside quest.c: the
 // pager's window-port calls, pline(), the wizard-mode prompt, the random
@@ -341,13 +342,9 @@ async function chat_with_leader(mtmp, ops) {
             return;
 
         if (not_capable(state)) {
-            // C: qt_pager("badlevel"), exercise(A_WIS, TRUE), expulsion(FALSE)
-            // -- the same three statements as the badalign arm below. It is
-            // refused rather than ported because no case reaches it: the quest
-            // start level is only reachable in this port through the wizard
-            // level teleport, whose recipe raises the hero to level 20 first
-            // and so regenerates a different quest level for any lower one.
-            ops.unsupported('a quest leader turning away an under-level hero');
+            await ops.pager('badlevel');
+            await exercise(A_WIS, true, state, ops.random);
+            expulsion(false, ops);
         } else if ((purity = await is_pure(true, ops)) < 0) {
             if (!qs.pissed_off)
                 ops.unsupported('a quest leader banishing the hero');
@@ -391,15 +388,45 @@ async function leader_speaks(mtmp, ops) {
         await chat_with_leader(mtmp, ops);
 }
 
-// C ref: quest.c quest_chat() (472-492). Only the leader identity arm is
-// admitted; nemesis and guardian keep the caller's fail-closed answer.
+// C ref: quest.c chat_with_nemesis() (394-400). C displays the pager first,
+// then sets met_nemesis only when this is the first #chat with the nemesis.
+async function chat_with_nemesis(ops) {
+    const qs = ops.state.svq.quest_status;
+    await ops.pager('discourage');
+    if (!qs.met_nemesis) qs.met_nemesis = true;
+}
+
+// C ref: quest.c chat_with_guardian() (441-448). The artifact and killed
+// flags select the guardian's after-dialogue; all other states use before.
+async function chat_with_guardian(ops) {
+    const { state } = ops;
+    const qs = state.svq.quest_status;
+    const msgid = state.u.uhave.questart && qs.killed_nemesis
+        ? 'guardtalk_after' : 'guardtalk_before';
+    await ops.pager(msgid);
+}
+
+// C ref: quest.c quest_chat() (472-492). The leader remains identified by its
+// persistent m_id; the remaining supported quest voices dispatch by msound.
 export async function quest_chat(mtmp, state = game, env = {}) {
     const qs = state.svq?.quest_status;
-    if (!qs?.leader_m_id || mtmp.m_id !== qs.leader_m_id)
-        return false;
-    await chat_with_leader(mtmp, questConversation({ ...env, state }));
-    if (qs.pissed_off) await setmangry(mtmp, false, { ...env, state });
-    return true;
+    if (qs?.leader_m_id && mtmp.m_id === qs.leader_m_id) {
+        const ops = questConversation({ ...env, state });
+        await chat_with_leader(mtmp, ops);
+        if (qs.pissed_off) await setmangry(mtmp, false, { ...env, state });
+        return true;
+    }
+
+    const ops = questConversation({ ...env, state });
+    if (mtmp.data?.msound === MS_NEMESIS) {
+        await chat_with_nemesis(ops);
+        return true;
+    }
+    if (mtmp.data?.msound === MS_GUARDIAN) {
+        await chat_with_guardian(ops);
+        return true;
+    }
+    return false;
 }
 
 // C ref: quest.c quest_talk() (494-511). monmove.c dochug() calls this for a
@@ -415,15 +442,45 @@ export async function quest_talk(mtmp, env = {}) {
     }
     const msound = mtmp.data?.msound;
     if (msound === MS_NEMESIS)
-        ops.unsupported('the quest nemesis speaking');
+        await nemesis_speaks(ops);
     if (msound === MS_DJINNI)
-        ops.unsupported('a captive quest prisoner speaking');
+        // quest.c:quest_talk discards prisoner_speaks()'s void result. Preserve
+        // the unported side-effect gap without refusing the whole dispatch.
+        note_unported('quest.c prisoner_speaks');
+}
+
+// C ref: quest.c nemesis_speaks() (403-422). The battle flag was set earlier
+// by quest_stat_check() in monmove.c:714. C pages first, then updates the
+// persistent made_goal/met_nemesis state; in battle it has only a 1-in-5
+// chance to page the random discouragement.
+async function nemesis_speaks(ops) {
+    const qs = ops.state.svq.quest_status;
+    const madeGoal = qs.made_goal ?? 0;
+    const random = typeof ops.random === 'function'
+        ? ops.random : ops.random?.rn2 ?? rn2;
+    if (!qs.in_battle) {
+        let msgid;
+        if (ops.state.u.uhave.questart)
+            msgid = 'nemesis_wantsit';
+        else if (madeGoal === 1 || !qs.met_nemesis)
+            msgid = 'nemesis_first';
+        else if (madeGoal < 4)
+            msgid = 'nemesis_next';
+        else if (madeGoal < 7)
+            msgid = 'nemesis_other';
+        else if (!random(5))
+            msgid = 'discourage';
+        if (msgid) await ops.pager(msgid);
+        if (madeGoal < 7) qs.made_goal = madeGoal + 1;
+        qs.met_nemesis = true;
+    } else if (!random(5)) {
+        await ops.pager('discourage');
+    }
 }
 
 // C ref: quest.c quest_stat_check() (513-518). monmove.c dochug() calls this
-// for every monster it moves; only the nemesis writes anything. Qstat(in_battle)
-// has no ported reader yet -- quest.c nemesis_speaks() is its only one -- but
-// the flag is the nemesis's own per-turn state and belongs with its writer.
+// for every monster it moves; only the nemesis writes anything. The flag is
+// read by nemesis_speaks() later in that same monster turn.
 export function quest_stat_check(mtmp, state = game) {
     if (mtmp.data?.msound === MS_NEMESIS) {
         state.svq.quest_status.in_battle =

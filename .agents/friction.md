@@ -444,3 +444,25 @@ triage decisions or fix references.
 - Friction and evidence: their source fields were correct, but their default human summaries read `Implement passiveum from undefined` and `Implement fix_worst_trouble from undefined`. The caption interpolates `context.sourceFile` without the `cFile` fallback used by source registration.
 - Reason: the public dashboard needs accurate task captions. No source-scope or completion change was needed.
 - Outcome: publication `0cb1d7e52` corrected those two captions without changing immutable context, scope, lifecycle or claims. The novel registration also uses a descriptive bounded-fix caption. The default formatter remains unchanged; future worker contexts can supply an explicit summary or sourceFile.
+
+### 2026-10-13 — concurrent ledger writes during handoffs
+
+- A scope update, C submission, B idle observation, and Root publication
+  collided on the shared worker ledger lock. The writers completed; Root and
+  workers retained their command handles and retried the same payloads after
+  confirming the lock was absent. No lock was removed.
+- B publication pushed `d58f2c00` before its ledger receipt failed. Retrying
+  `task-handoff publish` reused that report commit and recorded publication;
+  it did not repeat validation or append another score.
+- Root briefly serialized C submission and B's idle update to finish the
+  handoffs. The current lock behavior still requires manual coordination.
+
+### 2026-10-13 — quest refusal test and metadata preview
+
+- Quest candidate `a26c3da2` failed hosted run `38332051839` in an obsolete
+  nemesis refusal test. A's correction `f2bfe0ad` supplies valid quest state
+  and checks the ported speech. Hosted run `38332806796` passed at
+  `65da8c69`; the failed summary remains preserved.
+- A preparation-packet preview applied `Object.keys` to the string-valued
+  mission plan and emitted character indices. The output was truncated.
+  The intended preview needed only the manifest's case IDs and rationales.
