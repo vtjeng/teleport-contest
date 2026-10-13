@@ -5016,8 +5016,7 @@ export function resetInventory(env = {}) {
 }
 
 // C ref: invent.c currency(). Hallucination picks a random name from
-// currencies[] through ROLL_FROM(), which draws from the display RNG.  Keep
-// this stream separate from gameplay RNG; callers may inject it for tests.
+// currencies[] through ROLL_FROM(), which draws from gameplay rn2().
 const CURRENCIES = Object.freeze([
     'Altarian Dollar',
     'Ankh-Morpork Dollar',
@@ -5043,10 +5042,9 @@ const CURRENCIES = Object.freeze([
 ]);
 
 export function currency(amount, state = game, env = {}) {
-    const displayRandom = env.displayRandom
-        ?? ((range) => rn2_on_display_rng(range, state));
+    const random = env.random ?? rn2;
     const res = isHallucinating({ state })
-        ? CURRENCIES[displayRandom(CURRENCIES.length)]
+        ? CURRENCIES[random(CURRENCIES.length)]
         : 'zorkmid';
     return amount !== 1 ? makeplural(res) : res;
 }
