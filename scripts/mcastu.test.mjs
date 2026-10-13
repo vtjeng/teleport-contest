@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    A_STR,
     ANTIMAGIC,
     BLND_RES,
     BLINDED,
@@ -30,7 +31,7 @@ import {
     TIMEOUT,
 } from '../js/const.js';
 import { GLYPH_INVISIBLE } from '../js/display.js';
-import { buzzmu, castmu, death_inflicted_by, touch_of_death, mcast_death_touch, mcast_summon_mons } from '../js/mcastu.js';
+import { buzzmu, castmu, death_inflicted_by, touch_of_death, mcast_death_touch, mcast_summon_mons, mcast_weaken_you } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
 import {
     G_UNIQ,
@@ -1724,6 +1725,31 @@ test('Death touch family preserves source damage and dispatcher order', () => {
     assert.match(js, /case MCAST_DEATH_TOUCH:\s*await mcast_death_touch\(mtmp, env\);/u);
 });
 
+test('weakening spell source and dispatcher preserve branch and caller order', () => {
+    const c = readFileSync('nethack-c/upstream/src/mcastu.c', 'utf8');
+    const js = readFileSync('js/mcastu.js', 'utf8');
+    const cBody = c.match(/mcast_weaken_you\(struct monst \*mtmp, int dmg\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    const jsBody = js.match(/export async function mcast_weaken_you\(mtmp, dmg, rawEnv = \{\}\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(cBody, 'mcastu.c:mcast_weaken_you definition exists');
+    assert.ok(jsBody, 'js/mcastu.js:mcast_weaken_you definition exists');
+    const cPoints = [
+        'if (Antimagic)', 'shieldeff(u.ux, u.uy)',
+        'monstseesu(M_SEEN_MAGR)', 'You_feel("momentarily weakened.")',
+        'You("suddenly feel weaker!")', 'dmg = mtmp->m_lev - 6',
+        'if (dmg < 1)', 'if (Half_spell_damage)', 'rnd(dmg)',
+        'death_inflicted_by(kbuf, "strength loss", mtmp)', 'KILLED_BY',
+        'svk.killer.name[0] =', 'monstunseesu(M_SEEN_MAGR)',
+    ];
+    const cIndices = cPoints.map(point => cBody.indexOf(point));
+    assert.ok(cIndices.every((index, i) => index >= 0
+        && (!i || cIndices[i - 1] < index)));
+    assert.match(jsBody, /if \(heroProperty\(state, ANTIMAGIC\)\)/u);
+    assert.match(jsBody, /dmg = mtmp\.m_lev - 6;[\s\S]*if \(dmg < 1\)/u);
+    assert.match(jsBody, /await losestr\([\s\S]*death_inflicted_by\('strength loss', mtmp, state\)[\s\S]*KILLED_BY/u);
+    assert.match(jsBody, /state\.killer\.name = '';[\s\S]*monstunseesu\(M_SEEN_MAGR, state\)/u);
+    assert.match(js, /case MCAST_WEAKEN_YOU:\s*await mcast_weaken_you\(mtmp, dmg, env\);\s*break;/u);
+});
+
 function deathTouchState(hp, maxhp = 200) {
     // ulevel18 is above altmin3, so minuhpmax(3) must return18.
     return makeState({ u: { ux: 4, uy: 5, uprops: {}, uhp: hp,
@@ -1868,4 +1894,47 @@ test('castmu death spell reaches the shared touch with source-ordered RNG', asyn
     assert.equal(state.u.uhpmax, 163);
     assert.equal(state.u.uhp, 126);
     assert.equal(state.killer.name, '');
+});
+
+test('mcast_weaken_you follows source damage, half-spell rounding, and losestr order', async () => {
+    const state = deathTouchState(200);
+    state.urace = { attrmin: [3, 3, 3, 3, 3, 3], attrmax: [18, 18, 18, 18, 18, 18] };
+    state.u.acurr = { a: [18, 10, 10, 10, 10, 10] };
+    state.u.amax = { a: [18, 10, 10, 10, 10, 10] };
+    state.u.abon = [0, 0, 0, 0, 0, 0];
+    state.u.atemp = [0, 0, 0, 0, 0, 0];
+    state.u.aexe = [0, 0, 0, 0, 0, 0];
+    state.u.uprops[HALF_SPDAM] = { intrinsic: 1 };
+    state.flags = {};
+    state.program_state = {};
+    state.disp = {};
+    state.killer.name = 'previous cause';
+    const random = scriptedRandom([6, 20], 6, 3);
+    const caster = makeCaster({ m_lev: 11 });
+    const messages = [];
+
+    const result = await castmu(caster, AD_SPEL_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: async text => messages.push(text),
+        losehp: () => assert.fail('ordinary three-point loss does not reach the HP-loss arm'),
+        encumberMessage: async () => {},
+        mdamageu: () => assert.fail('the void weaken spell clears spell damage'),
+    });
+
+    assert.equal(result, M_ATTK_HIT);
+    assert.deepEqual(random.draws, ['rn2(11)', 'rn2(110)', 'd(6,6)', 'rnd(3)']);
+    assert.equal(state.u.acurr.a[A_STR], 15);
+    assert.equal(state.killer.name, '');
+    assert.ok(messages.includes('You suddenly feel weaker!'));
+});
+
+test('mcast_weaken_you Antimagic arm shields and marks the spell seen without RNG', async () => {
+    const state = deathTouchState(200);
+    state.u.uprops[ANTIMAGIC] = { intrinsic: 1 };
+    const random = scriptedRandom([]), messages = [];
+    await mcast_weaken_you(makeCaster({ m_lev: 11 }), 9, {
+        state, random, message: async text => messages.push(text),
+    });
+    assert.deepEqual(random.draws, []);
+    assert.deepEqual(messages, ['You feel momentarily weakened.']);
 });
