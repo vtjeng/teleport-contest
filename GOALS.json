@@ -297866,7 +297866,7 @@
     {
       "id": "fix-dothrow-breakobj-pyrolisk-explosion-v55-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement breakobj from undefined",
       "cFile": "dothrow.c",
       "sessions": [
@@ -297876,10 +297876,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "1812ba65bbf0542c8c388465e3deeb4603c91e0b",
       "delivered": null,
       "function": "breakobj",
-      "session": "synthetic/v55/v55-thrown-pyrolisk-egg-action2"
+      "session": "synthetic/v55/v55-thrown-pyrolisk-egg-action2",
+      "closeStanding": {
+        "sha": "1812ba65bbf0542c8c388465e3deeb4603c91e0b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "d701d95714dc7c1f383fbf5c9450a46032c14fe3",
+        "target": "synthetic/v55/v55-thrown-pyrolisk-egg-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/1812ba65bbf0542c8c388465e3deeb4603c91e0b/run-hosted-TGnyQ1/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "breakobj",
+            "implementation": "js/dothrow.js",
+            "symbol": "breakobj",
+            "sourceReview": "Compared the PM_PYROLISK egg branch and common tail in dothrow.c:breakobj. The JS branch now preserves C ordering: damage roll and explosion flag are selected in the switch, shop accounting runs, delobj precedes explode, and the result is 1. This review is limited to the selected branch.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit calls breakobj after breaktest/breakmsg for a thrown object landing on a hard square."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow-breakobj.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-thrown-pyrolisk-egg-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 113,
+                "source": "The selected production path reaches the pyrolisk egg explosion and matches the complete recording."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected production path is dothrow.c:dothrow -> throwit -> breakobj when the thrown pyrolisk egg lands on a hard square. The admitted v55 recording exercises the explosion branch and now matches through its final step. This task does not claim unrelated breakobj branches.",
+        "entryPoints": [
+          {
+            "name": "thrown pyrolisk egg breaks on a hard square",
+            "functions": [
+              "breakobj"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-thrown-pyrolisk-egg-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 113,
+                "source": "dothrow.c:throwit -> breakobj pyrolisk egg branch"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
