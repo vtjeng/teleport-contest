@@ -102,7 +102,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The remaining step-706 mismatch is the Unaware prefix in mcastu.c:mcast_spell MCAST_AGGRAVATION. C calls You_feel, which says “You dream that you feel” while Unaware; js/mcastu.js hardcodes “You feel”. The existing heroUnaware helper already maps the C predicate. The next cursor mismatch at step 707 follows from the missing 15-character prefix.",
+  "summary": "The selected MCAST_AGGRAVATION branch now uses C You_feel wording for an Unaware hero, then aggravates in source order. The exact v54 healer replay matches all 778 recorded steps, including screens, cursors and RNG; this is a branch-specific fix, not a whole mcast_spell port.",
   "source": {
     "file": "mcastu.c",
     "branch": "In MCAST_AGGRAVATION, C calls You_feel before aggravate. pline.c:You_feel selects “You dream that you feel ” when Unaware and “You feel ” otherwise; preserve the following “that monsters are aware of your presence.” text and run aggravate after the message.",
@@ -475,5 +475,27 @@
         }
       }
     }
-  ]
+  ],
+  "afterFix": {
+    "codeCommit": "74dca3d910cf6455a93a1ab6b5b368db4f6af4b9",
+    "replayCommit": "74dca3d910cf6455a93a1ab6b5b368db4f6af4b9",
+    "replayInputSha256": "d9cc4ed1521be094d4ec1817eef6ebbfdbfab837d63a5ff29c0f3bc7c31183f7",
+    "prefixVerification": ".cache/healer-dream-prefix.log",
+    "emittedScreens": 778,
+    "recordedSteps": 778,
+    "matchingThroughStep": 777,
+    "divergence": null,
+    "focusedTests": {
+      "command": "node scripts/run-bounded.mjs focused -- node --test scripts/mcastu.test.mjs",
+      "result": "passed (82/82)",
+      "log": ".cache/healer-dream-focused.log"
+    },
+    "lint": {
+      "command": "npm run lint",
+      "result": "passed",
+      "log": ".cache/healer-dream-lint.log"
+    },
+    "implementation": "js/mcastu.js now chooses C You_feel wording from heroUnaware(state), then calls aggravate; scripts/mcastu.test.mjs exercises both aware and unaware messages through castmu and checks the unchanged random draw order."
+  },
+  "remainingWork": "No mismatch remains in the selected admitted case. This delivery does not claim a whole mcast_spell port."
 }
