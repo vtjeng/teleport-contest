@@ -1,0 +1,95 @@
+{
+  "session": "synthetic/v60/v60-whirly-swallowed-stethoscope-interference-action2",
+  "remainingScreens": 168,
+  "recordedSteps": 527,
+  "corpus": "synthetic",
+  "batch": "v60",
+  "caseId": "v60-whirly-swallowed-stethoscope-interference-action2",
+  "manifestPath": "challenges/manifests/v60.json",
+  "manifestSha256": "8d47d06f16ee303a31fae9b2226419578a27facb04cdf34ad408e2971932f5b0",
+  "recordingSha256": "b8d2ce77c958ca0521e72c67aa7e141e22fdefec45380cf96aff31906f408f33",
+  "evaluationPath": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v60.json",
+  "evaluationCommit": "b151b2318fa82ab62868ad676c7f00823de614c0",
+  "status": "complete",
+  "commit": "4e7781fcb7f21bf0c41021ea9fba1e098d0d2c43",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v60",
+    "caseId": "v60-whirly-swallowed-stethoscope-interference-action2",
+    "session": "synthetic/v60/v60-whirly-swallowed-stethoscope-interference-action2",
+    "manifestPath": "challenges/manifests/v60.json",
+    "manifestSha256": "8d47d06f16ee303a31fae9b2226419578a27facb04cdf34ad408e2971932f5b0",
+    "recording": "challenges/cases/v60/v60-whirly-swallowed-stethoscope-interference-action2.session.json",
+    "recordingPath": "challenges/cases/v60/v60-whirly-swallowed-stethoscope-interference-action2.session.json",
+    "recordingSha256": "b8d2ce77c958ca0521e72c67aa7e141e22fdefec45380cf96aff31906f408f33",
+    "recipe": "challenges/cases/v60/v60-whirly-swallowed-stethoscope-interference-action2.recipe.session.json",
+    "recipeSha256": "d310dbfdeb0e120157d373ede14d22cd02232bb096e55a985b9938afe2278b02",
+    "replayInputSha256": "32ec1ca86f5d41b9b21fb0740ff6c50c4ff1afb07dc5637118050aaeb1f33bd3",
+    "evaluationPath": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v60.json",
+    "evaluationCommit": "b151b2318fa82ab62868ad676c7f00823de614c0",
+    "evaluationArtifact": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v60.json",
+    "evaluationUtc": "2026-10-13T15:57:57.263Z",
+    "remainingScreens": 168,
+    "recordedSteps": 527,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 359,
+        "total": 527
+      },
+      "rng": {
+        "matched": 3119,
+        "total": 3252
+      },
+      "cursors": {
+        "matched": 359,
+        "total": 527
+      }
+    },
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v60/v60-whirly-swallowed-stethoscope-interference-action2.json"
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: the attributes window requires a_monnam() for u.ustuck",
+      "step": 359
+    },
+    "step": 359,
+    "kind": "stop",
+    "sourceFile": "do_name.c",
+    "function": "a_monnam",
+    "message": "unsupported hero command: an unported branch of this command: the attributes window requires a_monnam() for u.ustuck",
+    "cFile": "do_name.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v60 swallowed stethoscope case reaches the hero one-line status report and stops because js/insight.js:ustatusline refuses the u.ustuck branch. Upstream insight.c:ustatusline appends the held or swallowed wording, calls do_name.c:a_monnam(u.ustuck), and prints the status line. The queue labels the callee a_monnam as the source, but the implementation defect is the caller refusal in ustatusline; do_name.js already ports a_monnam and its swallowed ARTICLE_THE rule.",
+  "source": {
+    "file": "insight.c",
+    "branch": "While applying a stethoscope in place (or probing the hero with a wand), u.ustuck is non-null. ustatusline selects swallowed versus held/holding wording, appends a_monnam(u.ustuck), then prints Status of the hero; for a swallowed hero, a_monnam follows x_monnam’s special ARTICLE_THE rule.",
+    "functions": [
+      "ustatusline"
+    ],
+    "callers": [
+      "apply.c:use_stethoscope calls ustatusline when the stethoscope is used in place (u.dx == 0 and u.dy == 0).",
+      "zap.c:zapyourself calls ustatusline after a wand of probing processes hero inventory.",
+      "JavaScript callers are apply.js:use_stethoscope and zap.js:zapyourself; both import ustatusline from insight.js."
+    ],
+    "dependencies": [
+      "do_name.c:a_monnam delegates to x_monnam with ARTICLE_A and SUPPRESS_SADDLE for named monsters; x_monnam changes the article to ARTICLE_THE when u.uswallow and the monster is u.ustuck. js/do_name.js already implements these branches.",
+      "insight.c:digests and sticks select the swallowed, held, or holding phrase before the monster name is appended."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v60 admission entry uses manifest membership hash 8d47d06f16ee303a31fae9b2226419578a27facb04cdf34ad408e2971932f5b0, recording hash b8d2ce77c958ca0521e72c67aa7e141e22fdefec45380cf96aff31906f408f33, and baseline evaluation challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v60.json at b151b2318fa82ab62868ad676c7f00823de614c0. It records 359/527 screens and cursors, 3119/3252 RNG calls, and 168 remaining screens.",
+    "The queue’s first mismatch is step 359, kind stop: js/insight.js reports “the attributes window requires a_monnam() for u.ustuck”. The text comes from UnsupportedEnlightenmentError at ustatusline’s u.ustuck guard; the command route is a stethoscope in-place status report, as confirmed by apply.c:use_stethoscope -> ustatusline and the case recording.",
+    "Upstream insight.c:ustatusline (3402-3488) handles non-null u.ustuck by appending “being digested by” or “engulfed by” when swallowed, otherwise “held by” or “holding” according to sticks(youmonst.data), then appending a_monnam(u.ustuck). It prints the completed status line after adding any applicable conditions.",
+    "The corresponding js/insight.js:ustatusline implements preceding clauses but throws UnsupportedEnlightenmentError when u.ustuck is set, before the C-supported wording, naming call, and final ttyPline. js/do_name.js:a_monnam already delegates to x_monnam; x_monnam implements the swallowed u.ustuck article override required by do_name.c:831-844, so the defect is local to insight.c:ustatusline rather than do_name.c:a_monnam.",
+    "The scope is a divergence fix for insight.c:ustatusline’s u.ustuck branch and its existing production callers, replacing that placeholder refusal with the source’s output and preserving naming/RNG behavior. The selected v60 recording exercises the swallowed branch; tests should also cover held and holding variants from C conditions."
+  ]
+}
