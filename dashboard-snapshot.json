@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T07:15:42.106Z",
+  "capturedAt": "2026-10-13T07:28:14.826Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -102514,6 +102514,73 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep25 refines recharge history, Sokoban destination and grapple selection through independent C gameplay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013-ba255a7e2e3e4a309400d4c9a6190bc2a7d6d38f",
+        "type": "published",
+        "at": "2026-10-13T07:15:59.745Z",
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013",
+        "commit": "ba255a7e2e3e4a309400d4c9a6190bc2a7d6d38f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-pickup-61c08bcc-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T07:17:28.303Z",
+        "task": "A2-investigation-v55-pickup-burden-armor-action2-20261013",
+        "integration": "61c08bcc989875b3fd8a502d0c3414456317e8ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep25-v61-independent-replays-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:18:00.621Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep25 verifies independent C replay hashes after thirty-eight saved gameplay attempts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep25-v61-local-comparison-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:19:08.132Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep25 compares sixteen independently verified new C recordings and traces provisional first differences."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep25-v61-expanded-setups-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:24:26.059Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep25 expands the C search to twelve instrument, potion and mirror branches after initial comparisons."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v55-pickup-burden-armor-action2-20261013-61c08bcc989875b3fd8a502d0c3414456317e8ec-validated",
+        "type": "validated",
+        "at": "2026-10-13T07:24:50.320Z",
+        "task": "A2-investigation-v55-pickup-burden-armor-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v55-pickup-burden-armor-action2-20261013-61c08bcc989875b3fd8a502d0c3414456317e8ec-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T07:25:33.153Z",
+        "task": "A2-investigation-v55-pickup-burden-armor-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep25-v61-expanded-actions-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:26:39.547Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep25 records twelve more C actions across instrument effects, potion states and mirror self-gazes."
       }
     ]
   },
@@ -102574,17 +102641,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v55-pickup-burden-armor-action2-20261013",
-        "worker": "A2",
-        "goal": "fix-pickup-burden-prompt-source-order-v55-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "f8cef1f58ba2b34978ecf0760b2be964a84ce2ad",
-        "since": "2026-10-13T05:44:00.161Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -103195,8 +103251,8 @@
     ]
   },
   "development": {
-    "executionCommit": "823d8044b9783901d18d24b0fe6d7469e286f498",
-    "measuredAt": "2026-10-13T07:02:59.962Z",
+    "executionCommit": "61c08bcc989875b3fd8a502d0c3414456317e8ec",
+    "measuredAt": "2026-10-13T07:22:29.873Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
