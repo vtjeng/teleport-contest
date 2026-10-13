@@ -2295,7 +2295,7 @@ test('money_cnt returns the first coin stack like the source invariant', () => {
 });
 
 test('consume_obj_charge bills before decrementing and refreshes known items',
-    () => {
+    async () => {
         const state = initializedState();
         const horn = instance(HORN_OF_PLENTY, state, {
             known: true,
@@ -2303,7 +2303,7 @@ test('consume_obj_charge bills before decrementing and refreshes known items',
         });
         let refreshed = 0;
         state.program_state.in_moveloop = 1;
-        consume_obj_charge(horn, false, {
+        await consume_obj_charge(horn, false, {
             state,
             hooks: { updateInventory: () => { refreshed += 1; } },
         });
@@ -2316,7 +2316,7 @@ test('consume_obj_charge bills before decrementing and refreshes known items',
             unpaid: true,
         });
         state.u.ushops = [];
-        consume_obj_charge(unpaid, true, { state });
+        await consume_obj_charge(unpaid, true, { state });
         assert.equal(unpaid.spe, 0);
     });
 
