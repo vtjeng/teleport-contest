@@ -73,6 +73,7 @@ import {
     MM_NOMSG,
     NO_MINVENT,
     nothing_seems_to_happen,
+    OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_MINVENT,
     ONAME_NO_FLAGS,
@@ -172,6 +173,7 @@ import {
     consume_obj_charge,
     count_unpaid,
     tally_BUCX,
+    display_inventory,
     dfeature_at,
     getobj,
     hold_another_object,
@@ -243,7 +245,7 @@ import {
     sellobj_state, shop_keeper, shk_your, stolen_value, subfrombill,
     check_unpaid_usage,
 } from './shk.js';
-import { menuTitleStyle } from './tty_menu.js';
+import { displayTtyMenuTextWindow, menuTitleStyle } from './tty_menu.js';
 import { waterbody_name } from './pager.js';
 import {
     back_on_ground,
@@ -2569,6 +2571,29 @@ export function allow_all() {
 // collect_obj_classes / query_classes / tally_BUCX
 // ---------------------------------------------------------------
 
+// C ref: pickup.c:76-99. simple_look(). It is called by query_classes()
+// for the ':' look choice and traverses the same object-chain link as C.
+async function simple_look(objs, here, state) {
+    if (!objs) {
+        // C reaches this diagnostic-only case only after a stale or malformed
+        // object list; impossible() has no gameplay return value here.
+        note_unported('pline.c impossible');
+        return;
+    }
+
+    if (!(here ? objs.nexthere : objs.nobj)) {
+        await ttyPline(donameFresh(objs, state), state);
+        return;
+    }
+
+    // C creates an NHW_MENU window, writes an initial empty row, then emits
+    // each object's name in list order before waiting for dismissal.
+    const lines = [''];
+    for (let obj = objs; obj; obj = here ? obj.nexthere : obj.nobj)
+        lines.push(donameFresh(obj, state));
+    await displayTtyMenuTextWindow(state, lines);
+}
+
 // C ref: pickup.c:100-118. collect_obj_classes().
 function collect_obj_classes(objs, here, filter) {
     const ilets = [];
@@ -2641,14 +2666,15 @@ async function query_classes(action, objs, here, state) {
             else if (sym === 'A') result.one_by_one = true;
             else if (sym === 'a') result.allflag = true;
             else if (sym === ':') {
-                // simple_look is not ported; ':' inside the container
-                // shows container contents in C.  Refuse for now.
-                throw new UnsupportedPickupError(
-                    'query_classes: simple_look (:)');
+                await simple_look(objs, here, state);
+                // pickup.c marks contents as known after displaying them.
+                if (objs?.where === OBJ_CONTAINED)
+                    objs.ocontainer.cknown = true;
+                continue;
             } else if (sym === 'i') {
-                // display_inventory inside query_classes.
-                throw new UnsupportedPickupError(
-                    'query_classes: display_inventory (i)');
+                // C discards display_inventory()'s key and resumes ask_again.
+                await display_inventory(null, true, state);
+                continue;
             } else if (sym === 'm') {
                 m_seen = true;
             } else if ('uBUCXP'.includes(sym)) {
