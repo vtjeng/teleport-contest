@@ -1,0 +1,69 @@
+{
+  "session": "synthetic/v56/v56-magic-whistle-firetrap-pet-action2",
+  "remainingScreens": 146,
+  "recordedSteps": 481,
+  "corpus": "synthetic",
+  "batch": "v56",
+  "caseId": "v56-magic-whistle-firetrap-pet-action2",
+  "manifestPath": "challenges/manifests/v56.json",
+  "manifestSha256": "4aa0cf52cd2e315fae1c6b13dd2e5bf5317121d64ab04eacf9e4576fb86b8e19",
+  "recordingSha256": "c4a85e22cb0c01a18cf3e7a828247eaa00ba8880c84a1a8f5b6a538fad632b70",
+  "recipeSha256": "2d87057ca14222ef7248f49dda2d0e4c021349a7c2afac003c885124b230ff49",
+  "evaluationPath": "challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json",
+  "evaluationCommit": "0d400b2cebd59331654cc50a21f5a871c0a25d29",
+  "status": "complete",
+  "commit": "6c31426f84f57beee4409a8c9feec930e84c5d29",
+  "mismatch": {
+    "session": "synthetic/v56/v56-magic-whistle-firetrap-pet-action2",
+    "remainingScreens": 146,
+    "step": 335,
+    "kind": "source-order",
+    "sourceFile": "hack.c",
+    "function": "domove_core",
+    "sourceBranch": "For a known safe pet, domove_core calls domove_attackmon_at and uhitm.c:do_attack before testing/moving. With the recorded rn2(7)=6, do_attack declines the attack; after the tentative move, domove_swap_with_pet rejects the peaceful pet because t_at(u.ux0,u.uy0) is non-NULL. No source branch rejects the move merely because active regions exist.",
+    "runtimeBoundary": "hack.c:domove -> domove_core -> domove_attackmon_at -> uhitm.c:do_attack -> hack.c:domove_swap_with_pet",
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 335,
+        "total": 481
+      },
+      "rng": {
+        "matched": 2322,
+        "total": 3994
+      },
+      "cursors": {
+        "matched": 335,
+        "total": 481
+      }
+    }
+  },
+  "summary": "The existing JS movement preflight rejects every safe-pet destination whenever state.level.regions is non-empty. C has no such admission gate. This recorded case has an active region elsewhere, a physical fire trap under the hero, and a tame dog to the south. C first consumes do_attack’s rn2(7)=6, then reaches domove_swap_with_pet, whose origin-tile t_at check prints the refusal and restores the hero. JS throws “pet swap region crossing” before that draw. Remove the overbroad regions rejection from requireOrdinarySafeMonsterSwap; keep the source-ordered origin trap refusal in domove_swap_with_pet and let later in_out_region handling decide actual region crossings.",
+  "source": {
+    "file": "hack.c",
+    "branch": "domove_core calls domove_attackmon_at for the adjacent safe pet at 2789-2799. domove_attackmon_at calls uhitm.c:do_attack at 1987; do_attack’s safe-monster arm consumes rn2(7) and returns FALSE when the draw does not select the attack branch. After test_move and in_out_region, domove_core tentatively moves and calls domove_swap_with_pet at 2919-2924. That helper rejects a peaceful monster when goodpos(old hero square) fails or t_at(old hero square) is non-NULL at 2153-2161.",
+    "functions": [
+      "domove",
+      "domove_core",
+      "domove_attackmon_at",
+      "domove_swap_with_pet"
+    ],
+    "callers": [
+      "hack.c:domove invokes domove_core",
+      "hack.c:domove_core calls domove_attackmon_at for the destination monster before test_move and in_out_region",
+      "hack.c:domove_attackmon_at calls uhitm.c:do_attack",
+      "hack.c:domove_core calls domove_swap_with_pet after the tentative movement and region gate",
+      "js/hack.js:domove calls preflightDomoveDestination before the movement path; domove_attackmon_at and domove_swap_with_pet are already wired to the corresponding callers"
+    ],
+    "dependencies": [
+      "Existing JS domove_swap_with_pet implements the C origin trap refusal through t_at(oldX, oldY) and reports the same source message.",
+      "Existing JS do_attack implements the safe-monster rn2(7) decision. The correction only removes the premature active-regions refusal from requireOrdinarySafeMonsterSwap; no new C helper or RNG behavior is required."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Admitted baseline accepted-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json: selected recording c4a85e22cb0c01a18cf3e7a828247eaa00ba8880c84a1a8f5b6a538fad632b70 has 335/481 screens, 2322/3994 RNG calls, 335/481 cursors, and error null. First mismatch is step 335, when C reports “You stop. Your little dog doesn’t want to swap places.”",
+    "C source: nethack-c/upstream/src/hack.c:1955-1993 shows domove_attackmon_at dispatches to do_attack before the later displacement helper. nethack-c/upstream/src/uhitm.c:462-502 consumes rn2(7) for a safe pet and can return FALSE. nethack-c/upstream/src/hack.c:2098-2228 contains the helper’s origin-trap refusal and no level-region rejection.",
+    "JS source: js/hack.js:1678-1760 runs requireOrdinarySafeMonsterSwap in preflightDomoveDestination, before the do_attack path, and its state.level.regions.length check throws “pet swap region crossing”. js/hack.js:4882 onward already implements domove_swap_with_pet’s C trap check."
+  ]
+}
