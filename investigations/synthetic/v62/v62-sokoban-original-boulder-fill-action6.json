@@ -1,0 +1,97 @@
+{
+  "session": "synthetic/v62/v62-sokoban-original-boulder-fill-action6",
+  "corpus": "synthetic",
+  "batch": "v62",
+  "caseId": "v62-sokoban-original-boulder-fill-action6",
+  "manifestPath": "challenges/manifests/v62.json",
+  "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+  "recordingPath": "challenges/cases/v62/v62-sokoban-original-boulder-fill-action6.session.json",
+  "recordingSha256": "821e0600bcb84bd00157963d9f9abed4416ba2592f6bda42de36679359238734",
+  "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+  "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+  "remainingScreens": 50,
+  "recordedSteps": 617,
+  "status": "complete",
+  "commit": "4c4706b0eb8d0d7b493816d203e56579af569f26",
+  "mismatch": {
+    "screen": {
+      "index": 567,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 567,
+        "key": "h"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 43,
+      "cCell": {
+        "ch": "Y",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": " ",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "rng": {
+      "index": 2923,
+      "cEntry": "rn2(100)=99",
+      "cCaller": "obj_resists(zap.c:1469)",
+      "jsEntry": "rn2(19)=14",
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 567,
+        "key": "h"
+      },
+      "stepIndex": 567
+    },
+    "cursor": {
+      "index": 567,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 567,
+        "key": "h"
+      },
+      "cCursor": [
+        75,
+        0,
+        1
+      ],
+      "jsCursor": [
+        40,
+        8,
+        1
+      ]
+    },
+    "session": "synthetic/v62/v62-sokoban-original-boulder-fill-action6",
+    "remainingScreens": 50
+  },
+  "summary": "When the hero pushes a boulder onto a rolling-boulder trap, hack.c:moverock_core computes the trap launch endpoint and calls trap.c:launch_obj so the boulder rolls onward into the Sokoban pit. The JavaScript moverock_core emits the roll message and feels the trap, then records trap.c launch_obj as unported and returns without launching the boulder. The missing caller causes the first screen/RNG divergence at step 567; obj_resists is the next C RNG attribution after the omitted launched-object path.",
+  "source": {
+    "file": "hack.c",
+    "functions": [
+      "moverock_core"
+    ],
+    "branch": "The hero pushes a boulder into a ROLLING_BOULDER_TRAP after ordinary pushability, monster, door and Sokoban diagonal checks. The source finds the launch endpoint, prints the roll message, feels the trap, launches the boulder with ROLL|LAUNCH_KNOWN, then returns whether another boulder remains at the source square.",
+    "callers": [
+      "hack.c:moverock calls moverock_core for the square immediately ahead, then moverock_done; test_move reaches this path before domove_core completes the move.",
+      "js/hack.js:moverock calls moverock_core and the movement path invokes moverock; the JavaScript ROLLING_BOULDER_TRAP arm currently stops at note_unported instead of calling the existing trap_effects launch_obj rolling path."
+    ],
+    "dependencies": [
+      "trap.c:launch_obj already has a JavaScript implementation in js/trap_effects.js for this rolling boulder path; it is private to trap_effects.js and needs an export to wire the hack.c caller.",
+      "The caller discards launch_obj’s integer return value, matching C; moverock_core uses sobj_at at the source square for its own return result."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "challenges/manifests/v62.json identifies the case mission as hack.c:moverock ROLLING_BOULDER_TRAP launch_obj caller and sourcePointers as hack.c:moverock_core lines 594-614 -> trap.c:launch_obj with ROLL|LAUNCH_KNOWN.",
+    "Read upstream nethack-c/upstream/src/hack.c:moverock_core (348-638), especially the ROLLING_BOULDER_TRAP arm (594-614): C finds the launch endpoint, prints the roll message, calls feeltrap, then launches BOULDER from (sx,sy) to (tox,toy) and returns whether a boulder remains at the original square.",
+    "js/hack.js:moverock_core has the corresponding rolling-trap branch at lines 2609-2627; after the message and feeltrap it calls note_unported('trap.c launch_obj') and returns. The required trap_effects.js launch_obj helper already handles rolling boulder paths and is called by trap_effects.js trap activation code.",
+    "The saved v62 evaluation records 567/617 screens and the selected-base scan at 4c4706b0eb8d0d7b493816d203e56579af569f26 reproduces the mismatch at step 567: C reports the boulder rolling away and falling, while the JS screen still omits the resulting boulder state. C’s next recorded RNG is rn2(100)=99 in zap.c:obj_resists; JavaScript instead records rn2(19)=14. The actual missing behavior is the earlier moverock launch_obj caller, as identified independently by the v62 manifest source trace.",
+    "Implementation scope is hack.c:moverock_core plus the JS caller wiring/export needed for its existing trap.c:launch_obj callee; this differs from B’s reserved hack.c:domove_core and zap.c:zap_map scopes."
+  ]
+}
