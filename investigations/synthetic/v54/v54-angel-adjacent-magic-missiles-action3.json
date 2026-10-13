@@ -11,7 +11,7 @@
   "evaluationPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v54.json",
   "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
   "status": "complete",
-  "commit": "f13fa8c0b3e7fa962c90c050c14fb175c2933b35",
+  "commit": "dcfef30eb5dd2a9229e0ac780e7df1e7c2da2f9f",
   "mismatch": {
     "session": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3",
     "remainingScreens": 83,
@@ -41,7 +41,7 @@
     "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
     "recordedSteps": 280
   },
-  "summary": "The remaining mismatch is the wholly missing zap.c:mon_spell_hits_spot helper. C first erodes an actual AD_MAGM/AD_ACID engraving using strlen(text)+d(6,6), then applies zap_over_floor for AD_MAGM through AD_ACID; both effects are observable although the zap_over_floor return is discarded. The active JavaScript callers are castmu AD_MAGM, mcast_fire_pillar fire, and mcast_lightning electric. C also calls the helper from castmu fire/cold arms, which remain unsupported in JavaScript and are outside this helper task. Current accepted v54 baseline is 197/280 screens, 2471/2581 RNG calls, 279/280 cursors, error null; first mismatch is the helper RNG at step 197.",
+  "summary": "zap.c:mon_spell_hits_spot now performs C-ordered engraving erosion and floor effects through canonical owners. The selected angel recording and four independent AD_MAGM, fire-pillar and lightning recordings match completely. The unsupported castmu AD_FIRE and AD_COLD arms remain outside this task.",
   "source": {
     "file": "zap.c",
     "functions": [
@@ -63,7 +63,9 @@
     "C source zap.c:5501-5535 reads engr_at(x,y), then for AD_MAGM or AD_ACID uses actual_text and strlen(etext)+d(6,6) as wipe_engr_at count. This d(6,6) is the first selected-case mismatch. It next converts AD_xxxx to ZT_xxxx and invokes zap_over_floor with a negative monster spell type, shopdummy=false, ignoremon=true, exploding_wand_typ=0; its return is discarded.",
     "The helper is called from all these C locations: mcastu.c:265 AD_FIRE and :280 AD_COLD in castmu; :294 AD_MAGM in castmu; :561 in mcast_fire_pillar; :594 in mcast_lightning. Existing active JS gaps are at mcastu.js:629, :771, and :805. The FIRE/COLD castmu switch currently refuses those arms and remains outside this helper repair.",
     "Direct effects already have canonical JS owners: engrave.js:wipe_engr_at mutates the linked engraving and receives state/random; zap.js:zap_over_floor performs source floor/terrain effects. The new helper must forward those effects in C order and must not model the discarded range return as data.",
-    "Existing independent AD_MAGM Tourist positive-damage and Wizard Antimagic recordings both strictly match their complete plays; the engraved selected case uniquely reaches the d(6,6) erosion branch."
+    "Existing independent AD_MAGM Tourist positive-damage and Wizard Antimagic recordings both strictly match their complete plays; the engraved selected case uniquely reaches the d(6,6) erosion branch.",
+    "On dcfef30eb5dd2a9229e0ac780e7df1e7c2da2f9f, the selected v54 recording matches all 280 screens, 2,581 RNG calls and 280 cursor positions with no error. Existing independent AD_MAGM Tourist, AD_MAGM Wizard Antimagic, fire-pillar and lightning recordings also match completely. Saved comparisons are in .cache/C-v54-mon-spell-hits-spot-runtime.json.",
+    "The bounded focused run passed scripts/mon-spell-hits-spot.test.mjs and scripts/mcastu.test.mjs (86/86); npm run lint passed on the same source tree."
   ],
   "blocker": null,
   "replay": {
@@ -96,7 +98,7 @@
       }
     },
     "remainingScreens": 83,
-    "note": "Accepted evaluation on f13fa8c0; current v54 queue entry for the residual."
+    "note": "Accepted pre-implementation v54 evaluation used as the source-task baseline."
   },
   "history": [
     {
@@ -110,34 +112,52 @@
     {
       "sourceRevision": "f13fa8c0b3e7fa962c90c050c14fb175c2933b35",
       "note": "Accepted v54 evaluation refresh confirms the unresolved step-197 engraving erosion roll. Source trace now identifies the complete zap.c helper and all direct callers."
+    },
+    {
+      "sourceRevision": "dcfef30eb5dd2a9229e0ac780e7df1e7c2da2f9f",
+      "note": "The complete mon_spell_hits_spot helper is wired into all three active JavaScript callers. Strict selected and independent caller recordings match."
     }
   ],
   "latestResult": {
-    "implementationCommit": "0dd06dd535426d0cb6108ae7cd7aeee921e32d44",
-    "status": "partial",
-    "remainingScreens": 83,
-    "mismatch": {
-      "step": 197,
-      "kind": "rng",
-      "sourceFile": "zap.c",
-      "function": "mon_spell_hits_spot",
-      "error": null,
-      "metrics": {
-        "screens": {
-          "matched": 197,
-          "total": 280
-        },
-        "rng": {
-          "matched": 2471,
-          "total": 2581
-        },
-        "cursors": {
-          "matched": 279,
-          "total": 280
-        }
+    "implementationCommit": "dcfef30eb5dd2a9229e0ac780e7df1e7c2da2f9f",
+    "status": "complete",
+    "remainingScreens": 0,
+    "mismatch": null,
+    "metrics": {
+      "screens": {
+        "matched": 280,
+        "total": 280
+      },
+      "rng": {
+        "matched": 2581,
+        "total": 2581
+      },
+      "cursors": {
+        "matched": 280,
+        "total": 280
       }
     },
-    "note": "This is the accepted v54 baseline for the next source task; the AD_MAGM branch is implemented but helper behavior remains absent."
+    "note": "Strict replay matches the selected admitted recording through its final step; the helper and active caller routes are complete."
   },
-  "goalKind": "file-port"
+  "goalKind": "file-port",
+  "resolution": {
+    "implementation": "js/zap.js:mon_spell_hits_spot reads the current engraving text, consumes C strlen(text)+d(6,6), calls wipe_engr_at(..., TRUE), then awaits zap_over_floor with the source monster-spell type. Both C return values remain discarded.",
+    "callers": [
+      "js/mcastu.js:castmu wires AD_MAGM after the missile damage/resistance branch.",
+      "js/mcastu.js:mcast_fire_pillar wires AD_FIRE after armor and inventory effects.",
+      "js/mcastu.js:mcast_lightning wires AD_ELEC after item destruction and before flashburn."
+    ],
+    "selectedSynthetic": {
+      "batch": "v54",
+      "caseId": "v54-angel-adjacent-magic-missiles-action3",
+      "segment": 0,
+      "fromStep": 197,
+      "throughStep": 279,
+      "matchedScreens": 280,
+      "matchedRng": 2581,
+      "matchedCursors": 280
+    },
+    "runtimeArtifact": ".cache/C-v54-mon-spell-hits-spot-runtime.json",
+    "focusedTest": "scripts/mon-spell-hits-spot.test.mjs and scripts/mcastu.test.mjs"
+  }
 }
