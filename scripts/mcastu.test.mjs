@@ -33,7 +33,7 @@ import {
     TIMEOUT,
 } from '../js/const.js';
 import { GLYPH_INVISIBLE } from '../js/display.js';
-import { buzzmu, castmu, death_inflicted_by, touch_of_death, mcast_death_touch, mcast_insects, mcast_summon_mons, mcast_weaken_you } from '../js/mcastu.js';
+import { buzzmu, castmu, death_inflicted_by, touch_of_death, mcast_death_touch, mcast_destroy_armor, mcast_insects, mcast_summon_mons, mcast_weaken_you } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
 import {
     G_UNIQ,
@@ -2015,4 +2015,44 @@ test('mcast_weaken_you Antimagic arm shields and marks the spell seen without RN
     });
     assert.deepEqual(random.draws, []);
     assert.deepEqual(messages, ['You feel momentarily weakened.']);
+});
+
+test('mcast_destroy_armor follows the consumed destroy_arm result and source order', async () => {
+    const c = readFileSync('nethack-c/upstream/src/mcastu.c', 'utf8');
+    const js = readFileSync('js/mcastu.js', 'utf8');
+    const cBody = c.match(/mcast_destroy_armor\(void\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    const jsBody = js.match(/export async function mcast_destroy_armor\(rawEnv = \{\}\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(cBody, 'the complete upstream armor spell helper exists');
+    assert.ok(jsBody, 'the complete JavaScript armor spell helper exists');
+    const cPoints = [
+        'if (Antimagic)', 'shieldeff(u.ux, u.uy)',
+        'monstseesu(M_SEEN_MAGR)', 'A field of force surrounds you!',
+        '} else if (!destroy_arm())', 'Your("skin itches.")',
+        'monstunseesu(M_SEEN_MAGR)',
+    ];
+    const cIndices = cPoints.map(point => cBody.indexOf(point));
+    assert.ok(cIndices.every((index, i) => index >= 0
+        && (!i || cIndices[i - 1] < index)));
+    assert.match(jsBody, /if \(heroProperty\(state, ANTIMAGIC\)\)[\s\S]*await shieldeff[\s\S]*monstseesu\(M_SEEN_MAGR, state\)[\s\S]*A field of force surrounds you!/u);
+    assert.match(jsBody, /await destroy_arm\(state, random,\s*\{[\s\S]*?message,[\s\S]*?\}\)[\s\S]*Your skin itches\.[\s\S]*monstunseesu\(M_SEEN_MAGR, state\)/u);
+    assert.match(js, /case MCAST_DESTRY_ARMR:\s*await mcast_destroy_armor\(env\);\s*break;/u);
+
+    // No worn armor makes destroy_arm return false after its source-first hit-count draw.
+    const state = makeState();
+    const random = scriptedRandom([2]);
+    const messages = [];
+    await mcast_destroy_armor({ state, random,
+        message: async text => messages.push(text) });
+    assert.deepEqual(random.draws, ['rn2(4)']);
+    assert.deepEqual(messages, ['Your skin itches.']);
+});
+
+test('mcast_destroy_armor shields under Antimagic without calling destroy_arm', async () => {
+    const state = makeState();
+    state.u.uprops[ANTIMAGIC] = { intrinsic: 1 };
+    const random = scriptedRandom([]), messages = [];
+    await mcast_destroy_armor({ state, random,
+        message: async text => messages.push(text) });
+    assert.deepEqual(random.draws, []);
+    assert.deepEqual(messages, ['A field of force surrounds you!']);
 });

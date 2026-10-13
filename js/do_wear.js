@@ -4238,7 +4238,13 @@ export function obj_erode_type(obj, state = game) {
 // C ref: do_wear.c destroy_arm() (3278-3316). The caller supplies a hero
 // object from some_armor(); erode_obj() owns the source-ordered messages,
 // erosion fields, inventory refreshes and EF_PAY/EF_DESTROY handling.
-export async function destroy_arm(state = game, random = { rn2, rnl }) {
+export async function destroy_arm(
+    state = game,
+    random = { rn2, rnl },
+    rawEnv = {},
+) {
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
     const hits = random.rn2(4) + 1;
     const armors = [
         state.uarm,
@@ -4266,7 +4272,7 @@ export async function destroy_arm(state = game, random = { rn2, rnl }) {
                     xnameFresh(armor, state),
                     erosion,
                     EF_PAY | EF_DESTROY,
-                    { state, random },
+                    { ...rawEnv, state, random, message },
                 );
                 if (result !== ER_NOTHING) ret = true;
                 if (result === ER_DESTROYED) break;
@@ -4278,7 +4284,7 @@ export async function destroy_arm(state = game, random = { rn2, rnl }) {
         // stop_occupation() has no visible work in the ordinary command case,
         // but it also clears an active occupation exactly where C does.
         const { stop_occupation } = await import('./allmain.js');
-        await stop_occupation(state, { message: ttyPline });
+        await stop_occupation(state, { message });
     }
     return ret;
 }
