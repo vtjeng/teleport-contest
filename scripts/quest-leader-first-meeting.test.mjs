@@ -209,8 +209,16 @@ test('qt_pager substitutes the hero rank into the badalign text', async () => {
 // C ref: quest.c quest_talk() (494-511) and quest_stat_check() (513-518).
 function questTalkState() {
     return {
-        u: { ux: 5, uy: 4, uz: { dnum: 3, dlevel: 1 } },
-        svq: { quest_status: { leader_m_id: 77 } },
+        u: {
+            ux: 5, uy: 4, uz: { dnum: 3, dlevel: 1 },
+            uhave: { questart: false },
+        },
+        svq: { quest_status: {
+            leader_m_id: 77,
+            made_goal: 0,
+            met_nemesis: false,
+            in_battle: false,
+        } },
     };
 }
 
@@ -225,14 +233,21 @@ test('quest_talk stays silent for a monster with no quest voice', async () => {
     );
 });
 
-test('quest_talk refuses the nemesis it cannot speak for', async () => {
+test('quest_talk dispatches the nemesis first-meeting speech', async () => {
     const state = questTalkState();
-    const refusals = [];
+    const pages = [];
     await quest_talk(
         { m_id: 12, data: { msound: MS_NEMESIS } },
-        { state, unsupported: (reason) => refusals.push(reason) },
+        {
+            state,
+            pager: async (msgid) => pages.push(msgid),
+            random: () => assert.fail('first nemesis speech does not draw RNG'),
+            unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
+        },
     );
-    assert.deepEqual(refusals, ['the quest nemesis speaking']);
+    assert.deepEqual(pages, ['nemesis_first']);
+    assert.equal(state.svq.quest_status.made_goal, 1);
+    assert.equal(state.svq.quest_status.met_nemesis, true);
 });
 
 test('quest_stat_check tracks only the nemesis in_battle flag', () => {
