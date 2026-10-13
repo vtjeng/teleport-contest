@@ -523,3 +523,13 @@ triage decisions or fix references.
   preserved the unpublished candidate and asked B for a separate correction
   with a new immutable receipt. Passing standard CI does not replace the
   acceptance helper's comparison with previously accepted cases.
+
+### 2026-10-13 — saved scan omitted from queue refresh
+
+- Root refreshed the queue with `mismatch-queue.mjs --work --json` without
+  `--scan`, causing a redundant 44-session fixed scan after successful
+  hosted validation. Run `run-NoxNRg` finished in about 144 seconds before
+  Root's stop command reached it; the retained handle returned success.
+- Later refreshes should pass the imported checkpoint's `scan-cache.json`
+  with `--scan`. That saved artifact has all 44 rows. Synthetic diagnostics
+  can still refresh separately when their current cache is missing.
