@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T06:09:40.068Z",
+  "capturedAt": "2026-10-13T06:35:39.745Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -102121,6 +102121,124 @@
         "at": "2026-10-13T06:09:32.377Z",
         "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013",
         "delivery": "7d6768654b48595f3dcabfad0e1819220ad17ede"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v55-worn-crystal-polymorph-dip-action3-20261013-351157a2d5df494c2060c8379bf25e0647af8d9d",
+        "type": "published",
+        "at": "2026-10-13T06:09:54.625Z",
+        "task": "B-investigation-v55-worn-crystal-polymorph-dip-action3-20261013",
+        "commit": "351157a2d5df494c2060c8379bf25e0647af8d9d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v55-broken-wand-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:10:35.539Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v55-broken-teleport-wand-ogre-20261013",
+        "type": "assign",
+        "at": "2026-10-13T06:11:01.580Z",
+        "task": "C-investigation-v55-broken-teleport-wand-ogre-action3-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-A-capitalization-cbe35a2f-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T06:12:23.173Z",
+        "task": "A2-investigation-v54-healer-wand-message-capitalization-action5-20261013",
+        "integration": "cbe35a2f290f2277c4ea06e52999d8f274e1d86b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep24-v60-smaller-review-active-20261016",
+        "type": "turn",
+        "at": "2026-10-13T06:13:35.689Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Reviewing a smaller v60 proposal after 60 C attempts: three provisional distinct failures and 19 added-coverage controls; final six varied probes all match."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v55-broken-teleport-wand-caller-20261013",
+        "type": "implement",
+        "at": "2026-10-13T06:15:38.478Z",
+        "task": "C-investigation-v55-broken-teleport-wand-ogre-action3-20261013",
+        "goal": "repair-apply-do-break-wand-teleport-bhitm-v55-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-02bccc11b749801d61bf28163c1cbde802d2c19b",
+        "type": "ready",
+        "at": "2026-10-13T06:19:13.160Z",
+        "task": "C-investigation-v55-broken-teleport-wand-ogre-action3-20261013",
+        "delivery": "02bccc11b749801d61bf28163c1cbde802d2c19b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-broken-wand-delivery-idle-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:20:22.406Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No unreserved implementation case remains in the refreshed queue. A2 owns the healer, lantern, burden, and pyrolisk sessions; B owns the conjoined-pit, floor-query, blind-ogre, and named-artifact sessions; C has pending angel, beartrap, and teleport-wand deliveries; v48 remains held on its build-profile evidence blocker. I will resume when an owned session is released or a new baseline makes independent work available."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep24-v60-decision-idle-20261016",
+        "type": "turn",
+        "at": "2026-10-13T06:21:57.539Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep24 v60 evidence verified; Main reviews a smaller batch of three provisional distinct failures and 19 controls after 60 C attempts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep24-v60-approved-submission-20261016",
+        "type": "turn",
+        "at": "2026-10-13T06:25:06.575Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Main approved the smaller v60 batch: three source-distinct failures and 19 controls; preparing immutable submission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v54-healer-wand-message-capitalization-action5-20261013-cbe35a2f290f2277c4ea06e52999d8f274e1d86b-validated",
+        "type": "validated",
+        "at": "2026-10-13T06:25:21.726Z",
+        "task": "A2-investigation-v54-healer-wand-message-capitalization-action5-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-18b60878251f96d7acedc3097cb6ceef06d05b68",
+        "type": "ready",
+        "at": "2026-10-13T06:25:55.304Z",
+        "task": "Prep24",
+        "delivery": "18b60878251f96d7acedc3097cb6ceef06d05b68"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v54-healer-wand-message-capitalization-action5-20261013-cbe35a2f290f2277c4ea06e52999d8f274e1d86b-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T06:26:03.147Z",
+        "task": "A2-investigation-v54-healer-wand-message-capitalization-action5-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep25-v61-claim-20261016",
+        "type": "assign",
+        "at": "2026-10-13T06:27:20.677Z",
+        "task": "Prep25",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v61"
       }
     ]
   },
@@ -102181,17 +102299,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v54-healer-wand-message-capitalization-action5-20261013",
-        "worker": "A2",
-        "goal": "fix-zap-disintegrate-mon-capitalization-v54-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "82886c3b8a26f0a8098014a1a77bc814613627a7",
-        "since": "2026-10-13T05:23:00.845Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -102291,6 +102398,34 @@
         "delivery": "7d6768654b48595f3dcabfad0e1819220ad17ede",
         "since": "2026-10-13T06:02:11.160Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v55-broken-teleport-wand-ogre-action3-20261013",
+        "worker": "C",
+        "goal": "repair-apply-do-break-wand-teleport-bhitm-v55-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "02bccc11b749801d61bf28163c1cbde802d2c19b",
+        "since": "2026-10-13T06:19:13.160Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep24",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "18b60878251f96d7acedc3097cb6ceef06d05b68",
+        "batch": "v60",
+        "since": "2026-10-13T06:25:55.304Z",
+        "blockedBy": [
+          "Prep20",
+          "Prep21",
+          "Prep22",
+          "Prep23"
+        ],
         "unblocks": 0
       }
     ],
@@ -102785,8 +102920,8 @@
     ]
   },
   "development": {
-    "executionCommit": "07b8da88fabe9c6510a7253e4bc59363b3e01b68",
-    "measuredAt": "2026-10-13T05:44:39.685Z",
+    "executionCommit": "cbe35a2f290f2277c4ea06e52999d8f274e1d86b",
+    "measuredAt": "2026-10-13T06:17:28.563Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
