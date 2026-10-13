@@ -1,0 +1,49 @@
+{
+  "session": "synthetic/v55/v55-thrown-pyrolisk-egg-action2",
+  "corpus": "synthetic",
+  "batch": "v55",
+  "caseId": "v55-thrown-pyrolisk-egg-action2",
+  "manifestPath": "challenges/manifests/v55.json",
+  "manifestSha256": "3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105",
+  "recordingSha256": "23756ae97ceeb98b6d298e5e0d911ab199ee4f510cba18274690ff3fa363d355",
+  "recipeSha256": "3c81978023858be43d8d181ddf699fb2dad7c7a12acb1d797f6e3ddbead30c13",
+  "evaluationPath": "challenges/evaluations/baseline-261c3097d-v55.json",
+  "evaluationCommit": "261c3097de5e63e488e143c622a3fa8157b750eb",
+  "remainingScreens": 42,
+  "recordedSteps": 114,
+  "status": "complete",
+  "commit": "7d5cbd5d1e361eb0bd9be946c518e16bb60278a3",
+  "mismatch": {
+    "session": "synthetic/v55/v55-thrown-pyrolisk-egg-action2",
+    "remainingScreens": 42,
+    "segment": 0,
+    "step": 72,
+    "key": ">",
+    "kind": "screen and RNG",
+    "source": "dothrow.c:breakobj",
+    "cCell": {"row": 0, "column": 33, "ch": "B"},
+    "jsCell": {"row": 0, "column": 33, "ch": " "},
+    "cRng": "d(3,6)=6 @ breakobj(dothrow.c:2572)",
+    "jsRng": "rn2(12)=8"
+  },
+  "summary": "When a thrown pyrolisk egg hits the stairs, C's breakobj() marks it for explosion, deletes the egg, then calls explode() with d(3,6) and EXPL_FIERY. JavaScript reaches an injected callback fallback and records explode.c explode instead of calling the existing explode implementation. The first divergence is segment 0 step 72: C logs d(3,6)=6 and draws the fiery explosion, while JavaScript continues without it.",
+  "source": {
+    "file": "dothrow.c",
+    "branch": "breakobj() handles EGG and sets explosion when corpsenm is PM_PYROLISK; after shop accounting and delobj(), it calls explode(x, y, -11, d(3,6), 0, EXPL_FIERY).",
+    "functions": ["breakobj"],
+    "callers": [
+      "dothrow.c:throwit() calls breakobj() after breaktest() and breakmsg() when a thrown object lands on a hard square; js/dothrow.js:throwit() already calls breakobj().",
+      "dothrow.c:hero_breaks() and breaks() call breakobj() after their break-test/message stages; js/dothrow.js exposes corresponding helpers.",
+      "do.c:lava_effects() and zap.c:fracture_rock() also call breakobj(); their existing JavaScript callers remain outside this selected egg branch."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/dothrow.c:2525-2531 sets explosion only for an EGG whose corpsenm is PM_PYROLISK.",
+    "nethack-c/upstream/src/dothrow.c:2569-2573 first deletes the object when it is not a fracture, then calls explode(x,y,-11,d(3,6),0,EXPL_FIERY) before returning 1.",
+    "js/dothrow.js:1803-1810 substitutes rawEnv.explode and records note_unported('explode.c explode') when no callback is injected; the normal throwit caller passes only state and therefore skips C's explosion.",
+    "The existing js/explode.js exports explode(); dothrow.js already imports explode_oil from that module, so the C callee is available without a new source dependency.",
+    "The admitted v55 baseline reports 72/114 screens, 2583/2596 RNG calls, 112/114 cursors and error null. A bounded replay at the clean accepted baseline confirms the first difference at segment 0 step 72, key >, with C d(3,6)=6 @ breakobj and JavaScript rn2(12)=8."
+  ]
+}
