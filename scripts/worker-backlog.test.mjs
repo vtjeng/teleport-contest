@@ -186,11 +186,12 @@ test('next lists batch admission priority separately from an active integration'
     add(state, 'current', 'integrating');
     const next = nextActions(state, ['v1'], queue([]));
     assert.equal(next.integration.task, 'current', 'the active validation slot is never interrupted');
-    assert.equal(next.workerWork.admission.batch, 'v2');
-    assert.equal(next.workerWork.admission.action, 'admit-at-next-safe-boundary');
+    assert.deepEqual(next.workerWork.admission.batches, ['v2']);
+    assert.equal(next.workerWork.admission.action, 'admit-all-at-next-safe-boundary');
     assert.deepEqual(next.workerWork.idleWorkers, ['C']);
     const unknown = nextActions(state, ['v1']);
-    assert.equal(unknown.workerWork.admission.action, 'reassess-worker-work');
+    assert.equal(unknown.workerWork.admission.action, 'admit-all-at-next-safe-boundary',
+        'accepted admission does not depend on an idle-worker or queue-depth threshold');
 });
 
 test('ready implementation precedes preparation even when workers lack independent work', () => {

@@ -286,16 +286,19 @@ successful CI checks locally.
    For preparation, review the saved C mission and replay evidence; skip
    implementation-only synthetic regression comparison.
    If acceptance cannot proceed, record the blocker.
-   When the batch-admission gate in `.agents/selection.md` later passes, recheck
+   Before admission under `.agents/selection.md`, recheck
    every included case against unresolved admitted cases and earlier submitted
    unadmitted batches using current evaluations and the packet's C behavior, state,
    and action-history comparisons. Require a corrected delivery for overlap.
-   Then admit the oldest prepared manifest with the next version number, commit
-   it, and save its first evaluation at that committed implementation before
-   selecting failures. Do not admit a batch merely because its worker has finished.
+   Admit all accepted batches at the safe boundary under
+   `.agents/validation.md`, "Hosted admission baselines". Use GitHub's saved
+   baselines, not a local replay or a supplemental full checkpoint. A completed
+   worker turn alone does not establish acceptance.
 6. Reconcile the receipt's recorded task and turn with newer worker activity.
    Apply "Notifications" using the updated queue below.
-   Keep local `main` at the tested commit through acceptance. Skip `sync-main`
+   Keep local `main` at the tested commit through acceptance. When admission
+   adds manifests afterward, pass its hosted receipt to publication as the
+   admission procedure specifies. Skip `sync-main`
    in this publication path; it is for fast-forwarding a different local main.
    Refresh the saved combined queue after score import, before publication.
    Run `node scripts/task-handoff.mjs publish --task <id> --ledger <shared-ledger> --queue <latest-saved-combined-queue.json>`.

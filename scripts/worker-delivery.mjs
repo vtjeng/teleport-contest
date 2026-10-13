@@ -11,6 +11,7 @@ import { BOOKKEEPING_FILES, executionTree } from './checkpoint-reuse.mjs';
 import { validInvestigation } from './investigation-cache.mjs';
 import { corpusDigest, validateEvaluation } from './challenge-results.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';
+import { readAdmissionReceipt } from './admission-proof.mjs';
 
 const INVESTIGATION_PATH = /^investigations\/((?:synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*|(?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*))\.json$/u;
 
@@ -378,7 +379,14 @@ function verifyInvestigationReport(root, tested, reportCommit, path, session) {
     }
 }
 
-export function verifyPublicationChanges(root, tested, published) {
+export function verifyPublicationChanges(root, tested, published, admission) {
+    if (admission) {
+        const receipt = readAdmissionReceipt(root, admission);
+        check(isAncestor(root, tested, receipt.base) && isAncestor(root, receipt.commit, published),
+            'admission must follow the gameplay checkpoint and precede publication');
+        verifyPublicationChanges(root, tested, receipt.base);
+        tested = receipt.commit;
+    }
     // Keep checkpoint reuse conservative. Publication alone permits checked
     // reports written after closure; the original tested commit stays intact.
     if (executionTree(root, tested) === executionTree(root, published)) return;
@@ -442,7 +450,7 @@ export function verifyEvent(root, state, input) {
                 'supplemental checkpoint must be between accepted integration and publication');
             tested = summary.commit;
         }
-        verifyPublicationChanges(root, tested, event.commit);
+        verifyPublicationChanges(root, tested, event.commit, event.supplementalAdmission);
         check(resolveCommit(root, 'refs/heads/main') === event.commit, 'local main differs; run sync-main first');
         const remote = git(root, 'ls-remote', '--exit-code', 'origin', 'refs/heads/main').split(/\s/u)[0];
         check(remote === event.commit, 'remote main does not match; publish successfully before recording publication');

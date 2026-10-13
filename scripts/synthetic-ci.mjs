@@ -31,7 +31,7 @@ function identity(batches) {
             inputsSha256: challengeInputSnapshot(PROJECT_ROOT, batch).sha256 })) };
 }
 
-function runGroup(group, batches) {
+export function runGroup(group, batches, output = OUTPUT) {
     requireCleanCheckpointTree();
     const selected = groupCases(batches).find(entry => entry.group === group);
     if (!selected) throw new Error('unknown synthetic group');
@@ -48,8 +48,8 @@ function runGroup(group, batches) {
     }
     requireCleanCheckpointTree();
     if (!isDeepStrictEqual(before, identity(batches))) throw new Error('synthetic inputs changed during replay');
-    mkdirSync(OUTPUT, { recursive: true });
-    writeFileSync(`${OUTPUT}/${group}.json`, JSON.stringify({ group, identity: before, utc,
+    mkdirSync(output, { recursive: true });
+    writeFileSync(`${output}/${group}.json`, JSON.stringify({ group, identity: before, utc,
         durationMs: performance.now() - started, results }), { flag: 'wx' });
     console.log(`Synthetic group ${group}: ${results.length} cases in ${Math.round(performance.now() - started)} ms`);
 }
@@ -70,26 +70,30 @@ export function combineCases(groups, parts, expectedIdentity) {
     return results;
 }
 
-function combine(batches) {
+export function combine(batches, output = OUTPUT, prefix = 'ci') {
     const groups = groupCases(batches);
     const expected = identity(batches);
-    const parts = groups.map(({ group }) => JSON.parse(readFileSync(`${OUTPUT}/${group}.json`, 'utf8')));
+    const parts = groups.map(({ group }) => JSON.parse(readFileSync(`${output}/${group}.json`, 'utf8')));
     const results = combineCases(groups, parts, expected);
     mkdirSync('challenges/evaluations', { recursive: true });
+    const evaluations = [];
     for (const batch of batches) {
         const snapshot = challengeInputSnapshot(PROJECT_ROOT, batch);
         const cases = batch.cases.map(entry => results.get(`${batch.batch}/${entry.id}`));
         const utc = parts.filter(part => part.results.some(entry => entry.batch === batch.batch))
             .map(part => part.utc).sort().at(-1);
-        saveEvaluation(PROJECT_ROOT, `challenges/evaluations/ci-${batch.batch}.json`, {
+        const path = `challenges/evaluations/${prefix}-${batch.batch}.json`;
+        saveEvaluation(PROJECT_ROOT, path, {
             version: 1, batch: batch.batch, manifestPath: batch.manifestPath,
             sha: expected.sha, utc, status: 'complete', manifestSha256: batch.manifestSha256,
             scorerSha256: expected.scorer.sha256, scorerFiles: expected.scorer.files,
             inputsSha256: snapshot.sha256, inputFiles: snapshot.files.map(entry => entry.path),
             cases, totals: totalsFor(cases),
         });
+        evaluations.push(path);
     }
     console.log(`Complete synthetic evidence: ${batches.length} batches, ${results.size} cases`);
+    return evaluations;
 }
 
 function main(args) {

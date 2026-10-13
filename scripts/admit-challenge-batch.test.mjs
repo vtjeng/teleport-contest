@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { admitChallengeBatch, preparedFromDelivery } from './admit-challenge-batch.mjs';
+import { admitChallengeBatch, admitChallengeBatches, preparedFromDelivery } from './admit-challenge-batch.mjs';
 import { challengeInputSnapshot, corpusDigest, digest, evaluationFields, readChallengeBatches,
     saveEvaluation, totalsFor } from './challenge-results.mjs';
 import { appendRow, COLUMNS } from './score-log.mjs';
@@ -62,7 +62,7 @@ function fixture(t, { unmatched = false } = {}) {
     save(`.git/checkpoint-results/${head}/latest.json`, { commit: head, allPassed: true,
         recordings: { passed: true }, score: { screensMatched: 1, screensTotal: 1 } });
     const prepared = { version: 1, batch: 'v2', cases: [makeCase('v2', 'first'), makeCase('v2', 'second')] };
-    return { root, head, save, prepared, evaluation, evidence };
+    return { root, head, save, prepared, evaluation, evidence, makeCase };
 }
 
 test('admission preserves every prepared C case and freezes the next manifest', t => {
@@ -74,8 +74,26 @@ test('admission preserves every prepared C case and freezes the next manifest', 
     assert.deepEqual(JSON.parse(readFileSync(join(f.root, result.manifestPath))), f.prepared);
     assert.equal(readFileSync(join(f.root, 'challenges/manifest.json'), 'utf8'), old);
     const frozen = readFileSync(join(f.root, result.manifestPath), 'utf8');
-    assert.throws(() => admitChallengeBatch(f.root, f.prepared), /current complete measurements/);
+    assert.deepEqual(admitChallengeBatch(f.root, f.prepared), result, 'retry reuses the same uncommitted manifest');
     assert.equal(readFileSync(join(f.root, result.manifestPath), 'utf8'), frozen);
+});
+
+test('all prepared manifests share one admission boundary without a three-batch cap', t => {
+    const f = fixture(t);
+    // Four batches deliberately exceed the implementation pilot's three-task cap.
+    const prepared = [f.prepared, ...['v3', 'v4', 'v5'].map(batch =>
+        ({version: 1, batch, cases: [f.makeCase(batch, 'independent')]}))];
+    const result = admitChallengeBatches(f.root, prepared);
+    assert.deepEqual(result.map(row => row.batch), ['v2', 'v3', 'v4', 'v5']);
+    assert.deepEqual(admitChallengeBatches(f.root, prepared), result, 'retry does not overwrite frozen manifests');
+});
+
+test('a broken later batch is rejected before any group manifest is written', t => {
+    const f = fixture(t);
+    const later = {version: 1, batch: 'v3', cases: [f.makeCase('v3', 'broken')]};
+    later.cases[0].recordingSha256 = '0'.repeat(64); // A different digest must not partially admit v2.
+    assert.throws(() => admitChallengeBatches(f.root, [f.prepared, later]), /digest mismatch/);
+    assert.deepEqual(readChallengeBatches(f.root).map(batch => batch.batch), ['v1']);
 });
 
 test('admission reads the hash-verified preparation delivery packet', t => {

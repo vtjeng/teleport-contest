@@ -19,7 +19,7 @@ import { boundedMain } from './run-bounded.mjs';
 const USAGE = `Usage: node scripts/task-handoff.mjs <review|accept|publish> --task <id> --ledger <file>
   review:  [--baseline <accepted-checkpoint-summary>] [--evaluations <directory>]
   accept:  [--evaluations <directory>]
-  publish: [--queue <saved-combined-work-queue>]
+  publish: [--queue <saved-combined-work-queue>] [--admission <hosted-admission-receipt>]
 
 review compares saved fixed and synthetic results with the latest accepted checkpoint by
 default; an explicit baseline must also belong to an accepted delivery. Newly
@@ -36,7 +36,7 @@ publication route, not this report-only helper.`;
 
 export function parseHandoffArgs(args) {
     const [phase, ...rest] = args;
-    const allowed = { review: ['baseline', 'evaluations'], accept: ['evaluations'], publish: ['queue'] };
+    const allowed = { review: ['baseline', 'evaluations'], accept: ['evaluations'], publish: ['queue', 'admission'] };
     if (!Object.hasOwn(allowed, phase)) throw new Error(USAGE);
     const options = { phase };
     for (let index = 0; index < rest.length; index += 2) {
@@ -78,7 +78,7 @@ export function publishTask(options, root = process.cwd(), { checkCI = (args, cw
         if (pending.failed) throw new Error('publication CI failed; validate a correction before another push');
         const head = git(ctx.root, 'rev-parse', 'HEAD');
         if (!isAncestor(ctx.root, ctx.delivery.integration, head)) throw new Error('HEAD must contain the accepted integration');
-        verifyPublicationChanges(ctx.root, ctx.delivery.integration, head);
+        verifyPublicationChanges(ctx.root, ctx.delivery.integration, head, options.admission);
         const dirty = git(ctx.root, 'status', '--porcelain', '-z', '--untracked-files=all').split('\0').filter(Boolean);
         const paths = dirty.map(line => {
             const path = line.slice(3), stat = lstatSync(join(ctx.root, path), { throwIfNoEntry: false });
@@ -106,7 +106,7 @@ export function publishTask(options, root = process.cwd(), { checkCI = (args, cw
         commit = git(ctx.root, 'rev-parse', 'HEAD');
         // Reuse the same content checks the published ledger event applies,
         // before allowing any push. A bad report leaves a recoverable local commit.
-        verifyPublicationChanges(ctx.root, ctx.delivery.integration, commit);
+        verifyPublicationChanges(ctx.root, ctx.delivery.integration, commit, options.admission);
         const current = ctx.readState();
         if (current.tasks[options.task]?.status !== 'accepted'
             || current.tasks[options.task].deliveries.at(-1) !== ctx.task.deliveries.at(-1))
@@ -116,6 +116,7 @@ export function publishTask(options, root = process.cwd(), { checkCI = (args, cw
         execFileSync(process.execPath, [fileURLToPath(new URL('./worker-state.mjs', import.meta.url)),
             'event', '--file', ctx.ledgerPath, '--json', JSON.stringify({
                 id: `publish-${options.task}-${commit}`, type: 'published', task: options.task, commit,
+                ...(options.admission ? {supplementalAdmission: resolve(ctx.root, options.admission)} : {}),
             })], { cwd: ctx.root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
     }
     const publicationCI = checkCI({ file: ciFile, commit, task: options.task }, ctx.root);

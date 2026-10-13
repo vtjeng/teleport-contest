@@ -138,6 +138,37 @@ competition holdout is outside this workspace.
   changes do not need it when focused tests cover the renderer's input
   contract.
 
+## Hosted admission baselines
+
+At a safe boundary with a passing checkpoint at HEAD, run
+`node scripts/admit-challenge-batch.mjs --ledger <shared-ledger>` to write all
+accepted, unadmitted manifests. Existing batches need current complete
+measurements. Recheck the saved overlap and control rationales under
+`.agents/selection.md` before including a batch.
+
+Commit only the new manifests, adding `Admission-base: <tested-HEAD>` as a Git
+trailer. Leave closure reports for publication. Push this candidate to
+`integration-checkpoint/admission/<id>`. The Admission workflow checks manifest
+and C-recording integrity and evaluates only the newly admitted cases in
+fixed-size parallel jobs. It does not rerun the full suite, fixed workload,
+regression recordings, or older synthetic batches. Its input guard rejects
+game, scorer, case-file, and existing-manifest changes.
+
+Watch the hosted run once, then import with
+`node scripts/fetch-admission.mjs <run-id> --ledger <shared-ledger>` at that
+candidate HEAD. The importer verifies the exact commit and workflow attempt,
+records saved baselines, and marks them available in the ledger. It performs
+no replay and creates an admission receipt, not a new gameplay checkpoint.
+Without `--ledger`, the command archives evidence without recording scores.
+
+Refresh the saved work queue from those results and follow `.agents/loop.md`,
+"Notifications". Publish with `task-handoff.mjs publish --admission <receipt>`
+alongside its normal task, ledger and queue arguments. The receipt covers the
+new manifests; gameplay evidence stays attached to the original tested commit.
+Do not run a supplemental full checkpoint just to publish these manifests.
+If hosted baselines fail or are unavailable, preserve the candidate and report
+the failure; do not silently baseline locally or select the new cases.
+
 ## Source completion evidence
 
 Whole-source certification is outside the normal implementation loop. Do not

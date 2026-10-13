@@ -223,22 +223,17 @@ coverage difference. Until admission, the cases do not enter synthetic scoring,
 the mismatch queue, or the dashboard's scored batch charts. The dashboard lists
 ready batches awaiting admission separately.
 
-Integrate ready implementation deliveries before integrating or admitting another
-prepared batch. Within that backlog, integrate deliveries that unblock other tasks first,
-then the oldest ready delivery. When no dependency-ready implementation delivery
-remains, admit prepared batches in order at safe integration boundaries if idle
-or blocked implementation workers lack independent work. An active, unblocked
-task already gives its worker work. For the other workers, count only unreserved
-work, not submitted deliveries.
+At each safe integration boundary, admit all valid, accepted batches available
+then, in version order. Do not wait for worker starvation, an empty delivery
+queue, or screen parity. Freeze the group before baseline validation; new
+arrivals belong to the next group. Hold batches only for concrete evidence,
+integrity, or dependency failures. Follow `.agents/validation.md`, "Hosted
+admission baselines". Run baselines on GitHub, not the local machine.
 
 After saving a new batch's baseline, follow `.agents/loop.md`, "Notifications".
 
-After each admission, check whether
-every implementation worker has independent work available. Stop admitting
-when they do; otherwise admit the next ready batch. When workers have enough
-next tasks, prefer ready implementation deliveries. Do not interrupt an active
-checkpoint or wait for screen parity. Admission still requires current,
-complete evaluations and a passing fixed-workload checkpoint. Missing, failed,
+Do not interrupt an active checkpoint. Admission still requires current,
+complete evaluations and passing fixed-workload evidence. Missing, failed,
 or stale evaluations block admission.
 Continue investigating and scheduling older unmatched cases;
 admission does not close or suppress them. Keep outstanding RNG or cursor
@@ -247,20 +242,11 @@ defects visible across the transition. Preserve `v1` at
 batches in version order under new manifests, starting with `v2`. Never replace
 or extend an admitted batch.
 
-After a passing HEAD checkpoint, run
-`node scripts/admit-challenge-batch.mjs --delivery <accepted-packet.json>`.
-The command reads the prepared manifest from the immutable delivery packet,
-checks the evaluation gate, input hashes, recipe/recording consistency, and the
-next version number before creating the admitted manifest. Admit at the tested
-HEAD before committing dashboard-only publication records, so those records
-do not force another admission checkpoint. It does not filter cases
-by JavaScript results. Commit the manifest and save the batch's first
-evaluation at that committed implementation before selecting its failures.
-Publish that baseline and resume selection from admitted cases. If the batch
-already matches, keep its baseline and admit the next prepared batch, or
-prepare one with different behavior coverage. Retain earlier batches and
-their original evaluations as regression history. `.agents/scoring.md`
-explains how to report each batch without counting added screens as fixes.
+Keep every prepared case when admitting its manifest; do not filter by
+JavaScript results. Save the hosted baseline before selecting failures.
+Retain earlier batches and their original evaluations as regression history.
+`.agents/scoring.md` explains how to report each batch without counting added
+screens as fixes.
 
 ## Tooling support
 
