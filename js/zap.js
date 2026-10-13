@@ -172,7 +172,7 @@ import { sleep_monst, slept_monst } from './mhitm.js';
 import { explode } from './explode.js';
 import {
     m_at, } from './monst.js';
-import { mon_reflects, ureflects } from './muse.js';
+import { mcureblindness, mon_reflects, ureflects } from './muse.js';
 import { in_rooms } from './rooms.js';
 import {
     check_unpaid, billable, contained_cost, costly_spot, inhishop, inside_shop, add_damage, pay_for_damage, shkcatch, shop_keeper, shk_your, stolen_value, } from './shk.js';
@@ -3477,7 +3477,11 @@ export async function bhitm(monster, wand, state = game,
             wake = false;
             healmon(monster, healAmount, 0);
             if (skilledSpell || otyp === SPE_EXTRA_HEALING)
-                note_unported('mon.c mcureblindness');
+                await mcureblindness(
+                    monster,
+                    canseemon(monster, state),
+                    state,
+                );
             if (canseemon(monster, state)) {
                 if (disguised_mimic) {
                     if (monster.mappearance === STRANGE_OBJECT) {
