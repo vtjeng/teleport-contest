@@ -296824,7 +296824,7 @@
     {
       "id": "divergence-makemon-grow-up-gender-index-v54-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement grow_up from makemon.c",
       "cFile": "makemon.c",
       "sessions": [
@@ -296834,10 +296834,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "4c44ed71e765ae70b69439c91ebc31a44cde99f4",
       "delivered": null,
       "function": "grow_up",
-      "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3"
+      "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+      "closeStanding": {
+        "sha": "4c44ed71e765ae70b69439c91ebc31a44cde99f4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f7d9d863fc7a5de36299786e449d6a42bd585f03",
+        "target": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/4c44ed71e765ae70b69439c91ebc31a44cde99f4/run-hosted-3uL9M6/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "grow_up",
+            "implementation": "js/makemon.js",
+            "symbol": "grow_up",
+            "sourceReview": "Compared the makemon.c:grow_up source range 2049-2179 with its JS implementation. In the evolution branch, C stores the target sex index in unsigned fem (0 for M2_MALE, 1 for M2_FEMALE, otherwise the source boolean mtmp->female), uses that integer in pmname and compares it with the old sex bit, then stores to the boolean bitfield. JS now converts the fallback to a number for the name/comparison and preserves the field as Boolean after the source-ordered update. RNG draws, message ordering, set_mon_data/newsym, evolution state, and return behavior are unchanged.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "use_misc",
+                "source": "C muse.c:use_misc MUSE_POT_GAIN_LEVEL calls grow_up after consuming the potion; JS js/muse.js:use_misc already calls js/makemon.js:grow_up. The admitted v54 recording executes the visible potion growth at step 511 through the caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemon.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 509,
+                "throughStep": 511,
+                "source": "muse.c:use_misc MUSE_POT_GAIN_LEVEL -> makemon.c:grow_up evolves the elf-lord; the exact committed replay matches the Elvenking message and cursor."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected entry point is a monster visibly drinking a potion of gain level during ordinary monster action. C muse.c:use_misc invokes makemon.c:grow_up after potion consumption. Existing JS wiring is js/muse.js:use_misc -> js/makemon.js:grow_up. The corrected selected replay matches all 527 emitted screen/cursor/RNG boundaries through step 526; step 527 remains outside this task at the unsupported objnam.c:mshot_xname multishot ordinal branch.",
+        "entryPoints": [
+          {
+            "name": "Monster evolves after a gain-level potion",
+            "functions": [
+              "grow_up"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 509,
+                "throughStep": 511,
+                "source": "muse.c:use_misc MUSE_POT_GAIN_LEVEL -> makemon.c:grow_up; JS muse.js -> makemon.js."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
