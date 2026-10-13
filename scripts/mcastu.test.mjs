@@ -523,39 +523,47 @@ test('spell_would_be_useless: MCAST_HASTE_SELF when already fast', async () => {
 // Wizard list maxlev is 20 (MCAST_DEATH_TOUCH), so rn2(15)=13 needs no
 // reroll and MCAST_AGGRAVATION (level 13) is the first candidate.
 
-test('MCAST_AGGRAVATION wakes a waiting monster after its spell message',
+test('MCAST_AGGRAVATION uses the C You_feel prefix before waking monsters',
     async () => {
-        // Second value: rn2(ml*10)=rn2(150)=50 passes the fumble check.
-        const random = scriptedRandom([13, 50]);
-        const state = makeState();
-        // The mobile monster shares the hero's false tower result on this
-        // ordinary level; aggravation clears it without an extra thaw draw.
-        const waiting = {
-            mhp: 5, msleeping: 1, mcanmove: true, mx: 7, my: 7,
-            mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG, nmon: null,
-        };
-        state.level = { monlist: waiting };
-        const refusals = [];
-        const messages = [];
-        const result = await castmu(
-            makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, false, false,
-            {
-                state, random, message: (message) => messages.push(message),
-                unsupported: refuse,
-                noteUnported: (what) => refusals.push(what),
-            },
-        );
-        // The undirected aggravation spell reaches mcast_spell(), then runs
-        // the source helper after the spell's feeling message.
-        assert.equal(result, M_ATTK_HIT);
-        assert.deepEqual(random.draws, ['rn2(15)', 'rn2(150)']);
-        assert.deepEqual(messages, [
-            'Kobold shaman casts a spell!',
-            'You feel that monsters are aware of your presence.',
-        ]);
-        assert.deepEqual(refusals, []);
-        assert.equal(waiting.msleeping, false);
-        assert.equal(waiting.mstrategy, 0);
+        for (const unaware of [false, true]) {
+            // rn2(15)=13 selects level-13 MCAST_AGGRAVATION; rn2(150)=50
+            // passes castmu's fumble check without adding a random call.
+            const random = scriptedRandom([13, 50]);
+            const state = makeState();
+            if (unaware) {
+                // C Unaware requires negative multi plus unconscious(); use
+                // the source's sleeping state to reach its dream prefix.
+                state.multi = -1;
+                state.u.usleep = 1;
+            }
+            // Aggravation clears the waiting strategy without extra draws.
+            const waiting = {
+                mhp: 5, msleeping: 1, mcanmove: true, mx: 7, my: 7,
+                mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG, nmon: null,
+            };
+            state.level = { monlist: waiting };
+            const refusals = [];
+            const messages = [];
+            const result = await castmu(
+                makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, false, false,
+                {
+                    state, random, message: (message) => messages.push(message),
+                    unsupported: refuse,
+                    noteUnported: (what) => refusals.push(what),
+                },
+            );
+            // C mcastu.c:mcast_spell calls You_feel before aggravate().
+            assert.equal(result, M_ATTK_HIT);
+            assert.deepEqual(random.draws, ['rn2(15)', 'rn2(150)']);
+            assert.deepEqual(messages, [
+                'Kobold shaman casts a spell!',
+                `${unaware ? 'You dream that you feel ' : 'You feel '}`
+                    + 'that monsters are aware of your presence.',
+            ]);
+            assert.deepEqual(refusals, []);
+            assert.equal(waiting.msleeping, false);
+            assert.equal(waiting.mstrategy, 0);
+        }
     });
 
 test('spell_would_be_useless: MCAST_AGGRAVATION draws rn2(100) when nothing sleeps',
