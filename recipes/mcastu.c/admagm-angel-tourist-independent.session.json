@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent mcastu.c:castmu AD_MAGM runtime witness. A Tourist without Wizard Antimagic equipment creates a hostile Angel in debug mode, reveals the map, and rests with m-prefixed no-ops until its adjacent innate magic-missile attack. The starting square remains unengraved, so the discarded zap.c:mon_spell_hits_spot call takes its no-engraving path. Seed, date, role, race, character name, and command sequence were selected independently of the admitted v54 challenge.",
+  "segments": [
+    {
+      "seed": 77101317,
+      "datetime": "20631105102030",
+      "nethackrc": "OPTIONS=name:AngelMissileTourist4,role:Tourist,race:dwarf,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " .#wizgenesis\nhostile Angel\ny          #wizmap\nm. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m."
+    }
+  ]
+}

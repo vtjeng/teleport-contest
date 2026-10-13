@@ -426,17 +426,62 @@ test('castmu: requires an unsupported operation', async () => {
     );
 });
 
-test('castmu: AD_MAGM refuses through unsupported', async () => {
-    // rn2(70)=50 passes the fumble check for m_lev=7; the switch's default
-    // arm then names the elemental type.
+test('castmu: AD_MAGM damages the hero after its source-ordered rolls', async () => {
+    // The common castmu damage roll is consumed first; AD_MAGM replaces its
+    // value with its own d(ml/2+1,6) roll before the discarded floor effect.
     const mattk = { aatyp: AT_MAGC, adtyp: AD_MAGM, damn: 0, damd: 0 };
-    const refusals = [];
-    await castmu(makeCaster(), mattk, true, true, {
-        state: makeState(), random: scriptedRandom([50]),
-        unsupported: (what) => refusals.push(what),
-        message: () => {},
+    const state = makeState();
+    const random = scriptedRandom([50], 8);
+    const events = [];
+    let damageArgs;
+    const result = await castmu(makeCaster(), mattk, true, true, {
+        state, random, unsupported: refuse,
+        message: async (text) => events.push(`message:${text}`),
+        noteUnported: (name) => events.push(`gap:${name}`),
+        mdamageu: async (...args) => {
+            events.push('damage');
+            damageArgs = args;
+        },
     });
-    assert.deepEqual(refusals, ['castmu() elemental spell type']);
+    assert.equal(result, M_ATTK_HIT);
+    assert.deepEqual(random.draws, ['rn2(70)', 'd(4,6)', 'd(4,6)']);
+    assert.ok(events.includes('message:You are hit by a shower of missiles!'));
+    assert.deepEqual(events.slice(-2), [
+        'gap:zap.c mon_spell_hits_spot',
+        'damage',
+    ]);
+    assert.equal(damageArgs[0].m_lev, 7);
+    assert.equal(damageArgs[1], 8);
+    assert.equal(damageArgs[2], state);
+});
+
+test('castmu: AD_MAGM is blocked by Antimagic without damage', async () => {
+    const mattk = { aatyp: AT_MAGC, adtyp: AD_MAGM, damn: 0, damd: 0 };
+    const state = makeState({
+        u: {
+            ux: 4, uy: 5,
+            uprops: { [ANTIMAGIC]: { intrinsic: 1 } },
+        },
+    });
+    const watcher = watcherAt(state, 6, 5, 0);
+    const random = scriptedRandom([50], 8);
+    const messages = [];
+    const gaps = [];
+    const damageCalls = [];
+    const result = await castmu(makeCaster(), mattk, true, true, {
+        state, random, unsupported: refuse,
+        message: async (text) => messages.push(text),
+        noteUnported: (name) => gaps.push(name),
+        mdamageu: (...args) => damageCalls.push(args),
+    });
+
+    assert.equal(result, M_ATTK_HIT);
+    assert.deepEqual(random.draws, ['rn2(70)', 'd(4,6)']);
+    assert.ok(messages.includes('You are hit by a shower of missiles!'));
+    assert.ok(messages.includes('The missiles bounce off!'));
+    assert.equal(watcher.seen_resistance, M_SEEN_MAGR);
+    assert.deepEqual(gaps, ['zap.c mon_spell_hits_spot']);
+    assert.deepEqual(damageCalls, []);
 });
 
 // -- spell_would_be_useless --------------------------------------------
