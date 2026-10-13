@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T05:32:52.933Z",
+  "capturedAt": "2026-10-13T06:09:40.068Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -101670,6 +101670,457 @@
         "task": "Prep19",
         "phase": "done",
         "reason": "v55 admission and its first baseline are complete; the combined accepted checkpoint also covers the new manifest."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-angel-mon-spell-hits-spot-20261013-active",
+        "type": "turn",
+        "at": "2026-10-13T05:32:51.713Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v54-angel-mon-spell-hits-spot-20261013",
+        "type": "assign",
+        "at": "2026-10-13T05:33:00.679Z",
+        "task": "C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v54-angel-adjacent-magic-missiles-action3-20261013-c6bcda353b5e64af2a61e78522e57118bb3c50e8",
+        "type": "published",
+        "at": "2026-10-13T05:33:05.631Z",
+        "task": "C-investigation-v54-angel-adjacent-magic-missiles-action3-20261013",
+        "commit": "c6bcda353b5e64af2a61e78522e57118bb3c50e8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-Prep19-c6bcda353b5e64af2a61e78522e57118bb3c50e8",
+        "type": "publication-confirmed",
+        "at": "2026-10-13T05:33:09.440Z",
+        "task": "Prep19",
+        "commit": "c6bcda353b5e64af2a61e78522e57118bb3c50e8",
+        "knownBy": "2026-10-13T05:33:05.631Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v55-conjoined-pit-ready-20261013",
+        "type": "turn",
+        "at": "2026-10-13T05:33:15.882Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "The adjacent-pit digging replay now matches fully; packaging its source-scoped fix for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-043f3fecd7160ab991a82bca287cde230883f7cc",
+        "type": "ready",
+        "at": "2026-10-13T05:33:25.481Z",
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013",
+        "delivery": "043f3fecd7160ab991a82bca287cde230883f7cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep24-v60-corrections-c-run-20261016",
+        "type": "turn",
+        "at": "2026-10-13T05:33:35.421Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "C reached aquatic Sargasso refusal, dead-pony whip, blind gem shatter, book initials and spiked-pit sit; correcting four observed setup routes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v55-traditional-floor-query-colon-20261013",
+        "type": "assign",
+        "at": "2026-10-13T05:34:49.492Z",
+        "task": "B-investigation-v55-traditional-floor-query-colon-action2-20261013",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep24-v60-initial-replays-20261016",
+        "type": "turn",
+        "at": "2026-10-13T05:35:05.376Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Independent C replays underway for reached v60 cases and source-relevant target misses before first local comparison."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v54-angel-mon-spell-hits-spot-20261013",
+        "type": "implement",
+        "at": "2026-10-13T05:36:47.006Z",
+        "task": "C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013",
+        "goal": "port-zap-mon-spell-hits-spot-v54-angel-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-B-v55-pit-043f3fec-20261013",
+        "type": "received",
+        "at": "2026-10-13T05:36:53.579Z",
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013",
+        "delivery": "043f3fecd7160ab991a82bca287cde230883f7cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep24-v60-initial-comparison-review-20261016",
+        "type": "turn",
+        "at": "2026-10-13T05:37:33.399Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Twelve independent C replays verified; first local comparisons found three provisional failures and nine matches. Reviewing first owners before further source missions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "scope-B-v55-traditional-floor-query-colon-20261013",
+        "type": "implement",
+        "at": "2026-10-13T05:37:38.046Z",
+        "task": "B-investigation-v55-traditional-floor-query-colon-action2-20261013",
+        "goal": "port-pickup-simple-look-query-classes-v55-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-B-v55-poly-obj-07b8da88-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T05:39:30.510Z",
+        "task": "B-investigation-v55-worn-crystal-polymorph-dip-action3-20261013",
+        "integration": "07b8da88fabe9c6510a7253e4bc59363b3e01b68"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep24-v60-expanded-c-20261016",
+        "type": "turn",
+        "at": "2026-10-13T05:41:20.186Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Continuing v60 with six additional source missions after the first twelve comparisons; preserving all earlier probes and owner findings."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f8cef1f58ba2b34978ecf0760b2be964a84ce2ad",
+        "type": "ready",
+        "at": "2026-10-13T05:44:00.161Z",
+        "task": "A2-investigation-v55-pickup-burden-armor-action2-20261013",
+        "delivery": "f8cef1f58ba2b34978ecf0760b2be964a84ce2ad"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v55-pyrolisk-egg-20261013",
+        "type": "assign",
+        "at": "2026-10-13T05:44:54.717Z",
+        "task": "A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-794e91a940e5dc7d36afbc4d5a7822fee817b138",
+        "type": "ready",
+        "at": "2026-10-13T05:45:09.541Z",
+        "task": "C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013",
+        "delivery": "794e91a940e5dc7d36afbc4d5a7822fee817b138"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-pyrolisk-diagnosis-20261013",
+        "type": "turn",
+        "at": "2026-10-13T05:46:35.596Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v55-unpaid-beartrap-install-20261013",
+        "type": "assign",
+        "at": "2026-10-13T05:46:48.697Z",
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v55-pyrolisk-explode-20261013",
+        "type": "implement",
+        "at": "2026-10-13T05:46:55.015Z",
+        "task": "A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013",
+        "goal": "fix-dothrow-breakobj-pyrolisk-explosion-v55-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v55-unpaid-beartrap-diagnosis-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T05:47:00.512Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-A-v55-pickup-f8cef1f5-20261013",
+        "type": "received",
+        "at": "2026-10-13T05:47:41.341Z",
+        "task": "A2-investigation-v55-pickup-burden-armor-action2-20261013",
+        "delivery": "f8cef1f58ba2b34978ecf0760b2be964a84ce2ad"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-C-v54-monspellspot-794e91a9-20261013",
+        "type": "received",
+        "at": "2026-10-13T05:47:43.773Z",
+        "task": "C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013",
+        "delivery": "794e91a940e5dc7d36afbc4d5a7822fee817b138"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep24-v60-expanded-source-followup-20261016",
+        "type": "turn",
+        "at": "2026-10-13T05:48:46.078Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Additional C source missions reached rustproof regurgitation and underwater stethoscope; bounded terrain/form follow-ups underway."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v55-unpaid-beartrap-20261013",
+        "type": "implement",
+        "at": "2026-10-13T05:49:45.457Z",
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
+        "goal": "port-shk-use-unpaid-trapobj-v55-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d8458f7a9b5609483a99f7d1fb788f3eb3048fef",
+        "type": "ready",
+        "at": "2026-10-13T05:51:23.471Z",
+        "task": "A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013",
+        "delivery": "d8458f7a9b5609483a99f7d1fb788f3eb3048fef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-24ff7c63957e12c23afde9858083454ce03ea36c",
+        "type": "ready",
+        "at": "2026-10-13T05:51:44.064Z",
+        "task": "B-investigation-v55-traditional-floor-query-colon-action2-20261013",
+        "delivery": "24ff7c63957e12c23afde9858083454ce03ea36c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v55-lantern-save-restore-20261013",
+        "type": "assign",
+        "at": "2026-10-13T05:51:53.904Z",
+        "task": "A2-investigation-v55-lantern-save-restore-action2-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v55-lantern-diagnosis-20261013",
+        "type": "turn",
+        "at": "2026-10-13T05:52:02.406Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v55-blind-ogre-extra-healing-20261013",
+        "type": "assign",
+        "at": "2026-10-13T05:53:19.708Z",
+        "task": "B-investigation-v55-blind-ogre-extra-healing-action5-20261013",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-blind-ogre-v55-20261013",
+        "type": "turn",
+        "at": "2026-10-13T05:53:29.705Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Floor-query delivery is ready; diagnosing the independent v55 blind-ogre extra-healing mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v55-lantern-save-restore-graph-20261013",
+        "type": "implement",
+        "at": "2026-10-13T05:54:27.120Z",
+        "task": "A2-investigation-v55-lantern-save-restore-action2-20261013",
+        "goal": "fix-save-restore-floor-object-and-lantern-state-v55-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v55-worn-crystal-polymorph-dip-action3-20261013-07b8da88fabe9c6510a7253e4bc59363b3e01b68-validated",
+        "type": "validated",
+        "at": "2026-10-13T05:54:43.719Z",
+        "task": "B-investigation-v55-worn-crystal-polymorph-dip-action3-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v55-worn-crystal-polymorph-dip-action3-20261013-07b8da88fabe9c6510a7253e4bc59363b3e01b68-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T05:55:11.974Z",
+        "task": "B-investigation-v55-worn-crystal-polymorph-dip-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v55-blind-ogre-bhitm-20261013",
+        "type": "implement",
+        "at": "2026-10-13T05:55:19.604Z",
+        "task": "B-investigation-v55-blind-ogre-extra-healing-action5-20261013",
+        "goal": "div-zap-bhitm-extra-healing-blindness-call-v55-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b0be6cb22f22aca64538e60314a2bb2ef172a29e",
+        "type": "ready",
+        "at": "2026-10-13T05:55:26.411Z",
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
+        "delivery": "b0be6cb22f22aca64538e60314a2bb2ef172a29e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep24-v60-late-source-c-20261016",
+        "type": "turn",
+        "at": "2026-10-13T05:58:13.959Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v60 has three provisional source-distinct first failures; continuing six varied C sensory, terrain and equipment missions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b3a095e1bf941171ac53635f2c7697a4b47daef2",
+        "type": "ready",
+        "at": "2026-10-13T05:58:22.333Z",
+        "task": "B-investigation-v55-blind-ogre-extra-healing-action5-20261013",
+        "delivery": "b3a095e1bf941171ac53635f2c7697a4b47daef2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v55-named-chaotic-artifact-20261013",
+        "type": "assign",
+        "at": "2026-10-13T05:59:08.639Z",
+        "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v55-after-beartrap-delivery-idle-20261013",
+        "type": "turn",
+        "at": "2026-10-13T05:59:12.727Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Waiting for Root to refresh the saved challenge queue against accepted Main 07b8da88 before selecting another independent case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v55-named-artifact-do-oname-20261013",
+        "type": "implement",
+        "at": "2026-10-13T06:00:18.174Z",
+        "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013",
+        "goal": "div-do-oname-artifact-wipeout-rng-v55-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-named-artifact-v55-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:00:37.352Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Blind-ogre cure repair is ready; diagnosing the v55 artifact naming RNG mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep24-v60-late-actions-20261016",
+        "type": "turn",
+        "at": "2026-10-13T06:01:10.079Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Recording six varied late C action probes after confirming a third provisional distinct rehumanize caller defect."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-21e53090b2b6efedc86b593c740a3c33c55728d2",
+        "type": "ready",
+        "at": "2026-10-13T06:01:16.128Z",
+        "task": "A2-investigation-v55-lantern-save-restore-action2-20261013",
+        "delivery": "21e53090b2b6efedc86b593c740a3c33c55728d2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-lantern-v55-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:01:43.646Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7d6768654b48595f3dcabfad0e1819220ad17ede",
+        "type": "ready",
+        "at": "2026-10-13T06:02:11.160Z",
+        "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013",
+        "delivery": "7d6768654b48595f3dcabfad0e1819220ad17ede"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-v55-do-name-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:02:59.390Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Three B deliveries are ready; remaining v55 candidates depend on pending B/A2/C source ownership."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-A-v55-pyrolisk-d8458f7a-20261013",
+        "type": "received",
+        "at": "2026-10-13T06:09:19.906Z",
+        "task": "A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013",
+        "delivery": "d8458f7a9b5609483a99f7d1fb788f3eb3048fef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-B-v55-query-24ff7c63-20261013",
+        "type": "received",
+        "at": "2026-10-13T06:09:22.577Z",
+        "task": "B-investigation-v55-traditional-floor-query-colon-action2-20261013",
+        "delivery": "24ff7c63957e12c23afde9858083454ce03ea36c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-C-v55-trap-b0be6cb2-20261013",
+        "type": "received",
+        "at": "2026-10-13T06:09:24.964Z",
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
+        "delivery": "b0be6cb22f22aca64538e60314a2bb2ef172a29e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-A-v55-lantern-21e53090-20261013",
+        "type": "received",
+        "at": "2026-10-13T06:09:27.316Z",
+        "task": "A2-investigation-v55-lantern-save-restore-action2-20261013",
+        "delivery": "21e53090b2b6efedc86b593c740a3c33c55728d2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-B-v55-ogre-b3a095e1-20261013",
+        "type": "received",
+        "at": "2026-10-13T06:09:29.903Z",
+        "task": "B-investigation-v55-blind-ogre-extra-healing-action5-20261013",
+        "delivery": "b3a095e1bf941171ac53635f2c7697a4b47daef2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-B-v55-name-7d676865-20261013",
+        "type": "received",
+        "at": "2026-10-13T06:09:32.377Z",
+        "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013",
+        "delivery": "7d6768654b48595f3dcabfad0e1819220ad17ede"
       }
     ]
   },
@@ -101733,17 +102184,6 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v55-worn-crystal-polymorph-dip-action3-20261013",
-        "worker": "B",
-        "goal": "fix-poly-obj-worn-armor-removal-v55-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "6bfa6f06ebbe4fb8ed72d2ffea7b346aae128bac",
-        "since": "2026-10-13T05:21:24.533Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "A2-investigation-v54-healer-wand-message-capitalization-action5-20261013",
         "worker": "A2",
         "goal": "fix-zap-disintegrate-mon-capitalization-v54-20261013",
@@ -101751,6 +102191,105 @@
         "status": "ready",
         "delivery": "82886c3b8a26f0a8098014a1a77bc814613627a7",
         "since": "2026-10-13T05:23:00.845Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013",
+        "worker": "B",
+        "goal": "fix-zap-dig-adjacent-pit-caller-v55-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "043f3fecd7160ab991a82bca287cde230883f7cc",
+        "since": "2026-10-13T05:33:25.481Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v55-pickup-burden-armor-action2-20261013",
+        "worker": "A2",
+        "goal": "fix-pickup-burden-prompt-source-order-v55-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "f8cef1f58ba2b34978ecf0760b2be964a84ce2ad",
+        "since": "2026-10-13T05:44:00.161Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013",
+        "worker": "C",
+        "goal": "port-zap-mon-spell-hits-spot-v54-angel-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "794e91a940e5dc7d36afbc4d5a7822fee817b138",
+        "since": "2026-10-13T05:45:09.541Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013",
+        "worker": "A2",
+        "goal": "fix-dothrow-breakobj-pyrolisk-explosion-v55-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d8458f7a9b5609483a99f7d1fb788f3eb3048fef",
+        "since": "2026-10-13T05:51:23.471Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v55-traditional-floor-query-colon-action2-20261013",
+        "worker": "B",
+        "goal": "port-pickup-simple-look-query-classes-v55-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "24ff7c63957e12c23afde9858083454ce03ea36c",
+        "since": "2026-10-13T05:51:44.064Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
+        "worker": "C",
+        "goal": "port-shk-use-unpaid-trapobj-v55-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "b0be6cb22f22aca64538e60314a2bb2ef172a29e",
+        "since": "2026-10-13T05:55:26.411Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v55-blind-ogre-extra-healing-action5-20261013",
+        "worker": "B",
+        "goal": "div-zap-bhitm-extra-healing-blindness-call-v55-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "b3a095e1bf941171ac53635f2c7697a4b47daef2",
+        "since": "2026-10-13T05:58:22.333Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v55-lantern-save-restore-action2-20261013",
+        "worker": "A2",
+        "goal": "fix-save-restore-floor-object-and-lantern-state-v55-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "21e53090b2b6efedc86b593c740a3c33c55728d2",
+        "since": "2026-10-13T06:01:16.128Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013",
+        "worker": "B",
+        "goal": "div-do-oname-artifact-wipeout-rng-v55-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "7d6768654b48595f3dcabfad0e1819220ad17ede",
+        "since": "2026-10-13T06:02:11.160Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -102246,8 +102785,8 @@
     ]
   },
   "development": {
-    "executionCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
-    "measuredAt": "2026-10-13T05:27:18.743Z",
+    "executionCommit": "07b8da88fabe9c6510a7253e4bc59363b3e01b68",
+    "measuredAt": "2026-10-13T05:44:39.685Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
