@@ -1,0 +1,57 @@
+{
+  "session": "synthetic/v58/v58-swallowed-wraith-growth-action2",
+  "corpus": "synthetic",
+  "batch": "v58",
+  "caseId": "v58-swallowed-wraith-growth-action2",
+  "manifestPath": "challenges/manifests/v58.json",
+  "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+  "recordingPath": "challenges/cases/v58/v58-swallowed-wraith-growth-action2.session.json",
+  "recordingSha256": "dc94441dee2712082a60d72c9d48ea4f50fa21cf3811250cf8d3338737d284d7",
+  "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v58.json",
+  "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+  "remainingScreens": 274,
+  "recordedSteps": 274,
+  "status": "complete",
+  "commit": "56210989089654f96bbbfe6a62f0f33b149c40c2",
+  "mismatch": {
+    "kind": "runtime error",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v58/v58-swallowed-wraith-growth-action2"
+    ],
+    "remainingScreens": 274,
+    "remainingScreensUpperBound": null,
+    "earliestStep": null,
+    "caseId": "v58-swallowed-wraith-growth-action2",
+    "batch": "v58",
+    "recordingPath": "challenges/cases/v58/v58-swallowed-wraith-growth-action2.session.json",
+    "segment": 0,
+    "step": 231,
+    "error": "ReferenceError: grow_up is not defined"
+  },
+  "summary": "The swallowed-wraith synthetic recording reaches do.c:engulfer_digests_food when a digesting swallower consumes a CORPSE with corpsenm PM_WRAITH. C calls (void) grow_up(u.ustuck, 0), and js/makemon.js already exports grow_up; js/do.js awaits grow_up in the corresponding branch but does not import it, so the fresh JS replay throws ReferenceError at input step 231 before completing digestion. The general repair is to bind the existing callee in do.js.",
+  "source": {
+    "file": "do.c",
+    "branch": "Inside engulfer_digests_food, after a digesting engulfer consumes a wraith CORPSE, the could_grow branch invokes grow_up on u.ustuck with a null victim; the C return value is discarded.",
+    "functions": [
+      "engulfer_digests_food"
+    ],
+    "callers": [
+      "dropz (do.c:823) -> engulfer_digests_food (do.c:849)"
+    ],
+    "dependencies": [
+      "makemon.c:grow_up (already implemented and exported from js/makemon.js)"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Fresh scan run-OnYMAC at committed HEAD 56210989089654f96bbbfe6a62f0f33b149c40c2 reproduces ReferenceError: grow_up is not defined at js/do.js:2321:9; the stack is engulfer_digests_food -> dropz -> dropx -> drop -> dodrop. Diagnostic receipt: /tmp/teleport-validation-1000/run-OnYMAC/receipt.json.",
+    "Upstream nethack-c/upstream/src/do.c:849-881 checks PM_WRAITH and reaches (void) grow_up(u.ustuck, (struct monst *) 0); do.c:823 calls the helper from dropz.",
+    "JavaScript js/do.js:2279-2327 mirrors the PM_WRAITH branch and awaits grow_up at line 2321, but the module has no import from ./makemon.js; js/makemon.js:369 exports grow_up. This is a missing production binding, not unported behavior or an incomplete callee.",
+    "Saved baseline evaluation challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v58.json records this case failed with error \"grow_up is not defined\" (0/274 screens, 0/3248 RNG, 0/274 cursors).",
+    "The corresponding production command path is the saved recipe action sequence that drops a wraith corpse while engulfed; C displays instant digestion before the later engulfing attack, while JS throws at the void-discarded growth call."
+  ]
+}
