@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T03:49:00.147Z",
+  "capturedAt": "2026-10-13T03:59:32.998Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -100798,6 +100798,71 @@
         "type": "accepted",
         "at": "2026-10-13T03:48:10.295Z",
         "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013-611263cfb4158bfa066da3a9de96edbcaf98ab66",
+        "type": "published",
+        "at": "2026-10-13T03:49:14.454Z",
+        "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
+        "commit": "611263cfb4158bfa066da3a9de96edbcaf98ab66"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-a-firewand-20261013",
+        "type": "activity",
+        "at": "2026-10-13T03:49:59.678Z",
+        "task": "A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013",
+        "phase": "review",
+        "reason": "Reviewing the ready fire-wand branch and saved matching completed-action evidence; official one-case scoring confirms error null."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-firewand-3d403994a-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T03:50:31.530Z",
+        "task": "A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013",
+        "integration": "3d403994ae35fe3f31ee2f3b856002abe1c79933"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-412de20e0708bad00d6f62577bad4e4d3b082b10",
+        "type": "ready",
+        "at": "2026-10-13T03:55:43.687Z",
+        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
+        "delivery": "412de20e0708bad00d6f62577bad4e4d3b082b10"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-insects-412de20e-20261013",
+        "type": "received",
+        "at": "2026-10-13T03:56:21.347Z",
+        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
+        "delivery": "412de20e0708bad00d6f62577bad4e4d3b082b10"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v54-mcastu-after-insects-20261013",
+        "type": "turn",
+        "at": "2026-10-13T03:56:50.323Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Waiting for insects delivery acceptance to release the shared spell dispatcher; other admitted cases are owned or held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013-3d403994ae35fe3f31ee2f3b856002abe1c79933-validated",
+        "type": "validated",
+        "at": "2026-10-13T03:57:45.083Z",
+        "task": "A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013-3d403994ae35fe3f31ee2f3b856002abe1c79933-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T03:58:08.574Z",
+        "task": "A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013"
       }
     ]
   },
@@ -100878,13 +100943,13 @@
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013",
-        "worker": "A2",
-        "goal": "divergence-muse-monster-fire-wand-v54-20261013",
+        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
+        "worker": "B",
+        "goal": "port-mcastu-insects-v54-healer-cleric-action2-20261013",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "e1274be5f6277c6e05d37bb72bf827c23254af26",
-        "since": "2026-10-13T02:44:50.582Z",
+        "delivery": "412de20e0708bad00d6f62577bad4e4d3b082b10",
+        "since": "2026-10-13T03:55:43.687Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -101391,8 +101456,8 @@
     ]
   },
   "development": {
-    "executionCommit": "30086fe1228d698aeb6b419b169737dfbc6cde3a",
-    "measuredAt": "2026-10-13T03:45:46.897Z",
+    "executionCommit": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
+    "measuredAt": "2026-10-13T03:55:31.799Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

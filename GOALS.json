@@ -296613,7 +296613,7 @@
     {
       "id": "divergence-muse-monster-fire-wand-v54-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement find_offensive, use_offensive from muse.c",
       "cFile": "muse.c",
       "sessions": [
@@ -296623,10 +296623,108 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
       "delivered": null,
       "function": "find_offensive",
-      "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3"
+      "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+      "closeStanding": {
+        "sha": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "30086fe1228d698aeb6b419b169737dfbc6cde3a",
+        "target": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/3d403994ae35fe3f31ee2f3b856002abe1c79933/run-hosted-0xYrTU/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "find_offensive",
+            "implementation": "js/muse.js",
+            "symbol": "find_offensive",
+            "sourceReview": "Bounded branch implementation at muse.c:1421-1594: the WAN_FIRE loop arm selects MUSE_WAN_FIRE only for a charged wand when the monster has not been seen resisting fire and the existing nomore condition allows it. Other C arms remain outside this correction and are not certified.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku:758 calls find_offensive before monster attacks; the admitted step 505 reaches this caller. js/monmove.js:dochug also calls find_offensive after movement, matching monmove.c:948."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 505,
+                "throughStep": 510,
+                "source": "mhitu.c:mattacku -> muse.c:find_offensive selects WAN_FIRE; the step 505–510 recorded continuation matches screens, cursor, and RNG."
+              }
+            ]
+          },
+          {
+            "name": "use_offensive",
+            "implementation": "js/muse.js",
+            "symbol": "use_offensive",
+            "sourceReview": "Bounded MUSE_WAN_FIRE branch implementation at muse.c:1824-1849: precheck first, identify if visible, set gm.m_using/current_wand/buzzer, use buzz_force_miss until mwandexp then buzz, use BZ_M_WAND(BZ_OFS_WAN), six dice, clear transient state, set mwandexp, and return 1 for dead or 2 otherwise. Other arms are not certified by this branch-specific correction.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "useOffensiveItem",
+                "source": "C mhitu.c:mattacku:758-762 calls use_offensive; JS adapter passes state, env and random to js/muse.js:use_offensive."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "C returns immediately only for use_offensive result 1; result 2 continues to ordinary processing. JS uses the same condition at js/mhitu.js:1841-1847."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs",
+              "scripts/muse-offensive.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 505,
+                "throughStep": 510,
+                "source": "C mhitu.c:mattacku -> muse.c:use_offensive MUSE_WAN_FIRE -> mzapwand/buzz_force_miss/dobuzz; matching runtime includes caller result 2 and later ordinary processing through step 510."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected impure entry point is a monster using a charged fire wand during mhitu.c:mattacku. JS path is js/mhitu.js:mattacku -> js/unported_monster_actions.js:useOffensiveItem -> js/muse.js. The replay matches all screens, cursors, and RNG through step 510, including the C caller return. The separate monmove.c:dochug post-movement selector remains an active caller and is not newly claimed as a distinct completed entry point.",
+        "entryPoints": [
+          {
+            "name": "Monster uses fire wand against hero",
+            "functions": [
+              "find_offensive",
+              "use_offensive"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 505,
+                "throughStep": 510,
+                "source": "mhitu.c:mattacku -> muse.c:find_offensive -> muse.c:use_offensive; JS mhitu.js -> unported_monster_actions.js -> muse.js."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
