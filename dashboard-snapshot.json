@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T06:35:39.745Z",
+  "capturedAt": "2026-10-13T07:15:42.106Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -102239,6 +102239,281 @@
         "worker": "Prep",
         "kind": "challenge-preparation",
         "batch": "v61"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v54-healer-wand-message-capitalization-action5-20261013-7450b0e3e11ee7a13a2a57a090422bcadd6c4c78",
+        "type": "published",
+        "at": "2026-10-13T06:35:53.098Z",
+        "task": "A2-investigation-v54-healer-wand-message-capitalization-action5-20261013",
+        "commit": "7450b0e3e11ee7a13a2a57a090422bcadd6c4c78"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-broken-wand-02bccc11-20261013",
+        "type": "received",
+        "at": "2026-10-13T06:36:40.576Z",
+        "task": "C-investigation-v55-broken-teleport-wand-ogre-action3-20261013",
+        "delivery": "02bccc11b749801d61bf28163c1cbde802d2c19b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-prep24-18b60878-20261013",
+        "type": "received",
+        "at": "2026-10-13T06:36:43.452Z",
+        "task": "Prep24",
+        "delivery": "18b60878251f96d7acedc3097cb6ceef06d05b68"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-b-conjoined-pit-043f3fec-20261013",
+        "type": "activity",
+        "at": "2026-10-13T06:36:46.207Z",
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013",
+        "phase": "review",
+        "reason": "Verify the next ready bounded digging caller delivery and preserved checks before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-active-healer-v54-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:36:59.135Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing the remaining healer case mismatch from its admitted replay and NetHack source."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-investigation-v54-healer-kirin-mage-strength-stun-residual-20261013",
+        "type": "assign",
+        "at": "2026-10-13T06:37:02.380Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-residual-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-conjoined-pit-b9cbf1ba-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T06:39:16.432Z",
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013",
+        "integration": "b9cbf1ba63b2dc85a7cd273d9d0c844b24674f5c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-implement-muse-offensive-v54-healer-20261013b",
+        "type": "implement",
+        "at": "2026-10-13T06:41:27.791Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-residual-20261013",
+        "goal": "port-muse-offensive-item-selection-and-use-v54-healer-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep25-v61-initial-c-20261016",
+        "type": "turn",
+        "at": "2026-10-13T06:44:26.151Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep25 v61 claimed after immutable v60 submission; recording twelve independently planned C setup missions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-b-conjoined-pit-regression-20261013",
+        "type": "feedback",
+        "at": "2026-10-13T06:46:33.312Z",
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013",
+        "delivery": "043f3fecd7160ab991a82bca287cde230883f7cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-pit-import-correction-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:49:43.092Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Repairing the zap_dig shop-wall constant binding and validating both affected admitted cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-pit-v55-replay-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:50:01.246Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Validating the zap_dig constant-import correction against both affected admitted cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-c-unpaid-trap-range-20261013",
+        "type": "feedback",
+        "at": "2026-10-13T06:52:09.690Z",
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
+        "delivery": "b0be6cb22f22aca64538e60314a2bb2ef172a29e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep25-v61-actions-c-20261016",
+        "type": "turn",
+        "at": "2026-10-13T06:52:34.885Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Twelve v61 C setups completed; recording source-based action and geometry scouts before JavaScript comparisons."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-v55-conjoined-pit-20261013-shopwall-correction",
+        "type": "resume",
+        "at": "2026-10-13T06:53:33.378Z",
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-unpaid-range-correction-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:54:08.780Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-unpaid-beartrap-range-correction-20261013",
+        "type": "resume",
+        "at": "2026-10-13T06:54:12.639Z",
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-pit-final-replay-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:54:36.096Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Finalizing the zap_dig constant-import correction against both affected admitted cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f53cece63185e6f96d6f39895b52bc42c2e166db",
+        "type": "ready",
+        "at": "2026-10-13T06:54:49.803Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-residual-20261013",
+        "delivery": "f53cece63185e6f96d6f39895b52bc42c2e166db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-pit-final-target-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:54:52.808Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Finalizing the zap_dig constant-import correction against both affected admitted cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-muse-f53cece6-20261013",
+        "type": "received",
+        "at": "2026-10-13T06:55:23.225Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-residual-20261013",
+        "delivery": "f53cece63185e6f96d6f39895b52bc42c2e166db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f0b9252ef93ae79f1b319e24b494a9251610af44",
+        "type": "ready",
+        "at": "2026-10-13T06:56:03.772Z",
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013",
+        "delivery": "f0b9252ef93ae79f1b319e24b494a9251610af44"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-pit-correction-ready-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:56:24.158Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Pit correction is ready for integration; original and later B deliveries remain preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3361490d558c47ee9dbc4458f92f2420496483ba",
+        "type": "ready",
+        "at": "2026-10-13T06:56:32.501Z",
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
+        "delivery": "3361490d558c47ee9dbc4458f92f2420496483ba"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-pit-correction-f0b9252e-20261013",
+        "type": "received",
+        "at": "2026-10-13T06:57:02.551Z",
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013",
+        "delivery": "f0b9252ef93ae79f1b319e24b494a9251610af44"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-trap-range-3361490d-20261013",
+        "type": "received",
+        "at": "2026-10-13T06:57:05.327Z",
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
+        "delivery": "3361490d558c47ee9dbc4458f92f2420496483ba"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-observed-a-muse-finished-20261013",
+        "type": "turn",
+        "at": "2026-10-13T06:57:07.965Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Offensive-item port is submitted; waiting for integration to release the healer residual."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-pit-corrected-823d8044-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T06:58:11.345Z",
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013",
+        "integration": "823d8044b9783901d18d24b0fe6d7469e286f498"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-observed-c-trap-correction-finished-20261013",
+        "type": "turn",
+        "at": "2026-10-13T07:10:38.290Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Unpaid-trap evidence correction is submitted; waiting for ready deliveries to integrate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013-823d8044b9783901d18d24b0fe6d7469e286f498-validated",
+        "type": "validated",
+        "at": "2026-10-13T07:11:16.645Z",
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013-823d8044b9783901d18d24b0fe6d7469e286f498-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T07:11:56.059Z",
+        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep25-v61-followups-active-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:12:25.126Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep25 records five C menu and terrain follow-ups; all prior attempts are preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep25-v61-source-followups-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:14:06.179Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep25 refines recharge history, Sokoban destination and grapple selection through independent C gameplay."
       }
     ]
   },
@@ -102302,17 +102577,6 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v55-conjoined-pit-horizontal-dig-action3-20261013",
-        "worker": "B",
-        "goal": "fix-zap-dig-adjacent-pit-caller-v55-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "043f3fecd7160ab991a82bca287cde230883f7cc",
-        "since": "2026-10-13T05:33:25.481Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "A2-investigation-v55-pickup-burden-armor-action2-20261013",
         "worker": "A2",
         "goal": "fix-pickup-burden-prompt-source-order-v55-20261013",
@@ -102353,17 +102617,6 @@
         "status": "ready",
         "delivery": "24ff7c63957e12c23afde9858083454ce03ea36c",
         "since": "2026-10-13T05:51:44.064Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
-        "worker": "C",
-        "goal": "port-shk-use-unpaid-trapobj-v55-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b0be6cb22f22aca64538e60314a2bb2ef172a29e",
-        "since": "2026-10-13T05:55:26.411Z",
         "blockedBy": [],
         "unblocks": 0
       },
@@ -102426,6 +102679,28 @@
           "Prep22",
           "Prep23"
         ],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-residual-20261013",
+        "worker": "A2",
+        "goal": "port-muse-offensive-item-selection-and-use-v54-healer-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "f53cece63185e6f96d6f39895b52bc42c2e166db",
+        "since": "2026-10-13T06:54:49.803Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v55-unpaid-beartrap-install-action5-20261013",
+        "worker": "C",
+        "goal": "port-shk-use-unpaid-trapobj-v55-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "3361490d558c47ee9dbc4458f92f2420496483ba",
+        "since": "2026-10-13T06:56:32.501Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -102920,8 +103195,8 @@
     ]
   },
   "development": {
-    "executionCommit": "cbe35a2f290f2277c4ea06e52999d8f274e1d86b",
-    "measuredAt": "2026-10-13T06:17:28.563Z",
+    "executionCommit": "823d8044b9783901d18d24b0fe6d7469e286f498",
+    "measuredAt": "2026-10-13T07:02:59.962Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
