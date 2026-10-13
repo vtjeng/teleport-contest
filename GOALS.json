@@ -297228,6 +297228,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "divergence-fix-v54-angel-admagm-action3-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement castmu from mcastu.c",
+      "cFile": "mcastu.c",
+      "sessions": [
+        "synthetic/v54/v54-angel-adjacent-magic-missiles-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v54-angel-adjacent-magic-missiles-action3-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "castmu",
+      "session": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3"
     }
   ]
 }
