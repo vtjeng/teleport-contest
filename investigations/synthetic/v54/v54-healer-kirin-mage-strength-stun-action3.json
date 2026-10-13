@@ -216,7 +216,32 @@
         "productionCaller": "zap.c:dobuzz calls disintegrate_mon at nethack-c/upstream/src/zap.c:4914 in the MAGIC_COOKIE branch after zhitm returns the disintegration sentinel; JS js/zap.js:dobuzz makes the corresponding call at js/zap.js:5585.",
         "jsOwner": "js/zap.js:disintegrate_mon currently interpolates monsterCommonName(mon, state), producing lowercase \"the vampire bat\" instead of Monnam-style \"The vampire bat\".",
         "intendedFix": "Use the existing Monnam(mon, state, env) source-aligned helper for this message; leave the unrelated step-659 offensive-item boundary separate."
-      }
+      },
+      "afterFix": {
+        "codeCommit": "ac054e2bd08aefff5934ef50002362828c1a3636",
+        "replayCommit": "ac054e2bd08aefff5934ef50002362828c1a3636",
+        "replayInputSha256": "185398e2e2b1047bbeda8a47ccac1d83abfe801db52e38e756750565449a9fa5",
+        "receipt": "/tmp/teleport-validation-1000/run-s2vphW/receipt.json",
+        "emittedScreens": 659,
+        "recordedSteps": 778,
+        "divergence": null,
+        "boundary": {
+          "step": 659,
+          "reason": "simple monster action requires monster offensive item use"
+        },
+        "focusedTests": {
+          "command": "node --test scripts/zap-ray.test.mjs",
+          "result": "passed",
+          "log": ".cache/a-zap-ray-focused.log"
+        },
+        "lint": {
+          "command": "npm run lint",
+          "result": "passed",
+          "log": ".cache/a-zap-lint.log"
+        },
+        "implementation": "js/zap.js disintegrate_mon now uses Monnam(mon, state, env) in the visible message; the complete admitted replay matches through the unrelated step-659 offensive-item-use boundary."
+      },
+      "remainingWork": "The step-659 simple monster action still requires monster offensive-item use, outside this capitalization correction."
     }
   ]
 }
