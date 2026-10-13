@@ -11,7 +11,7 @@
   "evaluationCommit": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
   "status": "complete",
   "commit": "897c1ffc7db3a1db8321e7df56e99d9b566afbbf",
-  "summary": "On the admitted v53 case, horizontal wand digging breaks a shop wall and C bills the accumulated damage through shk.c:pay_for_damage; the JS zap_dig branch currently records note_unported and skips the call. The saved preparation trace identifies the resulting missing shopkeeper move and billing messages at the first divergence. The bounded source task is the whole pay_for_damage function and its existing C callers, with dig.c:dig and dokick.c:really_kick_object held until their current owners are accepted.",
+  "summary": "The admitted v53 ring-shop case now strictly matches after the source-ordered shk.c:pay_for_damage relocation correction: the final bridge replay at eefc50c62cf12bf6d1cf23fce78748cabefc496a matched all 295 screens/cursors and 4,617 RNG calls with no runner error. The earlier 0ddb baseline and original first-divergence diagnosis remain preserved below. The independent Healer yes-payment recipe still stops in home_shk relocation/priest.c:move_special and remains outside the passing recordings corpus.",
   "source": {
     "file": "shk.c",
     "branch": "When hero-caused wall or door damage has a live damage-list cost and an in-shop keeper, pay_for_damage chooses the nearest affected keeper, performs source-ordered movement and payment/hostility behavior, and may request payment; this case reaches zap_dig’s shopwall tail and the keeper relocation/payment path.",
@@ -90,5 +90,61 @@
     "sourceFile": "dig.c",
     "function": "zap_dig",
     "message": "C calls shk.c:pay_for_damage after shop-wall digging; JS records the gap and skips the keeper response."
+  },
+  "finalReplay": {
+    "replayCommit": "eefc50c62cf12bf6d1cf23fce78748cabefc496a",
+    "replayInputSha256": "cf8bad96ba81ae9111fb1f02f85980350d069bc807e2c9b51c6c41fb24fa2856",
+    "recordingPath": "challenges/cases/v53/v53-ring-shop-wall-digging-damage-action3.session.json",
+    "recordingSha256": "36cd0c5a67add5e101979ecabf292962dcc20db0153dd9b7aa991805bc7a866b",
+    "outputPath": "/tmp/c-v53-shop-damage-selected-case-eefc50.json",
+    "outputSha256": "7abf2a66824b7f126599500833421c0cba2cc620ac2f3eb123c576b3dc42a8d0",
+    "metrics": {
+      "screens": {
+        "matched": 295,
+        "total": 295
+      },
+      "rng": {
+        "matched": 4617,
+        "total": 4617
+      },
+      "cursors": {
+        "matched": 295,
+        "total": 295
+      }
+    },
+    "error": null,
+    "note": "Official one-case scorer replay on the final source tree; no aggregate scoring was run."
+  },
+  "history": {
+    "initialDiagnosisCommit": "897c1ffc7db3a1db8321e7df56e99d9b566afbbf",
+    "acceptedBaseline": {
+      "evaluationPath": "challenges/evaluations/accepted-0ddbafd22e56dbc0365fbc0355c9dac9352cba43-v53.json",
+      "evaluationCommit": "0ddbafd22e56dbc0365fbc0355c9dac9352cba43",
+      "remainingScreens": 29,
+      "metrics": {
+        "screens": {
+          "matched": 266,
+          "total": 295
+        },
+        "rng": {
+          "matched": 4555,
+          "total": 4617
+        },
+        "cursors": {
+          "matched": 292,
+          "total": 295
+        }
+      },
+      "error": null
+    },
+    "originalFirstMismatch": {
+      "segmentIndex": 0,
+      "stepIndex": 266,
+      "key": "screen",
+      "sourceFile": "dig.c",
+      "function": "zap_dig",
+      "cRng": null,
+      "jsRng": null
+    }
   }
 }
