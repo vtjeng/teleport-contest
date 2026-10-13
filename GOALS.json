@@ -295219,7 +295219,7 @@
     {
       "id": "div-fix-topl-clear-after-more-v53-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Repair the wrapped TTY More row lifecycle: clear the newline destination before writing the prompt, then reproduce docorner row clearing and row_refresh from the live display glyph buffer.",
       "cFile": "topl.c",
       "sessions": [
@@ -295230,10 +295230,104 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "644903f4dfbf2fb72ed95dab9297dbba854f81cf",
       "delivered": null,
       "function": "more",
-      "session": "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4"
+      "session": "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4",
+      "closeStanding": {
+        "sha": "644903f4dfbf2fb72ed95dab9297dbba854f81cf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9",
+        "target": "synthetic/v53/v53-mounted-dragon-purpleworm-engulf-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/644903f4dfbf2fb72ed95dab9297dbba854f81cf/run-hosted-oZC4ED/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "more",
+            "implementation": "js/topl.js",
+            "symbol": "more",
+            "pure": false,
+            "sourceReview": "Compared topl.c:more() and topl_putsym() with the wrapped message route. The C newline calls cl_end() before advancing to the next row, then calls cl_end() again at column zero before writing --More--. After the input boundary, more() calls docorner(1, cw->cury + 1, 0) for a wrapped line; docorner clears affected map rows and row_refresh reads gg.gbuf[y][x].glyph. The JS path now performs those clears in that order and resolves each current glyph number, skipping GLYPH_UNEXPLORED when its glyph-map entry is the blank null entry and no valid frame color is active. This does not use levl[x][y].glyph / remembered_glyph as the current display buffer. update_topl additionally replaces stale answered-query text at TOPLINE_EMPTY, and steal.c:remove_worn_item forwards the planning message callback into Blindf_off. wintty.c:tty_create_nhwindow(NHW_MAP) sets offy=1, so docorner clears physical row 0 then refreshes the map beginning on physical row 1. The JS fallback now uses that source value when the test/minimal state has no saved window descriptor.",
+            "callers": [
+              {
+                "path": "js/topl.js",
+                "symbol": "redotoplin",
+                "source": "topl.c:redotoplin calls more() when the topline wraps."
+              }
+            ],
+            "tests": [
+              "scripts/topl.test.mjs",
+              "scripts/moveloop-preamble.test.mjs",
+              "scripts/tutorial-startup.test.mjs",
+              "scripts/hack.test.mjs",
+              "scripts/help-command.test.mjs",
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-mounted-dragon-purpleworm-engulf-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 358,
+                "source": "mhitu.c:gulpmu -> topl.c:more -> topl_putsym newline -> wintty.c:docorner -> display.c:row_refresh."
+              },
+              {
+                "batch": "v53",
+                "caseId": "v53-blind-fountain-dip-nymph-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 222,
+                "source": "fountain.c:dipfountain -> steal.c:remove_worn_item -> topl.c:update_topl and topl.c:more -> wintty.c:docorner."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Both admitted TTY paths now match their full C recordings after the hosted correction: the purple-worm wrapped More path covers 359 screens/cursors and 3336 RNG calls; the blind fountain path covers 223 screens/cursors and 3123 RNG calls. C wintty.c:tty_create_nhwindow sets the NHW_MAP offy to 1; docorner clears physical row 0 and repaints map rows from the current glyph buffer. Saved wizard help C recordings also match cell-for-cell with the corrected redraw path. Focused regressions cover empty and stale screen rows, the minimal TTY fixture, terrain-message topline setup, help return frames, and pet-swap TTY handoff.",
+        "entryPoints": [
+          {
+            "name": "Wrapped monster-engulf More prompt and map-row repaint",
+            "functions": [
+              "more"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-mounted-dragon-purpleworm-engulf-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 358,
+                "source": "mhitu.c:gulpmu -> topl.c:more -> topl_putsym -> wintty.c:docorner -> display.c:row_refresh."
+              }
+            ]
+          },
+          {
+            "name": "Blind fountain-nymph message after an answered query",
+            "functions": [
+              "more"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-blind-fountain-dip-nymph-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 222,
+                "source": "fountain.c:dipfountain -> steal.c:remove_worn_item -> topl.c:update_topl/more."
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": []
+      }
     }
   ]
 }

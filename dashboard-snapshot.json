@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T00:53:53.988Z",
+  "capturedAt": "2026-10-13T01:23:00.547Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -99594,6 +99594,161 @@
         "at": "2026-10-13T00:53:46.824Z",
         "worker": "A2",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v53-quest-nemesis-nearby-action5-20261012-08f0d36cc8546733a6339581f9a97937a2c55edd",
+        "type": "published",
+        "at": "2026-10-13T00:54:09.848Z",
+        "task": "A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+        "commit": "08f0d36cc8546733a6339581f9a97937a2c55edd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v53-quest-nemesis-stun-residual-action5-20261013",
+        "type": "assign",
+        "at": "2026-10-13T00:54:30.337Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-mounted-nymph-f9e5fb07-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T00:55:00.848Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "integration": "f9e5fb07c84d24216dca852d6ff78fdf0b80dabc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-mcast-stun-you-v53-step210-20261013",
+        "type": "implement",
+        "at": "2026-10-13T00:59:14.105Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "goal": "mcast-stun-you-v53-quest-nemesis-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-validated-b-mounted-nymph-failed-38329610659-20261013",
+        "type": "validated",
+        "at": "2026-10-13T01:02:15.379Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-waiting-b-mounted-nymph-correction-20261013",
+        "type": "activity",
+        "at": "2026-10-13T01:05:08.398Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "phase": "waiting",
+        "reason": "B is correcting hosted test failures in message cleanup and display fixtures before submitting a new delivery; Main preserves the failed candidate and its artifacts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-mounted-nymph-hosted-correction-20261013",
+        "type": "resume",
+        "at": "2026-10-13T01:06:29.642Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fb5cf722e9f81979a2ff8e5fdd9b3132dffa2a49",
+        "type": "ready",
+        "at": "2026-10-13T01:13:15.899Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "delivery": "fb5cf722e9f81979a2ff8e5fdd9b3132dffa2a49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-mounted-nymph-correction-fb5cf722-20261013",
+        "type": "received",
+        "at": "2026-10-13T01:13:33.102Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "delivery": "fb5cf722e9f81979a2ff8e5fdd9b3132dffa2a49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-mounted-nymph-correction-644903f4-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T01:14:28.710Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "integration": "644903f4dfbf2fb72ed95dab9297dbba854f81cf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ca3ca09ea4abb5210f8e525148199a6dcd340616",
+        "type": "ready",
+        "at": "2026-10-13T01:14:43.595Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "delivery": "ca3ca09ea4abb5210f8e525148199a6dcd340616"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9e2470b0b07e4f4ab68703c4965423a859f923ff",
+        "type": "ready",
+        "at": "2026-10-13T01:15:12.641Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "delivery": "9e2470b0b07e4f4ab68703c4965423a859f923ff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-mounted-nymph-correction-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:15:32.891Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Correction is queued for Main validation. Remaining admitted cases are assigned or held; waiting for the next batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-billing-9e2470b0-20261013",
+        "type": "received",
+        "at": "2026-10-13T01:15:57.657Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "delivery": "9e2470b0b07e4f4ab68703c4965423a859f923ff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-nemesis-ca3ca09e-20261013",
+        "type": "received",
+        "at": "2026-10-13T01:16:04.897Z",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "delivery": "ca3ca09ea4abb5210f8e525148199a6dcd340616"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-observed-c-idle-after-billing-delivery-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:16:15.812Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Billing fix submitted. Remaining admitted work is reserved or held; waiting for acceptance and the next prepared batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-observed-a-idle-after-nemesis-delivery-20261013",
+        "type": "turn",
+        "at": "2026-10-13T01:16:24.417Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Quest-nemesis fix submitted. Remaining admitted work is reserved or held; waiting for acceptance and the next prepared batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012-644903f4dfbf2fb72ed95dab9297dbba854f81cf-validated",
+        "type": "validated",
+        "at": "2026-10-13T01:20:37.169Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012-644903f4dfbf2fb72ed95dab9297dbba854f81cf-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T01:21:13.264Z",
+        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012"
       }
     ]
   },
@@ -99674,13 +99829,24 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012",
-        "worker": "B",
-        "goal": "div-fix-topl-clear-after-more-v53-20261012",
+        "task": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+        "worker": "A2",
+        "goal": "mcast-stun-you-v53-quest-nemesis-20261013",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "4dea0a98ec32ded03c0cc553340b7a589f43c9f4",
-        "since": "2026-10-13T00:52:14.662Z",
+        "delivery": "ca3ca09ea4abb5210f8e525148199a6dcd340616",
+        "since": "2026-10-13T01:14:43.595Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "worker": "C",
+        "goal": "C-port-pay-for-damage-v53-20261012",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "9e2470b0b07e4f4ab68703c4965423a859f923ff",
+        "since": "2026-10-13T01:15:12.641Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -100177,8 +100343,8 @@
     ]
   },
   "development": {
-    "executionCommit": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9",
-    "measuredAt": "2026-10-13T00:46:16.936Z",
+    "executionCommit": "644903f4dfbf2fb72ed95dab9297dbba854f81cf",
+    "measuredAt": "2026-10-13T01:19:36.559Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
