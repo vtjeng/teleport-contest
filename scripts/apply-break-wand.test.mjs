@@ -30,3 +30,11 @@ test('apply.c do_break_wand sends undead-turning floor objects through bhito', a
         '../challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json',
     );
 });
+
+// This admitted v55 case puts a surviving ogre next to the hero when a
+// one-charge teleport wand breaks, reaching do_break_wand's bhitm callback.
+test('apply.c do_break_wand sends adjacent monsters hit by WAN_TELEPORTATION through bhitm', async () => {
+    await assertSessionMatches(
+        '../challenges/cases/v55/v55-broken-teleport-wand-ogre-action3.session.json',
+    );
+});

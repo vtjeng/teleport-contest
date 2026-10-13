@@ -4908,7 +4908,8 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
             const monster = m_at(x, y, state);
             if (monster) {
                 if (obj.otyp === WAN_LIGHT || obj.otyp === WAN_STRIKING
-                    || obj.otyp === WAN_POLYMORPH) {
+                    || obj.otyp === WAN_POLYMORPH
+                    || obj.otyp === WAN_TELEPORTATION) {
                     await bhitm(monster, obj, state, random, env);
                 } else {
                     note_unported('zap.c bhitm');
