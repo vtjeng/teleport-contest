@@ -295897,7 +295897,7 @@
     {
       "id": "fix-read-drop-boulder-killed-caller-v54-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Route lethal by-you earth-boulder damage through the existing killed/xkilled path.",
       "cFile": "read.c",
       "sessions": [
@@ -295907,10 +295907,84 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "0d2136a71ac142dd32ebe8b3480f7f39b5f7f3f8",
       "delivered": null,
       "function": "drop_boulder_on_monster",
-      "session": "synthetic/v54/v54-earth-boulder-kills-lichen-action2"
+      "session": "synthetic/v54/v54-earth-boulder-kills-lichen-action2",
+      "closeStanding": {
+        "sha": "0d2136a71ac142dd32ebe8b3480f7f39b5f7f3f8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "df5ff0a2196351b29a774a3be604914535a2a147",
+        "target": "synthetic/v54/v54-earth-boulder-kills-lichen-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/0d2136a71ac142dd32ebe8b3480f7f39b5f7f3f8/run-hosted-xN4XdX/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "drop_boulder_on_monster",
+            "implementation": "js/read.js",
+            "symbol": "drop_boulder_on_monster",
+            "sourceFile": "read.c",
+            "sourceReview": "This is a bounded repair of read.c:drop_boulder_on_monster (2341-2410), not a claim that the whole source function is newly complete. After the source-positioned damage subtraction, the byu && DEADMONSTER arm calls killed(mtmp); killed forwards XKILL_GIVEMSG to xkilled, which performs message, monster removal, corpse/drop, conduct and related cleanup before the caller wakes nearby monsters and finishes boulder placement. JS previously called note_unported(\"mon.c killed\") in the same arm, leaving the removed monster absent from dmonsfree’s pending queue. The JS caller now awaits the existing killed(monster,state,env), carrying the same state and random/message environment and preserving call order. The separate byu=false arm still records note_unported(\"mon.c mondied\") and is outside this selected branch.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_earth",
+                "source": "read.c:seffect_earth calls drop_boulder_on_monster for surrounding squares with byu=TRUE; js/read.js:seffect_earth calls the same helper with true."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "killed",
+                "source": "mon.c:killed calls xkilled(mtmp,XKILL_GIVEMSG); existing js/mon.js:killed awaits xkilled with the supplied state and environment."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "Production entry is the read command -> read.c:doread -> seffects -> seffect_earth -> drop_boulder_on_monster; the admitted recording reaches it through that command path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-earth.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-earth-boulder-kills-lichen-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 217,
+                "source": "cmd.c read command -> read.c:doread -> seffects -> seffect_earth -> drop_boulder_on_monster byu lethal branch -> mon.c:killed/xkilled"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The production entry is the ordinary read command flowing through doread, seffects and seffect_earth. The admitted v54 case reaches drop_boulder_on_monster’s lethal by-you branch at input step 190; the fresh C/JavaScript differential matches the complete 218-step recording after the call is wired. The dependency killed/xkilled is reused and receives no new source completion claim. The byu=false mondied gap remains separate and unclaimed.",
+        "entryPoints": [
+          {
+            "name": "Read command: lethal Scroll of Earth boulder hit",
+            "functions": [
+              "drop_boulder_on_monster"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-earth-boulder-kills-lichen-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 217,
+                "source": "cmd.c read command -> read.c:doread -> seffects -> seffect_earth -> drop_boulder_on_monster byu=true -> mon.c:killed"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
