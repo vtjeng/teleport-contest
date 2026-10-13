@@ -298800,7 +298800,7 @@
     {
       "id": "div-do-oname-artifact-wipeout-rng-v55-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Keep the artifact scuff count on display RNG, but let wipeout_text use its source-owned process RNG for character degradation.",
       "cFile": "do_name.c",
       "sessions": [
@@ -298810,10 +298810,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "ea1d6d9cbf8f79252bee6d2e93416a9a61ef658d",
       "delivered": null,
       "function": "do_oname",
-      "session": "synthetic/v55/v55-named-chaotic-artifact-action2"
+      "session": "synthetic/v55/v55-named-chaotic-artifact-action2",
+      "closeStanding": {
+        "sha": "ea1d6d9cbf8f79252bee6d2e93416a9a61ef658d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "60a94ba634d9406a0fe41fb58ee5eb6c9956d242",
+        "target": "synthetic/v55/v55-named-chaotic-artifact-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/ea1d6d9cbf8f79252bee6d2e93416a9a61ef658d/run-hosted-IJpDb3/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "do_oname",
+            "implementation": "js/do_name.js",
+            "symbol": "do_oname",
+            "sourceReview": "This is a bounded caller divergence repair, not new whole-function completion. Existing do_name.c:do_oname full-body source review is recorded in GOALS.json for the closed do_name.c port. Compared do_name.c:349 and the existing engrave.c:wipeout_text implementation: rnd_on_display_rng(2) selects the count; a zero seed then selects character positions, rubout choices, and substitutions with process rn2 calls. JS previously passed rn2_on_display_rng as wipeout_text's random.rn2 provider, replacing those core draws with display-only randomness. The caller now supplies only the display-RNG count and seed zero; js/engrave.js's existing engravingEnv defaults to the core rn2/rnd provider. wipeout_text is a void dependency and its result is not consumed. No change to its helper body or other do_oname branches is claimed.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "docallcmd",
+                "source": "do_name.c:docallcmd case 'i' gets a nameable object then calls do_oname; the selected #name command follows the same production route."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name-wipeout-rng.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-named-chaotic-artifact-action2",
+                "segment": 0,
+                "fromStep": 102,
+                "throughStep": 158,
+                "source": "The matching 159-step replay reaches do_oname through #name, rejects the canonical artifact name, applies scuffing, and returns through the remaining naming flow."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This is a bounded correction within the already source-reviewed do_name.c:do_oname function; it does not claim whole-function or helper completion. The selected production entry is the #name object command through do_name.c:docallcmd case 'i'. The canonical artifact-name rejection path uses display RNG once to choose the scuff count, then calls the existing engrave.c:wipeout_text with seed zero so its degradation consumes the process RNG. The selected Rogue recording reaches this path, and the fresh replay now matches all 159 screens/input boundaries and its complete RNG stream.",
+        "entryPoints": [
+          {
+            "name": "Naming a chaotic Rogue's object with an existing artifact name",
+            "functions": [
+              "do_oname"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-named-chaotic-artifact-action2",
+                "segment": 0,
+                "fromStep": 102,
+                "throughStep": 158,
+                "source": "cmd.c:#name/do_name.c:docallcmd case 'i' -> do_name.c:do_oname; restrict_name rejects Stormbringer for the runed broadsword, then wipeout_text consumes game rn2 draws after the display-RNG count"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
