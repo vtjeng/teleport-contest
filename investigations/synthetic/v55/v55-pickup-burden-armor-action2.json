@@ -51,5 +51,12 @@
     "js/pickup.js:lift_object now calls ynq(qbuf, state), preserving the C canned/repeated command-queue behavior and clearing the message window after the answer.",
     "The admitted v55 baseline evaluation records 117/160 screens, 2393/2398 RNG calls, 117/160 cursors and error null. Its first mismatch is segment 0 step 117, key comma, where JavaScript lacks C's Continue prompt.",
     "scripts/pickup.test.mjs exercises pickup_object() with a queued canned n answer, verifies the floor object remains on the floor and the queue is consumed, and pins C and JavaScript lift-before-pick_obj ordering."
-  ]
+  ],
+  "after": {
+    "codeCommit": "bf141196d016226f3963964913892d7694eb30d3",
+    "command": "node scripts/run-bounded.mjs focused -- node scripts/scan-sessions.mjs --json --synthetic v55/v55-pickup-burden-armor-action2",
+    "replayInputSha256": "a8611de855fcfe74ce7acd5d276ebf5d5a7e38b2f37f742cd671411a1c5c5ba5",
+    "receipt": "/tmp/teleport-validation-1000/run-XaWpkr/receipt.json",
+    "result": "All 160 recorded steps matched, including screens, cursors, RNG calls and input boundaries; no command refusal or unported behavior remained."
+  }
 }
