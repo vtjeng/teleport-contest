@@ -602,3 +602,17 @@ triage decisions or fix references.
   their commits and indexes. Root rehydrated those checkouts, passed all four
   recorder setup checks, and reconnected Luna-high A2/B/C and the dedicated
   preparation worker. Lost uncommitted proofs are recreated before use.
+
+### 2026-10-13 — grouped Prep handoff compatibility
+
+- The first grouped integration added a prep-integrating event. Older worker
+  checkouts rejected the shared ledger before recording their resumed turns.
+  The accepted ce51c523 commit contains the compatible parser; clean source
+  workers merged it before writing. Prep can use the accepted Main CLI from
+  its assigned checkout until its next clean merge.
+- Wakeups before publication again reached workers before their checkouts
+  contained the new manifests and baseline evaluations. They held claims
+  until c171803b was published, then resumed from the refreshed queue.
+- C's worker guide directs it to worker-state next, but the CLI reserves
+  that command for the coordinator. C used the shared queue and status for
+  its ownership check. No guide change is included here.
