@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T08:44:57.583Z",
+  "capturedAt": "2026-10-13T09:07:44.784Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -102909,6 +102909,105 @@
         "type": "accepted",
         "at": "2026-10-13T08:38:27.019Z",
         "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-residual-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v54-healer-kirin-mage-strength-stun-residual-20261013-a660eb9fdb710277d0652ab3bf8a4ae3099c7768",
+        "type": "published",
+        "at": "2026-10-13T08:45:11.730Z",
+        "task": "A2-investigation-v54-healer-kirin-mage-strength-stun-residual-20261013",
+        "commit": "a660eb9fdb710277d0652ab3bf8a4ae3099c7768"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v54-healer-dream-message-investigation-20261013",
+        "type": "assign",
+        "at": "2026-10-13T08:46:24.127Z",
+        "task": "A2-investigation-v54-healer-dream-message-action6-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v54-healer-dream-message-20261013",
+        "type": "turn",
+        "at": "2026-10-13T08:46:35.669Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-b-blind-ogre-20261013",
+        "type": "activity",
+        "at": "2026-10-13T08:47:17.876Z",
+        "task": "B-investigation-v55-blind-ogre-extra-healing-action5-20261013",
+        "phase": "review",
+        "reason": "Integrate the next ready bounded healing caller repair using preserved source tests and complete selected replay evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-blind-ogre-85c020e5-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T08:50:15.409Z",
+        "task": "B-investigation-v55-blind-ogre-extra-healing-action5-20261013",
+        "integration": "85c020e5e1c4bb33fe569728fbab336d139d95a3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v54-healer-dream-message-20261013",
+        "type": "implement",
+        "at": "2026-10-13T08:51:16.699Z",
+        "task": "A2-investigation-v54-healer-dream-message-action6-20261013",
+        "goal": "divergence-mcastu-aggravation-unaware-prefix-v54-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v55-blind-ogre-extra-healing-action5-20261013-85c020e5e1c4bb33fe569728fbab336d139d95a3-validated",
+        "type": "validated",
+        "at": "2026-10-13T08:59:28.858Z",
+        "task": "B-investigation-v55-blind-ogre-extra-healing-action5-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-dbf3348fbc5ef6559382cfa9111e478cfc797b9b",
+        "type": "ready",
+        "at": "2026-10-13T08:59:45.542Z",
+        "task": "A2-investigation-v54-healer-dream-message-action6-20261013",
+        "delivery": "dbf3348fbc5ef6559382cfa9111e478cfc797b9b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v55-blind-ogre-extra-healing-action5-20261013-85c020e5e1c4bb33fe569728fbab336d139d95a3-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T08:59:52.337Z",
+        "task": "B-investigation-v55-blind-ogre-extra-healing-action5-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-healer-delivery-await-queue-refresh-20261013",
+        "type": "turn",
+        "at": "2026-10-13T09:01:40.511Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No unreserved case is available in the saved queue. Waiting for Root to integrate ready deliveries and refresh the queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep26-v62-final-crosswalk-active-20261016",
+        "type": "turn",
+        "at": "2026-10-13T09:02:14.162Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep26 finalizes fifteen v62 cases after sixty-two C attempts and twenty-four byte-identical replays."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-dream-dbf3348f-20261013",
+        "type": "received",
+        "at": "2026-10-13T09:06:02.467Z",
+        "task": "A2-investigation-v54-healer-dream-message-action6-20261013",
+        "delivery": "dbf3348fbc5ef6559382cfa9111e478cfc797b9b"
       }
     ]
   },
@@ -102969,17 +103068,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v55-blind-ogre-extra-healing-action5-20261013",
-        "worker": "B",
-        "goal": "div-zap-bhitm-extra-healing-blindness-call-v55-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b3a095e1bf941171ac53635f2c7697a4b47daef2",
-        "since": "2026-10-13T05:58:22.333Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -103059,6 +103147,17 @@
           "Prep23",
           "Prep24"
         ],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v54-healer-dream-message-action6-20261013",
+        "worker": "A2",
+        "goal": "divergence-mcastu-aggravation-unaware-prefix-v54-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "dbf3348fbc5ef6559382cfa9111e478cfc797b9b",
+        "since": "2026-10-13T08:59:45.542Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -103553,8 +103652,8 @@
     ]
   },
   "development": {
-    "executionCommit": "063e058affac7e6c8f52101e830c10e69262c599",
-    "measuredAt": "2026-10-13T08:35:07.386Z",
+    "executionCommit": "85c020e5e1c4bb33fe569728fbab336d139d95a3",
+    "measuredAt": "2026-10-13T08:55:17.568Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
