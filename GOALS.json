@@ -297708,7 +297708,7 @@
     {
       "id": "port-zap-mon-spell-hits-spot-v54-angel-20261013",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mon_spell_hits_spot from zap.c",
       "cFile": "zap.c",
       "sessions": [
@@ -297718,7 +297718,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "d701d95714dc7c1f383fbf5c9450a46032c14fe3",
       "delivered": null,
       "functions": [
         {
@@ -297731,6 +297731,136 @@
       "range": {
         "from": 5501,
         "to": 5536
+      },
+      "closeStanding": {
+        "sha": "d701d95714dc7c1f383fbf5c9450a46032c14fe3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "61c08bcc989875b3fd8a502d0c3414456317e8ec",
+        "target": "synthetic/v54/v54-angel-adjacent-magic-missiles-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/d701d95714dc7c1f383fbf5c9450a46032c14fe3/run-hosted-dmb5Eq/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mon_spell_hits_spot",
+            "implementation": "js/zap.js",
+            "symbol": "mon_spell_hits_spot",
+            "pure": false,
+            "sourceReview": "Read zap.c:mon_spell_hits_spot in full (5501-5535). JavaScript preserves the conditional engraving lookup, C byte strlen, d(6,6) draw, magical wipe, AD_* to ZT_* conversion, and floor effect order. It uses canonical wipe_engr_at and zap_over_floor; both results are discarded as in C. The invalid-type impossible() path remains note_unported. No helper gap remains for the active callers.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "castmu",
+                "source": "mcastu.c:castmu calls mon_spell_hits_spot for AD_MAGM at line 294 after its missile damage/resistance arm."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_fire_pillar",
+                "source": "mcastu.c:mcast_fire_pillar calls the helper for AD_FIRE at line 561 after item effects."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_lightning",
+                "source": "mcastu.c:mcast_lightning calls the helper for AD_ELEC at line 594 after destroy_items and before flashburn."
+              }
+            ],
+            "tests": [
+              "scripts/mon-spell-hits-spot.test.mjs",
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/admagm-angel-tourist-independent.session.json",
+              "recordings/mcastu.c/admagm-angel-wizard-antimagic-variation.session.json",
+              "recordings/mcastu.c/grand-master-fire-pillar-independent.session.json",
+              "recordings/mcastu.c/grand-master-lightning-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-angel-adjacent-magic-missiles-action3",
+                "segment": 0,
+                "fromStep": 197,
+                "throughStep": 279,
+                "source": "mhitu.c:mattacku -> mcastu.c:castmu AD_MAGM -> zap.c:mon_spell_hits_spot; engraving erosion then zap_over_floor."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The complete impure zap.c helper is exercised through each active JS source caller. The AD_MAGM selected case covers engraving erosion. Existing strict independent recordings cover the AD_MAGM positive-damage and Antimagic variants, mcast_fire_pillar, and mcast_lightning. No whole mcastu.c caller function is claimed.",
+        "entryPoints": [
+          {
+            "name": "AD_MAGM adjacent monster spell with engraving",
+            "functions": [
+              "mon_spell_hits_spot"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-angel-adjacent-magic-missiles-action3",
+                "segment": 0,
+                "fromStep": 197,
+                "throughStep": 279,
+                "source": "mhitu.c:mattacku -> mcastu.c:castmu -> zap.c:mon_spell_hits_spot"
+              }
+            ],
+            "metrics": {
+              "screens": "280/280",
+              "rng": "2581/2581",
+              "cursors": "280/280",
+              "error": null
+            }
+          },
+          {
+            "name": "AD_MAGM positive damage and Antimagic",
+            "functions": [
+              "mon_spell_hits_spot"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/admagm-angel-tourist-independent.session.json",
+              "recordings/mcastu.c/admagm-angel-wizard-antimagic-variation.session.json"
+            ],
+            "metrics": [
+              "131/131 screens; 3202/3202 RNG; 131/131 cursors",
+              "131/131 screens; 2390/2390 RNG; 131/131 cursors"
+            ],
+            "error": null
+          },
+          {
+            "name": "mcast_fire_pillar floor effects",
+            "functions": [
+              "mon_spell_hits_spot"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/grand-master-fire-pillar-independent.session.json"
+            ],
+            "metrics": {
+              "screens": "90/90",
+              "rng": "2835/2835",
+              "cursors": "90/90",
+              "error": null
+            }
+          },
+          {
+            "name": "mcast_lightning floor effects",
+            "functions": [
+              "mon_spell_hits_spot"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/grand-master-lightning-independent.session.json"
+            ],
+            "metrics": {
+              "screens": "99/99",
+              "rng": "2564/2564",
+              "cursors": "99/99",
+              "error": null
+            }
+          }
+        ]
       }
     }
   ]
