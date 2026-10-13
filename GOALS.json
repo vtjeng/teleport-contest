@@ -299499,7 +299499,7 @@
     {
       "id": "fix-dothrow-barehand-cockatrice-throw-v56-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Wire throw_obj barehanded cockatrice corpse petrification call.",
       "cFile": "dothrow.c",
       "sessions": [
@@ -299509,10 +299509,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec",
       "delivered": null,
       "function": "throw_obj",
-      "session": "synthetic/v56/v56-barehand-cockatrice-throw-action3"
+      "session": "synthetic/v56/v56-barehand-cockatrice-throw-action3",
+      "closeStanding": {
+        "sha": "cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84",
+        "target": "synthetic/v56/v56-barehand-cockatrice-throw-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec/run-hosted-4Jvvt3/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "throw_obj",
+            "symbol": "throw_obj",
+            "implementation": "js/dothrow.js",
+            "pure": false,
+            "sourceReview": "Read dothrow.c:throw_obj (87-293), including the bare-handed corpse branch at 140-148. For a no-gloves petrifying corpse without stone resistance, C prints the bare-handed message, stores the “throwing … bare-handed” killer name, calls the void trap.c:instapetrify helper, then proceeds to welded checks and missile flight only if the helper returns. Wired the existing js/trap.js implementation at that exact point. This repairs one source-traced caller edge; it does not certify every branch of throw_obj.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dothrow",
+                "source": "C dothrow() selects an object and calls throw_obj(obj, shotlimit); JS dothrow() forwards the selected object to throw_obj()."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dofire",
+                "source": "C dofire() calls throw_obj() for the selected shot; JS dofire() reaches this same shared throw_obj() implementation."
+              }
+            ],
+            "tests": [
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-barehand-cockatrice-throw-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 176,
+                "source": "dothrow.c:dothrow/dofire -> throw_obj barehanded corpse branch -> trap.c:instapetrify -> done(STONING)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected admitted v56 synthetic input reaches the production throw command after removing the Monk’s gloves and selecting a cockatrice corpse. Its complete segment exercises throw_obj through trap.c:instapetrify and the stone-death prompt; the fresh C/JS replay matches the full recording. No other throw_obj branches are claimed.",
+        "entryPoints": [
+          {
+            "name": "Throw a barehanded cockatrice corpse",
+            "functions": [
+              "throw_obj"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-barehand-cockatrice-throw-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 176,
+                "source": "dothrow.c:dothrow/dofire -> throw_obj barehanded corpse branch -> trap.c:instapetrify -> done(STONING)"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
