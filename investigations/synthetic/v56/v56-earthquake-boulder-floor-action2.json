@@ -1,0 +1,64 @@
+{
+  "session": "synthetic/v56/v56-earthquake-boulder-floor-action2",
+  "remainingScreens": 28,
+  "recordedSteps": 179,
+  "corpus": "synthetic",
+  "batch": "v56",
+  "caseId": "v56-earthquake-boulder-floor-action2",
+  "manifestPath": "challenges/manifests/v56.json",
+  "manifestSha256": "4aa0cf52cd2e315fae1c6b13dd2e5bf5317121d64ab04eacf9e4576fb86b8e19",
+  "recordingSha256": "9ff4c5afa8c45825f10ff2861bdbfcd7d0655532d7777249915a4b64a7da707e",
+  "recipeSha256": "f3cbe6d85d616f9825547b46653a49713abc3270e2446beb53a793a2b0ffa405",
+  "replayInputSha256": "f3cbe6d85d616f9825547b46653a49713abc3270e2446beb53a793a2b0ffa405",
+  "evaluationPath": "challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json",
+  "evaluationCommit": "398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6",
+  "status": "complete",
+  "commit": "3f5cfaa0b14edc61984e2ac2d108ad087ea9207f",
+  "mismatch": {
+    "session": "synthetic/v56/v56-earthquake-boulder-floor-action2",
+    "remainingScreens": 28,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 151,
+        "total": 179
+      },
+      "rng": {
+        "matched": 3079,
+        "total": 3079
+      },
+      "cursors": {
+        "matched": 178,
+        "total": 179
+      }
+    },
+    "firstMismatch": {
+      "kind": "screen",
+      "step": 151,
+      "message": "C processes the closed door at (28,5) as a door and emits the collapse message; JS reads a stale zero doormask mirror and takes the doorless pit branch."
+    }
+  },
+  "summary": "The admitted v56 earthquake recording reaches music.c:do_earthquake with a closed door whose C state is levl[x][y].flags through the rm.h doormask alias. JavaScript reads the separate legacy location.doormask field, which is zero, and sends the door through the doorless pit branch. A later secret-door variation also exposes the split field state; both differences belong to the same doormask/flags contract in do_earthquake.",
+  "source": {
+    "file": "music.c",
+    "branch": "When the earthquake terrain draw selects a DOOR or SDOOR cell, C treats doormask as the rm.flags field. It creates a pit only when that canonical field is D_NODOOR; otherwise it clears the door state, updates blocking and display, reports the collapse, and bills a shop. JS currently tests and changes location.doormask alone.",
+    "functions": [
+      "do_earthquake"
+    ],
+    "callers": [
+      "music.c:do_play_instrument invokes do_earthquake for DRUM_OF_EARTHQUAKE; js/apply.js:doapply calls js/music.js:do_play_instrument, which reaches js/music.js:do_earthquake."
+    ],
+    "dependencies": [
+      "nethack-c/upstream/include/rm.h:213 defines doormask as flags, so C reads and writes one union slot.",
+      "detect.c:cvt_sdoor_to_door updates the source union slot; js/detect.js:cvt_sdoor_to_door currently mirrors flags and doormask for JS state.",
+      "music.c:do_earthquake calls do_pit on the doorless arm; JS js/music.js has the corresponding helper call."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Source trace: nethack-c/upstream/include/rm.h:213 defines doormask as flags. nethack-c/upstream/src/music.c:do_earthquake lines 458-471 handles DOOR after SDOOR conversion, checks doormask == D_NODOOR, and otherwise clears the aliased state before redraw and the collapse message.",
+    "JavaScript defect: js/music.js:do_earthquake lines 452-466 tests location.doormask and writes only that property. Generated map cells may carry the closed-door mask in location.flags while the legacy doormask property remains zero, so the JS doorless test takes the wrong arm.",
+    "Production call chain: C music.c:do_play_instrument line 698 calls do_earthquake for DRUM_OF_EARTHQUAKE. JS apply.js:doapply calls music.js:do_play_instrument, which calls music.js:do_earthquake.",
+    "Admitted baseline challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json: v56-earthquake-boulder-floor-action2 has 151/179 screens, 3079/3079 RNG calls, 178/179 cursors, no runtime error, and first mismatch step 151. The manifest source trace records closed door (28,5) with flags=4 and legacy doormask=0; it also identifies the later secret-door field split at step 173."
+  ]
+}
