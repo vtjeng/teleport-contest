@@ -40,6 +40,7 @@ import {
     KILLED_BY_AN,
     LAVAPOOL,
     PARANOID_SWIM,
+    PASSES_WALLS,
     PIT,
     POOL,
     ROOM,
@@ -115,7 +116,7 @@ import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     M1_FLY, M2_ROCKTHROW, PM_CAVE_SPIDER, PM_GRID_BUG, PM_HUMAN,
-    PM_IRON_PIERCER, PM_SOLDIER,
+    PM_IRON_PIERCER, PM_SOLDIER, PM_XORN,
     S_PIERCER, monst_globals_init,
 } from '../js/monsters.js';
 import {
@@ -2402,3 +2403,56 @@ test('safe-pet preflight leaves origin-trap refusal in source order', async () =
         () => preflightDomoveDestination(x, y, state),
     );
 });
+
+test('safe-pet preflight admits pass-wall movement into obstructed terrain',
+    async () => {
+        // This independent seed and timestamp make a starting pet available;
+        // the test moves it beside the hero to isolate hack.c:test_move().
+        await runSegment({
+            seed: 2026101302,
+            datetime: '20451013101600',
+            nethackrc: 'OPTIONS=name:PassWallPet,role:Valkyrie,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:dog,!acoustics,!autopickup',
+            moves: '',
+        });
+        const state = game;
+        let pet = null;
+        for (let monster = state.level.monlist; monster; monster = monster.nmon) {
+            if (monster.m_id === state.context.startingpet_mid) pet = monster;
+        }
+        assert.ok(pet, 'the segment generated its starting pet');
+        assert.equal(state.flags.safe_dog, true);
+
+        const x = state.u.ux + 1 < COLNO ? state.u.ux + 1 : state.u.ux - 1;
+        const y = state.u.uy;
+        state.level.monsters[pet.mx][pet.my] = null;
+        pet.mx = x;
+        pet.my = y;
+        pet.mundetected = false;
+        state.level.monsters[x][y] = pet;
+        state.level.at(x, y).typ = STONE;
+        // One intrinsic bit models the active C Passes_walls property.
+        state.u.uprops[PASSES_WALLS] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+        state.u.umonster = PM_XORN;
+        state.u.umonnum = PM_XORN;
+        state.youmonst.data = state.mons[PM_XORN];
+
+        // C hack.c:test_move():1011-1018 continues when Passes_walls and
+        // may_passwall() both permit the obstructed destination. Its safe-pet
+        // domove_core() branch therefore reaches the swap helper.
+        assert.doesNotThrow(
+            () => preflightDomoveDestination(x, y, state),
+        );
+        assert.equal(
+            await test_move(
+                state.u.ux,
+                state.u.uy,
+                x - state.u.ux,
+                y - state.u.uy,
+                DO_MOVE,
+                state,
+            ),
+            true,
+        );
+    });

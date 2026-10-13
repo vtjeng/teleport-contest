@@ -1702,7 +1702,14 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
             || destination.typ === CORR
             || IS_FURNITURE(destination.typ)
             || (destination.typ === DOOR && doorMask(destination) === 0));
-    if (!ordinaryDestination) {
+    // hack.c:test_move() also admits physical obstacles when Passes_walls and
+    // may_passwall() both allow the step. Preserve that path for a safe-monster
+    // swap; the committed movement still runs the ordinary arrival effects.
+    const passWallDestination = destination
+        && (IS_OBSTRUCTED(destination.typ) || destination.typ === IRONBARS)
+        && propertyPresent(state, PASSES_WALLS)
+        && may_passwall(x, y, state);
+    if (!ordinaryDestination && !passWallDestination) {
         throw new UnsupportedHeroMoveBoundaryError(
             'domove_swap_with_pet() door or special terrain movement',
         );

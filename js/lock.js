@@ -116,7 +116,7 @@ import {
     WAND_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
-import { closed_door, youHear } from './monmove.js';
+import { closed_door, mb_trapped, youHear } from './monmove.js';
 import { Some_Monnam, mon_nam, hliquid } from './do_name.js';
 import {
     an,
@@ -1294,7 +1294,7 @@ async function obstructed(x, y, quietly, state = game, rawEnv = {}) {
 
 // C ref: lock.c doorlock() (1103-1275). Shared by hero and monster rays:
 // return true means the effect acted on this door and its caller may reveal
-// the wand. Void shop damage and trapped-monster handling remain named gaps.
+// the wand. Shop damage remains a named gap.
 export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
     const door = state.level.at(x, y);
     const message = rawEnv.message ?? ttyPline;
@@ -1415,9 +1415,15 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
                 const seeit = monster
                     ? canseemon(monster, state) : cansee(x, y, state);
                 if (monster) {
-                    // C discards mb_trapped()'s return; preserve the gap at
-                    // the source call while keeping doorlock's true result.
-                    note_unported('trap.c mb_trapped');
+                    // lock.c:1216 calls monmove.c:mb_trapped() for its
+                    // message and monster-state effects; C discards the
+                    // return value and keeps doorlock's true result.
+                    await mb_trapped(monster, sawit || seeit, {
+                        ...rawEnv,
+                        state,
+                        random: rawEnv.random ?? { rnd },
+                        message,
+                    });
                 } else {
                     loudness = 40;
                     if (state.flags?.verbose) {
