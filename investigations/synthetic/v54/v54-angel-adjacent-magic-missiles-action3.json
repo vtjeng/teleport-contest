@@ -140,7 +140,7 @@
     "note": "Strict replay matches the selected admitted recording through its final step; the helper and active caller routes are complete."
   },
   "goalKind": "file-port",
-  "resolution": {
+  "implementationResult": {
     "implementation": "js/zap.js:mon_spell_hits_spot reads the current engraving text, consumes C strlen(text)+d(6,6), calls wipe_engr_at(..., TRUE), then awaits zap_over_floor with the source monster-spell type. Both C return values remain discarded.",
     "callers": [
       "js/mcastu.js:castmu wires AD_MAGM after the missile damage/resistance branch.",
