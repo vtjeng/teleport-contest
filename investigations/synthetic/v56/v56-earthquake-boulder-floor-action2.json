@@ -6,7 +6,7 @@
   "batch": "v56",
   "caseId": "v56-earthquake-boulder-floor-action2",
   "manifestPath": "challenges/manifests/v56.json",
-  "manifestSha256": "4aa0cf52cd2e315fae1c6b13dd2e5bf5317121d64ab04eacf9e4576fb86b8e19",
+  "manifestSha256": "a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74",
   "recordingSha256": "9ff4c5afa8c45825f10ff2861bdbfcd7d0655532d7777249915a4b64a7da707e",
   "recipeSha256": "f3cbe6d85d616f9825547b46653a49713abc3270e2446beb53a793a2b0ffa405",
   "replayInputSha256": "f3cbe6d85d616f9825547b46653a49713abc3270e2446beb53a793a2b0ffa405",
