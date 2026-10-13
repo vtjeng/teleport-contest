@@ -29,7 +29,7 @@
     "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
     "evaluationArtifact": "challenges/evaluations/baseline-78195d815-v54.json",
     "evaluationUtc": "2026-10-13T01:55:42.579Z",
-    "remainingScreens": 778,
+    "remainingScreens": 267,
     "recordedSteps": 778,
     "previousScreensMatched": null,
     "regression": false,
