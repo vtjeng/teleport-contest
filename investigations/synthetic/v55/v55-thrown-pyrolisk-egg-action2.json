@@ -21,22 +21,34 @@
     "key": ">",
     "kind": "screen and RNG",
     "source": "dothrow.c:breakobj",
-    "cCell": {"row": 0, "column": 33, "ch": "B"},
-    "jsCell": {"row": 0, "column": 33, "ch": " "},
+    "cCell": {
+      "row": 0,
+      "column": 33,
+      "ch": "B"
+    },
+    "jsCell": {
+      "row": 0,
+      "column": 33,
+      "ch": " "
+    },
     "cRng": "d(3,6)=6 @ breakobj(dothrow.c:2572)",
     "jsRng": "rn2(12)=8"
   },
-  "summary": "When a thrown pyrolisk egg hits the stairs, C's breakobj() marks it for explosion, deletes the egg, then calls explode() with d(3,6) and EXPL_FIERY. JavaScript reaches an injected callback fallback and records explode.c explode instead of calling the existing explode implementation. The first divergence is segment 0 step 72: C logs d(3,6)=6 and draws the fiery explosion, while JavaScript continues without it.",
+  "summary": "The baseline first diverged when a thrown pyrolisk egg hit the stairs. JavaScript now calls the existing explode() implementation directly after delobj(), matching C dothrow.c:breakobj ordering and the EXPL_FIERY damage call. The selected production case matches all 114 recorded steps.",
   "source": {
     "file": "dothrow.c",
     "branch": "breakobj() handles EGG and sets explosion when corpsenm is PM_PYROLISK; after shop accounting and delobj(), it calls explode(x, y, -11, d(3,6), 0, EXPL_FIERY).",
-    "functions": ["breakobj"],
+    "functions": [
+      "breakobj"
+    ],
     "callers": [
       "dothrow.c:throwit() calls breakobj() after breaktest() and breakmsg() when a thrown object lands on a hard square; js/dothrow.js:throwit() already calls breakobj().",
       "dothrow.c:hero_breaks() and breaks() call breakobj() after their break-test/message stages; js/dothrow.js exposes corresponding helpers.",
       "do.c:lava_effects() and zap.c:fracture_rock() also call breakobj(); their existing JavaScript callers remain outside this selected egg branch."
     ],
-    "dependencies": []
+    "dependencies": [],
+    "javascriptOwner": "js/dothrow.js:breakobj now invokes the existing explode() implementation after delobj() with the source damage roll, type -11, olet 0, and EXPL_FIERY.",
+    "fix": "Removed the optional injected-callback fallback and wired breakobj directly to explode(); use the named EXPL_FIERY constant and preserve C evaluation order."
   },
   "goalKind": "divergence-fix",
   "evidence": [
@@ -45,5 +57,12 @@
     "js/dothrow.js:1803-1810 substitutes rawEnv.explode and records note_unported('explode.c explode') when no callback is injected; the normal throwit caller passes only state and therefore skips C's explosion.",
     "The existing js/explode.js exports explode(); dothrow.js already imports explode_oil from that module, so the C callee is available without a new source dependency.",
     "The admitted v55 baseline reports 72/114 screens, 2583/2596 RNG calls, 112/114 cursors and error null. A bounded replay at the clean accepted baseline confirms the first difference at segment 0 step 72, key >, with C d(3,6)=6 @ breakobj and JavaScript rn2(12)=8."
-  ]
+  ],
+  "after": {
+    "codeCommit": "cdd26e6d1c17f2c6a2b0d26a41f4727f30936b51",
+    "command": "node scripts/run-bounded.mjs focused -- node scripts/scan-sessions.mjs --json --synthetic v55/v55-thrown-pyrolisk-egg-action2",
+    "replayInputSha256": "d42169ffd4ce8d90c5b5f77c868197892a40cb7a5758490ea36b5bbc877804ca",
+    "receipt": "/tmp/teleport-validation-1000/run-nd2uqp/receipt.json",
+    "result": "All 114 recorded steps matched, including screens, cursors, RNG calls and input boundaries; the replay had no command refusal or unported behavior."
+  }
 }
