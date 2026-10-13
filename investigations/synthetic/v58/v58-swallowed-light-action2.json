@@ -1,0 +1,76 @@
+{
+  "session": "synthetic/v58/v58-swallowed-light-action2",
+  "corpus": "synthetic",
+  "batch": "v58",
+  "caseId": "v58-swallowed-light-action2",
+  "manifestPath": "challenges/manifests/v58.json",
+  "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+  "recordingPath": "challenges/cases/v58/v58-swallowed-light-action2.session.json",
+  "recordingSha256": "d4e379cb331ee3168e0e712f866d62391757380f65d0e40d2d3326800a36674d",
+  "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v58.json",
+  "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+  "remainingScreens": 7,
+  "recordedSteps": 206,
+  "status": "complete",
+  "commit": "809245291c4fe89bc8838d4787a4423a9d9a5f27",
+  "mismatch": {
+    "screen": {
+      "index": 185,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 185,
+        "key": "o"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 38,
+      "cCell": {
+        "ch": "-",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": " ",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "rng": null,
+    "cursor": {
+      "index": 185,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 185,
+        "key": "o"
+      },
+      "cCursor": [46, 0, 1],
+      "jsCursor": [73, 0, 1]
+    },
+    "session": "synthetic/v58/v58-swallowed-light-action2",
+    "remainingScreens": 7
+  },
+  "summary": "When a non-blind hero reads a light scroll while swallowed by a digesting monster, read.c:litroom prints the swallower's possessive stomach-is-lit feedback before returning for the swallowed no-op. JavaScript currently takes the generic glistens branch. That shorter line fits beside doread's preceding scroll-disappears message on the TTY topline; C's stomach message does not, so the first screen and cursor diverge at step 185 and subsequent More prompts shift. The general fix is to select the C digests() branch and format s_suffix(Monnam(engulfer)) plus mbodypart(engulfer, STOMACH).",
+  "source": {
+    "file": "read.c",
+    "functions": [
+      "litroom"
+    ],
+    "branch": "For on=true while u.uswallow is true and Blind is false, test digests(u.ustuck->data) before is_whirly(); the digesting branch uses the swallower's possessive mbodypart(STOMACH) message, then litroom returns at the no_op guard.",
+    "callers": [
+      "read.c:doread emits the scroll-disappears pline, then seffects calls seffect_light, which calls litroom(true, scroll).",
+      "js/read.js:doread calls seffect_light, which calls litroom; litroom currently skips digests() and prints its generic non-whirly message."
+    ],
+    "dependencies": [
+      "The existing JavaScript digests() helper is exported by uhitm.js; s_suffix(), Monnam(), mbodypart(), and STOMACH are already available to read.js. The litroom no-op return is already present and remains source ordered."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted v58 manifest identifies read.c:litroom lines 2556-2564 and states that a purple worm's stomach is lit; C prints 'The purple worm's stomach is lit.' while JavaScript prints 'The purple worm glistens.'",
+    "Read upstream nethack-c/upstream/src/read.c:litroom (2491-2634), especially its on/swallowed branch and following no_op return: C checks digests(u.ustuck->data) before is_whirly() and formats s_suffix(Monnam(u.ustuck)) with mbodypart(u.ustuck, STOMACH).",
+    "At the accepted base 809245291c4fe89bc8838d4787a4423a9d9a5f27, node scripts/scan-sessions.mjs --json --synthetic v58/v58-swallowed-light-action2 reproduces the first screen/cursor divergence at segment 0 step 185, the first key 'o' that resolves the read prompt. RNG logs remain identical. Directly replayed frames show C's step 185 contains only 'As you read the scroll, it disappears.' and step 186 contains the stomach-lit message; JavaScript coalesces its shorter generic glistens message into step 185, then its later digestion/death prompts lag the recording by one input.",
+    "The selected task is a narrow read.c:litroom branch repair. The helper functions and caller chain already exist; the required change is to restore the source's digesting-monster condition and stomach-specific message, leaving artifact-light and vision defects as distinct litroom branches."
+  ]
+}
