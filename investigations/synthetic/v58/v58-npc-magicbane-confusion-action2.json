@@ -1,0 +1,108 @@
+{
+  "session": "synthetic/v58/v58-npc-magicbane-confusion-action2",
+  "remainingScreens": 331,
+  "recordedSteps": 331,
+  "status": "complete",
+  "commit": "8356adcf7451ddd587e14ab62324e9fad6245391",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": "artifact.c",
+    "cFile": "artifact.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v58/v58-npc-magicbane-confusion-action2"
+    ],
+    "remainingScreens": 331,
+    "remainingScreensUpperBound": null,
+    "earliestStep": null,
+    "caseId": "v58-npc-magicbane-confusion-action2",
+    "batch": "v58",
+    "recordingPath": "challenges/cases/v58/v58-npc-magicbane-confusion-action2.session.json",
+    "session": "synthetic/v58/v58-npc-magicbane-confusion-action2",
+    "originalQueueEntry": {
+      "kind": "synthetic",
+      "corpus": "synthetic",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "synthetic/v58/v58-npc-magicbane-confusion-action2"
+      ],
+      "remainingScreens": 331,
+      "remainingScreensUpperBound": null,
+      "earliestStep": null,
+      "caseId": "v58-npc-magicbane-confusion-action2",
+      "batch": "v58",
+      "recordingPath": "challenges/cases/v58/v58-npc-magicbane-confusion-action2.session.json"
+    }
+  },
+  "summary": "The admitted NPC Magicbane case stops in the hero-defending stun branch because Mb_hit reads STUNNED without importing that property constant into artifacts.js. C artifact.c:Mb_hit uses HStun, which indexes u.uprops[STUNNED], then calls make_stunned with the existing timeout plus three. JavaScript has the matching property read and timeout arithmetic but the binding is absent. The earlier v44 monster-target probe follows the other target branch, so it does not execute this hero STUNNED lookup.",
+  "source": {
+    "file": "artifact.c",
+    "branch": "Mb_hit lines 1389-1393: when do_stun is selected and youdefend is true, call make_stunned((HStun & TIMEOUT) + 3L, FALSE); HStun is u.uprops[STUNNED].intrinsic.",
+    "functions": [
+      "Mb_hit"
+    ],
+    "callers": [
+      "artifact_hit at artifact.c:1539; JavaScript artifacts.js:2107 dispatches the same Magicbane hit to Mb_hit."
+    ],
+    "dependencies": [
+      "include/prop.h:32 defines STUNNED as property index 13; js/const.js exports STUNNED, which artifacts.js must import.",
+      "timeout.c:make_stunned receives the computed duration; its JavaScript implementation is already wired."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The accepted v58 evaluation reports 0/331 screens, 0/3538 RNG calls and 0/331 cursors because replay stops with “STUNNED is not defined”; independent replay reproduces that error at .cache/v58-magicbane-before.log.",
+    "challenges/manifests/v58.json identifies the route as artifact.c:Mb_hit hero-defending stun and says the prior v44 hero-attacking probe selects another owner branch.",
+    "nethack-c/upstream/src/artifact.c:1389-1393 reads HStun for make_stunned; include/youprop.h maps HStun to u.uprops[STUNNED].intrinsic and include/prop.h defines the property index.",
+    "js/artifacts.js:1925 contains the corresponding state.u.uprops[STUNNED] timeout expression but its const.js import list omitted STUNNED; js/const.js exports it."
+  ],
+  "provenance": {
+    "corpus": "synthetic",
+    "batch": "v58",
+    "caseId": "v58-npc-magicbane-confusion-action2",
+    "session": "synthetic/v58/v58-npc-magicbane-confusion-action2",
+    "manifestPath": "challenges/manifests/v58.json",
+    "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+    "recording": "challenges/cases/v58/v58-npc-magicbane-confusion-action2.session.json",
+    "recordingPath": "challenges/cases/v58/v58-npc-magicbane-confusion-action2.session.json",
+    "recordingSha256": "2f89a324233018374b7ccac5ddd23651b2bddd40b6398c44a44328081f2c2b14",
+    "recipe": "challenges/cases/v58/v58-npc-magicbane-confusion-action2.recipe.session.json",
+    "recipePath": "challenges/cases/v58/v58-npc-magicbane-confusion-action2.recipe.session.json",
+    "recipeSha256": "628d5243acb1985d8389fc4772c6c7e9ea8734767e4ba6df61ee52e84c9cf397",
+    "replayInputSha256": "6494c9c6a4a805d550c0a33e5bfb9af254b999265b6c3611c777a3eeba40a874",
+    "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v58.json",
+    "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+    "evaluationArtifact": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v58.json",
+    "evaluationUtc": "2026-10-13T16:13:03.493Z",
+    "remainingScreens": 331,
+    "recordedSteps": 331,
+    "previousScreensMatched": 0,
+    "regression": false,
+    "passed": false,
+    "error": "STUNNED is not defined",
+    "baseline": {
+      "screens": "0/331",
+      "rng": "0/3538",
+      "cursors": "0/331"
+    },
+    "firstMismatch": {
+      "segment": 0,
+      "step": null,
+      "key": null,
+      "kind": "stop",
+      "function": "Mb_hit",
+      "message": "Replay error: STUNNED is not defined"
+    }
+  },
+  "corpus": "synthetic",
+  "batch": "v58",
+  "caseId": "v58-npc-magicbane-confusion-action2",
+  "manifestPath": "challenges/manifests/v58.json",
+  "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+  "recordingSha256": "2f89a324233018374b7ccac5ddd23651b2bddd40b6398c44a44328081f2c2b14",
+  "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v58.json",
+  "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678"
+}
