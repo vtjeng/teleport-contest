@@ -1,0 +1,67 @@
+{
+  "session": "synthetic/v62/v62-caveman-earlier-filler-action2",
+  "corpus": "synthetic",
+  "batch": "v62",
+  "caseId": "v62-caveman-earlier-filler-action2",
+  "manifestPath": "challenges/manifests/v62.json",
+  "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+  "recordingPath": "challenges/cases/v62/v62-caveman-earlier-filler-action2.session.json",
+  "recordingSha256": "3bf0b8ffbc32f6e27e85e29e0699c8a3673aff3becbcff8c0f693a8d841a97b2",
+  "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+  "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+  "remainingScreens": 29,
+  "recordedSteps": 197,
+  "status": "complete",
+  "commit": "aa0cdbbacca08c9fc000bb87cfd982931db46e07",
+  "mismatch": {
+    "session": "synthetic/v62/v62-caveman-earlier-filler-action2",
+    "remainingScreens": 29,
+    "recordedSteps": 197,
+    "step": 168,
+    "firstMismatch": {
+      "screen": {
+        "kind": "ch",
+        "row": 2,
+        "column": 60,
+        "cCell": { "ch": " ", "color": 8, "attr": 0, "decgfx": 0 },
+        "jsCell": { "ch": "-", "color": 8, "attr": 0, "decgfx": 0 }
+      },
+      "rng": {
+        "index": 3597,
+        "cEntry": "rn2(3)=0",
+        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+        "jsEntry": "rn2(5)=2"
+      },
+      "cursor": {
+        "cCursor": [40, 6, 1],
+        "jsCursor": [64, 4, 1]
+      }
+    },
+    "sourceFile": "nhlib.lua",
+    "function": "shuffle",
+    "line": 19
+  },
+  "summary": "At segment 0 step 168, the Caveman quest transition should load dat/Cav-fila.lua. js/mklev.js computes Cav-fila but its loader registry has no entry, so it falls through to ordinary room generation and consumes the below-Medusa rn2(5) draw. C instead enters mkmaze.c:makemaz and sp_lev.c:load_special; loading the complete Lua program first runs nhlib.lua's already-implemented alignment shuffle (rn2(3)). Port and register the whole Cav-fila.lua program.",
+  "source": {
+    "file": "Cav-fila.lua",
+    "functions": ["Cav-fila.lua"],
+    "branch": "The Caveman reaches a Home quest filler level above the locate level; mklev.c:makelevel selects Cav-fila.lua and special-level loading runs the nhlib initialization before the program body.",
+    "callers": [
+      "mklev.c:makelevel selects the role filler name Cav-fila.lua",
+      "mkmaze.c:makemaz and sp_lev.c:load_special execute the selected level program",
+      "js/mklev.js:generate_level computes Cav-fila; SPECIAL_LEVEL_LOADERS lacks it, so the C caller path is skipped"
+    ],
+    "dependencies": [
+      "nhlib.lua alignment shuffle (already implemented in js/mklev.js and js/nhlua.js)",
+      "sp_lev.c level-generation API and existing js/quest_levels.js loader helpers"
+    ]
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "The admitted v62 manifest sourcePointers identify mklev.c:makelevel1275-1285 -> mkmaze.c:makemaz -> sp_lev.c:load_special -> nhlib.lua initialization -> Cav-fila.lua.",
+    "The whole upstream dat/Cav-fila.lua program (lines 6-35) sets a solid-fill base, applies mazelevel/noflip flags, initializes mines-style terrain with walls, then creates up/down stairs, seven random objects, four random traps, five hostile bugbears, one hostile h-class monster, and one hostile hill giant.",
+    "js/mklev.js:760-772 checks SPECIAL_LEVEL_LOADERS[fillName] before calling makemaz; js/mklev.js:1795-1820 builds the registry from QUEST_LEVEL_LOADERS, which currently has no Cav-fila entry. The ordinary fallback then consumes rn2(5) at js/mklev.js:1295, matching the JavaScript side of the first divergent call.",
+    "Fresh post-publication scan at commit aa0cdbbacca08c9fc000bb87cfd982931db46e07 stops matching at segment 0 step 168: C consumes rn2(3)=0 in nhlib.lua shuffle(), while JS consumes rn2(5)=2 in the ordinary below-Medusa check. The recorded boundary screen has a wall-versus-floor mismatch at row 2, column 60.",
+    "The saved v62 evaluation at 56a0d96069756b3ea2c7b447b441e2765be3a904 records 168 of 197 screens matched; this is the original task evidence, while the fresh scan above confirms the same source owner after the latest publication."
+  ]
+}
