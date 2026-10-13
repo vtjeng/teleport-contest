@@ -14,7 +14,7 @@
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
 //         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/Hea-fila.lua,
-//         dat/Hea-filb.lua, dat/Cav-filb.lua,
+//         dat/Hea-filb.lua, dat/Cav-filb.lua, dat/Ran-fila.lua,
 //         dat/Mon-fila.lua, dat/Mon-filb.lua,
 //         dat/tower1.lua, dat/tower2.lua,
 //         dat/tower3.lua, dat/Val-strt.lua.
@@ -1394,6 +1394,24 @@ async function ranLoca(des) {
     for (let i = 0; i < RAN_LOCA_OBJECT_COUNT; ++i) await des.object();
     for (const type of RAN_LOCA_TRAPS) await des.trap(type);
     for (const monster of RAN_LOCA_MONSTERS) await des.monster(monster);
+}
+
+// C ref: complete dat/Ran-fila.lua. Preserve the program's background,
+// staircase, object, trap, and monster ordering.
+async function ranFila(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'T',
+        smoothed: true, joined: true, walled: true });
+
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 7; ++i) await des.object();
+    for (let i = 0; i < 4; ++i) await des.trap();
+    for (let i = 0; i < 2; ++i) await des.monster({ id: 'mountain centaur', peaceful: 0 });
+    for (let i = 0; i < 3; ++i) await des.monster({ id: 'forest centaur', peaceful: 0 });
+    await des.monster({ class: 'C', peaceful: 0 });
+    await des.monster({ id: 'scorpion', peaceful: 0 });
 }
 
 // C ref: complete dat/Ran-goal.lua. Generated tables preserve its map and
@@ -3183,6 +3201,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Tou-goal': touGoal,
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
+    'Ran-fila': ranFila,
     'Ran-goal': ranGoal,
     'Val-goal': valGoal,
     'Hea-goal': heaGoal,
