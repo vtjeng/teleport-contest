@@ -26,7 +26,8 @@
     "earliestStep": null,
     "caseId": "v54-healer-unpaid-library-novel-action4",
     "batch": "v54",
-    "recordingPath": "challenges/cases/v54/v54-healer-unpaid-library-novel-action4.session.json"
+    "recordingPath": "challenges/cases/v54/v54-healer-unpaid-library-novel-action4.session.json",
+    "session": "synthetic/v54/v54-healer-unpaid-library-novel-action4"
   },
   "summary": "The first mismatch is the unpaid spellbook fee on the novel reading path. C calls check_unpaid_usage(spellbook, FALSE) after a successful read_tribute and before identifying the novel or awarding its experience; JavaScript stops at UnsupportedShopError. The complete repair includes shk.c cost_per_charge, check_unpaid_usage and its check_unpaid wrapper, then awaits the fee operation through every existing direct C caller and every consume_obj_charge caller that delegates to check_unpaid.",
   "source": {
