@@ -299150,7 +299150,7 @@
     {
       "id": "fix-safe-pet-swap-origin-trap-with-regions-v56-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement domove_core from hack.c",
       "cFile": "hack.c",
       "sessions": [
@@ -299160,10 +299160,88 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "7b766fdd76a05cfda5bb0bb507c6c720b68041dc",
       "delivered": null,
       "function": "domove_core",
-      "session": "synthetic/v56/v56-magic-whistle-firetrap-pet-action2"
+      "session": "synthetic/v56/v56-magic-whistle-firetrap-pet-action2",
+      "closeStanding": {
+        "sha": "7b766fdd76a05cfda5bb0bb507c6c720b68041dc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "40da03380a494d8873304bb524311958a052328e",
+        "target": "synthetic/v56/v56-magic-whistle-firetrap-pet-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/7b766fdd76a05cfda5bb0bb507c6c720b68041dc/run-hosted-mPMIXw/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "domove_core",
+            "implementation": "js/hack.js",
+            "symbol": "domove_core",
+            "pure": false,
+            "sourceReview": "Branch-scoped divergence correction, not whole-function credit. hack.c:domove_core (2712 onward) calls domove_attackmon_at before movement checks, evaluates in_out_region after those checks, tentatively moves, then invokes domove_swap_with_pet for a safe pet. The extra JS state.level.regions preflight refusal had no C counterpart and ran before uhitm.c:do_attack. Removing it leaves the C origin-tile trap refusal in the existing domove_swap_with_pet implementation and later region validation in its source order.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "executeMovement",
+                "source": "cmd.c:rhack movement arm at 3788-3799 calls domove(); js/cmd.js:2777-2826 dispatches ordinary movement to domove(state)."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove",
+                "source": "hack.c:2695-2709 wraps domove_core; js/hack.js:4084-4096 calls domove_core after command admission."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_attackmon_at",
+                "source": "hack.c:2787-2800 calls domove_attackmon_at; hack.c:1955-1992 invokes do_attack before movement and region checks."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_swap_with_pet",
+                "source": "hack.c:2919-2924 invokes the helper after tentative movement and in_out_region; its source refusal checks the hero origin with t_at(u.ux0,u.uy0)."
+              }
+            ],
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-magic-whistle-firetrap-pet-action2",
+                "segment": 0,
+                "fromStep": 335,
+                "throughStep": 480,
+                "source": "cmd.c:rhack movement -> hack.c:domove -> domove_core -> domove_attackmon_at -> uhitm.c:do_attack rn2(7) -> in_out_region -> hack.c:domove_swap_with_pet origin-trap refusal"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is an ordinary direction movement command into a tame dog while the hero stands on a fire trap and active regions exist elsewhere. cmd.c:rhack dispatches to domove; domove_core runs the safe-pet attack/refusal path before in_out_region and the later swap helper. The selected admitted recording reaches and completes this command. Other movement branches in these large C functions are outside this divergence fix.",
+        "entryPoints": [
+          {
+            "name": "Ordinary movement attempt onto a safe pet from an origin trap with active regions",
+            "functions": [
+              "domove_core"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-magic-whistle-firetrap-pet-action2",
+                "segment": 0,
+                "fromStep": 335,
+                "throughStep": 480,
+                "source": "cmd.c:rhack -> hack.c:domove/domove_core; uhitm.c:do_attack consumes rn2(7), then domove_swap_with_pet refuses the pet using the hero-origin trap"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
