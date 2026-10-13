@@ -1,0 +1,83 @@
+{
+  "session": "synthetic/v57/v57-hallucinatory-whatis-lookup-action4",
+  "remainingScreens": 16,
+  "recordedSteps": 128,
+  "corpus": "synthetic",
+  "batch": "v57",
+  "caseId": "v57-hallucinatory-whatis-lookup-action4",
+  "manifestPath": "challenges/manifests/v57.json",
+  "manifestSha256": "9d357944cc12ddc677f3afeccc2016496764f6ecb2cb5748aafdfa885fcd2007",
+  "recordingSha256": "90783187915d8fd92a6689add81e8de6a419ed850eeb111fe591ce650fe6f08a",
+  "evaluationPath": "challenges/evaluations/admission-01813882f5ec9612667f08b17e1630f732d78381-v57.json",
+  "evaluationCommit": "01813882f5ec9612667f08b17e1630f732d78381",
+  "status": "complete",
+  "commit": "99b0d915dca34c49e31ce3bb4e780487d70df5e0",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v57",
+    "caseId": "v57-hallucinatory-whatis-lookup-action4",
+    "session": "synthetic/v57/v57-hallucinatory-whatis-lookup-action4",
+    "manifestPath": "challenges/manifests/v57.json",
+    "manifestSha256": "9d357944cc12ddc677f3afeccc2016496764f6ecb2cb5748aafdfa885fcd2007",
+    "recording": "challenges/cases/v57/v57-hallucinatory-whatis-lookup-action4.session.json",
+    "recordingPath": "challenges/cases/v57/v57-hallucinatory-whatis-lookup-action4.session.json",
+    "recordingSha256": "90783187915d8fd92a6689add81e8de6a419ed850eeb111fe591ce650fe6f08a",
+    "recipe": "challenges/cases/v57/v57-hallucinatory-whatis-lookup-action4.recipe.session.json",
+    "recipeSha256": "996cbbd2c17ba501dee7bcf092ca95447f017e31b7cc9f4e8995936f7547fec5",
+    "evaluationPath": "challenges/evaluations/admission-01813882f5ec9612667f08b17e1630f732d78381-v57.json",
+    "evaluationCommit": "01813882f5ec9612667f08b17e1630f732d78381",
+    "remainingScreens": 16,
+    "recordedSteps": 128,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 112,
+        "total": 128
+      },
+      "rng": {
+        "matched": 2829,
+        "total": 2829
+      },
+      "cursors": {
+        "matched": 112,
+        "total": 128
+      }
+    },
+    "firstMismatch": null,
+    "step": 112,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported whatis: a hallucinating hero",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v57 #whatis case stops because js/pager.js rejects a hallucinating hero after menu selection. pager.c:do_look suppresses only the extended menu choices during hallucination, then continues the selected screen lookup.",
+  "source": {
+    "file": "pager.c",
+    "functions": [
+      "do_look"
+    ],
+    "branch": "The #whatis menu remains available while Hallucination is active. C omits nearby/all monster and map-symbol-related choices, but still accepts the basic map choice and processes the selected screen coordinate through do_screen_description.",
+    "callers": [
+      "cmd.c routes the #whatis extended command to pager.c:dowhatis; pager.c:dowhatis calls do_look(0, NULL).",
+      "pager.c:doquickwhatis and pager.c:hmenu_dowhatis also enter do_look; js/cmd.js and js/pager.js retain the corresponding command dispatch."
+    ],
+    "dependencies": [
+      "pager.c:do_look also controls lootabc selector/group accelerators and suppresses extended choices while swallowed. Queue cases v57-lootabc-whatis-menu-action2 and v56-swallowed-whatis-menu-action1 stop at matching UnsupportedWhatisError guards in js/pager.js; both exercise branches of this same C function.",
+      "do_look calls do_screen_description and checkfile and consumes getpos/menu selections; their existing JavaScript implementations remain the downstream callers for the selected lookup."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v57 admission evaluation at 01813882f5ec9612667f08b17e1630f732d78381 reports 112/128 screens and cursors, 2829/2829 RNG calls, and a stop at step 112; the manifest and recording digests match the saved queue entry.",
+    "A selected-case diagnostic at 99b0d915dca34c49e31ce3bb4e780487d70df5e0 stops on the #whatis command after the map option is selected and the hallucination menu message is shown. The refusal is UnsupportedWhatisError, with no RNG mismatch.",
+    "nethack-c/upstream/src/pager.c:1673-1964 constructs the menu, gates the extended choices on !u.uswallow && !Hallucination, and still runs the screen lookup for the basic map choice. Its lootabc branch changes menu group accelerators and selectors instead of rejecting the option.",
+    "js/pager.js:334-344 rejects lootabc and swallowed states in assertWhatisMenuState; js/pager.js:1922-1925 separately rejects Hallucination after selection. Those guards replace source-supported branches in do_look.",
+    "The related v57 lootabc case and v56 swallowed case first stop at the same helper guards, so one complete pager.c:do_look port can cover all three queued sessions."
+  ]
+}
