@@ -1,0 +1,106 @@
+{
+  "session": "synthetic/v62/v62-tourist-later-filler-action5",
+  "corpus": "synthetic",
+  "batch": "v62",
+  "caseId": "v62-tourist-later-filler-action5",
+  "remainingScreens": 29,
+  "recordedSteps": 328,
+  "status": "complete",
+  "commit": "6cd77b247591b33316b8b23c80e4e8b15778d45d",
+  "manifestPath": "challenges/manifests/v62.json",
+  "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+  "recordingSha256": "03b39dd22c4c9610e82ff8d79e0f44c5001eaadd4fa4146f28b23fe6e0d1cca8",
+  "evaluationPath": "challenges/evaluations/accepted-d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84-v62.json",
+  "evaluationCommit": "d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v62",
+    "caseId": "v62-tourist-later-filler-action5",
+    "session": "synthetic/v62/v62-tourist-later-filler-action5",
+    "manifestPath": "challenges/manifests/v62.json",
+    "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+    "recordingPath": "challenges/cases/v62/v62-tourist-later-filler-action5.session.json",
+    "recordingSha256": "03b39dd22c4c9610e82ff8d79e0f44c5001eaadd4fa4146f28b23fe6e0d1cca8",
+    "recipe": "challenges/cases/v62/v62-tourist-later-filler-action5.recipe.session.json",
+    "recipeSha256": "24bedbe4fee19f1be55c42b3ea3466acba8f651749cc0aa40b4e24f8adc891db",
+    "evaluationPath": "challenges/evaluations/accepted-d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84-v62.json",
+    "evaluationCommit": "d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84",
+    "remainingScreens": 29,
+    "recordedSteps": 328,
+    "previousScreensMatched": 299,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 299,
+        "total": 328
+      },
+      "rng": {
+        "matched": 9444,
+        "total": 12823
+      },
+      "cursors": {
+        "matched": 306,
+        "total": 328
+      }
+    },
+    "firstMismatch": {
+      "segment": 0,
+      "step": 299,
+      "firstOwner": "dat/Tou-filb.lua whole-program loader/definition",
+      "source": "mklev.c:makelevel() -> mkmaze.c:makemaz() -> sp_lev.c:load_special() -> dat/Tou-filb.lua",
+      "observed": "C enters Home 4 and executes the Tourist later-filler program; JavaScript continues through the ordinary maze path because the registry has no Tou-filb loader."
+    },
+    "step": 299,
+    "kind": "rng",
+    "sourceFile": "nhlib.lua",
+    "function": "shuffle",
+    "message": null,
+    "luaFile": "nhlib.lua",
+    "line": 19,
+    "helper": {
+      "function": "random",
+      "luaFile": "nhlib.lua",
+      "line": 8
+    }
+  },
+  "summary": "For a Tourist on Home level 4, JavaScript computes the role-specific Tou-filb quest filler name but has no loader entry, so generation falls through to the ordinary maze path instead of loading dat/Tou-filb.lua. The complete Lua program and its loader registration are the bounded source task.",
+  "source": {
+    "file": "dat/Tou-filb.lua",
+    "branch": "When mklev.c:makelevel() creates a Tourist quest filler at or below the locate level, it forms Tou-filb and mkmaze.c:makemaz() loads the complete special-level program. Tou-filb.lua runs solidfill, mazelevel/noflip, a smoothed joined/walled Mines background, up/down stairs, eleven random objects, four random traps, one hostile soldier, two hostile captains, two hostile class-H monsters, one hostile class-C monster, and one random spider-class monster, in source order.",
+    "functions": [
+      "Tou-filb.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel() -> mkmaze.c:makemaz() -> sp_lev.c:load_special() -> dat/Tou-filb.lua top-level statements.",
+      "js/mklev.js:760-772 computes the role-specific filler name and calls makemaz() only when SPECIAL_LEVEL_LOADERS contains Tou-filb."
+    ],
+    "dependencies": [
+      "The registered special-level path already runs dat/nhlib.lua alignment initialization before the program body.",
+      "All level descriptors in Tou-filb.lua use the existing des API."
+    ]
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "Source: nethack-c/upstream/src/mklev.c:1283-1285 selects the later quest filler at or below the locate level; mkmaze.c:makemaz() delegates to sp_lev.c:load_special(); nethack-c/upstream/dat/Tou-filb.lua:6-39 contains the complete program.",
+    "Dispatch trace: js/mklev.js:764-772 computes the role-specific fill name, but js/quest_levels.js:QUEST_LEVEL_LOADERS has no Tou-filb entry; ordinary maze generation continues.",
+    "Accepted v62 evaluation challenges/evaluations/accepted-d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84-v62.json at d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84 reports 299/328 screens, 9444/12823 RNG calls, 306/328 cursors, error null. The first mismatch is segment 0 step 299, where C enters Home 4 and loads Tou-filb.lua.",
+    "Fresh worker replay at 6cd77b247591b33316b8b23c80e4e8b15778d45d, saved in .cache/CTou-filb-replay-before.log, reproduces 299/328 screens, 9444/12823 RNG calls, 306/328 cursors, and error null.",
+    "The related v62 Tourist earlier-filler case is reserved by A2 for Tou-fila.lua. This case is a distinct source program and remains independently assignable."
+  ],
+  "provenance": {
+    "session": "synthetic/v62/v62-tourist-later-filler-action5",
+    "corpus": "synthetic",
+    "batch": "v62",
+    "caseId": "v62-tourist-later-filler-action5",
+    "manifestPath": "challenges/manifests/v62.json",
+    "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+    "recordingPath": "challenges/cases/v62/v62-tourist-later-filler-action5.session.json",
+    "recordingSha256": "03b39dd22c4c9610e82ff8d79e0f44c5001eaadd4fa4146f28b23fe6e0d1cca8",
+    "recipe": "challenges/cases/v62/v62-tourist-later-filler-action5.recipe.session.json",
+    "recipeSha256": "24bedbe4fee19f1be55c42b3ea3466acba8f651749cc0aa40b4e24f8adc891db",
+    "evaluationPath": "challenges/evaluations/accepted-d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84-v62.json",
+    "evaluationCommit": "d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84"
+  }
+}
