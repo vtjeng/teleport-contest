@@ -2320,12 +2320,12 @@ test('consume_obj_charge bills before decrementing and refreshes known items',
         assert.equal(unpaid.spe, 0);
     });
 
-test('currency uses the display stream for hallucinated names', () => {
+test('currency uses gameplay RNG for hallucinated names', () => {
     const state = initializedState();
     state.u.uprops[HALLUC].intrinsic = 1;
     let bound = null;
     assert.equal(currency(1, state, {
-        displayRandom: (limit) => {
+        random: (limit) => {
             bound = limit;
             return 2;
         },
