@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T03:59:32.998Z",
+  "capturedAt": "2026-10-13T04:10:02.373Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -100863,6 +100863,78 @@
         "type": "accepted",
         "at": "2026-10-13T03:58:08.574Z",
         "task": "A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013-a1d887992c26198dd11c49cab5d05f9ca57e28c4",
+        "type": "published",
+        "at": "2026-10-13T03:59:45.000Z",
+        "task": "A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013",
+        "commit": "a1d887992c26198dd11c49cab5d05f9ca57e28c4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-b-insects-unblocks-c-20261013",
+        "type": "activity",
+        "at": "2026-10-13T04:00:05.937Z",
+        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
+        "phase": "review",
+        "reason": "Prioritizing the ready insect-spell delivery because acceptance releases mcast_spell for C’s parked armor-destruction investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-healer-residual-20261013",
+        "type": "turn",
+        "at": "2026-10-13T04:00:20.105Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-healer-step511-residual-20261013",
+        "type": "assign",
+        "at": "2026-10-13T04:00:29.082Z",
+        "task": "A2-investigation-v54-healer-step511-residual-action3-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-insects-f7d9d863f-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T04:00:45.676Z",
+        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
+        "integration": "f7d9d863fc7a5de36299786e449d6a42bd585f03"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-grow-up-gender-index-20261013",
+        "type": "implement",
+        "at": "2026-10-13T04:04:01.737Z",
+        "task": "A2-investigation-v54-healer-step511-residual-action3-20261013",
+        "goal": "divergence-makemon-grow-up-gender-index-v54-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013-f7d9d863fc7a5de36299786e449d6a42bd585f03-validated",
+        "type": "validated",
+        "at": "2026-10-13T04:07:54.400Z",
+        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013-f7d9d863fc7a5de36299786e449d6a42bd585f03-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T04:08:18.619Z",
+        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-resume-monk-after-insects-acceptance-20261013",
+        "type": "resume",
+        "at": "2026-10-13T04:09:59.686Z",
+        "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013"
       }
     ]
   },
@@ -100940,17 +101012,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v54-healer-cleric-mkclass-aligned-action2-20261013",
-        "worker": "B",
-        "goal": "port-mcastu-insects-v54-healer-cleric-action2-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "412de20e0708bad00d6f62577bad4e4d3b082b10",
-        "since": "2026-10-13T03:55:43.687Z",
-        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -101441,23 +101502,12 @@
         "since": "2026-10-13T02:21:08.563Z",
         "blockedBy": [],
         "reason": "Diagnosis committed at f70875423; required mcastu.c:mcast_spell dispatcher edit is held by B active blindness task. No game code changes made; retaining this source finding for later continuation."
-      },
-      {
-        "task": "C-investigation-v54-monk-masterlich-strength-and-stun-action2-20261013",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-13T03:42:42.447Z",
-        "blockedBy": [],
-        "reason": "Committed source diagnosis 1ef20118a. Step 303 now reaches mcastu.c:mcast_destroy_armor; complete wiring requires the MCAST_DESTRY_ARMR arm in mcastu.c:mcast_spell, which Root assigned to B for the resumed insect continuation. Preserve the accepted-Main replay and do_wear.c:destroy_arm dependency; resume after B releases the dispatcher."
       }
     ]
   },
   "development": {
-    "executionCommit": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
-    "measuredAt": "2026-10-13T03:55:31.799Z",
+    "executionCommit": "f7d9d863fc7a5de36299786e449d6a42bd585f03",
+    "measuredAt": "2026-10-13T04:05:49.826Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

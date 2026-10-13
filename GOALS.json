@@ -296729,7 +296729,7 @@
     {
       "id": "port-mcastu-insects-v54-healer-cleric-action2-20261013",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port mcastu.c:mcast_insects and wire its MCAST_INSECTS production dispatcher arm.",
       "cFile": "mcastu.c",
       "sessions": [
@@ -296739,7 +296739,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "f7d9d863fc7a5de36299786e449d6a42bd585f03",
       "delivered": null,
       "functions": [
         {
@@ -296752,6 +296752,73 @@
       "range": {
         "from": 645,
         "to": 728
+      },
+      "closeStanding": {
+        "sha": "f7d9d863fc7a5de36299786e449d6a42bd585f03",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
+        "target": "synthetic/v54/v54-healer-cleric-insects-blindness-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/f7d9d863fc7a5de36299786e449d6a42bd585f03/run-hosted-zzkTfX/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mcast_insects",
+            "sourceFile": "mcastu.c",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_insects",
+            "pure": false,
+            "sourceReview": "Read the full upstream mcastu.c:mcast_insects body at lines 645-744. Preserve the initial mkclass(S_ANT, 0) probe and ant-or-snake choice, monster_census(TRUE) before the quantity draw, the m_lev < 2 special quantity and rnd(m_lev/2) otherwise, minimum-three clamp, inclusive i <= quan placement loop, enexto before each mkclass, MM_ANGRY|MM_NOMSG creation, successful summon state clearing and set_malign, final spotted census, and the exact canseemon || tp_sensemon || Detect_monsters short-circuit. Preserve hallucination naming, unseen/Unaware/deaf message branches, and visible-caster failure/snake/invisible/displaced message order. The recorder build defines Soundeffect() away in sndprocs.h, so no JavaScript sound operation is needed; the following You_hear/message call remains. The return-valued monster_census dependency is already implemented in js/minion.js:401-413 from minion.c:40-57 and covered by scripts/wizard-genesis.test.mjs:387-422. The return-valued perceives dependency is already implemented in js/mondata.js:421 from mondata.h:81 and pinned by scripts/mondata.test.mjs:845. makemon_runtime, mkclass, enexto, set_malign, visibility/sensing helpers, and source-named message/name helpers are existing implementations used at their C call positions; no call is replaced by note_unported or a refusal.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:871-873; the MCAST_INSECTS dispatcher calls mcast_insects(mtmp), then clears dmg. castmu at mcastu.c:298 reaches this dispatcher for a selected monster spell."
+              }
+            ],
+            "tests": [
+              "scripts/mcastu.test.mjs",
+              "scripts/wizard-genesis.test.mjs",
+              "scripts/mondata.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-cleric-insects-blindness-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 723,
+                "source": "mcastu.c:castmu -> mcastu.c:mcast_spell case MCAST_INSECTS -> mcastu.c:mcast_insects"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active production entry is a monster magic cast: castmu selects the spell, calls mcast_spell, and the MCAST_INSECTS arm calls mcast_insects. The recorder includes this path; the selected admitted v54 replay matches all 724 screen, cursor and input boundaries through the end. The compiled tty recorder removes Soundeffect() through the upstream sndprocs.h macro, so that sound-only operation has no active recorder entry. The implemented source-owned message branches remain active. Existing return-valued dependencies monster_census and perceives were inspected at their C definitions and verified against the existing JavaScript implementations and source-focused tests.",
+        "entryPoints": [
+          {
+            "name": "Monster casts the MCAST_INSECTS spell",
+            "functions": [
+              "mcast_insects"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-cleric-insects-blindness-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 723,
+                "source": "mcastu.c:castmu -> mcastu.c:mcast_spell case MCAST_INSECTS -> mcastu.c:mcast_insects"
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": []
       }
     }
   ]
