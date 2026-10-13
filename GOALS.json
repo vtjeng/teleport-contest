@@ -297112,6 +297112,34 @@
           }
         ]
       }
+    },
+    {
+      "id": "port-objnam-mshot-xname-ordinal-v54-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement mshot_xname from objnam.c",
+      "cFile": "objnam.c",
+      "sessions": [
+        "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v54-healer-multishot-name-action4-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mshot_xname",
+          "line": 1090,
+          "endLine": 1105,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 1090,
+        "to": 1105
+      }
     }
   ]
 }

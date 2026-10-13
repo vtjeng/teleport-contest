@@ -487,3 +487,16 @@ triage decisions or fix references.
   diagnoses were preserved, and Root prioritized deliveries that released
   those blockers. Ready implementations continued to precede new batch
   admission under the approved scheduling rule.
+
+### 2026-10-13 — committed handoff baselines and focused replay waits
+
+- Root committed accepted evaluation records before waking workers for their
+  next claims: growth records in `5ab0e7bd`, armor records in `422e6ce8`,
+  and naming records in `59550da3`. Workers merged those descendants before
+  claiming or resuming. This puts baseline artifacts in their assignment
+  history and avoids the earlier report-bridge repair. Checked game inputs
+  remained unchanged.
+- C’s first exact armor replay attempt, `run-EqUilX`, exited 75 while
+  Root’s acceptance helper `run-VPqhgm` owned the full validation slot.
+  Root collected its retained command handle and notified C; the retry
+  `run-p1Nkov` passed. No recording or aggregate check was duplicated.
