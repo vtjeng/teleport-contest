@@ -1,0 +1,83 @@
+{
+  "session": "synthetic/v57/v57-flying-steed-pool-dismount-action4",
+  "remainingScreens": 31,
+  "recordedSteps": 308,
+  "corpus": "synthetic",
+  "batch": "v57",
+  "caseId": "v57-flying-steed-pool-dismount-action4",
+  "manifestPath": "challenges/manifests/v57.json",
+  "manifestSha256": "9d357944cc12ddc677f3afeccc2016496764f6ecb2cb5748aafdfa885fcd2007",
+  "recordingSha256": "95182484f5c271996bbc25fe58742e2b47086b2ec1959427d87c3e44238b4fce",
+  "evaluationPath": "challenges/evaluations/admission-01813882f5ec9612667f08b17e1630f732d78381-v57.json",
+  "evaluationCommit": "01813882f5ec9612667f08b17e1630f732d78381",
+  "status": "complete",
+  "commit": "dcddfcf364a09a944572f02347b20a488a851d4d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v57",
+    "caseId": "v57-flying-steed-pool-dismount-action4",
+    "session": "synthetic/v57/v57-flying-steed-pool-dismount-action4",
+    "manifestPath": "challenges/manifests/v57.json",
+    "manifestSha256": "9d357944cc12ddc677f3afeccc2016496764f6ecb2cb5748aafdfa885fcd2007",
+    "recording": "challenges/cases/v57/v57-flying-steed-pool-dismount-action4.session.json",
+    "recordingPath": "challenges/cases/v57/v57-flying-steed-pool-dismount-action4.session.json",
+    "recordingSha256": "95182484f5c271996bbc25fe58742e2b47086b2ec1959427d87c3e44238b4fce",
+    "recipe": "challenges/cases/v57/v57-flying-steed-pool-dismount-action4.recipe.session.json",
+    "recipeSha256": "9fc8f36d4329eafbffd0d389d873eacecefdf1b90876dc6ea990ce0666eb93a5",
+    "evaluationPath": "challenges/evaluations/admission-01813882f5ec9612667f08b17e1630f732d78381-v57.json",
+    "evaluationCommit": "01813882f5ec9612667f08b17e1630f732d78381",
+    "remainingScreens": 31,
+    "recordedSteps": 308,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 277,
+        "total": 308
+      },
+      "rng": {
+        "matched": 2887,
+        "total": 2902
+      },
+      "cursors": {
+        "matched": 277,
+        "total": 308
+      }
+    },
+    "firstMismatch": null,
+    "step": 277,
+    "kind": "stop",
+    "sourceFile": "steed.c",
+    "function": "dismount_steed",
+    "message": "unsupported hero command: an unported branch of this command: unsupported steed action: dismount_steed() dropping the steed into liquid",
+    "cFile": "steed.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v57 #ride case reaches the liquid-square branch in steed.c:dismount_steed. C runs its water and lava handling only when grounded(mdat) is true, but js/steed.js refuses any is_pool or is_lava square before that source condition.",
+  "source": {
+    "file": "steed.c",
+    "functions": [
+      "dismount_steed"
+    ],
+    "branch": "DISMOUNT_BYCHOICE releases a mounted silver dragon while the hero is on a pool square. C checks grounded(mdat) before water or lava effects; a flying steed skips those effects and continues to teleds/float_down. The same function has related missing branches for grounded steeds, save_utrap/mintrap, DISMOUNT_BONES, and the no-adjacent-square DISMOUNT_BYCHOICE outcome.",
+    "callers": [
+      "steed.c:doride calls dismount_steed(DISMOUNT_BYCHOICE) for #ride; js/steed.js:doride calls the exported JavaScript function.",
+      "timeout.c:slip_or_trip and trap.c call dismount_steed for falling or trap-related mount release; js/timeout.js still contains the steed.c dismount gap within A2’s reserved caller scope."
+    ],
+    "dependencies": [
+      "mondata.h:23-28 defines grounded(ptr) and cant_drown(ptr) as macros; js/mondata.js already implements grounded, swimmer, amphibious, and breathless predicates.",
+      "A whole dismount_steed port must preserve timeout.c:slip_or_trip caller wiring; A2 currently owns js/timeout.js and timeout.c:slip_or_trip."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v57 admission evaluation at 01813882f5ec9612667f08b17e1630f732d78381 reports 277/308 screens and cursors, 2887/2902 RNG calls, and the unsupported dismount branch at step 277; manifest and recording digests match the selected queue entry.",
+    "A selected-case diagnostic on dcddfcf364a09a944572f02347b20a488a851d4d stops at step 277 during the pool dismount. The C recording names the steed as a silver dragon and reaches the #ride command after entering the pool.",
+    "nethack-c/upstream/src/steed.c:576-822 checks grounded(mdat) before is_pool/is_lava messages, cant_drown/likes_lava, killed, and adjalign; non-grounded steeds continue to teleds and float_down.",
+    "nethack-c/upstream/include/mondata.h:23-28 defines grounded and cant_drown. js/mondata.js:201-207 already implements grounded(species,state), while js/steed.js:1019-1027 rejects the liquid square without calling grounded.",
+    "The related v56 mounted-web case first stops in the same C function at the save_utrap/mintrap branch. A whole-function port would address both sessions; completion also requires resolving the existing timeout.js caller gap, which overlaps A2’s reserved scope."
+  ]
+}
