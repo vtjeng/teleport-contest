@@ -46,7 +46,7 @@ import { defineObjclassAliases, GRAPPLING_HOOK, PICK_AXE } from './objects.js';
 import { setuwep } from './wield.js';
 import { getnow } from './calendar.js';
 import { rnd } from './rng.js';
-import { SAVE_FILE_PATH } from './save.js';
+import { parseSnapshot, SAVE_FILE_PATH } from './save.js';
 import { restore_oracles } from './rumors.js';
 import { set_residency, restshk } from './shk.js';
 import { vfsReadFile, vfsDeleteFile, vfsListFiles } from './storage.js';
@@ -141,7 +141,7 @@ export async function dorestore(state = game) {
     const raw = vfsReadFile(SAVE_FILE_PATH);
     if (raw == null) return false;
 
-    const snapshot = JSON.parse(raw);
+    const snapshot = parseSnapshot(raw);
 
     // Apply saved fields to the game object. Fields set here overwrite the
     // values newgame_pre_mklev() would have set; fields the snapshot omits
@@ -176,6 +176,18 @@ export async function dorestore(state = game) {
         state.tune = snapshot.tune;
         state.svt ??= {};
         state.svt.tune = snapshot.tune;
+    }
+
+    // C restore.c:restgamestate restores global timers and lights before the
+    // inventory chains. parseSnapshot() has already reconnected their object
+    // arguments to the same saved inventory objects.
+    if (Object.hasOwn(snapshot, 'timer_base')) {
+        state.gt ??= {};
+        state.gt.timer_base = snapshot.timer_base;
+    }
+    if (Object.hasOwn(snapshot, 'light_base')) {
+        state.gl ??= {};
+        state.gl.light_base = snapshot.light_base;
     }
 
     // Inventory and objects
@@ -259,8 +271,8 @@ export async function dorestore(state = game) {
 
     // ---- Reconstruct computed state ----
 
-    // The level was serialized as a plain object; restore the at() method
-    // that GameMap provides for coordinate-bounded location lookup.
+    // Restore the at() method that GameMap provides for coordinate-bounded
+    // location lookup; functions are excluded from the JSON snapshot.
     if (state.level && typeof state.level.at !== 'function') {
         state.level.at = function at(x, y) {
             if (x < 0 || x >= COLNO || y < 0 || y >= ROWNO) return null;
@@ -308,9 +320,7 @@ export async function dorestore(state = game) {
     // max_rank_sz computes gm.mrank_sz from the role's rank table.
     _uInitInternals.max_rank_sz(state);
 
-    // Rebuild monster linked list from the level.monsters grid.
-    // safeStringify() severs the monlist chain; the grid is the single
-    // source of truth for which monsters exist on this level.
+    // Rebuild the canonical monster list from its grid and C's saved order.
     rebuildMonsterList(state);
 
     // C ref: restore.c restmonchn() calls restshk() while rebuilding each
@@ -359,16 +369,14 @@ export async function dorestore(state = game) {
     return true;
 }
 
-// Rebuild state.level.monlist from the level.monsters grid.  The grid
-// maps (x, y) to the monster occupying that square; the linked list
-// threads them together via .nmon. C's place_monster() keeps both in sync;
-// safeStringify() drops the list pointers as cycles.
+// Rebuild state.level.monlist from the level.monsters grid. The grid maps
+// coordinates to monsters; the linked list threads them together via .nmon.
+// This also repairs the chain for snapshots written before reference support.
 //
 // C's restmonchn() preserves the original linked-list order (creation time,
 // newest first). A naive grid scan produces column-major positional order,
 // which differs from C and causes mcalcmove / movemon to consume RNG values
-// in the wrong monster order. When dosave0() saved a _monlistOrder array of
-// m_id values on the level, sort the rebuilt list to match that order.
+// in the wrong monster order. Sort by the saved _monlistOrder.
 function rebuildMonsterList(state) {
     const grid = state.level?.monsters;
     if (!grid) return;
@@ -419,9 +427,7 @@ function rebuildMonsterList(state) {
 
 // Rebuild state.level.objlist from the level.objects grid. Each grid cell
 // holds an object chain (via .nexthere); the level-wide list threads them
-// all via .nobj. When save.c captured the original fobj order, retain it:
-// C's restobjchn() preserves that order rather than deriving it from map
-// coordinates.
+// all via .nobj. Use the saved object-ID order C's restobjchn() preserves.
 function rebuildObjectList(state) {
     const grid = state.level?.objects;
     if (!grid) return;
@@ -566,13 +572,10 @@ export async function getlev(ledger, state = game) {
     //   3. Calls restore_cham(mtmp) (1217)
     //   4. If elapsed > 0 and elapsed > rnd(10), calls hide_monst(mtmp) (1219)
     //
-    // The level.monsters grid was saved intact, so step 1 is unnecessary.
-    // savelev() stores the level as a live reference, so the .nmon chain is
-    // still valid and preserves the original linked-list order that C's
-    // restmonchn() would restore. Do NOT rebuild the monlist from the grid
-    // here: the grid scan produces a position-dependent order (column-major)
-    // that differs from C's creation-time order, causing mcalcmove and
-    // movemon to consume RNG values in the wrong monster order.
+    // The level.monsters grid and .nmon chain are restored as one object
+    // graph, preserving C's restmonchn() order. Do NOT rebuild this list from
+    // the grid here: a column-major scan changes the order in which mcalcmove
+    // and movemon consume RNG values.
     rebuildObjectList(state);
 
     for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {

@@ -293,48 +293,90 @@ export function dosave0(state = game) {
     // C uses (struct-by-struct with Sfo_ macros) is replaced by a single
     // JSON blob containing the fields the restore path will need.
     //
-    // Game objects form circular reference chains (e.g., a carried object's
-    // `.v` field points to the carrying monster, whose `.minvent` points
-    // back). safeStringify() replaces cycles with null rather than throwing.
-    // Record the monlist and object-list orders so that restore can restore
-    // the same linked-list orders that C's restmonchn() and restobjchn()
-    // preserve.
-    // safeStringify()'s cycle detector severs the .nmon chain; the grid is
-    // the surviving source of truth for which monsters exist, but its
-    // column-major scan order differs from the original creation-time order.
-    // Storing m_id values in chain order lets the rebuild sort correctly.
+    // Game state has shared references as well as cycles. The snapshot
+    // serializer preserves those links so a saved floor object remains the
+    // same object in every chain and map cell that points to it.
     captureMonlistOrder(state.level);
     captureObjlistOrder(state.level);
 
     const snapshot = serializeGameState(state);
-    vfsWriteFile(SAVE_FILE_PATH, safeStringify(snapshot));
+    vfsWriteFile(SAVE_FILE_PATH, serializeSnapshot(snapshot));
 
     return 1;
 }
 
-// JSON.stringify with circular-reference protection. The game-state graph
-// contains back-pointers (obj.v -> carrying monster -> minvent -> obj) that
-// form cycles. Rather than walking every subgraph manually, a WeakSet tracks
-// objects already on the serialization stack and replaces revisits with null.
-// Functions and display handles are also dropped, keeping the snapshot as
-// pure data.
-function safeStringify(value) {
-    const seen = new WeakSet();
-    return JSON.stringify(value, (_key, val) => {
+// Keep the JSON snapshot's visible field layout, but encode each repeated
+// object reference as its first path. This preserves C pointer identity after
+// the JSON round trip without serializing functions or display handles.
+const SNAPSHOT_REFERENCE = '__teleport_graph_reference_v1__';
+
+export function serializeSnapshot(value) {
+    const firstPath = new WeakMap();
+    const objectPath = new WeakMap();
+    return JSON.stringify(value, function snapshotReplacer(key, val) {
         if (typeof val === 'function') return undefined;
-        if (val !== null && typeof val === 'object') {
-            if (seen.has(val)) return null;
-            seen.add(val);
-        }
+        if (val === null || typeof val !== 'object') return val;
+
+        const parent = objectPath.get(this) ?? [];
+        const property = Array.isArray(this) ? Number(key) : key;
+        const path = [...parent, property];
+        const previous = firstPath.get(val);
+        if (previous) return { [SNAPSHOT_REFERENCE]: JSON.stringify(previous) };
+        firstPath.set(val, path);
+        objectPath.set(val, path);
         return val;
     });
+}
+
+// Resolve reference paths after parsing. Older JSON saves without reference
+// markers remain readable.
+export function parseSnapshot(serialized) {
+    const root = JSON.parse(serialized);
+    const byPath = new Map();
+    const pathKey = path => JSON.stringify(path);
+    const referencePath = value => {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+        const keys = Object.keys(value);
+        return keys.length === 1 && keys[0] === SNAPSHOT_REFERENCE
+            && typeof value[SNAPSHOT_REFERENCE] === 'string'
+            ? value[SNAPSHOT_REFERENCE] : null;
+    };
+
+    function index(value, path) {
+        if (!value || typeof value !== 'object' || referencePath(value)) return;
+        byPath.set(pathKey(path), value);
+        for (const key of Object.keys(value)) {
+            const property = Array.isArray(value) ? Number(key) : key;
+            index(value[key], [...path, property]);
+        }
+    }
+
+    const rootPath = [''];
+    index(root, rootPath);
+    const visited = new WeakSet();
+    function reconnect(value, path) {
+        const target = referencePath(value);
+        if (target) {
+            const resolved = byPath.get(target);
+            if (!resolved) throw new Error('save snapshot has a dangling object reference');
+            return resolved;
+        }
+        if (!value || typeof value !== 'object' || visited.has(value)) return value;
+        visited.add(value);
+        for (const key of Object.keys(value)) {
+            const property = Array.isArray(value) ? Number(key) : key;
+            value[key] = reconnect(value[key], [...path, property]);
+        }
+        return value;
+    }
+    return reconnect(root, rootPath);
 }
 
 // Serialize the game state into a plain object suitable for JSON.stringify.
 // The fields mirror what C's savegamestate() (save.c:265-333) writes: the
 // hero struct, flags, moves, context, inventory, level data, dungeon state,
 // and related subsystems. Non-serializable values (functions, display
-// handles) are excluded by safeStringify's replacer.
+// handles) are excluded by serializeSnapshot().
 function serializeGameState(state) {
     const snapshot = {
         // C ref: savegamestate() fields in save.c:265-333 order
@@ -387,6 +429,11 @@ function serializeGameState(state) {
         spl_book: state.spl_book,
         mvitals: state.mvitals,
         mapseenchn: state.svm?.mapseenchn,
+        // C savegamestate() writes global timers and light sources before the
+        // inventory chains. Keep timer/light object arguments aliased to those
+        // saved objects so callbacks such as end_burn() find their source.
+        timer_base: state.gt?.timer_base,
+        light_base: state.gl?.light_base,
         quest_status: state.quest_status,
         // Hero identity and timing
         wizard: state.wizard,
@@ -423,11 +470,8 @@ function serializeIflags(iflags) {
     return copy;
 }
 
-// Serialize the special-level chain as a flat array of entries without
-// the linked-list `.next` pointers. safeStringify()'s cycle detector
-// would null-out subsequent array elements because the first element's
-// `.next` chain visits them all, so stripping `.next` before serialization
-// preserves every entry. Restore rebuilds the chain.
+// Serialize the special-level chain as the JS array representation. Restore
+// rebuilds its `.next` overlay after the JSON snapshot is read.
 function serializeSpecialLevels(levels) {
     if (!levels) return null;
     return levels.map((entry) => {
@@ -438,9 +482,8 @@ function serializeSpecialLevels(levels) {
 }
 
 // Save the monlist traversal order on the level object as an array of m_id
-// values. rebuildMonsterList() reads this after a JSON round-trip to restore
-// the same linked-list order that C's restmonchn() preserves. Without this,
-// the grid scan produces a position-dependent order that diverges from C.
+// values. rebuildMonsterList() uses it when deriving the list from the grid,
+// and older snapshots retain this fallback ordering.
 function captureMonlistOrder(level) {
     if (!level) return;
     const order = [];
@@ -450,10 +493,9 @@ function captureMonlistOrder(level) {
     if (order.length) level._monlistOrder = order;
 }
 
-// Save the fobj traversal order on the level object. A JSON round-trip keeps
-// the per-square nexthere piles but severs the level-wide nobj chain; restoring
-// from the grid alone changes C's object traversal order and can move RNG
-// calls in routines such as dog_goal().
+// Save the fobj traversal order on the level object for the grid-derived
+// rebuildObjectList() path and older snapshots. This matches C's restobjchn()
+// ordering and keeps routines such as dog_goal() deterministic.
 function captureObjlistOrder(level) {
     if (!level) return;
     const order = [];
@@ -463,10 +505,8 @@ function captureObjlistOrder(level) {
     if (order.length) level._objlistOrder = order;
 }
 
-// Serialize the branch array without linked-list pointers. C's branch
-// list uses `.next`; the JS port keeps an array and a `.next` overlay.
-// Like specialLevels, safeStringify()'s cycle detector would null
-// revisited entries, so strip `.next` here and rebuild on restore.
+// Serialize branches using the JS array representation. Restore rebuilds
+// the C linked-list `.next` overlay from this list.
 function serializeBranches(branches) {
     if (!branches) return null;
     return branches.map((entry) => {
