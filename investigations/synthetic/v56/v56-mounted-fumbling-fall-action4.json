@@ -1,0 +1,62 @@
+{
+  "session": "synthetic/v56/v56-mounted-fumbling-fall-action4",
+  "remainingScreens": 31,
+  "recordedSteps": 117,
+  "corpus": "synthetic",
+  "batch": "v56",
+  "caseId": "v56-mounted-fumbling-fall-action4",
+  "manifestPath": "challenges/manifests/v56.json",
+  "manifestSha256": "a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74",
+  "recordingSha256": "fb4fdd7bdf456c10a6411052f9a462f83845ba22c3856440d38736bedebd22b5",
+  "recipeSha256": "5299301a7e4534e105e6b8d6b2974189746067eb58b30220203a692f60280bf2",
+  "evaluationPath": "challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json",
+  "evaluationCommit": "398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6",
+  "status": "complete",
+  "commit": "4fb02a37ee9866a993e9f725e3d118d19b590e34",
+  "mismatch": {
+    "session": "synthetic/v56/v56-mounted-fumbling-fall-action4",
+    "remainingScreens": 31,
+    "step": 86,
+    "kind": "rng",
+    "sourceFile": "timeout.c",
+    "function": "slip_or_trip",
+    "sourceBranch": "In the mounted ordinary-fumbling branch, timeout.c:slip_or_trip prints the selected rn2(4) message and calls dismount_steed(DISMOUNT_FELL). JavaScript prints the same message but skips the call at note_unported, so the recorded C landing_spot RNG draw has no preceding JavaScript dismount path.",
+    "runtimeBoundary": "timeout.c FUMBLING timeout arm -> slip_or_trip -> steed.c dismount_steed(DISMOUNT_FELL) -> landing_spot",
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 86,
+        "total": 117
+      },
+      "rng": {
+        "matched": 2475,
+        "total": 2534
+      },
+      "cursors": {
+        "matched": 86,
+        "total": 117
+      }
+    }
+  },
+  "summary": "The admitted v56 case first diverges at step 86 after an ordinary movement command ends in a mounted fumbling timeout. C prints “You slide to one side of the saddle.” and calls dismount_steed(DISMOUNT_FELL); JavaScript prints the same message, then records the dismount call as unported and continues without its state changes or landing draws. The queue labels the first unmatched C RNG call as steed.c:landing_spot, but the missing behavior is the caller edge in timeout.c:slip_or_trip.",
+  "source": {
+    "file": "timeout.c",
+    "functions": [
+      "slip_or_trip"
+    ],
+    "branch": "timeout.c:slip_or_trip (1222-1341), mounted non-ice fumble arm: after rn2(4) message selection, call dismount_steed(DISMOUNT_FELL) at 1338. The timeout callback calls slip_or_trip only when u.umoved and the hero is neither levitating nor flying (timeout.c:905-918).",
+    "callers": [
+      "timeout.c FUMBLING expiry arm calls slip_or_trip after a move at 905-918; slip_or_trip calls steed.c:dismount_steed(DISMOUNT_FELL) in the mounted message branch at 1338.",
+      "js/timeout.js timeout callback calls slip_or_trip in the FUMBLING arm; the ordinary mounted branch currently stops at note_unported instead of calling the existing js/steed.js dismount_steed implementation."
+    ],
+    "dependencies": [
+      "Existing js/steed.js dismount_steed implements DISMOUNT_FELL and delegates landing selection to landing_spot. The exact call path and callee behavior still require replay confirmation after caller wiring."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Admitted baseline evaluation admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json records this case at 86/117 screens, 2475/2534 RNG calls, 86/117 cursors, error null; first mismatch is the C rn2(2) landing_spot draw at step 86.",
+    "C source timeout.c:905-918 calls slip_or_trip only for a moved, non-flying, non-levitating hero. timeout.c:1222-1341 shows the mounted message switch followed by dismount_steed(DISMOUNT_FELL) at line 1338.",
+    "JavaScript source js/timeout.js:774 onward has the same mounted rn2(4) message branch, but line 912 records note_unported('steed.c dismount_steed') and omits the C call. The existing js/steed.js dismount_steed DISMOUNT_FELL arm uses landing_spot and performs the caller-visible state transitions."
+  ]
+}
