@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T09:07:44.784Z",
+  "capturedAt": "2026-10-13T09:17:39.918Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -103008,6 +103008,54 @@
         "at": "2026-10-13T09:06:02.467Z",
         "task": "A2-investigation-v54-healer-dream-message-action6-20261013",
         "delivery": "dbf3348fbc5ef6559382cfa9111e478cfc797b9b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v55-blind-ogre-extra-healing-action5-20261013-ffe88d3b2689471e2780c63d4cd634c1ab7a1e3b",
+        "type": "published",
+        "at": "2026-10-13T09:07:58.261Z",
+        "task": "B-investigation-v55-blind-ogre-extra-healing-action5-20261013",
+        "commit": "ffe88d3b2689471e2780c63d4cd634c1ab7a1e3b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-a-lantern-20261013",
+        "type": "activity",
+        "at": "2026-10-13T09:08:33.749Z",
+        "task": "A2-investigation-v55-lantern-save-restore-action2-20261013",
+        "phase": "review",
+        "reason": "Integrating the oldest ready implementation delivery after accepted healing publication."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-lantern-60a94ba6-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T09:08:54.001Z",
+        "task": "A2-investigation-v55-lantern-save-restore-action2-20261013",
+        "integration": "60a94ba634d9406a0fe41fb58ee5eb6c9956d242"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e01335307fb606b19ee30b6248eb115201e20e30",
+        "type": "ready",
+        "at": "2026-10-13T09:15:26.126Z",
+        "task": "Prep26",
+        "delivery": "e01335307fb606b19ee30b6248eb115201e20e30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v55-lantern-save-restore-action2-20261013-60a94ba634d9406a0fe41fb58ee5eb6c9956d242-validated",
+        "type": "validated",
+        "at": "2026-10-13T09:15:29.028Z",
+        "task": "A2-investigation-v55-lantern-save-restore-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v55-lantern-save-restore-action2-20261013-60a94ba634d9406a0fe41fb58ee5eb6c9956d242-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T09:15:55.600Z",
+        "task": "A2-investigation-v55-lantern-save-restore-action2-20261013"
       }
     ]
   },
@@ -103068,17 +103116,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v55-lantern-save-restore-action2-20261013",
-        "worker": "A2",
-        "goal": "fix-save-restore-floor-object-and-lantern-state-v55-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "21e53090b2b6efedc86b593c740a3c33c55728d2",
-        "since": "2026-10-13T06:01:16.128Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -103158,6 +103195,25 @@
         "delivery": "dbf3348fbc5ef6559382cfa9111e478cfc797b9b",
         "since": "2026-10-13T08:59:45.542Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep26",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "e01335307fb606b19ee30b6248eb115201e20e30",
+        "batch": "v62",
+        "since": "2026-10-13T09:15:26.126Z",
+        "blockedBy": [
+          "Prep20",
+          "Prep21",
+          "Prep22",
+          "Prep23",
+          "Prep24",
+          "Prep25"
+        ],
         "unblocks": 0
       }
     ],
@@ -103652,8 +103708,8 @@
     ]
   },
   "development": {
-    "executionCommit": "85c020e5e1c4bb33fe569728fbab336d139d95a3",
-    "measuredAt": "2026-10-13T08:55:17.568Z",
+    "executionCommit": "60a94ba634d9406a0fe41fb58ee5eb6c9956d242",
+    "measuredAt": "2026-10-13T09:13:51.015Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
