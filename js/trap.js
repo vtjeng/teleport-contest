@@ -172,13 +172,7 @@ import {
     WT_TOOMUCH_DIAGONAL,
     XKILL_NOMSG,
     W_SADDLE,
-    W_AMUL,
-    W_ARMOR,
-    W_BALL,
-    W_CHAIN,
     W_ARTI,
-    W_TOOL,
-    W_WEAPONS,
     ZAP_POS,
     CORPSTAT_FEMALE,
     CORPSTAT_GENDER,
@@ -1703,25 +1697,11 @@ export async function lava_effects(state = game) {
                         await ttyPline(`${Yobjnam2(obj, 'burst', state)} into flame!`, state);
                         burnmesgcount++;
                     }
-                    // C removes every doomed worn item. The message is
-                    // conditional on lifesaving, but remove_worn_item() is
-                    // unconditional before useupall().
-                    // Keep unsupported worn-item arms as explicit gaps while
-                    // routing a worn cloak through the existing helper path.
-                    const mask = obj.owornmask;
-                    const supportedCloak = obj === state.uarmc
-                        && Boolean(mask & W_ARMOR);
-                    const unsupportedMask = Boolean(mask
-                        & (W_AMUL | W_TOOL | W_BALL | W_CHAIN))
-                        || (Boolean(mask & W_ARMOR) && !supportedCloak);
-                    const unsupportedQuiver = Boolean(mask & W_WEAPONS)
-                        && obj === state.uquiver;
-                    if (unsupportedMask || unsupportedQuiver) {
-                        note_unported('steal.c remove_worn_item');
-                    } else {
-                        const { remove_worn_item } = await import('./steal.js');
-                        await remove_worn_item(obj, true, state);
-                    }
+                    // trap.c calls remove_worn_item for every worn inventory
+                    // item before useupall. Its return is discarded, but the
+                    // slot callbacks and setnotworn must finish first.
+                    const { remove_worn_item } = await import('./steal.js');
+                    await remove_worn_item(obj, true, state);
                 }
                 await useupall(obj, { state });
                 burncount++;
