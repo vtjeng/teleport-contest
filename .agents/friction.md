@@ -466,3 +466,24 @@ triage decisions or fix references.
 - A preparation-packet preview applied `Object.keys` to the string-valued
   mission plan and emitted character indices. The output was truncated.
   The intended preview needed only the manifest's case IDs and rationales.
+
+### 2026-10-13 — fee caller failures and committed baseline reports
+
+- Unpaid-fee candidate `748073928` failed hosted run `38339601835`: lamp
+  billing referenced an undefined `random`, six lamp recordings failed,
+  and an inventory test still expected a newly asynchronous charge helper
+  to finish synchronously. C corrected environment forwarding and the
+  test's awaits in `a8e487a9`; hosted run `38341322856` passed at
+  `f3648d25`. The failed summary and original delivery remain preserved.
+- A's growth-name submission needed the accepted evaluation for
+  `3d403994`, which was committed in published descendant `a1d88799`,
+  rather than the tested source commit. Root first recommended a plain
+  report merge; submission then rejected unrelated closure paths such as
+  `GOALS.json`. A used an explicit bridge with the published tree and
+  assignment ancestry, excluding those paths from its delivery. Source
+  and execution inputs were unchanged, so the saved checks were reused.
+- Exclusive `mcast_spell` reservations made insect, weakening, and armor
+  investigations wait for each other's dispatcher deliveries. Their
+  diagnoses were preserved, and Root prioritized deliveries that released
+  those blockers. Ready implementations continued to precede new batch
+  admission under the approved scheduling rule.
