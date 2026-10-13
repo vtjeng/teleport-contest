@@ -299246,7 +299246,7 @@
     {
       "id": "fix-mounted-fumbling-dismount-caller-v56-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Call the existing FELL dismount from mounted fumbling timeout branches.",
       "cFile": "timeout.c",
       "sessions": [
@@ -299256,10 +299256,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
       "delivered": null,
       "function": "slip_or_trip",
-      "session": "synthetic/v56/v56-mounted-fumbling-fall-action4"
+      "session": "synthetic/v56/v56-mounted-fumbling-fall-action4",
+      "closeStanding": {
+        "sha": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "ce51c52366d1b682c5423677ab5c687cb70833ee",
+        "target": "synthetic/v56/v56-mounted-fumbling-fall-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678/run-hosted-LVTb3Y/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "slip_or_trip",
+            "symbol": "slip_or_trip",
+            "implementation": "js/timeout.js",
+            "pure": false,
+            "sourceReview": "Read timeout.c:slip_or_trip() (1222-1341). Wired both source calls to dismount_steed(DISMOUNT_FELL): the ice/outside-fumbling arm after “You lose your balance.” and the ordinary mounted rn2(4) message arm. The existing steed.js implementation owns landing_spot, the fall message, riding accident and leg injury. This bounded fix leaves the unrelated trip-over-corpse trap.c:instapetrify gap recorded by this function unchanged; it makes no whole-function completion claim.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout() calls slip_or_trip() from its FUMBLING expiry arm only after movement when the hero is neither levitating nor flying; slip_or_trip() then calls dismount_steed(DISMOUNT_FELL)."
+              }
+            ],
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-mounted-fumbling-fall-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 116,
+                "source": "timeout.c:nh_timeout FUMBLING expiry -> slip_or_trip ordinary mounted rn2(4) arm -> steed.c:dismount_steed(DISMOUNT_FELL) -> landing_spot; the selected branch occurs at step 86."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected recorded movement reaches the FUMBLING timeout after a move with the hero mounted and an uncursed saddle. At step 86, the ordinary mounted fumble message is followed by the source FELL dismount; the complete C/JavaScript replay now matches through step 116. The ice fumble call site was wired in the same function, but the selected session exercises the ordinary mounted branch. No other timeout behavior is claimed.",
+        "entryPoints": [
+          {
+            "name": "Mounted FUMBLING timeout after movement",
+            "functions": [
+              "slip_or_trip"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-mounted-fumbling-fall-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 116,
+                "source": "timeout.c:nh_timeout -> slip_or_trip -> steed.c:dismount_steed(DISMOUNT_FELL) -> landing_spot and riding accident."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
