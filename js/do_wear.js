@@ -3738,11 +3738,9 @@ async function accessory_or_armor_on(obj, state = game) {
         /* if the armor is wielded, release it for wearing (won't be
            welded even if cursed; that only happens for weapons/weptools) */
         if (obj.owornmask & W_WEAPONS) {
-            // do_wear.c:2363-2364 remove_worn_item(), which
-            // js/dothrow.js:550 also stops in front of. Nothing puts armor
-            // in a weapon slot here: 'w', 'x' and 'Q' are unported and
-            // u_init.c wields only weapons.
-            throw new UnsupportedWearError('remove_worn_item()');
+            // C do_wear.c:2363-2364 discards remove_worn_item()'s return;
+            // the helper clears W_WEAPONS before setworn() installs armor.
+            await remove_worn_item(obj, false, state);
         }
         /*
          * C sets obj->known in the afternmv action rather than here, so
