@@ -651,3 +651,13 @@ triage decisions or fix references.
   commits; the bridge tree equals the failed candidate tree.
 - Worker CLI rejects parking implemented investigations as coordinator-only;
   Root recorded the v48 build-profile park with unchanged raw target evidence.
+
+### 2026-10-13 — queued targets and reserved callers
+
+- C selected its own already submitted bee-jelly target from the accepted
+  queue before checking pending deliveries. Root identified the duplicate
+  before its assignment; no code was changed. The queue continues to show
+  a target until its delivery is accepted.
+- A and C exhausted independent admitted cases while their completed work
+  remained queued. Both recorded idle; B remains blocked on zap_updown.
+  Root prioritized that dependency chain, then prepared-batch admission.
