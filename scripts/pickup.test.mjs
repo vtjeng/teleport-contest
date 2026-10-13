@@ -1223,6 +1223,40 @@ test('pickup reports the C carry_count refusal at maximum-capacity equality',
         );
     });
 
+test('pickup defers planning through the source partial-stack lift path', async () => {
+    const cSource = await readFile(
+        new URL('../nethack-c/upstream/src/pickup.c', import.meta.url),
+        'utf8',
+    );
+    const cPickupObject = cSource.slice(
+        cSource.indexOf('pickup_object(\n'),
+        cSource.indexOf('pick_obj(struct obj *otmp)', cSource.indexOf('pickup_object(\n')),
+    );
+    const cLiftObjectStart = cSource.indexOf('staticfn int\nlift_object(\n');
+    const cPickupObjectStart = cSource.indexOf('pickup_object(\n');
+    assert.ok(cPickupObject.indexOf('lift_object(') < cPickupObject.indexOf('pick_obj('));
+    assert.ok(cLiftObjectStart >= 0 && cPickupObjectStart >= 0);
+    assert.match(cSource.slice(cLiftObjectStart, cPickupObjectStart),
+        /\*cnt_p = carry_count\(obj, container, \*cnt_p, telekinesis,/u);
+
+    const state = await heroOnAnEmptySquare();
+    state.flags.pickup = true;
+    const arrows = typedObjectUnderHero(state, ELVEN_ARROW);
+    arrows.quan = 5000;
+    arrows.owt = weight(arrows, { state });
+    quiet(state);
+    // C's first Space dismisses carry_count's More; the second accepts the
+    // burden question's default q, leaving the stack on the floor.
+    state.nhDisplay.pushKey(32);
+    state.nhDisplay.pushKey(32);
+
+    assert.equal(await pickup(0, state), 1);
+    assert.match(state._ttyToplines, /Continue\? \[ynq\] \(q\)/u);
+    assert.equal(arrows.quan, 5000);
+    assert.equal(arrows.where, OBJ_FLOOR);
+    assert.notEqual(state.invent, arrows);
+});
+
 test('carry_count prints its C partial-lift and zero-lift branches', async () => {
     const cSource = await readFile(
         new URL('../nethack-c/upstream/src/pickup.c', import.meta.url),

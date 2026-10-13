@@ -981,7 +981,24 @@ function preflightPickupObjects(selected, state) {
         && !object.oartifact
         && object.otyp !== CORPSE
         && object.otyp !== SCR_SCARE_MONSTER;
-    if (exceedsCarryCapacity && !sourceZeroLift) {
+    // For a heavy stack C does not reject in pickup(); it reaches
+    // pickup_object() -> lift_object() -> carry_count(), which can reduce the
+    // requested quantity before lift_object() asks its burden question. Keep
+    // inventory planning behind those source-owned decisions.
+    const sourcePartialStackLift = exceedsCarryCapacity
+        && selected.length === 1
+        && actionable.length === 1
+        && object.where === OBJ_FLOOR
+        && object.quan > 1
+        && selectedObject.count > 1
+        && object.oclass !== COIN_CLASS
+        && object.otyp !== LOADSTONE
+        && !(object.otyp === BOULDER
+            && (state.Sokoban || throws_rocks(state.youmonst?.data)))
+        && !object.oartifact
+        && object.otyp !== CORPSE
+        && object.otyp !== SCR_SCARE_MONSTER;
+    if (exceedsCarryCapacity && !sourceZeroLift && !sourcePartialStackLift) {
         throw new UnsupportedPickupError(
             'pickup() requiring a partial or failed lift',
         );
@@ -997,8 +1014,9 @@ function preflightPickupObjects(selected, state) {
     // before pick_obj() reaches addinv(). Leave the addinv plan empty here so
     // the accepted answer can build it at that source position; a declined
     // lift must not reach inventory planning at all.
-    const deferAddinvForBurdenPrompt = !sourceZeroLift
-        && calc_capacity(addedWeight, state) > promptLimit;
+    const deferAddinvForBurdenPrompt = sourcePartialStackLift
+        || (!sourceZeroLift
+            && calc_capacity(addedWeight, state) > promptLimit);
 
     const env = objectGenerationEnv({
         state,
