@@ -231,9 +231,7 @@ or blocked implementation workers lack independent work. An active, unblocked
 task already gives its worker work. For the other workers, count only unreserved
 work, not submitted deliveries.
 
-After saving a new batch's baseline, ask idle or blocked implementation workers
-to reassess the updated queue at a clean task boundary. Do not wait for their
-previous deliveries to be accepted.
+After saving a new batch's baseline, follow `.agents/loop.md`, "Notifications".
 
 After each admission, check whether
 every implementation worker has independent work available. Stop admitting

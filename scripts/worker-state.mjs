@@ -108,9 +108,8 @@ separately from Main's delivery backlog. Counts are provisional: workers must
 check source independence and recheck parked blockers. Admission suggestions
 do not interrupt an active checkpoint or waive baseline/admission checks.
 wakeups lists idle/blocked workers whose last report predates a new admitted
-baseline. Refresh the saved queue when queueReady is false, then ask those
-workers to recheck. Their next turn or assignment clears the reminder; do not
-replace a current task or interrupt a running process. Ready implementation
+baseline. Their next turn or assignment clears the reminder. Worker notifications
+follow .agents/loop.md, "Notifications". Ready implementation
 deliveries take priority over preparation and admission. When no implementation
 delivery is ready, prioritize an existing prepared batch if workers lack
 independent work, rather than requesting another batch.
@@ -537,7 +536,7 @@ export function nextActions(state, admittedBatches = [], queue = null) {
             afterTask: tasks.find(other => other.worker === task.worker && other.status === 'working')?.id ?? null,
         })),
         workers: Object.values(state.workers).map(w => ({ worker: w.worker, handle: w.handle,
-            action: w.handle === null ? 'recover-owner' : w.turn === 'idle' ? 'resume'
+            action: w.handle === null ? 'recover-owner' : w.turn === 'idle' ? 'wait'
                 : w.turn === 'blocked' ? 'resolve-blocker' : w.turn === 'active' ? 'continue' : 'inspect-turn',
             reason: w.reason ?? null, processes: w.processes,
             task: tasks.find(t => t.worker === w.worker && t.status === 'working')?.id ?? null })),

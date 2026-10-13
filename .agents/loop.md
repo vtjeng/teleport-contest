@@ -125,25 +125,49 @@ blockers. Decide whether to accept a smaller batch with that reason or direct
 the worker toward other targets. Keep missed and deferred targets in the
 handoff; the orchestrator owns the scheduling decision.
 
-Before waiting and after a completion, run `worker-state.mjs next`. Handle
-unread deliveries, batch wakeups, and finished worker turns first. Refresh the
-saved queue when a wakeup has `queueReady: false`, then ask the listed workers
-to recheck without replacing current tasks or processes. Record a finished turn
-with `turn`, then use `followup_task` on the same worker if work remains. Do
-not create routine nested implementation workers.
+Handle worker messages and finished turns under "Notifications" below.
+Do not create routine nested implementation workers.
 
 If a worker is blocked, assign a worker to remove the obstacle unless someone
 already owns that work. Resolve merge conflicts and shared-code ownership
 yourself. Keep each shared dependency with one owner. When waiting is
-unavoidable, record what is needed and who will provide it, then resume the
-blocked worker when ready. Do not send it back to an unchanged queue.
+unavoidable, record what is needed and who will provide it. Follow
+"Notifications" when the blocker clears.
+
+## Notifications
+
+Workers send one `READY_TO_MERGE` message after saving a submission, with its
+packet reference and next task or blocker. Main records receipt and acceptance
+in the ledger; it does not send routine `QUEUED_FOR_MERGE` or `ACCEPTED`
+messages. Workers read `accepted-main` at clean task boundaries.
+
+At startup and after a delivery, correction, acceptance, or batch baseline,
+use `worker-state.mjs next` or the publication helper's next-work summary.
+Handle unread deliveries and record finished turns. Before waiting, handle
+any outstanding actions; otherwise wait for a completion notification.
+
+Wake an idle or blocked worker only when new independent work is available,
+its recorded blocker has cleared, or corrections are requested. Combine
+pending changes into one notification per affected worker. Use `followup_task`
+on the existing worker without replacing a current task or process. Send an
+actionable wakeup before publication or the next integration; do not wait for
+the delivery queue to drain. Refresh the saved queue when a batch wakeup has
+`queueReady: false` before asking the listed workers to recheck.
+
+Send `CHANGES_REQUIRED` with specific findings to the responsible worker.
+Corrections wait until it finishes or deliberately parks its current task.
+Do not broadcast acceptance or request routine HEAD reports. When no eligible
+work remains, workers record an idle or blocked turn with the dependency and
+owner, then end the turn rather than rechecking an unchanged queue. Recover
+unexpectedly silent active workers under "Worker support", not by waking
+deliberately idle or blocked workers on a timer.
 
 ## Merge requests
 
 When a worker submits `READY_TO_MERGE`, inspect its saved submission. The
 worker's guide defines the required checks and evidence. Record `received`
-for the exact commit and reply `QUEUED_FOR_MERGE`. A saved submission remains
-valid even if its notification fails.
+for the exact commit. Follow "Notifications"; a saved submission remains valid
+even if its notification fails.
 
 Take ready deliveries one at a time, after their dependencies are accepted.
 Integrate deliveries that unblock other tasks first, then the oldest ready
@@ -161,18 +185,15 @@ check, or begin the next integration until the current candidate's evaluation an
 acceptance finish. Recheck the preview against the newly accepted `main` before
 integrating that delivery.
 
-Ask for corrections with `CHANGES_REQUIRED` and specific findings. Let the
-worker finish or deliberately park its current task before starting the
-correction. Corrections use new commits; submitted commits remain unchanged.
+Request corrections under "Notifications". Corrections use new commits;
+submitted commits remain unchanged.
 Recheck later work affected by a correction. Other workers continue.
 
 Keep a task's reservations until it is accepted or parked. If a worker has
 already started a second task, accepting its first task releases only the
 first task's reservations. Workers read the latest accepted Main commit with
 `worker-state.mjs accepted-main --file <shared-ledger>` and merge it at a clean
-task boundary before selecting new work. Do not broadcast each acceptance or
-request routine HEAD reports. Notify the submitting worker and workers whose
-blockers cleared; notify idle or blocked workers when a new batch opens work.
+task boundary before selecting new work. Follow "Notifications" for wakeups.
 Preserve pending work and submitted commits. Reuse accepted validation after a
 clean merge; run focused checks only for conflict resolutions or pending changes
 combined with accepted code that have not been tested together. Never rebase
@@ -254,8 +275,8 @@ successful CI checks locally.
    score, and records acceptance. It does not run `record-evidence`,
    `close-goal`, or another aggregate evaluation.
    If it fails, diagnose the error and retry at the same tested commit.
-   After acceptance, resume the idle worker as step 6 specifies, then
-   publish the closure records, investigation updates, and new challenge reports
+   After acceptance, follow step 6, then publish the closure records,
+   investigation updates, and new challenge reports
    together. Keep code and test-input changes in a separately validated delivery.
    Follow `.agents/validation.md` for new evidence when later commits change inputs
    to the checkpoint. After a challenge preparation task passes, leave its
@@ -272,16 +293,8 @@ successful CI checks locally.
    Then admit the oldest prepared manifest with the next version number, commit
    it, and save its first evaluation at that committed implementation before
    selecting failures. Do not admit a batch merely because its worker has finished.
-6. Send `ACCEPTED` with the helper's tested commit and checkpoint
-   result. Its receipt includes the submitting worker's recorded task and turn;
-   reconcile any newer activity. If it is idle, use `followup_task` on the same worker
-   immediately: merge accepted main at the clean boundary, then select and
-   claim the next independent task under "Seed continuation". Send this
-   continuation before dashboard generation, publication, or another
-   integration; do not wait for the delivery queue to drain. If the worker
-   already has a task, send the acceptance without replacing its assignment.
-   If continuation is blocked, record the specific dependency and its owner
-   in the existing ledger and assign independent work when available.
+6. Reconcile the receipt's recorded task and turn with newer worker activity.
+   Apply "Notifications" using the updated queue below.
    Keep local `main` at the tested commit through acceptance. Skip `sync-main`
    in this publication path; it is for fast-forwarding a different local main.
    Refresh the saved combined queue after score import, before publication.
@@ -333,15 +346,16 @@ scoring. Forward useful findings promptly; the worker verifies them and
 keeps implementation ownership. Stop an investigation when its explanation
 is falsified or the cause is resolved.
 
-When there is no other work for you, wait for a completion notification.
-Check a worker's transcript and process handles after ten minutes without
-an update. New activity or an active operation renews that window. If both
-are absent, wait 60 seconds to confirm. If they remain absent and the worker
-is idle, follow up on the same worker. If it still reports running without
+For a worker expected to be active, check its transcript and process handles
+after ten minutes without an update. New activity or an active operation
+renews that window. If both are absent, wait 60 seconds to confirm. If they
+remain absent and the worker is idle, follow up on the same worker. If it
+still reports running without
 activity or an operation, interrupt it once and follow up on the same handle. A stored “active” flag does not prove
 progress. Use an available scheduler for these ten-minute checks and stop
-it when the user's run ends. Respect the environment's wait limits without
-rechecking worker status after every short wait.
+it when the user's run ends. Apply "Notifications" to deliberately idle or
+blocked workers. Respect the environment's wait limits without rechecking
+worker status after every short wait.
 
 When existing instructions answer a question, state the decision, cite the
 rule, and continue. Otherwise record the question and a provisional decision

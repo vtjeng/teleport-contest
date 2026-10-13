@@ -65,11 +65,12 @@ test('preparation handoff requests its saved C review without implementation syn
     assert.equal(f.state().tasks.A1.status, 'integrating', 'review cannot accept preparation automatically');
 });
 
-test('targeted acceptance imports CI results without certifying source units and resumes safely', t => {
+test('targeted acceptance records its verdict without waking an idle worker', t => {
     const f = fixture(t, { acceptance: true });
     const receipt = acceptTask(f.options, f.root);
     assert.equal(receipt.commit, f.candidate);
-    assert.equal(receipt.handoff.action, 'resume');
+    assert.equal(receipt.handoff.action, 'wait', 'acceptance alone does not establish new worker work');
+    assert.match(receipt.next, /\.agents\/loop\.md.*Notifications/, 'the receipt points to the notification policy');
     assert.equal(f.state().tasks.A1.status, 'accepted');
     const goal = JSON.parse(readFileSync(join(f.root, 'GOALS.json'), 'utf8')).goals[0];
     assert.equal(goal.status, 'closed', 'a queued task can be accepted without the selection/open-goal ceremony');
@@ -91,6 +92,17 @@ test('fixed-development targets use the same saved-result acceptance rule', t =>
     assert.equal(verdict.fixed.changes[0].delta.screens, 1, 'the target gains its second recorded boundary');
     assert.equal(acceptTask(f.options, f.root).commit, f.candidate);
     assert.equal(f.state().tasks.A1.status, 'accepted');
+});
+
+test('accepting an earlier delivery preserves the worker\'s current assignment', t => {
+    const f = fixture(t, { acceptance: true });
+    f.send({ type: 'assign', task: 'A2', worker: 'A', goal: 'A2', seed: null,
+        base: f.candidate, reservations: ['source:fixture.c:next'], allowedPaths: ['js/fixture.js'] });
+    f.send({ type: 'turn', worker: 'A', state: 'active', reason: null, processes: [] });
+    const receipt = acceptTask(f.options, f.root);
+    assert.deepEqual(receipt.handoff, { turn: 'active', currentTask: 'A2', action: 'keep-current-task' });
+    assert.equal(f.state().tasks.A2.status, 'working', 'acceptance does not replace or park later work');
+    assert.equal(f.state().reservations['source:fixture.c:next'].worker, 'A');
 });
 
 test('target improvement cannot hide a fixed-session regression or unchanged target', t => {
@@ -198,7 +210,7 @@ test('publication generates reports, checks them before push, records exact remo
         'an older missing first-push time is not rewritten as the latest push time');
     assert.equal(f.state().deliveries[f.baseline].publicationKnownBy,
         f.state().deliveries[f.candidate].publishedAt);
-    assert.equal(report.next.workers[0].action, 'resume');
+    assert.equal(report.next.workers[0].action, 'wait', 'publication alone does not establish new worker work');
     const snapshot = JSON.parse(readFileSync(join(f.root, 'dashboard-snapshot.json'), 'utf8'));
     assert.equal(snapshot.development.executionCommit, f.candidate);
     assert.ok(snapshot.activity.events.some(event => event.type === 'accepted' && event.task === 'A1'));

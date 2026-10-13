@@ -276,7 +276,7 @@ test('legacy pilot records are rejected without being overwritten', (t) => {
     assert.equal(readFileSync(file, 'utf8'), legacy);
 });
 
-test('unread deliveries and ended turns remain actionable while the other worker runs', () => {
+test('ready integration remains actionable without resuming an idle worker', () => {
     const f = fixture();
     f.assign(); f.ready();
     f.assign('next-a', 'A', ['source:hack.c:test_move']);
@@ -287,11 +287,23 @@ test('unread deliveries and ended turns remain actionable while the other worker
     assert.ok(state.deliveries[FIRST].receivedAt);
     assert.equal(state.tasks['next-a'].status, 'working');
     const next = nextActions(state);
-    assert.equal(next.workers.find(w => w.worker === 'A').action, 'resume');
+    assert.equal(next.workers.find(w => w.worker === 'A').action, 'wait', 'an idle turn is not a wakeup trigger');
     assert.equal(next.workers.find(w => w.worker === 'B').action, 'continue');
     assert.equal(next.integration.task, 'one'); // B's unfinished higher-priority work does not hold the slot.
     assert.deepEqual(next.unread, []);
     assert.throws(() => f.send({ type: 'received', task: 'one', delivery: SECOND }), /delivery/);
+});
+
+test('repeated next-work reads leave idle workers waiting for a relevant event', () => {
+    const f = fixture();
+    const state = f.send({ type: 'turn', worker: 'A', state: 'idle',
+        reason: 'No independent work is available.', processes: [] });
+    const before = JSON.stringify(f.ledger());
+    for (const next of [nextActions(state), nextActions(state)]) {
+        assert.equal(next.workers.find(w => w.worker === 'A').action, 'wait');
+        assert.deepEqual(next.wakeups, [], 'no new baseline means no batch wakeup');
+    }
+    assert.equal(JSON.stringify(f.ledger()), before, 'coordination reads do not consume or invent events');
 });
 
 test('connection acknowledgement identifies the current worker handle', () => {

@@ -83,8 +83,9 @@ assigned `batch`. Write `.cache/task-evidence.json` with `missionPlan` and the
 prepared `manifest`. In `.cache/checks.json`, include one successful `fresh`
 check per case with its `caseId`, command, and absolute log path. Submit the
 task with its exact base and delivery commits, case paths and hashes, mission
-rationale, and independent replay results. Send `READY_TO_MERGE` with the saved
-packet path, then continue preparation. Keep Prep dedicated to batch preparation.
+rationale, and independent replay results. Follow `.agents/loop.md`,
+"Notifications", then continue preparation. Keep Prep dedicated to batch
+preparation.
 At the clean task boundary, merge the commit returned by
 `worker-state.mjs accepted-main --file <shared-ledger>`, not an unaccepted Main HEAD.
 Claim the next batch at the resulting HEAD. Keep all submitted commits

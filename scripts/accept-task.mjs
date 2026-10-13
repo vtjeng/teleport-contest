@@ -26,7 +26,7 @@ Imports synthetic evaluations, records the goal's outcome and score, and records
 validation and acceptance. Non-target deliveries require no regressions, not a target gain. Preparation
 tasks skip goal closure and synthetic import. Resume at the same HEAD after an
 interruption. No commits, pushes, batch admissions, or worker messages occur.
-On success, resume the idle submitting worker before publication.`;
+Worker notifications follow .agents/loop.md, "Notifications".`;
 
 export function parseAcceptanceArgs(args) {
     const options = {};
@@ -72,8 +72,8 @@ export function acceptTask(options, root = process.cwd()) {
         return { task: options.task, commit, checkpoint: checkpointPath, worker: task.worker,
             handle: worker?.handle,
             handoff: { turn: worker?.turn ?? null, currentTask: activeTask?.id ?? null,
-                action: activeTask ? 'keep-current-task' : worker?.turn === 'idle' ? 'resume' : 'inspect-turn' },
-            next: 'Send ACCEPTED and resume the idle worker now; then prepare publication.' };
+                action: activeTask ? 'keep-current-task' : worker?.turn === 'idle' ? 'wait' : 'inspect-turn' },
+            next: 'Follow .agents/loop.md, "Notifications"; then prepare publication.' };
     };
     // Acceptance already happened. Recover its receipt without importing or closing again.
     if (task.status === 'accepted') return receipt();

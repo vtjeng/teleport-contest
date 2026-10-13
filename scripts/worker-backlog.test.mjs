@@ -286,6 +286,8 @@ test('missed batch wakeups survive publication and disappear after a worker rech
         [['A', false], ['C', false]]);
     const current = { ...queue([{ session: 'unreserved' }]), synthetic: { batches: [{ batch: 'v40', status: 'complete' }] } };
     const next = nextActions(state, ['v40'], current);
+    assert.equal(next.workers.find(worker => worker.worker === 'C').action, 'wait',
+        'an idle status waits, while the separate wakeups list identifies newly admitted work');
     assert.deepEqual(next.wakeups.map(({ worker, batch, since, queueReady }) => ({ worker, batch, since, queueReady })),
         ['A', 'C'].map(worker => ({ worker, batch: 'v40', since: at(4), queueReady: true })));
     assert.deepEqual(nextActions(state, [], current).wakeups, [],

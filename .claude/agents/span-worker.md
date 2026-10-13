@@ -141,11 +141,10 @@ Submission checks committed investigation reports before saving the delivery.
 Fix a rejected report and submit a new commit.
 Preserve each delivery's context and evidence separately. Include exact base
 and delivery commits, dependencies, changed scope, check results, source
-evidence, recordings and entry points, and unfinished work. Then send
-`READY_TO_MERGE` with the saved submission reference and your next task or
-blocker. Submit before choosing the next task. If notification fails, the
-saved submission still stands. Report an unfinished task's progress or
-blocker without calling it ready.
+evidence, recordings and entry points, and unfinished work. Follow
+`.agents/loop.md`, "Notifications". Submit before choosing the next task.
+If notification fails, the saved submission still stands. Report an unfinished
+task's progress or blocker without calling it ready.
 
 When source code is ready but an entry point cannot yet produce matching
 runtime evidence, keep the full planned function list in the task context.
@@ -157,9 +156,9 @@ for one of the incomplete functions. Acceptance preserves the worker's claims
 and blockers without certifying whole functions or requiring a second source
 review by the orchestrator.
 
-The orchestrator replies `QUEUED_FOR_MERGE`, then `ACCEPTED` after combined
-validation or `CHANGES_REQUIRED` with findings. Submission frees you to start
-independent work, but its reservations remain until acceptance or parking.
+Receipt, acceptance, and wakeups follow `.agents/loop.md`, "Notifications".
+Submission frees you to start independent work, but its reservations remain
+until acceptance or parking.
 Acceptance of an earlier task leaves your current task's reservations intact.
 Acceptance requires a passing combined checkpoint, but does not mean the work
 has been pushed or that publication CI has finished.
@@ -243,8 +242,8 @@ done, and commit integration artifacts once they stabilize.
 
 ## What to report
 
-At each delivery, report to the main orchestrator in one brief
-`READY_TO_MERGE` message. Follow "Claiming and submitting work" above. Cover:
+Follow `.agents/loop.md`, "Notifications", and "Claiming and submitting work"
+above for delivery messages. Cover:
 
 - Base and delivery commits, exact delivery commit list, dependency SHAs,
   changed paths/functions, focused/lint/fresh-case commands and results,

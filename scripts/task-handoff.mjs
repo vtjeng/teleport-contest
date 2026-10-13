@@ -26,7 +26,7 @@ default; an explicit baseline must also belong to an accepted delivery. Newly
 admitted batches use their first complete recorded baseline when absent from
 that commit. A targeted fix must improve its assigned session without regressions.
 accept enforces the saved verdict and returns the worker handoff; review is optional.
-Resume the idle submitting worker before publish; this tool sends no messages.
+Worker notifications follow .agents/loop.md, "Notifications"; this tool sends no messages.
 publish generates the dashboard snapshot, commits only closure reports, checks
 publication changes, pushes accepted Main, records publication, checks CI once,
 and returns the next-work summary. No force push, game replay, or CI watch occurs.
