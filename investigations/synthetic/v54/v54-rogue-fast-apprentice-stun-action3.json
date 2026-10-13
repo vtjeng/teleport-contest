@@ -1,0 +1,94 @@
+{
+  "session": "synthetic/v54/v54-rogue-fast-apprentice-stun-action3",
+  "remainingScreens": 702,
+  "recordedSteps": 930,
+  "corpus": "synthetic",
+  "batch": "v54",
+  "caseId": "v54-rogue-fast-apprentice-stun-action3",
+  "manifestPath": "challenges/manifests/v54.json",
+  "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+  "recordingSha256": "e3e51a83f4c3fd646792b1beb9755427da7e9402da660b363855e7018497dd4d",
+  "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+  "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
+  "status": "incomplete",
+  "blocker": "The required MCAST_WEAKEN_YOU dispatcher arm is part of mcastu.c:mcast_spell, currently reserved by B's MCAST_BLIND_YOU task. Source:function reservations are exclusive; no game code was edited.",
+  "commit": "9c456e572a5b52f2c9deb21edf2d4b2ad1e3a19f",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v54",
+    "caseId": "v54-rogue-fast-apprentice-stun-action3",
+    "session": "synthetic/v54/v54-rogue-fast-apprentice-stun-action3",
+    "manifestPath": "challenges/manifests/v54.json",
+    "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+    "recording": "challenges/cases/v54/v54-rogue-fast-apprentice-stun-action3.session.json",
+    "recordingPath": "challenges/cases/v54/v54-rogue-fast-apprentice-stun-action3.session.json",
+    "recordingSha256": "e3e51a83f4c3fd646792b1beb9755427da7e9402da660b363855e7018497dd4d",
+    "recipe": "challenges/cases/v54/v54-rogue-fast-apprentice-stun-action3.recipe.session.json",
+    "recipeSha256": "22d06444fb8febf6777776c0c9feae3584a78b48d586c83a4770fc9cbe197ee1",
+    "replayInputSha256": "45d90454248a4bc3c97d75d60b021c6c51189f320359df542992f70d10d86993",
+    "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+    "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
+    "evaluationUtc": "2026-10-13T01:55:42.579Z",
+    "remainingScreens": 702,
+    "recordedSteps": 930,
+    "previousScreensMatched": 228,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 228, "total": 930 },
+      "rng": { "matched": 2894, "total": 3548 },
+      "cursors": { "matched": 900, "total": 930 }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 228,
+        "location": { "segmentIndex": 0, "stepIndex": 228, "key": " " },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": { "ch": "Y", "color": 8, "attr": 0, "decgfx": 0 },
+        "jsCell": { "ch": "T", "color": 8, "attr": 0, "decgfx": 0 }
+      },
+      "rng": {
+        "index": 2863,
+        "cEntry": "rnd(1)=1",
+        "cCaller": "mcast_weaken_you(mcastu.c:481)",
+        "jsEntry": "rn2(5)=0",
+        "location": { "segmentIndex": 0, "stepIndex": 228, "key": " " },
+        "stepIndex": 228
+      },
+      "cursor": {
+        "index": 228,
+        "location": { "segmentIndex": 0, "stepIndex": 228, "key": " " },
+        "cCursor": [55, 0, 1],
+        "jsCursor": [46, 4, 1]
+      }
+    },
+    "sourceFile": "mcastu.c",
+    "function": "mcast_weaken_you",
+    "message": "C enters the non-Antimagic strength-drain arm, rolls rnd(1), and updates Strength; JavaScript reaches its mcastu.c mcast_weaken_you note_unported gap, so the following spell-selection RNG is consumed instead."
+  },
+  "summary": "The apprentice reaches the hostile wizard spell path after the rogue's turn. At step 228 C emits the strength-drain message and consumes rnd(1) in mcast_weaken_you; JavaScript leaves that helper unported, producing the first RNG, screen, and cursor divergence.",
+  "source": {
+    "file": "mcastu.c",
+    "branch": "mcast_weaken_you: Antimagic produces shield/resistance feedback; otherwise it announces weakness, derives dmg from m_lev - 6 with a minimum of 1, rounds Half_spell_damage upward, rolls rnd(dmg), calls losestr with the caster-specific death reason and KILLED_BY, clears the killer name, and marks magical resistance unseen.",
+    "functions": ["mcast_weaken_you"],
+    "callers": [
+      "mcastu.c:mcast_spell case MCAST_WEAKEN_YOU calls mcast_weaken_you at line 841.",
+      "mcastu.c:castmu calls mcast_spell at line 298; mhitu.c:mattacku AT_MAGC arm calls castmu at line 930.",
+      "JS js/mcastu.js:castmu calls mcast_spell and has an explicit MCAST_WEAKEN_YOU gap; js/unported_monster_actions.js:attackHeroWithMattacku passes castMonsterSpell into js/mhitu.js:mattacku, mirroring mhitu.c:mattacku's AT_MAGC caller."
+    ],
+    "dependencies": [
+      "mcastu.c:death_inflicted_by is already implemented in js/mcastu.js and returns the caster-specific cause string.",
+      "attrib.c:losestr is already implemented in js/attrib.js; it is void, and its existing losehp and encumber-message operation contract must be supplied by the mcastu caller.",
+      "mondata.c:monstseesu/monstunseesu, display.c:shieldeff, and rn1.c:rnd are already ported and wired."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted baseline at challenges/evaluations/baseline-78195d815-v54.json records 228/930 screens, 2894/3548 RNG calls, and 900/930 cursors before the first mismatch; recording SHA e3e51a83f4c3fd646792b1beb9755427da7e9402da660b363855e7018497dd4d and input SHA 45d90454248a4bc3c97d75d60b021c6c51189f320359df542992f70d10d86993.",
+    "A targeted scan at commit 9c456e572 reproduces the step-228 C call rnd(1)=1 @ mcast_weaken_you(mcastu.c:481) against a later JavaScript rn2(5)=0 and shows the first screen glyph mismatch at row 0 column 0. The current code names this gap at js/mcastu.js MCAST_WEAKEN_YOU.",
+    "Source comparison covered mcastu.c:mcast_weaken_you lines 466-488, its mcast_spell case at 840-842, castmu's mcast_spell call at 298, and mhitu.c:mattacku's AT_MAGC call at 930."
+  ]
+}
