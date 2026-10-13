@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Castle replay for zap.c:zap_updown. Wizard setup clears Castle residents with blessed class-* genocide, enters the portcullis with timed PassWalls, then lets that timeout expire before opening and closing the drawbridge. The opening and closing transitions both reach dbridge.c:e_jumps.",
+  "segments": [
+    {
+      "seed": 58010808,
+      "datetime": "20651013113749",
+      "nethackrc": "OPTIONS=name:BUpDownBridge,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed wooden flute\n                    \u0017uncursed wand of opening (0:8)\n                    \u0017uncursed wand of locking (0:8)\n #wizwish\nblessed scroll of genocide\n#wizlevelport\n?\nj\nrr\n\n*\n\n#wizintrinsic\n500q\n\n#wizintrinsic\n>9f\n\n#wizmap\nlllllllkkzp>zq>"
+    }
+  ]
+}

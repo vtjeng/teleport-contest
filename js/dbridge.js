@@ -566,7 +566,12 @@ async function do_entity(entity, state, env = {}) {
     }
     if (is_pool(entity.ex, entity.ey, state) && !inview && !heroDeaf(state))
         await message('You hear a splash.', state);
-    if (e_survives_at(entity, entity.ex, entity.ey, state)) return;
+    if (e_survives_at(entity, entity.ex, entity.ey, state)) {
+        if (inview && !is_flyer(entity.edata) && !is_floater(entity.edata)) {
+            await message(`${E_phrase(entity, 'fall', state)} from the bridge.`, state);
+        }
+        return;
+    }
     const pool = is_pool(entity.ex, entity.ey, state);
     const lava = is_lava(entity.ex, entity.ey, state);
     if ((pool || lava) && inview && !is_u(entity, state))

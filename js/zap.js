@@ -42,9 +42,7 @@ import {
     is_lava,
     is_pool_or_lava,
     is_ice,
-    is_db_wall,
     is_drawbridge_wall,
-    find_drawbridge,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
@@ -6276,8 +6274,10 @@ export async function zap_updown(obj, state = game,
         const drawbridge = { x: xx, y: yy };
         if (is_db_wall(x, y, state)
             && find_drawbridge(drawbridge, state)) {
-            // dbridge.c open_drawbridge() returns void and has no JS port yet.
-            note_unported('dbridge.c open_drawbridge');
+            await open_drawbridge(drawbridge.x, drawbridge.y, state, {
+                ...rawEnv,
+                random,
+            });
             disclose = true;
         } else if (state.u.dz > 0 && stway && stway.sx === x
                    && stway.sy === y
@@ -6307,10 +6307,16 @@ export async function zap_updown(obj, state = game,
                 && !is_db_wall(x, y, state)))
             && find_drawbridge(bridge, state);
         if (bridgeTarget) {
-            // The three dbridge.c operations return void; retain their exact
-            // source gap and disclose the observed bridge interaction.
-            note_unported(`dbridge.c ${striking
-                ? 'destroy_drawbridge' : 'close_drawbridge'}`);
+            if (!striking) {
+                await close_drawbridge(bridge.x, bridge.y, state, {
+                    ...rawEnv,
+                    random,
+                });
+            } else {
+                // C discards destroy_drawbridge's return value; its source
+                // behavior remains unported.
+                note_unported('dbridge.c destroy_drawbridge');
+            }
             disclose = true;
         } else if (striking && state.u.dz < 0
                    && random.rn2(3) !== 0
