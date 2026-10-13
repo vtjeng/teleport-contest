@@ -949,6 +949,7 @@ test('random-arrival preflight keeps full-pack objects in the floor pile',
         });
         assert.equal(first.where, OBJ_FLOOR);
         assert.equal(second.where, OBJ_FLOOR);
+        // Admission describes the retained floor pile without printing output.
         assert.equal(state._ttyToplines ?? '', '');
     });
 
@@ -976,8 +977,8 @@ test('pickup stops at the first item beyond its projected slot limit',
         const first = typedObjectUnderHero(state, TALLOW_CANDLE);
         const second = typedObjectUnderHero(state, ELVEN_DAGGER);
         quiet(state);
-        // Five spaces dismiss the first pickup, full-pack refusal, D:1 feature,
-        // and floor-pile messages while the pickup loop stops at the refusal.
+        // Five spaces cover the first pickup and any More waits for the refusal,
+        // D:1 feature, and two floor-pile messages.
         for (let index = 0; index < 5; ++index)
             state.nhDisplay.pushKey(' '.charCodeAt(0));
 
