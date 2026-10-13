@@ -8,7 +8,7 @@
   "recordingSha256": "950e3ee0c8ac602ead519746f5821bb21cbe7e8c1a31be27c31763ac3f5cad40",
   "recipeSha256": "f8559dd82c9fb164ed06b633aa9e09c876677365f6d5934fefe94c3f83e55203",
   "evaluationPath": "challenges/evaluations/baseline-261c3097d-v55.json",
-  "evaluationCommit": "3ce874995224d20d3a43bda76e780be8b707f8de",
+  "evaluationCommit": "261c3097de5e63e488e143c622a3fa8157b750eb",
   "remainingScreens": 43,
   "recordedSteps": 160,
   "status": "complete",
