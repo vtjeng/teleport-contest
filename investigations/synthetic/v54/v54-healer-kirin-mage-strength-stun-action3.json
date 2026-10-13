@@ -8,8 +8,8 @@
   "manifestPath": "challenges/manifests/v54.json",
   "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
   "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
-  "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
-  "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
+  "evaluationPath": "challenges/evaluations/accepted-df5ff0a2196351b29a774a3be604914535a2a147-v54.json",
+  "evaluationCommit": "df5ff0a2196351b29a774a3be604914535a2a147",
   "status": "complete",
   "commit": "c822abd915745ceecf04fb86bcaac8607e25198c",
   "mismatch": {
@@ -25,10 +25,10 @@
     "recipe": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.recipe.session.json",
     "recipeSha256": "aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557",
     "replayInputSha256": "45d90454248a4bc3c97d75d60b021c6c51189f320359df542992f70d10d86993",
-    "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
-    "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
-    "evaluationArtifact": "challenges/evaluations/baseline-78195d815-v54.json",
-    "evaluationUtc": "2026-10-13T01:55:42.579Z",
+    "evaluationPath": "challenges/evaluations/accepted-df5ff0a2196351b29a774a3be604914535a2a147-v54.json",
+    "evaluationCommit": "df5ff0a2196351b29a774a3be604914535a2a147",
+    "evaluationArtifact": "challenges/evaluations/accepted-df5ff0a2196351b29a774a3be604914535a2a147-v54.json",
+    "evaluationUtc": "2026-10-13T02:26:10.341Z",
     "remainingScreens": 273,
     "recordedSteps": 778,
     "previousScreensMatched": null,
@@ -81,5 +81,6 @@
     "Committed replay receipt /tmp/teleport-validation-1000/run-DbFEGV/receipt.json at c822abd915745ceecf04fb86bcaac8607e25198c emits 527 screens and reports no RNG divergence; first screen/cursor difference is step 511, row 0 column 24 (C E vs JS e; cursors [74,0,1] vs [78,0,1]). Therefore steps 0-510 match all screens, cursors, and RNG, including step 505 WAN_FIRE and its return to mattacku.",
     "At mhitu.c:758-762, use_offensive result 2 is not death, so C continues into ordinary mattacku processing and returns normally; JS js/unported_monster_actions.js:1409-1416 delegates to use_offensive and js/mhitu.js:1841-1847 likewise returns only when result is 1. The focused source-pinned test scripts/muse.test.mjs verifies the WAN_FIRE branch returns 2 and resets m_using/current_wand/buzzer while consuming the supplied RNG stream.",
     "The scanner’s later boundary at step 527 is unsupported object name branch: multishot missile ordinal; preserve this as a later objnam.c:mshot_xname frontier outside the current muse.c change."
-  ]
+  ],
+  "evaluationUtc": "2026-10-13T02:26:10.341Z"
 }
