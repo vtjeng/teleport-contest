@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T07:28:14.826Z",
+  "capturedAt": "2026-10-13T07:42:00.854Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -102581,6 +102581,64 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep25 records twelve more C actions across instrument effects, potion states and mirror self-gazes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v55-pickup-burden-armor-action2-20261013-219b447f93d8a7cb35b0c61cd22e34127ddb5baa",
+        "type": "published",
+        "at": "2026-10-13T07:28:35.198Z",
+        "task": "A2-investigation-v55-pickup-burden-armor-action2-20261013",
+        "commit": "219b447f93d8a7cb35b0c61cd22e34127ddb5baa"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-c-mon-spell-helper-20261013",
+        "type": "activity",
+        "at": "2026-10-13T07:29:06.794Z",
+        "task": "C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013",
+        "phase": "review",
+        "reason": "Integrate the next ready spell-floor helper after checking its preserved tests and complete production replay evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-c-spell-helper-d701d957-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T07:32:21.353Z",
+        "task": "C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013",
+        "integration": "d701d95714dc7c1f383fbf5c9450a46032c14fe3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep25-v61-form-protocol-followups-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:32:27.670Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep25 resolves C instrument prompt and pool-entry protocols after twelve added action replays."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep25-v61-crosswalk-review-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:36:18.190Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep25 reviews overlap and added control coverage after sixty-nine independent C attempts and thirty-five identical replays."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013-d701d95714dc7c1f383fbf5c9450a46032c14fe3-validated",
+        "type": "validated",
+        "at": "2026-10-13T07:39:42.756Z",
+        "task": "C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013-d701d95714dc7c1f383fbf5c9450a46032c14fe3-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T07:40:16.661Z",
+        "task": "C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013"
       }
     ]
   },
@@ -102641,17 +102699,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013",
-        "worker": "C",
-        "goal": "port-zap-mon-spell-hits-spot-v54-angel-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "794e91a940e5dc7d36afbc4d5a7822fee817b138",
-        "since": "2026-10-13T05:45:09.541Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -103251,8 +103298,8 @@
     ]
   },
   "development": {
-    "executionCommit": "61c08bcc989875b3fd8a502d0c3414456317e8ec",
-    "measuredAt": "2026-10-13T07:22:29.873Z",
+    "executionCommit": "d701d95714dc7c1f383fbf5c9450a46032c14fe3",
+    "measuredAt": "2026-10-13T07:37:15.974Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
