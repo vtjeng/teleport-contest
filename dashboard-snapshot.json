@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T00:13:49.257Z",
+  "capturedAt": "2026-10-13T00:39:29.614Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -99436,6 +99436,109 @@
         "at": "2026-10-13T00:12:07.793Z",
         "worker": "A2",
         "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v53-quest-underlevel-leader-action3-20261012-c83242af873cbcc68d7345ec6ba436bd889499c2",
+        "type": "published",
+        "at": "2026-10-13T00:14:07.015Z",
+        "task": "A2-investigation-v53-quest-underlevel-leader-action3-20261012",
+        "commit": "c83242af873cbcc68d7345ec6ba436bd889499c2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-timerowner53-1f6bce042-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T00:15:17.246Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "integration": "1f6bce042fe094a521136800ac1c69854c16bb3d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-display-and-topl-trace-20261013",
+        "type": "turn",
+        "at": "2026-10-13T00:18:24.921Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing two accepted-base terminal mismatches to C topline and map-buffer behavior; no implementation edit is active."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-timerowner53-failed-verdict-38326334383-20261013",
+        "type": "validated",
+        "at": "2026-10-13T00:23:32.605Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-park-c-billing-for-timer-receipt-20261013",
+        "type": "park",
+        "at": "2026-10-13T00:28:47.553Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+        "reason": "Temporary safe-boundary park while C resubmits the timer assertion correction; billing code, tests and the independent recipe are preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-resume-c-timer-assertion-correction-20261013",
+        "type": "resume",
+        "at": "2026-10-13T00:28:51.828Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-73b2a3b759b5167d49bf4d35dfc1bc40324d38ab",
+        "type": "ready",
+        "at": "2026-10-13T00:33:13.438Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "delivery": "73b2a3b759b5167d49bf4d35dfc1bc40324d38ab"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-timer-correction-73b2a3b7-20261013",
+        "type": "received",
+        "at": "2026-10-13T00:34:08.329Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "delivery": "73b2a3b759b5167d49bf4d35dfc1bc40324d38ab"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v53-ring-shop-billing-after-timer-receipt-20261013",
+        "type": "resume",
+        "at": "2026-10-13T00:34:25.971Z",
+        "task": "C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-shop-damage-mnexto-20261013",
+        "type": "turn",
+        "at": "2026-10-13T00:34:33.900Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Billing source task resumed after the timer correction receipt. Preserving current source edits and independent recipe while tracing the mnexto/enexto mismatch before final evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-timerowner53-correction-a3a97d12c-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T00:35:15.538Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "integration": "a3a97d12c7c3f58f801308f12088b23f2ae3a167"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012-a3a97d12c7c3f58f801308f12088b23f2ae3a167-validated",
+        "type": "validated",
+        "at": "2026-10-13T00:36:21.233Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012-a3a97d12c7c3f58f801308f12088b23f2ae3a167-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T00:38:22.659Z",
+        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012"
       }
     ]
   },
@@ -99513,17 +99616,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v53-worm-dropped-cockatrice-stoning-action6-20261012",
-        "worker": "C",
-        "goal": "do-engulfer-corpse-timer-cleanup-v53-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "6ab2a02d0a0321a65e1bbfed31730eabd94051df",
-        "since": "2026-10-12T23:21:01.368Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -100030,8 +100122,8 @@
     ]
   },
   "development": {
-    "executionCommit": "8f096a2f3d681e51339722d94b668dfaa7ba5075",
-    "measuredAt": "2026-10-13T00:09:32.725Z",
+    "executionCommit": "a3a97d12c7c3f58f801308f12088b23f2ae3a167",
+    "measuredAt": "2026-10-13T00:30:15.651Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

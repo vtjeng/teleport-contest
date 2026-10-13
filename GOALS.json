@@ -294888,7 +294888,7 @@
     {
       "id": "do-engulfer-corpse-timer-cleanup-v53-20261012",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dropz, engulfer_digests_food from do.c",
       "cFile": "do.c",
       "sessions": [
@@ -294898,10 +294898,110 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a3a97d12c7c3f58f801308f12088b23f2ae3a167",
       "delivered": null,
       "function": "dropz",
-      "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6"
+      "session": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
+      "closeStanding": {
+        "sha": "a3a97d12c7c3f58f801308f12088b23f2ae3a167",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "8f096a2f3d681e51339722d94b668dfaa7ba5075",
+        "target": "synthetic/v53/v53-worm-dropped-cockatrice-stoning-action6",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/a3a97d12c7c3f58f801308f12088b23f2ae3a167/run-hosted-vnXtdJ/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dropz",
+            "implementation": "js/do.js",
+            "symbol": "dropz",
+            "sourceReview": "Reviewed do.c:807-843. This delivery repairs only the swallowed branch caller environment: after C calls engulfer_digests_food, the existing dropz path continues to encumber_msg. No whole-function completion is claimed.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropx",
+                "source": "do.c:dropx calls dropy at 797; JavaScript dropx enters the dropz tail after its admission and shop checks."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "dropy",
+                "source": "do.c:dropy calls dropz at 804; JavaScript dropy forwards its operation environment to dropz."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/engulfer-digests-food.test.mjs",
+              "scripts/do.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+                "segment": 0,
+                "fromStep": 263,
+                "throughStep": 289,
+                "source": "do.c:dropz -> do.c:engulfer_digests_food -> invent.c:delobj -> timeout.c:obj_stop_timers; js/do.js:dropz -> engulfer_digests_food -> delobj with the preserved stopObjectTimers hook."
+              }
+            ]
+          },
+          {
+            "name": "engulfer_digests_food",
+            "implementation": "js/do.js",
+            "symbol": "engulfer_digests_food",
+            "sourceReview": "Reviewed do.c:849-885. C selects the corpse effect, calls minstapetrify before delobj, and always consumes the object. This delivery only forwards the caller operation environment to existing source callees; it does not claim the full source function as newly complete.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropz",
+                "source": "do.c:dropz calls engulfer_digests_food at 823 and consumes its boolean return to decide whether to call mpickobj."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/engulfer-digests-food.test.mjs",
+              "scripts/do.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+                "segment": 0,
+                "fromStep": 263,
+                "throughStep": 289,
+                "source": "do.c:dropz -> do.c:engulfer_digests_food -> invent.c:delobj -> timeout.c:obj_stop_timers; js/do.js:dropz -> engulfer_digests_food -> delobj with the preserved stopObjectTimers hook."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected runtime entry point is the drop command while the hero is swallowed by a digesting purple worm. The C route is dropx -> dropy -> dropz -> engulfer_digests_food; the matching JavaScript drop path reaches dropz, then forwards its operation environment through digestion. This delivery repairs only the timer-owner call contract and makes no whole-function completion claim.",
+        "entryPoints": [
+          {
+            "name": "drop command while swallowed",
+            "functions": [
+              "dropz",
+              "engulfer_digests_food"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-worm-dropped-cockatrice-stoning-action6",
+                "segment": 0,
+                "fromStep": 263,
+                "throughStep": 289,
+                "source": "do.c:dropz -> do.c:engulfer_digests_food -> invent.c:delobj -> timeout.c:obj_stop_timers; js/do.js:dropz -> engulfer_digests_food -> delobj with the preserved stopObjectTimers hook."
+              }
+            ]
+          }
+        ],
+        "incompleteFunctions": []
+      }
     }
   ]
 }
