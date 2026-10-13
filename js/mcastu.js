@@ -46,7 +46,7 @@ import {
 } from './const.js';
 import { game } from './gstate.js';
 import { HeroDeathPlanningError, losehp, nomul } from './hack.js';
-import { acurr, adjuhploss, minuhpmax, setuhpmax } from './attrib.js';
+import { acurr, adjuhploss, losestr, minuhpmax, setuhpmax } from './attrib.js';
 import { done } from './end.js';
 import { sgn } from './hacklib.js';
 import { Monnam, Mgender, pmname } from './do_name.js';
@@ -891,6 +891,39 @@ async function mcast_stun_you(dmg, env = {}) {
     }
 }
 
+// C ref: mcastu.c:mcast_weaken_you() (466-487). The spell owns only the
+// caster-derived strength loss here; attrib.c:losestr() owns minimum-strength
+// damage and the actual attribute update.
+export async function mcast_weaken_you(mtmp, dmg, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = { rnd, ...(rawEnv.random ?? {}) };
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+
+    if (heroProperty(state, ANTIMAGIC)) {
+        await shieldeff(state.u.ux, state.u.uy, state);
+        monstseesu(M_SEEN_MAGR, state);
+        await message('You feel momentarily weakened.', state, rawEnv);
+        return;
+    }
+
+    await message('You suddenly feel weaker!', state, rawEnv);
+    dmg = mtmp.m_lev - 6;
+    if (dmg < 1) dmg = 1;
+    if (heroProperty(state, HALF_SPDAM))
+        dmg = Math.trunc((dmg + 1) / 2);
+    await losestr(
+        random.rnd(dmg),
+        death_inflicted_by('strength loss', mtmp, state),
+        KILLED_BY,
+        state,
+        { ...rawEnv, random },
+    );
+    state.killer ??= {};
+    state.killer.name = '';
+    monstunseesu(M_SEEN_MAGR, state);
+}
+
 // ---- mcast_spell() ----
 // C ref: mcastu.c mcast_spell() (800-897).
 // The C dispatcher clears damage for void effects and sends every remaining
@@ -936,7 +969,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         recordMcastGap('mcastu.c mcast_destroy_armor', env);
         break;
     case MCAST_WEAKEN_YOU:
-        recordMcastGap('mcastu.c mcast_weaken_you', env);
+        await mcast_weaken_you(mtmp, dmg, env);
         break;
     case MCAST_DISAPPEAR:
         await mcast_disappear(mtmp, env);
