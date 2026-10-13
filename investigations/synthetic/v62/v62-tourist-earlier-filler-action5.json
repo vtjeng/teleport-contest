@@ -6,7 +6,7 @@
   "batch": "v62",
   "caseId": "v62-tourist-earlier-filler-action5",
   "manifestPath": "challenges/manifests/v62.json",
-  "manifestSha256": "587abdbdc8c8ba55bb83c7c9607405768a4145f82697dfb85bf1623148213948",
+  "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
   "recordingSha256": "08e7e5a740ec25b91181520645c5779810759632dcc1c8cb73cc8c32c3cab55b",
   "evaluationPath": "challenges/evaluations/accepted-d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84-v62.json",
   "evaluationCommit": "d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84",
