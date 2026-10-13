@@ -38,6 +38,9 @@ import {
     is_lava,
     is_pool_or_lava,
     is_ice,
+    is_db_wall,
+    is_drawbridge_wall,
+    find_drawbridge,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
@@ -60,12 +63,17 @@ import { bury_objs,
 export { zap_dig };
 import { dropx, dropy } from './do.js';
 import {
-    ceiling, Invocation_lev, surface, surface_typ, update_mapseen_for, } from './dungeon.js';
+    ceiling, Invocation_lev, on_level, surface, surface_typ, update_mapseen_for, } from './dungeon.js';
 import { done } from './end.js';
 import { losexp, more_experienced, newexplevel } from './exper.js';
 import { getlin } from './windows.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { game } from './gstate.js';
+import { ENGRAVE, FACE, FOOT, HEAD, HOLE, TRAPDOOR } from './const.js';
+import { hard_helmet } from './do_wear.js';
+import { makeplural } from './fruit.js';
+import { ok_to_quest } from './quest.js';
+import { mksobj_at } from './obj.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import {
     check_capacity, HeroDeathPlanningError, losehp, nh_delay_output, nomul, test_move, set_uinwater, } from './hack.js';
@@ -91,6 +99,7 @@ import {
     delobj,
     delobj_core,
     container_weight,
+    stackobj,
     mergedRuntime,
     sobj_at,
 } from './invent.js';
@@ -149,7 +158,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import { COIN_CLASS,
     CORPSE, ROCK_CLASS, MEATBALL, MEAT_STICK, ENORMOUS_MEATBALL, MEAT_RING, ARMOR_CLASS, GEM_CLASS, AMULET_OF_LIFE_SAVING, AMULET_OF_UNCHANGING, BOULDER, DWARVISH_CLOAK, HEAVY_IRON_BALL, IMMEDIATE, NODIR, POTION_CLASS, POT_POLYMORPH, POT_WATER, RING_CLASS, ROCK, SCROLL_CLASS, SPBOOK_CLASS, SPE_DIG, SPE_FORCE_BOLT, SPE_FIREBALL, SPE_CONE_OF_COLD, SPE_EXTRA_HEALING, SPE_FINGER_OF_DEATH, SPE_CURE_SICKNESS, SPE_HEALING, SPE_KNOCK, SPE_MAGIC_MISSILE, SPE_LIGHT, SPE_DRAIN_LIFE, SPE_CANCELLATION, SPE_SLOW_MONSTER, SPE_WIZARD_LOCK, SPE_DETECT_UNSEEN, SPE_TURN_UNDEAD, SPE_BLANK_PAPER, SPE_NOVEL, SPE_POLYMORPH, SPE_SLEEP, SPE_STONE_TO_FLESH, TOOL_CLASS, WAND_CLASS, STATUE, FIGURINE, WEAPON_CLASS, HELM_OF_BRILLIANCE, GAUNTLETS_OF_DEXTERITY, RIN_GAIN_STRENGTH, RIN_GAIN_CONSTITUTION, RIN_ADORNMENT, RIN_INCREASE_ACCURACY, RIN_INCREASE_DAMAGE, RIN_PROTECTION, CRYSTAL_BALL, CANDELABRUM_OF_INVOCATION, POT_ACID, POT_SICKNESS, POT_SEE_INVISIBLE, POT_FRUIT_JUICE, SCR_BLANK_PAPER, SPE_BOOK_OF_THE_DEAD, WAN_DEATH, WAN_DIGGING, WAN_LIGHTNING, WAN_LIGHT, WAN_STASIS, WAN_ENLIGHTENMENT, WAN_MAKE_INVISIBLE, WAN_SLOW_MONSTER, WAN_SPEED_MONSTER, WAN_UNDEAD_TURNING, WAN_OPENING, WAN_POLYMORPH, WAN_WISHING, WAN_STRIKING, WAN_MAGIC_MISSILE, WAN_CANCELLATION, WAN_NOTHING, WAN_PROBING, WAN_COLD, WAN_FIRE, WAN_LOCKING, EXPENSIVE_CAMERA, FROST_HORN, FIRE_HORN, MUMMY_WRAPPING, LARGE_BOX, CHEST, BAG_OF_HOLDING, TIN, WAN_SECRET_DOOR_DETECTION, WAN_CREATE_MONSTER, WAN_SLEEP, WAN_TELEPORTATION, POT_OIL, POT_GAIN_ABILITY, SCR_MAIL, SCR_FIRE, SPE_TELEPORT_AWAY, MAGIC_LAMP, MAGIC_MARKER, OIL_LAMP, LOW_BOOTS, EGG, LEASH, UNICORN_HORN, FLESH, PAPER, CLOTH, LEATHER, WOOD, BONE, IRON, METAL, COPPER, SILVER, GOLD, PLATINUM, MITHRIL, GEMSTONE, MINERAL, GLASS, STRANGE_OBJECT, } from './objects.js';
 import {
-    An, The, Tobjnam, Yname2, an, aobjnam, ansimpleoname, bare_artifactname, boots_simple_name, cloak_simple_name, donameFresh, corpse_xname, cxname_singular, distant_name, otense, gloves_simple_name, helm_simple_name, killer_xname, shield_simple_name, shirt_simple_name, simpleonames, isPoisonable, suit_simple_name, the, vtense, yname, xnameFresh, erosion_matters, } from './objnam.js';
+    An, The, Tobjnam, Yname2, an, aobjnam, ansimpleoname, bare_artifactname, boots_simple_name, cloak_simple_name, donameFresh, corpse_xname, cxname_singular, distant_name, otense, gloves_simple_name, helm_simple_name, killer_xname, shield_simple_name, shirt_simple_name, simpleonames, isPoisonable, suit_simple_name, the, vtense, yname, xname, xnameFresh, erosion_matters, } from './objnam.js';
 import { readobjnam } from './objnam_readobjnam.js';
 import { death_inflicted_by } from './mcastu.js';
 import { encumber_msg, force_decor, u_safe_from_fatal_corpse } from './pickup.js';
@@ -184,7 +193,7 @@ import {
     closed_door, dissolve_bars, monflee, monfleeMessage, onscary, set_apparxy, youHear, } from './monmove.js';
 
 import { acid_damage, burnarmor } from './trap_erode_obj.js';
-import { delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, sokoban_guilt, t_at, trapname, trap_ice_effects } from './trap.js';
+import { delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, sokoban_guilt, t_at, trapname, trap_ice_effects, Levitation } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import {
     erode_armor, flash_hits_mon, m_is_steadfast, shade_miss,
@@ -6167,15 +6176,21 @@ export async function zap_steed(obj, state = game, random = { rn2, rnd }, rawEnv
     }
 }
 
-// C ref: zap.c zap_updown() (3219-3410). Its WAN_PROBING arm counts
-// floor and buried objects after zap_map() has refreshed ice/furniture display;
-// the polymorph arm continues through the shared downward pile handling.
+// C ref: zap.c zap_updown() (3219-3414). Handles the vertical effects for
+// probing, knock/opening, striking/force bolt, locking/wizard lock, and stone
+// to flesh before the shared floor-pile/map or ceiling-hiding behavior.
 export async function zap_updown(obj, state = game,
     random = { rn2, rnd }, rawEnv = {}) {
     const x = state.u.ux;
     const y = state.u.uy;
+    let xx = x;
+    let yy = y;
+    const trap = t_at(x, y, state);
     let disclose = false;
+    let map_zapped = false;
 
+    // zap.c:zap_updown() starts with the wand or spell's special vertical
+    // effects, then applies the shared floor or ceiling effect below.
     if (obj?.otyp === WAN_PROBING) {
         let ptmp = 0;
         if (state.u.dz < 0) {
@@ -6211,6 +6226,154 @@ export async function zap_updown(obj, state = game,
         if (!ptmp)
             await ttyPline('Your probe reveals nothing.', state, rawEnv);
         return true;
+    }
+
+    if (obj?.otyp === WAN_OPENING || obj?.otyp === SPE_KNOCK) {
+        let stway = state.stairs;
+        while (stway) {
+            if (!stway.isladder && !stway.up
+                && stway.tolev?.dnum === state.u.uz?.dnum)
+                break;
+            stway = stway.next;
+        }
+        const drawbridge = { x: xx, y: yy };
+        if (is_db_wall(x, y, state)
+            && find_drawbridge(drawbridge, state)) {
+            // dbridge.c open_drawbridge() returns void and has no JS port yet.
+            note_unported('dbridge.c open_drawbridge');
+            disclose = true;
+        } else if (state.u.dz > 0 && stway && stway.sx === x
+                   && stway.sy === y
+                   && on_level(state.u.uz, state.qstart_level)
+                   && !ok_to_quest(state)) {
+            await ttyPline('The stairs seem to ripple momentarily.', state, rawEnv);
+            disclose = true;
+        }
+        if (state.u.dz > 0 && state.u.utrap) {
+            const opened = await openholdingtrap(state.youmonst, state);
+            disclose ||= opened.noticed;
+        } else if (state.u.dz > 0 && !state.u.utrap) {
+            const opened = await openfallingtrap(state.youmonst, false, state);
+            disclose ||= opened.noticed;
+        }
+    }
+
+    let striking = false;
+    if (obj?.otyp === WAN_STRIKING || obj?.otyp === SPE_FORCE_BOLT)
+        striking = true;
+    if (striking || obj?.otyp === WAN_LOCKING
+        || obj?.otyp === SPE_WIZARD_LOCK) {
+        const bridge = { x: xx, y: yy };
+        const bridgeTarget = ((state.level.at(x, y).typ === DRAWBRIDGE_DOWN)
+            ? state.u.dz > 0
+            : (is_drawbridge_wall(x, y, state) >= 0
+                && !is_db_wall(x, y, state)))
+            && find_drawbridge(bridge, state);
+        if (bridgeTarget) {
+            // The three dbridge.c operations return void; retain their exact
+            // source gap and disclose the observed bridge interaction.
+            note_unported(`dbridge.c ${striking
+                ? 'destroy_drawbridge' : 'close_drawbridge'}`);
+            disclose = true;
+        } else if (striking && state.u.dz < 0
+                   && random.rn2(3) !== 0
+                   && !Is_airlevel(state.u.uz)
+                   && !Is_waterlevel(state.u.uz)
+                   && !state.u.uinwater
+                   && !on_level(state.u.uz, state.qstart_level)) {
+            await ttyPline(
+                `A rock is dislodged from the ${ceiling(x, y, state)} and falls on your ${body_part(HEAD, state.youmonst)}.`,
+                state,
+                rawEnv,
+            );
+            const damage = random.rnd(hard_helmet(state.uarmh, state) ? 2 : 6);
+            const property = state.u.uprops?.[HALF_PHDAM];
+            const reducedDamage = property?.intrinsic || property?.extrinsic
+                ? Math.trunc((damage + 1) / 2) : damage;
+            await losehp(
+                reducedDamage,
+                'falling rock',
+                KILLED_BY_AN,
+                state,
+                rawEnv,
+            );
+            const rock = mksobj_at(
+                ROCK, x, y, false, false,
+                objectGenerationEnv({ state, random }),
+            );
+            if (rock) {
+                xname(rock, state);
+                stackobj(rock, {
+                    state,
+                    random,
+                    hooks: { extractExternalObject: remove_object },
+                });
+            }
+            newsym(x, y);
+        } else if (state.u.dz > 0 && trap) {
+            if (!striking) {
+                const closed = await closeholdingtrap(state.youmonst, state);
+                if (closed.result) {
+                    disclose ||= closed.noticed;
+                } else if (trap.ttyp === HOLE) {
+                    trap.ttyp = TRAPDOOR;
+                    if (heroIsBlind(state) || !trap.tseen) {
+                        await ttyPline(
+                            `Some ${is_ice(x, y, state) ? 'frost' : 'dust'} swirls beneath you.`,
+                            state,
+                            rawEnv,
+                        );
+                    } else {
+                        trap.tseen = 1;
+                        newsym(x, y);
+                        await ttyPline('A trapdoor appears beneath you.', state, rawEnv);
+                        disclose = true;
+                    }
+                }
+            } else if (trap.ttyp === TRAPDOOR) {
+                if (heroIsBlind(state) && !trap.tseen) {
+                    await ttyPline('Something beneath you shatters.', state, rawEnv);
+                } else if (!trap.tseen) {
+                    await ttyPline("There's a trapdoor beneath you; it shatters.", state, rawEnv);
+                } else {
+                    await ttyPline('The trapdoor beneath you shatters.', state, rawEnv);
+                    disclose = true;
+                }
+                trap.ttyp = HOLE;
+                trap.tseen = 1;
+                newsym(x, y);
+                await dotrap(trap, NO_TRAP_FLAGS, state, rawEnv);
+            }
+        }
+    }
+
+    if (obj?.otyp === SPE_STONE_TO_FLESH) {
+        if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)
+            || state.u.uinwater
+            || (on_level(state.u.uz, state.qstart_level)
+                && state.u.dz < 0)) {
+            await ttyPline(nothing_happens, state, rawEnv);
+        } else if (state.u.dz < 0) {
+            await ttyPline(
+                `Blood drips on your ${body_part(FACE, state.youmonst)}.`,
+                state,
+                rawEnv,
+            );
+        } else if (state.u.dz > 0
+                   && !state.level.objects?.[x]?.[y]) {
+            const engraving = engr_at(x, y, state);
+            if (!(engraving && engraving.engr_type === ENGRAVE)) {
+                if (is_pool(x, y, state) || is_ice(x, y, state)) {
+                    await ttyPline(nothing_happens, state, rawEnv);
+                } else {
+                    await ttyPline(
+                        `Blood ${is_lava(x, y, state) ? 'boils' : 'pools'} ${Levitation(state) ? 'beneath' : 'at'} your ${makeplural(body_part(FOOT, state.youmonst))}.`,
+                        state,
+                        rawEnv,
+                    );
+                }
+            }
+        }
     }
 
     if (state.u.dz > 0) {
