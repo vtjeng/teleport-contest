@@ -8,18 +8,64 @@
   "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
   "evaluationPath": "challenges/evaluations/accepted-10bacc75116b05788ed935aa7f24fc20fb324927-v53.json",
   "evaluationCommit": "10bacc75116b05788ed935aa7f24fc20fb324927",
-  "remainingScreens": 0,
+  "remainingScreens": 39,
   "recordedSteps": 246,
   "status": "complete",
   "commit": "0b6c9d994202ffcf80e40be26e4214f7b0318ef9",
-  "mismatch": null,
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v53",
+    "caseId": "v53-quest-nemesis-nearby-action5",
+    "session": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+    "manifestPath": "challenges/manifests/v53.json",
+    "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+    "recording": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.session.json",
+    "recordingPath": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.session.json",
+    "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
+    "recipe": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.recipe.session.json",
+    "recipeSha256": "33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d",
+    "replayInputSha256": "adaae81a08525b7ffc0f968688eaad01774175a945b9384d9d0e50b549f43487",
+    "evaluationPath": "challenges/evaluations/accepted-10bacc75116b05788ed935aa7f24fc20fb324927-v53.json",
+    "evaluationCommit": "10bacc75116b05788ed935aa7f24fc20fb324927",
+    "remainingScreens": 39,
+    "recordedSteps": 246,
+    "previousScreensMatched": 207,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 207,
+        "total": 246
+      },
+      "rng": {
+        "matched": 3527,
+        "total": 3829
+      },
+      "cursors": {
+        "matched": 241,
+        "total": 246
+      }
+    },
+    "firstMismatch": {
+      "kind": "rng",
+      "message": "C enters quest.c:chat_with_nemesis and opens qt_pager(\"discourage\"); JS returns false from quest_chat and records the nemesis dialogue as unported.",
+      "step": 207
+    },
+    "step": 207,
+    "kind": "rng",
+    "sourceFile": "quest.c",
+    "function": "quest_chat",
+    "cFile": "quest.c",
+    "luaFile": null,
+    "line": 483,
+    "note": "Earlier quest-chat frontier retained for history; resolved by the accepted quest-chat source work before this task. The current task began from the accepted 68ca320 baseline."
+  },
   "goalKind": "divergence-fix",
   "summary": "The accepted 68ca320 baseline reached the nemesis stun path at step 210. The stun effect and both active quest_talk callers are now source-aligned; the full admitted v53 case matches.",
   "source": {
-    "file": "mcastu.c and quest.c",
+    "file": "quest.c",
     "functions": [
-      "mcast_stun_you",
-      "mcast_spell",
       "quest_talk",
       "nemesis_speaks",
       "quest_stat_check"
@@ -32,6 +78,11 @@
     "dependencies": [
       "questpgr.c:qt_pager already has the accepted JavaScript implementation in js/questpgr.js; nemesis_speaks discards the C void pager return.",
       "quest_talk leaves the unrelated MS_DJINNI prisoner_speaks effects explicitly unported with note_unported because C discards the void return; no claim is made for that branch."
+    ],
+    "branch": "The report preserves the tracked pre-task quest-chat mismatch as its canonical evaluation identity; currentTask and remainingFrontier record its accepted 68ca320 baseline and complete resolution. The scoped source behavior is mcastu.c stun dispatch and quest.c nemesis speech through monmove.c:dochug.",
+    "relatedFiles": [
+      "mcastu.c",
+      "monmove.c"
     ]
   },
   "evidence": [
@@ -132,7 +183,7 @@
       }
     ]
   },
-  "step": null,
+  "step": 207,
   "remainingFrontier": {
     "resolved": true,
     "baselineCommit": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9",
