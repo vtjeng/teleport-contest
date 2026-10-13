@@ -299585,7 +299585,7 @@
     {
       "id": "port-pickup-doloot-core-blind-corpse-v56-20261013",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port pickup.c:doloot_core blind floor corpse precheck and its feel_cockatrice dependency.",
       "cFile": "pickup.c",
       "sessions": [
@@ -299595,7 +299595,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e32bef6c402ac1cb42eea64da25cadf784bc58be",
       "delivered": null,
       "functions": [
         {
@@ -299617,7 +299617,128 @@
           "declared": true,
           "sourceFile": "invent.c"
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "e32bef6c402ac1cb42eea64da25cadf784bc58be",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec",
+        "target": "synthetic/v56/v56-blind-corpse-floor-loot-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e32bef6c402ac1cb42eea64da25cadf784bc58be/run-hosted-DlSPoG/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "doloot_core",
+            "symbol": "doloot_core",
+            "implementation": "js/pickup.js",
+            "pure": false,
+            "sourceReview": "Read pickup.c:doloot_core() (2178-2346) in full, including its capacity and hand gates, confusion and reverse-loot draws, container-at-hero path, blind/no-gloves corpse scan, multi/single-container handling, grave message, and lootmon/directional tail. The blind branch filters corpse objects with invent.c:will_feel_cockatrice(nobj, FALSE), calls invent.c:feel_cockatrice(nobj, FALSE), then returns ECMD_TIME before container selection. JavaScript now uses the existing pure predicate, awaits the existing feel helper, and returns ECMD_TIME at the same point; the UnsupportedPickupError refusal is gone. Existing doloot_core_lootmon preserves the source goto target and remains wired by doloot().",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "doloot",
+                "source": "pickup.c:doloot() (2166-2174) calls doloot_core() and resets loot_reset_justpicked around the call."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runLootCommand",
+                "source": "pickup.c #loot extended-command dispatch reaches doloot(); JS runLootCommand delegates to pickup.js:doloot()."
+              }
+            ],
+            "tests": [
+              "scripts/loot-command.test.mjs",
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-blind-corpse-floor-loot-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 331,
+                "source": "pickup.c:cmd #loot -> doloot -> doloot_core blind/no-glove floor-corpse precheck -> invent.c:feel_cockatrice -> trap.c:instapetrify -> end.c death/disclosure path"
+              }
+            ]
+          },
+          {
+            "name": "feel_cockatrice",
+            "symbol": "feel_cockatrice",
+            "implementation": "js/invent.js",
+            "pure": false,
+            "sourceReview": "Read invent.c:feel_cockatrice() (4343-4365) in full. It first checks will_feel_cockatrice, uses corpse_xname for the tactile warning, selects the bare-hand warning from poly_when_stoned, then constructs the normalized “touching <corpse> bare-handed” killer reason with killer_xname and calls instapetrify. JavaScript now follows the same order and awaits the already implemented trap.js:instapetrify helper instead of recording that call as unported. will_feel_cockatrice remains the existing pure, source-tested predicate.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "doloot_core",
+                "source": "pickup.c:doloot_core() lines 2223-2235 calls feel_cockatrice after its blind/no-gloves and will_feel_cockatrice checks."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "look_here",
+                "source": "invent.c:look_here() calls feel_cockatrice in its tactile corpse-pile branches."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "floorfood",
+                "source": "eat.c:doeat() calls feel_cockatrice for the unprotected corpse-touch path."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_corpse",
+                "source": "pray.c:doturn() calls feel_cockatrice for its forced corpse-touch path."
+              }
+            ],
+            "tests": [
+              "scripts/loot-command.test.mjs",
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-blind-corpse-floor-loot-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 331,
+                "source": "pickup.c:cmd #loot -> doloot -> doloot_core blind/no-glove floor-corpse precheck -> invent.c:feel_cockatrice -> trap.c:instapetrify -> end.c death/disclosure path"
+              }
+            ],
+            "sourceFile": "invent.c"
+          }
+        ],
+        "entryPointReview": "The admitted v56 case reaches the production #loot command through runLootCommand -> doloot -> doloot_core with a blind, ungloved hero, a cockatrice corpse and a container on the hero’s tile. It then executes feel_cockatrice -> instapetrify and the death/disclosure path. The fresh C/JavaScript replay matches through all 332 steps. Other doloot_core branches remain covered by their existing tests and history; the selected task adds the previously refusing blind corpse entry point.",
+        "entryPoints": [
+          {
+            "name": "#loot blind ungloved floor cockatrice precheck",
+            "functions": [
+              {
+                "sourceFile": "pickup.c",
+                "name": "doloot_core"
+              },
+              {
+                "sourceFile": "invent.c",
+                "name": "feel_cockatrice"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-blind-corpse-floor-loot-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 331,
+                "source": "pickup.c:cmd #loot -> doloot -> doloot_core blind/no-glove floor-corpse precheck -> invent.c:feel_cockatrice -> trap.c:instapetrify -> end.c death/disclosure path"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
