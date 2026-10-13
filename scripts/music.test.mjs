@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { ACH_TUNE, A_WIS, COLNO, DB_EAST, DB_NORTH, DB_SOUTH, DB_WEST,
-    DBWALL, DEAF, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, HALF_PHDAM,
+import { ACH_TUNE, A_WIS, COLNO, D_CLOSED, D_NODOOR, DB_EAST, DB_NORTH,
+    DB_SOUTH, DB_WEST, DBWALL, DEAF, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, HALF_PHDAM,
     OBJ_INVENT, PIT, ROOM, ROWNO, SLEEP_RES, STONE, STRAT_WAITMASK,
     TIMEOUT, UNCHANGING }
 from '../js/const.js';
@@ -126,6 +126,54 @@ test('earthquake ports whole source scans and caps force at thirteen', async () 
     assert.equal(atCap.length, 567);
     assert.ok(atCap.every(bound => bound === 1));
     assert.deepEqual(outsideCap, atCap);
+});
+
+test('earthquake door handling reads the C flags/doormask alias', async () => {
+    const state = await startedGame();
+    // Force 1 scans x=13..17 and y=8..12 around hero (15,10), giving 25 calls to rn2(13).
+    state.u.ux = 15;
+    state.u.uy = 10;
+    state.level.traps = [];
+    state.level.monsters = Array.from({ length: COLNO }, () => Array(ROWNO).fill(null));
+    for (let x = 13; x <= 17; x++) {
+        for (let y = 8; y <= 12; y++) {
+            // ROOM neighbors make do_pit deterministic if the canonical mask says doorless.
+            state.level.at(x, y).typ = ROOM;
+        }
+    }
+    const location = state.level.at(14, 10);
+    location.typ = DOOR;
+    location.flags = D_CLOSED;
+    location.doormask = D_NODOOR; // Stale compatibility value; C reads flags through the alias.
+
+    const runOneEarthquake = async () => {
+        const bounds = [];
+        let draw = 0;
+        await do_earthquake(1, state, {
+            random: { rn2(bound) {
+                bounds.push(bound);
+                // x-major/y-minor scan reaches (14,10) on draw 7; only that square is selected.
+                return draw++ === 7 ? 0 : 1;
+            } },
+            message: () => {},
+        });
+        assert.deepEqual(bounds, Array(25).fill(13));
+    };
+
+    await runOneEarthquake();
+    // Nonzero C flags mean an existing door collapses, even when the JS mirror is zero.
+    assert.equal(location.flags, D_NODOOR);
+    assert.equal(location.doormask, D_NODOOR);
+    assert.equal(state.level.traps.some(trap => trap.tx === 14 && trap.ty === 10), false);
+
+    // Reset the same C union slot to doorless while leaving the JS mirror stale and closed.
+    location.typ = DOOR;
+    location.flags = D_NODOOR;
+    location.doormask = D_CLOSED;
+    state.level.traps = [];
+    await runOneEarthquake();
+    // A zero C union slot takes do_pit even when the JS compatibility field says closed.
+    assert.equal(state.level.traps.some(trap => trap.tx === 14 && trap.ty === 10), true);
 });
 
 test('do_pit marks its created trap seen and leaves an ordinary empty square', async () => {

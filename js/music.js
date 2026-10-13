@@ -456,10 +456,14 @@ export async function do_earthquake(force, state = game, rawEnv = {}) {
                 if (cansee(x, y, state)) await message('A secret door is revealed.', state);
                 // FALLTHROUGH: newly revealed SDOOR is processed as DOOR.
             case DOOR:
-                if (location.doormask === D_NODOOR) {
+                // C rm.h aliases doormask to flags; prefer that canonical slot
+                // even when its zero value disagrees with the JS mirror.
+                const doormask = location.flags ?? location.doormask ?? D_NODOOR;
+                if (doormask === D_NODOOR) {
                     await do_pit(x, y, tuPit, state, { ...env, random, message });
                     break;
                 }
+                location.flags = D_NODOOR;
                 location.doormask = D_NODOOR;
                 recalc_block_point(x, y, state);
                 newsym(x, y, state);
