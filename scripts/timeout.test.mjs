@@ -906,7 +906,10 @@ test('slip_or_trip mirrors the complete source-owned branch sequence', () => {
     assert.match(jsFunction,
         /vobj_at\(u\.ux, u\.uy, state\)[\s\S]*?is_pool\(u\.ux, u\.uy, state\)[\s\S]*?PLNMSG_ONE_ITEM_HERE[\s\S]*?is_ice\(u\.ux, u\.uy, state\)[\s\S]*?NODIAG\(u\.umonnum\)[\s\S]*?await hurtle\(u\.dx, u\.dy, 1, false, state/u,
     );
-    assert.match(jsFunction, /note_unported\('trap\.c instapetrify'\)/u);
+    assert.match(jsFunction,
+        /await import\('\.\/trap\.js'\)[\s\S]*?await instapetrify\(state\.killer\.name, state, env\)/u,
+        'the non-planning floor-corpse branch calls trap.c instapetrify',
+    );
     assert.equal(
         [...jsFunction.matchAll(/await dismount_steed\(DISMOUNT_FELL, state, \{ random \}\);/gu)].length,
         2,
