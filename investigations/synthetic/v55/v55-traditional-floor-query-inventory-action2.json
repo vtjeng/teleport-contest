@@ -1,0 +1,39 @@
+{
+  "session": "synthetic/v55/v55-traditional-floor-query-inventory-action2",
+  "remainingScreens": 29,
+  "recordedSteps": 67,
+  "corpus": "synthetic",
+  "batch": "v55",
+  "caseId": "v55-traditional-floor-query-inventory-action2",
+  "manifestPath": "challenges/manifests/v55.json",
+  "manifestSha256": "3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105",
+  "recordingSha256": "3c0c79f301fbeae15f9b74313865a9f42609f4446424fdb3c9177e18e58fb420",
+  "evaluationPath": "challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v55.json",
+  "evaluationCommit": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
+  "status": "complete",
+  "commit": "0b7098182f354833bd8f5a09107970d6be2f6bc6",
+  "mismatch": {
+    "session": "synthetic/v55/v55-traditional-floor-query-inventory-action2",
+    "remainingScreens": 29
+  },
+  "summary": "The traditional floor-pickup prompt accepts 'i' to display inventory and then repeat the prompt. C calls display_inventory and continues the query_classes loop; JS refuses at its unported display_inventory placeholder before the prompt resumes.",
+  "source": {
+    "file": "pickup.c",
+    "functions": ["simple_look", "query_classes"],
+    "branch": "query_classes receives 'i' from the traditional object-class prompt, calls display_inventory(NULL, TRUE), ignores its return, and jumps to ask_again. The adjacent ':' branch is part of the same source function and calls simple_look.",
+    "callers": [
+      "pickup.c:pickup calls query_classes for floor objects after constructing the class prompt; this recording uses the same production route.",
+      "pickup.c:query_objlist also calls query_classes for its source-selected object list."
+    ],
+    "dependencies": [
+      "display_inventory is already implemented in js/invent.js and imported by pickup.js through the existing invent.js/pickup.js module cycle; C discards its return here. collect_obj_classes, count_unpaid, and tally_BUCX are also existing dependencies."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved queue entry is tied to v55 manifest digest 3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105, recording challenges/cases/v55/v55-traditional-floor-query-inventory-action2.session.json digest 3c0c79f301fbeae15f9b74313865a9f42609f4446424fdb3c9177e18e58fb420, and evaluation challenges/evaluations/accepted-71adf2891b4ccef846c2e0d5e01a907878e15ad6-v55.json at 71adf2891b4ccef846c2e0d5e01a907878e15ad6. The saved result has 38/67 matching screens and cursors, all 2618 RNG calls matched, and 29 remaining screens.",
+    "A bounded replay at execution commit 0b7098182aac39d88013fedbcd8fdcec8ee81475 stops after 38 steps at the 'i' choice with boundary 'unsupported pickup: query_classes: display_inventory (i)'; no random mismatch or non-null runner exception was reported. Receipt: /tmp/teleport-validation-1000/run-I2pNIn/receipt.json.",
+    "nethack-c/upstream/src/pickup.c:141-261 defines query_classes; its 'i' arm calls display_inventory((char *)0, TRUE) then jumps to ask_again. Its adjacent ':' arm calls simple_look. pickup.c:823 calls query_classes from pickup and pickup.c:3252 calls it from query_objlist.",
+    "js/pickup.js:2585-2650 mirrors query_classes but currently throws UnsupportedPickupError for 'i'. invent.c:display_inventory is already ported as js/invent.js:display_inventory; adding the C call does not require porting that callee."
+  ]
+}
