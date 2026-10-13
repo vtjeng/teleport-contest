@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
-  "remainingScreens": 273,
+  "remainingScreens": 252,
   "recordedSteps": 778,
   "corpus": "synthetic",
   "batch": "v54",
@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v54.json",
   "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
   "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
-  "evaluationPath": "challenges/evaluations/accepted-df5ff0a2196351b29a774a3be604914535a2a147-v54.json",
-  "evaluationCommit": "df5ff0a2196351b29a774a3be604914535a2a147",
+  "evaluationPath": "challenges/evaluations/accepted-3d403994ae35fe3f31ee2f3b856002abe1c79933-v54.json",
+  "evaluationCommit": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
   "status": "complete",
-  "commit": "c822abd915745ceecf04fb86bcaac8607e25198c",
+  "commit": "e22b0430f9c5b92f507d9f11860a593a40d5885e",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v54",
@@ -24,28 +24,28 @@
     "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
     "recipe": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.recipe.session.json",
     "recipeSha256": "aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557",
-    "replayInputSha256": "45d90454248a4bc3c97d75d60b021c6c51189f320359df542992f70d10d86993",
-    "evaluationPath": "challenges/evaluations/accepted-df5ff0a2196351b29a774a3be604914535a2a147-v54.json",
-    "evaluationCommit": "df5ff0a2196351b29a774a3be604914535a2a147",
-    "evaluationArtifact": "challenges/evaluations/accepted-df5ff0a2196351b29a774a3be604914535a2a147-v54.json",
-    "evaluationUtc": "2026-10-13T02:26:10.341Z",
-    "remainingScreens": 273,
+    "replayInputSha256": "b0c35f1df2a51d8969172ca51e0d50dbef607d93969d6b8508ff092b16fc71a9",
+    "evaluationPath": "challenges/evaluations/accepted-3d403994ae35fe3f31ee2f3b856002abe1c79933-v54.json",
+    "evaluationCommit": "3d403994ae35fe3f31ee2f3b856002abe1c79933",
+    "evaluationArtifact": "challenges/evaluations/accepted-3d403994ae35fe3f31ee2f3b856002abe1c79933-v54.json",
+    "evaluationUtc": "2026-10-13T03:54:52.312Z",
+    "remainingScreens": 252,
     "recordedSteps": 778,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 505,
     "regression": false,
     "passed": false,
-    "error": "set_apparxy is not defined",
+    "error": null,
     "metrics": {
       "screens": {
-        "matched": 0,
+        "matched": 526,
         "total": 778
       },
       "rng": {
-        "matched": 0,
+        "matched": 5001,
         "total": 15123
       },
       "cursors": {
-        "matched": 0,
+        "matched": 526,
         "total": 778
       }
     },
@@ -54,33 +54,28 @@
     "kind": "rng",
     "sourceFile": null,
     "function": null,
-    "message": "set_apparxy is not defined"
+    "message": null
   },
-  "summary": "The admitted path selects and completes muse.c:use_offensive MUSE_WAN_FIRE through mhitu.c:mattacku. The new mismatch is later: the first screen/cursor difference is step 511 (C glyph E, JS e), after the WAN_FIRE caller returned; replay later stops at step 527 on the separate multishot missile ordinal naming gap.",
+  "summary": "At admitted v54 step 511, the source-owned grow_up message selects the wrong grammatical species name. C prints “The elf-lord becomes an Elvenking.”; JS prints “The elf-lord becomes an elven monarch.” In makemon.c:grow_up, fem is an unsigned 0/1; JS keeps the fallback mtmp.female as a boolean, so pmname indexes no gender slot and falls back to neutral. The five-character longer neutral name explains the cursor offset. The later step 527 multishot missile ordinal remains a separate objnam.c:mshot_xname frontier.",
   "source": {
-    "file": "muse.c",
-    "branch": "find_offensive selects a charged WAN_FIRE when the monster has not been seen resisting fire; use_offensive consumes a charge, identifies a visible wand, sets buzzer/current-wand state, calls buzz_force_miss or buzz, clears transient state, marks mwandexp, and returns 1 only if the monster died (otherwise 2).",
+    "file": "makemon.c",
+    "branch": "When grow_up advances a monster into another species with neither M2_MALE nor M2_FEMALE, C preserves mtmp->female in unsigned fem and uses that 0/1 index in pmname; the JS fallback currently passes Boolean false/true as the array index and therefore selects the neutral name.",
     "functions": [
-      "find_offensive",
-      "use_offensive"
+      "grow_up"
     ],
     "callers": [
-      "mhitu.c:mattacku -> find_offensive/use_offensive; JS js/mhitu.js:mattacku -> js/unported_monster_actions.js:useOffensiveItem -> js/muse.js",
-      "monmove.c:dochug -> find_offensive after movement; JS js/monmove.js:dochug -> js/muse.js:find_offensive"
+      "muse.c:use_misc -> grow_up for MUSE_POT_GAIN_LEVEL; JS js/muse.js:use_misc -> js/makemon.js:grow_up. This selected session exercises the visible potion advancement path."
     ],
     "dependencies": [
-      "muse.c:mzapwand (already ported in js/muse.js)",
-      "zap.c:dobuzz and muse.c:buzz_force_miss (existing JS paths in js/zap.js and js/muse.js)",
-      "objdata.c:makeknown mapping (already ported as discover_object in js/objnam.js)"
+      "do_name.c:pmname existing JS implementation in js/do_name.js"
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "Baseline challenges/evaluations/accepted-df5ff0a2196351b29a774a3be604914535a2a147-v54.json records 505/778 screens and cursors, 4899/15123 RNG, error null; this is the accepted result after the earlier set_apparxy ReferenceError was fixed.",
-    "At muse.c:1421-1594, the charged WAN_FIRE arm selects MUSE_WAN_FIRE when !m_seenres(M_SEEN_FIRE); muse.c:1824-1849 calls mzapwand, makeknown when visible, sets gm.m_using/gc.current_wand/gb.buzzer, calls the first-use buzz_force_miss or buzz with six dice, clears those globals, sets mwandexp, and returns DEADMONSTER ? 1 : 2.",
-    "Committed replay receipt /tmp/teleport-validation-1000/run-DbFEGV/receipt.json at c822abd915745ceecf04fb86bcaac8607e25198c emits 527 screens and reports no RNG divergence; first screen/cursor difference is step 511, row 0 column 24 (C E vs JS e; cursors [74,0,1] vs [78,0,1]). Therefore steps 0-510 match all screens, cursors, and RNG, including step 505 WAN_FIRE and its return to mattacku.",
-    "At mhitu.c:758-762, use_offensive result 2 is not death, so C continues into ordinary mattacku processing and returns normally; JS js/unported_monster_actions.js:1409-1416 delegates to use_offensive and js/mhitu.js:1841-1847 likewise returns only when result is 1. The focused source-pinned test scripts/muse.test.mjs verifies the WAN_FIRE branch returns 2 and resets m_using/current_wand/buzzer while consuming the supplied RNG stream.",
-    "The scanner’s later boundary at step 527 is unsupported object name branch: multishot missile ordinal; preserve this as a later objnam.c:mshot_xname frontier outside the current muse.c change."
+    "At makemon.c:grow_up:2095-2117, C sets unsigned fem to 0 for M2_MALE, 1 for M2_FEMALE, or mtmp->female (an integer boolean); its growth message formats pmname(ptr, fem) at 2141-2150. PM_ELVENKING in include/monsters.h:2679-2685 has neither male nor female flags and names [Elvenking, Elvenqueen, elven monarch].",
+    "At js/makemon.js:431-451, the same fallback assigns mtmp.female directly; Boolean false/true is not an array index in js/do_name.js:1239-1244, so pmname falls back to NEUTRAL. Replaying the admitted recording on e22b0430f9c5b92f507d9f11860a593a40d5885e emits `The elf-lord becomes an elven monarch.` with cursor [78,0,1]; the saved C step 511 emits `The elf-lord becomes an Elvenking.` with cursor [74,0,1].",
+    "The exact v54 session is unchanged (manifest cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e; recording b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c; recipe aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557). Accepted baseline 3d403994ae35fe3f31ee2f3b856002abe1c79933 reports 526/778 screens and cursors, 5001 RNG, error null, with 252 screens remaining.",
+    "C and JS both use the source branch `humanoid(ptr) ? becomes : grows up into`; the observed verb already matches. The remaining case boundary at step 527 is separately identified as unsupported multishot missile ordinal naming in objnam.c:mshot_xname and is outside grow_up."
   ],
-  "evaluationUtc": "2026-10-13T02:26:10.341Z"
+  "evaluationUtc": "2026-10-13T03:54:52.312Z"
 }
