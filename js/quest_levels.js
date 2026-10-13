@@ -14,7 +14,7 @@
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
 //         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/Hea-fila.lua,
-//         dat/Hea-filb.lua,
+//         dat/Hea-filb.lua, dat/Cav-filb.lua,
 //         dat/tower1.lua, dat/tower2.lua,
 //         dat/tower3.lua, dat/Val-strt.lua.
 
@@ -1538,6 +1538,24 @@ async function heaFilb(des) {
     for (let i = 0; i < 4; ++i) await des.monster({ class: 'D', peaceful: 0 });
     for (let i = 0; i < 3; ++i) await des.monster({ class: 'S', peaceful: 0 });
     for (let i = 0; i < 4; ++i) await des.trap();
+}
+
+// C ref: complete dat/Cav-filb.lua. Preserve the source's trap-before-monster
+// order because each descriptor consumes random state during generation.
+async function cavFilb(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({ style: 'mines', fg: '.', bg: ' ',
+        smoothed: true, joined: true, walled: true });
+
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 12; ++i) await des.object();
+    for (let i = 0; i < 4; ++i) await des.trap();
+
+    for (let i = 0; i < 4; ++i) await des.monster({ id: 'bugbear', peaceful: 0 });
+    for (let i = 0; i < 2; ++i) await des.monster({ class: 'h', peaceful: 0 });
+    for (let i = 0; i < 2; ++i) await des.monster({ id: 'hill giant', peaceful: 0 });
 }
 
 // C ref: dat/Pri-goal.lua. Priest quest goal level — lava-filled cave with
@@ -3090,6 +3108,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Hea-loca': heaLoca,
     'Hea-fila': heaFila,
     'Hea-filb': heaFilb,
+    'Cav-filb': cavFilb,
     'Kni-strt': kniStrt,
     astral,
     'Pri-strt': priStrt,
