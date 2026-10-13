@@ -7,8 +7,8 @@
   "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
   "recordingPath": "challenges/cases/v62/v62-caveman-earlier-filler-action2.session.json",
   "recordingSha256": "3bf0b8ffbc32f6e27e85e29e0699c8a3673aff3becbcff8c0f693a8d841a97b2",
-  "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
-  "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+  "evaluationPath": "challenges/evaluations/accepted-ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678-v62.json",
+  "evaluationCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
   "remainingScreens": 29,
   "recordedSteps": 197,
   "status": "complete",
@@ -62,6 +62,6 @@
     "The whole upstream dat/Cav-fila.lua program (lines 6-35) sets a solid-fill base, applies mazelevel/noflip flags, initializes mines-style terrain with walls, then creates up/down stairs, seven random objects, four random traps, five hostile bugbears, one hostile h-class monster, and one hostile hill giant.",
     "js/mklev.js:760-772 checks SPECIAL_LEVEL_LOADERS[fillName] before calling makemaz; js/mklev.js:1795-1820 builds the registry from QUEST_LEVEL_LOADERS, which currently has no Cav-fila entry. The ordinary fallback then consumes rn2(5) at js/mklev.js:1295, matching the JavaScript side of the first divergent call.",
     "Fresh post-publication scan at commit aa0cdbbacca08c9fc000bb87cfd982931db46e07 stops matching at segment 0 step 168: C consumes rn2(3)=0 in nhlib.lua shuffle(), while JS consumes rn2(5)=2 in the ordinary below-Medusa check. The recorded boundary screen has a wall-versus-floor mismatch at row 2, column 60.",
-    "The saved v62 evaluation at 56a0d96069756b3ea2c7b447b441e2765be3a904 records 168 of 197 screens matched; this is the original task evidence, while the fresh scan above confirms the same source owner after the latest publication."
+    "The saved v62 evaluation at ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678 records 168 of 197 screens matched; the fresh scan confirms the same source owner after the latest publication."
   ]
 }
