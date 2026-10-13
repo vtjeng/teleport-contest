@@ -162,5 +162,61 @@
     "receipt": "/tmp/teleport-validation-1000/run-elYqHO/receipt.json",
     "focusedTests": "scripts/objnam.test.mjs, scripts/mthrowu.test.mjs, scripts/cmd.test.mjs, scripts/hack.test.mjs, scripts/allmain-turn.test.mjs: 398/398 passed (run-emOYa5).",
     "lint": "npm run lint exited 0."
-  }
+  },
+  "followUps": [
+    {
+      "task": "A2-investigation-v54-healer-wand-message-capitalization-action5-20261013",
+      "baseline": {
+        "evaluationCommit": "41d08db2691f23faf22c72efc70b2497b78f13cc",
+        "evaluationPath": "challenges/evaluations/accepted-41d08db2691f23faf22c72efc70b2497b78f13cc-v54.json",
+        "metrics": {
+          "screens": "657/778",
+          "rng": "14447/15123",
+          "cursors": "659/778"
+        },
+        "error": null
+      },
+      "replay": {
+        "commit": "a3ab10a468094ea182805b6203fa2aabffdf5a43",
+        "replayInputSha256": "a934fa7120b0cc2a1c211532863c5421e451afc70d40320d40c143ea738bc6c1",
+        "scanPath": ".cache/synthetic-scans/v54/v54-healer-kirin-mage-strength-stun-action3.json",
+        "recordingPath": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.session.json",
+        "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+        "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
+        "recipeSha256": "aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557",
+        "inputIdentitySha256": "a934fa7120b0cc2a1c211532863c5421e451afc70d40320d40c143ea738bc6c1",
+        "firstMismatch": {
+          "segment": 0,
+          "step": 598,
+          "key": " ",
+          "kind": "screen",
+          "row": 0,
+          "column": 0,
+          "c": "T",
+          "js": "t",
+          "rng": null,
+          "cursor": null
+        },
+        "recordedMessage": "The vampire bat is disintegrated!--More--",
+        "recordedRng": [
+          "rn2(10)=6 @ mgender_from_permonst(mon.c:5269)",
+          "d(15,8)=70 @ newmonhp(makemon.c:1042)"
+        ],
+        "emittedScreens": 659,
+        "laterBoundary": {
+          "step": 659,
+          "reason": "simple monster action requires monster offensive item use"
+        }
+      },
+      "source": {
+        "cFile": "zap.c",
+        "function": "disintegrate_mon",
+        "definition": "nethack-c/upstream/src/zap.c:4723-4753",
+        "branch": "When canseemon(mon) and mlifesaver(mon) is null, C prints \"%s is disintegrated!\" with Monnam(mon), which uppercases the first character of mon_nam.",
+        "productionCaller": "zap.c:zhitu calls disintegrate_mon at nethack-c/upstream/src/zap.c:4914 for MAGIC_COOKIE; JS js/zap.js:zhitu calls the corresponding helper at js/zap.js:5585.",
+        "jsOwner": "js/zap.js:disintegrate_mon currently interpolates monsterCommonName(mon, state), producing lowercase \"the vampire bat\" instead of Monnam-style \"The vampire bat\".",
+        "intendedFix": "Use the existing Monnam(mon, state, env) source-aligned helper for this message; leave the unrelated step-659 offensive-item boundary separate."
+      }
+    }
+  ]
 }
