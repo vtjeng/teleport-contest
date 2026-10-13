@@ -215,7 +215,8 @@ import {
 import { monster_census } from './minion.js';
 import { Monnam, hcolor, hliquid, mon_nam } from './do_name.js';
 import {
-    flash_mon, kill_genocided_monsters, mongone, setmangry, wake_nearto, wakeup,
+    flash_mon, killed, kill_genocided_monsters, mongone, setmangry,
+    wake_nearto, wakeup,
 } from './mon.js';
 import {
     MAXMCLASSES, S_goodpos,
@@ -2399,7 +2400,7 @@ export async function drop_boulder_on_monster(
         monster.mhp -= damage;
         if (monster.mhp < 1) {
             if (byu) {
-                note_unported('mon.c killed');
+                await killed(monster, state, env);
             } else {
                 await ttyPline(`${Monnam(monster, state)} is killed.`, state);
                 note_unported('mon.c mondied');
