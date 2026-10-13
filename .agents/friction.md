@@ -553,3 +553,12 @@ triage decisions or fix references.
 - The direct ledger admission check passed at `1812ba65` and returned an
   empty group: v56–v61 remained submitted rather than accepted. For a
   nonempty group, record its admission activity against accepted Prep.
+
+### 2026-10-13 — publication receipt collided with a ledger writer
+
+- Lantern publication pushed `d97b56fb`, then its `published` event failed
+  because another writer held the shared ledger lock during Prep26 submission.
+  The retained publication handle exited with code 2.
+- Root observed that the lock had cleared and retried the publication helper.
+  It reused the committed dashboard and completed the receipt successfully;
+  Root did not remove a lock or restart validation.
