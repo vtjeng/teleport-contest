@@ -159,6 +159,7 @@ import { reset_trapset } from './apply.js';
 import { bones_include_name } from './bones.js';
 import { obj_resists } from './bury.js';
 import { buried_ball_to_punishment, bury_objs, rot_corpse, use_pick_axe2 } from './dig.js';
+import { grow_up } from './makemon.js';
 import {
     ballfall, ballrelease, drag_down, drop_ball, placebc, unplacebc,
 } from './ball.js';

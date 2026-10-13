@@ -17,4 +17,8 @@ test('engulfer digests a Wraith corpse through awaited void-discarded grow_up', 
     // The JavaScript call preserves the digestion operation's callbacks as well as state.
     assert.match(DO_JS,
         /couldGrow = obj\.corpsenm === PM_WRAITH[\s\S]*?else if \(couldGrow\)[\s\S]*?await grow_up\(swallower, null, \{ \.\.\.env, state \}\);/u);
+    // do.c discards grow_up's return value but still requires the binding for
+    // the swallowed-wraith caller to run its level and hit-point changes.
+    assert.match(DO_JS,
+        /import \{ grow_up \} from '\.\/makemon\.js';[\s\S]*?await grow_up\(swallower, null, \{ \.\.\.env, state \}\);/u);
 });
