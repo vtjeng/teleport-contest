@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v54/v54-monk-masterlich-strength-and-stun-action2",
-  "remainingScreens": 94,
+  "remainingScreens": 0,
   "recordedSteps": 399,
   "corpus": "synthetic",
   "batch": "v54",
@@ -60,10 +60,10 @@
     "function": null,
     "message": null
   },
-  "summary": "On accepted Main f7d9d863, the monk case still diverges at step 303. C dispatches MCAST_DESTRY_ARMR to mcast_destroy_armor; JavaScript still records that helper as unported. The first missing draw is rn2(4) inside destroy_arm, whose return determines whether the monster learns resistance.",
+  "summary": "The complete MCAST_DESTRY_ARMR path now matches the admitted 399-step monk case. The C cast announcement, damage roll, destroy_arm draws, armor erosion message, and resistance update stay in source order; the destroy_arm adapter forwards the planner’s silent message operation through erode_obj.",
   "source": {
     "file": "mcastu.c",
-    "branch": "When the caster reaches MCAST_DESTRY_ARMR and the hero lacks Antimagic, mcast_destroy_armor calls destroy_arm. If the consumed result is false, C says “Your skin itches.”; if true, C marks the monster as having understood the resistance. With Antimagic, it calls shieldeff, marks seen resistance, and emits “A field of force surrounds you!”.",
+    "branch": "When the caster reaches MCAST_DESTRY_ARMR and the hero lacks Antimagic, mcast_destroy_armor calls destroy_arm. If the consumed result is false, C says “Your skin itches.”; if true, C marks the monster as having understood the resistance. With Antimagic, it calls shieldeff, marks seen resistance, and emits “A field of force surrounds you!”. The JavaScript destroy_arm adapter forwards the same message/planning operation to erode_obj and stop_occupation; this keeps preflight output on the cloned state without changing the source random or mutation sequence.",
     "functions": [
       "mcast_destroy_armor",
       "mcast_spell"
@@ -72,7 +72,7 @@
       "mcastu.c:castmu -> mcast_spell -> MCAST_DESTRY_ARMR -> mcast_destroy_armor"
     ],
     "dependencies": [
-      "do_wear.c:destroy_arm (its boolean result is consumed; existing implementation is js/do_wear.js:4241-4280 and must be awaited)"
+      "do_wear.c:destroy_arm (its boolean result is consumed; the complete existing implementation in js/do_wear.js is reused, with its message/planning operation now forwarded to erode_obj and stop_occupation)"
     ]
   },
   "goalKind": "file-port",
@@ -80,7 +80,8 @@
     "The accepted combined queue at f7d9d863 records v54-monk-masterlich-strength-and-stun-action2 at 305/399 screens, 3346/3378 RNG calls, and 396/399 cursors, with 94 screens remaining and error null. The evaluation artifact challenges/evaluations/accepted-f7d9d863fc7a5de36299786e449d6a42bd585f03-v54.json is present in published report descendant 726252aaf39528c7f927f2923431c2205d19d332 and names f7d9d863 as its measured source commit.",
     "A fresh JavaScript-only replay of the unchanged admitted recording ran at 94708482d1fdaa944784b1eb217239469fd2f377 using replay input SHA-256 355d304b32a3eb9593b0b31efd65cc19a4f5941f2aa6dd966e29db0ea6c71fff. The output .cache/C-v54-monk-after-insects-scan.json has SHA-256 4e6ccbe042a3eb9593b0b31efd65cc19a4f5941f2aa6dd966e29db0ea6c71fff. It places the screen and RNG divergence at segment 0, step 303: C calls rn2(4)=2 at destroy_arm(do_wear.c:3282), while JavaScript next logs rn2(5)=4 and reports mcastu.c mcast_destroy_armor.",
     "Source review: mcastu.c:450-462 implements mcast_destroy_armor; mcastu.c:801-840 dispatches MCAST_DESTRY_ARMR; castmu calls mcast_spell for AD_SPEL and AD_CLRC. do_wear.c:3278-3316 implements destroy_arm, and js/do_wear.js:4241-4280 already mirrors its worn-slot order, RNG sequence, erode_obj result handling, and boolean return.",
-    "The required implementation scope is the complete mcast_destroy_armor helper and its MCAST_DESTRY_ARMR dispatcher arm. The dispatcher as a whole is outside the completion claim. B accepted its separate MCAST_INSECTS repair at f7d9d863, releasing mcastu.c:mcast_spell before this task resumed."
+    "The required implementation scope is the complete mcast_destroy_armor helper and its MCAST_DESTRY_ARMR dispatcher arm. The dispatcher as a whole is outside the completion claim. B accepted its separate MCAST_INSECTS repair at f7d9d863, releasing mcastu.c:mcast_spell before this task resumed.",
+    "The complete selected case now matches: `.cache/C-v54-monk-message-forward-scan.json` reports divergence null, 399/399 recorded screens/steps, input boundary matched, error null, and only the previously known `sounds.c SoundAchievement` unported marker. The accepted v54 evaluation provides the recording totals (399 screens/cursors and 3378 RNG calls); no C recording or aggregate score was rerun. Current replay input SHA-256 is 42be6fc78f6f14994f3653200be341ad3e391cea94a2afcd37befddf9bb825e8."
   ],
   "currentBaseline": {
     "evaluationPath": "challenges/evaluations/accepted-f7d9d863fc7a5de36299786e449d6a42bd585f03-v54.json",
@@ -105,72 +106,22 @@
   },
   "currentReplay": {
     "command": "node scripts/scan-sessions.mjs --json --synthetic v54/v54-monk-masterlich-strength-and-stun-action2",
-    "replayCommit": "94708482d1fdaa944784b1eb217239469fd2f377",
-    "replayInputSha256": "355d304b32a3eb9593b0b31efd65cc19a4f5941f2aa6dd966e29db0ea6c71fff",
+    "replayCommit": "3d70ad095dfea9e831babb969b0df30b4377e12b",
+    "replayInputSha256": "42be6fc78f6f14994f3653200be341ad3e391cea94a2afcd37befddf9bb825e8",
     "diagnosticToolSha256": "707e173e6aeed4e4cb3007e741daff592f5f2d209f7fef0cf19d18a56b841dd0",
-    "outputPath": ".cache/C-v54-monk-after-insects-scan.json",
-    "outputSha256": "e23cc1eaab6c835411d30eb99b87f728cc8a2ed36d768e31dc38cdeaa2048be4",
+    "outputPath": ".cache/C-v54-monk-message-forward-scan.json",
     "commandRefusal": false,
     "unported": [
-      "sounds.c SoundAchievement",
-      "mcastu.c mcast_destroy_armor"
+      "sounds.c SoundAchievement"
     ],
-    "note": "The accepted f7d9d863 tree still mismatches at the same source gap. This replay is diagnosis, not completion evidence.",
-    "divergence": {
-      "screen": {
-        "index": 303,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 303,
-          "key": "."
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 67,
-        "cCell": {
-          "ch": "-",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": " ",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": {
-        "index": 3346,
-        "cEntry": "rn2(4)=2",
-        "cCaller": "destroy_arm(do_wear.c:3282)",
-        "jsEntry": "rn2(5)=4",
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 303,
-          "key": "."
-        },
-        "stepIndex": 303
-      },
-      "cursor": {
-        "index": 303,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 303,
-          "key": "."
-        },
-        "cCursor": [
-          75,
-          0,
-          1
-        ],
-        "jsCursor": [
-          6,
-          12,
-          1
-        ]
-      }
-    }
+    "divergence": null,
+    "screensEmitted": 399,
+    "recordedSteps": 399,
+    "answers": 107,
+    "inputBoundaryMatched": true,
+    "recordingMatched": true,
+    "error": null,
+    "outputSha256": "10f14ffb2da796c9ff3ff247d6c668e6e3974aa3ac3451b4a54f42b5645f2719"
   },
   "blocker": null,
   "history": [
@@ -269,5 +220,20 @@
       },
       "blocker": "B owns mcastu.c:mcast_spell for the resumed insect continuation; keep the whole dispatcher unchanged until B accepts or releases that scope."
     }
-  ]
+  ],
+  "finalMetrics": {
+    "screens": {
+      "matched": 399,
+      "total": 399
+    },
+    "rng": {
+      "matched": 3378,
+      "total": 3378
+    },
+    "cursors": {
+      "matched": 399,
+      "total": 399
+    },
+    "error": null
+  }
 }
