@@ -295002,6 +295002,64 @@
         ],
         "incompleteFunctions": []
       }
+    },
+    {
+      "id": "port-quest-nemesis-chat-v53-20261012",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement chat_with_nemesis, chat_with_guardian, quest_chat from quest.c",
+      "cFile": "quest.c",
+      "sessions": [
+        "synthetic/v53/v53-quest-nemesis-nearby-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v53-quest-nemesis-nearby-action5-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "chat_with_nemesis",
+          "line": 394,
+          "endLine": 402,
+          "declared": false
+        },
+        {
+          "name": "nemesis_speaks",
+          "line": 403,
+          "endLine": 425,
+          "declared": false
+        },
+        {
+          "name": "nemesis_stinks",
+          "line": 426,
+          "endLine": 440,
+          "declared": true
+        },
+        {
+          "name": "chat_with_guardian",
+          "line": 441,
+          "endLine": 450,
+          "declared": false
+        },
+        {
+          "name": "prisoner_speaks",
+          "line": 451,
+          "endLine": 472,
+          "declared": false
+        },
+        {
+          "name": "quest_chat",
+          "line": 473,
+          "endLine": 494,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 394,
+        "to": 494
+      }
     }
   ]
 }
