@@ -1,0 +1,81 @@
+{
+  "session": "synthetic/v55/v55-conjoined-pit-horizontal-dig-action3",
+  "remainingScreens": 54,
+  "recordedSteps": 249,
+  "corpus": "synthetic",
+  "batch": "v55",
+  "caseId": "v55-conjoined-pit-horizontal-dig-action3",
+  "manifestPath": "challenges/manifests/v55.json",
+  "manifestSha256": "3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105",
+  "recordingSha256": "0b36f331858554a6c0d84df605a027f4621fce06e97b42af01ea133f843a1ae5",
+  "evaluationPath": "challenges/evaluations/baseline-261c3097d-v55.json",
+  "evaluationCommit": "261c3097de5e63e488e143c622a3fa8157b750eb",
+  "status": "complete",
+  "commit": "6bfa6f06ebbe4fb8ed72d2ffea7b346aae128bac",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v55",
+    "caseId": "v55-conjoined-pit-horizontal-dig-action3",
+    "session": "synthetic/v55/v55-conjoined-pit-horizontal-dig-action3",
+    "manifestPath": "challenges/manifests/v55.json",
+    "manifestSha256": "3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105",
+    "recording": "challenges/cases/v55/v55-conjoined-pit-horizontal-dig-action3.session.json",
+    "recordingPath": "challenges/cases/v55/v55-conjoined-pit-horizontal-dig-action3.session.json",
+    "recordingSha256": "0b36f331858554a6c0d84df605a027f4621fce06e97b42af01ea133f843a1ae5",
+    "recipe": "challenges/cases/v55/v55-conjoined-pit-horizontal-dig-action3.recipe.session.json",
+    "recipeSha256": "e15ba0965bfd8b8a5d875944ebb60551354039a70c35ff87ee3d1a2009d5ff31",
+    "replayInputSha256": "68f27e6ff0211427a9f14f32d5761378682c2c211faa48787b15551c7dfb6787",
+    "evaluationPath": "challenges/evaluations/baseline-261c3097d-v55.json",
+    "evaluationCommit": "261c3097de5e63e488e143c622a3fa8157b750eb",
+    "evaluationArtifact": "challenges/evaluations/baseline-261c3097d-v55.json",
+    "evaluationUtc": "2026-10-13T05:12:23.424Z",
+    "remainingScreens": 54,
+    "recordedSteps": 249,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 195,
+        "total": 249
+      },
+      "rng": {
+        "matched": 2567,
+        "total": 2568
+      },
+      "cursors": {
+        "matched": 248,
+        "total": 249
+      }
+    },
+    "firstMismatch": null,
+    "step": null,
+    "kind": "rng",
+    "sourceFile": null,
+    "function": null,
+    "message": null
+  },
+  "summary": "When the hero is trapped in an unjoined pit and fires a horizontal wand of digging into a diggable adjacent room, C creates the adjacent pit before setting reciprocal conjoined-pit bits. The JavaScript zap_dig caller skipped the existing dighole implementation, leaving the target cell as floor and shifting later movement behavior.",
+  "source": {
+    "file": "dig.c",
+    "branch": "zap_dig sees pitdig with a TT_PIT under the hero, a valid horizontal direction, no already-conjoined adjacent pit, and adj_pit_checks permits the adjacent ordinary room; the selected recording exercises this through a WAN_DIGGING ray.",
+    "functions": [
+      "zap_dig"
+    ],
+    "callers": [
+      "zap.c:weffects dispatches WAN_DIGGING to zap_dig; dozap is the wand command entry."
+    ],
+    "dependencies": [
+      "dighole(TRUE, TRUE, &cc) has its result discarded here; JS dig.js:dighole already implements the pit-only magical path and must be invoked for its effects.",
+      "adj_pit_checks supplies the mutable-coordinate permission/message check before the call."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved queue entry challenges/manifests/v55.json case v55-conjoined-pit-horizontal-dig-action3 (manifest digest 3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105; recording digest 0b36f331858554a6c0d84df605a027f4621fce06e97b42af01ea133f843a1ae5; evaluation challenges/evaluations/baseline-261c3097d-v55.json at 261c3097de5e63e488e143c622a3fa8157b750eb): first screen difference is step 195, when C displays the adjacent pit and JS still has floor; the baseline later differs by one RNG call at step 248.",
+    "nethack-c/upstream/src/dig.c:1600-1657 shows zap_dig setting pitdig from u.utraptype == TT_PIT, checking the adjacent location, calling dighole(TRUE, TRUE, &cc) at 1649, re-reading t_at(), then setting reciprocal conjoined bits and flow coordinates.",
+    "js/zap.js:6083-6140 has the corresponding horizontal pit branch. On an allowed adjacent location it currently calls note_unported(\"dig.c dighole\") and immediately re-reads t_at(), so no pit exists to link.",
+    "nethack-c/upstream/src/dig.c:885-1022 defines dighole; the ordinary room/pit-only arm reaches digactualhole(..., PIT), updates the tile/trap, and runs spot_checks. js/dig.js:dighole implements that arm; zap_dig discards the C return, so invoking the existing owner is sufficient without expanding the task into the helper."
+  ]
+}
