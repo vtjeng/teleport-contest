@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T07:42:00.854Z",
+  "capturedAt": "2026-10-13T08:00:26.354Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -102639,6 +102639,117 @@
         "type": "accepted",
         "at": "2026-10-13T07:40:16.661Z",
         "task": "C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013-0d0fd2633132775be91c8c00a84fb0f6b13b58b6",
+        "type": "published",
+        "at": "2026-10-13T07:42:19.196Z",
+        "task": "C-investigation-v54-angel-mon-spell-hits-spot-action3-20261013",
+        "commit": "0d0fd2633132775be91c8c00a84fb0f6b13b58b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep25-v61-smaller-batch-review-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:42:47.959Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep25 has proposed seventeen v61 cases after sixty-nine C attempts; the coordinator is reviewing the smaller-batch decision."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-a-pyrolisk-plus-admission-tooling-20261013",
+        "type": "activity",
+        "at": "2026-10-13T07:45:33.897Z",
+        "task": "A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013",
+        "phase": "review",
+        "reason": "Integrate the pyrolisk caller fix and run normal combined validation covering the two user-approved admission-only tooling commits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b3d877b53d0df5ef2467984da2973e7a00f41ba1",
+        "type": "ready",
+        "at": "2026-10-13T07:46:50.404Z",
+        "task": "Prep25",
+        "delivery": "b3d877b53d0df5ef2467984da2973e7a00f41ba1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-pyrolisk-admission-tooling-1812ba65-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T07:47:04.081Z",
+        "task": "A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013",
+        "integration": "1812ba65bbf0542c8c388465e3deeb4603c91e0b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep26-v62-claim-20261016",
+        "type": "assign",
+        "at": "2026-10-13T07:48:45.132Z",
+        "task": "Prep26",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v62"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-prep25-b3d877b5-20261013",
+        "type": "received",
+        "at": "2026-10-13T07:50:02.598Z",
+        "task": "Prep25",
+        "delivery": "b3d877b53d0df5ef2467984da2973e7a00f41ba1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep26-v62-source-plan-active-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:52:08.804Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep26 selects twelve independent v62 source missions from the roadmap and preserved blockers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep26-v62-initial-c-setups-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:55:17.185Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep26 records twelve independent C setups for deferred gameplay routes and quest filler source programs."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013-1812ba65bbf0542c8c388465e3deeb4603c91e0b-validated",
+        "type": "validated",
+        "at": "2026-10-13T07:56:01.030Z",
+        "task": "A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013-1812ba65bbf0542c8c388465e3deeb4603c91e0b-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T07:56:30.936Z",
+        "task": "A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep26-v62-c-menu-scouts-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:56:48.173Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep26 scouts actual C quest depths, Sokoban destination, skill advancement and door geometry."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep26-v62-c-actions-active-20261016",
+        "type": "turn",
+        "at": "2026-10-13T07:59:31.733Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep26 records source actions from observed C quest depths, creature coordinates and terrain."
       }
     ]
   },
@@ -102699,17 +102810,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013",
-        "worker": "A2",
-        "goal": "fix-dothrow-breakobj-pyrolisk-explosion-v55-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "d8458f7a9b5609483a99f7d1fb788f3eb3048fef",
-        "since": "2026-10-13T05:51:23.471Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -102804,6 +102904,24 @@
         "delivery": "3361490d558c47ee9dbc4458f92f2420496483ba",
         "since": "2026-10-13T06:56:32.501Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep25",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "b3d877b53d0df5ef2467984da2973e7a00f41ba1",
+        "batch": "v61",
+        "since": "2026-10-13T07:46:50.404Z",
+        "blockedBy": [
+          "Prep20",
+          "Prep21",
+          "Prep22",
+          "Prep23",
+          "Prep24"
+        ],
         "unblocks": 0
       }
     ],
@@ -103298,8 +103416,8 @@
     ]
   },
   "development": {
-    "executionCommit": "d701d95714dc7c1f383fbf5c9450a46032c14fe3",
-    "measuredAt": "2026-10-13T07:37:15.974Z",
+    "executionCommit": "1812ba65bbf0542c8c388465e3deeb4603c91e0b",
+    "measuredAt": "2026-10-13T07:51:54.327Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
