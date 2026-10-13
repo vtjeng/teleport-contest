@@ -24,11 +24,13 @@ import {
     FUMBLING,
     FROMOUTSIDE,
     LEVITATION,
+    LAVAPOOL,
     MAXULEV,
     MAX_CARR_CAP,
     MON_STILL_ARRIVING,
     N_DIRS,
     OBJ_FREE,
+    POOL,
     PIT,
     RIGHT_SIDE,
     ROOM,
@@ -67,7 +69,6 @@ import {
     weight_cap,
 } from '../js/hack.js';
 import {
-    UnsupportedSteedError,
     _steedInternals,
     dismount_steed,
     doride,
@@ -84,7 +85,13 @@ import {
 } from '../js/trap.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { game } from '../js/gstate.js';
-import { M1_FLY, PM_LICHEN, PM_PURPLE_WORM } from '../js/monsters.js';
+import {
+    M1_FLY,
+    PM_LICHEN,
+    PM_PURPLE_WORM,
+    PM_SALAMANDER,
+    PM_SILVER_DRAGON,
+} from '../js/monsters.js';
 import {
     LANCE,
     LONG_SWORD,
@@ -320,15 +327,93 @@ test('a hero with nowhere to stand refuses the dismount', async () => {
     assert.ok(state.u.usteed);
 });
 
-test('the postmortem bones dismount keeps its explicit source boundary',
+test('the postmortem bones dismount moves the steed aside and leaves the hero',
     async () => {
-    // bones.c calls after the hero dies; that separate reason stays unported.
+    // bones.c calls after the hero dies; the source moves the freed steed to
+    // an adjacent square so the caller can place a ghost on the hero's square.
     const state = await mounted();
-    await assert.rejects(
-        dismount_steed(DISMOUNT_BONES, state),
-        (error) => error instanceof UnsupportedSteedError
-            && /DISMOUNT_BONES/u.test(error.message),
-    );
+    const steed = state.u.usteed;
+    const heroX = state.u.ux;
+    const heroY = state.u.uy;
+    quiet(state);
+
+    await dismount_steed(DISMOUNT_BONES, state);
+
+    assert.equal(state.u.usteed, null);
+    assert.deepEqual([state.u.ux, state.u.uy], [heroX, heroY]);
+    assert.notDeepEqual([steed.mx, steed.my], [heroX, heroY]);
+    assert.equal(m_at(heroX, heroY, state), null);
+});
+
+test('a flying steed survives a pool square during voluntary dismount',
+    async () => {
+        // The v57 recording uses a flying silver dragon over a pool. grounded()
+        // gates the water effect, so the dragon stays on the old square alive.
+        const state = await mounted();
+        const steed = state.u.usteed;
+        const heroX = state.u.ux;
+        const heroY = state.u.uy;
+        steed.data = state.mons[PM_SILVER_DRAGON];
+        state.level.at(heroX, heroY).typ = POOL;
+        quiet(state);
+
+        await dismount_steed(DISMOUNT_BYCHOICE, state);
+
+        assert.equal(state.u.usteed, null);
+        assert.equal(steed.mhp > 0, true);
+        assert.equal(m_at(heroX, heroY, state), steed);
+        assert.notDeepEqual([state.u.ux, state.u.uy], [heroX, heroY]);
+        assert.doesNotMatch(toplines(), /falls into the water/u);
+    });
+
+test('a grounded steed drowns and costs alignment on a pool square',
+    async () => {
+        // A pony is grounded and cannot swim; C kills it and calls
+        // adjalign(-1) when #ride releases it over POOL.
+        const state = await mounted();
+        const steed = state.u.usteed;
+        const heroX = state.u.ux;
+        const heroY = state.u.uy;
+        const alignRecord = state.u.ualign.record;
+        const alignAbuse = state.u.ualign.abuse;
+        state.level.at(heroX, heroY).typ = POOL;
+        quiet(state);
+        // The kill and alignment messages can each wait for dismissal.
+        for (let i = 0; i < 12; ++i)
+            state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+        await dismount_steed(DISMOUNT_BYCHOICE, state);
+
+        assert.equal(state.u.usteed, null);
+        assert.equal(steed.mhp < 1, true);
+        // killed() can impose its own pet penalty as well as the one-point
+        // dismount adjustment, so compare directions instead of an exact delta.
+        assert.ok(state.u.ualign.record < alignRecord);
+        assert.ok(state.u.ualign.abuse > alignAbuse);
+        // The kill report follows the fall message in the same output flow.
+        assert.match(toplines(), /kill the poor saddled pony/u);
+    });
+
+test('a lava-loving grounded steed survives a lava square', async () => {
+    // C uses likes_lava(mdat), so a grounded salamander survives the same
+    // voluntary dismount that kills an ordinary pony in lava.
+    const state = await mounted();
+    const steed = state.u.usteed;
+    const heroX = state.u.ux;
+    const heroY = state.u.uy;
+    steed.data = state.mons[PM_SALAMANDER];
+    state.level.at(heroX, heroY).typ = LAVAPOOL;
+    quiet(state);
+    // The voluntary dismount and lava message may both need dismissal.
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await dismount_steed(DISMOUNT_BYCHOICE, state);
+
+    assert.equal(state.u.usteed, null);
+    assert.equal(steed.mhp > 0, true);
+    assert.equal(m_at(heroX, heroY, state), steed);
+    assert.notDeepEqual([state.u.ux, state.u.uy], [heroX, heroY]);
 });
 
 test('DISMOUNT_THROWN uses the C thrown-fall message and shared landing path',

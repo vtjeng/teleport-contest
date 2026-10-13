@@ -39,6 +39,7 @@ import {
     M_AP_OBJECT,
     M_AP_TYPMASK,
     N_DIRS,
+    NO_TRAP_FLAGS,
     NO_KILLER_PREFIX,
     P_RIDING,
     P_BASIC,
@@ -56,6 +57,8 @@ import {
     TELEDS_ALLOW_DRAG,
     TELEPAT,
     TEST_MOVE,
+    RLOC_ERR,
+    RLOC_NOMSG,
     TT_BEARTRAP,
     TT_PIT,
     TT_WEB,
@@ -75,6 +78,7 @@ import {
 import { isok } from './cmd_isok.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import { newsym } from './display.js';
+import { surface } from './dungeon.js';
 import { m_unleash } from './apply.js';
 import { heal_legs, legs_in_no_shape, set_wounded_legs } from './do.js';
 import { finish_meating } from './dogmove.js';
@@ -107,9 +111,13 @@ import {
     mhe,
     is_flyer,
     is_floater,
+    grounded,
     is_swimmer,
+    amphibious,
+    breathless,
     slithy,
     throws_rocks,
+    likes_lava,
     touch_petrifies,
     poly_when_stoned,
     verysmall,
@@ -137,14 +145,15 @@ import {
     S_UNICORN,
     S_VORTEX,
 } from './monsters.js';
-import { monkilled } from './mon.js';
+import { killed, monkilled } from './mon.js';
+import { adjalign } from './attrib.js';
 import { greatest_erosion, isMetallic, mksobj } from './obj.js';
 import { BOULDER, SADDLE } from './objects.js';
 import { an } from './objnam.js';
 import { encumber_msg, u_handsy } from './pickup.js';
 import { body_part, polymon, steed_vs_stealth } from './polyself.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
-import { enexto, rloc_to, teleds } from './teleport.js';
+import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { enexto, rloc, rloc_to, teleds } from './teleport.js';
 import {
     float_down,
     instapetrify,
@@ -152,6 +161,7 @@ import {
     t_at,
     trapname,
 } from './trap.js';
+import { mintrap } from './trap_effects.js';
 import { ttyPline } from './tty_message.js';
 import { use_skill } from './weapon.js';
 import {
@@ -167,15 +177,6 @@ import { P_SKILL } from './startup_skills.js';
 import { exercise } from './attrib.js';
 import { note_unported } from './unported.js';
 import { canspotmon } from './display.js';
-
-// A steed path this port has not reached yet.
-export class UnsupportedSteedError extends Error {
-    constructor(reason) {
-        super(`unsupported steed action: ${reason}`);
-        this.name = 'UnsupportedSteedError';
-        this.reason = reason;
-    }
-}
 
 // youprop.h property spellings this file needs. Each names the exact macro it
 // stands for, because the terms differ from macro to macro.
@@ -851,13 +852,15 @@ async function landing_spot(reason, forceit, state = game, random = { rn2 }) {
     return found ? spot : null;
 }
 
-// C ref: steed.c dismount_steed() (575-826). This port covers the
-// DISMOUNT_BYCHOICE, DISMOUNT_KNOCKED, DISMOUNT_FELL, and dead-steed
-// DISMOUNT_GENERIC paths and the DISMOUNT_POLY transformation path; other
-// reasons still identify their unported callers.
+// C ref: steed.c dismount_steed() (575-826). All reasons share the release,
+// placement, and landing sequence except for the explicit bones and engulfer
+// branches.
 export async function dismount_steed(reason, state = game, rawEnv = {}) {
     const u = state.u;
-    const random = rawEnv.random ?? { rn2 };
+    const random = {
+        d, rn1, rn2, rnd, rne, rnl, rnz,
+        ...(rawEnv.random ?? {}),
+    };
     const positionEnv = { ...rawEnv, state, random };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('dismount_steed random injection requires rn2');
@@ -920,8 +923,9 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
         // the plucking message. C releases the mount without a second line.
         break;
     case DISMOUNT_BONES:
-        // bones.c, after the hero has died.
-        throw new UnsupportedSteedError('dismount_steed(DISMOUNT_BONES)');
+        // bones.c calls after the hero dies; the common release path moves
+        // the steed aside without returning the hero to the surface.
+        break;
     case DISMOUNT_GENERIC:
         // dog.c, mon.c and trap.c use it to end the ride without a message,
         // each after the steed has left the level or died.
@@ -1010,23 +1014,44 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
         place_monster(mtmp, steedcc.x, steedcc.y, state);
         state.in_steed_dismounting -= 1;
 
+        // C steed.c:717-726 does not move the dead hero during bones handling;
+        // it moves the steed aside to make room for the bones ghost.
+        if (reason === DISMOUNT_BONES) {
+            const nearbySteed = enexto(u.ux, u.uy, mtmp.data, positionEnv);
+            if (nearbySteed)
+                await rloc_to(mtmp, nearbySteed.x, nearbySteed.y, positionEnv);
+            else
+                await rloc(mtmp, RLOC_ERR | RLOC_NOMSG, positionEnv);
+            return;
+        }
+
         /* Set hero's and/or steed's positions. */
         if (!u.uswallow && !u.ustuck && have_spot) {
             const mdat = mtmp.data;
 
             /* The steed may drop into water/lava */
-            void mdat;
-            // C gates this on grounded(mdat), so a flying or floating steed
-            // survives the same square. mondata.h:23's grounded() is not
-            // ported and the refusal is deliberately the wider one: no steed
-            // this port can reach flies.
-            if (is_pool(u.ux, u.uy, state)
-                || is_lava(u.ux, u.uy, state)) {
-                // killed()/adjalign() and the two "falls into the %s!"
-                // messages belong to the combat and alignment work.
-                throw new UnsupportedSteedError(
-                    'dismount_steed() dropping the steed into liquid',
-                );
+            if (grounded(mdat, state)) {
+                if (is_pool(u.ux, u.uy, state)) {
+                    if (!u.uinwater)
+                        await ttyPline(
+                            `${Monnam(mtmp, state)} falls into the `
+                            + `${surface(u.ux, u.uy, state)}!`, state,
+                        );
+                    if (!(is_swimmer(mdat) || amphibious(mdat)
+                        || breathless(mdat))) {
+                        await killed(mtmp, state, positionEnv);
+                        adjalign(-1, state);
+                    }
+                } else if (is_lava(u.ux, u.uy, state)) {
+                    await ttyPline(
+                        `${Monnam(mtmp, state)} is pulled into the `
+                        + `${hliquid('lava', { state })}!`, state,
+                    );
+                    if (!likes_lava(mdat)) {
+                        await killed(mtmp, state, positionEnv);
+                        adjalign(-1, state);
+                    }
+                }
             }
             /* Keep steed here, move the player to the landing spot;
              * teleds() clears u.utrap.
@@ -1041,17 +1066,17 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
             state.in_steed_dismounting = 0;
 
             /* Put your steed in your trap */
-            if (save_utrap) {
-                throw new UnsupportedSteedError(
-                    'dismount_steed() trapping the steed the hero left',
-                );
-            }
+            if (save_utrap)
+                await mintrap(mtmp, NO_TRAP_FLAGS, positionEnv);
         } else {
             // C steed.c:777-793 leaves the hero in place and removes a steed
             // that has no adjacent destination after an engulfed dismount.
             const nearbySteed = enexto(u.ux, u.uy, mtmp.data, positionEnv);
             if (nearbySteed) {
                 await rloc_to(mtmp, nearbySteed.x, nearbySteed.y, positionEnv);
+            } else if (reason === DISMOUNT_BYCHOICE) {
+                await killed(mtmp, state, positionEnv);
+                adjalign(-1, state);
             } else {
                 await monkilled(mtmp, '', -AD_PHYS, state, positionEnv);
             }
