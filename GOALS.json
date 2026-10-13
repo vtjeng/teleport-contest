@@ -296905,7 +296905,7 @@
     {
       "id": "port-mcast-destroy-armor-v54-20261013",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mcast_destroy_armor from mcastu.c",
       "cFile": "mcastu.c",
       "sessions": [
@@ -296915,7 +296915,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "4a9094bc9f4f7e628235de5fd4774d64a4779fc0",
       "delivered": null,
       "functions": [
         {
@@ -296928,6 +296928,70 @@
       "range": {
         "from": 450,
         "to": 465
+      },
+      "closeStanding": {
+        "sha": "4a9094bc9f4f7e628235de5fd4774d64a4779fc0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "4c44ed71e765ae70b69439c91ebc31a44cde99f4",
+        "target": "synthetic/v54/v54-monk-masterlich-strength-and-stun-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/4a9094bc9f4f7e628235de5fd4774d64a4779fc0/run-hosted-DIhWl9/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mcast_destroy_armor",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_destroy_armor",
+            "sourceReview": "Complete mcastu.c:mcast_destroy_armor definition, lines 450-463. Under Antimagic, preserve shieldeff, monstseesu(M_SEEN_MAGR), and the force-field message in order. Otherwise call and consume do_wear.c:destroy_arm; false emits the skin-itch message and true clears the seen-resistance mark. The helper itself draws no RNG; destroy_arm owns the source hit-count, armor-choice and erosion calls. Its existing JS implementation is reused, with an optional operation environment forwarded into erode_obj and stop_occupation so planning output remains on the caller-provided silent seam. No missing return-valued callee, placeholder or refusal remains in this selected branch.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:mcast_spell MCAST_DESTRY_ARMR arm at 836-839 calls mcast_destroy_armor and then sets dmg to zero; JS awaits the helper in the corresponding case."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs",
+              "scripts/do_wear.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-monk-masterlich-strength-and-stun-action2",
+                "segment": 0,
+                "fromStep": 303,
+                "throughStep": 304,
+                "source": "mattacku AT_MAGC -> mcastu.c:castmu -> mcastu.c:mcast_spell MCAST_DESTRY_ARMR -> mcast_destroy_armor -> do_wear.c:destroy_arm -> trap.c:erode_obj"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected helper has one active production caller: mcastu.c:mcast_spell MCAST_DESTRY_ARMR, reached from castmu for AD_SPEL/AD_CLRC. The monk recording exercises that spell through the live monster attack caller. do_wear.c:destroy_arm is a verified existing source implementation and is not a newly claimed whole-function port; its JS adapter change only forwards the caller message/planning operation.",
+        "entryPoints": [
+          {
+            "name": "Monster casts destroy-armor spell at hero",
+            "functions": [
+              "mcast_destroy_armor"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-monk-masterlich-strength-and-stun-action2",
+                "segment": 0,
+                "fromStep": 303,
+                "throughStep": 304,
+                "source": "mattacku AT_MAGC -> castmu -> mcast_spell MCAST_DESTRY_ARMR -> mcast_destroy_armor"
+              }
+            ]
+          }
+        ]
       }
     }
   ]
