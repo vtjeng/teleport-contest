@@ -1,0 +1,49 @@
+{
+  "session": "synthetic/v54/v54-healer-unpaid-library-novel-action4",
+  "corpus": "synthetic",
+  "batch": "v54",
+  "caseId": "v54-healer-unpaid-library-novel-action4",
+  "remainingScreens": 82,
+  "recordedSteps": 381,
+  "manifestPath": "challenges/manifests/v54.json",
+  "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+  "recordingSha256": "d185785714f55e37763048773a113eedf0f7dc43d75db05a54ea033236c53f1b",
+  "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+  "evaluationCommit": "8c9dea179cf061e29b9b7a3cde76a99c42083a35",
+  "status": "partial",
+  "commit": "81ece09176f8be1ac456d910d9777178f629f073",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v54/v54-healer-unpaid-library-novel-action4"
+    ],
+    "remainingScreens": 82,
+    "remainingScreensUpperBound": null,
+    "earliestStep": null,
+    "caseId": "v54-healer-unpaid-library-novel-action4",
+    "batch": "v54",
+    "recordingPath": "challenges/cases/v54/v54-healer-unpaid-library-novel-action4.session.json"
+  },
+  "summary": "The first mismatch is the unpaid spellbook fee on the novel reading path. C calls check_unpaid_usage(spellbook, FALSE) before identifying the novel and awarding its experience; JavaScript stops at UnsupportedShopError. The C caller and fee branch are confirmed. The remaining investigation is the asynchronous output and caller contract needed to implement the source function without changing other check_unpaid call paths.",
+  "source": {
+    "file": "shk.c",
+    "branch": "The spellbook is unpaid, the hero is inside an active shop with its keeper present, and cost_per_charge returns a positive fee.",
+    "functions": [
+      "check_unpaid_usage"
+    ],
+    "callers": [
+      "spell.c:study_book novel branch via check_unpaid(spellbook)"
+    ],
+    "dependencies": []
+  },
+  "evidence": [
+    "The admitted baseline challenges/evaluations/baseline-78195d815-v54.json records 299/381 matching screens, 4,877/4,898 RNG calls, 299/381 cursors and error null. Its first mismatch is step 299 at C rn2(2)=0 from shk.c:check_unpaid_usage:5708.",
+    "nethack-c/upstream/src/spell.c:515-525 calls check_unpaid(spellbook) after read_tribute succeeds and before makeknown and novel experience credit; nethack-c/upstream/src/shk.c:5688-5733 selects the SPBOOK_CLASS arm, draws rn2(2), emits the fee and increments the keeper debit.",
+    "js/spell.js:936-964 has the same novel caller order. js/shk.js:2370-2405 implements only the initial unpaid/shop/charged guard and throws UnsupportedShopError instead of the C fee behavior.",
+    "Before implementation scope is claimed, inspect every current check_unpaid/check_unpaid_usage caller and determine how to preserve C ordering when verbalize and exercise return promises."
+  ]
+}
