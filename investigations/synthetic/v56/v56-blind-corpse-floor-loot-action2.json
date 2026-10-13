@@ -46,7 +46,7 @@
     "branch": "pickup.c:doloot_core (2178-2346), container-at-hero arm 2223-2235: when a container is present, the hero can loot, and Blind && !uarmg, C iterates floor corpses; will_feel_cockatrice decides whether the corpse is unsafe, feel_cockatrice prints the touch warning and invokes instapetrify, then doloot_core returns ECMD_TIME.",
     "callers": [
       "pickup.c:doloot() calls doloot_core() and is reached through the #loot extended command.",
-      "js/cmd.js:runLootCommand calls js/pickup.js:doloot(), which calls doloot_core(); the selected replay currently stops at its UnsupportedPickupError refusal."
+      "js/cmd.js:runLootCommand calls js/pickup.js:doloot(), which calls doloot_core(); the pre-port baseline stopped at UnsupportedPickupError, and the post-fix v56 recording now matches through the death path."
     ],
     "dependencies": [
       "invent.c:will_feel_cockatrice is already ported as a pure predicate and has a source-pinned test; preserve its Stone_resistance, blindness, gloves, corpse, and touch_petrifies checks.",
@@ -60,8 +60,31 @@
     "Fresh node scripts/scan-sessions.mjs --json --synthetic v56/v56-blind-corpse-floor-loot-action2 stops at command #loot with boundary UnsupportedPickupError: doloot_core: blind cockatrice corpse on floor. Source context cites the recorded C warning at step 311.",
     "Fresh node scripts/diff-fresh.mjs challenges/cases/v56/v56-blind-corpse-floor-loot-action2.recipe.session.json records 332 C boundaries but JS stops at 311; C’s PRNG log continues to 2919 while JS has 2907 values. Logs: /tmp/teleport-validation-1000/run-zeDakG/ and /tmp/teleport-validation-1000/run-XrybJs/.",
     "Read complete pickup.c:doloot_core (2178-2346) and its production caller doloot() (2166-2174). The failing arm at 2223-2235 calls will_feel_cockatrice then feel_cockatrice before returning ECMD_TIME.",
-    "Read invent.c:will_feel_cockatrice (4334-4342) and feel_cockatrice (4343-4365). The latter warning is followed by killer text “touching <corpse> bare-handed” and instapetrify(kbuf); js/invent.js still notes that callee as unported although js/trap.js now implements it.",
+    "Read invent.c:will_feel_cockatrice (4334-4342) and feel_cockatrice (4343-4365). The latter warning is followed by killer text “touching <corpse> bare-handed” and instapetrify(kbuf); the implementation now awaits the existing js/trap.js helper in that source order.",
     "After commit 1d809e006, node scripts/diff-fresh.mjs challenges/cases/v56/v56-blind-corpse-floor-loot-action2.recipe.session.json passed: 332/332 screens and cursors, 2919/2919 PRNG values, 1/1 animation frames. Log: /tmp/teleport-validation-1000/run-0r7UtR/.",
     "The post-fix selected-case scan completed before the source commit with the same tested source contents: divergence null, 332/332 steps, and unported []. Log: /tmp/teleport-validation-1000/run-KJPW3G/. A redundant post-commit scan was skipped after the bounded full-validation slot reported another active owner."
-  ]
+  ],
+  "integrationCorrection": {
+    "failedCandidate": "5c88a798c9bcd2d9f69996b47045c406b460f973",
+    "hostedRun": "38441481423",
+    "failure": "The scripts/objnam.test.mjs tactile-pile fixture used a partial naming state. feel_cockatrice now reaches trap.instapetrify and end.done, which requires initialized display and terminal state.",
+    "correction": "The test now starts the deterministic live game used by pickup.test.mjs, installs a blind ungloved cockatrice pile on a room square, and checks the tactile heading, warning, killer, and completed death. Production behavior and the v56 recording are unchanged.",
+    "checks": [
+      {
+        "command": "node scripts/run-bounded.mjs focused -- node --test scripts/objnam.test.mjs",
+        "result": "passed: 104 tests, 0 failures",
+        "log": "/tmp/teleport-validation-1000/run-rUTEbe/stdout.log"
+      },
+      {
+        "command": "npm run lint",
+        "result": "passed",
+        "log": "/tmp/teleport-validation-1000/A2-blind-floor-correction-lint.log"
+      },
+      {
+        "command": "node scripts/synthetic-range-evidence.mjs .cache/A2-blind-floor-correction-evidence.json",
+        "result": "passed: v56/v56-blind-corpse-floor-loot-action2 segment 0 through step 331 matched",
+        "log": "/tmp/teleport-validation-1000/A2-blind-floor-synthetic-range.log"
+      }
+    ]
+  }
 }

@@ -62,6 +62,7 @@ import {
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import {
     dolook,
     look_here,
@@ -1212,28 +1213,76 @@ test('object-pile source branches continue through their output owners',
 
 test('a blind object pile uses the source tactile heading before petrification',
     async () => {
-    // C invent.c:look_here() (4289-4296) builds this line as
-    // "Things that you feel here:"; the blind predicate includes "that"
-    // just as the sighted arm includes "that are".
-    const built = pileLookState({
-        blind: true,
-        first: CORPSE,
-        firstOverrides: { corpsenm: PM_COCKATRICE },
-    });
-    const events = [];
+        // Reuse pickup.test.mjs's seed and clock to start a stable Valkyrie
+        // game; trap.c:instapetrify() then reaches end.c:done() with initialized
+        // display, hero, and terminal state instead of the partial naming fixture.
+        await runSegment({
+            // These values match pickup.test.mjs:heroOnAnEmptySquare(), which
+            // supplies the same initialized floor and TTY context.
+            seed: 5501234,
+            datetime: '20330607081011',
+            // This role and option set match pickup.test.mjs's live fatal-
+            // corpse setup, with tutorial and welcome screens disabled.
+            nethackrc: 'OPTIONS=name:Picker,role:Valkyrie,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics,!autopickup',
+            // No player commands run before the test installs the corpse pile.
+            moves: '',
+        });
+        const state = game;
+        const { ux, uy } = state.u;
+        state.u.uprops[BLINDED] = {
+            intrinsic: 1,
+            extrinsic: 0,
+            blocked: 0,
+        };
+        state.uarmg = null;
+        state.level.at(ux, uy).typ = ROOM;
+        // A normal room square has no stair feature; the new game starts near
+        // stairs, so clear that fixture list before testing the tactile pile.
+        state.stairs = null;
 
-    await look_here(2, LOOKHERE_NOFLAGS, built.state, {
-        message: (text) => events.push(['message', text]),
-        displayObjectPile: (lines) => events.push(['display', lines]),
-        readEngraving: () => events.push(['engraving']),
-    });
+        const corpse = objectOf(state, CORPSE, {
+            corpsenm: PM_COCKATRICE,
+            dknown: false,
+            nexthere: null,
+        });
+        const ration = objectOf(state, FOOD_RATION, {
+            dknown: false,
+            nexthere: null,
+        });
+        corpse.nexthere = ration;
+        state.level.objects[ux][uy] = corpse;
 
-    assert.deepEqual(events, [
-        ['message', 'You try to feel what is lying here on the floor.'],
-        ['display', ['Things that you feel here:', 'a cockatrice corpse...']],
-        ['message', 'Touching the cockatrice corpse is a fatal mistake...'],
-        ['engraving'],
-    ]);
+        // Twenty-four spaces cover the existing --More-- waits in the startup,
+        // urgent death and final windows; pickup.test.mjs uses the same bound.
+        for (let i = 0; i < 24; ++i)
+            state.nhDisplay.pushKey(' '.charCodeAt(0));
+        // Twelve `n` answers decline the disclosure categories in end.c, as in
+        // pickup.test.mjs's fatal-corpse caller test.
+        for (let i = 0; i < 12; ++i)
+            state.nhDisplay.pushKey('n'.charCodeAt(0));
+        for (let i = 0; i < 24; ++i)
+            state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+        const events = [];
+        // Two objects enter look_here()'s pile branch, and no flag requests a
+        // different object-list behavior.
+        await look_here(2, LOOKHERE_NOFLAGS, state, {
+            message: (text) => events.push(['message', text]),
+            displayObjectPile: (lines) => events.push(['display', lines]),
+            readEngraving: () => events.push(['engraving']),
+        });
+
+        // invent.c:look_here() emits the tactile heading before the corpse;
+        // invent.c:feel_cockatrice() then warns before instapetrify() ends play.
+        assert.deepEqual(events.slice(0, 3), [
+            ['message', 'You try to feel what is lying here on the floor.'],
+            ['display', ['Things that you feel here:', 'a cockatrice corpse...']],
+            ['message', 'Touching the cockatrice corpse is a fatal mistake...'],
+        ]);
+        assert.match(state.killer.name, /^touching .*cockatrice corpse bare-handed$/u);
+        assert.equal(state.program_state.gameover, true);
     });
 
 test('an unseen trap under a pile changes nothing look_here() prints',
