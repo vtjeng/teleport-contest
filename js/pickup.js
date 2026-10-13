@@ -991,9 +991,12 @@ function preflightPickupObjects(selected, state) {
     const promptLimit = Math.max(
         near_capacity(state), state.flags.pickup_burden,
     );
-    if (!sourceZeroLift && calc_capacity(addedWeight, state) > promptLimit) {
-        throw new UnsupportedPickupError('pickup() requiring a burden prompt');
-    }
+    // pickup.c:pickup_object() runs lift_object() and asks this question
+    // before pick_obj() reaches addinv(). Leave the addinv plan empty here so
+    // the accepted answer can build it at that source position; a declined
+    // lift must not reach inventory planning at all.
+    const deferAddinvForBurdenPrompt = !sourceZeroLift
+        && calc_capacity(addedWeight, state) > promptLimit;
 
     const env = objectGenerationEnv({
         state,
@@ -1005,13 +1008,13 @@ function preflightPickupObjects(selected, state) {
             ),
         },
     });
-    if (sourceZeroLift) {
-        // No addinv plan can be consumed: pickup_object() reaches carry_count,
-        // which returns zero before extraction or inventory mutation.
+    if (sourceZeroLift || deferAddinvForBurdenPrompt) {
+        // pickup_object() either stops in carry_count() or asks lift_object()
+        // before pick_obj() creates its addinv plan.
         return {
             addPlans: selected.map(() => null),
             env,
-            unliftable: [object],
+            unliftable: sourceZeroLift ? [object] : [],
         };
     }
     const computedPlans = preflight_addinv_sequence(
@@ -2894,9 +2897,7 @@ async function lift_object(obj, container, cnt_p, telekinesis, state) {
                     + `${!container ? 'lifting' : 'removing'} `
                     + `${donameFresh(obj, state)}.  Continue?`;
                 obj.quan = savequan;
-                const sym = await yn_function(
-                    qbuf, 'ynq', 'n', false, state);
-                const ch = String.fromCharCode(sym);
+                const ch = await ynq(qbuf, state);
                 if (ch === 'q') result = -1;
                 else if (ch === 'n') result = 0;
                 clearTtyMessageWindow(state);

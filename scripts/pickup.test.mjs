@@ -7,6 +7,7 @@ import {
     AUTOSELECT_SINGLE,
     BLINDED,
     BY_NEXTHERE,
+    CQ_CANNED,
     CORR,
     D_BROKEN,
     DOOR,
@@ -50,6 +51,7 @@ import {
     st_resists,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { cmdq_add_key } from '../js/cmd.js';
 import { begin_burn } from '../js/timeout.js';
 import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
 import {
@@ -85,6 +87,7 @@ import {
     describe_decor,
     observe_pickup_object,
     pickup,
+    pickup_object,
     preflight_describe_decor_at,
     preflight_initial_pickup,
     preflight_projected_random_arrival_pickup,
@@ -1885,20 +1888,58 @@ test('a configured pickup_burden raises the limit pickup admits', async () => {
     );
 
     // The same weight on the same hero without the statement: the limit is
-    // MOD_ENCUMBER, the lift crosses it, and C would ask ynq() -- which this
-    // port refuses rather than answers.
+    // MOD_ENCUMBER, so lift_object() asks the source's ynq() question.
     const stock = await heroOnAnEmptySquare();
     assert.equal(stock.flags.pickup_burden, MOD_ENCUMBER);
     const same = objectUnderHero(stock);
     same.owt = weightForCapacity(stock, HVY_ENCUMBER);
     stock.flags.pickup = true;
     quiet(stock);
-    await assert.rejects(
-        () => pickup(1, stock),
-        (error) => error instanceof UnsupportedPickupError
-            && /requiring a burden prompt/u.test(error.message),
-    );
+    stock.in_doagain = false;
+    // A canned 'n' exercises lift_object()'s source branch that declines
+    // before pickup_object() reaches pick_obj().
+    cmdq_add_key(CQ_CANNED, 'n'.charCodeAt(0), stock);
+    const refused = await pickup_object(same, 1, false, stock);
+    assert.equal(refused, 0, 'the queued no answer declines the lift');
     assert.equal(same.where, OBJ_FLOOR);
+    assert.equal(stock.command_queue[CQ_CANNED].length, 0,
+        'lift_object consumed the queued no answer through ynq');
+
+    const cSource = await readFile(
+        new URL('../nethack-c/upstream/src/pickup.c', import.meta.url),
+        'utf8',
+    );
+    const jsSource = await readFile(
+        new URL('../js/pickup.js', import.meta.url), 'utf8',
+    );
+    const cPickupObject = cSource.match(
+        /^int\npickup_object\([\s\S]*?^\}/mu,
+    )?.[0];
+    const jsPickupObject = jsSource.match(
+        /^export async function pickup_object\([\s\S]*?^\}/mu,
+    )?.[0];
+    const cLiftObject = cSource.match(
+        /^staticfn int\nlift_object\([\s\S]*?^\}/mu,
+    )?.[0];
+    const jsLiftObject = jsSource.match(
+        /^async function lift_object\([\s\S]*?^\}/mu,
+    )?.[0];
+    assert.ok(cPickupObject, 'pickup.c defines pickup_object');
+    assert.ok(jsPickupObject, 'pickup.js defines pickup_object');
+    assert.ok(cLiftObject, 'pickup.c defines lift_object');
+    assert.ok(jsLiftObject, 'pickup.js defines lift_object');
+    assert.ok(
+        cPickupObject.indexOf('res = lift_object')
+            < cPickupObject.indexOf('obj = pick_obj'),
+        'C asks the lift question before adding the object to inventory',
+    );
+    assert.ok(
+        jsPickupObject.indexOf('await lift_object')
+            < jsPickupObject.indexOf('await pick_obj'),
+        'JavaScript follows the same lift-before-addinv order',
+    );
+    assert.match(cLiftObject, /safe_qbuf\([\s\S]*?switch \(ynq\(qbuf\)\)/u);
+    assert.match(jsLiftObject, /const ch = await ynq\(qbuf, state\)/u);
 });
 
 test('pickup handles artifacts and scare scrolls at the source position',
