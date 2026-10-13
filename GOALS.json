@@ -297408,7 +297408,7 @@
     {
       "id": "fix-zap-disintegrate-mon-capitalization-v54-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement disintegrate_mon from undefined",
       "cFile": "zap.c",
       "sessions": [
@@ -297418,10 +297418,72 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "cbe35a2f290f2277c4ea06e52999d8f274e1d86b",
       "delivered": null,
       "function": "disintegrate_mon",
-      "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3"
+      "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+      "closeStanding": {
+        "sha": "cbe35a2f290f2277c4ea06e52999d8f274e1d86b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "07b8da88fabe9c6510a7253e4bc59363b3e01b68",
+        "target": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/cbe35a2f290f2277c4ea06e52999d8f274e1d86b/run-hosted-57WBa4/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "disintegrate_mon",
+            "implementation": "js/zap.js",
+            "symbol": "disintegrate_mon",
+            "sourceReview": "Compared the complete zap.c function with js/zap.js. C captures the worn lifesaving amulet once; the visible branch prints Monnam when absent and uses hit when present. The inventory loop preserves disintegration resistance, object resistance, quest artifacts and the lifesaver; unprotected objects are removed before the function chooses monkilled for negative type or xkilled with XKILL_NOMSG | XKILL_NOCORPSE otherwise. This task corrects the Monnam capitalization in the existing visible branch.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "dobuzz",
+                "source": "zap.c:dobuzz calls disintegrate_mon after zhitm returns MAGIC_COOKIE; js/zap.js:dobuzz already dispatches to this helper at 5585."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-ray.test.mjs"
+            ],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 598,
+                "throughStep": 598,
+                "source": "The admitted healer run reaches zap.c:dobuzz -> zhitm MAGIC_COOKIE -> disintegrate_mon and matches the visible vampire-bat line after using Monnam capitalization."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active production path is a monster beam in zap.c:dobuzz, which calls zhitm and then disintegrate_mon for MAGIC_COOKIE; js/zap.js:dobuzz already wires the corresponding helper. The admitted v54 replay matches through segment 0 step 598, including the visible vampire-bat disintegration line. The remaining step-659 offensive-item-use boundary is a separate source gap.",
+        "entryPoints": [
+          {
+            "name": "visible monster disintegration message",
+            "functions": [
+              "disintegrate_mon"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 598,
+                "source": "zap.c:dobuzz -> zhitm MAGIC_COOKIE -> disintegrate_mon"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
