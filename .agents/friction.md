@@ -511,3 +511,15 @@ triage decisions or fix references.
   change. Preflight passed. The unpublished merge’s missing Codex trailer
   was corrected while retaining a recovery ref; no submitted worker commit
   was amended. Hosted run `38351056321` passed at `71adf289`.
+
+### 2026-10-13 — digging relocation regression caught by acceptance
+
+- Hosted checkpoint `38357931835` passed at `b9cbf1ba`, but acceptance
+  rejected the conjoined-pit delivery because previously matching v53
+  `v53-ring-shop-wall-digging-damage-action3` failed with
+  `SHOP_WALL_COST is not defined`. It lost 295 matching screens and
+  cursors and 4,617 matching RNG calls. The v55 target improved.
+- The relocated function omitted a binding from its former module. Root
+  preserved the unpublished candidate and asked B for a separate correction
+  with a new immutable receipt. Passing standard CI does not replace the
+  acceptance helper's comparison with previously accepted cases.
