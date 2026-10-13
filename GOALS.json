@@ -298962,7 +298962,7 @@
     {
       "id": "port-shk-use-unpaid-trapobj-v55-20261013",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement use_unpaid_trapobj from shk.c",
       "cFile": "shk.c",
       "sessions": [
@@ -298972,7 +298972,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a3d5288a67d83e471f199ede2f2c35d4b78c29f0",
       "delivered": null,
       "functions": [
         {
@@ -298985,6 +298985,75 @@
       "range": {
         "from": 6101,
         "to": 6126
+      },
+      "closeStanding": {
+        "sha": "a3d5288a67d83e471f199ede2f2c35d4b78c29f0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "3726ce3a6d8841ee4ea2f2d0bda16035968be4f3",
+        "target": "synthetic/v55/v55-unpaid-beartrap-install-action5",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/a3d5288a67d83e471f199ede2f2c35d4b78c29f0/run-hosted-97OFN6/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "use_unpaid_trapobj",
+            "implementation": "js/shk.js",
+            "symbol": "use_unpaid_trapobj",
+            "pure": false,
+            "sourceReview": "Read the whole shk.c:use_unpaid_trapobj definition (6101-6114). If unpaid, C skips owner lookup when Deaf; otherwise it finds the owner and verbalizes only when an owner exists and muteshk is false. It then always calls bill_dummy_object for unpaid items. SetVoice is an empty macro in the recorder build (include/sndprocs.h:276), while verbalize and bill_dummy_object remain observable. The JS helper preserves that order and awaits the existing async billing implementation; C discards bill_dummy_object's void result.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_trap",
+                "source": "apply.c:use_trap calls use_unpaid_trapobj at line 2909 after the begin-setting message and before set_occupation; doapply dispatches LAND_MINE/BEARTRAP to use_trap at line 4390."
+              }
+            ],
+            "tests": [
+              "scripts/shop-billing.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-unpaid-beartrap-install-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 379,
+                "source": "doapply -> apply.c:use_trap -> shk.c:use_unpaid_trapobj -> find_objowner/verbalize -> mkobj.c:bill_dummy_object"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected admitted shop scenario is the sole active entry point in this task: doapply applies a carried unpaid bear trap at the hero's square in an ordinary general store. The source helper completes the shopkeeper quote and used-object billing before arming begins. Existing canonical find_objowner, muteshk and bill_dummy_object owners are reused. The helper's no-op for a paid object and silent branches for Deaf/mute keepers are source-pinned by focused tests/branch conditions; no other C caller exists.",
+        "entryPoints": [
+          {
+            "name": "Applying a carried unpaid bear trap in its owning shop",
+            "functions": [
+              "use_unpaid_trapobj"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-unpaid-beartrap-install-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 379,
+                "source": "doapply -> apply.c:use_trap -> shk.c:use_unpaid_trapobj -> mkobj.c:bill_dummy_object"
+              }
+            ],
+            "metrics": {
+              "screens": "380/380",
+              "rng": "8439/8439",
+              "cursors": "380/380",
+              "error": null
+            }
+          }
+        ]
       }
     }
   ]
