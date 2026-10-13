@@ -500,3 +500,14 @@ triage decisions or fix references.
   Root’s acceptance helper `run-VPqhgm` owned the full validation slot.
   Root collected its retained command handle and notified C; the retry
   `run-p1Nkov` passed. No recording or aggregate check was duplicated.
+
+### 2026-10-13 — report conflict and exact delivery ancestry
+
+- The AD_MAGM report conflict resolved to the worker’s immutable report,
+  but preflight rejected its changed patch identity: Main had preserved the
+  original diagnosis without the worker’s later baseline-refresh commit.
+- Root verified that all seven delivered paths matched the exact submission,
+  then preserved that submitted ancestry with a merge whose tree did not
+  change. Preflight passed. The unpublished merge’s missing Codex trailer
+  was corrected while retaining a recovery ref; no submitted worker commit
+  was amended. Hosted run `38351056321` passed at `71adf289`.
