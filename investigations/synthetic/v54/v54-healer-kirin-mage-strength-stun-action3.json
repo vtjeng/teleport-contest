@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
-  "remainingScreens": 119,
+  "remainingScreens": 2,
   "recordedSteps": 778,
   "corpus": "synthetic",
   "batch": "v54",
@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v54.json",
   "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
   "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
-  "evaluationPath": "challenges/evaluations/accepted-cbe35a2f290f2277c4ea06e52999d8f274e1d86b-v54.json",
-  "evaluationCommit": "cbe35a2f290f2277c4ea06e52999d8f274e1d86b",
+  "evaluationPath": "challenges/evaluations/accepted-063e058affac7e6c8f52101e830c10e69262c599-v54.json",
+  "evaluationCommit": "063e058affac7e6c8f52101e830c10e69262c599",
   "status": "complete",
-  "commit": "af5c249854d568292527ea6ad91aca3ea166d13f",
+  "commit": "23c0093654b789887ff10693ae18a1c9dd122b80",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v54",
@@ -24,65 +24,106 @@
     "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
     "recipe": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.recipe.session.json",
     "recipeSha256": "aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557",
-    "replayInputSha256": "7ab94e6fbdc6743cd162d0b35ad085be9bafde8a04b2a917c1aeb32682558bb6",
-    "evaluationPath": "challenges/evaluations/accepted-cbe35a2f290f2277c4ea06e52999d8f274e1d86b-v54.json",
-    "evaluationArtifact": "challenges/evaluations/accepted-cbe35a2f290f2277c4ea06e52999d8f274e1d86b-v54.json",
-    "evaluationCommit": "cbe35a2f290f2277c4ea06e52999d8f274e1d86b",
-    "remainingScreens": 119,
+    "replayInputSha256": "d9cc4ed1521be094d4ec1817eef6ebbfdbfab837d63a5ff29c0f3bc7c31183f7",
+    "evaluationPath": "challenges/evaluations/accepted-063e058affac7e6c8f52101e830c10e69262c599-v54.json",
+    "evaluationCommit": "063e058affac7e6c8f52101e830c10e69262c599",
+    "evaluationArtifact": "challenges/evaluations/accepted-063e058affac7e6c8f52101e830c10e69262c599-v54.json",
+    "evaluationUtc": "2026-10-13T08:34:31.451Z",
+    "remainingScreens": 2,
     "recordedSteps": 778,
     "previousScreensMatched": 659,
     "regression": false,
     "passed": false,
+    "error": null,
     "metrics": {
       "screens": {
-        "matched": 659,
+        "matched": 776,
         "total": 778
       },
       "rng": {
-        "matched": 14447,
+        "matched": 15123,
         "total": 15123
       },
       "cursors": {
-        "matched": 659,
+        "matched": 777,
         "total": 778
       }
     },
     "firstMismatch": {
-      "step": 659,
-      "kind": "refusal",
-      "sourceFile": "muse.c",
-      "function": "find_offensive",
-      "message": "monster offensive item use"
+      "screen": {
+        "index": 706,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 706,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 4,
+        "cCell": {
+          "ch": "d",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "f",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 707,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 707,
+          "key": " "
+        },
+        "cCursor": [
+          67,
+          0,
+          1
+        ],
+        "jsCursor": [
+          52,
+          0,
+          1
+        ]
+      }
     },
-    "step": 659,
-    "kind": "refusal",
-    "error": null
+    "step": 706,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
   },
-  "summary": "Ported the complete live muse.c find_offensive/use_offensive source pair, including the wand, horn, and camera arms. The committed v54 healer replay now matches through step 705, including the fire giant’s wand-of-lightning action beginning at step 659. Its next mismatch is a separate monster-awareness message at step 706 and remains for a new source attribution.",
+  "summary": "The remaining step-706 mismatch is the Unaware prefix in mcastu.c:mcast_spell MCAST_AGGRAVATION. C calls You_feel, which says “You dream that you feel” while Unaware; js/mcastu.js hardcodes “You feel”. The existing heroUnaware helper already maps the C predicate. The next cursor mismatch at step 707 follows from the missing 15-character prefix.",
   "source": {
-    "file": "muse.c",
-    "branch": "find_offensive clears the previous selection, applies eligibility and target checks, then keeps the last viable inventory item under the resistance, reflection, range, and state gates. use_offensive performs the selected action in source order and returns the C action result.",
+    "file": "mcastu.c",
+    "branch": "In MCAST_AGGRAVATION, C calls You_feel before aggravate. pline.c:You_feel selects “You dream that you feel ” when Unaware and “You feel ” otherwise; preserve the following “that monsters are aware of your presence.” text and run aggravate after the message.",
     "functions": [
-      "find_offensive",
-      "use_offensive"
+      "mcast_spell"
     ],
     "callers": [
-      "mhitu.c:mattacku calls find_offensive and then use_offensive when an offensive item is selected; js/mhitu.js:mattacku follows the same path through attackHeroWithMattacku and useOffensiveItem.",
-      "monmove.c:dochug calls find_offensive after a monster moves to decide whether it stays for its attack phase; js/monmove.js:dochug performs the corresponding check before the later mattacku call."
+      "mcastu.c:castmu dispatches AD_SPEL/AD_CLRC to mcast_spell at line 298; js/mcastu.js:castmu reaches the same private dispatcher at line 612.",
+      "Production castmu callers are mhitu.c:mattacku at line 930 and monmove.c:dochug at line 902; their JS paths are js/mhitu.js:mattacku and js/monmove.js:dochug."
     ],
     "dependencies": [
-      "Existing muse.c helpers in js/muse.js:precheck, mzapwand, mplayhorn, mreadmsg, mbhit and m_useup.",
-      "Existing zap, monster-name, object-name, blindness, item-destruction, and missile helpers called by the selected action arms."
+      "pline.c:You_feel prefix semantics, represented for the Unaware predicate by js/pline.js:heroUnaware."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    "C source comparison: muse.c:1421-1594 retains each nomore() check before the next inventory arm and applies the camera rn2 draw only after its visibility, resistance, distance, and charge gates; muse.c:1824-2032 shares wand/horn zap order, handles camera blindness and light damage, and leaves SCR_FIRE excluded under #if 0.",
-    "Implementation commit cba1c4496f63850a1c3d97ad855b4705fa9483ef ports the live selection/use branches in js/muse.js. The mhitu.c:mattacku calls at lines 758-760 remain wired through js/mhitu.js:mattacku; the monmove.c:dochug selection at line 948 remains wired through js/monmove.js:dochug. The latter file change is comment-only and documents that active path.",
-    "The committed exact-case replay at cba1c4496f63850a1c3d97ad855b4705fa9483ef used replay input 7e8782025d81b121986d3336ff04bd10a2c64b4e3b003a15009b1d147f5cd077. It matches through zero-based step 705, including the step-659 fire-giant wand-of-lightning selection/use and following beam. The first later screen mismatch is step 706: C row 0 column 4 is d and JS is f; cursor first differs at step 707. This later monster-awareness message is outside muse.c and is preserved as an unattributed follow-up. Receipt: /tmp/teleport-validation-1000/run-4zarl4/receipt.json; scan: .cache/A2-healer-v54-muse-replay.json.",
-    "Focused Muse tests passed 46/46 (receipt /tmp/teleport-validation-1000/run-SFwQJO/receipt.json); ESLint on js/muse.js, js/monmove.js and scripts/muse.test.mjs passed (receipt /tmp/teleport-validation-1000/run-9UvJeO/receipt.json)."
+    "The accepted v54 evaluation at 063e058affac7e6c8f52101e830c10e69262c599 has screens 776/778, RNG 15123/15123, cursors 777/778, and first screen mismatch at segment 0 step 706, key Space, row 0 column 4 (C d, JS f); first cursor mismatch is step 707 (C [67,0,1], JS [52,0,1]). Queue replay input SHA-256 is d9cc4ed1521be094d4ec1817eef6ebbfdbfab837d63a5ff29c0f3bc7c31183f7.",
+    "The saved focused replay at cba1c4496f63850a1c3d97ad855b4705fa9483ef independently records C’s step-706 message “You dream that you feel that monsters are aware of your presence.” and first screen mismatch at the same location; artifact .cache/A2-healer-v54-muse-replay.json, input SHA-256 7e8782025d81b121986d3336ff04bd10a2c64b4e3b003a15009b1d147f5cd077.",
+    "C mcastu.c:826-829 calls You_feel before aggravate. C pline.c:388-399 prefixes “You dream that you feel ” when Unaware and “You feel ” otherwise. JS mcastu.js:1110-1113 currently emits only the ordinary prefix; js/pline.js:26-29 already exposes heroUnaware(state) for the C predicate.",
+    "The MCAST_AGGRAVATION branch keeps the existing source order: emit the feeling message, then call aggravate. The existing castmu production wiring reaches this branch; no caller edit is needed."
   ],
-  "evaluationUtc": "2026-10-13T04:18:42.122Z",
   "history": [
     {
       "task": "grow_up sex-index correction",
@@ -183,167 +224,256 @@
         "focusedTests": "scripts/objnam.test.mjs, scripts/mthrowu.test.mjs, scripts/cmd.test.mjs, scripts/hack.test.mjs, scripts/allmain-turn.test.mjs: 398/398 passed (run-emOYa5).",
         "lint": "npm run lint exited 0."
       }
-    }
-  ],
-  "afterFix": {
-    "codeCommit": "cba1c4496f63850a1c3d97ad855b4705fa9483ef",
-    "replayCommit": "cba1c4496f63850a1c3d97ad855b4705fa9483ef",
-    "replayInputSha256": "7e8782025d81b121986d3336ff04bd10a2c64b4e3b003a15009b1d147f5cd077",
-    "receipt": "/tmp/teleport-validation-1000/run-4zarl4/receipt.json",
-    "scanPath": ".cache/A2-healer-v54-muse-replay.json",
-    "recordedSteps": 778,
-    "screensEmitted": 778,
-    "matchedPrefix": {
-      "throughStep": 705,
-      "screens": 706,
-      "cursors": 707,
-      "rngDivergence": null
     },
-    "firstLaterMismatch": {
-      "step": 706,
-      "key": " ",
-      "kind": "screen",
-      "row": 0,
-      "column": 4,
-      "c": "d",
-      "js": "f",
-      "recordedMessage": "You dream that you feel that monsters are aware of your presence.--More--",
-      "cursorMismatchStep": 707
-    },
-    "focusedTests": {
-      "command": "node scripts/muse.test.mjs",
-      "result": "passed 46/46",
-      "log": ".cache/task-focused.log"
-    },
-    "lint": {
-      "command": "npx eslint js/muse.js js/monmove.js scripts/muse.test.mjs",
-      "result": "passed",
-      "log": ".cache/task-lint.log"
-    },
-    "implementation": "js/muse.js now implements the complete live source branches in find_offensive and use_offensive. js/monmove.js changes only the stale comment describing that caller."
-  },
-  "followUps": [
     {
-      "task": "A2-investigation-v54-healer-wand-message-capitalization-action5-20261013",
-      "baseline": {
-        "evaluationCommit": "41d08db2691f23faf22c72efc70b2497b78f13cc",
-        "evaluationPath": "challenges/evaluations/accepted-41d08db2691f23faf22c72efc70b2497b78f13cc-v54.json",
-        "metrics": {
-          "screens": "657/778",
-          "rng": "14447/15123",
-          "cursors": "659/778"
-        },
-        "error": null
-      },
-      "replay": {
-        "commit": "a3ab10a468094ea182805b6203fa2aabffdf5a43",
-        "replayInputSha256": "a934fa7120b0cc2a1c211532863c5421e451afc70d40320d40c143ea738bc6c1",
-        "scanPath": ".cache/synthetic-scans/v54/v54-healer-kirin-mage-strength-stun-action3.json",
-        "recordingPath": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.session.json",
+      "task": "preserved report before MCAST_AGGRAVATION dream-message investigation",
+      "report": {
+        "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+        "remainingScreens": 119,
+        "recordedSteps": 778,
+        "corpus": "synthetic",
+        "batch": "v54",
+        "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+        "manifestPath": "challenges/manifests/v54.json",
         "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
         "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
-        "recipeSha256": "aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557",
-        "inputIdentitySha256": "a934fa7120b0cc2a1c211532863c5421e451afc70d40320d40c143ea738bc6c1",
-        "firstMismatch": {
-          "segment": 0,
-          "step": 598,
-          "key": " ",
-          "kind": "screen",
-          "row": 0,
-          "column": 0,
-          "c": "T",
-          "js": "t",
-          "rng": null,
-          "cursor": null
+        "evaluationPath": "challenges/evaluations/accepted-cbe35a2f290f2277c4ea06e52999d8f274e1d86b-v54.json",
+        "evaluationCommit": "cbe35a2f290f2277c4ea06e52999d8f274e1d86b",
+        "status": "complete",
+        "commit": "af5c249854d568292527ea6ad91aca3ea166d13f",
+        "mismatch": {
+          "corpus": "synthetic",
+          "batch": "v54",
+          "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+          "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+          "manifestPath": "challenges/manifests/v54.json",
+          "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+          "recording": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.session.json",
+          "recordingPath": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.session.json",
+          "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
+          "recipe": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.recipe.session.json",
+          "recipeSha256": "aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557",
+          "replayInputSha256": "7ab94e6fbdc6743cd162d0b35ad085be9bafde8a04b2a917c1aeb32682558bb6",
+          "evaluationPath": "challenges/evaluations/accepted-cbe35a2f290f2277c4ea06e52999d8f274e1d86b-v54.json",
+          "evaluationArtifact": "challenges/evaluations/accepted-cbe35a2f290f2277c4ea06e52999d8f274e1d86b-v54.json",
+          "evaluationCommit": "cbe35a2f290f2277c4ea06e52999d8f274e1d86b",
+          "remainingScreens": 119,
+          "recordedSteps": 778,
+          "previousScreensMatched": 659,
+          "regression": false,
+          "passed": false,
+          "metrics": {
+            "screens": {
+              "matched": 659,
+              "total": 778
+            },
+            "rng": {
+              "matched": 14447,
+              "total": 15123
+            },
+            "cursors": {
+              "matched": 659,
+              "total": 778
+            }
+          },
+          "firstMismatch": {
+            "step": 659,
+            "kind": "refusal",
+            "sourceFile": "muse.c",
+            "function": "find_offensive",
+            "message": "monster offensive item use"
+          },
+          "step": 659,
+          "kind": "refusal",
+          "error": null
         },
-        "recordedMessage": "The vampire bat is disintegrated!--More--",
-        "recordedRng": [
-          "rn2(10)=6 @ mgender_from_permonst(mon.c:5269)",
-          "d(15,8)=70 @ newmonhp(makemon.c:1042)"
+        "summary": "Ported the complete live muse.c find_offensive/use_offensive source pair, including the wand, horn, and camera arms. The committed v54 healer replay now matches through step 705, including the fire giant’s wand-of-lightning action beginning at step 659. Its next mismatch is a separate monster-awareness message at step 706 and remains for a new source attribution.",
+        "source": {
+          "file": "muse.c",
+          "branch": "find_offensive clears the previous selection, applies eligibility and target checks, then keeps the last viable inventory item under the resistance, reflection, range, and state gates. use_offensive performs the selected action in source order and returns the C action result.",
+          "functions": [
+            "find_offensive",
+            "use_offensive"
+          ],
+          "callers": [
+            "mhitu.c:mattacku calls find_offensive and then use_offensive when an offensive item is selected; js/mhitu.js:mattacku follows the same path through attackHeroWithMattacku and useOffensiveItem.",
+            "monmove.c:dochug calls find_offensive after a monster moves to decide whether it stays for its attack phase; js/monmove.js:dochug performs the corresponding check before the later mattacku call."
+          ],
+          "dependencies": [
+            "Existing muse.c helpers in js/muse.js:precheck, mzapwand, mplayhorn, mreadmsg, mbhit and m_useup.",
+            "Existing zap, monster-name, object-name, blindness, item-destruction, and missile helpers called by the selected action arms."
+          ]
+        },
+        "goalKind": "file-port",
+        "evidence": [
+          "C source comparison: muse.c:1421-1594 retains each nomore() check before the next inventory arm and applies the camera rn2 draw only after its visibility, resistance, distance, and charge gates; muse.c:1824-2032 shares wand/horn zap order, handles camera blindness and light damage, and leaves SCR_FIRE excluded under #if 0.",
+          "Implementation commit cba1c4496f63850a1c3d97ad855b4705fa9483ef ports the live selection/use branches in js/muse.js. The mhitu.c:mattacku calls at lines 758-760 remain wired through js/mhitu.js:mattacku; the monmove.c:dochug selection at line 948 remains wired through js/monmove.js:dochug. The latter file change is comment-only and documents that active path.",
+          "The committed exact-case replay at cba1c4496f63850a1c3d97ad855b4705fa9483ef used replay input 7e8782025d81b121986d3336ff04bd10a2c64b4e3b003a15009b1d147f5cd077. It matches through zero-based step 705, including the step-659 fire-giant wand-of-lightning selection/use and following beam. The first later screen mismatch is step 706: C row 0 column 4 is d and JS is f; cursor first differs at step 707. This later monster-awareness message is outside muse.c and is preserved as an unattributed follow-up. Receipt: /tmp/teleport-validation-1000/run-4zarl4/receipt.json; scan: .cache/A2-healer-v54-muse-replay.json.",
+          "Focused Muse tests passed 46/46 (receipt /tmp/teleport-validation-1000/run-SFwQJO/receipt.json); ESLint on js/muse.js, js/monmove.js and scripts/muse.test.mjs passed (receipt /tmp/teleport-validation-1000/run-9UvJeO/receipt.json)."
         ],
-        "emittedScreens": 659,
-        "laterBoundary": {
-          "step": 659,
-          "reason": "simple monster action requires monster offensive item use"
+        "evaluationUtc": "2026-10-13T04:18:42.122Z",
+        "afterFix": {
+          "codeCommit": "cba1c4496f63850a1c3d97ad855b4705fa9483ef",
+          "replayCommit": "cba1c4496f63850a1c3d97ad855b4705fa9483ef",
+          "replayInputSha256": "7e8782025d81b121986d3336ff04bd10a2c64b4e3b003a15009b1d147f5cd077",
+          "receipt": "/tmp/teleport-validation-1000/run-4zarl4/receipt.json",
+          "scanPath": ".cache/A2-healer-v54-muse-replay.json",
+          "recordedSteps": 778,
+          "screensEmitted": 778,
+          "matchedPrefix": {
+            "throughStep": 705,
+            "screens": 706,
+            "cursors": 707,
+            "rngDivergence": null
+          },
+          "firstLaterMismatch": {
+            "step": 706,
+            "key": " ",
+            "kind": "screen",
+            "row": 0,
+            "column": 4,
+            "c": "d",
+            "js": "f",
+            "recordedMessage": "You dream that you feel that monsters are aware of your presence.--More--",
+            "cursorMismatchStep": 707
+          },
+          "focusedTests": {
+            "command": "node scripts/muse.test.mjs",
+            "result": "passed 46/46",
+            "log": ".cache/task-focused.log"
+          },
+          "lint": {
+            "command": "npx eslint js/muse.js js/monmove.js scripts/muse.test.mjs",
+            "result": "passed",
+            "log": ".cache/task-lint.log"
+          },
+          "implementation": "js/muse.js now implements the complete live source branches in find_offensive and use_offensive. js/monmove.js changes only the stale comment describing that caller."
+        },
+        "followUps": [
+          {
+            "task": "A2-investigation-v54-healer-wand-message-capitalization-action5-20261013",
+            "baseline": {
+              "evaluationCommit": "41d08db2691f23faf22c72efc70b2497b78f13cc",
+              "evaluationPath": "challenges/evaluations/accepted-41d08db2691f23faf22c72efc70b2497b78f13cc-v54.json",
+              "metrics": {
+                "screens": "657/778",
+                "rng": "14447/15123",
+                "cursors": "659/778"
+              },
+              "error": null
+            },
+            "replay": {
+              "commit": "a3ab10a468094ea182805b6203fa2aabffdf5a43",
+              "replayInputSha256": "a934fa7120b0cc2a1c211532863c5421e451afc70d40320d40c143ea738bc6c1",
+              "scanPath": ".cache/synthetic-scans/v54/v54-healer-kirin-mage-strength-stun-action3.json",
+              "recordingPath": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.session.json",
+              "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+              "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
+              "recipeSha256": "aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557",
+              "inputIdentitySha256": "a934fa7120b0cc2a1c211532863c5421e451afc70d40320d40c143ea738bc6c1",
+              "firstMismatch": {
+                "segment": 0,
+                "step": 598,
+                "key": " ",
+                "kind": "screen",
+                "row": 0,
+                "column": 0,
+                "c": "T",
+                "js": "t",
+                "rng": null,
+                "cursor": null
+              },
+              "recordedMessage": "The vampire bat is disintegrated!--More--",
+              "recordedRng": [
+                "rn2(10)=6 @ mgender_from_permonst(mon.c:5269)",
+                "d(15,8)=70 @ newmonhp(makemon.c:1042)"
+              ],
+              "emittedScreens": 659,
+              "laterBoundary": {
+                "step": 659,
+                "reason": "simple monster action requires monster offensive item use"
+              }
+            },
+            "source": {
+              "cFile": "zap.c",
+              "function": "disintegrate_mon",
+              "definition": "nethack-c/upstream/src/zap.c:4723-4753",
+              "branch": "When canseemon(mon) and mlifesaver(mon) is null, C prints \"%s is disintegrated!\" with Monnam(mon), which uppercases the first character of mon_nam.",
+              "productionCaller": "zap.c:dobuzz calls disintegrate_mon at nethack-c/upstream/src/zap.c:4914 in the MAGIC_COOKIE branch after zhitm returns the disintegration sentinel; JS js/zap.js:dobuzz makes the corresponding call at js/zap.js:5585.",
+              "jsOwner": "js/zap.js:disintegrate_mon currently interpolates monsterCommonName(mon, state), producing lowercase \"the vampire bat\" instead of Monnam-style \"The vampire bat\".",
+              "intendedFix": "Use the existing Monnam(mon, state, env) source-aligned helper for this message; leave the unrelated step-659 offensive-item boundary separate."
+            },
+            "afterFix": {
+              "codeCommit": "ac054e2bd08aefff5934ef50002362828c1a3636",
+              "replayCommit": "ac054e2bd08aefff5934ef50002362828c1a3636",
+              "replayInputSha256": "185398e2e2b1047bbeda8a47ccac1d83abfe801db52e38e756750565449a9fa5",
+              "receipt": "/tmp/teleport-validation-1000/run-s2vphW/receipt.json",
+              "emittedScreens": 659,
+              "recordedSteps": 778,
+              "divergence": null,
+              "boundary": {
+                "step": 659,
+                "reason": "simple monster action requires monster offensive item use"
+              },
+              "focusedTests": {
+                "command": "node --test scripts/zap-ray.test.mjs",
+                "result": "passed",
+                "log": ".cache/a-zap-ray-focused.log"
+              },
+              "lint": {
+                "command": "npm run lint",
+                "result": "passed",
+                "log": ".cache/a-zap-lint.log"
+              },
+              "implementation": "js/zap.js disintegrate_mon now uses Monnam(mon, state, env) in the visible message; the complete admitted replay matches through the unrelated step-659 offensive-item-use boundary."
+            },
+            "remainingWork": "The step-659 simple monster action still requires monster offensive-item use, outside this capitalization correction."
+          },
+          {
+            "task": "A2-investigation-v54-healer-later-monster-awareness-message-step706-20261013",
+            "replay": {
+              "commit": "cba1c4496f63850a1c3d97ad855b4705fa9483ef",
+              "replayInputSha256": "7e8782025d81b121986d3336ff04bd10a2c64b4e3b003a15009b1d147f5cd077",
+              "scanPath": ".cache/A2-healer-v54-muse-replay.json",
+              "firstMismatch": {
+                "segment": 0,
+                "step": 706,
+                "key": " ",
+                "kind": "screen",
+                "row": 0,
+                "column": 4,
+                "c": "d",
+                "js": "f"
+              },
+              "recordedMessage": "You dream that you feel that monsters are aware of your presence.--More--"
+            },
+            "source": {
+              "status": "not attributed in this Muse task",
+              "reason": "The complete muse.c item-use path matches through step 705; this later message mismatch is outside the claimed functions."
+            }
+          }
+        ],
+        "currentReplay": {
+          "command": "node scripts/scan-sessions.mjs --json --synthetic v54/v54-healer-kirin-mage-strength-stun-action3",
+          "replayCommit": "cba1c4496f63850a1c3d97ad855b4705fa9483ef",
+          "replayInputSha256": "7e8782025d81b121986d3336ff04bd10a2c64b4e3b003a15009b1d147f5cd077",
+          "scanFile": ".cache/A2-healer-v54-muse-replay.json",
+          "receipt": "/tmp/teleport-validation-1000/run-4zarl4/receipt.json",
+          "emittedScreens": 778,
+          "recordedSteps": 778,
+          "boundary": null,
+          "stopStep": null,
+          "firstMismatchStep": 706,
+          "firstMismatch": {
+            "row": 0,
+            "column": 4,
+            "c": "d",
+            "js": "f"
+          },
+          "matchedThroughStep": 705,
+          "recordedMessage": "The fire giant zaps a tin wand!--More--"
         }
-      },
-      "source": {
-        "cFile": "zap.c",
-        "function": "disintegrate_mon",
-        "definition": "nethack-c/upstream/src/zap.c:4723-4753",
-        "branch": "When canseemon(mon) and mlifesaver(mon) is null, C prints \"%s is disintegrated!\" with Monnam(mon), which uppercases the first character of mon_nam.",
-        "productionCaller": "zap.c:dobuzz calls disintegrate_mon at nethack-c/upstream/src/zap.c:4914 in the MAGIC_COOKIE branch after zhitm returns the disintegration sentinel; JS js/zap.js:dobuzz makes the corresponding call at js/zap.js:5585.",
-        "jsOwner": "js/zap.js:disintegrate_mon currently interpolates monsterCommonName(mon, state), producing lowercase \"the vampire bat\" instead of Monnam-style \"The vampire bat\".",
-        "intendedFix": "Use the existing Monnam(mon, state, env) source-aligned helper for this message; leave the unrelated step-659 offensive-item boundary separate."
-      },
-      "afterFix": {
-        "codeCommit": "ac054e2bd08aefff5934ef50002362828c1a3636",
-        "replayCommit": "ac054e2bd08aefff5934ef50002362828c1a3636",
-        "replayInputSha256": "185398e2e2b1047bbeda8a47ccac1d83abfe801db52e38e756750565449a9fa5",
-        "receipt": "/tmp/teleport-validation-1000/run-s2vphW/receipt.json",
-        "emittedScreens": 659,
-        "recordedSteps": 778,
-        "divergence": null,
-        "boundary": {
-          "step": 659,
-          "reason": "simple monster action requires monster offensive item use"
-        },
-        "focusedTests": {
-          "command": "node --test scripts/zap-ray.test.mjs",
-          "result": "passed",
-          "log": ".cache/a-zap-ray-focused.log"
-        },
-        "lint": {
-          "command": "npm run lint",
-          "result": "passed",
-          "log": ".cache/a-zap-lint.log"
-        },
-        "implementation": "js/zap.js disintegrate_mon now uses Monnam(mon, state, env) in the visible message; the complete admitted replay matches through the unrelated step-659 offensive-item-use boundary."
-      },
-      "remainingWork": "The step-659 simple monster action still requires monster offensive-item use, outside this capitalization correction."
-    },
-    {
-      "task": "A2-investigation-v54-healer-later-monster-awareness-message-step706-20261013",
-      "replay": {
-        "commit": "cba1c4496f63850a1c3d97ad855b4705fa9483ef",
-        "replayInputSha256": "7e8782025d81b121986d3336ff04bd10a2c64b4e3b003a15009b1d147f5cd077",
-        "scanPath": ".cache/A2-healer-v54-muse-replay.json",
-        "firstMismatch": {
-          "segment": 0,
-          "step": 706,
-          "key": " ",
-          "kind": "screen",
-          "row": 0,
-          "column": 4,
-          "c": "d",
-          "js": "f"
-        },
-        "recordedMessage": "You dream that you feel that monsters are aware of your presence.--More--"
-      },
-      "source": {
-        "status": "not attributed in this Muse task",
-        "reason": "The complete muse.c item-use path matches through step 705; this later message mismatch is outside the claimed functions."
       }
     }
-  ],
-  "currentReplay": {
-    "command": "node scripts/scan-sessions.mjs --json --synthetic v54/v54-healer-kirin-mage-strength-stun-action3",
-    "replayCommit": "cba1c4496f63850a1c3d97ad855b4705fa9483ef",
-    "replayInputSha256": "7e8782025d81b121986d3336ff04bd10a2c64b4e3b003a15009b1d147f5cd077",
-    "scanFile": ".cache/A2-healer-v54-muse-replay.json",
-    "receipt": "/tmp/teleport-validation-1000/run-4zarl4/receipt.json",
-    "emittedScreens": 778,
-    "recordedSteps": 778,
-    "boundary": null,
-    "stopStep": null,
-    "firstMismatchStep": 706,
-    "firstMismatch": {
-      "row": 0,
-      "column": 4,
-      "c": "d",
-      "js": "f"
-    },
-    "matchedThroughStep": 705,
-    "recordedMessage": "The fire giant zaps a tin wand!--More--"
-  }
+  ]
 }
