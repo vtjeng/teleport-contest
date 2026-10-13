@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
-  "remainingScreens": 251,
+  "remainingScreens": 119,
   "recordedSteps": 778,
   "corpus": "synthetic",
   "batch": "v54",
@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v54.json",
   "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
   "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
-  "evaluationPath": "challenges/evaluations/accepted-4c44ed71e765ae70b69439c91ebc31a44cde99f4-v54.json",
-  "evaluationCommit": "4c44ed71e765ae70b69439c91ebc31a44cde99f4",
+  "evaluationPath": "challenges/evaluations/accepted-cbe35a2f290f2277c4ea06e52999d8f274e1d86b-v54.json",
+  "evaluationCommit": "cbe35a2f290f2277c4ea06e52999d8f274e1d86b",
   "status": "complete",
-  "commit": "043aa932c7a20ca571af561bfea924b46cf0a62e",
+  "commit": "af5c249854d568292527ea6ad91aca3ea166d13f",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v54",
@@ -24,73 +24,64 @@
     "recordingSha256": "b8b44533f0920ce54201cb4639f19ae5b6b56fb8ba3173161062128d28595f3c",
     "recipe": "challenges/cases/v54/v54-healer-kirin-mage-strength-stun-action3.recipe.session.json",
     "recipeSha256": "aa65292894c61d003af72136b11d3407c47b54a3bd7e1604fcf84dc027a2d557",
-    "replayInputSha256": "39289a50320f57cd7945f54677c860ef696e3d9e6cf8d8355423b9100975a254",
-    "evaluationPath": "challenges/evaluations/accepted-4c44ed71e765ae70b69439c91ebc31a44cde99f4-v54.json",
-    "evaluationArtifact": "challenges/evaluations/accepted-4c44ed71e765ae70b69439c91ebc31a44cde99f4-v54.json",
-    "evaluationCommit": "4c44ed71e765ae70b69439c91ebc31a44cde99f4",
-    "evaluationUtc": "2026-10-13T04:18:42.122Z",
-    "remainingScreens": 251,
+    "replayInputSha256": "7ab94e6fbdc6743cd162d0b35ad085be9bafde8a04b2a917c1aeb32682558bb6",
+    "evaluationPath": "challenges/evaluations/accepted-cbe35a2f290f2277c4ea06e52999d8f274e1d86b-v54.json",
+    "evaluationArtifact": "challenges/evaluations/accepted-cbe35a2f290f2277c4ea06e52999d8f274e1d86b-v54.json",
+    "evaluationCommit": "cbe35a2f290f2277c4ea06e52999d8f274e1d86b",
+    "remainingScreens": 119,
     "recordedSteps": 778,
-    "previousScreensMatched": 527,
+    "previousScreensMatched": 659,
     "regression": false,
     "passed": false,
     "metrics": {
       "screens": {
-        "matched": 527,
+        "matched": 659,
         "total": 778
       },
       "rng": {
-        "matched": 5001,
+        "matched": 14447,
         "total": 15123
       },
       "cursors": {
-        "matched": 527,
+        "matched": 659,
         "total": 778
       }
     },
     "firstMismatch": {
-      "step": 527,
+      "step": 659,
       "kind": "refusal",
-      "sourceFile": "objnam.c",
-      "function": "mshot_xname",
-      "message": "unsupported multishot missile ordinal"
+      "sourceFile": "muse.c",
+      "function": "find_offensive",
+      "message": "monster offensive item use"
     },
-    "step": 527,
+    "step": 659,
     "kind": "refusal",
-    "sourceFile": "objnam.c",
-    "function": "mshot_xname",
-    "message": "unsupported multishot missile ordinal",
     "error": null
   },
-  "summary": "Ported objnam.c:mshot_xname: it now builds xname first and prepends the current ordinal only for a matching active volley. The admitted replay passes the Elvenking five-arrow volley and its first ordinal miss at step 529. The next screen difference is step 598 in a fire-giant wand message (capital T in C, lowercase t in JS); a later simple monster action stops at step 659.",
+  "summary": "The current replay stops at step 659 when the fire giant selects an offensive item. C displays “The fire giant zaps a tin wand!”; JS refuses the action from muse.c:find_offensive. The C wand appearance does not identify its underlying wand type. The selected source scope is the complete muse.c:find_offensive and use_offensive pair, whose JS implementations still refuse or omit supported wand, horn, and camera branches.",
   "source": {
-    "file": "objnam.c",
-    "branch": "Compute xname(obj) first. If gm.m_shot.n > 1 and gm.m_shot.o equals obj->otyp, prepend \"the <i><ordin(i)> \"; otherwise return the ordinary xname unchanged.",
+    "file": "muse.c",
+    "branch": "find_offensive clears the previous selection, applies eligibility and target checks, then keeps the last viable inventory item under the resistance, reflection, range, and state gates. use_offensive performs the selected action in source order and returns the C action result.",
     "functions": [
-      "mshot_xname"
+      "find_offensive",
+      "use_offensive"
     ],
     "callers": [
-      "mthrowu.c:thitu uses mshot_xname(obj) for quantity-one incoming objects; JS js/mthrowu.js:thitu already calls it.",
-      "mthrowu.c:ohitmon passes mshot_xname to distant_name for visible hit/miss feedback from a monster missile; JS js/mthrowu.js:ohitmon passes the same callback. The selected run exercises the hit/miss message for an Elvenking arrow targeting the xan.",
-      "mthrowu.c:m_throw directly uses mshot_xname(singleobj) for visible sink-drop and missed-volley messages; JS js/mthrowu.js:m_throw evaluates the same name and sends both formatted lines through the existing message callback.",
-      "uhitm.c:hmon_hitmon_do_hit and hmon_hitmon_msg_hit use mshot_xname for thrown/kicked object feedback; JS js/uhitm.js has both calls.",
-      "dothrow.c:tmiss uses mshot_xname for player-thrown miss feedback; JS js/dothrow.js:tmiss already calls it."
+      "mhitu.c:mattacku calls find_offensive and then use_offensive when an offensive item is selected; js/mhitu.js:mattacku follows the same path through attackHeroWithMattacku and useOffensiveItem.",
+      "monmove.c:dochug calls find_offensive after a monster moves to decide whether it stays for its attack phase; js/monmove.js:dochug performs the corresponding check before the later mattacku call."
     ],
     "dependencies": [
-      "objnam.c:xname existing JS implementation",
-      "objnam.c:strprepend existing JS implementation",
-      "hacklib.c:ordin existing JS implementation"
+      "Existing muse.c helpers in js/muse.js:precheck, mzapwand, mplayhorn, mreadmsg, mbhit and m_useup.",
+      "Existing zap, monster-name, object-name, blindness, item-destruction, and missile helpers called by the selected action arms."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "objnam.c:1090-1102 is the complete function. It evaluates xname(obj) first; when gm.m_shot.n > 1 and gm.m_shot.o equals obj->otyp, it formats \"the %d%s \" from gm.m_shot.i and ordin(i), prepends it with strprepend, and returns the resulting name. Otherwise it returns the ordinary xname.",
-    "Required callees already have JS implementations: objnam.c:xname and strprepend in js/objnam.js, and hacklib.c:ordin in js/hacklib.js. The prefix branch preserves C evaluation order and uses the current volley index/type state. The sole UnsupportedObjectNameError throw class and its dead fail-closed registrations were removed.",
-    "The selected production path is mthrowu.c:m_throw -> ohitmon -> distant_name(otmp, mshot_xname) -> hit/miss, with JS js/mthrowu.js:m_throw -> ohitmon using the same callback. C mthrowu.c:ohitmon calls the callback for visible missile hit/miss lines; the admitted recording exercises the miss line against the xan. The separate m_throw flight-end sink/miss branches now evaluate The(mshot_xname(singleobj)) and send their source-formatted lines through env.message or ttyPline.",
-    "Other active direct C callsites are mthrowu.c:thitu, mthrowu.c:m_throw, uhitm.c:hmon_hitmon_do_hit/hmon_hitmon_msg_hit, and dothrow.c:tmiss. Their existing JS paths already call mshot_xname or pass it to distant_name.",
-    "The admitted case uses segment 0 step 527 (Elvenking wields a runed bow), step 528 (Elvenking shoots 5 runed arrows), and step 529 (the 1st runed arrow misses the xan). The accepted 4c44ed71e765ae70b69439c91ebc31a44cde99f4 baseline had 527/778 screens and cursors, 5001/15123 RNG, error null, and 251 remaining screens.",
-    "The final committed replay at a3ab10a468094ea182805b6203fa2aabffdf5a43 emitted 659 screens and matches recorded screens/cursors/RNG through zero-based step 597, including the ordinal missile message and its production caller. The next screen divergence is step 598, row 0 column 0: C \"T\" versus JS \"t\" in the fire giant wand message. The replay later stops at the separate simple-monster-action offensive-item-use boundary at step 659; neither later boundary belongs to mshot_xname.",
-    "Focused source/caller tests passed 398/398 at final code commit (bounded run-emOYa5); npm run lint exited 0. The final replay receipt is /tmp/teleport-validation-1000/run-elYqHO/receipt.json with replay input SHA-256 a934fa7120b0cc2a1c211532863c5421e451afc70d40320d40c143ea738bc6c1."
+    "The accepted v54 evaluation cbe35a2f290f2277c4ea06e52999d8f274e1d86b reports 659/778 screens and cursors, 14447/15123 RNG calls, error null, and 119 screens remaining for this case.",
+    "The exact single-case scan at af5c249854d568292527ea6ad91aca3ea166d13f used replay input 7ab94e6fbdc6743cd162d0b35ad085be9bafde8a04b2a917c1aeb32682558bb6; it emitted 659 screens and stopped before input step 659 with boundary “simple monster action requires monster offensive item use”. The recorded C message is “The fire giant zaps a tin wand!--More--”. Receipt: /tmp/teleport-validation-1000/run-RwGa8x/receipt.json; scan output: .cache/A2-healer-v54-current-scan.json.",
+    "In muse.c:1421-1594, find_offensive selects WAN_DEATH, WAN_SLEEP, FIRE_HORN, WAN_COLD, FROST_HORN, WAN_LIGHTNING, WAN_MAGIC_MISSILE, and EXPENSIVE_CAMERA under explicit gates. js/muse.js:2499-2635 calls the generic unsupported operation for these still-unported candidates except WAN_FIRE.",
+    "In muse.c:1824-2032, use_offensive implements these wand actions through buzzfn, both horn actions through mplayhorn and buzzfn, and the camera action through its message/blindness/light-damage sequence. js/muse.js:2649-2832 does not yet implement those action arms and falls back to the same generic refusal.",
+    "The current C appearance “tin wand” does not identify which wand type the monster carries. This report attributes the actionable refusal to find_offensive’s missing C selection family and keeps the two complete source functions together; it does not infer an item type from its randomized appearance."
   ],
   "evaluationUtc": "2026-10-13T04:18:42.122Z",
   "history": [
@@ -140,6 +131,59 @@
         "C and JS both use the source branch `humanoid(ptr) ? becomes : grows up into`; the observed verb already matched. `muse.c:use_misc` calls grow_up after the visible MUSE_POT_GAIN_LEVEL action, and existing JS js/muse.js:use_misc reaches js/makemon.js:grow_up.",
         "Source-pinned regression test scripts/makemon.test.mjs exercises the actual PM_ELF_NOBLE -> PM_ELVEN_MONARCH evolution message for both false and true preserved sex bits and verifies the field remains Boolean after the update. The bounded focused suite passed 65/65 at grow_up code 9fa6482c0; npm run lint exited 0."
       ]
+    },
+    {
+      "task": "A2-investigation-v54-healer-wand-message-capitalization-action5-20261013",
+      "summary": "Ported objnam.c:mshot_xname: it now builds xname first and prepends the current ordinal only for a matching active volley. The admitted replay passes the Elvenking five-arrow volley and its first ordinal miss at step 529. The next screen difference is step 598 in a fire-giant wand message (capital T in C, lowercase t in JS); a later simple monster action stops at step 659.",
+      "source": {
+        "file": "objnam.c",
+        "branch": "Compute xname(obj) first. If gm.m_shot.n > 1 and gm.m_shot.o equals obj->otyp, prepend \"the <i><ordin(i)> \"; otherwise return the ordinary xname unchanged.",
+        "functions": [
+          "mshot_xname"
+        ],
+        "callers": [
+          "mthrowu.c:thitu uses mshot_xname(obj) for quantity-one incoming objects; JS js/mthrowu.js:thitu already calls it.",
+          "mthrowu.c:ohitmon passes mshot_xname to distant_name for visible hit/miss feedback from a monster missile; JS js/mthrowu.js:ohitmon passes the same callback. The selected run exercises the hit/miss message for an Elvenking arrow targeting the xan.",
+          "mthrowu.c:m_throw directly uses mshot_xname(singleobj) for visible sink-drop and missed-volley messages; JS js/mthrowu.js:m_throw evaluates the same name and sends both formatted lines through the existing message callback.",
+          "uhitm.c:hmon_hitmon_do_hit and hmon_hitmon_msg_hit use mshot_xname for thrown/kicked object feedback; JS js/uhitm.js has both calls.",
+          "dothrow.c:tmiss uses mshot_xname for player-thrown miss feedback; JS js/dothrow.js:tmiss already calls it."
+        ],
+        "dependencies": [
+          "objnam.c:xname existing JS implementation",
+          "objnam.c:strprepend existing JS implementation",
+          "hacklib.c:ordin existing JS implementation"
+        ]
+      },
+      "evidence": [
+        "objnam.c:1090-1102 is the complete function. It evaluates xname(obj) first; when gm.m_shot.n > 1 and gm.m_shot.o equals obj->otyp, it formats \"the %d%s \" from gm.m_shot.i and ordin(i), prepends it with strprepend, and returns the resulting name. Otherwise it returns the ordinary xname.",
+        "Required callees already have JS implementations: objnam.c:xname and strprepend in js/objnam.js, and hacklib.c:ordin in js/hacklib.js. The prefix branch preserves C evaluation order and uses the current volley index/type state. The sole UnsupportedObjectNameError throw class and its dead fail-closed registrations were removed.",
+        "The selected production path is mthrowu.c:m_throw -> ohitmon -> distant_name(otmp, mshot_xname) -> hit/miss, with JS js/mthrowu.js:m_throw -> ohitmon using the same callback. C mthrowu.c:ohitmon calls the callback for visible missile hit/miss lines; the admitted recording exercises the miss line against the xan. The separate m_throw flight-end sink/miss branches now evaluate The(mshot_xname(singleobj)) and send their source-formatted lines through env.message or ttyPline.",
+        "Other active direct C callsites are mthrowu.c:thitu, mthrowu.c:m_throw, uhitm.c:hmon_hitmon_do_hit/hmon_hitmon_msg_hit, and dothrow.c:tmiss. Their existing JS paths already call mshot_xname or pass it to distant_name.",
+        "The admitted case uses segment 0 step 527 (Elvenking wields a runed bow), step 528 (Elvenking shoots 5 runed arrows), and step 529 (the 1st runed arrow misses the xan). The accepted 4c44ed71e765ae70b69439c91ebc31a44cde99f4 baseline had 527/778 screens and cursors, 5001/15123 RNG, error null, and 251 remaining screens.",
+        "The final committed replay at a3ab10a468094ea182805b6203fa2aabffdf5a43 emitted 659 screens and matches recorded screens/cursors/RNG through zero-based step 597, including the ordinal missile message and its production caller. The next screen divergence is step 598, row 0 column 0: C \"T\" versus JS \"t\" in the fire giant wand message. The replay later stops at the separate simple-monster-action offensive-item-use boundary at step 659; neither later boundary belongs to mshot_xname.",
+        "Focused source/caller tests passed 398/398 at final code commit (bounded run-emOYa5); npm run lint exited 0. The final replay receipt is /tmp/teleport-validation-1000/run-elYqHO/receipt.json with replay input SHA-256 a934fa7120b0cc2a1c211532863c5421e451afc70d40320d40c143ea738bc6c1."
+      ],
+      "afterFix": {
+        "commit": "a3ab10a468094ea182805b6203fa2aabffdf5a43",
+        "emittedScreens": 659,
+        "recordedSteps": 778,
+        "firstMismatchStep": 598,
+        "screenMismatch": {
+          "row": 0,
+          "column": 0,
+          "c": "T",
+          "js": "t"
+        },
+        "laterBoundary": {
+          "step": 659,
+          "reason": "simple monster action requires monster offensive item use"
+        },
+        "replayInputSha256": "a934fa7120b0cc2a1c211532863c5421e451afc70d40320d40c143ea738bc6c1",
+        "diagnosticToolSha256": "707e173e6aeed4e4cb3007e741daff592f5f2d209f7fef0cf19d18a56b841dd0",
+        "receipt": "/tmp/teleport-validation-1000/run-elYqHO/receipt.json",
+        "focusedTests": "scripts/objnam.test.mjs, scripts/mthrowu.test.mjs, scripts/cmd.test.mjs, scripts/hack.test.mjs, scripts/allmain-turn.test.mjs: 398/398 passed (run-emOYa5).",
+        "lint": "npm run lint exited 0."
+      }
     }
   ],
   "afterFix": {
@@ -243,5 +287,17 @@
       },
       "remainingWork": "The step-659 simple monster action still requires monster offensive-item use, outside this capitalization correction."
     }
-  ]
+  ],
+  "currentReplay": {
+    "command": "node scripts/scan-sessions.mjs --json --synthetic v54/v54-healer-kirin-mage-strength-stun-action3",
+    "replayCommit": "af5c249854d568292527ea6ad91aca3ea166d13f",
+    "replayInputSha256": "7ab94e6fbdc6743cd162d0b35ad085be9bafde8a04b2a917c1aeb32682558bb6",
+    "scanFile": ".cache/A2-healer-v54-current-scan.json",
+    "receipt": "/tmp/teleport-validation-1000/run-RwGa8x/receipt.json",
+    "emittedScreens": 659,
+    "recordedSteps": 778,
+    "boundary": "simple monster action requires monster offensive item use",
+    "stopStep": 659,
+    "recordedMessage": "The fire giant zaps a tin wand!--More--"
+  }
 }
