@@ -363,7 +363,7 @@ export async function dowrite(pen, state = game, env = {}) {
     new_obj.bknown = (paper.bknown && pen.bknown);
 
     /* shk imposes a flat rate per use, not based on actual charges used */
-    check_unpaid(pen, state);
+    await check_unpaid(pen, state, env);
 
     /* see if there's enough ink */
     const basecost = cost(new_obj, state);

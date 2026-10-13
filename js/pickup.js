@@ -241,6 +241,7 @@ import { body_part, polymon } from './polyself.js';
 import {
     addtobill, costly_spot, pick_pick, remote_burglary, sellobj,
     sellobj_state, shop_keeper, shk_your, stolen_value, subfrombill,
+    check_unpaid_usage,
 } from './shk.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { waterbody_name } from './pager.js';
@@ -3942,13 +3943,7 @@ async function tipcontainer_checks(box, targetbox, allowempty, state) {
             // C restores the count while checking the eventual shop charge,
             // then marks the container empty.
             box.spe = oldSpe;
-            // The C check_unpaid_usage() call is a no-op unless its source
-            // guard reaches the still-unported billing behavior.
-            if (box.unpaid && state.u?.ushops?.[0]
-                && !(box.spe <= 0
-                    && state.objects[box.otyp].oc_charged)) {
-                note_unported('shk.c check_unpaid_usage');
-            }
+            await check_unpaid_usage(box, true, state);
             box.spe = 0;
             box.cknown = 1;
         }
@@ -4283,7 +4278,7 @@ export async function dotip(state = game) {
             state,
         );
         if (cobj.otyp === CAN_OF_GREASE && cobj.spe > 0)
-            consume_obj_charge(cobj, true, { state });
+            await consume_obj_charge(cobj, true, { state });
         return ECMD_TIME;
     }
 

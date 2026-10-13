@@ -1467,7 +1467,7 @@ export async function use_crystal_ball(optr, state = game) {
             );
             break;
         }
-        if (obj) consume_obj_charge(obj, true, { state });
+        if (obj) await consume_obj_charge(obj, true, { state });
         return;
     }
 
@@ -1514,7 +1514,7 @@ export async function use_crystal_ball(optr, state = game) {
                 await ttyPline('Oh wow... like a kaleidoscope!', state);
                 break;
             }
-            consume_obj_charge(obj, true, { state });
+            await consume_obj_charge(obj, true, { state });
         }
         return;
     }
@@ -1554,7 +1554,7 @@ export async function use_crystal_ball(optr, state = game) {
         // Wisdom exercise when this is the first use of a crystal ball. C
         // calls makeknown before consuming the ball's charge.
         discover_object(CRYSTAL_BALL, true, true, true, state);
-        consume_obj_charge(obj, true, { state });
+        await consume_obj_charge(obj, true, { state });
         if (ch === ']') ch = DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_M + S_MIMIC];
         if (def_char_is_furniture(ch) >= 0) {
             detected = await furniture_detect(state);

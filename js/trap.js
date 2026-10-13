@@ -2746,7 +2746,7 @@ async function disarm_squeaky_board(ttmp, state = game) {
     /* successfully used oil or grease to fix squeaky board */
     if (obj.otyp === CAN_OF_GREASE) {
         // C: consume_obj_charge(obj, TRUE). invent.c.
-        consume_obj_charge(obj, true, { state });
+        await consume_obj_charge(obj, true, { state });
     } else {
         await useup(obj, state); /* oil */
         // C hack.h makeknown(): all three discovery flags are TRUE.

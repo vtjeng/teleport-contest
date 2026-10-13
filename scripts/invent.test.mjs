@@ -12,7 +12,6 @@ import {
     sobj_at,
 } from '../js/invent.js';
 import { DAGGER, DART } from '../js/objects.js';
-import { UnsupportedShopError } from '../js/shk.js';
 import { runSegment } from '../js/jsmain.js';
 
 const INVENT_C = readFileSync(
@@ -223,7 +222,7 @@ test('display_binventory owns go.only only while querying buried objects', async
     assert.deepEqual(state.go.only, { x: 0, y: 0 });
 });
 
-test('consume_obj_charge keeps its C billing-before-decrement order', () => {
+test('consume_obj_charge keeps its C billing-before-decrement order', async () => {
     // invent.c:1341-1346 checks unpaid use before spending one charge, then
     // refreshes a known object's inventory after the decrement. The hook is
     // only an adapter seam; omitted hooks retain shk.c's existing behavior.
@@ -240,7 +239,7 @@ test('consume_obj_charge keeps its C billing-before-decrement order', () => {
     };
     const object = { unpaid: true, known: true, spe: 2 };
     const events = [];
-    consume_obj_charge(object, true, {
+    await consume_obj_charge(object, true, {
         state,
         checkUnpaid(item, checkState) {
             events.push(['check', item.spe, checkState]);
@@ -254,17 +253,13 @@ test('consume_obj_charge keeps its C billing-before-decrement order', () => {
         ['update', 1],
     ]);
 
-    // Other callers still take the original default path. The current partial
-    // shop helper refuses before C's decrement when an unpaid charge is used
-    // inside a shop; invent.c's explicit override cannot suppress that.
+    // Other callers use the source-backed adapter. With no resident keeper,
+    // shk.c returns from check_unpaid_usage before billing or drawing RNG.
     const unpaid = { unpaid: true, known: false, spe: 2 };
-    assert.throws(
-        () => consume_obj_charge(unpaid, true, {
+    await consume_obj_charge(unpaid, true, {
             state: { u: { ushops: ['A'] } },
-        }),
-        UnsupportedShopError,
-    );
-    assert.equal(unpaid.spe, 2);
+        });
+    assert.equal(unpaid.spe, 1);
 });
 
 // C ref: shk.c:1193-1194 calls the source helper before obfree's other

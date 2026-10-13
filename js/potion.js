@@ -3636,7 +3636,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
             potion.in_use = false;
         } else {
             await message('You fill ' + yname(obj, state) + ' with oil.', state);
-            check_unpaid(potion, state);
+            await check_unpaid(potion, state, { ...env, random });
             obj.age += Math.trunc((potion.odiluted ? 3 : 4) * potion.age / 2);
             if (obj.age > 1500) obj.age = 1500;
             await useup(potion, env);

@@ -4991,11 +4991,11 @@ export function useup(obj, env = {}) {
 // permanent inventory immediately after the write. A caller can replace only
 // that check with `checkUnpaid(obj, state)`; absent the seam, the existing
 // shk.c adapter remains authoritative for every current caller.
-export function consume_obj_charge(obj, maybe_unpaid, env = {}) {
+export async function consume_obj_charge(obj, maybe_unpaid, env = {}) {
     const normalized = inventoryEnv(env);
     if (maybe_unpaid) {
         const checkUnpaid = normalized.checkUnpaid ?? check_unpaid;
-        checkUnpaid(obj, normalized.state);
+        await checkUnpaid(obj, normalized.state, normalized);
     }
     obj.spe -= 1;
     if (obj.known) update_inventory(normalized);

@@ -68,7 +68,7 @@ test('light_cocktail retains the complete C branch and helper order', () => {
         'const ownership = shk_your(obj, state);',
         'You light ${ownership}potion.',
         'if (obj.unpaid && costly_spot',
-        "note_unported('shk.c check_unpaid_usage')",
+        'await check_unpaid(obj, state, { ...env, random });',
         'set_voice(shopkeeper',
         'await verbalize(',
         'await bill_dummy_object(obj',
