@@ -16,7 +16,9 @@ import {
     ANTIMAGIC,
     ARTICLE_A,
     BOLT_LIM,
+    BLINDED,
     BZ_M_WAND,
+    BZ_OFS_AD,
     BZ_OFS_WAN,
     CORR,
     D_BROKEN,
@@ -87,6 +89,7 @@ import {
     AUGMENT_IT,
     TELL,
     TELEP_TRAP,
+    TIMEOUT,
     TEMPLE,
     Trap_Killed_Mon,
     Has_contents,
@@ -156,12 +159,12 @@ import {
 } from './mon.js';
 import {
     acidic, amorphous, attacktype, attacktype_fordmg, can_blow, dmgtype,
-    haseyes, is_animal,
+    haseyes, hates_light, is_animal,
     is_bat, is_floater, is_flyer, is_mercenary, is_undead, is_unicorn,
     is_vampshifter, locomotion, mhe, mhim, mindless, mon_hates_silver,
     mon_knows_traps, mon_learns_traps, Resists_Elem, monstseesu,
     monstunseesu, needspick, nohands, noncorporeal, nonliving, passes_walls,
-    resists_magm, same_race, slimeproof, throws_rocks, touch_petrifies,
+    resists_blnd, resists_magm, same_race, slimeproof, throws_rocks, touch_petrifies,
     unsolid, verysmall,
     poly_when_stoned,
 } from './mondata.js';
@@ -194,8 +197,8 @@ import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { add_damage, inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
-import { messageAt } from './startup_a11y.js';
-import { pline_mon } from './pline.js';
+import { heroIsBlind, messageAt } from './startup_a11y.js';
+import { pline_mon, verbalize } from './pline.js';
 import {
     find_drawbridge,
     is_drawbridge_wall,
@@ -209,6 +212,7 @@ import {
 } from './teleport.js';
 import { CLR_GREEN, CLR_BRIGHT_GREEN } from './terminal.js';
 import { begin_burn } from './timeout.js';
+import { make_blinded } from './potion.js';
 import {
     fill_pit,
     maketrap,
@@ -242,7 +246,7 @@ import {
 import { mwelded, welded } from './wield.js';
 import { mon_has_amulet, mon_has_special } from './wizard.js';
 import {
-    bhito, buzz, cancel_monst, dobuzz, exclam, hit, miss, resist, unturn_dead,
+    bhito, buzz, cancel_monst, dobuzz, exclam, hit, lightdamage, miss, resist, unturn_dead,
     unturn_you, zhitm,
 } from './zap.js';
 import { which_armor } from './worn.js';
@@ -262,10 +266,17 @@ const MUSE_POT_HEALING = 3;
 const MUSE_POT_EXTRA_HEALING = 4;
 const MUSE_POT_FULL_HEALING = 18;
 
+const MUSE_WAN_DEATH = 1;
+const MUSE_WAN_SLEEP = 2;
+const MUSE_WAN_COLD = 4;
+const MUSE_WAN_LIGHTNING = 5;
+const MUSE_WAN_MAGIC_MISSILE = 6;
 const MUSE_POT_PARALYSIS = 9;
 const MUSE_POT_BLINDNESS = 10;
 const MUSE_POT_CONFUSION = 11;
 const MUSE_POT_ACID = 14;
+const MUSE_FROST_HORN = 12;
+const MUSE_FIRE_HORN = 13;
 const MUSE_SCR_EARTH = 17;
 const MUSE_CAMERA = 18;
 const MUSE_WAN_FIRE = 3;
@@ -2485,22 +2496,10 @@ async function buzz_force_miss(
         state, random, rawEnv);
 }
 
-// C ref: muse.c find_offensive() (1420-1594). "Select an offensive
-// item/action for a monster. Returns TRUE iff one is found."
-//
-// Partial: the reflection-gated wand/horn arms other than WAN_FIRE and
-// MUSE_CAMERA refuse because their use_offensive() cases are not ported.
-// MUSE_WAN_STRIKING, MUSE_WAN_UNDEAD_TURNING, and MUSE_WAN_TELEPORTATION are
-// fully wired and can select. The five MUSE_POT_* arms select as before.
-//
-// MUSE_CAMERA ends in a draw (!rn2(6)) that a refusing port must not spend.
-// Refusing early stops a monster C would have let past; it never lets one past
-// that C stops.
+// C ref: muse.c find_offensive() (1421-1594). Select the last viable item
+// while preserving the source-order nomore() skips across inventory objects.
 export function find_offensive(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const unsupported = rawEnv.unsupported;
-    if (typeof unsupported !== 'function')
-        throw new TypeError('find_offensive requires an unsupported operation');
     const species = mtmp.data;
     const u = state.u;
     const level = u?.uz;
@@ -2512,7 +2511,6 @@ export function find_offensive(mtmp, rawEnv = {}) {
         && level.dnum === state.astral_level.dnum);
     const earthLevelHere = on_level(level, state.earth_level);
     const seenres = (mask) => (mtmp.seen_resistance & mask) !== 0;
-    const refuse = () => unsupported('monster offensive item use');
 
     state.m_offense = null;
     if (mtmp.mpeaceful || is_animal(species) || mindless(species)
@@ -2526,12 +2524,10 @@ export function find_offensive(mtmp, rawEnv = {}) {
         && !state.uarms && !state.uarmg && !state.uarmc && !state.uarmf) {
         return false;
     }
-    /* all offensive items require orthogonal or diagonal targeting */
     if (!lined_up(mtmp, rawEnv)) return false;
 
-    const reflection_skip = seenres(M_SEEN_REFL) /* m_seenres() */
+    const reflection_skip = seenres(M_SEEN_REFL)
         || monnear(mtmp, mtmp.mux, mtmp.muy, state);
-    // C reads this once before inventory traversal for MUSE_SCR_EARTH.
     const helmet = which_armor(mtmp, W_ARMH, state);
     let has_offense = 0;
     let offensive = null;
@@ -2539,80 +2535,73 @@ export function find_offensive(mtmp, rawEnv = {}) {
         offensive = obj;
         has_offense = choice;
     };
-    /* this picks the last viable item rather than prioritizing choices */
     for (let obj = mtmp.minvent; obj; obj = obj.nobj) {
         const otyp = obj.otyp;
         if (!reflection_skip) {
-            // C's nomore() skips for these eight arms when has_offense holds
-            // the corresponding value. WAN_FIRE is wired below; the other
-            // unsupported arms retain the source refusal.
-            if ((otyp === O.WAN_DEATH && obj.spe > 0 && !seenres(M_SEEN_MAGR))
-                || (otyp === O.WAN_SLEEP && obj.spe > 0
-                    && (state.multi ?? 0) >= 0 && !seenres(M_SEEN_SLEEP))
-                || (otyp === O.WAN_FIRE && obj.spe > 0
-                    && !seenres(M_SEEN_FIRE)
-                    && has_offense !== MUSE_WAN_FIRE)
-                || (otyp === O.FIRE_HORN && obj.spe > 0 && can_blow(mtmp)
-                    && !seenres(M_SEEN_FIRE))
-                || (otyp === O.WAN_COLD && obj.spe > 0
-                    && !seenres(M_SEEN_COLD))
-                || (otyp === O.FROST_HORN && obj.spe > 0 && can_blow(mtmp)
-                    && !seenres(M_SEEN_COLD))
-                || (otyp === O.WAN_LIGHTNING && obj.spe > 0
-                    && !seenres(M_SEEN_ELEC))
-                || (otyp === O.WAN_MAGIC_MISSILE && obj.spe > 0
-                    && !seenres(M_SEEN_MAGR))) {
-                if (otyp === O.WAN_FIRE) select(MUSE_WAN_FIRE, obj);
-                else refuse();
-            }
+            if (has_offense === MUSE_WAN_DEATH) continue;
+            if (otyp === O.WAN_DEATH && obj.spe > 0
+                && !seenres(M_SEEN_MAGR))
+                select(MUSE_WAN_DEATH, obj);
+            if (has_offense === MUSE_WAN_SLEEP) continue;
+            if (otyp === O.WAN_SLEEP && obj.spe > 0
+                && (state.multi ?? 0) >= 0 && !seenres(M_SEEN_SLEEP))
+                select(MUSE_WAN_SLEEP, obj);
+            if (has_offense === MUSE_WAN_FIRE) continue;
+            if (otyp === O.WAN_FIRE && obj.spe > 0
+                && !seenres(M_SEEN_FIRE))
+                select(MUSE_WAN_FIRE, obj);
+            if (has_offense === MUSE_FIRE_HORN) continue;
+            if (otyp === O.FIRE_HORN && obj.spe > 0 && can_blow(mtmp)
+                && !seenres(M_SEEN_FIRE))
+                select(MUSE_FIRE_HORN, obj);
+            if (has_offense === MUSE_WAN_COLD) continue;
+            if (otyp === O.WAN_COLD && obj.spe > 0
+                && !seenres(M_SEEN_COLD))
+                select(MUSE_WAN_COLD, obj);
+            if (has_offense === MUSE_FROST_HORN) continue;
+            if (otyp === O.FROST_HORN && obj.spe > 0 && can_blow(mtmp)
+                && !seenres(M_SEEN_COLD))
+                select(MUSE_FROST_HORN, obj);
+            if (has_offense === MUSE_WAN_LIGHTNING) continue;
+            if (otyp === O.WAN_LIGHTNING && obj.spe > 0
+                && !seenres(M_SEEN_ELEC))
+                select(MUSE_WAN_LIGHTNING, obj);
+            if (has_offense === MUSE_WAN_MAGIC_MISSILE) continue;
+            if (otyp === O.WAN_MAGIC_MISSILE && obj.spe > 0
+                && !seenres(M_SEEN_MAGR))
+                select(MUSE_WAN_MAGIC_MISSILE, obj);
         }
-        /* nomore(MUSE_WAN_UNDEAD_TURNING) */
         if (has_offense === MUSE_WAN_UNDEAD_TURNING) continue;
         m_use_undead_turning(mtmp, obj, select, rawEnv);
-        /* nomore(MUSE_WAN_STRIKING) */
         if (has_offense === MUSE_WAN_STRIKING) continue;
         if (otyp === O.WAN_STRIKING && obj.spe > 0
-            && !seenres(M_SEEN_MAGR)) {
+            && !seenres(M_SEEN_MAGR))
             select(MUSE_WAN_STRIKING, obj);
-        }
-        /* nomore(MUSE_WAN_TELEPORTATION) */
         if (has_offense === MUSE_WAN_TELEPORTATION) continue;
         if (otyp === O.WAN_TELEPORTATION && obj.spe > 0
-            /* don't give controlled hero a free teleport */
             && !activeHeroProperty(state, TELEPORT_CONTROL)
-            /* same hack as MUSE_WAN_TELEPORTATION_SELF */
             && (!noteleport_level(mtmp, state)
                 || !mon_knows_traps(mtmp, TELEP_TRAP))
-            /* do try to move hero to a more vulnerable spot */
             && (onscary(u.ux, u.uy, mtmp, state)
                 || (hero_behind_chokepoint(mtmp, state)
                     && mon_has_friends(mtmp, state))
                 || mon_likes_objpile_at(mtmp, u.ux, u.uy, rawEnv)
-                || stairway_at(u.ux, u.uy, state))) {
+                || stairway_at(u.ux, u.uy, state)))
             select(MUSE_WAN_TELEPORTATION, obj);
-        }
-        /* nomore(MUSE_POT_PARALYSIS) */
         if (has_offense === MUSE_POT_PARALYSIS) continue;
         if (otyp === O.POT_PARALYSIS && (state.multi ?? 0) >= 0)
             select(MUSE_POT_PARALYSIS, obj);
-        /* nomore(MUSE_POT_BLINDNESS) */
         if (has_offense === MUSE_POT_BLINDNESS) continue;
         if (otyp === O.POT_BLINDNESS && !attacktype(species, AT_GAZE))
             select(MUSE_POT_BLINDNESS, obj);
-        /* nomore(MUSE_POT_CONFUSION) */
         if (has_offense === MUSE_POT_CONFUSION) continue;
         if (otyp === O.POT_CONFUSION) select(MUSE_POT_CONFUSION, obj);
-        /* nomore(MUSE_POT_SLEEPING) */
         if (has_offense === MUSE_POT_SLEEPING) continue;
         if (otyp === O.POT_SLEEPING && !seenres(M_SEEN_SLEEP))
             select(MUSE_POT_SLEEPING, obj);
-        /* nomore(MUSE_POT_ACID) */
         if (has_offense === MUSE_POT_ACID) continue;
         if (otyp === O.POT_ACID && !seenres(M_SEEN_ACID))
             select(MUSE_POT_ACID, obj);
-        /* we can safely put this scroll here since the locations that are in
-         * a 1 square radius are a subset of the locations in wand or throwing
-         * range (in other words, always lined_up()). */
         if (has_offense === MUSE_SCR_EARTH) continue;
         const random = rawEnv.random ?? { rn2 };
         if (otyp === O.SCR_EARTH
@@ -2623,14 +2612,16 @@ export function find_offensive(mtmp, rawEnv = {}) {
             && dist2(mtmp.mx, mtmp.my, mtmp.mux, mtmp.muy) <= 2
             && mtmp.mcansee && haseyes(species)
             && !rogueLevelHere
-            && (!inEndgame || earthLevelHere)) {
+            && (!inEndgame || earthLevelHere))
             select(MUSE_SCR_EARTH, obj);
-        }
-        /* nomore(MUSE_CAMERA) */
         if (has_offense === MUSE_CAMERA) continue;
-        if (otyp === O.EXPENSIVE_CAMERA && obj.spe > 0) {
-            refuse();
-        }
+        const blindedByFlash = !heroIsBlind(state)
+            && !resists_blnd(state.youmonst ?? state.u, state);
+        if (otyp === O.EXPENSIVE_CAMERA
+            && (blindedByFlash || hates_light(state.youmonst?.data ?? state.u?.data))
+            && dist2(mtmp.mx, mtmp.my, mtmp.mux, mtmp.muy) <= 2
+            && obj.spe > 0 && !random.rn2(6))
+            select(MUSE_CAMERA, obj);
     }
     if (!has_offense) return false;
     state.m_offense = { has_offense, offensive };
@@ -2638,11 +2629,9 @@ export function find_offensive(mtmp, rawEnv = {}) {
 }
 
 // C ref: muse.c use_offensive() (1824-2032). "Perform an offensive action for
-// a monster.  Must be called immediately after find_offensive()."
-// Ported arms: MUSE_WAN_FIRE, MUSE_SCR_EARTH, MUSE_WAN_TELEPORTATION,
-// MUSE_WAN_UNDEAD_TURNING, MUSE_WAN_STRIKING (via mbhit), and the five
-// MUSE_POT_* throwable potions. Other wand/horn arms and MUSE_CAMERA still
-// refuse in find_offensive().
+// a monster. Must be called immediately after find_offensive()." The live
+// selection and use arms are kept together here; SCR_FIRE remains disabled by
+// C's #if 0 block.
 //
 // C's entry declares buzzfn and calls precheck(), but "offensive potions are
 // not drunk, they're thrown", so the potion case skips precheck() entirely.
@@ -2653,9 +2642,6 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         d, rn1, rn2, rnd, rne, rnl, rnz,
         ...(env.random ?? {}),
     };
-    const unsupported = env.unsupported;
-    if (typeof unsupported !== 'function')
-        throw new TypeError('use_offensive requires an unsupported operation');
     const selection = state.m_offense;
     if (!selection) {
         throw new Error(
@@ -2675,7 +2661,12 @@ export async function use_offensive(mtmp, rawEnv = {}) {
     const oseen = canseemon(mtmp, state);
 
     switch (selection.has_offense) {
-    case MUSE_WAN_FIRE: {
+    case MUSE_WAN_DEATH:
+    case MUSE_WAN_SLEEP:
+    case MUSE_WAN_FIRE:
+    case MUSE_WAN_COLD:
+    case MUSE_WAN_LIGHTNING:
+    case MUSE_WAN_MAGIC_MISSILE: {
         await mzapwand(mtmp, otmp, false, state, env);
         if (oseen)
             discover_object(otmp.otyp, true, true, true, state, env);
@@ -2687,7 +2678,7 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         const buzzFunction = mtmp.mwandexp ? buzz : buzz_force_miss;
         await buzzFunction(
             BZ_M_WAND(BZ_OFS_WAN(otmp.otyp)),
-            6,
+            selection.has_offense === MUSE_WAN_MAGIC_MISSILE ? 2 : 6,
             mtmp.mx,
             mtmp.my,
             sgn(mtmp.mux - mtmp.mx),
@@ -2701,6 +2692,63 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         state.m_using = false;
         mtmp.mwandexp = true;
         return mtmp.mhp < 1 ? 1 : 2;
+    }
+    case MUSE_FIRE_HORN:
+    case MUSE_FROST_HORN: {
+        await mplayhorn(mtmp, otmp, false, state, env);
+        state.m_using = true;
+        state.gb ??= {};
+        state.gb.buzzer = mtmp;
+        state.gc ??= {};
+        state.gc.current_wand = otmp;
+        const buzzFunction = mtmp.mwandexp ? buzz : buzz_force_miss;
+        await buzzFunction(
+            BZ_M_WAND(BZ_OFS_AD(
+                selection.has_offense === MUSE_FROST_HORN
+                    ? M.AD_COLD : M.AD_FIRE,
+            )),
+            random.rn1(6, 6),
+            mtmp.mx,
+            mtmp.my,
+            sgn(mtmp.mux - mtmp.mx),
+            sgn(mtmp.muy - mtmp.my),
+            state,
+            random,
+            env,
+        );
+        state.gb.buzzer = 0;
+        state.gc.current_wand = 0;
+        state.m_using = false;
+        mtmp.mwandexp = true;
+        return mtmp.mhp < 1 ? 1 : 2;
+    }
+    case MUSE_CAMERA: {
+        const message = env.message ?? ttyPline;
+        if (Hallucination(state)) {
+            await verbalize('Say cheese!', state, { message });
+        } else if (!heroIsBlind(state)) {
+            await message(
+                capitalizedMonsterName(mtmp, state, env)
+                    + ' takes a picture of you with '
+                    + an(xnameFresh(otmp, state)) + '!',
+                state,
+                env,
+            );
+        }
+        state.m_using = true;
+        if (!heroIsBlind(state)
+            && !resists_blnd(state.youmonst ?? state.u, state)) {
+            await message('You are blinded by the flash of light!', state, env);
+            const blindedTimeout = (state.u.uprops?.[BLINDED]?.intrinsic ?? 0)
+                & TIMEOUT;
+            await make_blinded(
+                blindedTimeout + random.rnd(1 + 50), false, state, env,
+            );
+        }
+        await lightdamage(otmp, true, 5, state);
+        state.m_using = false;
+        otmp.spe--;
+        return 1;
     }
     case MUSE_POT_PARALYSIS:
     case MUSE_POT_BLINDNESS:
@@ -2827,8 +2875,16 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         }
         return mtmp.mhp < 1 ? 1 : 2;
     }
-    default:
-        return unsupported('monster offensive item use');
+    default: {
+        const impossible = env.impossible;
+        if (typeof impossible === 'function') {
+            impossible(
+                capitalizedMonsterName(mtmp, state, env)
+                    + ' wanted to perform action ' + selection.has_offense + '?',
+            );
+        }
+        return 0;
+    }
     }
 }
 

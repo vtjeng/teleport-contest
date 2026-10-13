@@ -2419,9 +2419,9 @@ export async function dochug(monster, rawEnv = {}) {
         rawEnv,
         'monsterCanSeeHero',
     );
-    // find_offensive() below refuses through this rather than answering TRUE,
-    // because use_offensive(), the only reader of what it selects, is not
-    // ported.
+    // The item-selection branch below returns TRUE for a source-supported
+    // offense; dochug falls through to mattacku, which executes the selection
+    // through muse.c:use_offensive().
     const unsupported = requireDochugOperation(rawEnv, 'unsupported');
     // monmove.c:895-907 walks the AT_MAGC/AD_SPEL/AD_CLRC attack slots and
     // calls castmu(FALSE, FALSE) for each; the provider answers whether one

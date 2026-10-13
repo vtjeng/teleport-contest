@@ -1290,8 +1290,8 @@ test('find_offensive skips the reflectable half for an adjacent attacker',
     assert.equal(find_offensive(adjacent, env), false);
 
     // Three squares out the same attacker with the same wand reaches that
-    // half and is refused. lined_up() sits above the loop, so the row it
-    // fires along has to be open and the attacker's own square in view.
+    // half and selects the source action. lined_up() sits above the loop, so
+    // the row it fires along must be open and its own square in view.
     for (let x = state.u.ux; x <= state.u.ux + 3; ++x) {
         const location = state.level.at(x, state.u.uy);
         location.typ = ROOM;
@@ -1303,8 +1303,8 @@ test('find_offensive skips the reflectable half for an adjacent attacker',
     const distant = offensiveMonster(state, PM_GNOME, wand, {
         mx: state.u.ux + 3,
     });
-    assert.throws(() => find_offensive(distant, env),
-        (error) => error.reason === 'monster offensive item use');
+    assert.equal(find_offensive(distant, env), true);
+    assert.equal(state.m_offense.has_offense, MUSE_WAN_MAGIC_MISSILE);
 
     // Having watched the hero reflect a ray sets the same skip at any
     // distance, and the wand is the only offensive item it holds.
@@ -1349,11 +1349,17 @@ test('find_offensive reads the conditions C attaches to each item',
     assert.equal(find_offensive(gnome, env), false);
 });
 
-// muse.c:1272-1290 numbers the MUSE_* action codes. Only the five throwable
-// potions can be selected; the values are read from the C #defines rather than
-// from the port, so a renumbering there fails here.
-const MUSE_WAN_STRIKING = 7;
+// muse.c:1272-1290 numbers the offensive MUSE_* action codes. These values
+// come from C so a renumbering in the port fails the source-pinned checks.
+const MUSE_WAN_DEATH = 1;
+const MUSE_WAN_SLEEP = 2;
 const MUSE_WAN_FIRE = 3;
+const MUSE_WAN_COLD = 4;
+const MUSE_WAN_LIGHTNING = 5;
+const MUSE_WAN_MAGIC_MISSILE = 6;
+const MUSE_WAN_STRIKING = 7;
+const MUSE_FROST_HORN = 12;
+const MUSE_FIRE_HORN = 13;
 const MUSE_POT_PARALYSIS = 9;
 const MUSE_POT_BLINDNESS = 10;
 const MUSE_POT_CONFUSION = 11;
@@ -1374,14 +1380,16 @@ const MUSE_WAN_UNDEAD_TURNING = 20;
 // the type would be visible here and nowhere else.
 const OFFENSIVE_ARMS = [
     // muse.c:1449-1453
-    { name: 'wand of death', otyp: WAN_DEATH, spe: 1, distant: true },
+    { name: 'wand of death', otyp: WAN_DEATH, spe: 1, distant: true,
+        selects: MUSE_WAN_DEATH },
     { name: 'spent wand of death', otyp: WAN_DEATH, spe: 0, distant: true,
         refuses: false },
     { name: 'seen-resistant wand of death', otyp: WAN_DEATH, spe: 1,
         distant: true, monster: { seen_resistance: M_SEEN_MAGR },
         refuses: false },
     // muse.c:1455-1459
-    { name: 'wand of sleep', otyp: WAN_SLEEP, spe: 1, distant: true },
+    { name: 'wand of sleep', otyp: WAN_SLEEP, spe: 1, distant: true,
+        selects: MUSE_WAN_SLEEP },
     { name: 'spent wand of sleep', otyp: WAN_SLEEP, spe: 0, distant: true,
         refuses: false },
     { name: 'wand of sleep at a helpless hero', otyp: WAN_SLEEP, spe: 1,
@@ -1392,24 +1400,28 @@ const OFFENSIVE_ARMS = [
     { name: 'spent wand of fire', otyp: WAN_FIRE, spe: 0, distant: true,
         refuses: false },
     // muse.c:1467-1471
-    { name: 'fire horn', otyp: FIRE_HORN, spe: 1, distant: true },
+    { name: 'fire horn', otyp: FIRE_HORN, spe: 1, distant: true,
+        selects: MUSE_FIRE_HORN },
     { name: 'spent fire horn', otyp: FIRE_HORN, spe: 0, distant: true,
         refuses: false },
     // muse.c:1473-1477
-    { name: 'wand of cold', otyp: WAN_COLD, spe: 1, distant: true },
+    { name: 'wand of cold', otyp: WAN_COLD, spe: 1, distant: true,
+        selects: MUSE_WAN_COLD },
     { name: 'spent wand of cold', otyp: WAN_COLD, spe: 0, distant: true,
         refuses: false },
     // muse.c:1479-1483
-    { name: 'frost horn', otyp: FROST_HORN, spe: 1, distant: true },
+    { name: 'frost horn', otyp: FROST_HORN, spe: 1, distant: true,
+        selects: MUSE_FROST_HORN },
     { name: 'spent frost horn', otyp: FROST_HORN, spe: 0, distant: true,
         refuses: false },
     // muse.c:1485-1489
-    { name: 'wand of lightning', otyp: WAN_LIGHTNING, spe: 1, distant: true },
+    { name: 'wand of lightning', otyp: WAN_LIGHTNING, spe: 1, distant: true,
+        selects: MUSE_WAN_LIGHTNING },
     { name: 'spent wand of lightning', otyp: WAN_LIGHTNING, spe: 0, distant: true,
         refuses: false },
     // muse.c:1491-1495
     { name: 'wand of magic missile', otyp: WAN_MAGIC_MISSILE, spe: 1,
-        distant: true },
+        distant: true, selects: MUSE_WAN_MAGIC_MISSILE },
     { name: 'spent wand of magic missile', otyp: WAN_MAGIC_MISSILE, spe: 0, distant: true,
         refuses: false },
     // The whole half above is skipped for an adjacent attacker.
@@ -1455,8 +1467,9 @@ const OFFENSIVE_ARMS = [
     // muse.c:1548-1560; its last-resort !rn2(10) can select a solid reader.
     { name: 'scroll of earth', otyp: SCR_EARTH,
         selects: MUSE_SCR_EARTH, rn2: 0 },
-    // muse.c:1561-1568
-    { name: 'expensive camera', otyp: EXPENSIVE_CAMERA, spe: 1 },
+    // muse.c:1561-1568; !rn2(6) selects the camera after its blindness/light gate.
+    { name: 'expensive camera', otyp: EXPENSIVE_CAMERA, spe: 1,
+        selects: 18, rn2: 0, rn2Bound: 6 },
     { name: 'spent expensive camera', otyp: EXPENSIVE_CAMERA, spe: 0,
         refuses: false },
     // The controls.
@@ -1489,11 +1502,10 @@ test('find_offensive selects on the object type and its own conditions',
             ...(arm.monster ?? {}),
         });
         state.multi = arm.multi ?? 0;
-        const refuses = arm.selects === undefined && (arm.refuses ?? true);
         const armEnv = arm.rn2 === undefined ? env : {
             ...env,
             random: { rn2: (bound) => {
-                assert.equal(bound, 10, arm.name);
+                assert.equal(bound, arm.rn2Bound ?? 10, arm.name);
                 return arm.rn2;
             } },
         };
@@ -1501,10 +1513,6 @@ test('find_offensive selects on the object type and its own conditions',
             assert.equal(find_offensive(gnome, armEnv), true, arm.name);
             assert.equal(state.m_offense.has_offense, arm.selects, arm.name);
             assert.equal(state.m_offense.offensive, item, arm.name);
-        } else if (refuses) {
-            assert.throws(() => find_offensive(gnome, armEnv),
-                (error) => error.reason === 'monster offensive item use',
-                arm.name);
         } else {
             assert.equal(find_offensive(gnome, armEnv), false, arm.name);
             assert.equal(state.m_offense, null, arm.name);
@@ -1630,20 +1638,31 @@ test('use_offensive locates the hurl line at the thrower under accessiblemsg',
     assert.deepEqual(messages, [located]);
 });
 
-test('use_offensive refuses the still-unported wand arms',
+test('use_offensive runs a monster wand of death through the shared zap path',
     async () => {
     const state = await offensiveHero();
     const env = offensiveEnv(state);
-    // muse.c:1842-1847. A wand arm needs mzapwand() and buzz(); write the
-    // selection find_offensive() would have made and check the switch stops.
+    // muse.c:1842-1861. The wand of death shares mzapwand() and buzzfn with
+    // the other offensive attack wands and announces its source action.
     const wand = carried(state, WAN_DEATH, { spe: 3 });
-    const gnome = offensiveMonster(state, PM_GNOME, wand);
+    const gnome = offensiveMonster(state, PM_GNOME, wand, { mhp: 1000 });
     state.m_offense = {
         has_offense: 1 /* muse.c:1272 MUSE_WAN_DEATH */,
         offensive: wand,
     };
-    await assert.rejects(() => use_offensive(gnome, env),
-        (error) => error.reason === 'monster offensive item use');
+    const messages = [];
+    env.message = async (text) => { messages.push(text); };
+    env.random = { rn1: (bound, base) => base, rn2: () => 1,
+        rnd: () => 1, d: (count) => count, rne: () => 1,
+        rnl: () => 0, rnz: (value) => value };
+    state.context.mon_moving = true;
+    assert.equal(await use_offensive(gnome, env), 2);
+    assert.equal(wand.spe, 2);
+    assert.equal(gnome.mwandexp, true);
+    assert.equal(state.m_using, false);
+    assert.equal(state.gb.buzzer, 0);
+    assert.equal(state.gc.current_wand, 0);
+    assert.ok(messages.some((text) => text.includes('zaps')));
 });
 
 test('use_offensive fires a monster fire wand and records its first-use state',
