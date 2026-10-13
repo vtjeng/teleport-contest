@@ -173,6 +173,39 @@ test('newcham reveals a hidden monster when its new form cannot hide', async () 
         'hideunder redraws the concealment change before newcham redraws');
 });
 
+// C ref: mon.c newcham() calls monmove.c set_apparxy() when a monster is
+// changing form during monster movement and its remembered square is stale.
+test('newcham refreshes stale apparent-hero coordinates during monster movement', async () => {
+    const state = monsterState();
+    state.in_mklev = true;
+    state.context = { mon_moving: true };
+    state.youmonst = { data: state.mons[M.PM_HUMAN] };
+    const shifted = monster(state, M.PM_GIANT_EEL, {
+        cham: M.PM_CHAMELEON,
+        mx: 4,
+        my: 4,
+        mux: 1,
+        muy: 1,
+        mcansee: true,
+    });
+
+    assert.equal(await newcham(shifted, state.mons[M.PM_SEWER_RAT], {
+        state,
+        random: {
+            rn2: () => 0,
+            rnd: () => 1,
+            rn1: () => 1,
+            rne: () => 1,
+            d: () => 1,
+        },
+        canSpotMonster: () => false,
+        message: () => {},
+        redrawSquare: () => {},
+    }), true);
+
+    assert.deepEqual([shifted.mux, shifted.muy], [state.u.ux, state.u.uy]);
+});
+
 test('alloc_itermonarr accepts C release and growth requests', () => {
     alloc_itermonarr(64);
     alloc_itermonarr(0);

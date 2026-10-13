@@ -575,6 +575,7 @@ import {
     youSee,
     mb_trapped,
     closed_door,
+    set_apparxy,
 } from './monmove.js';
 import {
     m_at,
