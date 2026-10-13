@@ -586,3 +586,19 @@ triage decisions or fix references.
 - C initially returned its previous completed read-only findings after the
   new-batch wakeup. Root confirmed that turn was completed and followed up
   on the same worker with the published manifest and source-work request.
+
+### 2026-10-13 — worker edits in Main and runtime recovery
+
+- Prep21 acceptance rejected accidental pickup source and test edits in Main.
+  B transferred both files to its checkout; Root compared their byte hashes,
+  preserved the patch, and restored only those two Main paths. B reran its
+  focused checks against the actual worker tree. The hosted candidate stayed
+  unchanged and its passing result was reused.
+- Concurrent ledger writes then interrupted the final acceptance event. Root
+  observed the cleared lock, recorded that exact verified event, and saved
+  the canonical handoff receipt without repeating validation.
+- On resumption at 14:57 UTC, the old runtime handles and four temporary
+  worker checkouts were absent, with no worker processes running. Git retained
+  their commits and indexes. Root rehydrated those checkouts, passed all four
+  recorder setup checks, and reconnected Luna-high A2/B/C and the dedicated
+  preparation worker. Lost uncommitted proofs are recreated before use.
