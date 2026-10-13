@@ -1,0 +1,251 @@
+{
+  "session": "synthetic/v62/v62-caveman-later-filler-action5",
+  "remainingScreens": 29,
+  "recordedSteps": 328,
+  "status": "complete",
+  "commit": "4d3948b659e66ea5362b1b94130af5896b15aeb9",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v62",
+    "caseId": "v62-caveman-later-filler-action5",
+    "session": "synthetic/v62/v62-caveman-later-filler-action5",
+    "manifestPath": "challenges/manifests/v62.json",
+    "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+    "recording": "challenges/cases/v62/v62-caveman-later-filler-action5.session.json",
+    "recordingPath": "challenges/cases/v62/v62-caveman-later-filler-action5.session.json",
+    "recordingSha256": "e30732283a99688f7607bb818240d8bd7d0ad9cee81ad383f6d1a1f4cfe0e32d",
+    "recipe": "challenges/cases/v62/v62-caveman-later-filler-action5.recipe.session.json",
+    "recipeSha256": "aff107c0b27360214668b2c3211e2cbf2d122053d0258d73c2814f9f356a3fb1",
+    "replayInputSha256": "023ff182755a8d98f607868892e6c2dc2761257e0a74bf24826dffd583192d10",
+    "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+    "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+    "evaluationArtifact": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+    "evaluationUtc": "2026-10-13T16:41:18.013Z",
+    "remainingScreens": 29,
+    "recordedSteps": 328,
+    "previousScreensMatched": 299,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 299,
+        "total": 328
+      },
+      "rng": {
+        "matched": 2842,
+        "total": 5465
+      },
+      "cursors": {
+        "matched": 306,
+        "total": 328
+      }
+    },
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v62/v62-caveman-later-filler-action5.json"
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 299,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 6,
+        "column": 50,
+        "cCell": {
+          "ch": "1",
+          "color": 1,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2839,
+        "cEntry": "rn2(3)=0",
+        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+        "jsEntry": "rn2(5)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "stepIndex": 299
+      },
+      "cursor": {
+        "index": 299,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "cCursor": [
+          47,
+          8,
+          1
+        ],
+        "jsCursor": [
+          10,
+          16,
+          1
+        ]
+      }
+    },
+    "step": 299,
+    "kind": "rng",
+    "sourceFile": "nhlib.lua",
+    "function": "shuffle",
+    "message": null,
+    "cFile": null,
+    "luaFile": "nhlib.lua",
+    "line": 19,
+    "helper": {
+      "function": "random",
+      "luaFile": "nhlib.lua",
+      "line": 8
+    }
+  },
+  "firstMismatch": {
+    "kind": "rng",
+    "message": null,
+    "step": 299
+  },
+  "function": null,
+  "message": null,
+  "line": 19,
+  "helper": {
+    "function": "random",
+    "luaFile": "nhlib.lua",
+    "line": 8
+  },
+  "summary": "During Caveman quest filler generation at or below the locate level, C selects and loads the complete dat/Cav-filb.lua program. JavaScript computes Cav-filb but its special-level registry has no loader, so ordinary room generation runs instead. The mismatch begins at the first generated-level screen, step 299; the accepted baseline and local reproduction agree.",
+  "source": {
+    "file": "dat/Cav-filb.lua",
+    "branch": "For a Caveman on a quest filler level at or below the locate level, mklev.c:makelevel() forms Cav-filb, mkmaze.c:makemaz() loads the Lua program, and its top-level statements initialize a solidfill/mines level, set mazelevel/noflip, place stairs, twelve random objects, four traps, four hostile bugbears, two hostile h-class monsters, and two hostile hill giants in source order. js/mklev.js only calls makemaz() when the special-level registry contains the generated fill name.",
+    "functions": [
+      "Cav-filb.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel() -> mkmaze.c:makemaz() -> sp_lev.c:load_special() -> dat/Cav-filb.lua top-level statements.",
+      "js/mklev.js:makelevel() computes the role-specific fill name and dispatches only when SPECIAL_LEVEL_LOADERS contains it."
+    ],
+    "dependencies": [
+      "The registered special-level loader already performs dat/nhlib.lua alignment initialization before this program.",
+      "All Cav-filb descriptors use the existing des API; this task is limited to this level program and its registry entry."
+    ]
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "Source: nethack-c/upstream/src/mklev.c:1275-1285 selects Cav-filb at or below Cav-loca; mkmaze.c:makemaz delegates to sp_lev.c:load_special; nethack-c/upstream/dat/Cav-filb.lua is the complete selected program.",
+    "Dispatch trace: js/mklev.js:764-772 computes the same name but only enters makemaz when SPECIAL_LEVEL_LOADERS contains it. The Cav-filb key is absent, so generation falls through to ordinary rooms.",
+    "Accepted v62 evaluation challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json (56a0d96069756b3ea2c7b447b441e2765be3a904) reports 299/328 screens, 2842/5465 RNG, 306/328 cursors, error null. First divergence: step 299, RNG index 2839; C rn2(3)=0 from nhlib.lua:8 parent shuffle at line 19, JS rn2(5)=2.",
+    "Runtime reproduction: .cache/CCav-filb-replay-before.log records the same 299/328 screens, 2842/5465 RNG calls, 306/328 cursors, and null error."
+  ],
+  "provenance": {
+    "corpus": "synthetic",
+    "batch": "v62",
+    "caseId": "v62-caveman-later-filler-action5",
+    "manifestPath": "challenges/manifests/v62.json",
+    "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+    "recordingPath": "challenges/cases/v62/v62-caveman-later-filler-action5.session.json",
+    "recordingSha256": "e30732283a99688f7607bb818240d8bd7d0ad9cee81ad383f6d1a1f4cfe0e32d",
+    "recipe": "challenges/cases/v62/v62-caveman-later-filler-action5.recipe.session.json",
+    "recipeSha256": "aff107c0b27360214668b2c3211e2cbf2d122053d0258d73c2814f9f356a3fb1",
+    "replayInputSha256": "023ff182755a8d98f607868892e6c2dc2761257e0a74bf24826dffd583192d10",
+    "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+    "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+    "evaluationUtc": "2026-10-13T16:41:18.013Z",
+    "remainingScreens": 29,
+    "recordedSteps": 328,
+    "previousScreensMatched": 299,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 299,
+        "total": 328
+      },
+      "rng": {
+        "matched": 2842,
+        "total": 5465
+      },
+      "cursors": {
+        "matched": 306,
+        "total": 328
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 299,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 6,
+        "column": 50,
+        "cCell": {
+          "ch": "1",
+          "color": 1,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2839,
+        "cEntry": "rn2(3)=0",
+        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+        "jsEntry": "rn2(5)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "stepIndex": 299
+      },
+      "cursor": {
+        "index": 299,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "cCursor": [
+          47,
+          8,
+          1
+        ],
+        "jsCursor": [
+          10,
+          16,
+          1
+        ]
+      }
+    }
+  },
+  "corpus": "synthetic",
+  "batch": "v62",
+  "caseId": "v62-caveman-later-filler-action5",
+  "manifestPath": "challenges/manifests/v62.json",
+  "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+  "recordingSha256": "e30732283a99688f7607bb818240d8bd7d0ad9cee81ad383f6d1a1f4cfe0e32d",
+  "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+  "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904"
+}
