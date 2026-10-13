@@ -295989,7 +295989,7 @@
     {
       "id": "fix-mcastu-clerical-blindness-body-v54-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the full mcast_blind_you body and wire its MCAST_BLIND_YOU dispatcher arm. The selected baseline first diverges at step 166; current JavaScript matches through segment 0 step 170.",
       "cFile": "mcastu.c",
       "sessions": [
@@ -295999,10 +295999,79 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "31cbb41c18d4bd378e14fc3ebada9e6bc1bd3be4",
       "delivered": null,
       "function": "mcast_blind_you",
-      "session": "synthetic/v54/v54-healer-cleric-insects-blindness-action2"
+      "session": "synthetic/v54/v54-healer-cleric-insects-blindness-action2",
+      "closeStanding": {
+        "sha": "31cbb41c18d4bd378e14fc3ebada9e6bc1bd3be4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "0d2136a71ac142dd32ebe8b3480f7f39b5f7f3f8",
+        "target": "synthetic/v54/v54-healer-cleric-insects-blindness-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/31cbb41c18d4bd378e14fc3ebada9e6bc1bd3be4/run-hosted-k3jFa8/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mcast_blind_you",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_blind_you",
+            "sourceFile": "mcastu.c",
+            "sourceReview": "Ported the whole mcastu.c:mcast_blind_you body. The MCAST_BLIND_YOU arm awaits it and leaves resultDmg zero, matching C's dmg=0 before the trailing mdamageu guard. It uses C's eyecount macro semantics for eye plurality, emits the scales message before make_blinded, selects 100/200 timeout from Half_spell_damage, and emits Your vision clears only when Blind remains false. The impossible case is diagnostic-only and can be observed through env.impossible.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:castmu dispatches AD_CLRC/AD_SPEL to mcast_spell; its MCAST_BLIND_YOU arm awaits mcast_blind_you then preserves zero damage."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "make_blinded",
+                "source": "mcastu.c:mcast_blind_you calls potion.c:make_blinded with talk=FALSE; the existing JS implementation receives the same state and environment and owns the blindness transition."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-cleric-insects-blindness-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 170,
+                "source": "Recorded monster cleric cast through mcastu.c:castmu -> mcast_spell -> mcast_blind_you and the immediate caller return/effect boundary."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "C mcastu.c:castmu reaches mcast_spell from the AD_CLRC/AD_SPEL arm, and mcast_spell dispatches MCAST_BLIND_YOU to mcast_blind_you. The admitted cleric recording exercises that production route and now matches through segment 0 step 170, including the message, timeout, and caller return. The separate MCAST_INSECTS arm remains outside this task.",
+        "entryPoints": [
+          {
+            "name": "Monster cleric casts blindness",
+            "functions": [
+              "mcast_blind_you"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-cleric-insects-blindness-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 170,
+                "source": "AD_CLRC castmu -> mcast_spell MCAST_BLIND_YOU -> mcast_blind_you."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T02:38:54.649Z",
+  "capturedAt": "2026-10-13T02:48:15.263Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -100309,6 +100309,88 @@
         "at": "2026-10-13T02:38:42.110Z",
         "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
         "delivery": "8b7737edf564a893a3f9ed8ee07a62eb1552ba7c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v54-earth-boulder-kills-lichen-action2-20261013-fa718ba767db55bcf5ba6c3ebe3e44dc63f8538a",
+        "type": "published",
+        "at": "2026-10-13T02:39:16.593Z",
+        "task": "B-investigation-v54-earth-boulder-kills-lichen-action2-20261013",
+        "commit": "fa718ba767db55bcf5ba6c3ebe3e44dc63f8538a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-meatmetal-8b7737ed-20261013",
+        "type": "received",
+        "at": "2026-10-13T02:39:35.281Z",
+        "task": "B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
+        "delivery": "8b7737edf564a893a3f9ed8ee07a62eb1552ba7c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-b-blindness-20261013",
+        "type": "activity",
+        "at": "2026-10-13T02:39:45.312Z",
+        "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013",
+        "phase": "review",
+        "reason": "Reviewing the saved clerical-blindness delivery, which releases the dispatcher needed by waiting spell investigations."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-blindness-31cbb41c1-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T02:40:11.711Z",
+        "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013",
+        "integration": "31cbb41c18d4bd378e14fc3ebada9e6bc1bd3be4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-meatmetal-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:40:25.312Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "No independent case is currently claimable: remaining spell mismatches are blocked by B task mcast_spell delivery, other identified cases are owned by A2/C, and the v48 short-version case remains held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e1274be5f6277c6e05d37bb72bf827c23254af26",
+        "type": "ready",
+        "at": "2026-10-13T02:44:50.582Z",
+        "task": "A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013",
+        "delivery": "e1274be5f6277c6e05d37bb72bf827c23254af26"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a-firewand-e1274be5-20261013",
+        "type": "received",
+        "at": "2026-10-13T02:45:35.007Z",
+        "task": "A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013",
+        "delivery": "e1274be5f6277c6e05d37bb72bf827c23254af26"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-wan-fire-submit-20261013",
+        "type": "turn",
+        "at": "2026-10-13T02:45:50.508Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent admitted source scope is currently free. Remaining v54 spell cases are reserved by B/C, the healer session is held by A2 delivery, and v48 remains held; resume after the next integration or reservation release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v54-healer-cleric-insects-blindness-action2-20261013-31cbb41c18d4bd378e14fc3ebada9e6bc1bd3be4-validated",
+        "type": "validated",
+        "at": "2026-10-13T02:46:34.873Z",
+        "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v54-healer-cleric-insects-blindness-action2-20261013-31cbb41c18d4bd378e14fc3ebada9e6bc1bd3be4-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T02:47:00.073Z",
+        "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013"
       }
     ]
   },
@@ -100389,17 +100471,6 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v54-healer-cleric-insects-blindness-action2-20261013",
-        "worker": "B",
-        "goal": "fix-mcastu-clerical-blindness-body-v54-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "73d1c0d07858658942b6998683f9db1e311c9092",
-        "since": "2026-10-13T02:27:04.591Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "A2-investigation-v54-lava-worn-organic-armor-action3-20261013",
         "worker": "A2",
         "goal": "complete-lava-worn-removal-v54-20261013",
@@ -100429,6 +100500,17 @@
         "status": "ready",
         "delivery": "8b7737edf564a893a3f9ed8ee07a62eb1552ba7c",
         "since": "2026-10-13T02:38:42.110Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v54-healer-kirin-offensive-item-use-action3-20261013",
+        "worker": "A2",
+        "goal": "divergence-muse-monster-fire-wand-v54-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "e1274be5f6277c6e05d37bb72bf827c23254af26",
+        "since": "2026-10-13T02:44:50.582Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -100924,8 +101006,8 @@
     ]
   },
   "development": {
-    "executionCommit": "0d2136a71ac142dd32ebe8b3480f7f39b5f7f3f8",
-    "measuredAt": "2026-10-13T02:35:45.052Z",
+    "executionCommit": "31cbb41c18d4bd378e14fc3ebada9e6bc1bd3be4",
+    "measuredAt": "2026-10-13T02:45:18.368Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
