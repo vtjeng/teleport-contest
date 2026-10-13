@@ -26,6 +26,8 @@ import {
     DRAWBRIDGE_UP,
     ECMD_CANCEL,
     ECMD_OK,
+    CMDQ_KEY,
+    CQ_CANNED,
     HOLE,
     PIT,
     ROCKTRAP,
@@ -154,7 +156,7 @@ import {
 import { DATA_BASE_ENTRIES } from './data_base_data.js';
 import { engr_at } from './engrave.js';
 import { fruit_from_name, makeplural, makesingular } from './fruit.js';
-import { LOOK_TRADITIONAL, coord_desc, getpos } from './getpos.js';
+import { LOOK_ONCE, LOOK_TRADITIONAL, coord_desc, getpos } from './getpos.js';
 import { game } from './gstate.js';
 import { createCommandBindingModel, keyForCommand } from './command_bindings.js';
 import { visible_region_at } from './region.js';
@@ -332,72 +334,86 @@ function mon_to_glyph(monster, state) {
     return mnum + (monster?.female ? GLYPH_MON_FEM_OFF : GLYPH_MON_MALE_OFF);
 }
 
-function assertWhatisMenuState(state) {
-    // pager.c do_look() admits blind heroes; blindness is handled by its
-    // lookat()/description branches after the cursor has been selected.
-    if (state.flags?.lootabc)
-        throw new UnsupportedWhatisError('the lootabc menu');
-    if (state.u?.uswallow)
-        throw new UnsupportedWhatisError('a swallowed hero');
+function lootabcEnabled(state) {
+    // pager.c do_look() always offers its first three choices. The source
+    // option and swallowed-state checks only control the extended list.
+    return Boolean(state.flags?.lootabc);
 }
 
 export function whatisMenuItems(state = game) {
-    assertWhatisMenuState(state);
+    const lootabc = lootabcEnabled(state);
     const ordinaryChoices = [
         {
             value: '/',
-            selector: '/',
-            // C ref: pager.c do_look() passes '/' as the visible selector and
-            // 'y' as add_menu()'s group accelerator when lootabc is false.
-            // windows.c add_menu() names those arguments ch and gch.
-            groupSelector: 'y',
+            ...(lootabc ? {} : { selector: '/' }),
+            // C ref: pager.c do_look() passes (ch, gch) as ('/', 'y')
+            // normally and (0, '/') with lootabc. windows.js assigns the
+            // zero selector as the visible accelerator.
+            groupSelector: lootabc ? '/' : 'y',
             label: 'something on the map',
         },
-        { value: 'i', selector: 'i', label: "something you're carrying" },
+        {
+            value: 'i',
+            ...(lootabc ? {} : { selector: 'i' }),
+            label: "something you're carrying",
+        },
         {
             value: '?',
-            selector: '?',
-            // C ref: pager.c do_look() passes '?' as the visible selector and
-            // 'n' as its group accelerator when lootabc is false.
-            groupSelector: 'n',
+            ...(lootabc ? {} : { selector: '?' }),
+            // C ref: pager.c do_look() passes ('?', 'n') normally and
+            // (0, '?') with lootabc.
+            groupSelector: lootabc ? '?' : 'n',
             label: 'something else (by symbol or name)',
         },
     ];
     // C ref: pager.c do_look() gates the separator and list choices, rather
     // than the entire menu, on !u.uswallow && !Hallucination (1748).
-    if (heroHallucinating(state)) return ordinaryChoices;
+    if (state.u?.uswallow || heroHallucinating(state)) return ordinaryChoices;
     return [
         ...ordinaryChoices,
-        { value: 'm', selector: 'm', label: 'nearby monsters' },
-        { value: 'M', selector: 'M', label: 'all monsters shown on map' },
-        { value: 'o', selector: 'o', label: 'nearby objects' },
-        { value: 'O', selector: 'O', label: 'all objects shown on map' },
+        {
+            value: 'm', ...(lootabc ? {} : { selector: 'm' }),
+            ...(lootabc ? { groupSelector: 'm' } : {}),
+            label: 'nearby monsters',
+        },
+        {
+            value: 'M', ...(lootabc ? {} : { selector: 'M' }),
+            ...(lootabc ? { groupSelector: 'M' } : {}),
+            label: 'all monsters shown on map',
+        },
+        {
+            value: 'o', ...(lootabc ? {} : { selector: 'o' }),
+            ...(lootabc ? { groupSelector: 'o' } : {}),
+            label: 'nearby objects',
+        },
+        {
+            value: 'O', ...(lootabc ? {} : { selector: 'O' }),
+            ...(lootabc ? { groupSelector: 'O' } : {}),
+            label: 'all objects shown on map',
+        },
         {
             value: 't',
-            selector: 't',
-            // C ref: pager.c do_look() uses '^' as gch for nearby traps.
-            groupSelector: '^',
+            ...(lootabc ? {} : { selector: 't' }),
+            ...(lootabc ? { groupSelector: 't' } : { groupSelector: '^' }),
             label: 'nearby traps',
         },
         {
             value: 'T',
-            selector: 'T',
-            // C ref: pager.c do_look() uses '"' as gch for all traps.
-            groupSelector: '"',
+            ...(lootabc ? {} : { selector: 'T' }),
+            ...(lootabc ? { groupSelector: 'T' } : { groupSelector: '"' }),
             label: 'all seen or remembered traps',
         },
         {
             value: 'e',
-            selector: 'e',
-            // C ref: pager.c do_look() uses '`' as gch for nearby engravings.
-            groupSelector: '`',
+            ...(lootabc ? {} : { selector: 'e' }),
+            // lootabc does not use 'e' as a group accelerator in C.
+            ...(lootabc ? {} : { groupSelector: '`' }),
             label: 'nearby engravings',
         },
         {
             value: 'E',
-            selector: 'E',
-            // C ref: pager.c do_look() uses '|' as gch for remembered engravings.
-            groupSelector: '|',
+            ...(lootabc ? {} : { selector: 'E' }),
+            ...(lootabc ? { groupSelector: 'E' } : { groupSelector: '|' }),
             label: 'all seen or remembered engravings',
         },
     ];
@@ -405,7 +421,7 @@ export function whatisMenuItems(state = game) {
 
 function menuLines(state) {
     const items = whatisMenuItems(state);
-    if (heroHallucinating(state)) return items;
+    if (state.u?.uswallow || heroHallucinating(state)) return items;
     return [...items.slice(0, 3), { text: '' }, ...items.slice(3)];
 }
 
@@ -1902,26 +1918,33 @@ export async function checkfile(input, pm = null, chkflags = 0, state = game) {
 
 export async function do_look(mode, clickCc = null, state = game) {
     const quick = mode === 1;
-    if ((mode !== 0 && !quick) || clickCc)
+    const clicklook = mode === 2;
+    if ((mode !== 0 && !quick && !clicklook)
+        || (clicklook ? !clickCc : Boolean(clickCc)))
         throw new UnsupportedWhatisError('click or queued look mode');
-    // pager.c do_look(mode == 1) selects its map path directly and never
-    // builds the whatis menu, so menu-only option limits do not apply.
-    if (!quick) assertWhatisMenuState(state);
+    const queued = (await import('./cmd.js')).cmdq_pop(state);
+    let queuedChoice = null;
+    const hasQueued = queued !== null;
+    if (queued) {
+        if (queued.typ === CMDQ_KEY) {
+            queuedChoice = String.fromCharCode(queued.key);
+        } else {
+            const { cmdq_clear } = await import('./cmd.js');
+            cmdq_clear(CQ_CANNED, state);
+        }
+    }
 
     // C ref: pager.c do_look() sets i='y' for quick mode, bypassing the
     // #whatis selection menu and entering the screen-coordinate path.
-    const choice = quick ? '/' : await select_menu(state, {
-        how: PICK_ONE,
-        title: 'What do you want to look at:',
-        ...menuTitleStyle(state),
-        items: menuLines(state),
-        overlay: state.iflags?.menu_overlay !== false,
-    });
-    if (choice === null) return ECMD_OK;
-    // The selection menu is available during Hallucination. The selected
-    // lookup and quick-look paths remain outside the current admission.
-    if (heroHallucinating(state))
-        throw new UnsupportedWhatisError('a hallucinating hero');
+    const choice = clicklook ? null : hasQueued ? queuedChoice : (quick ? '/'
+        : await select_menu(state, {
+            how: PICK_ONE,
+            title: 'What do you want to look at:',
+            ...menuTitleStyle(state),
+            items: menuLines(state),
+            overlay: state.iflags?.menu_overlay !== false,
+        }));
+    if (choice === null && !clicklook) return ECMD_OK;
     if (choice === 'i') {
         let inventoryRepairLayout = null;
         const invlet = await display_inventory(null, true, state, {
@@ -2025,18 +2048,23 @@ export async function do_look(mode, clickCc = null, state = game) {
 
     const savedVerbose = state.flags.verbose;
     state.flags.verbose = Boolean(savedVerbose && !quick);
-    const cc = { x: state.u.ux, y: state.u.uy };
+    const cc = clicklook
+        ? { x: clickCc.x, y: clickCc.y }
+        : { x: state.u.ux, y: state.u.uy };
     try {
         for (;;) {
-            await ttyPline(
-                `${state.flags.verbose ? 'Please move the cursor to' : 'Pick'} ${WHAT_IS_A_LOCATION}.`,
-                state,
-            );
-            const answer = await getpos(
-                cc, quick, WHAT_IS_A_LOCATION, state,
-            );
-            if (answer < 0 || cc.x < 0) break;
-            state.flags.verbose = false;
+            let answer = LOOK_ONCE;
+            if (!clicklook) {
+                await ttyPline(
+                    `${state.flags.verbose ? 'Please move the cursor to' : 'Pick'} ${WHAT_IS_A_LOCATION}.`,
+                    state,
+                );
+                answer = await getpos(
+                    cc, quick, WHAT_IS_A_LOCATION, state,
+                );
+                if (answer < 0 || cc.x < 0) break;
+                state.flags.verbose = false;
+            }
 
             const description = do_screen_description(cc, true, 0, state);
             const location = state.level?.at(cc.x, cc.y);
@@ -2051,10 +2079,11 @@ export async function do_look(mode, clickCc = null, state = game) {
             if (description.found === 1
                 && answer === LOOK_TRADITIONAL
                 && !quick
+                && !clicklook
                 && state.flags.help) {
                 await checkfile(description.firstmatch, description.supplement ?? null, 0, state);
             }
-            if (quick) break;
+            if (quick || clicklook) break;
         }
     } finally {
         state.flags.verbose = savedVerbose;
