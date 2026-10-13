@@ -297947,7 +297947,7 @@
     {
       "id": "port-pickup-simple-look-query-classes-v55-20261013",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port pickup.c:simple_look and complete query_classes look/menu branches so ':' displays the selected object list and resumes the class prompt.",
       "cFile": "pickup.c",
       "sessions": [
@@ -297958,7 +297958,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "579fc1f7f05c73fc89fcb1b9080b1e720424cc03",
       "delivered": null,
       "functions": [
         {
@@ -297983,6 +297983,131 @@
       "range": {
         "from": 76,
         "to": 272
+      },
+      "closeStanding": {
+        "sha": "579fc1f7f05c73fc89fcb1b9080b1e720424cc03",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "1812ba65bbf0542c8c388465e3deeb4603c91e0b",
+        "target": "synthetic/v55/v55-traditional-floor-query-colon-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/579fc1f7f05c73fc89fcb1b9080b1e720424cc03/run-hosted-pgf4Jc/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "simple_look",
+            "implementation": "js/pickup.js",
+            "symbol": "simple_look",
+            "sourceReview": "Read and ported pickup.c:76-99. Preserves the null-object diagnostic, one-object doname/pline1 path, multi-object NHW_MENU text-window path, source list traversal using nobj versus nexthere according to here, initial empty row, and display dismissal. Existing object naming and TTY window owners are used; no substitute message or state change is introduced.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_classes",
+                "source": "pickup.c:query_classes at 213-217 calls simple_look(objs, here) for ':' and resumes at ask_again. Production entry is pickup.c:pickup at 823."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-query-classes.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-traditional-floor-query-colon-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "The matching 67-step floor-pickup replay executes query_classes(':') through pickup and displays the available object list via simple_look before the query repeats."
+              }
+            ]
+          },
+          {
+            "name": "query_classes",
+            "implementation": "js/pickup.js",
+            "symbol": "query_classes",
+            "sourceReview": "Read the complete pickup.c:141-261 function and both callers at pickup.c:823 and 3252. The JS port retains the class collection, prompt, per-character class selection, all/everything and one-at-a-time flags, menu-on-demand and filter handling, unpaid/BUCX categories, invalid-class messages, cancellation, and return contract. The ':' arm now calls simple_look, marks contained contents known after inspection, and repeats the prompt. The 'i' arm calls existing display_inventory(null, true), discards its result as C does, and repeats the prompt. Existing collect_obj_classes, count_unpaid, tally_BUCX, and display_inventory owners are retained. Both production callers route through this implementation: pickup for floor objects and traditional_loot for container inventory selection.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup",
+                "source": "pickup.c:pickup at 823 constructs the floor-object class prompt by calling query_classes(oclasses, ...)."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "traditional_loot",
+                "source": "pickup.c:traditional_loot at 3252 calls query_classes(selection, ...) for container put-in/take-out selection."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-query-classes.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/traditional-loot-query-classes-v55-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-traditional-floor-query-colon-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "The matching 67-step replay exercises pickup -> query_classes(':') -> simple_look and the prompt continuation."
+              },
+              {
+                "batch": "v55",
+                "caseId": "v55-traditional-floor-query-inventory-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "The matching 67-step replay exercises pickup -> query_classes('i') -> display_inventory(NULL, TRUE) and the prompt continuation."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This file-port task completes pickup.c:simple_look and the missing query_classes branches, retaining the existing branches in query_classes. Its active entry points are floor pickup and traditional container loot. The v55 colon case reaches pickup -> query_classes(':') -> simple_look and repeats the query; the v55 inventory case reaches pickup -> query_classes('i') -> display_inventory(NULL, TRUE) and repeats the query. A newly chosen independent recording reaches traditional_loot -> query_classes('i') during put-in selection, displays inventory, returns to the class prompt, and cancels it. The selected floor cases match all 67 steps; the independent C/JS differential matches all 43 steps. No caller is excluded.",
+        "entryPoints": [
+          {
+            "name": "Floor-object class query with look and inventory commands",
+            "functions": [
+              "simple_look",
+              "query_classes"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-traditional-floor-query-colon-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "pickup.c:pickup -> pickup.c:query_classes(':') -> pickup.c:simple_look; the look branch returns to ask_again"
+              },
+              {
+                "batch": "v55",
+                "caseId": "v55-traditional-floor-query-inventory-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "pickup.c:pickup -> pickup.c:query_classes('i') -> invent.c:display_inventory(NULL, TRUE); the inventory branch returns to ask_again"
+              }
+            ]
+          },
+          {
+            "name": "Traditional container put-in class query",
+            "functions": [
+              "query_classes"
+            ],
+            "recordings": [
+              "recordings/pickup.c/traditional-loot-query-classes-v55-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
       }
     }
   ]
