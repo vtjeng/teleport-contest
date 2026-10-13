@@ -232,6 +232,8 @@ import {
     obj_is_pname,
     singular,
     the,
+    The,
+    otense,
     Tobjnam,
     vtense,
     xnameFresh,
@@ -258,6 +260,7 @@ import { dropy, flooreffects } from './do.js';
 import { makeplural } from './fruit.js';
 import { body_part, mbodypart, polymon } from './polyself.js';
 import { passive_obj, shade_miss } from './uhitm.js';
+import { ttyPline } from './tty_message.js';
 
 import { obj_sheds_light } from './light.js';
 import {
@@ -858,6 +861,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = { rn2, rnd, ...(rawEnv.random ?? {}) };
     const env = { ...rawEnv, state, random };
+    const message = env.message ?? ttyPline;
     const arw = autoreturn_weapon(obj);
     const tethered_weapon = monster.mw === obj
         && Boolean(arw?.tethered);
@@ -1185,7 +1189,13 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                         state.gb.bhitpos.x,
                         state.gb.bhitpos.y,
                     ).typ)) {
-                    note_unported('pline.c pline'); /* sink plop/drop message */
+                    // C evaluates the object name before calling pline. Keep
+                    // that order and send the formatted line through the
+                    // existing message owner.
+                    const name = The(mshot_xname(singleobj, state), state);
+                    const verb = otense(singleobj,
+                        Hallucination(state) ? 'plop' : 'drop', state);
+                    await message(`${name} ${verb} onto the sink.`, state, env);
                 } else if ((state.m_shot?.n ?? 0) > 1
                            && (!state.mesg_given
                                || state.gb.bhitpos.x !== state.u.ux
@@ -1193,7 +1203,9 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                            && (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y)
                                || (state.gm?.marcher
                                    && canseemon(state.gm.marcher, state)))) {
-                    note_unported('pline.c pline'); /* "%s misses." */
+                    // C evaluates the object name before calling pline.
+                    const name = The(mshot_xname(singleobj, state), state);
+                    await message(`${name} misses.`, state, env);
                 }
                 if (!tethered_weapon) {
                     await drop_throw(singleobj_ref.obj, 0,

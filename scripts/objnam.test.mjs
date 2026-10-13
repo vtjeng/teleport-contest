@@ -335,6 +335,9 @@ test('mshot_xname ports C multishot ordinal naming and preserves ordinary names'
     assert.match(mthrowuSource, /\(obj->quan > 1L\) \? doname\(obj\) : mshot_xname\(obj\)/u);
     assert.match(mthrowuJs, /name = obj\.quan > 1 \? donameFresh\(obj, state\)[\s\S]*?: mshot_xname\(obj, state\)/u,
         'the monster projectile hit caller remains wired to mshot_xname');
+    assert.match(mthrowuSource, /miss\(distant_name\(otmp, mshot_xname\), mtmp\)[\s\S]*?hit\(distant_name\(otmp, mshot_xname\), mtmp, how\)/u);
+    assert.match(mthrowuJs, /miss\(distant_name\(otmp, mshot_xname, state\)[\s\S]*?hit\(\s*distant_name\(otmp, mshot_xname, state\)/u,
+        'mthrowu.c:ohitmon preserves the callback used to name each monster missile');
 
     const state = namingState();
     const arrow = objectOf(state, ARROW);

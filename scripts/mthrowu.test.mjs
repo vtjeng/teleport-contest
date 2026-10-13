@@ -82,6 +82,28 @@ const MTHROWU_SOURCE = readFileSync(
     'utf8',
 );
 
+test('m_throw formats sink and missed-volley names before message output', () => {
+    const cStart = MTHROWU_SOURCE.indexOf('m_throw(\n', MTHROWU_SOURCE.indexOf('void\nm_throw('));
+    const cEnd = MTHROWU_SOURCE.indexOf('\nstaticfn void\nreturn_from_mtoss(', cStart);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart, 'extract m_throw');
+    assert.match(cBody,
+        /pline\("%s %s onto the sink\.", The\(mshot_xname\(singleobj\)\)/u);
+    assert.match(cBody,
+        /pline\("%s misses\.", The\(mshot_xname\(singleobj\)\)/u);
+
+    const js = readFileSync(new URL('../js/mthrowu.js', import.meta.url), 'utf8');
+    const start = js.indexOf('export async function m_throw(');
+    const sinkName = js.indexOf('The(mshot_xname(singleobj, state), state)', start);
+    const sinkMessage = js.indexOf('await message(`${name} ${verb} onto the sink.`, state, env);', sinkName);
+    const volleyName = js.indexOf('The(mshot_xname(singleobj, state), state)', sinkMessage + 1);
+    const volleyMessage = js.indexOf('await message(`${name} misses.`, state, env);', volleyName);
+    assert.ok(start >= 0 && sinkName > start && sinkMessage > sinkName,
+        'sink line names the missile before using the existing message owner');
+    assert.ok(volleyName > sinkMessage && volleyMessage > volleyName,
+        'missed-volley line names the missile before using the existing message owner');
+});
+
 // The same Valkyrie several other suites replay: a lit starting room on
 // dungeon level one, with the hero standing in it.
 const DATETIME = '20260214031500';
