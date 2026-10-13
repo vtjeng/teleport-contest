@@ -297327,7 +297327,7 @@
     {
       "id": "fix-poly-obj-worn-armor-removal-v55-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore C's worn-armor removal and wear callback order in the existing zap.c:poly_obj caller.",
       "cFile": "zap.c",
       "sessions": [
@@ -297337,10 +297337,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "07b8da88fabe9c6510a7253e4bc59363b3e01b68",
       "delivered": null,
       "function": "poly_obj",
-      "session": "synthetic/v55/v55-worn-crystal-polymorph-dip-action3"
+      "session": "synthetic/v55/v55-worn-crystal-polymorph-dip-action3",
+      "closeStanding": {
+        "sha": "07b8da88fabe9c6510a7253e4bc59363b3e01b68",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "71adf2891b4ccef846c2e0d5e01a907878e15ad6",
+        "target": "synthetic/v55/v55-worn-crystal-polymorph-dip-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/07b8da88fabe9c6510a7253e4bc59363b3e01b68/run-hosted-dmJiSx/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "poly_obj",
+            "implementation": "js/zap.js",
+            "symbol": "poly_obj",
+            "sourceReview": "Bounded branch review at zap.c:1929-1949: C computes the replacement worn mask, calls remove_worn_item(obj, TRUE), then assigns the replacement with setworn, calls set_wear, and rereads the slot. JS previously skipped removal for W_ARMOR, leaving the old armor in state.uarm and causing setworn's cancelDoff preflight to throw. The existing steal.c:remove_worn_item armor branch is source-backed and clears the old slot through Armor_off; js/zap.js now invokes that branch with the current operation environment and calls the existing set_wear for armor. Other explicitly skipped accessory/ball-chain/quiver branches remain unchanged. This is not a whole-poly_obj completion claim.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potion_dip",
+                "source": "potion.c:potion_dip, polymorph branch at 2468-2484"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-poly-obj.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-worn-crystal-polymorph-dip-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 235,
+                "source": "potion.c:potion_dip -> zap.c:poly_obj; full segment, screens, RNG, cursors and input boundary match"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This bounded task corrects the active potion-dip polymorph caller path for worn armor. C potion.c:potion_dip reaches zap.c:poly_obj at lines 2468-2484; the admitted v55 recording exercises that path and now matches through the final input boundary. No whole-function completion is claimed for poly_obj or the supporting remove_worn_item helper.",
+        "entryPoints": [
+          {
+            "name": "Dip a polymorph potion into worn armor",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-worn-crystal-polymorph-dip-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 235,
+                "source": "potion.c:potion_dip -> zap.c:poly_obj worn armor replacement branch"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
