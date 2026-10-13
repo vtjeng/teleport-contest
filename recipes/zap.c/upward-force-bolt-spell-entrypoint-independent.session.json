@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent level-20 Wizard spell-casting route for zap.c:spelleffects -> weffects -> zap_updown; seed and date differ from the selected wand case.",
+  "segments": [
+    {
+      "seed": 79304125,
+      "datetime": "20541012104521",
+      "nethackrc": "OPTIONS=name:ZapSpell,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    Za<"
+    }
+  ]
+}

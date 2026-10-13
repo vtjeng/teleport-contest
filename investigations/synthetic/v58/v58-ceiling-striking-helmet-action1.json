@@ -101,7 +101,7 @@
     "line": 3307
   },
   "goalKind": "file-port",
-  "summary": "zap.c:zap_updown is only partially implemented. The selected upward WAN_STRIKING use reaches the C falling-rock arm, which makes a rn2(3) decision and then applies helmet-aware damage, creates and stacks a rock, and redraws the square. The JavaScript implementation skips this and the other source arms in zap_updown, so this needs the complete C function port rather than a one-branch workaround.",
+  "summary": "The v58 step-168 divergence came from zap.c:zap_updown omitting the upward WAN_STRIKING branch: C consumes rn2(3), applies helmet-aware physical damage, creates and stacks a rock, then redraws the square. js/zap.js now ports the vertical branches and records the three void drawbridge callees with note_unported; the admitted case matches all 243 steps.",
   "source": {
     "file": "zap.c",
     "branch": "zap.c:weffects() sends an immediate directional zap with nonzero u.dz to zap_updown(). Within zap_updown(), WAN_STRIKING falls through with striking=true; when u.dz<0, rn2(3) is nonzero, the level is not air or water, the hero is not underwater, and the level is not the quest start, C prints the dislodged-rock message, rolls rnd(2) for a hard helmet or rnd(6) otherwise, calls losehp(Maybe_Half_Phys(dmg), ...), creates a rock at the hero square, learns its description with xname(), stacks it, and calls newsym().",
