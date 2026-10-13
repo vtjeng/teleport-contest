@@ -52,3 +52,13 @@ test('weffects keeps the dig.c caller bound to zap_dig in the dig module', () =>
     assert.match(jsZap, /import\s*\{[^}]*\bzap_dig\b[^}]*\}\s*from '\.\/dig\.js'/su);
     assert.match(jsZap, /if\s*\(otyp\s*===\s*WAN_DIGGING\s*\|\|\s*otyp\s*===\s*SPE_DIG\)\s*\{\s*await zap_dig\(state, random\);/su);
 });
+
+test('zap_dig binds the source shop wall damage constant', () => {
+    const cFunction = parseCFunctions(cDig).find(({ name }) => name === 'zap_dig');
+    assert.ok(cFunction, 'dig.c defines zap_dig');
+    const cBody = cDig.split('\n')
+        .slice(cFunction.line - 1, cFunction.endLine).join('\n');
+    assert.match(cBody, /add_damage\(zx, zy, SHOP_WALL_COST\)/u);
+    assert.match(jsDig, /import\s*\{[^}]*\bSHOP_WALL_COST\b[^}]*\}\s*from '\.\/const\.js'/su);
+    assert.match(jsDig, /add_damage\(zx, zy, SHOP_WALL_COST, state\)/u);
+});

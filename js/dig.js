@@ -112,6 +112,7 @@ import {
     SDOOR,
     SHOPBASE,
     SHOP_DOOR_COST,
+    SHOP_WALL_COST,
     SHOP_PIT_COST,
     STONE,
     TRAP_EXPLODE,
