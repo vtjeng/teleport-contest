@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T08:00:26.354Z",
+  "capturedAt": "2026-10-13T08:25:11.446Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -102750,6 +102750,116 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep26 records source actions from observed C quest depths, creature coordinates and terrain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013-03224cf529aa20a896987c21eb23ca7ca7098684",
+        "type": "published",
+        "at": "2026-10-13T08:00:40.926Z",
+        "task": "A2-investigation-v55-thrown-pyrolisk-egg-action2-20261013",
+        "commit": "03224cf529aa20a896987c21eb23ca7ca7098684"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-b-floor-query-20261013",
+        "type": "activity",
+        "at": "2026-10-13T08:02:43.709Z",
+        "task": "B-investigation-v55-traditional-floor-query-colon-action2-20261013",
+        "phase": "review",
+        "reason": "Integrate the next ready floor-query port with preserved source tests and complete floor and container replay evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-floor-query-579fc1f7-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T08:04:17.308Z",
+        "task": "B-investigation-v55-traditional-floor-query-colon-action2-20261013",
+        "integration": "579fc1f7f05c73fc89fcb1b9080b1e720424cc03"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep26-v62-quest-guard-route-20261016",
+        "type": "turn",
+        "at": "2026-10-13T08:05:43.487Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep26 records source-backed Quest filler routes after C home-level permission refusals."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep26-v62-terrain-followups-20261016",
+        "type": "turn",
+        "at": "2026-10-13T08:09:49.696Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep26 verifies ghost-door placement and a source-supported Sokoban boulder approach."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v55-traditional-floor-query-colon-action2-20261013-579fc1f7f05c73fc89fcb1b9080b1e720424cc03-validated",
+        "type": "validated",
+        "at": "2026-10-13T08:12:37.377Z",
+        "task": "B-investigation-v55-traditional-floor-query-colon-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v55-traditional-floor-query-colon-action2-20261013-579fc1f7f05c73fc89fcb1b9080b1e720424cc03-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T08:13:17.673Z",
+        "task": "B-investigation-v55-traditional-floor-query-colon-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-step706-source-trace-20261013",
+        "type": "turn",
+        "at": "2026-10-13T08:14:57.492Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing the next healer message frontier while the Muse implementation awaits integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep26-v62-actual-door-pit-targets-20261016",
+        "type": "turn",
+        "at": "2026-10-13T08:16:54.257Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep26 records awake pet doorway swap and source-existing Sokoban boulder filling."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v61-geyser-source-investigation-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T08:17:36.357Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-step706-owner-confirmed-20261013",
+        "type": "turn",
+        "at": "2026-10-13T08:17:50.773Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Healer step 706 is the MCAST_AGGRAVATION You_feel prefix; no matching source reservation is active. Await a future scoped claim."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep26-v62-local-comparisons-20261016",
+        "type": "turn",
+        "at": "2026-10-13T08:19:50.683Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep26 compares fourteen independently verified C gameplay recordings and traces first source differences."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v61-geyser-source-investigation-idle-20261013",
+        "type": "turn",
+        "at": "2026-10-13T08:21:03.472Z",
+        "worker": "C",
+        "state": "idle"
       }
     ]
   },
@@ -102810,17 +102920,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v55-traditional-floor-query-colon-action2-20261013",
-        "worker": "B",
-        "goal": "port-pickup-simple-look-query-classes-v55-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "24ff7c63957e12c23afde9858083454ce03ea36c",
-        "since": "2026-10-13T05:51:44.064Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -103416,8 +103515,8 @@
     ]
   },
   "development": {
-    "executionCommit": "1812ba65bbf0542c8c388465e3deeb4603c91e0b",
-    "measuredAt": "2026-10-13T07:51:54.327Z",
+    "executionCommit": "579fc1f7f05c73fc89fcb1b9080b1e720424cc03",
+    "measuredAt": "2026-10-13T08:09:13.398Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
