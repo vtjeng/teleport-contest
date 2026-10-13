@@ -299327,7 +299327,7 @@
     {
       "id": "fix-mcastu-cursetxt-norep-v56",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Honor Norep for repeated unseen-monster curses.",
       "cFile": "mcastu.c",
       "sessions": [
@@ -299337,10 +299337,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "56a0d96069756b3ea2c7b447b441e2765be3a904",
       "delivered": null,
       "function": "cursetxt",
-      "session": "synthetic/v56/v56-timedblind-highcleric-geyser-action5"
+      "session": "synthetic/v56/v56-timedblind-highcleric-geyser-action5",
+      "closeStanding": {
+        "sha": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
+        "target": "synthetic/v56/v56-timedblind-highcleric-geyser-action5",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/56a0d96069756b3ea2c7b447b441e2765be3a904/run-hosted-D85F84/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "cursetxt",
+            "implementation": "js/mcastu.js",
+            "symbol": "cursetxt",
+            "sourceReview": "Read the complete mcastu.c:cursetxt body at lines 62-85 and the JavaScript implementation. This bounded divergence fix changes only the unseen-caster arm: preserve C’s timing gate and Deaf check, then route the literal mumbled-curse line through Norep semantics. Visible pointing messages remain on the ordinary callback, and clone-only planning keeps the curse silent. No whole-function mcastu.c completion is claimed.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "castmu",
+                "source": "C mcastu.c:castmu calls cursetxt when spell selection fails; JS castmu reaches cursetxt at its corresponding failed-spell path."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "buzzmu",
+                "source": "C mcastu.c:buzzmu calls cursetxt for cancelled or resisted ranged spells; JS buzzmu uses the same helper."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "attackHeroWithMattacku",
+                "source": "C mhitu.c:mattacku dispatches AT_MAGC to castmu/buzzmu. The JS production adapter attackHeroWithMattacku supplies those callbacks, which then reach cursetxt."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-timedblind-highcleric-geyser-action5",
+                "segment": 0,
+                "fromStep": 301,
+                "throughStep": 434,
+                "source": "mhitu.c:mattacku -> castmu -> mcastu.c:cursetxt unseen-caster branch -> pline.c:Norep duplicate suppression"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted high-cleric recording reaches mcastu.c:cursetxt through the production monster attack adapter and castmu. At step 301, repeated unseen-caster failure emits a single mumbled curse under Norep suppression. This task corrects only the message-mode branch; it does not claim the whole cursetxt function or later monster spell effects.",
+        "entryPoints": [
+          {
+            "name": "High-cleric failed spell emits a repeated unseen-caster curse",
+            "functions": [
+              "cursetxt"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-timedblind-highcleric-geyser-action5",
+                "segment": 0,
+                "fromStep": 301,
+                "throughStep": 434,
+                "source": "mhitu.c:mattacku -> castmu -> mcastu.c:cursetxt unseen-caster branch -> pline.c:Norep duplicate suppression"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
