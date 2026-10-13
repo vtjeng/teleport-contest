@@ -1060,22 +1060,38 @@ function preflightPickupObjects(selected, state) {
             addPlans.push(null);
     }
     // pickup.c lift_object() checks the 52-letter limit in floor order after
-    // merge_choice().  Gold consumes no ordinary slot, and a later floor
-    // object can merge with an earlier projected pickup.  Reject atomically
-    // only at the first projected non-merge addition which C would refuse.
+    // merge_choice(). Gold consumes no ordinary slot, and a later floor
+    // object can merge with an earlier projected pickup. Leave the first
+    // rejected object and everything after it to C's source-ordered stop path.
     let projectedSlots = inv_cnt(false, state);
+    let fullPackFailure = -1;
     // Billing changes mergeability after lift_object's decision. For a shop
     // floor, use the live source lift below, not this pre-billing projection.
     if (selected.every(({ obj }) => obj.where !== OBJ_FLOOR)
         || !costly_spot(state.u.ux, state.u.uy, state)) {
-        for (const plan of computedPlans) {
-            if (!plan.addedOrdinarySlot) continue;
-            if (projectedSlots >= 52)
-                throw new UnsupportedPickupError('pickup() with a full pack');
+        for (let i = 0; i < computedPlans.length; ++i) {
+            if (!computedPlans[i].addedOrdinarySlot) continue;
+            if (projectedSlots >= 52) {
+                fullPackFailure = i;
+                break;
+            }
             ++projectedSlots;
         }
     }
-    return { addPlans, env, unliftable: [] };
+    const unliftable = [];
+    if (fullPackFailure >= 0) {
+        const failedObject = actionable[fullPackFailure].obj;
+        const selectedIndex = selected.findIndex(({ obj }) =>
+            obj === failedObject);
+        if (selectedIndex >= 0) {
+            for (const { obj } of selected.slice(selectedIndex))
+                unliftable.push(obj);
+            // The live lift path determines the refusal after earlier pickups;
+            // later items cannot be reached because pickup() breaks on -1.
+            addPlans.fill(null, selectedIndex);
+        }
+    }
+    return { addPlans, env, unliftable };
 }
 
 // C ref: pickup.c check_autopickup_exceptions() (913-927).  The exception
