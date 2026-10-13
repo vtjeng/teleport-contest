@@ -14,7 +14,7 @@ export const VI_BRANCH = 4;
 export const NETHACK_VERSION = '5.0.0';
 
 const RECORDER_VERSION_ID =
-    'MacOS NetHack Version 5.0.0 - last build May  2 2026 12:00:00.';
+    'Unix NetHack Version 5.0.0 - last build May  2 2026 12:00:00.';
 const LUA_VERSION = '5.4.8';
 const LUA_COPYRIGHT = 'Lua 5.4.8  Copyright (C) 1994-2025 Lua.org, PUC-Rio';
 
@@ -100,6 +100,21 @@ export function status_version(flags = {}, indent = false) {
 // no git hash, branch, prefix, or runtime port suffix follows version_id.
 export function getversionstring() {
     return RECORDER_VERSION_ID;
+}
+
+// C ref: version.c doversion(). The short V command prints one message; its
+// M-prefix variant delegates to the existing extended-version text window.
+export async function doversion(state, {
+    pline,
+    displayTextWindow,
+    random,
+} = {}) {
+    if (state.iflags?.menu_requested)
+        return doextversion(state, { displayTextWindow, random });
+    if (typeof pline !== 'function')
+        throw new TypeError('doversion requires the pline operation');
+    await pline(getversionstring(), state);
+    return 0; // C: ECMD_OK.
 }
 
 function get_lua_version(state, random) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700501,
+      "datetime": "20321104091100",
+      "nethackrc": "OPTIONS=name:Meridian,role:Wizard,race:human,gender=male,align=neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "mV",
+      "comment": "Independent version.c:doversion menu-requested branch probe. The ordinary m prefix followed by V exercises the CMD_M_PREFIX row, which must delegate from doversion to doextversion. This uses a new seed, date, and male human Wizard rather than the admitted direct-V recording."
+    }
+  ]
+}
