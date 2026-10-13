@@ -361,7 +361,7 @@ export async function remove_worn_item(obj, unchain_ball, state = game, env = {}
         } else if (obj.owornmask & W_RING) {
             await Ring_gone(obj, state, env);
         } else if (obj.owornmask & W_TOOL) {
-            await Blindf_off(obj, state);
+            await Blindf_off(obj, state, env);
         } else if (obj.owornmask & W_WEAPONS) {
             if (obj === state.uwep) await uwepgone({ ...env, state });
             if (obj === state.uswapwep) uswapwepgone({ state });

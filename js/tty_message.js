@@ -20,7 +20,7 @@ import {
     URGENT_MESSAGE,
     WIN_NOSTOP,
 } from './const.js';
-import { flush_screen } from './display.js';
+import { docorner, flush_screen } from './display.js';
 import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
@@ -84,21 +84,6 @@ function normalizeVplineMessage(value) {
     ]);
 }
 
-function snapshotRows(display, rowCount) {
-    return display.grid.slice(0, rowCount).map(
-        (row) => row.map((cell) => ({ ...cell })),
-    );
-}
-
-function restoreRows(display, snapshot) {
-    for (let row = 0; row < snapshot.length; ++row) {
-        for (let column = 0; column < snapshot[row].length; ++column) {
-            const cell = snapshot[row][column];
-            display.setCell(column, row, cell.ch, cell.color, cell.attr);
-        }
-    }
-}
-
 function pendingTtyMessageLayout(state) {
     const display = state.nhDisplay;
     const lines = wrapTtyTopline(state._pending_message, display.cols);
@@ -118,6 +103,13 @@ function writePendingTtyMessagePrompt(state, layout, promptAttr = ATR_NONE) {
     const { display, lines, promptRow, promptColumn } = layout;
     for (let row = 0; row < lines.length; ++row)
         writeRecorderTtyLine(display, row, lines[row]);
+    if (promptRow > lines.length - 1) {
+        // topl_putsym('\n') clears the new physical row at cursor column 0
+        // after cl_end() clears the preceding row's tail. The wrapped More
+        // marker must replace that row before it can cover a stale map cell.
+        display.setCursor(0, promptRow);
+        display.clearToEol();
+    }
     if (state._ttyMixedFirstCell)
         display.setCell(0, 0, state._ttyMixedFirstCell, NO_COLOR, 0);
     display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, promptAttr);
@@ -225,16 +217,6 @@ export async function dismissPendingTtyMessage(
         };
     const { lines, promptRow, promptColumn } = layout;
     const multiline = Boolean(display.toplin && promptRow > 0);
-    const snapshot = multiline
-        ? snapshotRows(display, promptRow + 1)
-        : null;
-    if (snapshot) {
-        // The message row is not backed by map-window data. docorner() clears
-        // it while reconstructing any obscured map rows below it.
-        snapshot[0] = snapshot[0].map(() => ({
-            ch: ' ', color: NO_COLOR, attr: 0,
-        }));
-    }
     // redotoplin() overwrites ordinary bytes in place, skips recorder-ignored
     // high-bit bytes, and calls cl_end() after every logical/physical line.
     // Do not clear the prefix first: skipped byte cells retain their prior
@@ -249,8 +231,11 @@ export async function dismissPendingTtyMessage(
     const response = await xwaitforspace(state, QUITCHARS, dismissMore);
     display.morc = response;
 
-    if (snapshot) {
-        restoreRows(display, snapshot);
+    if (multiline) {
+        // more() calls docorner(1, cw->cury + 1, 0) after the key boundary.
+        // Reconstruct those rows from C's current glyph buffer rather than
+        // restoring the overdrawn screen snapshot.
+        docorner(1, promptRow + 1, 0, state);
         display.setCursor(0, 0);
     } else if (response === 0 || response === 27) {
         display.clearRow(0);

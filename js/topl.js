@@ -233,8 +233,12 @@ export async function update_topl(message, state = game, context = {}) {
         columns = state.nhDisplay?.cols ?? 80,
         callbacks = {},
     } = context;
-    const current = state.nhDisplay?.toplin === TOPLINE_NON_EMPTY
-        ? '' : (state._pending_message ?? '');
+    // topl.c appends only while TOPLINE_NEED_MORE is active. An answered
+    // query can leave stale message text in the JS bookkeeping after C has
+    // cleared the visible prompt and set TOPLINE_EMPTY.
+    const current = state.nhDisplay?.toplin === TOPLINE_NEED_MORE
+        || (stoppedAtEntry && deathComparisonReached)
+        ? (state._pending_message ?? '') : '';
     const next = String(message);
 
     // topl.c's same-line condition evaluates the death comparison only after
