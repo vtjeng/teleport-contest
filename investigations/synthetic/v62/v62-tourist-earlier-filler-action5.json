@@ -50,6 +50,7 @@
     "nethack-c/upstream/src/mklev.c:1251-1285 selects <filecode>-fila above the role locate level; nethack-c/upstream/dat/Tou-fila.lua defines a complete mines-style filler with flags, stairs, objects, traps, and hostile soldiers/monster classes.",
     "js/mklev.js:759-772 computes Tou-fila for the reproduced Tourist Home level 2 and proceeds to ordinary generation when SPECIAL_LEVEL_LOADERS lacks the name; js/quest_levels.js exports the registry containing other role filler programs but no Tou-fila.",
     "The admitted v62 evaluation challenges/evaluations/accepted-d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84-v62.json at d5dbdd91320c86b9ba2ad0b396dfb8122eea8e84 records 299/328 screens, 9417/12218 RNG calls, and 306/328 cursors matched; the case C observation shows the distinct generated level after the missing loader branch.",
-    "The queue annotation names nhlib.lua because load_special performs its existing alignment initialization; the manifest source trace and C selector establish Tou-fila.lua as the missing program that owns the mismatch."
+    "The queue annotation names nhlib.lua because load_special performs its existing alignment initialization; the manifest source trace and C selector establish Tou-fila.lua as the missing program that owns the mismatch.",
+    "Current worker base edf67a990329752517ee8ba0204f6b4aab593d1f was replayed with runJsSession against the admitted C recording; .cache/A2-tourist-earlier-baseline.json records the first screen/RNG/cursor mismatch at segment 0 step 299, including C rn2(3) in nhlib.lua:8 shuffle versus JS rn2(5) from ordinary level generation."
   ]
 }
