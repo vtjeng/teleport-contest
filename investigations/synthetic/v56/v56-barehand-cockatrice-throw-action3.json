@@ -1,0 +1,62 @@
+{
+  "session": "synthetic/v56/v56-barehand-cockatrice-throw-action3",
+  "remainingScreens": 4,
+  "recordedSteps": 177,
+  "corpus": "synthetic",
+  "batch": "v56",
+  "caseId": "v56-barehand-cockatrice-throw-action3",
+  "manifestPath": "challenges/manifests/v56.json",
+  "manifestSha256": "a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74",
+  "recordingSha256": "9c19404df3863e62ecc365c9cc8ec71c73a012418a29d33bba7aaff168473e1e",
+  "recipeSha256": "07ccd0557b7d35fe1801537098e5a5674aa852534635692ab22c9b93a0b87c6c",
+  "evaluationPath": "challenges/evaluations/admission-398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6-v56.json",
+  "evaluationCommit": "398f9e5f3ced1ce3a9ae82d58b56494fe09c5fd6",
+  "status": "complete",
+  "commit": "615af68bf6c69fcfc8ad6c04f82f873401378484",
+  "mismatch": {
+    "session": "synthetic/v56/v56-barehand-cockatrice-throw-action3",
+    "remainingScreens": 4,
+    "step": 157,
+    "kind": "screen",
+    "sourceFile": "dothrow.c",
+    "function": "throw_obj",
+    "sourceBranch": "After confirming no gloves, the selected object is a cockatrice corpse, and the hero lacks stone resistance, throw_obj builds the bare-handed killer description and calls instapetrify before continuing the throw. JavaScript records the discarded-void helper as unported and proceeds to throw the corpse.",
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 173,
+        "total": 177
+      },
+      "rng": {
+        "matched": 2633,
+        "total": 2633
+      },
+      "cursors": {
+        "matched": 174,
+        "total": 177
+      }
+    }
+  },
+  "summary": "The selected v56 recording removes the Monk’s gloves, then throws an unwielded cockatrice corpse. In dothrow.c:throw_obj, the bare-handed corpse branch sets the killer text and calls trap.c:instapetrify before continuing. js/dothrow.js emits the same first message but records note_unported and throws the corpse, so the petrification message and death prompt are absent. The helper is already implemented in js/trap.js; this is a caller-wiring defect in throw_obj.",
+  "source": {
+    "file": "dothrow.c",
+    "functions": [
+      "throw_obj"
+    ],
+    "branch": "dothrow.c:throw_obj (87-293), after direction and self-throw checks: when no gloves are worn, obj is a corpse whose species touch-petrifies, and the hero lacks stone resistance, C constructs “throwing <corpse> bare-handed” and calls instapetrify before welded checks or missile flight.",
+    "callers": [
+      "C dothrow()/dofire() reach throw_obj after object selection; this task repairs its already-port-matched bare-handed petrification call edge.",
+      "JavaScript dothrow()/dofire() call throw_obj; the branch currently records note_unported instead of awaiting the existing js/trap.js instapetrify helper."
+    ],
+    "dependencies": [
+      "trap.c:instapetrify is already implemented as js/trap.js:instapetrify and handles resistance, stone-golem polymorph, urgent petrification output, killer state, and the existing done(STONING) path."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v56 admission evaluation records 173/177 matching screens, 2633/2633 matching PRNG calls, and 174/177 matching cursors; its first unmatched screen is the missing “You turn to stone...” output at step 157.",
+    "Fresh-process node scripts/diff-fresh.mjs challenges/cases/v56/v56-barehand-cockatrice-throw-action3.recipe.session.json reproduces complete 177-screen C/JS runs and matching 2633-call PRNG traces; the first mismatch is the death screen boundary (C shows the petrification/death sequence while JS continues throwing). Log: /tmp/teleport-validation-1000/run-lyQJoJ/ .",
+    "C dothrow.c:throw_obj lines 140-148 calls instapetrify(svk.killer.name) in the bare-handed petrifying-corpse branch after setting killer text. JavaScript js/dothrow.js lines 2182-2193 has the same preconditions and text but note_unported('trap.c instapetrify').",
+    "C trap.c:instapetrify lines 3844-3855 and js/trap.js:instapetrify implement the void death helper. The caller must await it and then preserve C source order; no return value is used."
+  ]
+}
