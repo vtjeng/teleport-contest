@@ -1,0 +1,102 @@
+{
+  "session": "synthetic/v54/v54-knight-lich-armor-and-weakness-action3",
+  "corpus": "synthetic",
+  "batch": "v54",
+  "caseId": "v54-knight-lich-armor-and-weakness-action3",
+  "manifestPath": "challenges/manifests/v54.json",
+  "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+  "recordingSha256": "746716979dbc610c72ccc9bb71492737a8138601c92019fe3ab355d40c127d15",
+  "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+  "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
+  "remainingScreens": 1,
+  "recordedSteps": 863,
+  "status": "complete",
+  "commit": "6b4b67b6114ff1ffb74b4bad8d9f3cfe8e52e00c",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v54",
+    "caseId": "v54-knight-lich-armor-and-weakness-action3",
+    "session": "synthetic/v54/v54-knight-lich-armor-and-weakness-action3",
+    "manifestPath": "challenges/manifests/v54.json",
+    "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+    "recording": "challenges/cases/v54/v54-knight-lich-armor-and-weakness-action3.session.json",
+    "recordingPath": "challenges/cases/v54/v54-knight-lich-armor-and-weakness-action3.session.json",
+    "recordingSha256": "746716979dbc610c72ccc9bb71492737a8138601c92019fe3ab355d40c127d15",
+    "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+    "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
+    "evaluationArtifact": "challenges/evaluations/baseline-78195d815-v54.json",
+    "remainingScreens": 1,
+    "recordedSteps": 863,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 862,
+        "total": 863
+      },
+      "rng": {
+        "matched": 3154,
+        "total": 3154
+      },
+      "cursors": {
+        "matched": 863,
+        "total": 863
+      }
+    },
+    "firstMismatch": {
+      "segmentIndex": 0,
+      "stepIndex": 634,
+      "key": ".",
+      "kind": "ch",
+      "row": 0,
+      "column": 0,
+      "cCell": {
+        "ch": "T",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "Y",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "step": 634,
+    "kind": "screen",
+    "sourceFile": "mon.c",
+    "function": "meatmetal",
+    "message": "With acoustics disabled, the hidden metal-eating monster adds a crunch message in JS before the sewer rat bite; C suppresses the hearing line.",
+    "evaluationUtc": "2026-10-13T01:55:42.579Z",
+    "replayInputSha256": "45d90454248a4bc3c97d75d60b021c6c51189f320359df542992f70d10d86993",
+    "recipe": "challenges/cases/v54/v54-knight-lich-armor-and-weakness-action3.recipe.session.json",
+    "recipeSha256": "098eeb27ff936283c85dc8b79b3b652de7d446580406f9beb721ac3d850059df"
+  },
+  "summary": "The admitted v54 baseline matches 862/863 screens and all RNG/cursor entries before the first screen difference at segment 0, step 634. The case uses !acoustics. C mon.c:meatmetal reaches its offscreen, verbose object-consumption branch and calls You_hear(\"a crunching sound.\"); pline.c:You_hear suppresses the phrase when acoustics are disabled. JS mon.js:meatmetal emits the literal hearing message through monsterMessage, so the top line becomes “You hear a crunching sound.  The sewer rat bites!” instead of “The sewer rat bites!”. A fresh replay after syncing accepted Main c5187612 reproduces this at the same step with identical RNG and cursor streams.",
+  "source": {
+    "file": "mon.c",
+    "branch": "In meatmetal(), after an eligible metallic object is selected, cansee(mtmp->mx, mtmp->my) is false and flags.verbose is true. C emits Soundeffect and delegates the text to You_hear(\"a crunching sound.\"), which applies deafness, underwater, unaware, and acoustics rules. JS enters the matching branch but sends the literal line directly through monsterMessage, bypassing those rules.",
+    "functions": [
+      "meatmetal"
+    ],
+    "callers": [
+      "monmove.c:postmov() calls meatmetal(mtmp) for metallivorous monsters after movement and treats return value 2 as death; the selected recorded turn follows this production monster-movement path."
+    ],
+    "dependencies": [
+      "pline.c:You_hear() is already ported as youHear() in js/pline.js and re-exported through js/monmove.js; it returns null when acoustics is disabled and provides the source hearing prefixes for other states. No return-valued unported callee is needed for the text fix.",
+      "The adjacent C Soundeffect call is a sound backend effect, not the recorded top-line discrepancy; preserve its existing handling and make no claim that the sound backend was newly ported."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "challenges/evaluations/baseline-78195d815-v54.json cases[v54-knight-lich-armor-and-weakness-action3] records 862/863 screens, 3154/3154 RNG and 863/863 cursors with error null; canonical inputs digest is 45d90454248a4bc3c97d75d60b021c6c51189f320359df542992f70d10d86993.",
+    "A fresh selected-case scan on synced worker candidate 6b4b67b6114ff1ffb74b4bad8d9f3cfe8e52e00c (.cache/b-v54-knight-lich-accepted-branch-scan.json) reports first screen difference at segment 0 step 634, key ., row 0 column 0, C T versus JS Y; RNG and cursor have no divergence and all 863 screens are emitted.",
+    "The admitted recording challenges/cases/v54/v54-knight-lich-armor-and-weakness-action3.session.json uses nethackrc !acoustics and key . at step 634. Direct JS replay at synced 6b4b67 emits “You hear a crunching sound.  The sewer rat bites!” at that step; C recorded screen begins “The sewer rat bites!”.",
+    "nethack-c/upstream/src/mon.c:meatmetal() (1463-1531), specifically the offscreen verbose branch at 1508-1514, calls You_hear(\"a crunching sound.\"). nethack-c/upstream/src/pline.c:You_hear() (436-451) applies deafness and flags.acoustics. js/mon.js:meatmetal() (1579 onward) currently emits a literal through monsterMessage instead.",
+    "nethack-c/upstream/src/monmove.c:postmov() (1665-1668) is the production caller for metallivorous monsters and checks meatmetal() == 2. js/monmove.js already wires the existing meatmetal owner and preserves the result check; the missing behavior is the C hearing gate within meatmetal.",
+    "GOALS.json closed goal port-mon-meatbox-can-carry records meatmetal as a completed mon.c function (C lines 1463-1532) alongside its source callers; this work is a bounded correction of the acoustic gate in that existing implementation, not a new whole-function completion claim."
+  ]
+}
