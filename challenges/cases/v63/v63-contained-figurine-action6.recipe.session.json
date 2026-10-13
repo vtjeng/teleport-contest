@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recreated C-first source mission {\"id\":\"v63-contained-figurine-setup1\",\"source\":{\"file\":\"apply.c\",\"function\":\"fig_transform\",\"branch\":\"contained object get_obj_location fails then timer resets\"},\"state\":\"Cursed figurine placed into ordinary sack before timer; wait supported number of turns\",\"expectedCObservation\":\"Timer reset RNG while figurine remains inside container\"}. Seed independently chosen from recovery series, not copied from archive. Setup records actual inventory and map before source-directed action. C-only continuation chooses independently observed own inventory slots and source-supported actions; unchanged setup retained separately. C-only protocol correction/follow-up based on actual recorded menu or prompt, not JavaScript results. C-only route iteration based on independently observed coordinates, source numeric depth semantics or menus. Earlier attempts preserved. C-only source alternative with actual known slots and geometry; all previous attempts remain preserved.",
+  "segments": [
+    {
+      "seed": 63103105,
+      "datetime": "20801106112233",
+      "nethackrc": "OPTIONS=name:V63Recover,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed sack\n        \u0017cursed newt figurine\n        #wizidentify\n.\n        i        #wizmap\naoip\n\u0017uncursed +20 ring of protection\n               \u0017uncursed ring of slow digestion\n               \u0017blessed scroll of genocide\n               #wizidentify\n.\n               i               Pql               Prr               rs               *\n               2400.                                                                                                                                                      i               "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recreated C-first source mission {\"id\":\"v63-bare-grapple-collision-setup1\",\"source\":{\"file\":\"apply.c\",\"function\":\"use_grapple\",\"branch\":\"surface hurtle collision\"},\"state\":\"Bare inventory hero with hook aims at adjacent solid rock; independently mapped wall\",\"expectedCObservation\":\"Yanked toward surface and wall collision damage/death\"}. Seed independently chosen from recovery series, not copied from archive. Setup records actual inventory and map before source-directed action. C-only continuation chooses independently observed own inventory slots and source-supported actions; unchanged setup retained separately. C-only protocol correction/follow-up based on actual recorded menu or prompt, not JavaScript results. C-only next action corrects observed setup/protocol or scouts source-proven alternative.",
+  "segments": [
+    {
+      "seed": 63103101,
+      "datetime": "20801106112233",
+      "nethackrc": "OPTIONS=name:V63Recover,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed grappling hook\n        #wizidentify\n.\n        i        #wizmap\nTc               we               ag               ae               l.               #wizmap\n"
+    }
+  ]
+}

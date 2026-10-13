@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent new C-first v63 source mission dokick.c:kick_object shop-object flight -> stolen_value. Source minetn shop terrain and naturally placed merchandise, kicked through store boundary. New seed chosen independently for this source mission; not copied from prior corpus. Independently observed own C inventory slots guide supported source actions; no JS comparison of this new candidate has happened. C-only source alternative corrects the actual placement/name/type observed in prior attempt; all original recipes kept. C-only route follow-up based on current observed state; no reinterpretation of earlier target misses. C-only next route step from observed own menu or creature location. Follow actual C inventory/map setup toward the source target; this new candidate has not been compared with JS. Actual C shop is rare books, hero standing below observed north door. Open the north door, move one square south, kick the naturally placed scroll north through the shop boundary.",
+  "segments": [
+    {
+      "seed": 63105104,
+      "datetime": "20810110112223",
+      "nethackrc": "OPTIONS=name:V63More,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +20 ring of protection\n               \u0017uncursed gauntlets of power\n               #wizidentify\n.\n               i               #wizmap\nPol               Wp               #levelchange\n30\n                                                                                     #wizlevelport\nminetn\n               #wizmap\nminetown\n               #wizmap\n?\n>w               #wizmap\n\u0014               llk.               :               #wizmap\nok               j               \u0004k               p               #wizmap\n"
+    }
+  ]
+}

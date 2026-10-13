@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recreated C-first source mission {\"id\":\"v63-rider-tinning-setup1\",\"source\":{\"file\":\"apply.c\",\"function\":\"use_tinning_kit\",\"branch\":\"is_rider -> revive_corpse\"},\"state\":\"Wish Death corpse and kit; select floorfood target\",\"expectedCObservation\":\"Rider revives and speaks War does not preserve enemies\"}. Seed independently chosen from recovery series, not copied from archive. Setup records actual inventory and map before source-directed action.",
+  "segments": [
+    {
+      "seed": 63103108,
+      "datetime": "20801106112233",
+      "nethackrc": "OPTIONS=name:V63Recover,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed tinning kit\n        \u0017Death corpse\n        \u0017uncursed +20 ring of protection\n        #wizidentify\n.\n        i        #wizmap\n"
+    }
+  ]
+}

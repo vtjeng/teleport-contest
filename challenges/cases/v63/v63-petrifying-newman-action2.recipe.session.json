@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent new C-first v63 source mission polyself.c:newman Stoned timeout cleared by make_stoned(0). Controlled human regeneration after eating cockatrice egg, before five-turn stoning deadline. New seed chosen independently for this source mission; not copied from prior corpus. Independently observed own C inventory slots guide supported source actions; no JS comparison of this new candidate has happened.",
+  "segments": [
+    {
+      "seed": 63105100,
+      "datetime": "20810110112223",
+      "nethackrc": "OPTIONS=name:V63More,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of polymorph control\n               \u0017uncursed potion of polymorph\n               \u0017uncursed cockatrice egg\n               \u0017uncursed +20 ring of protection\n               #wizidentify\n.\n               i               #wizmap\nPel               Phr               eg               qf               human\n               .....               #attributes\n               "
+    }
+  ]
+}

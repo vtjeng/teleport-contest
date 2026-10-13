@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent new C-first v63 source mission dokick.c:kick_object shop-object flight -> stolen_value. Source minetn shop terrain and naturally placed merchandise, kicked through store boundary. New seed chosen independently for this source mission; not copied from prior corpus.",
+  "segments": [
+    {
+      "seed": 63105104,
+      "datetime": "20810110112223",
+      "nethackrc": "OPTIONS=name:V63More,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +20 ring of protection\n               \u0017uncursed gauntlets of power\n               #wizidentify\n.\n               i               #wizmap\n"
+    }
+  ]
+}

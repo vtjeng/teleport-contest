@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission potion.c:peffect_see_invis -> display.c:set_mimic_blocking. Invisibly disguised peaceful mimic must be source-created before drinking; no archive seed/inputs copied. Own C inventory identifies potion e and protection f; source peaceful invisible mimic is already present. Drink potion and map the actual subsequent obstruction state.",
+  "segments": [
+    {
+      "seed": 63106100,
+      "datetime": "20820304152627",
+      "nethackrc": "OPTIONS=name:V63Mimic,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed potion of see invisible\n               \u0017uncursed +20 ring of protection\n               #wizidentify\n.\n               i               #wizgenesis\npeaceful invisible small mimic\n               #wizmap\nPfl               qe               #wizmap\n"
+    }
+  ]
+}

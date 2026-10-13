@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recreated C-first source mission {\"id\":\"v63-glib-grease-drop-setup1\",\"source\":{\"file\":\"apply.c\",\"function\":\"use_grease\",\"branch\":\"Glib -> dropx before getobj\"},\"state\":\"First grease bare hands then apply same charged can while Glib\",\"expectedCObservation\":\"Can slips to floor, no grease target prompt\"}. Seed independently chosen from recovery series, not copied from archive. Setup records actual inventory and map before source-directed action. C-only continuation chooses independently observed own inventory slots and source-supported actions; unchanged setup retained separately.",
+  "segments": [
+    {
+      "seed": 63103110,
+      "datetime": "20801106112233",
+      "nethackrc": "OPTIONS=name:V63Recover,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed can of grease (20)\n        #wizidentify\n.\n        i        #wizmap\nae-               ae               i               "
+    }
+  ]
+}

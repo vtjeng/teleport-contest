@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recreated C-first Lua mission Val-filb.lua: L-background solidfill then lit lava mines, eleven objects, three ants/threegiants/five fixed firetraps. Seed independently chosen in new recovery series. Uses source-supported own Quest locate menu route before relative filler request; no archived seed/inputs copied.",
+  "segments": [
+    {
+      "seed": 63104106,
+      "datetime": "20801208131517",
+      "nethackrc": "OPTIONS=name:V63Quest,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +20 ring of protection\n               #wizidentify\n.\n               #levelchange\n30\n                                                                                     #wizlevelport\n?\n z               #wizmap\n#wizlevelport\n4\n               #wizmap\n"
+    }
+  ]
+}

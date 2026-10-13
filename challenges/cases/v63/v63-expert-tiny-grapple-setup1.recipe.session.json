@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recreated C-first source mission {\"id\":\"v63-expert-tiny-grapple-setup1\",\"source\":{\"file\":\"apply.c\",\"function\":\"use_grapple\",\"branch\":\"verysmall monster rloc_to\"},\"state\":\"Priest improves flail to Expert with supported enhancement; actual peaceful newt coordinates then monster aim\",\"expectedCObservation\":\"You pull in the newt and movement to adjacent tile\"}. Seed independently chosen from recovery series, not copied from archive. Setup records actual inventory and map before source-directed action.",
+  "segments": [
+    {
+      "seed": 63103100,
+      "datetime": "20801106112233",
+      "nethackrc": "OPTIONS=name:V63Recover,role:Priest,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed grappling hook\n        \u0017uncursed +20 ring of protection\n        #wizidentify\n.\n        i        #wizmap\n"
+    }
+  ]
+}

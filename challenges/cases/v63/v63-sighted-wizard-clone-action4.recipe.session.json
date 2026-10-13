@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mcastu.c:mcast_clone_wiz mission. One visible hostile Wizard of Yendor may cast clonewiz; preserve any earlier source first failures separately. No Blind/unseen curse setup and no geyser claim. Correct actual C slots are protection o, free action p, reflection q. Force resting with m. per source safe_wait policy, preserving observed earlier protocol failure. Own newly wished see-invisible potion is slot r. Source particular creation asks whether to force the unique Wizard instead of doppelganger; answer y before waiting with source m. prefix.",
+  "segments": [
+    {
+      "seed": 63107100,
+      "datetime": "20830405162728",
+      "nethackrc": "OPTIONS=name:V63Clone,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +20 ring of protection\n               \u0017uncursed ring of free action\n               \u0017uncursed amulet of reflection\n               #wizidentify\n.\n               #levelchange\n30\n                                                                                     i               #wizmap\nPol               Ppr               Pq               \u0017blessed potion of see invisible\n               #wizidentify\n.\n               i               qr               #wizgenesis\nhostile Wizard of Yendor\ny               #wizmap\nm.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               m.               #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recreated C-first source mission {\"id\":\"v63-female-pyrolisk-egg-setup1\",\"source\":{\"file\":\"sit.c\",\"function\":\"lay_an_egg\",\"branch\":\"female oviparous egg creation/drop timer\"},\"state\":\"Female hero polymorphs pyrolisk via controlled potion then #sit on clear floor\",\"expectedCObservation\":\"Hero lays own pyrolisk egg, floor object and hunger change\"}. Seed independently chosen from recovery series, not copied from archive. Setup records actual inventory and map before source-directed action. C-only protocol correction/follow-up based on actual recorded menu or prompt, not JavaScript results. C-only next action corrects observed setup/protocol or scouts source-proven alternative. C-only follow-up from actual prior observation; source supports this alternative without changing independent seed.",
+  "segments": [
+    {
+      "seed": 63103111,
+      "datetime": "20801106112233",
+      "nethackrc": "OPTIONS=name:V63Recover,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of polymorph control\n        \u0017uncursed potion of polymorph\n        #wizidentify\n.\n        i        #wizmap\nPel               qf               pyrolisk\n               #sit\n               :               Da b d \n               #sit\n               :               h               #sit\n               :               "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recreated C-first source mission {\"id\":\"v63-cursed-candelabrum-setup1\",\"source\":{\"file\":\"apply.c\",\"function\":\"use_candelabrum\",\"branch\":\"cursed lit-candle refusal\"},\"state\":\"Cursed candelabrum receives seven candles then applied\",\"expectedCObservation\":\"Candles flicker then die with no lighting\"}. Seed independently chosen from recovery series, not copied from archive. Setup records actual inventory and map before source-directed action.",
+  "segments": [
+    {
+      "seed": 63103107,
+      "datetime": "20801106112233",
+      "nethackrc": "OPTIONS=name:V63Recover,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017cursed Candelabrum of Invocation\n        \u00177 uncursed wax candles\n        #wizidentify\n.\n        i        #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recreated C-first Lua mission Kni-fila.lua: Eight objects, four quasits, i class and one ochre jelly in unsmoothed joined lit unwalled pool cavern. Seed independently chosen in new recovery series. Uses source-supported own Quest locate menu route before relative filler request; no archived seed/inputs copied.",
+  "segments": [
+    {
+      "seed": 63104100,
+      "datetime": "20801208131517",
+      "nethackrc": "OPTIONS=name:V63Quest,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +20 ring of protection\n               #wizidentify\n.\n               #levelchange\n30\n                                                                                     #wizlevelport\n?\n z               #wizmap\n#wizlevelport\n2\n               #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent new C-first v63 source mission apply.c:magic_whistled mtrapped cleared -> fill_pit at departure. Levitating hero and tame pet establish source pit confinement; whistle relocates from pit. New seed chosen independently for this source mission; not copied from prior corpus.",
+  "segments": [
+    {
+      "seed": 63105103,
+      "datetime": "20810110112223",
+      "nethackrc": "OPTIONS=name:V63More,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed magic whistle\n               \u0017uncursed ring of levitation\n               \u0017uncursed +20 ring of protection\n               #wizidentify\n.\n               i               #wizmap\n"
+    }
+  ]
+}
