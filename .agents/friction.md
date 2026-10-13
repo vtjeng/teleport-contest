@@ -616,3 +616,15 @@ triage decisions or fix references.
 - C's worker guide directs it to worker-state next, but the CLI reserves
   that command for the coordinator. C used the shared queue and status for
   its ownership check. No guide change is included here.
+
+### 2026-10-13 — saved-result commands hold the full validation slot
+
+- A's final zap replay waited for run-A3Huea and run-WtiF6t. Those Main
+  commands accepted saved hosted evidence and refreshed the queue from its
+  saved fixed scan; neither reran the full gameplay workload. They still
+  occupied the same local slot that fresh C comparisons require. Root
+  collected each retained handle and notified A after completion.
+- C's clean-boundary sync-main command was rejected as coordinator-only.
+  Its direct merge preserved submitted commits. The merged f075b7d93 was
+  local accepted closure history at that time, not yet public; Root corrected
+  that provenance description before publication.
