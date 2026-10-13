@@ -63,6 +63,7 @@ import {
     SICK,
     SICK_ALL,
     SLIMED,
+    STUNNED,
     STEALTH,
     STONE_RES,
     TELEPORT_CONTROL,

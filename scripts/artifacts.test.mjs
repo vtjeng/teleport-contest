@@ -1083,6 +1083,21 @@ test('Mb_hit follows C probe ordering and calls the canonical zap helper', () =>
         /if \(attack_indx === MB_INDEX_PROBE && !canspotmon\(mdef, state\)\)\s*map_invisible\(mdef\.mx, mdef\.my, state\);/u,
     );
     assert.doesNotMatch(JS_MB_HIT, /note_unported\(['"]mondata\.c canspotmon/u);
+    assert.match(
+        JS_ARTIFACT_SOURCE,
+        /^\s*STUNNED,\s*$/mu,
+        'Mb_hit binds the property index used for the hero stun timeout',
+    );
+    assert.match(
+        C_MB_HIT,
+        /make_stunned\(\(\(HStun & TIMEOUT\) \+ 3L\), FALSE\)/u,
+        'C derives the timeout from the hero STUNNED property',
+    );
+    assert.match(
+        JS_MB_HIT,
+        /\(state\.u\?\.uprops\?\.\[STUNNED\]\?\.intrinsic \?\? 0\) & TIMEOUT/u,
+        'JavaScript reads the corresponding STUNNED property',
+    );
 });
 
 // Helper: minimal state with artilist, artiexist, and artidisco initialized.
