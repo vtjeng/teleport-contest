@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T17:46:11.192Z",
+  "capturedAt": "2026-10-13T18:25:46.826Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -106008,6 +106008,306 @@
         "at": "2026-10-13T17:45:50.567Z",
         "task": "A2-investigation-v48-short-version-command-attempt1-20261013",
         "goal": "port-version-doversion-short-command-v48-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v56-barehand-cockatrice-throw-action3-20261013-10b8437fa7f8aa4a42b83428a9d28a15edc79baa",
+        "type": "published",
+        "at": "2026-10-13T17:46:24.511Z",
+        "task": "A2-investigation-v56-barehand-cockatrice-throw-action3-20261013",
+        "commit": "10b8437fa7f8aa4a42b83428a9d28a15edc79baa"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-68393cf4-20261013",
+        "type": "activity",
+        "at": "2026-10-13T17:46:49.234Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+        "phase": "review",
+        "reason": "Continue A dependency chain before releasing B drawbridge caller reservation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-blind-floor-5c88a798c9bcd2d9f69996b47045c406b460f973",
+        "type": "integrating",
+        "at": "2026-10-13T17:47:08.568Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+        "integration": "5c88a798c9bcd2d9f69996b47045c406b460f973"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v60-rehumanize-20261013",
+        "type": "implement",
+        "at": "2026-10-13T17:49:31.152Z",
+        "task": "C-investigation-v60-rust-rehumanize-corpse-touch-action4-20261013",
+        "goal": "port-polyself-rehumanize-corpse-touch-v60-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-65cf547983847e0766ec52cf9984f0541b1e4093",
+        "type": "ready",
+        "at": "2026-10-13T17:53:41.016Z",
+        "task": "C-investigation-v60-rust-rehumanize-corpse-touch-action4-20261013",
+        "delivery": "65cf547983847e0766ec52cf9984f0541b1e4093"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v59-cancel-trap-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T17:55:10.260Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v56-full-pack-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T17:55:52.992Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v56-full-pack-20261013",
+        "type": "assign",
+        "at": "2026-10-13T17:55:57.455Z",
+        "task": "C-investigation-v56-full-pack-gem-lift-action3-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v48-park-20261013",
+        "type": "turn",
+        "at": "2026-10-13T17:56:33.302Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "The v48 version command source repair is implemented; raw evaluation remains blocked by the shared Unix/MacOS banner profile."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-validated-a-blind-floor-38441481423-failed",
+        "type": "validated",
+        "at": "2026-10-13T17:57:34.663Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-a-blind-floor-objnam-fixture-20261013",
+        "type": "feedback",
+        "at": "2026-10-13T17:57:35.921Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+        "delivery": "68393cf4971e6ff2e067d276863b8cfed33d6d72"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-park-a-v48-version-profile-20261013",
+        "type": "park",
+        "at": "2026-10-13T17:57:37.335Z",
+        "task": "A2-investigation-v48-short-version-command-attempt1-20261013",
+        "reason": "Raw target has no improvement: Linux C Unix banner differs from retained JS MacOS build-profile contract. Source changes and normalized evidence are preserved; no passing raw runtime entry evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v56-full-pack-gem-lift-20261013",
+        "type": "implement",
+        "at": "2026-10-13T18:00:42.208Z",
+        "task": "C-investigation-v56-full-pack-gem-lift-action3-20261013",
+        "goal": "fix-pickup-full-pack-preflight-v56-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-65cf547983847e0766ec52cf9984f0541b1e4093-20261013",
+        "type": "received",
+        "at": "2026-10-13T18:00:54.425Z",
+        "task": "C-investigation-v60-rust-rehumanize-corpse-touch-action4-20261013",
+        "delivery": "65cf547983847e0766ec52cf9984f0541b1e4093"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-resume-v56-blind-floor-correction-20261013",
+        "type": "resume",
+        "at": "2026-10-13T18:00:59.094Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-wait-a-blind-floor-fixture-20261013",
+        "type": "activity",
+        "at": "2026-10-13T18:02:23.019Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+        "phase": "waiting",
+        "reason": "Waiting for the worker correction to the hosted tactile-pile fixture failure before retesting the dependency candidate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-19dd44332ee55cd9131dcd0bc383b972e5cf190a",
+        "type": "ready",
+        "at": "2026-10-13T18:08:13.037Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+        "delivery": "19dd44332ee55cd9131dcd0bc383b972e5cf190a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-19dd44332ee55cd9131dcd0bc383b972e5cf190a-20261013",
+        "type": "received",
+        "at": "2026-10-13T18:08:56.858Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+        "delivery": "19dd44332ee55cd9131dcd0bc383b972e5cf190a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-a-blind-floor-correction-19dd4433",
+        "type": "activity",
+        "at": "2026-10-13T18:09:01.238Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+        "phase": "review",
+        "reason": "Integrate the focused tactile-pile fixture correction and retest the A dependency candidate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-32a017394dbc3559703c3a33af369feabda5d1ca",
+        "type": "ready",
+        "at": "2026-10-13T18:09:52.244Z",
+        "task": "C-investigation-v56-full-pack-gem-lift-action3-20261013",
+        "delivery": "32a017394dbc3559703c3a33af369feabda5d1ca"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-a-blind-floor-corrected-e32bef6c402ac1cb42eea64da25cadf784bc58be",
+        "type": "integrating",
+        "at": "2026-10-13T18:09:57.376Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+        "integration": "e32bef6c402ac1cb42eea64da25cadf784bc58be"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-active-v58-opening-wand-beartrap-20261013",
+        "type": "turn",
+        "at": "2026-10-13T18:10:10.051Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the v58 opening-wand bear-trap mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v58-opening-wand-beartrap-20261013",
+        "type": "assign",
+        "at": "2026-10-13T18:10:14.284Z",
+        "task": "A2-investigation-v58-opening-wand-hero-beartrap-action6-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-32a017394dbc3559703c3a33af369feabda5d1ca-20261013",
+        "type": "received",
+        "at": "2026-10-13T18:11:33.945Z",
+        "task": "C-investigation-v56-full-pack-gem-lift-action3-20261013",
+        "delivery": "32a017394dbc3559703c3a33af369feabda5d1ca"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v61-pet-bee-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T18:11:47.746Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the v61 bee-and-jelly pet pickup case; the saved replay stops before the pet can consume floor food."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v59-downward-cancel-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T18:13:05.812Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Tracing the remaining v59 cancelled-down engraving screen and cursor mismatch to its C source owner."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v59-downward-cancellation-20261013",
+        "type": "assign",
+        "at": "2026-10-13T18:13:12.393Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-park-v58-opening-wand-beartrap-scope-held-20261013",
+        "type": "park",
+        "at": "2026-10-13T18:16:32.311Z",
+        "task": "A2-investigation-v58-opening-wand-hero-beartrap-action6-20261013",
+        "reason": "Diagnosis is committed at 5e8801ffe. The fix is a missing WAN_OPENING/SPE_KNOCK down branch in zap.c:zap_updown, already reserved by A2’s ready v58 ceiling-strike delivery. Resume this follow-on after that delivery is accepted and the queue confirms this case remains unmatched."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C-v59-downward-cancel-zap-map-owned-20261013",
+        "type": "park",
+        "at": "2026-10-13T18:16:56.906Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "reason": "The source-traced defect is in zap.c:zap_map(), reserved by B-investigation-v58-castle-passtune-action3. Preserve report fadc60f56 and resume only after B releases or the coordinator assigns the shared scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-idle-no-independent-admitted-case-20261013",
+        "type": "turn",
+        "at": "2026-10-13T18:17:55.346Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Waiting for Root to refresh the queue or release an independent source reservation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v58-artifact-light-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T18:19:14.118Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating an unmatched v58 artifact light replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v56-blind-corpse-floor-loot-action2-20261013-e32bef6c402ac1cb42eea64da25cadf784bc58be-validated",
+        "type": "validated",
+        "at": "2026-10-13T18:19:20.206Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v58-artifact-light-20261013",
+        "type": "assign",
+        "at": "2026-10-13T18:19:47.680Z",
+        "task": "C-investigation-v58-artifact-light-buc-action2-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v56-blind-corpse-floor-loot-action2-20261013-e32bef6c402ac1cb42eea64da25cadf784bc58be-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T18:20:32.225Z",
+        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C-v58-artifact-light-behind-litroom-20261013",
+        "type": "park",
+        "at": "2026-10-13T18:23:01.605Z",
+        "task": "C-investigation-v58-artifact-light-buc-action2-20261013",
+        "reason": "Source trace identifies read.c:litroom() as the missing caller for potion.c:impact_arti_light(); read.c:litroom is reserved by A2-investigation-v58-swallowed-light-action2-20261013. Preserve report 63c9e9879 and resume after that delivery is accepted and the refreshed queue confirms this case remains unmatched."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-blocked-source-owners-20261013",
+        "type": "turn",
+        "at": "2026-10-13T18:23:46.377Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Waiting for independent synthetic source scope to be released."
       }
     ]
   },
@@ -106061,17 +106361,6 @@
           "C-investigation-v57-throne-court-summon-action2-20261013"
         ],
         "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
-        "worker": "A2",
-        "goal": "port-pickup-doloot-core-blind-corpse-v56-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "68393cf4971e6ff2e067d276863b8cfed33d6d72",
-        "since": "2026-10-13T15:41:42.926Z",
-        "blockedBy": [],
-        "unblocks": 1
       },
       {
         "task": "B-investigation-v57-traditional-container-menu-request-20261013",
@@ -106146,10 +106435,8 @@
         "status": "ready",
         "delivery": "2f8807e48c1a8c06f704bad792e2167d8009f622",
         "since": "2026-10-13T16:23:45.671Z",
-        "blockedBy": [
-          "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
@@ -106160,7 +106447,6 @@
         "delivery": "27305e72da1185df0a0c1b95101d722e070d80c9",
         "since": "2026-10-13T16:32:54.477Z",
         "blockedBy": [
-          "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
           "A2-investigation-v58-ceiling-striking-helmet-action1-20261013"
         ],
         "unblocks": 0
@@ -106216,7 +106502,6 @@
         "delivery": "54d33e63039057e062c1c3ee387672da7ea38bbb",
         "since": "2026-10-13T16:49:44.671Z",
         "blockedBy": [
-          "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
           "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
           "A2-investigation-v58-swallowed-wraith-growth-action2-20261013"
         ],
@@ -106242,7 +106527,6 @@
         "delivery": "47248e6e9937512e6f241f84c324b572c96ec622",
         "since": "2026-10-13T17:01:12.548Z",
         "blockedBy": [
-          "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
           "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
           "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
           "A2-investigation-v58-blind-fountain-drink-action2-20261013"
@@ -106269,7 +106553,6 @@
         "delivery": "809245291c4fe89bc8838d4787a4423a9d9a5f27",
         "since": "2026-10-13T17:16:21.958Z",
         "blockedBy": [
-          "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
           "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
           "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
           "A2-investigation-v58-blind-fountain-drink-action2-20261013",
@@ -106319,7 +106602,6 @@
         "delivery": "6123dfad92be1019cb9731ce17284e95a6ee4f68",
         "since": "2026-10-13T17:26:20.258Z",
         "blockedBy": [
-          "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
           "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
           "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
           "A2-investigation-v58-blind-fountain-drink-action2-20261013",
@@ -106359,7 +106641,6 @@
         "delivery": "99d50c6322d12391d5e1fd99cea1d5172bc21a2a",
         "since": "2026-10-13T17:33:31.145Z",
         "blockedBy": [
-          "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
           "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
           "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
           "A2-investigation-v58-blind-fountain-drink-action2-20261013",
@@ -106389,7 +106670,6 @@
         "delivery": "91b4ab3d779fd5a8f69dc1267b246f0ec1eef0f7",
         "since": "2026-10-13T17:41:40.812Z",
         "blockedBy": [
-          "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
           "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
           "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
           "A2-investigation-v58-blind-fountain-drink-action2-20261013",
@@ -106408,6 +106688,28 @@
         "status": "ready",
         "delivery": "cd765dd94c844cef86cda6da90a9364e178138e8",
         "since": "2026-10-13T17:41:54.261Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v60-rust-rehumanize-corpse-touch-action4-20261013",
+        "worker": "C",
+        "goal": "port-polyself-rehumanize-corpse-touch-v60-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "65cf547983847e0766ec52cf9984f0541b1e4093",
+        "since": "2026-10-13T17:53:41.016Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v56-full-pack-gem-lift-action3-20261013",
+        "worker": "C",
+        "goal": "fix-pickup-full-pack-preflight-v56-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "32a017394dbc3559703c3a33af369feabda5d1ca",
+        "since": "2026-10-13T18:09:52.244Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -106954,12 +107256,56 @@
         "since": "2026-10-13T17:43:16.779Z",
         "blockedBy": [],
         "reason": "The case source-traces to zap.c:zap_updown, which A2 already reserves for its ready v58 ceiling-strike delivery. Park this duplicate source-family investigation without code edits; resume after that delivery is accepted and the refreshed queue confirms the locking/HOLE branch remains unmatched."
+      },
+      {
+        "task": "A2-investigation-v48-short-version-command-attempt1-20261013",
+        "worker": "A2",
+        "goal": "port-version-doversion-short-command-v48-20261013",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-13T17:57:37.335Z",
+        "blockedBy": [],
+        "reason": "Raw target has no improvement: Linux C Unix banner differs from retained JS MacOS build-profile contract. Source changes and normalized evidence are preserved; no passing raw runtime entry evidence."
+      },
+      {
+        "task": "A2-investigation-v58-opening-wand-hero-beartrap-action6-20261013",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-13T18:16:32.311Z",
+        "blockedBy": [],
+        "reason": "Diagnosis is committed at 5e8801ffe. The fix is a missing WAN_OPENING/SPE_KNOCK down branch in zap.c:zap_updown, already reserved by A2’s ready v58 ceiling-strike delivery. Resume this follow-on after that delivery is accepted and the queue confirms this case remains unmatched."
+      },
+      {
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-13T18:16:56.906Z",
+        "blockedBy": [],
+        "reason": "The source-traced defect is in zap.c:zap_map(), reserved by B-investigation-v58-castle-passtune-action3. Preserve report fadc60f56 and resume only after B releases or the coordinator assigns the shared scope."
+      },
+      {
+        "task": "C-investigation-v58-artifact-light-buc-action2-20261013",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-13T18:23:01.605Z",
+        "blockedBy": [],
+        "reason": "Source trace identifies read.c:litroom() as the missing caller for potion.c:impact_arti_light(); read.c:litroom is reserved by A2-investigation-v58-swallowed-light-action2-20261013. Preserve report 63c9e9879 and resume after that delivery is accepted and the refreshed queue confirms this case remains unmatched."
       }
     ]
   },
   "development": {
-    "executionCommit": "cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec",
-    "measuredAt": "2026-10-13T17:39:47.163Z",
+    "executionCommit": "e32bef6c402ac1cb42eea64da25cadf784bc58be",
+    "measuredAt": "2026-10-13T18:14:58.959Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
