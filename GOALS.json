@@ -295328,6 +295328,42 @@
         ],
         "incompleteFunctions": []
       }
+    },
+    {
+      "id": "C-port-pay-for-damage-v53-20261012",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement pay_for_damage, add_damage, shk_impaired, repairable_damage, find_damage, shk_fixes_damage from shk.c",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v53/v53-ring-shop-wall-digging-damage-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v53-ring-shop-wall-digging-damage-action3-20261012",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "add_damage and pay_for_damage",
+      "session": "synthetic/v53/v53-ring-shop-wall-digging-damage-action3"
+    },
+    {
+      "id": "mcast-stun-you-v53-quest-nemesis-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement quest_stat_check, nemesis_speaks, quest_talk from mcastu.c",
+      "cFile": "quest.c",
+      "sessions": [
+        "synthetic/v53/v53-quest-nemesis-nearby-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "quest_stat_check",
+      "session": "synthetic/v53/v53-quest-nemesis-nearby-action5"
     }
   ]
 }
