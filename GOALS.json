@@ -298270,7 +298270,7 @@
     {
       "id": "div-zap-bhitm-extra-healing-blindness-call-v55-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Call muse.c:mcureblindness from the existing bhitm extra-healing branch in C order, restoring the visible cure message and monster sight state before the improvement message.",
       "cFile": "zap.c",
       "sessions": [
@@ -298280,10 +298280,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "85c020e5e1c4bb33fe569728fbab336d139d95a3",
       "delivered": null,
       "function": "bhitm",
-      "session": "synthetic/v55/v55-blind-ogre-extra-healing-action5"
+      "session": "synthetic/v55/v55-blind-ogre-extra-healing-action5",
+      "closeStanding": {
+        "sha": "85c020e5e1c4bb33fe569728fbab336d139d95a3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "063e058affac7e6c8f52101e830c10e69262c599",
+        "target": "synthetic/v55/v55-blind-ogre-extra-healing-action5",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/85c020e5e1c4bb33fe569728fbab336d139d95a3/run-hosted-sSeFob/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "bhitm",
+            "implementation": "js/zap.js",
+            "symbol": "bhitm",
+            "sourceReview": "This is a bounded repair to zap.c:bhitm's SPE_HEALING/SPE_EXTRA_HEALING branch; existing whole-body source-review evidence for bhitm remains authoritative and no new whole-function credit is claimed. Compared zap.c:448-460 around healmon: for non-Pestilence monsters, C sets wake false, heals, then calls mcureblindness(mtmp, canseemon(mtmp)) when the spell is skilled or the object is SPE_EXTRA_HEALING, before mimic and visible-improvement output. JS previously substituted note_unported('mon.c mcureblindness') at that exact point. It now imports and awaits the existing muse.js:mcureblindness with the same state and canseemon predicate. The helper's muse.c:2872-2883 body was checked: it clears mcansee/mblinded and emits the source line only when verbos and haseyes are true. C discards the helper's void result. Healing, wake, message, mimic, and common-tail order remain unchanged.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "weffects",
+                "source": "zap.c:weffects sends a monster-target wand or spell ray through zap.c:bhit with bhitm as its callback; the selected recording follows this production path."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhit",
+                "source": "zap.c:bhit invokes its supplied monster callback when the ray reaches the target; this task repairs the bhitm SPE_EXTRA_HEALING callback arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-bhitm-mcureblindness.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-blind-ogre-extra-healing-action5",
+                "segment": 0,
+                "fromStep": 253,
+                "throughStep": 298,
+                "source": "The full 299-step selected replay exercises the production ray callback through bhitm's extra-healing cure, visible message, and common tail."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This is a bounded divergence repair inside the existing zap.c:bhitm body, not a whole-function completion claim. The selected active entry point is a monster-target extra-healing ray: the hero casts through zap.c:weffects -> zap.c:bhit with bhitm as callback. At step 255, the matched call chain reaches SPE_EXTRA_HEALING, the existing source-owned muse.c:mcureblindness helper, then bhitm's visible improvement message. The fix restores the helper call and immediate output order; the selected replay now matches all 299 screen/input boundaries and the complete RNG stream. Two sound-only recorder gaps remain unrelated and were already present before this call.",
+        "entryPoints": [
+          {
+            "name": "Extra-healing ray cures a visible blind monster",
+            "functions": [
+              "bhitm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-blind-ogre-extra-healing-action5",
+                "segment": 0,
+                "fromStep": 253,
+                "throughStep": 298,
+                "source": "The spell menu selects SPE_EXTRA_HEALING; zap.c:weffects -> zap.c:bhit(callback=bhitm) reaches zap.c:bhitm, which calls muse.c:mcureblindness before its visible improvement message."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
