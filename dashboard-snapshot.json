@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T09:30:02.657Z",
+  "capturedAt": "2026-10-13T09:40:09.187Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -103123,6 +103123,46 @@
         "type": "accepted",
         "at": "2026-10-13T09:28:30.671Z",
         "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v55-named-chaotic-artifact-action2-20261013-b925b53c45267ac12ce2b8fda77cab6a2a95c7f6",
+        "type": "published",
+        "at": "2026-10-13T09:30:16.216Z",
+        "task": "B-investigation-v55-named-chaotic-artifact-action2-20261013",
+        "commit": "b925b53c45267ac12ce2b8fda77cab6a2a95c7f6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-c-wand-20261013",
+        "type": "activity",
+        "at": "2026-10-13T09:30:44.911Z",
+        "task": "C-investigation-v55-broken-teleport-wand-ogre-action3-20261013",
+        "phase": "review",
+        "reason": "Integrating the oldest ready implementation after artifact naming acceptance and publication."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-c-wand-3726ce3a-20261013",
+        "type": "integrating",
+        "at": "2026-10-13T09:31:06.139Z",
+        "task": "C-investigation-v55-broken-teleport-wand-ogre-action3-20261013",
+        "integration": "3726ce3a6d8841ee4ea2f2d0bda16035968be4f3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v55-broken-teleport-wand-ogre-action3-20261013-3726ce3a6d8841ee4ea2f2d0bda16035968be4f3-validated",
+        "type": "validated",
+        "at": "2026-10-13T09:38:23.738Z",
+        "task": "C-investigation-v55-broken-teleport-wand-ogre-action3-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v55-broken-teleport-wand-ogre-action3-20261013-3726ce3a6d8841ee4ea2f2d0bda16035968be4f3-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T09:38:47.034Z",
+        "task": "C-investigation-v55-broken-teleport-wand-ogre-action3-20261013"
       }
     ]
   },
@@ -103183,17 +103223,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v55-broken-teleport-wand-ogre-action3-20261013",
-        "worker": "C",
-        "goal": "repair-apply-do-break-wand-teleport-bhitm-v55-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "02bccc11b749801d61bf28163c1cbde802d2c19b",
-        "since": "2026-10-13T06:19:13.160Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -103764,8 +103793,8 @@
     ]
   },
   "development": {
-    "executionCommit": "ea1d6d9cbf8f79252bee6d2e93416a9a61ef658d",
-    "measuredAt": "2026-10-13T09:25:58.857Z",
+    "executionCommit": "3726ce3a6d8841ee4ea2f2d0bda16035968be4f3",
+    "measuredAt": "2026-10-13T09:35:22.827Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
