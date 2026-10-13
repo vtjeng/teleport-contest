@@ -1747,11 +1747,6 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
             throw new UnsupportedHeroMoveBoundaryError(error.reason);
         }
     }
-    if (state.level?.regions?.length) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'pet swap region crossing',
-        );
-    }
     if (engr_at(x, y, state)
         || engr_at(state.u.ux, state.u.uy, state)) {
         throw new UnsupportedHeroMoveBoundaryError(

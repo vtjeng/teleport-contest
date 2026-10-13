@@ -2345,3 +2345,60 @@ test('the run stop before a monster reads each of C\'s three terms', () => {
     mimic.u.uprops[PROT_FROM_SHAPE_CHANGERS].intrinsic = 1;
     assert.equal(runStopsBeforeMonster(disguised, 1, mimic), true);
 });
+
+test('safe-pet preflight leaves origin-trap refusal in source order', async () => {
+    const cSwapStart = HACK_SOURCE.indexOf(
+        '\nstaticfn boolean\ndomove_swap_with_pet(',
+    );
+    const cSwapEnd = HACK_SOURCE.indexOf('\nstaticfn ', cSwapStart + 1);
+    const cSwap = HACK_SOURCE.slice(cSwapStart, cSwapEnd);
+    assert.match(
+        cSwap,
+        /mtmp->mpeaceful[\s\S]*?t_at\(u\.ux0, u\.uy0\) != NULL[\s\S]*?doesn't want to swap places/u,
+    );
+    assert.doesNotMatch(cSwap, /regions/u);
+
+    const jsGateStart = HACK_JS_SOURCE.indexOf(
+        'function requireOrdinarySafeMonsterSwap(',
+    );
+    const jsGateEnd = HACK_JS_SOURCE.indexOf(
+        '\n}\n\n// C ref: hack.c domove_core():2830',
+        jsGateStart,
+    );
+    const jsGate = HACK_JS_SOURCE.slice(jsGateStart, jsGateEnd + 2);
+    assert.doesNotMatch(jsGate, /state\.level\?\.regions/u);
+
+    await runSegment({
+        seed: 2026101301,
+        datetime: '20451013101500',
+        nethackrc: 'OPTIONS=name:RegionPet,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:dog,!acoustics,!autopickup',
+        moves: '',
+    });
+    const state = game;
+    let pet = null;
+    for (let monster = state.level.monlist; monster; monster = monster.nmon) {
+        if (monster.m_id === state.context.startingpet_mid) pet = monster;
+    }
+    assert.ok(pet, 'the segment generated its starting pet');
+    assert.equal(state.flags.safe_dog, true);
+
+    const x = state.u.ux + 1 < COLNO ? state.u.ux + 1 : state.u.ux - 1;
+    const y = state.u.uy;
+    state.level.monsters[pet.mx][pet.my] = null;
+    pet.mx = x;
+    pet.my = y;
+    pet.mundetected = false;
+    state.level.monsters[x][y] = pet;
+    state.level.at(x, y).typ = ROOM;
+    state.level.regions = [{}];
+
+    // C has no region-only refusal in domove_swap_with_pet(). With the region
+    // present, the command must reach do_attack() and then the C origin-trap
+    // refusal if one is present; region crossing is decided later by
+    // in_out_region() after source-ordered monster handling.
+    assert.doesNotThrow(
+        () => preflightDomoveDestination(x, y, state),
+    );
+});
