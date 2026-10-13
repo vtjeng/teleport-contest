@@ -298881,7 +298881,7 @@
     {
       "id": "repair-apply-do-break-wand-teleport-bhitm-v55-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement do_break_wand from apply.c",
       "cFile": "apply.c",
       "sessions": [
@@ -298891,10 +298891,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "3726ce3a6d8841ee4ea2f2d0bda16035968be4f3",
       "delivered": null,
       "function": "do_break_wand",
-      "session": "synthetic/v55/v55-broken-teleport-wand-ogre-action3"
+      "session": "synthetic/v55/v55-broken-teleport-wand-ogre-action3",
+      "closeStanding": {
+        "sha": "3726ce3a6d8841ee4ea2f2d0bda16035968be4f3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "ea1d6d9cbf8f79252bee6d2e93416a9a61ef658d",
+        "target": "synthetic/v55/v55-broken-teleport-wand-ogre-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/3726ce3a6d8841ee4ea2f2d0bda16035968be4f3/run-hosted-hQ4FNM/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "do_break_wand",
+            "implementation": "js/apply.js",
+            "symbol": "do_break_wand",
+            "sourceReview": "Reviewed the full apply.c:do_break_wand definition and specifically its adjacent-monster dispatch at lines 4090-4097. This bounded repair changes only the WAN_TELEPORTATION branch to call the existing bhitm implementation. C casts the bhitm result to void here; bhitm itself consumes u_teleport_mon's result. No whole-function completion is claimed for do_break_wand, bhitm, u_teleport_mon, or rloc.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply selects do_break_wand for a wand; js/apply.js:doapply calls the corresponding helper with state and environment."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-break-wand.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-broken-teleport-wand-ogre-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 235,
+                "source": "apply.c:do_break_wand -> zap.c:bhitm WAN_TELEPORTATION -> teleport.c:u_teleport_mon -> teleport.c:rloc"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This is a bounded caller repair for breaking a WAN_TELEPORTATION wand while an adjacent monster is present. apply.c:do_break_wand visits non-hero adjacent squares and calls bhitm for a monster; js/apply.js previously skipped the existing WAN_TELEPORTATION handler. The selected admitted case exercises the broken-wand entry point through its complete segment after the repair. The existing bhitm/teleport helpers are read-only dependencies in this task; no whole-function completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "break a teleportation wand beside a monster",
+            "functions": [
+              "do_break_wand"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-broken-teleport-wand-ogre-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 235,
+                "source": "apply.c:do_break_wand -> zap.c:bhitm WAN_TELEPORTATION -> teleport.c:u_teleport_mon -> teleport.c:rloc"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

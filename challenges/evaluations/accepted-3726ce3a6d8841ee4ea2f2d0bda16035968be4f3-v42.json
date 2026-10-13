@@ -1,0 +1,1618 @@
+{
+  "version": 1,
+  "batch": "v42",
+  "manifestPath": "challenges/manifests/v42.json",
+  "sha": "3726ce3a6d8841ee4ea2f2d0bda16035968be4f3",
+  "utc": "2026-10-13T09:35:23.816Z",
+  "status": "complete",
+  "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "159009229114ff0626921eba634baee780f62b15ec30e05bdafcee9a2bf771cd",
+  "inputFiles": [
+    "challenges/cases/v42/v42-air-plane-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-air-plane-special-program.session.json",
+    "challenges/cases/v42/v42-asmodeus-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-asmodeus-special-program.session.json",
+    "challenges/cases/v42/v42-baalz-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-baalz-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-1-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-1-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-10-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-10-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-11-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-11-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-12-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-12-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-13-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-13-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-2-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-2-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-3-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-3-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-4-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-4-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-5-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-5-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-6-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-6-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-7-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-7-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-8-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-8-special-program.session.json",
+    "challenges/cases/v42/v42-bigrm-9-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-bigrm-9-special-program.session.json",
+    "challenges/cases/v42/v42-confused-book-rune-tears-page-corrected-cfirst.recipe.session.json",
+    "challenges/cases/v42/v42-confused-book-rune-tears-page-corrected-cfirst.session.json",
+    "challenges/cases/v42/v42-cursed-book-aggravate-case1-seed42043611-cfirst.recipe.session.json",
+    "challenges/cases/v42/v42-cursed-book-aggravate-case1-seed42043611-cfirst.session.json",
+    "challenges/cases/v42/v42-cursed-book-case2-seed-42043711.recipe.session.json",
+    "challenges/cases/v42/v42-cursed-book-case2-seed-42043711.session.json",
+    "challenges/cases/v42/v42-cursed-book-case5-gloves-seed-42043617.recipe.session.json",
+    "challenges/cases/v42/v42-cursed-book-case5-gloves-seed-42043617.session.json",
+    "challenges/cases/v42/v42-cursed-book-case5-gloves-seed42043619-final-cfirst.recipe.session.json",
+    "challenges/cases/v42/v42-cursed-book-case5-gloves-seed42043619-final-cfirst.session.json",
+    "challenges/cases/v42/v42-cursed-book-case6-seed-probe-42043609.recipe.session.json",
+    "challenges/cases/v42/v42-cursed-book-case6-seed-probe-42043609.session.json",
+    "challenges/cases/v42/v42-cursed-book-contact-poison-resistant.recipe.session.json",
+    "challenges/cases/v42/v42-cursed-book-contact-poison-resistant.session.json",
+    "challenges/cases/v42/v42-cursed-book-healing-teleport-case0-cfirst.recipe.session.json",
+    "challenges/cases/v42/v42-cursed-book-healing-teleport-case0-cfirst.session.json",
+    "challenges/cases/v42/v42-cursed-book-take-gold-case3-cfirst.recipe.session.json",
+    "challenges/cases/v42/v42-cursed-book-take-gold-case3-cfirst.session.json",
+    "challenges/cases/v42/v42-fire-plane-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-fire-plane-special-program.session.json",
+    "challenges/cases/v42/v42-hellfill-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-hellfill-special-program.session.json",
+    "challenges/cases/v42/v42-medusa-1-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-medusa-1-special-program.session.json",
+    "challenges/cases/v42/v42-medusa-2-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-medusa-2-special-program.session.json",
+    "challenges/cases/v42/v42-medusa-3-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-medusa-3-special-program.session.json",
+    "challenges/cases/v42/v42-medusa-4-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-medusa-4-special-program.session.json",
+    "challenges/cases/v42/v42-minefill-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-minefill-special-program.session.json",
+    "challenges/cases/v42/v42-minend-1-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-minend-1-special-program.session.json",
+    "challenges/cases/v42/v42-minend-2-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-minend-2-special-program.session.json",
+    "challenges/cases/v42/v42-minend-3-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-minend-3-special-program.session.json",
+    "challenges/cases/v42/v42-minetn-1-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-minetn-1-special-program.session.json",
+    "challenges/cases/v42/v42-minetn-2-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-minetn-2-special-program.session.json",
+    "challenges/cases/v42/v42-minetn-4-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-minetn-4-special-program.session.json",
+    "challenges/cases/v42/v42-minetn-7-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-minetn-7-special-program.session.json",
+    "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.recipe.session.json",
+    "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.session.json",
+    "challenges/cases/v42/v42-oracle-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-oracle-special-program.session.json",
+    "challenges/cases/v42/v42-orcus-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-orcus-special-program.session.json",
+    "challenges/cases/v42/v42-pet-keepdogs-ordinary-descent-seed42043801-corrected-cfirst.recipe.session.json",
+    "challenges/cases/v42/v42-pet-keepdogs-ordinary-descent-seed42043801-corrected-cfirst.session.json",
+    "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.recipe.session.json",
+    "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+    "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.recipe.session.json",
+    "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+    "challenges/cases/v42/v42-sanctum-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-sanctum-special-program.session.json",
+    "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.recipe.session.json",
+    "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json",
+    "challenges/cases/v42/v42-soko1-1-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-soko1-1-special-program.session.json",
+    "challenges/cases/v42/v42-soko1-2-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-soko1-2-special-program.session.json",
+    "challenges/cases/v42/v42-soko2-1-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-soko2-1-special-program.session.json",
+    "challenges/cases/v42/v42-soko2-2-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-soko2-2-special-program.session.json",
+    "challenges/cases/v42/v42-soko3-1-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-soko3-1-special-program.session.json",
+    "challenges/cases/v42/v42-soko3-2-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-soko3-2-special-program.session.json",
+    "challenges/cases/v42/v42-soko4-1-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-soko4-1-special-program.session.json",
+    "challenges/cases/v42/v42-soko4-2-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-soko4-2-special-program.session.json",
+    "challenges/cases/v42/v42-valley-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-valley-special-program.session.json",
+    "challenges/cases/v42/v42-wizard2-special-program.recipe.session.json",
+    "challenges/cases/v42/v42-wizard2-special-program.session.json",
+    "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.recipe.session.json",
+    "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.session.json",
+    "challenges/cases/v42/v42-yellow-dragon-wizard-acid-breath-awaken-retreat-pager-corrected-cfirst.recipe.session.json",
+    "challenges/cases/v42/v42-yellow-dragon-wizard-acid-breath-awaken-retreat-pager-corrected-cfirst.session.json",
+    "challenges/manifests/v42.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/alloc.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/astral_level_data.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cav_goal_level_data.js",
+    "js/cav_loca_level_data.js",
+    "js/cav_strt_level_data.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/earth_level_data.js",
+    "js/earth_levels.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hea_goal_level_data.js",
+    "js/hea_loca_level_data.js",
+    "js/hea_strt_level_data.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/kni_loca_level_data.js",
+    "js/kni_strt_level_data.js",
+    "js/knox_level_data.js",
+    "js/knox_levels.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon_goal_level_data.js",
+    "js/mon_loca_level_data.js",
+    "js/mon_strt_level_data.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mplayer.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlsel.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/ran_goal_level_data.js",
+    "js/ran_loca_level_data.js",
+    "js/ran_strt_level_data.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/rog_goal_level_data.js",
+    "js/rog_loca_level_data.js",
+    "js/rog_strt_level_data.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sam_goal_level_data.js",
+    "js/sam_loca_level_data.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/sp_lev.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/status_field_data.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout_property_data.js",
+    "js/timeout.js",
+    "js/topl.js",
+    "js/topten.js",
+    "js/tou_goal_level_data.js",
+    "js/tou_loca_level_data.js",
+    "js/tou_strt_level_data.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/val_goal_level_data.js",
+    "js/val_loca_level_data.js",
+    "js/val_strt_level_data.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/water_levels.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wiz_goal_level_data.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizard3_levels.js",
+    "js/wizcmds_data.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "v42-minetn-1-special-program",
+      "recordingSha256": "e8bae595414a2b7e1e7bf9a1add16251d5171a5aa3bd43ce386cccabd9839d35",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 6254,
+          "total": 6254
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-minetn-2-special-program",
+      "recordingSha256": "e8c19729426a648f9569185592bed09a009cf1c62442d8ebeda098608b6bc0a8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 3520,
+          "total": 3520
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-minetn-7-special-program",
+      "recordingSha256": "4a3bb1ad68f8dbce2dcf75b1551fc4fcbbdb088689f34e4f33e6d7ffb2965937",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 4889,
+          "total": 4889
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-soko1-1-special-program",
+      "recordingSha256": "b2f96759d5f3bfe05a8daae6f7974de5840aa4443b905f7babf6f5ac6b906371",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 3446,
+          "total": 3446
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-soko1-2-special-program",
+      "recordingSha256": "56f426a9f35539409da2247c56406c9b68c8fb764bb680e005be9bc62274bb79",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 5144,
+          "total": 5144
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-soko2-1-special-program",
+      "recordingSha256": "3223211333f37757491c7a7a6f8f3779864232819c98c30f6a77c7fa441472f9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2321,
+          "total": 2321
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-soko2-2-special-program",
+      "recordingSha256": "10995a5ef5b58a8b8d2cc9713fd1e405062ef7a551e3edbd2f7d4408fa7078e1",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2584,
+          "total": 2584
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-soko3-1-special-program",
+      "recordingSha256": "5d1839c99e9fc956432dadc9142d2e2d2531c3f07a06b5a18be4cc760c4bfd5a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2797,
+          "total": 2797
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-soko3-2-special-program",
+      "recordingSha256": "360d0f8cbee93f2d0c89064c6750dd0cc446caf95b3e46e86c07c114e26ad612",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2861,
+          "total": 2861
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-soko4-1-special-program",
+      "recordingSha256": "b738a68a28905d504127b2b0dd0fb15aa07362ff5929f426f6b1bed0742e7263",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2980,
+          "total": 2980
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-soko4-2-special-program",
+      "recordingSha256": "157f1926d12d16dc9cae800f073640f4fab396a49e2b4d08c9f4a8021d94628f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 4747,
+          "total": 4747
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-minend-1-special-program",
+      "recordingSha256": "590a5177dcc8894719d01187be103ce391c9d34bba3068c570d95dd5bcf17635",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 3453,
+          "total": 3453
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-minend-2-special-program",
+      "recordingSha256": "f0427a53c55eb3822789b05465899eb9c4d9dea202443a5fc337dfe3d1f45157",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 7686,
+          "total": 7686
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-minend-3-special-program",
+      "recordingSha256": "fab3acdb3f5be99e58e35d0a1b643ae2a5fa5fcde8d82576fb4e4ddf074c8525",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 4489,
+          "total": 4489
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-minefill-special-program",
+      "recordingSha256": "998143ac151b40ec8815d373a87c490c3f031120f65577ef791ec9ddcaa98b1c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 5495,
+          "total": 5495
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-hellfill-special-program",
+      "recordingSha256": "95f3aac055d10bba75ef0928e8483552dba33d9cd3f8640497b4b8277b0792d9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 3997,
+          "total": 3997
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-2-special-program",
+      "recordingSha256": "5c72ece8ac401e216bfba31e26542828e10b22562aca53a7e59c0c8f2cca1b3d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 4880,
+          "total": 4880
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-3-special-program",
+      "recordingSha256": "d12c7ecdaf4d58252a293f6d5564965e680af25ca23955445ca2099da024ce2c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 4327,
+          "total": 4327
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-4-special-program",
+      "recordingSha256": "6ea7e6ffe31086e2ab7ed21d282cfce22b507a058bd752c5212e8956ba7a5036",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 3958,
+          "total": 3958
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-8-special-program",
+      "recordingSha256": "32f77d6df4fb36ec40690eaaefd7a5682e334fe933b3c065bb0be03f8c98c5c9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 3439,
+          "total": 3439
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-10-special-program",
+      "recordingSha256": "b12dc58e4b1aa0cb35d468632fb60a12c776d187d25381c659310704d5263e76",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 6979,
+          "total": 6979
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-12-special-program",
+      "recordingSha256": "f7d62dbce09e7dd7fb76198f5664e6738ea6462781a6375e0b6a20680f4a1cd3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 4408,
+          "total": 4408
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-13-special-program",
+      "recordingSha256": "44e7c7846fae6b0150fc208f05b82a3196c8a70c14314a12a5fe9c57902f431e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 5385,
+          "total": 5385
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-minetn-4-special-program",
+      "recordingSha256": "1ff87b86d53921f314ed0a477d3740a48ef31a65a9f93125264209c37fe41d1b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 5126,
+          "total": 5126
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-5-special-program",
+      "recordingSha256": "426fb11c0b90a99ee51d06e8bdce3e1fd0b08830e30e99bab978ebb8d25998dd",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 3988,
+          "total": 3988
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-air-plane-special-program",
+      "recordingSha256": "edd96266523feb567b423957fc6a8b616fb267f61ab1fa8b2a553fa7e9d38a3d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 4217,
+          "total": 4217
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-fire-plane-special-program",
+      "recordingSha256": "2c4f9536a2f5926f5bb35df2b05dfc8b7fec215514375281e1800f074e44cbdc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 8072,
+          "total": 8072
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-orcus-special-program",
+      "recordingSha256": "570b03182b4a1affcf869441ed37ff7bd0f06dfc2f52328360b3cf93f4aac385",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 32,
+          "total": 32
+        },
+        "rng": {
+          "matched": 5616,
+          "total": 5616
+        },
+        "cursors": {
+          "matched": 32,
+          "total": 32
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-baalz-special-program",
+      "recordingSha256": "e9c61eb7ccd3bb01d963a220f7792ba4e5533458ffb93027f52315a5d9d6cf2e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 32,
+          "total": 32
+        },
+        "rng": {
+          "matched": 4218,
+          "total": 4218
+        },
+        "cursors": {
+          "matched": 32,
+          "total": 32
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-sanctum-special-program",
+      "recordingSha256": "a05e8bee853ec2c35cee5be14e85fad1840359ac0ebc06f241298764ca71e43a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 5934,
+          "total": 5934
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-asmodeus-special-program",
+      "recordingSha256": "b250226c6ee2a967a93b62ab9f0e8aacab800b99bbc5fa09c9d00e5eb6ce5f74",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 3870,
+          "total": 3870
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-valley-special-program",
+      "recordingSha256": "168dc57c7dc035d685732b38a6d771e12f441fcca36b1652a6e6b9663abbea9a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 33
+        },
+        "rng": {
+          "matched": 6673,
+          "total": 6673
+        },
+        "cursors": {
+          "matched": 33,
+          "total": 33
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-6-special-program",
+      "recordingSha256": "5e0d8e2239ed2e14531de6bc12a2d0e752bf518f786eed758081f85d463a3d13",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 4601,
+          "total": 4601
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-1-special-program",
+      "recordingSha256": "eec0f50cb750ef1a4d189f41d377fb85e251d52234004d4b8e86e07407bd391b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 3352,
+          "total": 3352
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-7-special-program",
+      "recordingSha256": "c13aaa6d8ca5d5d54fcdc04a97bffe6a3a63f22c0103a8f8cc4361d4b63c8cac",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 4028,
+          "total": 4028
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-9-special-program",
+      "recordingSha256": "de403ad56a9ec6c2f5ecfb0d1934602ca2cbf356188617fdb9fccba841790c73",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 3770,
+          "total": 3770
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-medusa-1-special-program",
+      "recordingSha256": "1262dd46f68ed3f2a1a62409ae4c72c3892f5dbe322f2d091c7a6be0315fb627",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 4532,
+          "total": 4532
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-medusa-2-special-program",
+      "recordingSha256": "80edad4207b4c277181d814f8a3356f89aa03895972f92e2850475ddf5e0cc75",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 4381,
+          "total": 4381
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-medusa-3-special-program",
+      "recordingSha256": "0c7554ea8e210ba2f409ac9b9b37d648c258a39384f38dcfdbed9d84e29e82e8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 7519,
+          "total": 7519
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-medusa-4-special-program",
+      "recordingSha256": "25cf37b0e818219923a33bd25e1f2f3b87f4a0e92326f92226ea0ac93e65a1dc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 8241,
+          "total": 8241
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-oracle-special-program",
+      "recordingSha256": "19addaa5b3b852a0b4793f594c9fc5e939dfe3c59b2381cb9bea6f4b7f93cc9d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 33
+        },
+        "rng": {
+          "matched": 3992,
+          "total": 3992
+        },
+        "cursors": {
+          "matched": 33,
+          "total": 33
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-wizard2-special-program",
+      "recordingSha256": "1332fff6bd192235630e7562d0696b3003a578f33f39d26bd7573d0f8622d1cc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 6105,
+          "total": 6105
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-silver-sears-monk-polymorph-claw-ring",
+      "recordingSha256": "90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 72,
+          "total": 72
+        },
+        "rng": {
+          "matched": 2512,
+          "total": 2512
+        },
+        "cursors": {
+          "matched": 72,
+          "total": 72
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-cursed-book-contact-poison-resistant",
+      "recordingSha256": "706224e933edc635b14780d0b77901d5495a43f766e6a9eefa28e0c7318696c2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2714,
+          "total": 2714
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-bigrm-11-special-program",
+      "recordingSha256": "a6e85ad50b4c44962572e9a7b8504baf7711c43e0af3eaae53e0a5f3b1217378",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 3449,
+          "total": 3449
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-observe-quantum-cat-box-tip-floor",
+      "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 74,
+          "total": 74
+        },
+        "rng": {
+          "matched": 4851,
+          "total": 4851
+        },
+        "cursors": {
+          "matched": 74,
+          "total": 74
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-cursed-book-case0-teleport",
+      "recordingSha256": "d0c5af0dfb34abdcbba71b5a68295d7eb978417fa58d1d55beaab41ee931cef5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 44,
+          "total": 44
+        },
+        "rng": {
+          "matched": 2968,
+          "total": 2968
+        },
+        "cursors": {
+          "matched": 44,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-cursed-book-case3-take-gold",
+      "recordingSha256": "5000e74929690bc343987e5e3b78553c9d086710ca4808cd4a80b054fb2b9919",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 3501,
+          "total": 3501
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-cursed-book-case6-explosive-rune",
+      "recordingSha256": "142c03ec6a4dbd6c7689e9c5ef0c65bc66a0dc3e46e69750e9c2d63d94471441",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2689,
+          "total": 2689
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-rust-monster-still-chewing-bars",
+      "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2849,
+          "total": 2849
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-cursed-book-case1-aggravate",
+      "recordingSha256": "80bc54c07a7d37fa489c067b008ccf7d5f6731a5434b067696216aec8efaa1d0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 87,
+          "total": 87
+        },
+        "rng": {
+          "matched": 2367,
+          "total": 2367
+        },
+        "cursors": {
+          "matched": 87,
+          "total": 87
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-monster-undead-turning-lichen-corpse",
+      "recordingSha256": "eb20bba7b5aee1ae11159ab68138ee0567c0099fba9d644d2b7a0f67f642ec87",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 129,
+          "total": 129
+        },
+        "rng": {
+          "matched": 2734,
+          "total": 2734
+        },
+        "cursors": {
+          "matched": 129,
+          "total": 129
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-zhitu-acid-damage-dual-wield",
+      "recordingSha256": "50dae38203aeac670cf78b9b2deeafba38ca1ddecce804b23fcb13bb8a873a48",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 84,
+          "total": 84
+        },
+        "rng": {
+          "matched": 3005,
+          "total": 3005
+        },
+        "cursors": {
+          "matched": 84,
+          "total": 84
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-cursed-book-case2-blindness-control",
+      "recordingSha256": "3462eb5c73c369be1e3de418858aa2709231722356596ed9651392d632b13667",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2999,
+          "total": 2999
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-cursed-book-case4-confusion-control",
+      "recordingSha256": "c9673547e372dd2743740403b2ad5228214c3a5a1f2a823515675d5063a32ece",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 87,
+          "total": 87
+        },
+        "rng": {
+          "matched": 2564,
+          "total": 2564
+        },
+        "cursors": {
+          "matched": 87,
+          "total": 87
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-cursed-book-case5-gloves-control",
+      "recordingSha256": "b7089ab1b40579cae6ebe358dcc74f03618a8c24dbad9c333fcfa4038204d6a8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 88,
+          "total": 88
+        },
+        "rng": {
+          "matched": 3878,
+          "total": 3878
+        },
+        "cursors": {
+          "matched": 88,
+          "total": 88
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-confused-book-rune-tears-control",
+      "recordingSha256": "00c7fc961f51a0b030df8c25281d616afe28abbb56bb2a81cde422b4da4b1280",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 71,
+          "total": 71
+        },
+        "rng": {
+          "matched": 6031,
+          "total": 6031
+        },
+        "cursors": {
+          "matched": 71,
+          "total": 71
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-keepdogs-ordinary-descent-control",
+      "recordingSha256": "31537bfa95ce3f192f30fd1ee52465776f1341149e4920e2de18f91c86ca7d57",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 69,
+          "total": 69
+        },
+        "rng": {
+          "matched": 6667,
+          "total": 6667
+        },
+        "cursors": {
+          "matched": 69,
+          "total": 69
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v42-yellow-dragon-acid-breath-control",
+      "recordingSha256": "ae590304c485c1938b3ace60b65cfafa722a5efa26f6fe04080f58e2dc4e7988",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 67,
+          "total": 67
+        },
+        "rng": {
+          "matched": 3012,
+          "total": 3012
+        },
+        "cursors": {
+          "matched": 67,
+          "total": 67
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 59,
+      "total": 59
+    },
+    "screens": {
+      "matched": 2588,
+      "total": 2588
+    },
+    "rng": {
+      "matched": 257064,
+      "total": 257064
+    },
+    "cursors": {
+      "matched": 2588,
+      "total": 2588
+    }
+  }
+}
