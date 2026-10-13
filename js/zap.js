@@ -41,7 +41,7 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
-    ACID_RES, A_INT, A_STR, A_DEX, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BLINDED, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, DIR_180, DIR_ERR, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALF_PHDAM, HALLUC, HALLUC_RES, HEAD, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_OBSTRUCTED, IS_ROOM, IS_SINK, IS_TREE, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DOOR, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_earthlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, SHOP_WALL_COST, STONE, STOMACH, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, TT_PIT, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_BALL, W_CHAIN, W_RING, W_RINGL, W_QUIVER, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, } from './const.js';
+    ACID_RES, A_INT, A_STR, A_DEX, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BLINDED, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALF_PHDAM, HALLUC, HALLUC_RES, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_ROOM, IS_SINK, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_BALL, W_CHAIN, W_RING, W_RINGL, W_QUIVER, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { acurr, adjalign, exercise, poisoned } from './attrib.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
@@ -54,9 +54,10 @@ import {
     cant_finish_meal, eaten_stat, fix_petrification, vegetarian,
 } from './eat.js';
 import { cvt_sdoor_to_door, findit, show_map_spot } from './detect.js';
-import {
-    adj_pit_checks, bury_objs, dighole, fillholetyp, pit_flow, watch_dig,
+import { bury_objs,
+    zap_dig,
 } from './dig.js';
+export { zap_dig };
 import { dropx, dropy } from './do.js';
 import {
     ceiling, Invocation_lev, surface, surface_typ, update_mapseen_for, } from './dungeon.js';
@@ -67,7 +68,7 @@ import { displayTtyTextWindow } from './tty_menu.js';
 import { game } from './gstate.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import {
-    check_capacity, HeroDeathPlanningError, in_town, losehp, may_dig, nh_delay_output, nomul, test_move, set_uinwater, } from './hack.js';
+    check_capacity, HeroDeathPlanningError, losehp, nh_delay_output, nomul, test_move, set_uinwater, } from './hack.js';
 import {
     dist2, lcase, mungspaces, s_suffix, strsubst, truncateByteString, upstart, } from './hacklib.js';
 import {
@@ -78,7 +79,6 @@ import {
     set_cknown_lknown,
     hands_obj,
     hold_another_object,
-    stackobj,
     delete_contents,
     replace_inventory_core,
     update_inventory,
@@ -98,7 +98,7 @@ import { create_critters, monhp_per_lvl, newmcorpsenm } from './makemon.js';
 import {
     makemon_revival, makemon_runtime, newcham_revival, neweshk, } from './makemon_create.js';
 import {
-    can_be_hatched, completelyburns, defended, dead_species, dmgtype, dmgtype_fromattack, is_demon, perceives, hides_under, is_whirly, mindless, is_mplayer, is_rider, is_reviver, is_vampshifter, resists_drli, is_swimmer, amphibious, breathless, Resists_Elem, resists_magm, resists_blnd, resists_blnd_by_arti, monstseesu, monstunseesu, nonliving, is_golem, carnivorous, nohands, is_undead, sticks, type_is_pname, unique_corpstat, } from './mondata.js';
+    can_be_hatched, completelyburns, defended, dead_species, dmgtype, is_demon, perceives, hides_under, is_whirly, mindless, is_mplayer, is_rider, is_reviver, is_vampshifter, resists_drli, is_swimmer, amphibious, breathless, Resists_Elem, resists_magm, resists_blnd, resists_blnd_by_arti, monstseesu, monstunseesu, nonliving, is_golem, carnivorous, nohands, is_undead, sticks, type_is_pname, unique_corpstat, } from './mondata.js';
 import {
     AD_ACID, AD_COLD, AD_DGST, AD_DISN, AD_DRLI, AD_ELEC, AD_FIRE, AD_DRST, AD_MAGM, AD_RBRE, AD_SEDU, AD_SPEL, AD_SSEX, AT_ENGL, PM_CLAY_GOLEM, PM_CROCODILE, PM_FLESH_GOLEM, PM_GLASS_GOLEM, PM_GOLD_GOLEM, PM_IRON_GOLEM, PM_LEATHER_GOLEM, PM_PAPER_GOLEM, PM_ROPE_GOLEM, PM_SKELETON, PM_STONE_GOLEM, PM_STRAW_GOLEM, PM_WOOD_GOLEM, PM_DEATH, PM_DOPPELGANGER, PM_MONK, PM_KNIGHT, PM_HEALER, PM_GHOST, PM_PESTILENCE, PM_GREMLIN, PM_LONG_WORM, PM_ARCHEOLOGIST, G_NOCORPSE, G_UNIQ, NUMMONS, S_EEL, S_GOLEM, S_MIMIC, S_ZOMBIE, MZ_MEDIUM, } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
@@ -113,12 +113,10 @@ import {
     free_omonst,
     fixup_oil,
     hasContents,
-    is_helmet,
     isDamageable,
     is_flammable,
     isBox,
     isContainer,
-    isMetallic,
     isCorrodeable,
     isCrackable,
     is_pick,
@@ -126,7 +124,6 @@ import {
     isRustprone,
     mkobj,
     mksobj,
-    mksobj_at,
     objectType,
     obj_ice_effects,
     recreate_pile_at,
@@ -157,7 +154,7 @@ import { disintegrate_arm, set_wear } from './do_wear.js';
 import { is_quest_artifact } from './questpgr.js';
 import { mstatusline, ustatusline } from './insight.js';
 import {
-    body_part, mbodypart, polyself, polymon, rehumanize, ugolemeffects, } from './polyself.js';
+    body_part, polyself, polymon, rehumanize, ugolemeffects, } from './polyself.js';
 import { P_SKILL, spell_skilltype } from './startup_skills.js';
 import {
     healup, make_blinded, incr_itimeout, make_stunned, speed_up, self_invis_message, } from './potion.js';
@@ -178,15 +175,12 @@ import {
 import { Shknam, shkname } from './shknam.js';
 import { messageAt } from './startup_a11y.js';
 import { MIM_OMIT_WAIT, MIM_REVEAL } from './const.js';
-import {
-    S_digbeam, S_flashbeam, S_hcdoor, S_vodoor, } from './symbols.js';
+import { S_flashbeam, S_hcdoor, S_vodoor, } from './symbols.js';
 import {
     closed_door, dissolve_bars, monflee, monfleeMessage, onscary, set_apparxy, youHear, } from './monmove.js';
-import { stairway_at } from './stairs.js';
 
 import { acid_damage, burnarmor } from './trap_erode_obj.js';
-import {
-    conjoined_pits, delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, sokoban_guilt, t_at, trapname, trap_ice_effects } from './trap.js';
+import { delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, sokoban_guilt, t_at, trapname, trap_ice_effects } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import {
     erode_armor, flash_hits_mon, m_is_steadfast, shade_miss,
@@ -6060,256 +6054,6 @@ export async function zapnodir(obj, state = game,
             more_experienced(0, 10, state);
         learnwand(obj, state);
     }
-}
-
-// C ref: dig.c zap_dig() (1548-1754). The swallowed branch uses the canonical
-// expels() message and relocation path; vertical down-dig calls the ported
-// dighole() but later hole descent remains incomplete. The horizontal adjacent-pit arm runs
-// pit_flow()/liquid_flow() in source order. The
-// normal horizontal and maze arms are complete through their beam animation,
-// source terrain order, vision updates, and discarded shop/watch hooks.
-function zapDigHardHelmet(helmet, state) {
-    if (!helmet || !is_helmet(helmet, state)) return false;
-    const type = objectType(helmet, state);
-    return isMetallic(helmet, state) || type.oc_material === GLASS;
-}
-
-function zapDigMaybeHalfPhys(damage, state) {
-    const property = state.u?.uprops?.[HALF_PHDAM];
-    return property?.intrinsic || property?.extrinsic
-        ? Math.trunc((damage + 1) / 2) : damage;
-}
-
-export async function zap_dig(
-    state = game,
-    random = { rn1, rnd, rn2 },
-) {
-    const u = state.u;
-    if (u.uswallow) {
-        const mtmp = u.ustuck;
-        if (!is_whirly(mtmp?.data)) {
-            const digestive = Boolean(
-                dmgtype_fromattack(mtmp.data, AD_DGST, AT_ENGL),
-            );
-            if (digestive) {
-                await ttyPline(
-                    `You pierce ${s_suffix(mon_nam(mtmp, state))} `
-                    + `${mbodypart(mtmp, STOMACH)} wall!`,
-                    state,
-                );
-            }
-            if (unique_corpstat(mtmp.data))
-                mtmp.mhp = Math.trunc((mtmp.mhp + 1) / 2);
-            else
-                mtmp.mhp = 1;
-            await expels(mtmp, {
-                state,
-                expulsionMessage: !digestive,
-            });
-        }
-        return;
-    }
-    if (u.dz) {
-        if (!Is_airlevel(u.uz) && !Is_waterlevel(u.uz) && !u.uinwater) {
-            const stway = stairway_at(u.ux, u.uy, state);
-            if (u.dz < 0 || stway) {
-                if (stway) {
-                    await ttyPline(
-                        `The beam bounces off the ${stway.isladder ? 'ladder' : 'stairs'} `
-                        + `and hits the ${ceiling(u.ux, u.uy, state)}.`,
-                        state,
-                    );
-                }
-                await ttyPline(
-                    `You loosen a rock from the ${ceiling(u.ux, u.uy, state)}.`,
-                    state,
-                );
-                await ttyPline(
-                    `It falls on your ${body_part(HEAD, state.youmonst)}!`,
-                    state,
-                );
-                const damage = random.rnd(
-                    zapDigHardHelmet(state.uarmh, state) ? 2 : 6,
-                );
-                await losehp(
-                    zapDigMaybeHalfPhys(damage, state),
-                    'falling rock', KILLED_BY_AN, state,
-                );
-                const rock = mksobj_at(
-                    ROCK, u.ux, u.uy, false, false,
-                    objectGenerationEnv({ state, random }),
-                );
-                if (rock) {
-                    xnameFresh(rock, state);
-                    stackobj(rock, objectGenerationEnv({ state, random }));
-                }
-                newsym(u.ux, u.uy, state);
-            } else {
-                await watch_dig(null, u.ux, u.uy, true, { state });
-                await dighole(false, true, null, { state, random });
-            }
-        }
-        return;
-    }
-
-    const trapWithHero = u.utrap && u.utraptype === TT_PIT
-        ? t_at(u.ux, u.uy, state) : null;
-
-    let shopdoor = false;
-    let shopwall = false;
-    let flowX = -1;
-    let flowY = -1;
-    let pitflow = false;
-    let diridx = 8;
-    if (trapWithHero) diridx = xytodir(u.dx, u.dy);
-    const mazeDig = Boolean(
-        state.level?.flags?.is_maze_lev && !Is_earthlevel(u.uz),
-    );
-    let zx = u.ux + u.dx;
-    let zy = u.uy + u.dy;
-    let digdepth = random.rn1(18, 8);
-
-    await tmp_at(
-        DISP_BEAM,
-        map_glyphinfo(cmap_to_glyph(S_digbeam, state), state),
-        state,
-    );
-    while (--digdepth >= 0) {
-        if (!isok(zx, zy)) break;
-        const room = state.level.at(zx, zy);
-        await tmp_at(zx, zy, state);
-        await nh_delay_output(state);
-
-        if (trapWithHero) {
-            const adjacentPit = t_at(zx, zy, state);
-            if (diridx !== DIR_ERR
-                && !conjoined_pits(adjacentPit, trapWithHero, false, state)) {
-                digdepth = 0;
-                let nextPit = adjacentPit;
-                if (!(nextPit && is_pit(nextPit.ttyp))) {
-                    const check = adj_pit_checks({ x: zx, y: zy }, state);
-                    if (check.message)
-                        await ttyPline(check.message, state);
-                    if (check.allowed)
-                        note_unported('dig.c dighole');
-                    nextPit = t_at(zx, zy, state);
-                }
-                if (nextPit && is_pit(nextPit.ttyp)) {
-                    trapWithHero.conjoined
-                        = (trapWithHero.conjoined ?? 0) | (1 << diridx);
-                    nextPit.conjoined
-                        = (nextPit.conjoined ?? 0) | (1 << DIR_180(diridx));
-                    flowX = zx;
-                    flowY = zy;
-                    pitflow = true;
-                }
-                if (is_pool(zx, zy, state) || is_lava(zx, zy, state)) {
-                    flowX = zx - u.dx;
-                    flowY = zy - u.dy;
-                    pitflow = true;
-                }
-                break;
-            }
-        } else if (closed_door(zx, zy, state) || room.typ === SDOOR) {
-            if (in_rooms(zx, zy, SHOPBASE, state).length) {
-                add_damage(zx, zy, SHOP_DOOR_COST, state);
-                shopdoor = true;
-            }
-            if (room.typ === SDOOR) {
-                cvt_sdoor_to_door(room, state);
-            } else if (cansee(zx, zy, state)) {
-                await ttyPline('The door is razed!', state);
-            }
-            await watch_dig(null, zx, zy, true, { state });
-            room.doormask = D_NODOOR;
-            room.flags = D_NODOOR;
-            recalc_block_point(zx, zy, state);
-            digdepth -= 2;
-            if (mazeDig) break;
-        } else if (mazeDig) {
-            if (IS_WALL(room.typ)) {
-                if (!(room.wall_info & W_NONDIGGABLE)) {
-                    if (in_rooms(zx, zy, SHOPBASE, state).length) {
-                        add_damage(zx, zy, SHOP_WALL_COST, state);
-                        shopwall = true;
-                    }
-                    room.typ = ROOM;
-                    room.flags = 0;
-                    room.doormask = 0;
-                    unblock_point(zx, zy, state);
-                } else if (!heroIsBlind(state)) {
-                    await ttyPline('The wall glows then fades.', state);
-                }
-                break;
-            } else if (IS_TREE(room.typ)) {
-                if (!(room.wall_info & W_NONDIGGABLE)) {
-                    room.typ = ROOM;
-                    room.flags = 0;
-                    room.doormask = 0;
-                    unblock_point(zx, zy, state);
-                } else if (!heroIsBlind(state)) {
-                    await ttyPline('The tree shudders but is unharmed.', state);
-                }
-                break;
-            } else if (room.typ === STONE || room.typ === SCORR) {
-                if (!(room.wall_info & W_NONDIGGABLE)) {
-                    room.typ = CORR;
-                    room.flags = 0;
-                    room.doormask = 0;
-                    unblock_point(zx, zy, state);
-                } else if (!heroIsBlind(state)) {
-                    await ttyPline('The rock glows then fades.', state);
-                }
-                break;
-            }
-        } else if (IS_OBSTRUCTED(room.typ)) {
-            if (!may_dig(zx, zy, state)) break;
-            if (IS_WALL(room.typ) || room.typ === SDOOR) {
-                if (in_rooms(zx, zy, SHOPBASE, state).length) {
-                    add_damage(zx, zy, SHOP_WALL_COST, state);
-                    shopwall = true;
-                }
-                await watch_dig(null, zx, zy, true, { state });
-                if (state.level.flags?.is_cavernous_lev
-                    && !in_town(zx, zy, state)) {
-                    room.typ = CORR;
-                    room.flags = 0;
-                    room.doormask = 0;
-                } else {
-                    room.typ = DOOR;
-                    room.doormask = D_NODOOR;
-                    room.flags = D_NODOOR;
-                }
-                digdepth -= 2;
-            } else if (IS_TREE(room.typ)) {
-                room.typ = ROOM;
-                room.flags = 0;
-                room.doormask = 0;
-                digdepth -= 2;
-            } else {
-                room.typ = CORR;
-                room.flags = 0;
-                room.doormask = 0;
-                digdepth--;
-            }
-            unblock_point(zx, zy, state);
-        }
-        zx += u.dx;
-        zy += u.dy;
-    }
-    await tmp_at(DISP_END, 0, state);
-    if (pitflow && isok(flowX, flowY)) {
-        const flowTrap = t_at(flowX, flowY, state);
-        if (flowTrap && is_pit(flowTrap.ttyp)) {
-            const filltyp = fillholetyp(flowTrap.tx, flowTrap.ty, true,
-                state, random);
-            if (filltyp !== ROOM)
-                await pit_flow(flowTrap, filltyp, state, { random });
-        }
-    }
-    if (shopdoor || shopwall)
-        await pay_for_damage(shopdoor ? 'destroy' : 'dig into', false,
-            state, { random });
 }
 
 // C ref: zap.c zapsetup() (3413-3418).  The object-zap feedback flag is one
