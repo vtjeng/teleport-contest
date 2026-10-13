@@ -566,6 +566,7 @@ import {
     pay_for_damage,
     shop_keeper,
     shk_your,
+    use_unpaid_trapobj,
 } from './shk.js';
 import { begin_burn, end_burn } from './timeout.js';
 import { wield_tool } from './wield.js';
@@ -2059,7 +2060,7 @@ export async function use_trap(obj, state = game, env = {}) {
         `You begin setting ${shk_your(obj, state)}${trapname(ttyp, false, state)}.`,
         state,
     );
-    if (obj.unpaid) note_unported('shk.c use_unpaid_trapobj');
+    await use_unpaid_trapobj(obj, state.u.ux, state.u.uy, state, env);
     set_occupation(set_trap, 'setting the trap', 0, state);
 }
 

@@ -22,11 +22,12 @@ import { addinv_runtime, obfree, obj_extract_self, useupf } from '../js/invent.j
 import { bill_dummy_object, mksobj_at, newObject } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { donameFresh } from '../js/objnam.js';
-import { DART, DIAMOND, FOOD_RATION, GOLD_PIECE, POT_HEALING, SACK,
+import { BEARTRAP, DART, DIAMOND, FOOD_RATION, GOLD_PIECE, POT_HEALING, SACK,
     TALLOW_CANDLE } from '../js/objects.js';
 import { pick_obj } from '../js/pickup.js';
 import { addtobill, alter_cost, billable, contained_cost, costly_gold,
-    picked_container, set_cost, setpaid, subfrombill, u_left_shop, unpaid_cost }
+    picked_container, set_cost, setpaid, subfrombill, u_left_shop,
+    unpaid_cost, use_unpaid_trapobj }
     from '../js/shk.js';
 import { saleable } from '../js/shknam.js';
 import { SHTYPES } from '../js/shtypes_data.js';
@@ -313,6 +314,23 @@ test('bill_dummy_object replaces the original bill and preserves its old price',
     setpaid(keeper, state);
     assert.equal(dummy.where, OBJ_DELETED);
     assert.equal(eshk.billct, 0);
+});
+
+test('using an unpaid trap quotes the purchase and bills its used-up copy', async () => {
+    const { state, eshk, env, messages } = await shop();
+    const beartrap = object(state, BEARTRAP);
+    await addtobill(beartrap, false, false, true, state, env);
+    await addinv_runtime(beartrap, env);
+    const price = eshk.bill_p[0].price;
+
+    await use_unpaid_trapobj(beartrap, state.u.ux, state.u.uy, state, env);
+
+    assert.ok(messages.includes('"You set it, you buy it!"'));
+    assert.equal(Boolean(beartrap.unpaid), false);
+    assert.equal(eshk.billct, 1);
+    assert.equal(eshk.bill_p[0].useup, true);
+    assert.equal(eshk.bill_p[0].price, price);
+    assert.equal(state.gb.billobjs.where, OBJ_ONBILL);
 });
 
 test('subfrombill retains only previously used quantity under a fresh ID', async () => {

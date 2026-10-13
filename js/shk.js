@@ -4,7 +4,8 @@
 // C refs: shk.c inhishop(), inside_shop(), shop_keeper(), u_entered_shop(),
 // u_left_shop(), call_kops(), makekops(), getprice(), get_cost(),
 // get_cost_of_shop_item(), gem_learned(),
-// append_price_quote(), contained_gold(), check_unpaid(), costly_spot(),
+// append_price_quote(), contained_gold(), check_unpaid(),
+// use_unpaid_trapobj(), costly_spot(),
 // shop_object(), shk_owns(), mon_owns(), shk_your(), shk_move(),
 // shk_fixes_damage(), and the end-of-game cleanup chain next_shkp(),
 // rile_shk(), hot_pursuit(), onbill(), clear_unpaid(), clear_no_charge(), setpaid(),
@@ -135,6 +136,7 @@ import { angry_guards, mnearto, mnexto, mongone, wake_nearto } from './mon.js';
 import { search_special } from './mkroom.js';
 import {
     carried,
+    bill_dummy_object,
     dealloc_obj,
     hasContents,
     isCandle,
@@ -2457,6 +2459,24 @@ export async function check_unpaid_usage(otmp, altusage, state = game, env = {})
 // C ref: shk.c check_unpaid() (5737-5742), the normal-use adapter.
 export async function check_unpaid(otmp, state = game, env = {}) {
     await check_unpaid_usage(otmp, false, state, env);
+}
+
+// C ref: shk.c use_unpaid_trapobj() (6101-6114). Applying an unpaid trap uses
+// it up for billing before the set_trap occupation begins.
+export async function use_unpaid_trapobj(otmp, x, y, state = game, env = {}) {
+    if (!otmp.unpaid) return;
+    if (!heroIsDeaf(state)) {
+        const shopkeeper = find_objowner(otmp, x, y, state);
+        if (shopkeeper && !muteshk(shopkeeper)) {
+            // SetVoice is an empty macro in this recorder's no-sound build.
+            await verbalize('You set it, you buy it!', state, {
+                message: env.message ?? ttyPline,
+            });
+        }
+    }
+    // C discards bill_dummy_object()'s void result but observes its billing
+    // records, generated ID, and otmp unpaid/no_charge mutation.
+    await bill_dummy_object(otmp, { ...env, state });
 }
 
 // C ref: shk.c costly_spot().
