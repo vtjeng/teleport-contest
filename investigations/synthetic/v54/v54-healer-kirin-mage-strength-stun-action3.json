@@ -11,7 +11,7 @@
   "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
   "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
   "status": "complete",
-  "commit": "0c387ab28481aef11ae212cc7e0386288729b6ba",
+  "commit": "c822abd915745ceecf04fb86bcaac8607e25198c",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v54",
@@ -78,7 +78,7 @@
   "evidence": [
     "Baseline challenges/evaluations/accepted-df5ff0a2196351b29a774a3be604914535a2a147-v54.json records 505/778 screens and cursors, 4899/15123 RNG, error null; this is the accepted result after the earlier set_apparxy ReferenceError was fixed.",
     "At muse.c:1421-1594, the charged WAN_FIRE arm selects MUSE_WAN_FIRE when !m_seenres(M_SEEN_FIRE); muse.c:1824-1849 calls mzapwand, makeknown when visible, sets gm.m_using/gc.current_wand/gb.buzzer, calls the first-use buzz_force_miss or buzz with six dice, clears those globals, sets mwandexp, and returns DEADMONSTER ? 1 : 2.",
-    "The focused replay receipt /tmp/teleport-validation-1000/run-LZ8HyK/receipt.json was run from base 0c387ab28481aef11ae212cc7e0386288729b6ba with final source edits in the worktree. It emits 527 screens and reports no RNG divergence; first screen/cursor difference is step 511, row 0 column 24 (C E vs JS e; cursors [74,0,1] vs [78,0,1]). Therefore steps 0-510 match all screens, cursors, and RNG, including step 505 WAN_FIRE and its return to mattacku.",
+    "Committed replay receipt /tmp/teleport-validation-1000/run-DbFEGV/receipt.json at c822abd915745ceecf04fb86bcaac8607e25198c emits 527 screens and reports no RNG divergence; first screen/cursor difference is step 511, row 0 column 24 (C E vs JS e; cursors [74,0,1] vs [78,0,1]). Therefore steps 0-510 match all screens, cursors, and RNG, including step 505 WAN_FIRE and its return to mattacku.",
     "At mhitu.c:758-762, use_offensive result 2 is not death, so C continues into ordinary mattacku processing and returns normally; JS js/unported_monster_actions.js:1409-1416 delegates to use_offensive and js/mhitu.js:1841-1847 likewise returns only when result is 1. The focused source-pinned test scripts/muse.test.mjs verifies the WAN_FIRE branch returns 2 and resets m_using/current_wand/buzzer while consuming the supplied RNG stream.",
     "The scanner’s later boundary at step 527 is unsupported object name branch: multishot missile ordinal; preserve this as a later objnam.c:mshot_xname frontier outside the current muse.c change."
   ]
