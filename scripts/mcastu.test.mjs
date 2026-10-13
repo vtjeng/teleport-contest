@@ -31,8 +31,10 @@ import {
     STRAT_WAITFORU,
     TELEPAT,
     TIMEOUT,
+    ROOM,
 } from '../js/const.js';
 import { GLYPH_INVISIBLE } from '../js/display.js';
+import { GameMap } from '../js/game.js';
 import { buzzmu, castmu, death_inflicted_by, touch_of_death, mcast_death_touch, mcast_destroy_armor, mcast_insects, mcast_summon_mons, mcast_weaken_you } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
 import {
@@ -89,13 +91,20 @@ function makeState(overrides = {}) {
         viz_array[row] = new Uint8Array(80);
     }
     viz_array[5][5] = COULD_SEE | IN_SIGHT;
+    const level = new GameMap();
+    // castmu floor-effect callers target (4, 5); a room keeps unrelated
+    // terrain effects inert while supplying zap_over_floor's real map owner.
+    level.at(4, 5).typ = ROOM;
+    if (overrides.level) Object.assign(level, overrides.level);
     return {
         u: { ux: 4, uy: 5, uprops: {} },
+        level,
         moves: 100,
         youmonst: { data: { mlet: 0 } },
         context: {},
         viz_array,
         ...overrides,
+        level,
     };
 }
 
@@ -416,8 +425,7 @@ test('castmu: mspec_used on cooldown misses without casting', async () => {
 });
 
 test('castmu: requires an unsupported operation', async () => {
-    // AD_MAGM has no ported arm; without the hook castmu() must refuse up
-    // front rather than return M_ATTK_HIT with nothing cast.
+    // AD_MAGM requires mdamageu for its source-ordered hero damage callback.
     const mattk = { aatyp: AT_MAGC, adtyp: AD_MAGM, damn: 0, damd: 0 };
     await assert.rejects(
         castmu(makeCaster(), mattk, true, true,
@@ -428,7 +436,7 @@ test('castmu: requires an unsupported operation', async () => {
 
 test('castmu: AD_MAGM damages the hero after its source-ordered rolls', async () => {
     // The common castmu damage roll is consumed first; AD_MAGM replaces its
-    // value with its own d(ml/2+1,6) roll before the discarded floor effect.
+    // value with its own d(ml/2+1,6) roll before the floor-effect helper.
     const mattk = { aatyp: AT_MAGC, adtyp: AD_MAGM, damn: 0, damd: 0 };
     const state = makeState();
     const random = scriptedRandom([50], 8);
@@ -447,7 +455,7 @@ test('castmu: AD_MAGM damages the hero after its source-ordered rolls', async ()
     assert.deepEqual(random.draws, ['rn2(70)', 'd(4,6)', 'd(4,6)']);
     assert.ok(events.includes('message:You are hit by a shower of missiles!'));
     assert.deepEqual(events.slice(-2), [
-        'gap:zap.c mon_spell_hits_spot',
+        'message:You are hit by a shower of missiles!',
         'damage',
     ]);
     assert.equal(damageArgs[0].m_lev, 7);
@@ -480,7 +488,7 @@ test('castmu: AD_MAGM is blocked by Antimagic without damage', async () => {
     assert.ok(messages.includes('You are hit by a shower of missiles!'));
     assert.ok(messages.includes('The missiles bounce off!'));
     assert.equal(watcher.seen_resistance, M_SEEN_MAGR);
-    assert.deepEqual(gaps, ['zap.c mon_spell_hits_spot']);
+    assert.deepEqual(gaps, []);
     assert.deepEqual(damageCalls, []);
 });
 
@@ -1276,7 +1284,7 @@ function watcherAt(state, x, y, seen_resistance) {
         mhp: 10, mx: x, my: y, data: { mflags1: 0 }, seen_resistance,
         nmon: null,
     };
-    state.level = { monlist: watcher };
+    state.level.monlist = watcher;
     return watcher;
 }
 
@@ -1430,7 +1438,7 @@ test('fire pillar: production cleric cast applies fire damage and item effects',
         'rn2(14)', 'rn2(5)', 'rn2(140)', 'd(8,6)', 'd(8,6)',
         'rn2(5)', 'rn2(5)',
     ]);
-    assert.deepEqual(gaps, ['zap.c mon_spell_hits_spot']);
+    assert.deepEqual(gaps, []);
 });
 
 test('lightning: production cast preserves rnd(100) before flashburn', async () => {
@@ -1458,7 +1466,7 @@ test('lightning: production cast preserves rnd(100) before flashburn', async () 
     assert.deepEqual(random.draws, [
         'rn2(14)', 'rn2(140)', 'd(8,6)', 'd(8,6)', 'rn2(5)', 'rnd(100)',
     ]);
-    assert.deepEqual(gaps, ['zap.c mon_spell_hits_spot']);
+    assert.deepEqual(gaps, []);
 });
 
 test('paralyze: production cleric cast applies nomul damage', async () => {

@@ -69,7 +69,9 @@ import { find_ac } from './u_init_inventory_attrs.js';
 import {
     check_capacity, HeroDeathPlanningError, in_town, losehp, may_dig, nh_delay_output, nomul, test_move, set_uinwater, } from './hack.js';
 import {
-    dist2, lcase, mungspaces, s_suffix, strsubst, truncateByteString, upstart, } from './hacklib.js';
+    dist2, encodeUtf8ByteString, lcase, mungspaces, s_suffix, strsubst,
+    truncateByteString, upstart,
+} from './hacklib.js';
 import {
     getobj,
     display_binventory,
@@ -103,7 +105,9 @@ import {
     AD_ACID, AD_COLD, AD_DGST, AD_DISN, AD_DRLI, AD_ELEC, AD_FIRE, AD_DRST, AD_MAGM, AD_RBRE, AD_SEDU, AD_SPEL, AD_SSEX, AT_ENGL, PM_CLAY_GOLEM, PM_CROCODILE, PM_FLESH_GOLEM, PM_GLASS_GOLEM, PM_GOLD_GOLEM, PM_IRON_GOLEM, PM_LEATHER_GOLEM, PM_PAPER_GOLEM, PM_ROPE_GOLEM, PM_SKELETON, PM_STONE_GOLEM, PM_STRAW_GOLEM, PM_WOOD_GOLEM, PM_DEATH, PM_DOPPELGANGER, PM_MONK, PM_KNIGHT, PM_HEALER, PM_GHOST, PM_PESTILENCE, PM_GREMLIN, PM_LONG_WORM, PM_ARCHEOLOGIST, G_NOCORPSE, G_UNIQ, NUMMONS, S_EEL, S_GOLEM, S_MIMIC, S_ZOMBIE, MZ_MEDIUM, } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
-import { del_engr_at, engr_at, make_engr_at, rloc_engr } from './engrave.js';
+import {
+    del_engr_at, engr_at, make_engr_at, rloc_engr, wipe_engr_at,
+} from './engrave.js';
 import { random_engraving } from './random_engraving.js';
 import {
     carried,
@@ -5438,6 +5442,41 @@ export async function zap_over_floor(
         if (mon) await wakeup(mon, type >= 0, { state, random });
     }
     return rangemod;
+}
+
+// C ref: zap.c mon_spell_hits_spot() (5501-5535). The helper first erodes
+// vulnerable engravings for magic missiles or acid, then applies the floor
+// effect with the monster-spell type. Both C calls discard their results.
+export async function mon_spell_hits_spot(
+    _caster, adtyp, x, y, rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { d };
+    const env = { ...rawEnv, state, random };
+
+    if (adtyp === AD_MAGM || adtyp === AD_ACID) {
+        const engraving = engr_at(x, y, state);
+        const engravingText = engraving?.engr_txt?.[0];
+        if (engravingText !== null && engravingText !== undefined) {
+            const engravingBytes = encodeUtf8ByteString(engravingText);
+            const terminator = engravingBytes.indexOf(0);
+            const textLength = terminator < 0
+                ? engravingBytes.length : terminator;
+            const count = textLength + random.d(6, 6);
+            await wipe_engr_at(x, y, count, true, env);
+        }
+    }
+
+    if (adtyp >= AD_MAGM && adtyp <= AD_ACID) {
+        // C's ZT_* constants are AD_* - 1, and ZT_SPELL(x) is 10 + x.
+        const zapDamageType = -(10 + (adtyp - 1));
+        const shopDamage = { value: false };
+        await zap_over_floor(
+            x, y, zapDamageType, shopDamage, true, 0, state, random, env,
+        );
+    } else {
+        note_unported('zap.c impossible');
+    }
 }
 
 // C ref: zap.c disintegrate_mon() (5050-5095).  The caller intentionally

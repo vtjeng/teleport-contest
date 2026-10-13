@@ -3,9 +3,9 @@
 // is_undirected_spell(), spell_would_be_useless(), and mcast_spell().
 //
 // Individual spell effects (mcast_psi_bolt, mcast_open_wounds, and the
-// return-valued effects below) are ported here. A void helper whose result C
-// discards remains an explicit note_unported gap until its own source span
-// lands; the dispatcher still preserves its source case and damage order.
+// return-valued effects below) are ported here. Remaining discarded void
+// helpers stay explicit note_unported gaps while the dispatcher preserves
+// their source case and damage order.
 
 import {
     A_DEX,
@@ -106,7 +106,9 @@ import { ignite_items } from './apply_catch_lit.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { ureflects } from './muse.js';
 import { note_unported } from './unported.js';
-import { buzz, flash_str, flashburn } from './zap.js';
+import {
+    buzz, flash_str, flashburn, mon_spell_hits_spot,
+} from './zap.js';
 import {
     heroDeaf,
     heroUnaware,
@@ -626,8 +628,9 @@ export async function castmu(
             dmg = random.d(Math.trunc(ml / 2) + 1, 6);
             monstunseesu(M_SEEN_MAGR, state);
         }
-        // C's mon_spell_hits_spot() returns void and castmu discards it.
-        recordMcastGap('zap.c mon_spell_hits_spot', env);
+        await mon_spell_hits_spot(
+            mtmp, mattk.adtyp, state.u.ux, state.u.uy, { ...env, state, random },
+        );
         break;
     default:
         // AD_FIRE and AD_COLD are ranged-only attack types.
@@ -768,7 +771,9 @@ async function mcast_fire_pillar(mtmp, dmg, env = {}) {
     await burnarmor(state.youmonst, effectEnv);
     await destroy_items(state.youmonst, AD_FIRE, origDmg, effectEnv);
     await ignite_items(state.invent, effectEnv);
-    recordMcastGap('zap.c mon_spell_hits_spot', env);
+    await mon_spell_hits_spot(
+        mtmp, AD_FIRE, state.u.ux, state.u.uy, effectEnv,
+    );
     return dmg;
 }
 
@@ -802,7 +807,9 @@ async function mcast_lightning(mtmp, dmg, env = {}) {
         message: env.message ?? (env.planning ? async () => {} : undefined),
     };
     await destroy_items(state.youmonst, AD_ELEC, origDmg, effectEnv);
-    recordMcastGap('zap.c mon_spell_hits_spot', env);
+    await mon_spell_hits_spot(
+        mtmp, AD_ELEC, state.u.ux, state.u.uy, effectEnv,
+    );
     // mcastu.c evaluates rnd(100) before the canonical zap.c flashburn call.
     // Keep that draw on the injected gameplay RNG, including in planning.
     if (typeof random.rnd !== 'function')
