@@ -2874,6 +2874,40 @@ test('runtime appearance suffixes retain exact source distance boundaries',
         }
     });
 
+test('runtime appearance defaults to Norep when the caller supplies pline',
+    async () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = 10;
+        state.u.uy = 5;
+        state.level.at(11, 6).typ = ROOM;
+        state.viz_array = Array.from(
+            { length: ROWNO },
+            () => new Uint8Array(COLNO),
+        );
+        state.viz_array[6][11] = IN_SIGHT | COULD_SEE;
+        const random = scriptedRandom([
+            ...basicCreationSteps(),
+            ...ordinaryInventoryTail(),
+        ]);
+        const ordinaryMessages = [];
+
+        await makemon_runtime(
+            state.mons[PM_NEWT], 11, 6, MM_NOGRP, {
+                state,
+                random: random.random,
+                message: async (text) => ordinaryMessages.push(text),
+            },
+        );
+
+        random.assertExhausted();
+        assert.deepEqual(ordinaryMessages, []);
+        assert.equal(
+            state._ttyPreviousMessage,
+            'A newt suddenly appears next to you!',
+        );
+    });
+
 test('direct runtime call shapes require an async tail owner before mutation',
     () => {
         for (const scenario of [

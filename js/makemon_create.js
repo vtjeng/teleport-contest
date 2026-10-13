@@ -3348,7 +3348,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
 export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
     const message = env.message === undefined ? ttyPline : env.message;
     const norepMessage = env.norepMessage === undefined
-        ? env.message === undefined ? ttyNorep : message
+        ? ttyNorep
         : env.norepMessage;
     if (typeof message !== 'function' || typeof norepMessage !== 'function') {
         throw new TypeError('makemon_runtime requires message operations');
