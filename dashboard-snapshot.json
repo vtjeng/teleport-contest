@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T16:23:02.843Z",
+  "capturedAt": "2026-10-13T16:54:06.265Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -104865,22 +104865,402 @@
         "at": "2026-10-13T16:22:51.668Z",
         "task": "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
         "delivery": "658a0cef0be43ca10fa417eb398d16ff9c6c9b54"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v56-mounted-fumbling-fall-action4-20261013-cf1e0f47feb98c84d725db881b7eb5b877207b5f",
+        "type": "published",
+        "at": "2026-10-13T16:23:17.924Z",
+        "task": "A2-investigation-v56-mounted-fumbling-fall-action4-20261013",
+        "commit": "cf1e0f47feb98c84d725db881b7eb5b877207b5f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2f8807e48c1a8c06f704bad792e2167d8009f622",
+        "type": "ready",
+        "at": "2026-10-13T16:23:45.671Z",
+        "task": "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
+        "delivery": "2f8807e48c1a8c06f704bad792e2167d8009f622"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v58-npc-magicbane-confusion-20261013",
+        "type": "assign",
+        "at": "2026-10-13T16:23:50.486Z",
+        "task": "C-investigation-v58-npc-magicbane-confusion-action2-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v58-magicbane-stun-20261013",
+        "type": "implement",
+        "at": "2026-10-13T16:24:26.942Z",
+        "task": "C-investigation-v58-npc-magicbane-confusion-action2-20261013",
+        "goal": "fix-artifact-mbhit-hero-stun-property-binding-v58-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v58-swallowed-wraith-growth-20261013",
+        "type": "assign",
+        "at": "2026-10-13T16:25:50.697Z",
+        "task": "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep28-v64-c-first-recording-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:26:34.589Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep28 records fifteen source-designed C setup paths before comparing JavaScript."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-8356adcf7451ddd587e14ab62324e9fad6245391-20261013",
+        "type": "received",
+        "at": "2026-10-13T16:26:37.853Z",
+        "task": "C-investigation-v61-pet-bee-eats-floor-jelly-action2-20261013",
+        "delivery": "8356adcf7451ddd587e14ab62324e9fad6245391"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-2f8807e48c1a8c06f704bad792e2167d8009f622-20261013",
+        "type": "received",
+        "at": "2026-10-13T16:26:41.207Z",
+        "task": "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
+        "delivery": "2f8807e48c1a8c06f704bad792e2167d8009f622"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-c-norep-5a8806ed-20261013",
+        "type": "activity",
+        "at": "2026-10-13T16:26:44.954Z",
+        "task": "C-investigation-v56-timedblind-highcleric-geyser-action5-20261013",
+        "phase": "review",
+        "reason": "Integrate the oldest dependency-ready implementation from its verified saved packet."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-active-wraith-diagnosis-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:27:53.344Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Diagnosis complete; reserving the swallowed-food caller binding fix before edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-implement-v58-wraith-grow-up-binding-20261013",
+        "type": "implement",
+        "at": "2026-10-13T16:28:12.818Z",
+        "task": "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
+        "goal": "fix-engulfer-wraith-grow-up-binding-v58-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2945ffcdf1c464510ca577ba9bd8cf4067bbd5d4",
+        "type": "ready",
+        "at": "2026-10-13T16:29:03.293Z",
+        "task": "C-investigation-v58-npc-magicbane-confusion-action2-20261013",
+        "delivery": "2945ffcdf1c464510ca577ba9bd8cf4067bbd5d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v62-awake-ghost-swap-20261013",
+        "type": "assign",
+        "at": "2026-10-13T16:29:44.105Z",
+        "task": "C-investigation-v62-closed-trapped-door-ghost-awake-action6-20261013",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep28-v64-c-continuations-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:30:27.457Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep28 checks actual C reachability for underwater punishment, worn objects, trap reveals and other planned branches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c-turn-resume-v62-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:31:20.483Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-2945ffcdf1c464510ca577ba9bd8cf4067bbd5d4-20261013",
+        "type": "received",
+        "at": "2026-10-13T16:31:57.289Z",
+        "task": "C-investigation-v58-npc-magicbane-confusion-action2-20261013",
+        "delivery": "2945ffcdf1c464510ca577ba9bd8cf4067bbd5d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-27305e72da1185df0a0c1b95101d722e070d80c9",
+        "type": "ready",
+        "at": "2026-10-13T16:32:54.477Z",
+        "task": "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
+        "delivery": "27305e72da1185df0a0c1b95101d722e070d80c9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c-implement-v62-domove-core-20261013",
+        "type": "implement",
+        "at": "2026-10-13T16:32:59.187Z",
+        "task": "C-investigation-v62-closed-trapped-door-ghost-awake-action6-20261013",
+        "goal": "fix-hack-domove-core-passwall-pet-swap-v62-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f8225632b9b0a0f2f4c0612d73ef6ed0ea884189",
+        "type": "ready",
+        "at": "2026-10-13T16:33:20.013Z",
+        "task": "B-investigation-v57-flying-steed-pool-dismount-20261013",
+        "delivery": "f8225632b9b0a0f2f4c0612d73ef6ed0ea884189"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v58-blind-fountain-drink-20261013",
+        "type": "assign",
+        "at": "2026-10-13T16:33:57.458Z",
+        "task": "A2-investigation-v58-blind-fountain-drink-action2-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-active-v58-blind-fountain-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:34:05.222Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the v58 blind-fountain drink mismatch before reserving source code."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-steed-submit-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:34:55.546Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Steed dismount fix is submitted; investigating a separate hallucinated magic-book mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v60-hallucinatory-magic-book-flip-20261013",
+        "type": "assign",
+        "at": "2026-10-13T16:34:59.172Z",
+        "task": "B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-magicbane-changed-error-2945ffcd-20261013",
+        "type": "feedback",
+        "at": "2026-10-13T16:35:11.735Z",
+        "task": "C-investigation-v58-npc-magicbane-confusion-action2-20261013",
+        "delivery": "2945ffcdf1c464510ca577ba9bd8cf4067bbd5d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-c-norep-56a0d96069756b3ea2c7b447b441e2765be3a904",
+        "type": "integrating",
+        "at": "2026-10-13T16:35:52.938Z",
+        "task": "C-investigation-v56-timedblind-highcleric-geyser-action5-20261013",
+        "integration": "56a0d96069756b3ea2c7b447b441e2765be3a904"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v60-currency-rng-20261013",
+        "type": "implement",
+        "at": "2026-10-13T16:36:55.074Z",
+        "task": "B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013",
+        "goal": "fix-invent-currency-hallucination-rng-v60-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-implement-v58-blind-watersnakes-20261013",
+        "type": "implement",
+        "at": "2026-10-13T16:37:42.897Z",
+        "task": "A2-investigation-v58-blind-fountain-drink-action2-20261013",
+        "goal": "port-fountain-dowatersnakes-v58-blind-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep28-v64-c-state-probes-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:38:26.191Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep28 continues C source reachability checks and retains every setup attempt."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e979f06adac942a07c087b92344808bf1406c267",
+        "type": "ready",
+        "at": "2026-10-13T16:39:20.922Z",
+        "task": "B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013",
+        "delivery": "e979f06adac942a07c087b92344808bf1406c267"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-v60-submit-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:41:15.536Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v58-castle-passtune-investigation-20261013",
+        "type": "assign",
+        "at": "2026-10-13T16:41:19.930Z",
+        "task": "B-investigation-v58-castle-passtune-action3-20261013",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep28-v64-first-comparisons-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:41:57.071Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep28 compares seven source-reached C paths after independent replay proof."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v56-timedblind-highcleric-geyser-action5-20261013-56a0d96069756b3ea2c7b447b441e2765be3a904-validated",
+        "type": "validated",
+        "at": "2026-10-13T16:43:47.543Z",
+        "task": "C-investigation-v56-timedblind-highcleric-geyser-action5-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v58-dbridge-open-close-20261013",
+        "type": "implement",
+        "at": "2026-10-13T16:44:21.094Z",
+        "task": "B-investigation-v58-castle-passtune-action3-20261013",
+        "goal": "port-dbridge-open-drawbridge-v58-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v56-timedblind-highcleric-geyser-action5-20261013-56a0d96069756b3ea2c7b447b441e2765be3a904-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T16:44:26.590Z",
+        "task": "C-investigation-v56-timedblind-highcleric-geyser-action5-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2db52a7e4c50d452aa5dacc664c5de62eb0a9f3b",
+        "type": "ready",
+        "at": "2026-10-13T16:44:52.133Z",
+        "task": "C-investigation-v62-closed-trapped-door-ghost-awake-action6-20261013",
+        "delivery": "2db52a7e4c50d452aa5dacc664c5de62eb0a9f3b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v58-resume-active-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:45:11.195Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B resumes the v58 drawbridge port with the zap_updown caller dependency held by A2."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c-resume-v58-magicbane-correction-20261013",
+        "type": "resume",
+        "at": "2026-10-13T16:47:13.028Z",
+        "task": "C-investigation-v58-npc-magicbane-confusion-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep28-v64-more-c-reachability-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:48:00.198Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep28 extends C reachability for the remaining source candidates and checks first failure independence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-54d33e63039057e062c1c3ee387672da7ea38bbb",
+        "type": "ready",
+        "at": "2026-10-13T16:49:44.671Z",
+        "task": "A2-investigation-v58-blind-fountain-drink-action2-20261013",
+        "delivery": "54d33e63039057e062c1c3ee387672da7ea38bbb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-fountain-ready-20261013",
+        "type": "turn",
+        "at": "2026-10-13T16:50:11.199Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v62-caveman-filler-action2-20261013",
+        "type": "assign",
+        "at": "2026-10-13T16:51:03.761Z",
+        "task": "A2-investigation-v62-caveman-earlier-filler-action2-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-27305e72da1185df0a0c1b95101d722e070d80c9-20261013",
+        "type": "received",
+        "at": "2026-10-13T16:53:52.624Z",
+        "task": "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
+        "delivery": "27305e72da1185df0a0c1b95101d722e070d80c9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-f8225632b9b0a0f2f4c0612d73ef6ed0ea884189-20261013",
+        "type": "received",
+        "at": "2026-10-13T16:53:54.072Z",
+        "task": "B-investigation-v57-flying-steed-pool-dismount-20261013",
+        "delivery": "f8225632b9b0a0f2f4c0612d73ef6ed0ea884189"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-e979f06adac942a07c087b92344808bf1406c267-20261013",
+        "type": "received",
+        "at": "2026-10-13T16:53:55.382Z",
+        "task": "B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013",
+        "delivery": "e979f06adac942a07c087b92344808bf1406c267"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-2db52a7e4c50d452aa5dacc664c5de62eb0a9f3b-20261013",
+        "type": "received",
+        "at": "2026-10-13T16:53:56.555Z",
+        "task": "C-investigation-v62-closed-trapped-door-ghost-awake-action6-20261013",
+        "delivery": "2db52a7e4c50d452aa5dacc664c5de62eb0a9f3b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-54d33e63039057e062c1c3ee387672da7ea38bbb-20261013",
+        "type": "received",
+        "at": "2026-10-13T16:53:57.870Z",
+        "task": "A2-investigation-v58-blind-fountain-drink-action2-20261013",
+        "delivery": "54d33e63039057e062c1c3ee387672da7ea38bbb"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v56-timedblind-highcleric-geyser-action5-20261013",
-        "worker": "C",
-        "goal": "fix-mcastu-cursetxt-norep-v56",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "5a8806edeab05daa9c1a97997c731084ae41de18",
-        "since": "2026-10-13T15:17:54.328Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B-investigation-v56-partial-arrow-lift-20261013",
         "worker": "B",
@@ -104900,10 +105280,8 @@
         "status": "ready",
         "delivery": "a48a5469fa9ca2cd8f32a882d3536cc97f9cb195",
         "since": "2026-10-13T15:27:22.593Z",
-        "blockedBy": [
-          "C-investigation-v56-timedblind-highcleric-geyser-action5-20261013"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "A2-investigation-v56-barehand-cockatrice-throw-action3-20261013",
@@ -104925,7 +105303,6 @@
         "delivery": "a48c235cc3c1bdbe8b10396b35a84228098e2ecf",
         "since": "2026-10-13T15:34:12.899Z",
         "blockedBy": [
-          "C-investigation-v56-timedblind-highcleric-geyser-action5-20261013",
           "C-investigation-v56-earthquake-boulder-floor-action2-20261013"
         ],
         "unblocks": 0
@@ -104952,7 +105329,6 @@
         "delivery": "c28f3b83e48a51bb5046ce8408f370f155fd427c",
         "since": "2026-10-13T15:40:42.757Z",
         "blockedBy": [
-          "C-investigation-v56-timedblind-highcleric-geyser-action5-20261013",
           "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
           "C-investigation-v57-throne-court-summon-action2-20261013"
         ],
@@ -104994,7 +105370,6 @@
         "delivery": "819202120be22caa2ab014fc6fbdb9dd7a86e55c",
         "since": "2026-10-13T16:14:13.655Z",
         "blockedBy": [
-          "C-investigation-v56-timedblind-highcleric-geyser-action5-20261013",
           "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
           "C-investigation-v57-throne-court-summon-action2-20261013",
           "C-investigation-v56-sack-container-help-traditional-action2-20261013"
@@ -105037,6 +105412,95 @@
         "delivery": "8356adcf7451ddd587e14ab62324e9fad6245391",
         "since": "2026-10-13T16:22:19.105Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
+        "worker": "A2",
+        "goal": "port-zap-zap-updown-ceiling-striking-v58-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2f8807e48c1a8c06f704bad792e2167d8009f622",
+        "since": "2026-10-13T16:23:45.671Z",
+        "blockedBy": [
+          "A2-investigation-v56-barehand-cockatrice-throw-action3-20261013",
+          "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
+        "worker": "A2",
+        "goal": "fix-engulfer-wraith-grow-up-binding-v58-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "27305e72da1185df0a0c1b95101d722e070d80c9",
+        "since": "2026-10-13T16:32:54.477Z",
+        "blockedBy": [
+          "A2-investigation-v56-barehand-cockatrice-throw-action3-20261013",
+          "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+          "A2-investigation-v58-ceiling-striking-helmet-action1-20261013"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v57-flying-steed-pool-dismount-20261013",
+        "worker": "B",
+        "goal": "port-steed-dismount-steed-v57-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "f8225632b9b0a0f2f4c0612d73ef6ed0ea884189",
+        "since": "2026-10-13T16:33:20.013Z",
+        "blockedBy": [
+          "B-investigation-v56-partial-arrow-lift-20261013",
+          "B-investigation-v57-hallucinatory-whatis-20261013",
+          "B-investigation-v57-traditional-container-menu-request-20261013",
+          "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013",
+        "worker": "B",
+        "goal": "fix-invent-currency-hallucination-rng-v60-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "e979f06adac942a07c087b92344808bf1406c267",
+        "since": "2026-10-13T16:39:20.922Z",
+        "blockedBy": [
+          "B-investigation-v56-partial-arrow-lift-20261013",
+          "B-investigation-v57-hallucinatory-whatis-20261013",
+          "B-investigation-v57-traditional-container-menu-request-20261013",
+          "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
+          "B-investigation-v57-flying-steed-pool-dismount-20261013"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v62-closed-trapped-door-ghost-awake-action6-20261013",
+        "worker": "C",
+        "goal": "fix-hack-domove-core-passwall-pet-swap-v62-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2db52a7e4c50d452aa5dacc664c5de62eb0a9f3b",
+        "since": "2026-10-13T16:44:52.133Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v58-blind-fountain-drink-action2-20261013",
+        "worker": "A2",
+        "goal": "port-fountain-dowatersnakes-v58-blind-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "54d33e63039057e062c1c3ee387672da7ea38bbb",
+        "since": "2026-10-13T16:49:44.671Z",
+        "blockedBy": [
+          "A2-investigation-v56-barehand-cockatrice-throw-action3-20261013",
+          "A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+          "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
+          "A2-investigation-v58-swallowed-wraith-growth-action2-20261013"
+        ],
         "unblocks": 0
       }
     ],
@@ -105542,8 +106006,8 @@
     ]
   },
   "development": {
-    "executionCommit": "ef4963eb5ba2f7992cc8c6d92bd1ace9fb796678",
-    "measuredAt": "2026-10-13T16:12:25.423Z",
+    "executionCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+    "measuredAt": "2026-10-13T16:41:03.504Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
