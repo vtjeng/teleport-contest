@@ -294712,7 +294712,7 @@
     {
       "id": "port-fountain-dowaternymph-v53-20261012",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the complete previously incomplete water-nymph fountain effect and verify both production fountain callers.",
       "cFile": "fountain.c",
       "sessions": [
@@ -294722,7 +294722,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "f198de1914d3503813ea7333d0fe355f6d3fdc5f",
       "delivered": null,
       "functions": [
         {
@@ -294735,6 +294735,86 @@
       "range": {
         "from": 94,
         "to": 119
+      },
+      "closeStanding": {
+        "sha": "f198de1914d3503813ea7333d0fe355f6d3fdc5f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "45acbc4dcb4b43e3172bf00f80e584e81001fd81",
+        "target": "synthetic/v53/v53-blind-fountain-dip-nymph-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/f198de1914d3503813ea7333d0fe355f6d3fdc5f/run-hosted-5z6O95/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dowaternymph",
+            "implementation": "js/fountain.js",
+            "symbol": "dowaternymph",
+            "sourceReview": "Read the complete upstream fountain.c:dowaternymph() body, lines 93-116. Match G_GONE short-circuiting before makemon; consume makemon's returned monster; preserve sighted You attraction versus blind You_hear, sleeping-state clear, and optional mintrap call whose return is discarded. Preserve the failed/extinct sighted Soundeffect calls (no-op in the recorder TTY backend) before the bubble message, and blind Soundeffect before You_hear. The JS uses existing makemon_runtime and youHear; no random draw or game mutation was invented. Both existing production callers remain at their source positions.",
+            "callers": [
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "fountain.c:drinkfountain case 28"
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipfountain",
+                "source": "fountain.c:dipfountain fate 22"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain-nymph.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/dowaternymph-drinkfountain-fate28-independent-b116.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-blind-fountain-dip-nymph-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 139,
+                "source": "potion.c:dodip -> fountain.c:dipfountain fate 22 -> fountain.c:dowaternymph"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Read fountain.c:dowaternymph (93-116) and both source call sites: drinkfountain fate 28 and dipfountain fate 22. Both are active in the recorder build. JS keeps their existing dispatch in fountain.js, which is reached from potion.c:dodrink / js/potion.js:dodrink and potion.c:dodip / js/potion.js:dodip. The new independent recording exercises the drinkfountain caller; the cited v53 range exercises dipfountain. No caller or build branch is inactive. The v53 full fresh replay has a later map glyph mismatch at boundary 141 after the cited matching prefix; the complete drinkfountain witness passes all 13 screen/cursor boundaries and RNG values.",
+        "entryPoints": [
+          {
+            "name": "Quaff at a fountain, drinkfountain fate 28",
+            "functions": [
+              "dowaternymph"
+            ],
+            "recordings": [
+              "recordings/fountain.c/dowaternymph-drinkfountain-fate28-independent-b116.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Dip an item at a fountain, dipfountain fate 22",
+            "functions": [
+              "dowaternymph"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v53",
+                "caseId": "v53-blind-fountain-dip-nymph-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 139,
+                "source": "potion.c:dodip -> fountain.c:dipfountain fate 22 -> fountain.c:dowaternymph"
+              }
+            ]
+          }
+        ]
       }
     }
   ]

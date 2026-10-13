@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-12T23:54:54.616Z",
+  "capturedAt": "2026-10-13T00:03:14.617Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -99314,6 +99314,64 @@
         "type": "accepted",
         "at": "2026-10-12T23:54:11.561Z",
         "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v53-blind-fountain-water-snakes-action2-20261012-97b147c6c1be7eaf36942bed06f66b59925473e0",
+        "type": "published",
+        "at": "2026-10-12T23:55:09.114Z",
+        "task": "A2-investigation-v53-blind-fountain-water-snakes-action2-20261012",
+        "commit": "97b147c6c1be7eaf36942bed06f66b59925473e0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-nymph53-f198de191-20261012",
+        "type": "integrating",
+        "at": "2026-10-12T23:56:00.578Z",
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+        "integration": "f198de1914d3503813ea7333d0fe355f6d3fdc5f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-mounted-residual-active-20261012",
+        "type": "turn",
+        "at": "2026-10-12T23:57:21.554Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the selected mounted replay’s remaining one-cell screen mismatch through the TTY repaint and map glyph paths."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-mounted-residual-active-refresh-20261012",
+        "type": "turn",
+        "at": "2026-10-12T23:59:03.974Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the remaining mounted-engulf screen mismatch through source-backed map-cell writes and clears; no live commands."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-blind-fountain-dip-nymph-action2-20261012-f198de1914d3503813ea7333d0fe355f6d3fdc5f-validated",
+        "type": "validated",
+        "at": "2026-10-13T00:02:01.218Z",
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v53-blind-fountain-dip-nymph-action2-20261012-f198de1914d3503813ea7333d0fe355f6d3fdc5f-accepted",
+        "type": "accepted",
+        "at": "2026-10-13T00:02:29.020Z",
+        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v53-blind-fountain-dip-nymph-residual-20261012",
+        "type": "assign",
+        "at": "2026-10-13T00:03:07.595Z",
+        "task": "A2-investigation-v53-blind-fountain-dip-nymph-residual-action2-20261012",
+        "worker": "A2",
+        "kind": "investigation"
       }
     ]
   },
@@ -99391,17 +99449,6 @@
           "Prep21",
           "Prep22"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v53-blind-fountain-dip-nymph-action2-20261012",
-        "worker": "B",
-        "goal": "port-fountain-dowaternymph-v53-20261012",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "fdd8724c8966eb89395f91c794fc604ba59d5867",
-        "since": "2026-10-12T23:14:02.088Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -99919,8 +99966,8 @@
     ]
   },
   "development": {
-    "executionCommit": "45acbc4dcb4b43e3172bf00f80e584e81001fd81",
-    "measuredAt": "2026-10-12T23:52:39.737Z",
+    "executionCommit": "f198de1914d3503813ea7333d0fe355f6d3fdc5f",
+    "measuredAt": "2026-10-13T00:00:56.871Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
