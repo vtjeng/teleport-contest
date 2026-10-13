@@ -299581,6 +299581,43 @@
           }
         ]
       }
+    },
+    {
+      "id": "port-pickup-doloot-core-blind-corpse-v56-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port pickup.c:doloot_core blind floor corpse precheck and its feel_cockatrice dependency.",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v56/v56-blind-corpse-floor-loot-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v56-blind-corpse-floor-loot-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doloot_core",
+          "line": 2178,
+          "endLine": 2349,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 2178,
+        "to": 2349
+      },
+      "requiredFunctions": [
+        {
+          "name": "feel_cockatrice",
+          "line": 4343,
+          "endLine": 4365,
+          "declared": true,
+          "sourceFile": "invent.c"
+        }
+      ]
     }
   ]
 }
