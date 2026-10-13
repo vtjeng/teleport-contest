@@ -1,0 +1,145 @@
+{
+  "session": "synthetic/v62/v62-ranger-later-filler-action5",
+  "remainingScreens": 29,
+  "recordedSteps": 328,
+  "status": "complete",
+  "commit": "7f9ff1dbadfdd275000c526cc2340bb35fc1fe88",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v62",
+    "caseId": "v62-ranger-later-filler-action5",
+    "session": "synthetic/v62/v62-ranger-later-filler-action5",
+    "manifestPath": "challenges/manifests/v62.json",
+    "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+    "recordingPath": "challenges/cases/v62/v62-ranger-later-filler-action5.session.json",
+    "recordingSha256": "26f58cffef964861f1bf03f92301b5abc1a49bcd71344eb7cf0aa5dfb5368da0",
+    "recipe": "challenges/cases/v62/v62-ranger-later-filler-action5.recipe.session.json",
+    "recipeSha256": "147511f9e6c5ccb8862ffed0704ff669717ac71ce72a8027c518ac3f677ffef1",
+    "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+    "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
+    "remainingScreens": 29,
+    "recordedSteps": 328,
+    "previousScreensMatched": 299,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 299,
+        "total": 328
+      },
+      "rng": {
+        "matched": 3664,
+        "total": 6324
+      },
+      "cursors": {
+        "matched": 306,
+        "total": 328
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 299,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 3,
+        "column": 66,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3657,
+        "cEntry": "rn2(3)=1",
+        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+        "jsEntry": "rn2(5)=3",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        }
+      },
+      "cursor": {
+        "index": 299,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "\n"
+        },
+        "cCursor": [
+          52,
+          12,
+          1
+        ],
+        "jsCursor": [
+          68,
+          5,
+          1
+        ]
+      }
+    },
+    "step": 299,
+    "kind": "rng",
+    "sourceFile": "nhlib.lua",
+    "function": "shuffle",
+    "message": null,
+    "cFile": null,
+    "luaFile": "nhlib.lua",
+    "line": 19,
+    "helper": {
+      "function": "random",
+      "luaFile": "nhlib.lua",
+      "line": 8
+    }
+  },
+  "summary": "For a Ranger on Home level 4, JavaScript computes the role-specific Ran-filb quest filler name but has no loader entry, so generation falls through to the ordinary maze path instead of loading dat/Ran-filb.lua. The complete Lua program and its production loader entry are the bounded source task.",
+  "source": {
+    "file": "dat/Ran-filb.lua",
+    "branch": "When mklev.c:makelevel() creates a Ranger quest filler at or below the locate level, it forms Ran-filb and mkmaze.c:makemaz() loads the whole special-level program. Ran-filb.lua runs solidfill, mazelevel/noflip, a smoothed joined/walled Mines background with blank foreground, up/down stairs, eleven random objects, four random traps, four hostile mountain centaurs, a hostile random C-class monster, and two hostile scorpions, in that order.",
+    "functions": [
+      "Ran-filb.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel() -> mkmaze.c:makemaz() -> sp_lev.c:load_special() -> dat/Ran-filb.lua top-level statements.",
+      "js/mklev.js:760-772 computes the role-specific filler name and calls makemaz() only when SPECIAL_LEVEL_LOADERS contains Ran-filb."
+    ],
+    "dependencies": [
+      "The registered special-level path already runs dat/nhlib.lua alignment initialization before the program body.",
+      "All level descriptors in Ran-filb.lua use the existing des API."
+    ]
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "Source: nethack-c/upstream/src/mklev.c:1283-1285 selects the later quest filler at or below the locate level; mkmaze.c:makemaz() delegates to sp_lev.c:load_special(); nethack-c/upstream/dat/Ran-filb.lua:6-39 contains the complete program.",
+    "Dispatch trace: js/mklev.js:764-772 computes the role-specific fill name, but js/quest_levels.js:QUEST_LEVEL_LOADERS has no Ran-filb entry; therefore the source program does not run and ordinary maze generation continues.",
+    "Accepted v62 evaluation challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json at 56a0d96069756b3ea2c7b447b441e2765be3a904 reports 299/328 screens, 3664/6324 RNG calls, 306/328 cursors, error null. The first mismatch is segment 0, step 299: C enters the later Ranger quest filler and executes Ran-filb.lua; the prepared replay identifies C rn2(3)=1 at nhlib.lua:8 via shuffle versus JS rn2(5)=3 at the below-Medusa path, with the first screen and cursor differences at the same step.",
+    "Fresh worker replay at 7f9ff1dbadfdd275000c526cc2340bb35fc1fe88, saved in .cache/CRan-filb-replay-before.log, reproduces 299/328 screens, 3664/6324 RNG calls, 306/328 cursors, and error null."
+  ],
+  "provenance": {
+    "session": "synthetic/v62/v62-ranger-later-filler-action5",
+    "corpus": "synthetic",
+    "batch": "v62",
+    "caseId": "v62-ranger-later-filler-action5",
+    "manifestPath": "challenges/manifests/v62.json",
+    "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+    "recordingPath": "challenges/cases/v62/v62-ranger-later-filler-action5.session.json",
+    "recordingSha256": "26f58cffef964861f1bf03f92301b5abc1a49bcd71344eb7cf0aa5dfb5368da0",
+    "recipe": "challenges/cases/v62/v62-ranger-later-filler-action5.recipe.session.json",
+    "recipeSha256": "147511f9e6c5ccb8862ffed0704ff669717ac71ce72a8027c518ac3f677ffef1",
+    "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+    "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904"
+  }
+}
