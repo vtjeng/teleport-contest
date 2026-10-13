@@ -295985,6 +295985,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-mcastu-clerical-blindness-body-v54-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Port the full mcast_blind_you body and wire its MCAST_BLIND_YOU dispatcher arm. The selected baseline first diverges at step 166; current JavaScript matches through segment 0 step 170.",
+      "cFile": "mcastu.c",
+      "sessions": [
+        "synthetic/v54/v54-healer-cleric-insects-blindness-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v54-healer-cleric-insects-blindness-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "mcast_blind_you",
+      "session": "synthetic/v54/v54-healer-cleric-insects-blindness-action2"
     }
   ]
 }
