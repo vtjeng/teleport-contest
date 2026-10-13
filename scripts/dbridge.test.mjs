@@ -13,8 +13,16 @@ import {
     MOAT,
     POOL,
     WATER,
+    DB_NORTH,
+    PASSES_WALLS,
 } from '../js/const.js';
 import {
+    E_phrase,
+    automiss,
+    e_at,
+    e_nam,
+    e_survives_at,
+    get_wall_for_db,
     is_ice,
     is_lava,
     is_moat,
@@ -88,4 +96,54 @@ test('dbridge terrain predicates retain the C source guards and bridge surfaces'
     assert.equal(is_pool_or_lava(7, 1, juiblex), false);
     assert.equal(is_moat(9, 1, juiblex), false);
     assert.equal(is_moat(7, 1, juiblex), false);
+});
+
+test('drawbridge entity lookup, survival, and wall coordinates follow dbridge.c', () => {
+    assert.match(DBRIDGE_C,
+        /e_at\(coordxy x, coordxy y\)[\s\S]*?occupants\[entitycnt\]\.edata[\s\S]*?occupants\[entitycnt\]\.ex == x[\s\S]*?occupants\[entitycnt\]\.ey == y/u);
+    assert.match(DBRIDGE_C,
+        /e_survives_at\(struct entity \*etmp, coordxy x, coordxy y\)[\s\S]*?noncorporeal\(etmp->edata\)[\s\S]*?is_pool\(x, y\)[\s\S]*?is_lava\(x, y\)[\s\S]*?is_db_wall\(x, y\)/u);
+    assert.match(DBRIDGE_C,
+        /get_wall_for_db\(coordxy \*x, coordxy \*y\)[\s\S]*?case DB_NORTH:[\s\S]*?\(\*y\)--;[\s\S]*?case DB_SOUTH:[\s\S]*?\(\*y\)\+\+;/u);
+    assert.match(DBRIDGE_C,
+        /e_nam\(struct entity \*etmp\)[\s\S]*?is_u\(etmp\) \? "you" : mon_nam/u);
+    assert.match(DBRIDGE_C,
+        /E_phrase\(struct entity \*etmp, const char \*verb\)[\s\S]*?is_u\(etmp\) \? "You" : Monnam/u);
+    assert.match(DBRIDGE_C,
+        /automiss\(struct entity \*etmp\)[\s\S]*?Passes_walls : passes_walls[\s\S]*?noncorporeal/u);
+
+    // C's DB_NORTH wall coordinate decrements y; this small map checks that
+    // direction while keeping the hero and moat on known adjacent squares.
+    const bridge = { typ: DRAWBRIDGE_UP, flags: DB_NORTH };
+    const hero = { data: { mlet: 'h' } };
+    const cells = new Map([
+        ['3,3', bridge],
+        ['3,4', { typ: MOAT }],
+    ]);
+    const state = levelState(cells, {
+        go: { occupants: [
+            { emon: hero, edata: hero.data, ex: 3, ey: 3 },
+            { emon: null, edata: null, ex: 0, ey: 0 },
+        ] },
+        youmonst: hero,
+        u: {
+            ux: 3,
+            uy: 3,
+            uprops: Array.from({ length: 64 }, () => ({ intrinsic: 0, extrinsic: 0 })),
+        },
+    });
+    // dbridge.c:e_at matches both saved coordinates and skips an empty entity.
+    assert.equal(e_at(3, 3, state), state.go.occupants[0]);
+    assert.equal(e_at(4, 3, state), null);
+    assert.equal(e_nam(state.go.occupants[0], state), 'you');
+    assert.equal(E_phrase(state.go.occupants[0], 'are', state), 'You are');
+    assert.equal(automiss(state.go.occupants[0], state), false);
+    // C tests the Passes_walls property before noncorporeality.
+    state.u.uprops[PASSES_WALLS].intrinsic = 1;
+    assert.equal(automiss(state.go.occupants[0], state), true);
+    state.u.uprops[PASSES_WALLS].intrinsic = 0;
+    assert.equal(e_survives_at(state.go.occupants[0], 3, 4, state), false);
+    const wall = { x: 3, y: 3 };
+    get_wall_for_db(wall, state);
+    assert.deepEqual(wall, { x: 3, y: 2 });
 });

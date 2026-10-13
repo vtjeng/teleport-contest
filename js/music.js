@@ -15,7 +15,9 @@ import {
 import { isok } from './cmd_isok.js';
 import { acurr, exercise } from './attrib.js';
 import { getdir, yn_function } from './cmd.js';
-import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
+import {
+    close_drawbridge, find_drawbridge, is_drawbridge_wall, open_drawbridge,
+} from './dbridge.js';
 import { cvt_sdoor_to_door } from './detect.js';
 import { newsym } from './display.js';
 import { fillholetyp, liquid_flow } from './dig.js';
@@ -700,8 +702,10 @@ export async function do_play_instrument(instr, state = game, env = {}) {
                     if (found) {
                         state.u.uevent.uheard_tune = 2;
                         record_achievement(ACH_TUNE, state);
-                        note_unported(state.level.at(x, y).typ === DRAWBRIDGE_DOWN
-                            ? 'dbridge.c close_drawbridge' : 'dbridge.c open_drawbridge');
+                        if (state.level.at(x, y).typ === DRAWBRIDGE_DOWN)
+                            await close_drawbridge(x, y, state, env);
+                        else
+                            await open_drawbridge(x, y, state, env);
                         return ECMD_TIME;
                     }
                 }

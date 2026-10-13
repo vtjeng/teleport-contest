@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 58010505,
+      "datetime": "20640119091718",
+      "nethackrc": "OPTIONS=name:OpenoneBell,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed wooden flute\n                    #wizlevelport\n?\nj                                        #wizmap\n\u0017blessed +1 bell of opening\nap",
+      "comment": "Independent detect.c:openit -> openone -> dbridge.c:open_drawbridge recording. A C-only probe puts the Wizard within seven map squares of the Castle drawbridge; the Bell is wished after level entry so the spawn setup is preserved."
+    }
+  ]
+}

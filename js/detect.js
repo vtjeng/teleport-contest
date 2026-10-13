@@ -138,7 +138,7 @@ import {
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
 import { get_obj_location } from './light.js';
-import { find_drawbridge, is_pool } from './dbridge.js';
+import { find_drawbridge, is_pool, open_drawbridge } from './dbridge.js';
 import { Is_box } from './lock.js';
 import { losehp, nomul } from './hack.js';
 import { hides_under, is_hider, resists_blnd } from './mondata.js';
@@ -2661,7 +2661,7 @@ export async function openone(x, y, counter, state) {
     } else {
         const position = { x, y };
         if (find_drawbridge(position, state)) {
-            note_unported('dbridge.c open_drawbridge');
+            await open_drawbridge(position.x, position.y, state);
             counter.value++;
         }
     }

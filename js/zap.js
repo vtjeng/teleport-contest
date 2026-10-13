@@ -33,7 +33,11 @@ import {
 import { ship_object } from './dokick.js';
 import { o_unleash } from './apply.js';
 import {
+    close_drawbridge,
+    find_drawbridge,
+    is_db_wall,
     is_moat,
+    open_drawbridge,
     is_pool,
     is_lava,
     is_pool_or_lava,
@@ -3957,6 +3961,39 @@ export async function zap_map(
         }
         if (learnIt) learnwand(wand, state);
         return undefined;
+    }
+
+    if ((state.u?.dz ?? 0) === 0) {
+        const originalType = state.level.at(x, y).typ;
+        const position = { x, y };
+        if (find_drawbridge(position, state)) {
+            let learnIt = false;
+            switch (wand?.otyp) {
+            case WAN_OPENING:
+            case SPE_KNOCK:
+                if (is_db_wall(x, y, state)) {
+                    if (cansee(position.x, position.y, state) || cansee(x, y, state))
+                        learnIt = true;
+                    await open_drawbridge(position.x, position.y, state, rawEnv);
+                }
+                break;
+            case WAN_LOCKING:
+            case SPE_WIZARD_LOCK:
+                if ((cansee(position.x, position.y, state) || cansee(x, y, state))
+                    && state.level.at(position.x, position.y).typ === DRAWBRIDGE_DOWN)
+                    learnIt = true;
+                await close_drawbridge(position.x, position.y, state, rawEnv);
+                break;
+            case WAN_STRIKING:
+            case SPE_FORCE_BOLT:
+                if (originalType !== DRAWBRIDGE_UP) {
+                    learnIt = true;
+                    note_unported('dbridge.c destroy_drawbridge');
+                }
+                break;
+            }
+            if (learnIt) learnwand(wand, state);
+        }
     }
 
     if ((state.u?.dz ?? 0) <= 0) return undefined;
