@@ -17,6 +17,7 @@ import {
     CONFUSION,
     DEAF,
     DIED,
+    EYE,
     KILLED_BY,
     Upolyd,
     DISPLACED,
@@ -50,6 +51,7 @@ import { done } from './end.js';
 import { sgn } from './hacklib.js';
 import { Monnam, Mgender, pmname } from './do_name.js';
 import { an, the_unique_pm } from './objnam.js';
+import { makeplural } from './fruit.js';
 import {
     canspotmon,
     canseemon,
@@ -59,7 +61,7 @@ import {
 } from './display.js';
 import { messageAt } from './startup_a11y.js';
 import { healmon } from './mon.js';
-import { make_confused, make_stunned } from './potion.js';
+import { make_blinded, make_confused, make_stunned } from './potion.js';
 import {
     cvt_adtyp_to_mseenres,
     monstseesu,
@@ -69,12 +71,15 @@ import {
     mhe,
     nonliving,
     type_is_pname,
+    haseyes,
 } from './mondata.js';
 import {
     AD_CLRC,
     AD_ELEC,
     AD_FIRE,
     AD_SPEL,
+    PM_CYCLOPS,
+    PM_FLOATING_EYE,
 } from './monsters.js';
 import { STRANGE_OBJECT } from './objects.js';
 import { body_part, rehumanize } from './polyself.js';
@@ -964,7 +969,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         recordMcastGap('mcastu.c mcast_insects', env);
         break;
     case MCAST_BLIND_YOU:
-        recordMcastGap('mcastu.c mcast_blind_you', env);
+        await mcast_blind_you(env);
         break;
     case MCAST_PARALYZE:
         resultDmg = await mcast_paralyze(mtmp, env);
@@ -982,6 +987,34 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
             throw new TypeError('mcast_spell requires the mdamageu operation');
         }
         await mdamageu(mtmp, resultDmg);
+    }
+}
+
+// C ref: mcastu.c:mcast_blind_you() (729-742). This is a clerical spell,
+// separate from the monster's blindness resistance checks: it reports the
+// scales first, then applies the C-selected timeout and reports vision
+// clearing only if blindness did not become active.
+async function mcast_blind_you(env = {}) {
+    const state = env.state ?? game;
+    const message = env.message ?? ttyPline;
+
+    if (!Blinded(state)) {
+        const species = state.youmonst.data;
+        const numEyes = !haseyes(species) ? 0
+            : (species.pmidx === PM_CYCLOPS
+                || species.pmidx === PM_FLOATING_EYE) ? 1 : 2;
+        let eyes = body_part(EYE, state.youmonst);
+        if (numEyes !== 1) eyes = makeplural(eyes);
+
+        await message(`Scales cover your ${eyes}!`, state);
+        await make_blinded(heroProperty(state, HALF_SPDAM) ? 100 : 200,
+            false, state, { ...env, message });
+        if (!activeHeroProperty(state, BLINDED))
+            await message('Your vision clears.', state);
+    } else {
+        // C's impossible() is diagnostic only; callers that expose an
+        // impossible hook keep the report without changing gameplay state.
+        env.impossible?.('no reason for monster to cast blindness spell?');
     }
 }
 

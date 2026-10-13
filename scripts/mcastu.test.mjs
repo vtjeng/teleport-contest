@@ -507,7 +507,7 @@ test('spell_would_be_useless: a blindfold does not make MCAST_BLIND_YOU useless'
     async () => {
         // A worn blindfold sets only EBlinded (W_TOOL in extrinsic).
         assert.deepEqual(await blindYouEffect({ intrinsic: 0, extrinsic: 1 }),
-            ['mcastu.c mcast_blind_you']);
+            []);
     });
 
 test('spell_would_be_useless: blocked blindness keeps MCAST_BLIND_YOU useful',
@@ -515,13 +515,72 @@ test('spell_would_be_useless: blocked blindness keeps MCAST_BLIND_YOU useful',
         // Artifact lenses set BBlinded, which defeats HBlinded.
         assert.deepEqual(
             await blindYouEffect({ intrinsic: 1, extrinsic: 0, blocked: 1 }),
-            ['mcastu.c mcast_blind_you']);
+            []);
     });
 
 test('spell_would_be_useless: intrinsic blindness makes MCAST_BLIND_YOU useless',
     async () => {
         assert.deepEqual(await blindYouEffect({ intrinsic: 1, extrinsic: 0 }), []);
     });
+
+test('MCAST_BLIND_YOU reports scales before applying the spell timeout',
+    async () => {
+        for (const { halfDamage, blocked, timeout, clearsVision } of [
+            { halfDamage: false, blocked: 0, timeout: 200, clearsVision: false },
+            { halfDamage: true, blocked: 0, timeout: 100, clearsVision: false },
+            { halfDamage: false, blocked: 1, timeout: 200, clearsVision: true },
+        ]) {
+            const state = makeState();
+            state.disp = { botl: false };
+            state.u.uprops[BLINDED] = {
+                intrinsic: 0, extrinsic: 0, blocked,
+            };
+            state.u.uprops[HALF_SPDAM] = {
+                intrinsic: halfDamage ? 1 : 0, extrinsic: 0, blocked: 0,
+            };
+            const messages = [];
+            const gaps = [];
+            const random = scriptedRandom([6, 50]);
+            const visionCalls = [];
+
+            await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
+                state, random,
+                message: (line) => messages.push(line),
+                noteUnported: (what) => gaps.push(what),
+                visionRecalc: (...args) => visionCalls.push(args),
+                unsupported: refuse,
+                mdamageu: () => assert.fail('blindness clears spell damage'),
+            });
+
+            const scalesIndex = messages.indexOf('Scales cover your eyes!');
+            const clearsIndex = messages.indexOf('Your vision clears.');
+            assert.ok(scalesIndex >= 0);
+            assert.equal(clearsIndex >= 0, clearsVision);
+            if (clearsVision) assert.ok(scalesIndex < clearsIndex);
+            assert.equal(state.u.uprops[BLINDED].intrinsic & TIMEOUT, timeout);
+            assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
+            assert.deepEqual(gaps, []);
+            assert.equal(visionCalls.length, blocked ? 0 : 1,
+                'make_blinded owns the visibility transition');
+        }
+    });
+
+test('MCAST_BLIND_YOU source keeps message, timeout, and post-effect order', () => {
+    const source = readFileSync('nethack-c/upstream/src/mcastu.c', 'utf8');
+    const js = readFileSync('js/mcastu.js', 'utf8');
+    const body = source.match(/mcast_blind_you\(void\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(body, 'mcastu.c:mcast_blind_you definition exists');
+    const scales = body.indexOf('pline("Scales cover your %s!"');
+    const timeout = body.indexOf('make_blinded(Half_spell_damage ? 100L : 200L, FALSE)');
+    const clears = body.indexOf('if (!Blind)');
+    assert.ok(scales >= 0 && scales < timeout && timeout < clears,
+        'C prints scales, applies blindness, then checks whether vision clears');
+    assert.match(body, /eyecount\(gy\.youmonst\.data\)/u);
+    assert.match(source,
+        /case MCAST_BLIND_YOU:\s*mcast_blind_you\(\);\s*dmg = 0;/u);
+    assert.match(js,
+        /case MCAST_BLIND_YOU:\s*await mcast_blind_you\(env\);\s*break;/u);
+});
 
 // -- cursetxt ----------------------------------------------------------
 
