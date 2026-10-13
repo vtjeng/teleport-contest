@@ -295893,6 +295893,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-read-drop-boulder-killed-caller-v54-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Route lethal by-you earth-boulder damage through the existing killed/xkilled path.",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v54/v54-earth-boulder-kills-lichen-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v54-earth-boulder-kills-lichen-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "drop_boulder_on_monster",
+      "session": "synthetic/v54/v54-earth-boulder-kills-lichen-action2"
     }
   ]
 }
