@@ -2,10 +2,18 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { HOLE, MAX_NUM_WORMS, Trap_Effect_Finished } from '../js/const.js';
+import {
+    HOLE,
+    LL_DUMP,
+    LL_MINORAC,
+    MAX_NUM_WORMS,
+    PIT,
+    Trap_Effect_Finished,
+} from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { MZ_HUGE, monst_globals_init, PM_LONG_WORM } from '../js/monsters.js';
 import { trapeffect_selector } from '../js/trap_effects.js';
+import { deltrap } from '../js/trap.js';
 import { count_wsegs } from '../js/worm.js';
 
 const C_TRAP = readFileSync(
@@ -30,6 +38,35 @@ const JS_HACK = readFileSync(new URL('../js/hack.js', import.meta.url), 'utf8');
 const JS_PICKUP = readFileSync(
     new URL('../js/pickup.js', import.meta.url), 'utf8',
 );
+
+test('deltrap ends Sokoban rules after removing the last natural pit', () => {
+    // C trap.c:6546-6547 calls the helper for a PIT in Sokoban.
+    const pit = { ttyp: PIT, tx: 8, ty: 7, conjoined: 0, madeby_u: false };
+    const state = {
+        level: { traps: [pit], flags: { sokoban_rules: true } },
+        // Equal entry/current depths produce Sokoban's first-level ordinal.
+        u: { uz: { dnum: 0, dlevel: 3 } },
+        dungeons: [{ entry_lev: 3 }],
+        // livelog_printf records the current move number as its turn.
+        moves: 19,
+        gamelog: [],
+    };
+
+    deltrap(pit, state);
+
+    assert.equal(state.level.flags.sokoban_rules, false);
+    assert.deepEqual(state.gamelog.map((entry) => ({
+        flags: entry.flags,
+        turn: entry.turn,
+        text: entry.text,
+    })), [
+        {
+            flags: LL_MINORAC | LL_DUMP,
+            turn: 19,
+            text: 'completed 1st Sokoban level',
+        },
+    ]);
+});
 
 function cFunction(source, declaration, endMarker) {
     const start = source.indexOf(declaration);

@@ -2574,15 +2574,7 @@ async function moverock_core(sx, sy, state, env) {
                         state,
                     );
                 }
-                try {
-                    deltrap(ttmp, state);
-                } catch (error) {
-                    if (!(error instanceof UnsupportedHeroMoveBoundaryError)
-                        || error.reason
-                            !== 'maybe_finish_sokoban() after removing a Sokoban pit or hole')
-                        throw error;
-                    note_unported('trap.c maybe_finish_sokoban');
-                }
+                deltrap(ttmp, state);
                 await useupf(otmp, 1, objectEnv);
                 await bury_objs(rx, ry, state, effectEnv);
                 state.level.at(rx, ry).wall_info &= ~W_NONDIGGABLE;
