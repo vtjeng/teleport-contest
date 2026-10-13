@@ -94,6 +94,37 @@ test('meatmetal consumes the first acceptable metallic object', async () => {
     assert.equal(state.level.objects[5][5], null);
 });
 
+test('meatmetal routes offscreen crunch through the C acoustics gate', async () => {
+    for (const [acoustics, expectedMessages] of [
+        [false, []],
+        [true, ['You hear a crunching sound.']],
+    ]) {
+        const state = makeState();
+        state.flags.verbose = true;
+        state.flags.acoustics = acoustics;
+        const mole = monster(state, PM_ROCK_MOLE);
+        floorObject(state, IRON_CHAIN);
+        const draws = [];
+        const messages = [];
+        const random = {
+            rn2(bound) { draws.push(['rn2', bound]); return 99; },
+            rnd(bound) { draws.push(['rnd', bound]); return bound; },
+        };
+
+        assert.equal(await meatmetal(mole, {
+            state,
+            random,
+            message: async (line) => messages.push(line),
+        }), 1);
+        assert.deepEqual(messages, expectedMessages);
+        assert.deepEqual(draws, [
+            ['rn2', 100], // meatmetal's object resistance check
+            ['rn2', 100], // delobj's ordinary-object resistance check
+            ['rnd', 25], // possible rock pile after consumption
+        ]);
+    }
+});
+
 test('meatcorpse consumes one ordinary corpse and leaves the monster alive', async () => {
     const state = makeState();
     const worm = monster(state, PM_PURPLE_WORM);
