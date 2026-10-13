@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v56/v56-full-pack-gem-lift-action3",
+  "corpus": "synthetic",
+  "batch": "v56",
+  "caseId": "v56-full-pack-gem-lift-action3",
+  "manifestPath": "challenges/manifests/v56.json",
+  "manifestSha256": "a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74",
+  "recordingSha256": "54655f8a140ae0b161c4d0a8c3afb5909242c45ba0938d669a99750a6008f9d1",
+  "evaluationPath": "challenges/evaluations/accepted-cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec-v56.json",
+  "evaluationCommit": "cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec",
+  "remainingScreens": 21,
+  "recordedSteps": 2208,
+  "status": "complete",
+  "commit": "6976a138e80ace5926bfcb953159cb53b64222bd",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v56",
+    "caseId": "v56-full-pack-gem-lift-action3",
+    "session": "synthetic/v56/v56-full-pack-gem-lift-action3",
+    "manifestPath": "challenges/manifests/v56.json",
+    "manifestSha256": "a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74",
+    "recording": "challenges/cases/v56/v56-full-pack-gem-lift-action3.session.json",
+    "recordingPath": "challenges/cases/v56/v56-full-pack-gem-lift-action3.session.json",
+    "recordingSha256": "54655f8a140ae0b161c4d0a8c3afb5909242c45ba0938d669a99750a6008f9d1",
+    "recipe": "challenges/cases/v56/v56-full-pack-gem-lift-action3.recipe.session.json",
+    "recipeSha256": "df0f17aa0049a2c593e51a123d1bc4de2251c386b2753494779e2d1f9214a04c",
+    "replayInputSha256": "daa5467001bb3795c672556265fa2ae859f61a7a779f19d2d2a2af22708a8606",
+    "evaluationPath": "challenges/evaluations/accepted-cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec-v56.json",
+    "evaluationCommit": "cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec",
+    "evaluationArtifact": "challenges/evaluations/accepted-cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec-v56.json",
+    "evaluationUtc": "2026-10-13T17:39:47.901Z",
+    "remainingScreens": 21,
+    "recordedSteps": 2208,
+    "previousScreensMatched": 2187,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 2187,
+        "total": 2208
+      },
+      "rng": {
+        "matched": 2621,
+        "total": 2628
+      },
+      "cursors": {
+        "matched": 2187,
+        "total": 2208
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() with a full pack",
+      "step": 2187
+    },
+    "step": 2187,
+    "kind": "stop",
+    "sourceFile": "pickup.c",
+    "function": "pickup",
+    "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() with a full pack",
+    "cFile": "pickup.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "pickup.c:pickup runs pickup_object() in source order, and pickup_object() lets lift_object() print the full-pack refusal and return -1. JavaScript preflightPickupObjects() instead throws UnsupportedPickupError when its projected ordinary-slot count reaches 52, before pickup_object() and lift_object() run. The planner should leave the failing item to the source lift path so pickup can emit the message and stop its loop.",
+  "source": {
+    "file": "pickup.c",
+    "branch": "During pickup, a selected non-gold floor object that cannot merge when inv_cnt(FALSE) is at least invlet_basic reaches lift_object(). lift_object() prints the knapsack message and returns -1; pickup() breaks from the selected-item loop after pickup_object() returns that value.",
+    "functions": [
+      "pickup"
+    ],
+    "callers": [
+      "nethack-c/upstream/src/hack.c:dopickup:3876-3891 calls pickup(-count) for the comma command; cmd.c dispatches that command through dopickup().",
+      "js/hack.js:dopickup() calls pickup(-count, state), which reaches preflightPickupObjects() before the matching pickup_object() loop."
+    ],
+    "dependencies": [
+      "pickup_object() and lift_object() already implement the source full-pack refusal in js/pickup.js; this fix only changes when the existing source path runs."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved accepted v56 evaluation at cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec records 2187/2208 screens, 2621/2628 RNG calls, 2187/2208 cursors, and error null. Its first mismatch is step 2187 with an unsupported pickup: pickup() with a full pack. The immutable recording SHA is 54655f8a140ae0b161c4d0a8c3afb5909242c45ba0938d669a99750a6008f9d1; manifest SHA is a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74.",
+    "A fresh JavaScript replay at 6976a138e80ace5926bfcb953159cb53b64222bd reproduces the queue totals: .cache/Cv56-full-pack-before.log reports 2187/2208 screens, 2621/2628 RNG calls, 2187/2208 cursors, and no runner error.",
+    "The selected C recording shows the user selecting the two white gem objects with a full inventory. At step 2187, C prints “Your knapsack cannot accommodate any more items.” The JavaScript replay stops at the same input boundary with UnsupportedPickupError before this message path runs.",
+    "Upstream pickup.c:783-788 and :841-910 call pickup_object() in menu and traditional loops and break when it returns a negative result. pickup.c:1869-1871 returns lift_object() results from pickup_object(). pickup.c:1740-1753 prints the full-pack message and sets result to -1 after carry_count() succeeds but before pick_obj() or addinv().",
+    "JavaScript js/pickup.js:1061-1075 throws from preflightPickupObjects() when projectedSlots reaches 52 and the next plan adds an ordinary slot. This runs before js/pickup.js:1170-1182 automatic selection and before the commit loop at :1290 onward. The already implemented lift_object() at :2905-2977 matches the C full-pack condition and message.",
+    "The correction belongs in the preflight planner: preserve plans for earlier accepted items, but leave the first projected non-merge addition that exceeds the source limit without an addinv plan. C’s live lift_object() then rejects it and pickup() stops the loop in source order. The fix must also preserve the shop exception, where billing can change mergeability."
+  ]
+}
