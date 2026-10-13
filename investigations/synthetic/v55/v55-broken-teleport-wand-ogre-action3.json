@@ -1,0 +1,47 @@
+{
+  "session": "synthetic/v55/v55-broken-teleport-wand-ogre-action3",
+  "remainingScreens": 36,
+  "recordedSteps": 236,
+  "corpus": "synthetic",
+  "batch": "v55",
+  "caseId": "v55-broken-teleport-wand-ogre-action3",
+  "manifestPath": "challenges/manifests/v55.json",
+  "manifestSha256": "3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105",
+  "recordingSha256": "c287dc09b32e8fef415ce03c40cdfa45fe63f2194eccdce9befded8bab218c1d",
+  "recipeSha256": "22bfe18f64687dc9611bacae52fc0bf879ca01d34360e26f24484c84ae0baa33",
+  "replayInputSha256": "4d909621f5fa62690b0e88f2c524106d24b52a49d3ea504c3b0a35793e131b8e",
+  "evaluationPath": "challenges/evaluations/accepted-07b8da88fabe9c6510a7253e4bc59363b3e01b68-v55.json",
+  "evaluationCommit": "07b8da88fabe9c6510a7253e4bc59363b3e01b68",
+  "status": "complete",
+  "commit": "1ef9952d22e86ae5dbe4f21bef751535a815ce2a",
+  "mismatch": {
+    "session": "synthetic/v55/v55-broken-teleport-wand-ogre-action3",
+    "remainingScreens": 36,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 200, "total": 236 },
+      "rng": { "matched": 3054, "total": 3056 },
+      "cursors": { "matched": 235, "total": 236 }
+    },
+    "firstMismatch": {
+      "kind": "rng",
+      "step": 199,
+      "message": "C enters teleport.c:rloc for the adjacent ogre after the broken wand's magical blast, while JS skips zap.c:bhitm and therefore misses the relocation draws."
+    }
+  },
+  "summary": "The bounded defect is a missing existing-handler call in the WAN_TELEPORTATION branch of apply.c:do_break_wand. C routes each adjacent monster through zap.c:bhitm after the explosion; its WAN_TELEPORTATION arm calls teleport.c:u_teleport_mon, which relocates the ogre. JavaScript already implements bhitm's teleport arm and its relocation helpers, but do_break_wand skips bhitm for this wand type and records an unported gap. The planned repair is limited to wiring this caller to the existing handler; no bhitm or teleport helper edits are indicated.",
+  "source": {
+    "file": "apply.c",
+    "branch": "After a WAN_TELEPORTATION wand is broken and its explosion is processed, each valid adjacent square other than the hero square is checked for a monster. When one is present, C calls bhitm(mon, obj); bhitm's WAN_TELEPORTATION arm calls u_teleport_mon(mtmp, TRUE).",
+    "functions": ["do_break_wand"],
+    "callers": ["apply.c:doapply invokes do_break_wand for a selected wand; js/apply.js:doapply follows the same route."],
+    "dependencies": ["zap.c:bhitm already implements the WAN_TELEPORTATION arm and calls teleport.c:u_teleport_mon; teleport.c:u_teleport_mon and teleport.c:rloc are already wired for state, RNG, messages, relocation, and drawing. C discards bhitm's return value at this caller."]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Source trace: nethack-c/upstream/src/apply.c:do_break_wand, lines 4017 and 4090-4097, sets affects_objects for WAN_TELEPORTATION, processes the explosion, then invokes bhitm for a monster on each non-hero adjacent square. The call is explicitly cast to void.",
+    "Source trace: nethack-c/upstream/src/zap.c:bhitm, WAN_TELEPORTATION arm at lines 341-346, calls u_teleport_mon(mtmp, TRUE) and updates visibility/learning state. The helper's result is consumed inside bhitm, not by do_break_wand.",
+    "Existing JavaScript path: js/apply.js:do_break_wand currently calls bhitm for WAN_LIGHT, WAN_STRIKING, and WAN_POLYMORPH, then records note_unported('zap.c bhitm') for other types. js/zap.js:bhitm already handles WAN_TELEPORTATION and forwards state/random/environment to js/teleport.js:u_teleport_mon; js/teleport.js:rloc supplies the relocation behavior.",
+    "Admitted baseline accepted-07b8da88fabe9c6510a7253e4bc59363b3e01b68-v55.json: selected recording c287dc09b32e8fef415ce03c40cdfa45fe63f2194eccdce9befded8bab218c1d has 200/236 screens, 3054/3056 RNG calls, 235/236 cursors, and error null. C screens show the adjacent ogre caught in the blast before it vanishes on the following screen; the queue attributes 36 remaining screens to this caller gap."
+  ]
+}
