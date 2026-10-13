@@ -21,6 +21,7 @@ import {
     TT_PIT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { newMonster, place_monster } from '../js/monst.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     autokey,
@@ -36,7 +37,7 @@ import {
 import { M1_NOHANDS } from '../js/monsters.js';
 import { is_magic_key } from '../js/artifacts.js';
 import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifacts.js';
-import { PM_ROGUE, PM_WIZARD } from '../js/monsters.js';
+import { PM_GHOST, PM_ROGUE, PM_WIZARD } from '../js/monsters.js';
 import {
     CREDIT_CARD,
     LOCK_PICK,
@@ -45,6 +46,7 @@ import {
     POT_SICKNESS,
     SKELETON_KEY,
     SPE_KNOCK,
+    WAN_STRIKING,
     WAN_LOCKING,
     WAN_OPENING,
     WAND_CLASS,
@@ -188,6 +190,52 @@ test('door magic preserves the trapped bit while locking and unlocking', async (
     }, x, y, game), false,
     'knock has no effect after the door is already unlocked');
 });
+
+test('striking a trapped door applies mb_trapped to its resident monster',
+    async () => {
+        const { x, y, door } = await closedDoorBesideHero();
+        const monster = newMonster({
+            data: game.mons[PM_GHOST],
+            m_id: 9001, // Unique identity for this fixture's resident ghost.
+            mnum: PM_GHOST,
+            mhp: 20, // This leaves the scripted 11-point blast nonlethal.
+            mhpmax: 20, // Keep the ghost's current and maximum HP aligned.
+            mcansee: true,
+            mcanmove: true,
+            mspotted: true,
+        });
+        place_monster(monster, x, y, game);
+        monster.nmon = game.level.monlist;
+        game.level.monlist = monster;
+        door.flags = D_CLOSED | D_TRAPPED;
+        door.doormask = D_CLOSED | D_TRAPPED;
+        const events = [];
+        const randomCalls = [];
+
+        // C lock.c:1210-1216 converts the trapped door to D_NODOOR and calls
+        // mb_trapped() for a monster at the door; this fixed damage result
+        // verifies that the discarded C return does not discard side effects.
+        const result = await doorlock({
+            otyp: WAN_STRIKING,
+            oclass: WAND_CLASS,
+            dknown: true,
+        }, x, y, game, {
+            message(text) { events.push(text); },
+            random: {
+                rnd(bound) {
+                    randomCalls.push(`rnd(${bound})`);
+                    return 11; // The chosen rnd(15) damage leaves 9 HP.
+                },
+            },
+        });
+
+        assert.equal(result, true);
+        assert.equal(door.flags, D_NODOOR);
+        assert.equal(monster.mstun, 1);
+        assert.equal(monster.mhp, 9);
+        assert.deepEqual(randomCalls, ['rnd(15)']);
+        assert.ok(events.some((line) => /door explode/u.test(line)));
+    });
 
 test('the roll uses folded Strength, not acurr()\'s raw encoding', async () => {
     const { x, y, door } = await closedDoorBesideHero();

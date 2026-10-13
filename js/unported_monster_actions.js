@@ -21,6 +21,7 @@ import {
     FIRE_RES,
     HEADSTONE,
     INVIS,
+    IS_DOOR,
     IS_OBSTRUCTED,
     IS_ROOM,
     IS_STWALL,
@@ -1000,6 +1001,11 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     const inertDoorway = location?.typ === DOOR
         && INERT_DOOR_MASKS.has(doorMask);
     const opensDoor = opensClosedDoor(monster, location, doorMask);
+    // mon.c:mfndpos() sets `thrudoor` when ALLOW_WALL is present, so a
+    // wall-walker may follow its target through a closed doorway. postmov()
+    // skips the ordinary door-opening block for that monster.
+    const passWallDoorway = IS_DOOR(location?.typ)
+        && passes_walls(monster.data);
     // mfndpos() admits an open or closed trapped door when it is otherwise
     // passable; postmov() checks btrapped before its door-state arm.
     const trappedDoor = location?.typ === DOOR
@@ -1034,6 +1040,7 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
             || location.typ === CORR
             || inertDoorway
             || opensDoor
+            || passWallDoorway
             || trappedDoor
             || passwallDestination
             || digsWall
