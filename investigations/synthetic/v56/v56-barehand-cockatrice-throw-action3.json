@@ -15,7 +15,7 @@
   "commit": "615af68bf6c69fcfc8ad6c04f82f873401378484",
   "mismatch": {
     "session": "synthetic/v56/v56-barehand-cockatrice-throw-action3",
-    "remainingScreens": 4,
+    "remainingScreens": 0,
     "step": 157,
     "kind": "screen",
     "sourceFile": "dothrow.c",
@@ -60,11 +60,7 @@
     "C trap.c:instapetrify lines 3844-3855 and js/trap.js:instapetrify implement the void death helper. The caller must await it and then preserve C source order; no return value is used.",
     "After wiring the caller, node scripts/run-bounded.mjs focused -- node --test scripts/dothrow.test.mjs passed 72/72. The test pins the C call before welded/missile flight and the JavaScript await at the same point.",
     "After commit 786538489, node scripts/diff-fresh.mjs challenges/cases/v56/v56-barehand-cockatrice-throw-action3.recipe.session.json passed: 177/177 screens and cursors, 2633/2633 PRNG values, 0/0 animation frames. Log: /tmp/teleport-validation-1000/run-1GKVie/.",
-    "The refreshed node scripts/scan-sessions.mjs --json --synthetic v56/v56-barehand-cockatrice-throw-action3 result has divergence null, recordedSteps 177, and unported []. Replay commit: b531918645a78bfada2e7c32aa041f750fc60646."
-  ],
-  "resolution": {
-    "status": "resolved",
-    "function": "dothrow.c:throw_obj",
-    "commit": "786538489"
-  }
+    "The refreshed node scripts/scan-sessions.mjs --json --synthetic v56/v56-barehand-cockatrice-throw-action3 result has divergence null, recordedSteps 177, and unported []. Replay commit: b531918645a78bfada2e7c32aa041f750fc60646.",
+    "The original admitted baseline before this fix had 4 unmatched screens (173/177 matched) at the petrification message; that historical count remains documented in the first baseline evidence entry and saved admission evaluation. The current selected-case scan has zero unmatched screens."
+  ]
 }
