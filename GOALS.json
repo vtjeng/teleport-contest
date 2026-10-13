@@ -298113,7 +298113,7 @@
     {
       "id": "port-muse-offensive-item-selection-and-use-v54-healer-20261013",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement find_offensive, use_offensive from muse.c",
       "cFile": "muse.c",
       "sessions": [
@@ -298123,7 +298123,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "063e058affac7e6c8f52101e830c10e69262c599",
       "delivered": null,
       "functions": [
         {
@@ -298166,6 +298166,105 @@
       "range": {
         "from": 1421,
         "to": 2034
+      },
+      "closeStanding": {
+        "sha": "063e058affac7e6c8f52101e830c10e69262c599",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "579fc1f7f05c73fc89fcb1b9080b1e720424cc03",
+        "target": "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/063e058affac7e6c8f52101e830c10e69262c599/run-hosted-fkmqC0/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "find_offensive",
+            "sourceFile": "muse.c",
+            "implementation": "js/muse.js",
+            "symbol": "find_offensive",
+            "sourceReview": "Read muse.c:1421-1594 completely. Ported eligibility/sanctuary/targeting guards, reflection skip, inventory order, every active nomore() continuation and selector, randomized SCR_EARTH and EXPENSIVE_CAMERA gates, and last viable item assignment in source order. SCR_FIRE remains inactive under C #if 0.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:758 calls find_offensive before use_offensive."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:948 calls find_offensive after movement when deciding whether the monster continues into its attack phase."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 659,
+                "throughStep": 705,
+                "source": "The fire giant selects its wand of lightning and enters the live monster offensive-item action through the monster-turn caller."
+              }
+            ]
+          },
+          {
+            "name": "use_offensive",
+            "sourceFile": "muse.c",
+            "implementation": "js/muse.js",
+            "symbol": "use_offensive",
+            "sourceReview": "Read muse.c:1824-2032 completely. Ported the shared precheck, wand and horn zap order/charge state, teleportation/undead-turning/striking mbhit group, earth-scroll object-use and boulder order, camera voice/blindness/lightdamage path, potion throwing path, and source return values. The SCR_FIRE case remains inactive under #if 0.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:758-760 selects and immediately calls use_offensive; js/mhitu.js:mattacku invokes useOffensiveItem for that source call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 659,
+                "throughStep": 705,
+                "source": "muse.c:mattacku fires the selected lightning wand at the hero; the zap message, bolt effects and following turn match C through step 705."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Active entry is monster offensive-item selection and use from mhitu.c:mattacku; the source also calls find_offensive from monmove.c:dochug after movement to gate the attack phase. Both JS callers remain wired. The admitted v54 replay exercises the monster-turn attack action at step 659 through step 705. The later step-706 message mismatch is a separate unresolved frontier outside muse.c.",
+        "entryPoints": [
+          {
+            "name": "monster offensive-item attack",
+            "functions": [
+              "find_offensive",
+              "use_offensive"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v54",
+                "caseId": "v54-healer-kirin-mage-strength-stun-action3",
+                "segment": 0,
+                "fromStep": 659,
+                "throughStep": 705,
+                "source": "mhitu.c:mattacku selects and uses the fire giant wand of lightning; C/JS screens, cursor and RNG remain aligned through step 705."
+              }
+            ]
+          }
+        ]
       }
     }
   ]
