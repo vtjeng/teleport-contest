@@ -8,82 +8,36 @@
   "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
   "evaluationPath": "challenges/evaluations/accepted-10bacc75116b05788ed935aa7f24fc20fb324927-v53.json",
   "evaluationCommit": "10bacc75116b05788ed935aa7f24fc20fb324927",
-  "remainingScreens": 39,
+  "remainingScreens": 0,
   "recordedSteps": 246,
   "status": "complete",
-  "commit": "4eccc7f8d26fc9ab015185fc0796e01195f98b1b",
-  "mismatch": {
-    "corpus": "synthetic",
-    "batch": "v53",
-    "caseId": "v53-quest-nemesis-nearby-action5",
-    "session": "synthetic/v53/v53-quest-nemesis-nearby-action5",
-    "manifestPath": "challenges/manifests/v53.json",
-    "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
-    "recording": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.session.json",
-    "recordingPath": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.session.json",
-    "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
-    "recipe": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.recipe.session.json",
-    "recipeSha256": "33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d",
-    "replayInputSha256": "adaae81a08525b7ffc0f968688eaad01774175a945b9384d9d0e50b549f43487",
-    "evaluationPath": "challenges/evaluations/accepted-10bacc75116b05788ed935aa7f24fc20fb324927-v53.json",
-    "evaluationCommit": "10bacc75116b05788ed935aa7f24fc20fb324927",
-    "remainingScreens": 39,
-    "recordedSteps": 246,
-    "previousScreensMatched": 207,
-    "regression": false,
-    "passed": false,
-    "error": null,
-    "metrics": {
-      "screens": {
-        "matched": 207,
-        "total": 246
-      },
-      "rng": {
-        "matched": 3527,
-        "total": 3829
-      },
-      "cursors": {
-        "matched": 241,
-        "total": 246
-      }
-    },
-    "firstMismatch": {
-      "kind": "rng",
-      "message": "C enters quest.c:chat_with_nemesis and opens qt_pager(\"discourage\"); JS returns false from quest_chat and records the nemesis dialogue as unported.",
-      "step": 207
-    },
-    "step": 207,
-    "kind": "rng",
-    "sourceFile": "quest.c",
-    "function": "quest_chat",
-    "cFile": "quest.c",
-    "luaFile": null,
-    "line": 483
-  },
-  "goalKind": "file-port",
-  "summary": "The admitted Wiz-goal loader resolves the earlier stop. The current first divergence is #chat with the quest nemesis: C calls qt_pager(\"discourage\") and sets met_nemesis after the pager; JavaScript quest_chat returns false and sounds.domonnoise records the dialogue as unported. Port the nemesis and guardian helpers and wire both branches through quest_chat.",
+  "commit": "0b6c9d994202ffcf80e40be26e4214f7b0318ef9",
+  "mismatch": null,
+  "goalKind": "divergence-fix",
+  "summary": "The accepted 68ca320 baseline reached the nemesis stun path at step 210. The stun effect and both active quest_talk callers are now source-aligned; the full admitted v53 case matches.",
   "source": {
-    "file": "quest.c",
-    "branch": "When #chat reaches the role quest nemesis or guardian through sounds.c:dochat -> domonnoise, quest_chat dispatches MS_NEMESIS to discourage dialogue and met_nemesis state, or MS_GUARDIAN to the before/after pager selected by questart and killed_nemesis.",
+    "file": "mcastu.c and quest.c",
     "functions": [
-      "chat_with_nemesis",
-      "chat_with_guardian",
-      "quest_chat"
+      "mcast_stun_you",
+      "mcast_spell",
+      "quest_talk",
+      "nemesis_speaks",
+      "quest_stat_check"
     ],
     "callers": [
-      "C sounds.c:dochat calls domonnoise for the selected adjacent monster; sounds.c:domonnoise maps MS_NEMESIS/MS_GUARDIAN and calls quest.c:quest_chat. JavaScript js/sounds.js:dochat calls domonnoise, which calls js/quest.js:quest_chat.",
-      "The admitted synthetic case v53-quest-nemesis-nearby-action5 reaches the nemesis branch through #chat at segment 0, step 207."
+      "C mhitu.c: host monster attack -> mcastu.c:castmu -> mcast_spell -> mcast_stun_you; JavaScript js/mcastu.js preserves that production dispatch.",
+      "C monmove.c:dochug calls quest_stat_check before movement, then quest_talk for wait-mask monsters and again after actions when !helpless(mtmp) && nearby. JavaScript js/monmove.js now has both callers.",
+      "C quest.c:quest_talk dispatches MS_NEMESIS to nemesis_speaks; JavaScript js/quest.js mirrors this branch and calls the existing qt_pager implementation."
     ],
     "dependencies": [
-      "qt_pager is already implemented in js/questpgr.js; quest.c discards its return value, so no additional pager behavior is needed. The pre-existing sounds.c MS_NEMESIS/MS_GUARDIAN dispatch remains the source caller."
+      "questpgr.c:qt_pager already has the accepted JavaScript implementation in js/questpgr.js; nemesis_speaks discards the C void pager return.",
+      "quest_talk leaves the unrelated MS_DJINNI prisoner_speaks effects explicitly unported with note_unported because C discards the void return; no claim is made for that branch."
     ]
   },
   "evidence": [
-    "The current saved queue entry is challenges/evaluations/accepted-10bacc75116b05788ed935aa7f24fc20fb324927-v53.json at 10bacc75116b05788ed935aa7f24fc20fb324927: 207/246 screens, 3527/3829 RNG calls and 241/246 cursors; 39 screens remain. Manifest fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39, recording f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26, recipe 33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d.",
-    "The strict targeted replay at commit 4eccc7f8d26fc9ab015185fc0796e01195f98b1b is preserved at /tmp/teleport-validation-1000/run-hzGQEb/receipt.json and stdout.log. It matches through step 206, then at segment 0, step 207, key h, C renders the opening quote of “Are you ready yet to beg for mercy?” while JS retains the previous top line; C consumes rn2(3)=2 from shuffle(nhlib.lua:19), while JS consumes rn2(5)=0 because the pager branch never runs.",
-    "quest.c:394-400 chat_with_nemesis calls qt_pager(\"discourage\") and then sets Qstat(met_nemesis) only when the flag is false. quest.c:441-448 chat_with_guardian selects guardtalk_after only when u.uhave.questart and killed_nemesis are both true; otherwise it selects guardtalk_before.",
-    "quest.c:473-492 quest_chat preserves the leader m_id branch, then dispatches MS_NEMESIS and MS_GUARDIAN to those helpers. sounds.c:1257-1408 dochat reaches domonnoise for the adjacent monster; sounds.c:729-731 calls quest_chat for these sounds. JavaScript js/sounds.js:1028-1034 currently calls quest_chat but falls back to note_unported because js/quest.js:392-399 supports only the leader identity.",
-    "The prior first mismatch was the Wiz-goal loader stop. Accepted Main now contains the loader, and the current replay reaches step 207; this implementation addresses the new quest.c dialogue frontier rather than repeating the completed loader work."
+    "Accepted Main 68ca32057bc676b09a8eda1f0c88ee3cb9de83c9 hosted checkpoint 38328501086 is the task baseline: 210/246 screens, 3732/3829 RNG and 244/246 cursors. Its exact checkpoint JSON is retained in the baseline path; the nearest tracked earlier evaluation is identified separately.",
+    "The assigned immutable v53 recording segment 0 step 210 reaches the Dark One stun spell and the nemesis in-battle speech gate. The final targeted replay at 0b6c9d994202ffcf80e40be26e4214f7b0318ef9 matches all 246 screens, all 3829 RNG calls, all 246 cursors and the input boundary through step 245.",
+    "Focused source-pinned tests cover quest dialogue selection, made_goal/met_nemesis update order, the in-battle rn2(5) gate, quest_stat_check and both active monmove.c:dochug callers. ESLint passes for js/quest.js, js/monmove.js and scripts/quest-nemesis-talk.test.mjs."
   ],
   "previousDiagnosis": {
     "source": {
@@ -178,8 +132,166 @@
       }
     ]
   },
-  "step": 207,
+  "step": null,
   "remainingFrontier": {
+    "resolved": true,
+    "baselineCommit": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9",
+    "baselineMetrics": {
+      "screens": {
+        "matched": 210,
+        "total": 246
+      },
+      "rng": {
+        "matched": 3732,
+        "total": 3829
+      },
+      "cursors": {
+        "matched": 244,
+        "total": 246
+      }
+    },
+    "resolvedBy": "mcastu.c:mcast_stun_you plus quest.c:nemesis_speaks/quest_talk and the active monmove.c:dochug caller gate",
+    "finalMetrics": {
+      "command": "node scripts/scan-sessions.mjs --json --synthetic v53/v53-quest-nemesis-nearby-action5",
+      "receipt": "/tmp/teleport-validation-1000/run-phEluW/receipt.json",
+      "resultPath": "/tmp/a2-v53-quest-nemesis-after-0b6c9d.json",
+      "replayCommit": "0b6c9d994202ffcf80e40be26e4214f7b0318ef9",
+      "replayInputSha256": "ac009e35f1ecb524d2de2627c6f3a999ba4c3fbac8213d58ee37e319f7c0fbba",
+      "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+      "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
+      "recipeSha256": "33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 245,
+      "recordedSteps": 246,
+      "screens": {
+        "matched": 246,
+        "total": 246
+      },
+      "rng": {
+        "matched": 3829,
+        "total": 3829
+      },
+      "cursors": {
+        "matched": 246,
+        "total": 246
+      },
+      "inputBoundaryMatched": true,
+      "divergence": null,
+      "unported": [
+        "sounds.c SoundAchievement"
+      ]
+    },
+    "nextDivergence": null
+  },
+  "previousQuestChatReport": {
+    "goalKind": "file-port",
+    "summary": "The admitted Wiz-goal loader resolves the earlier stop. The current first divergence is #chat with the quest nemesis: C calls qt_pager(\"discourage\") and sets met_nemesis after the pager; JavaScript quest_chat returns false and sounds.domonnoise records the dialogue as unported. Port the nemesis and guardian helpers and wire both branches through quest_chat.",
+    "remainingScreens": 39,
+    "commit": "4eccc7f8d26fc9ab015185fc0796e01195f98b1b",
+    "evaluationPath": "challenges/evaluations/accepted-10bacc75116b05788ed935aa7f24fc20fb324927-v53.json",
+    "mismatch": {
+      "corpus": "synthetic",
+      "batch": "v53",
+      "caseId": "v53-quest-nemesis-nearby-action5",
+      "session": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+      "manifestPath": "challenges/manifests/v53.json",
+      "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+      "recording": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.session.json",
+      "recordingPath": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.session.json",
+      "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
+      "recipe": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.recipe.session.json",
+      "recipeSha256": "33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d",
+      "replayInputSha256": "adaae81a08525b7ffc0f968688eaad01774175a945b9384d9d0e50b549f43487",
+      "evaluationPath": "challenges/evaluations/accepted-10bacc75116b05788ed935aa7f24fc20fb324927-v53.json",
+      "evaluationCommit": "10bacc75116b05788ed935aa7f24fc20fb324927",
+      "remainingScreens": 39,
+      "recordedSteps": 246,
+      "previousScreensMatched": 207,
+      "regression": false,
+      "passed": false,
+      "error": null,
+      "metrics": {
+        "screens": {
+          "matched": 207,
+          "total": 246
+        },
+        "rng": {
+          "matched": 3527,
+          "total": 3829
+        },
+        "cursors": {
+          "matched": 241,
+          "total": 246
+        }
+      },
+      "firstMismatch": {
+        "kind": "rng",
+        "message": "C enters quest.c:chat_with_nemesis and opens qt_pager(\"discourage\"); JS returns false from quest_chat and records the nemesis dialogue as unported.",
+        "step": 207
+      },
+      "step": 207,
+      "kind": "rng",
+      "sourceFile": "quest.c",
+      "function": "quest_chat",
+      "cFile": "quest.c",
+      "luaFile": null,
+      "line": 483,
+      "note": "Earlier quest-chat frontier retained for history; resolved by the accepted quest-chat source work before this task. The current task began from the accepted 68ca320 baseline."
+    },
+    "source": {
+      "file": "quest.c",
+      "branch": "When #chat reaches the role quest nemesis or guardian through sounds.c:dochat -> domonnoise, quest_chat dispatches MS_NEMESIS to discourage dialogue and met_nemesis state, or MS_GUARDIAN to the before/after pager selected by questart and killed_nemesis.",
+      "functions": [
+        "chat_with_nemesis",
+        "chat_with_guardian",
+        "quest_chat"
+      ],
+      "callers": [
+        "C sounds.c:dochat calls domonnoise for the selected adjacent monster; sounds.c:domonnoise maps MS_NEMESIS/MS_GUARDIAN and calls quest.c:quest_chat. JavaScript js/sounds.js:dochat calls domonnoise, which calls js/quest.js:quest_chat.",
+        "The admitted synthetic case v53-quest-nemesis-nearby-action5 reaches the nemesis branch through #chat at segment 0, step 207."
+      ],
+      "dependencies": [
+        "qt_pager is already implemented in js/questpgr.js; quest.c discards its return value, so no additional pager behavior is needed. The pre-existing sounds.c MS_NEMESIS/MS_GUARDIAN dispatch remains the source caller."
+      ]
+    },
+    "evidence": [
+      "The current saved queue entry is challenges/evaluations/accepted-10bacc75116b05788ed935aa7f24fc20fb324927-v53.json at 10bacc75116b05788ed935aa7f24fc20fb324927: 207/246 screens, 3527/3829 RNG calls and 241/246 cursors; 39 screens remain. Manifest fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39, recording f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26, recipe 33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d.",
+      "The strict targeted replay at commit 4eccc7f8d26fc9ab015185fc0796e01195f98b1b is preserved at /tmp/teleport-validation-1000/run-hzGQEb/receipt.json and stdout.log. It matches through step 206, then at segment 0, step 207, key h, C renders the opening quote of “Are you ready yet to beg for mercy?” while JS retains the previous top line; C consumes rn2(3)=2 from shuffle(nhlib.lua:19), while JS consumes rn2(5)=0 because the pager branch never runs.",
+      "quest.c:394-400 chat_with_nemesis calls qt_pager(\"discourage\") and then sets Qstat(met_nemesis) only when the flag is false. quest.c:441-448 chat_with_guardian selects guardtalk_after only when u.uhave.questart and killed_nemesis are both true; otherwise it selects guardtalk_before.",
+      "quest.c:473-492 quest_chat preserves the leader m_id branch, then dispatches MS_NEMESIS and MS_GUARDIAN to those helpers. sounds.c:1257-1408 dochat reaches domonnoise for the adjacent monster; sounds.c:729-731 calls quest_chat for these sounds. JavaScript js/sounds.js:1028-1034 currently calls quest_chat but falls back to note_unported because js/quest.js:392-399 supports only the leader identity.",
+      "The prior first mismatch was the Wiz-goal loader stop. Accepted Main now contains the loader, and the current replay reaches step 207; this implementation addresses the new quest.c dialogue frontier rather than repeating the completed loader work."
+    ],
+    "implementationResult": {
+      "sourceCommit": "a3787d724595a5594ed11fe15bcec20a05e8be1f",
+      "source": "js/quest.js ports quest.c:chat_with_nemesis, chat_with_guardian and quest_chat for role nemesis and guardian dialogue; the existing sounds.js production #chat caller reaches both arms.",
+      "nemesisPrefix": {
+        "batch": "v53",
+        "caseId": "v53-quest-nemesis-nearby-action5",
+        "segment": 0,
+        "fromStep": 207,
+        "throughStep": 209,
+        "match": "exact C/JavaScript RNG, screen, and cursor parity through step 209; first later divergence at step 210 is mcastu.c:mcast_stun_you and outside this source task."
+      },
+      "guardianRecordings": [
+        {
+          "recipe": "recipes/quest.c/guardian-wizard-chat-a2-v53.session.json",
+          "recording": "recordings/quest.c/guardian-wizard-chat-a2-v53.session.json",
+          "role": "Wizard",
+          "guardian": "Apprentice",
+          "result": "diff-fresh exact C/JavaScript parity"
+        },
+        {
+          "recipe": "recipes/quest.c/guardian-valkyrie-chat-a2-v53.session.json",
+          "recording": "recordings/quest.c/guardian-valkyrie-chat-a2-v53.session.json",
+          "role": "Valkyrie",
+          "guardian": "Warrior",
+          "result": "diff-fresh exact C/JavaScript parity"
+        }
+      ]
+    }
+  },
+  "previousMcastuFrontier": {
     "baselineCommit": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9",
     "baselineEvaluationPath": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/68ca32057bc676b09a8eda1f0c88ee3cb9de83c9/run-hosted-ycGofg/synthetic/ci-v53.json",
     "metrics": {
@@ -230,5 +342,167 @@
       "Upstream mcastu.c:503-520 implements mcast_stun_you. mcastu.c:848-851 dispatches MCAST_STUN_YOU and clears dmg; castmu calls mcast_spell at line 298.",
       "js/mcastu.js:904 routes MCAST_STUN_YOU to recordMcastGap(\"mcastu.c mcast_stun_you\"); the already-wired C/JS production path therefore omits the C shield/status/message branch."
     ]
+  },
+  "baseline": {
+    "acceptedMainCommit": "68ca32057bc676b09a8eda1f0c88ee3cb9de83c9",
+    "hostedCheckpoint": "38328501086",
+    "acceptedMetrics": {
+      "screens": {
+        "matched": 210,
+        "total": 246
+      },
+      "rng": {
+        "matched": 3732,
+        "total": 3829
+      },
+      "cursors": {
+        "matched": 244,
+        "total": 246
+      }
+    },
+    "privateCheckpointPath": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/68ca32057bc676b09a8eda1f0c88ee3cb9de83c9/run-hosted-ycGofg/synthetic/ci-v53.json",
+    "trackedEvaluationPath": "challenges/evaluations/accepted-10bacc75116b05788ed935aa7f24fc20fb324927-v53.json",
+    "trackedEvaluationNote": "The tracked evaluation artifact nearest this baseline is from the earlier quest-chat candidate and records 207/246 screens, 3527/3829 RNG and 241/246 cursors. The accepted 68ca320 hosted checkpoint is the provenance for the 210/246 baseline above."
+  },
+  "currentTask": {
+    "id": "A2-investigation-v53-quest-nemesis-stun-residual-action5-20261013",
+    "sourceScope": [
+      {
+        "file": "mcastu.c",
+        "functions": [
+          "mcast_stun_you",
+          "mcast_spell"
+        ]
+      },
+      {
+        "file": "quest.c",
+        "functions": [
+          "quest_talk",
+          "nemesis_speaks",
+          "quest_stat_check"
+        ]
+      },
+      {
+        "file": "monmove.c",
+        "callerWiring": "dochug post-action !helpless(mtmp) && nearby gate; existing wait-mask quest_talk gate retained"
+      }
+    ],
+    "resolutionCommit": "0b6c9d994202ffcf80e40be26e4214f7b0318ef9",
+    "replay": {
+      "command": "node scripts/scan-sessions.mjs --json --synthetic v53/v53-quest-nemesis-nearby-action5",
+      "receipt": "/tmp/teleport-validation-1000/run-phEluW/receipt.json",
+      "resultPath": "/tmp/a2-v53-quest-nemesis-after-0b6c9d.json",
+      "replayCommit": "0b6c9d994202ffcf80e40be26e4214f7b0318ef9",
+      "replayInputSha256": "ac009e35f1ecb524d2de2627c6f3a999ba4c3fbac8213d58ee37e319f7c0fbba",
+      "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+      "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
+      "recipeSha256": "33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 245,
+      "recordedSteps": 246,
+      "screens": {
+        "matched": 246,
+        "total": 246
+      },
+      "rng": {
+        "matched": 3829,
+        "total": 3829
+      },
+      "cursors": {
+        "matched": 246,
+        "total": 246
+      },
+      "inputBoundaryMatched": true,
+      "divergence": null,
+      "unported": [
+        "sounds.c SoundAchievement"
+      ]
+    },
+    "sourceFindings": [
+      "quest.c:nemesis_speaks selects role dialogue from questart/made_goal/met_nemesis when not in battle, updates made_goal and met_nemesis after paging, and uses rn2(5) before discourage paging when in battle.",
+      "quest.c:quest_stat_check sets in_battle from !helpless(mtmp) && monnear(...); quest.c:quest_talk dispatches MS_NEMESIS to nemesis_speaks.",
+      "monmove.c:dochug has two active quest_talk callers: the wait-mask branch and the ordinary post-action !helpless(mtmp) && nearby gate. JS now wires both.",
+      "quest_talk retains the C DJINNI branch as note_unported(quest.c prisoner_speaks), whose C return is void and discarded; the selected runtime evidence exercises the nemesis path."
+    ],
+    "checks": {
+      "focused": {
+        "command": "node scripts/run-bounded.mjs focused -- node --test scripts/quest-nemesis-talk.test.mjs scripts/mcastu.test.mjs",
+        "result": "73/73 pass",
+        "receipt": "/tmp/teleport-validation-1000/run-mngbNT/receipt.json"
+      },
+      "lint": {
+        "command": "npx eslint js/quest.js js/monmove.js scripts/quest-nemesis-talk.test.mjs",
+        "result": "pass",
+        "log": "/tmp/a2-quest-nemesis-eslint.log"
+      },
+      "focusedCallers": {
+        "command": "node scripts/run-bounded.mjs focused -- node --test scripts/quest-nemesis-talk.test.mjs scripts/quest-nemesis-chat.test.mjs scripts/monmove.test.mjs",
+        "result": "157/157 pass",
+        "receipt": "/tmp/teleport-validation-1000/run-Tyrlfa/receipt.json"
+      },
+      "rangeEvidence": {
+        "command": "node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json",
+        "result": "v53/v53-quest-nemesis-nearby-action5 segment 0 through step 245: matched",
+        "log": "/tmp/a2-quest-nemesis-range-evidence.log"
+      },
+      "fresh": {
+        "command": "node scripts/scan-sessions.mjs --json --synthetic v53/v53-quest-nemesis-nearby-action5",
+        "result": "exact full segment parity, input boundary matched; no divergence",
+        "log": "/tmp/a2-v53-quest-nemesis-after-0b6c9d.json"
+      }
+    }
+  },
+  "previousSummary": "The admitted Wiz-goal loader resolves the earlier stop. The current first divergence is #chat with the quest nemesis: C calls qt_pager(\"discourage\") and sets met_nemesis after the pager; JavaScript quest_chat returns false and sounds.domonnoise records the dialogue as unported. Port the nemesis and guardian helpers and wire both branches through quest_chat.",
+  "previousRemainingScreens": 39,
+  "previousCommit": "4eccc7f8d26fc9ab015185fc0796e01195f98b1b",
+  "historicalFirstMismatch": {
+    "corpus": "synthetic",
+    "batch": "v53",
+    "caseId": "v53-quest-nemesis-nearby-action5",
+    "session": "synthetic/v53/v53-quest-nemesis-nearby-action5",
+    "manifestPath": "challenges/manifests/v53.json",
+    "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
+    "recording": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.session.json",
+    "recordingPath": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.session.json",
+    "recordingSha256": "f5a28426f31100ffccd99802cd3f1caa0931e859f930be4c2a91d79d08a2bd26",
+    "recipe": "challenges/cases/v53/v53-quest-nemesis-nearby-action5.recipe.session.json",
+    "recipeSha256": "33cd4077303a7cab27d2c94a802e7271711f1c00c90afe1f0cc116ea0d25129d",
+    "replayInputSha256": "adaae81a08525b7ffc0f968688eaad01774175a945b9384d9d0e50b549f43487",
+    "evaluationPath": "challenges/evaluations/accepted-10bacc75116b05788ed935aa7f24fc20fb324927-v53.json",
+    "evaluationCommit": "10bacc75116b05788ed935aa7f24fc20fb324927",
+    "remainingScreens": 39,
+    "recordedSteps": 246,
+    "previousScreensMatched": 207,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 207,
+        "total": 246
+      },
+      "rng": {
+        "matched": 3527,
+        "total": 3829
+      },
+      "cursors": {
+        "matched": 241,
+        "total": 246
+      }
+    },
+    "firstMismatch": {
+      "kind": "rng",
+      "message": "C enters quest.c:chat_with_nemesis and opens qt_pager(\"discourage\"); JS returns false from quest_chat and records the nemesis dialogue as unported.",
+      "step": 207
+    },
+    "step": 207,
+    "kind": "rng",
+    "sourceFile": "quest.c",
+    "function": "quest_chat",
+    "cFile": "quest.c",
+    "luaFile": null,
+    "line": 483,
+    "note": "Earlier quest-chat frontier retained for history; resolved by the accepted quest-chat source work before this task. The current task began from the accepted 68ca320 baseline."
   }
 }
