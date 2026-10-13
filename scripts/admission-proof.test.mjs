@@ -138,8 +138,11 @@ test('hosted import produces a separate receipt that authorizes manifests, not c
         /differs from the candidate inputs|unvalidated changes/);
 });
 
-test('admission import rejects incomplete artifacts and a failed base checkpoint', t => {
+test('admission import rejects incomplete artifacts and a failed or unaccepted base', t => {
     const f = fixture(t);
+    f.save('.cache/ledger.json', createLedger('loop-20261013', f.root));
+    assert.throws(() => fetchAdmission('42', {...f, ledger: '.cache/ledger.json'}), /base must be accepted/);
+    assert.equal(readRows(join(f.root, 'SCORE.tsv')).length, 0, 'rejection does not record baselines');
     const path = `${f.artifact}/${f.paths[0]}`, bytes = readFileSync(join(f.root, path));
     const value = JSON.parse(bytes); value.sha = f.base;
     f.save(path, value);

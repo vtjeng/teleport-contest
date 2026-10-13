@@ -52,6 +52,8 @@ export function fetchAdmission(id, {root = PROJECT_ROOT, ledger, runGh = (args, 
         ledger = resolve(root, ledger);
         const state = summarizeLedger(JSON.parse(readFileSync(ledger, 'utf8')));
         if (state.coordinatorRoot !== root) throw new Error('only the coordinator imports admission scores');
+        if (!Object.values(state.deliveries).some(delivery => delivery.acceptedAt && delivery.integration === plan.base))
+            throw new Error('admission base must be accepted in the coordinator ledger');
         for (const batch of plan.batches) {
             const task = Object.values(state.tasks).find(task => task.kind === 'challenge-preparation'
                 && task.status === 'accepted' && task.reservations.includes(`challenge-batch:${batch.batch}`));
