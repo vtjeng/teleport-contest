@@ -57,16 +57,22 @@
       "nokiller"
     ],
     "callers": [
-      "music.c:do_play_instrument() calls open_drawbridge() when the saved Stronghold passtune matches and the nearby bridge is raised.",
-      "detect.c:openone() calls open_drawbridge() for a raised drawbridge found by do_clear_area().",
-      "zap.c:bhit() and zap_map() call open_drawbridge() for opening/knock effects at a portcullis."
+      "music.c:do_play_instrument() calls close_drawbridge() or open_drawbridge() after the saved Stronghold passtune matches; the v58 replay exercises open_drawbridge().",
+      "detect.c:openone() calls open_drawbridge() for a raised drawbridge found by do_clear_area(); the independent blessed Bell recording exercises this path.",
+      "zap.c:zap_updown() calls open_drawbridge() and close_drawbridge() for up/down wands at a portcullis; A2 currently reserves this exact caller, so its wiring is deferred until the reservation clears.",
+      "zap.c:zap_map() handles lateral opening/locking effects; its production caller is zap.c:bhit(). The independent lateral zap recording exercises close_drawbridge() through bhit() and zap_map()."
     ],
     "dependencies": [
       "dbridge.c:get_wall_for_db and find_drawbridge.",
       "revive_nasty() return values are discarded; record this gap and skip the calls as required.",
       "e_died() invokes hero drown/lava/done/teleds and monster xkilled/monkilled; preserve those state changes.",
       "do_entity() relocation uses remove_monster/place_monster/update_monster_region and recursively handles occupant conflicts."
-    ]
+    ],
+    "callerTraceCorrection": {
+      "preservesDiagnosis": "The original diagnosis still identifies dbridge.c:open_drawbridge and e_missed as the v58 mismatch cause.",
+      "correction": "The initial caller inventory named zap.c:bhit for the line 3273 up/down call. Source inspection shows that call is in zap.c:zap_updown; zap.c:bhit is the distinct lateral caller through zap_map.",
+      "dependency": "A2 owns source:zap.c:zap_updown. Do not edit that caller until Root records acceptance and releases the reservation."
+    }
   },
   "goalKind": "file-port",
   "evidence": [
