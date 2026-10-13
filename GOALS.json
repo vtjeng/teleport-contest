@@ -297488,7 +297488,7 @@
     {
       "id": "fix-zap-dig-adjacent-pit-caller-v55-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Create the adjacent pit through the existing source-owned dighole path before linking conjoined pits.",
       "cFile": "dig.c",
       "sessions": [
@@ -297498,10 +297498,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "823d8044b9783901d18d24b0fe6d7469e286f498",
       "delivered": null,
       "function": "zap_dig",
-      "session": "synthetic/v55/v55-conjoined-pit-horizontal-dig-action3"
+      "session": "synthetic/v55/v55-conjoined-pit-horizontal-dig-action3",
+      "closeStanding": {
+        "sha": "823d8044b9783901d18d24b0fe6d7469e286f498",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "cbe35a2f290f2277c4ea06e52999d8f274e1d86b",
+        "target": "synthetic/v55/v55-conjoined-pit-horizontal-dig-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/823d8044b9783901d18d24b0fe6d7469e286f498/run-hosted-vCU6eE/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "zap_dig",
+            "implementation": "js/dig.js",
+            "symbol": "zap_dig",
+            "sourceReview": "Bounded caller correction, not whole-function completion. dig.c:zap_dig (1548-1753) establishes pitdig from u.utraptype == TT_PIT, restricts work to one horizontal adjacent square, checks adj_pit_checks, then calls dighole(TRUE, TRUE, &cc), refreshes t_at, writes reciprocal conjoined bits, and records pit flow. JS now calls the existing dighole(true,true,{x:zx,y:zy},{state,random}) at the same location and keeps its effects before refreshing t_at. The caller discards dighole’s return, so no new dighole port is claimed. The existing zap.c:weffects binding continues dispatching WAN_DIGGING and SPE_DIG to zap_dig. This function body was relocated from js/zap.js to js/dig.js so dig.c behavior resides with its source file; zap.js re-exports the symbol for existing consumers.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "weffects",
+                "source": "zap.c:weffects dispatches WAN_DIGGING or SPE_DIG to dig.c:zap_dig; do_zap/dozap is the production wand entry route."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-dig-conjoined-pit.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-conjoined-pit-horizontal-dig-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 248,
+                "source": "Full 249-step admitted replay through the WAN_DIGGING caller; all screens, RNG, cursors, and the input boundary match."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This is a bounded correction to the existing dig.c:zap_dig implementation, now kept in js/dig.js with zap.c:weffects dispatching through the zap module. The covered entry point is a horizontal WAN_DIGGING ray while the hero is trapped in an unjoined pit, aimed at an allowed ordinary adjacent room. Source order is: adj_pit_checks, dighole(TRUE, TRUE, &cc), t_at refresh, reciprocal conjoined-bit writes, then pit-flow handling. dighole’s Boolean is discarded by C; its side effects are implemented by the existing JavaScript owner. This task claims no whole-zap_dig completion: other pre-existing partial paths, including vertical descent, remain outside this repair. A follow-up hosted checkpoint exposed an omitted SHOP_WALL_COST binding after zap_dig relocation; the correction only adds that shared constant import. Post-correction v53 ring-shop and v55 conjoined-pit admitted replays both complete with no divergence.",
+        "entryPoints": [
+          {
+            "name": "Horizontal wand of digging creates the neighboring pit from an existing pit",
+            "functions": [
+              "zap_dig"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-conjoined-pit-horizontal-dig-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 248,
+                "source": "dozap -> zap.c:weffects -> dig.c:zap_dig; the caller creates the adjacent pit with dig.c:dighole before linking the conjoined traps"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
