@@ -296527,6 +296527,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-mon-meatmetal-acoustics-v54-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Fix the existing mon.c:meatmetal offscreen verbose crunch branch to use the already ported You_hear/acoustics behavior. The admitted v54 baseline first differs at step 634; the committed correction matches all 863 steps.",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v54/v54-knight-lich-armor-and-weakness-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v54-knight-lich-armor-and-weakness-action3-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "meatmetal",
+      "session": "synthetic/v54/v54-knight-lich-armor-and-weakness-action3"
     }
   ]
 }
