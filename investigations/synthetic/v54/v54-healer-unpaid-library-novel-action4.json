@@ -10,7 +10,7 @@
   "recordingSha256": "d185785714f55e37763048773a113eedf0f7dc43d75db05a54ea033236c53f1b",
   "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
   "evaluationCommit": "8c9dea179cf061e29b9b7a3cde76a99c42083a35",
-  "status": "partial",
+  "status": "complete",
   "commit": "81ece09176f8be1ac456d910d9777178f629f073",
   "mismatch": {
     "kind": "synthetic",
@@ -28,22 +28,56 @@
     "batch": "v54",
     "recordingPath": "challenges/cases/v54/v54-healer-unpaid-library-novel-action4.session.json"
   },
-  "summary": "The first mismatch is the unpaid spellbook fee on the novel reading path. C calls check_unpaid_usage(spellbook, FALSE) before identifying the novel and awarding its experience; JavaScript stops at UnsupportedShopError. The C caller and fee branch are confirmed. The remaining investigation is the asynchronous output and caller contract needed to implement the source function without changing other check_unpaid call paths.",
+  "summary": "The first mismatch is the unpaid spellbook fee on the novel reading path. C calls check_unpaid_usage(spellbook, FALSE) after a successful read_tribute and before identifying the novel or awarding its experience; JavaScript stops at UnsupportedShopError. The complete repair includes shk.c cost_per_charge, check_unpaid_usage and its check_unpaid wrapper, then awaits the fee operation through every existing direct C caller and every consume_obj_charge caller that delegates to check_unpaid.",
   "source": {
     "file": "shk.c",
-    "branch": "The spellbook is unpaid, the hero is inside an active shop with its keeper present, and cost_per_charge returns a positive fee.",
+    "branch": "The object is unpaid, u.ushops is nonempty, the charged-item guard does not return, shop_keeper resolves an in-shop keeper, and cost_per_charge returns a positive amount.",
     "functions": [
-      "check_unpaid_usage"
+      "cost_per_charge",
+      "check_unpaid_usage",
+      "check_unpaid"
     ],
     "callers": [
-      "spell.c:study_book novel branch via check_unpaid(spellbook)"
+      "invent.c:consume_obj_charge",
+      "spell.c:learn",
+      "spell.c:study_book",
+      "apply.c:catch_lit",
+      "apply.c:use_lamp",
+      "apply.c:light_cocktail",
+      "apply.c:dorub",
+      "apply.c:do_break_wand",
+      "engrave.c:doengrave_sfx_item",
+      "write.c:dowrite",
+      "potion.c:potion_dip",
+      "zap.c:dozap",
+      "pickup.c:tipcontainer_checks",
+      "apply.c:use_camera via invent.c:consume_obj_charge",
+      "apply.c:use_bell via invent.c:consume_obj_charge",
+      "apply.c:use_tinning_kit via invent.c:consume_obj_charge",
+      "apply.c:use_grease via invent.c:consume_obj_charge",
+      "makemon.c:bagotricks via invent.c:consume_obj_charge",
+      "mkobj.c:hornoplenty via invent.c:consume_obj_charge",
+      "detect.c:use_crystal_ball via invent.c:consume_obj_charge",
+      "pickup.c:dotip via invent.c:consume_obj_charge",
+      "music.c:do_improvisation via invent.c:consume_obj_charge",
+      "trap.c:disarm_squeaky_board via invent.c:consume_obj_charge"
     ],
-    "dependencies": []
+    "dependencies": [
+      "shk.c:get_cost",
+      "shk.c:shop_keeper",
+      "shk.c:inhishop",
+      "shk.c:muteshk",
+      "invent.c:currency",
+      "pline.c:verbalize",
+      "attrib.c:exercise"
+    ]
   },
   "evidence": [
     "The admitted baseline challenges/evaluations/baseline-78195d815-v54.json records 299/381 matching screens, 4,877/4,898 RNG calls, 299/381 cursors and error null. Its first mismatch is step 299 at C rn2(2)=0 from shk.c:check_unpaid_usage:5708.",
-    "nethack-c/upstream/src/spell.c:515-525 calls check_unpaid(spellbook) after read_tribute succeeds and before makeknown and novel experience credit; nethack-c/upstream/src/shk.c:5688-5733 selects the SPBOOK_CLASS arm, draws rn2(2), emits the fee and increments the keeper debit.",
-    "js/spell.js:936-964 has the same novel caller order. js/shk.js:2370-2405 implements only the initial unpaid/shop/charged guard and throws UnsupportedShopError instead of the C fee behavior.",
-    "Before implementation scope is claimed, inspect every current check_unpaid/check_unpaid_usage caller and determine how to preserve C ordering when verbalize and exercise return promises."
-  ]
+    "nethack-c/upstream/src/spell.c:515-525 calls check_unpaid(spellbook) after read_tribute succeeds and before makeknown and novel experience credit. nethack-c/upstream/src/shk.c:5627-5684 computes partial-use charges; :5688-5733 selects the SPBOOK_CLASS arm, draws rn2(2), emits the fee and increments keeper debit; :5739-5742 is the normal-use wrapper.",
+    "js/spell.js:936-964 has the same novel caller order. js/shk.js:2370-2405 implements only the initial guard and throws UnsupportedShopError instead of the C fee behavior; js/shk.js has no cost_per_charge implementation.",
+    "C call-site search: rg -n 'check_unpaid(_usage)?\\(' nethack-c/upstream/src found all direct calls in invent.c, spell.c, apply.c, engrave.c, write.c, potion.c, zap.c and pickup.c. A second search of consume_obj_charge found its active caller family in apply.c, makemon.c, mkobj.c, detect.c, pickup.c, music.c and trap.c; the asynchronous check must be awaited before each charge decrement.",
+    "Every production caller listed above has an existing JavaScript path. The implementation scope therefore includes await propagation and focused caller checks across those modules, plus the selected admitted novel replay and an independent matching unpaid-use recipe with a cheap variation."
+  ],
+  "goalKind": "divergence-fix"
 }
