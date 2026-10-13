@@ -9,7 +9,7 @@
   "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
   "recordingSha256": "d185785714f55e37763048773a113eedf0f7dc43d75db05a54ea033236c53f1b",
   "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
-  "evaluationCommit": "8c9dea179cf061e29b9b7a3cde76a99c42083a35",
+  "evaluationCommit": "78195d81504645fa54973a60dc4ee18719447e76",
   "status": "complete",
   "commit": "81ece09176f8be1ac456d910d9777178f629f073",
   "mismatch": {
