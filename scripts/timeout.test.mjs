@@ -907,7 +907,12 @@ test('slip_or_trip mirrors the complete source-owned branch sequence', () => {
         /vobj_at\(u\.ux, u\.uy, state\)[\s\S]*?is_pool\(u\.ux, u\.uy, state\)[\s\S]*?PLNMSG_ONE_ITEM_HERE[\s\S]*?is_ice\(u\.ux, u\.uy, state\)[\s\S]*?NODIAG\(u\.umonnum\)[\s\S]*?await hurtle\(u\.dx, u\.dy, 1, false, state/u,
     );
     assert.match(jsFunction, /note_unported\('trap\.c instapetrify'\)/u);
-    assert.match(jsFunction, /note_unported\('steed\.c dismount_steed'\)/u);
+    assert.equal(
+        [...jsFunction.matchAll(/await dismount_steed\(DISMOUNT_FELL, state, \{ random \}\);/gu)].length,
+        2,
+        'timeout.c calls the existing FELL dismount in both mounted fumble branches',
+    );
+    assert.doesNotMatch(jsFunction, /note_unported\('steed\.c dismount_steed'\)/u);
     assert.match(jsFunction, /random\.rn2\(10 \+ acurr\(state, A_DEX\)\)/u);
 });
 
@@ -983,6 +988,9 @@ test('fumbling expiry preserves its caller across object, ice, and rider branche
         const state = plainFumblingState();
         mutate(state);
         await nh_timeout(state, {
+            // This fixture uses a placeholder steed, so exercise timeout's
+            // clone-safe dispatch without invoking riding accident effects.
+            planning: true,
             random: { rn2: () => 0, rnd: () => 5 },
             message: async () => {},
         });

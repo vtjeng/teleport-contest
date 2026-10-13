@@ -23,6 +23,7 @@ import {
     CONTAINED_TOO,
     DEAF,
     DETECT_MONSTERS,
+    DISMOUNT_FELL,
     DIED,
     ECMD_OK,
     DISPLACED,
@@ -850,10 +851,10 @@ export async function slip_or_trip(state = game, env = {}) {
                 || !saddle.cursed)
             && (!iceOnly || !random.rn2(3))) {
             await message('You lose your balance.', state);
-            // steed.c dismount_steed() is a void caller whose other reasons
-            // remain unported. Preserve the source call boundary without
-            // inventing a fall, damage, or landing transition.
-            if (!env.planning) note_unported('steed.c dismount_steed');
+            if (!env.planning) {
+                const { dismount_steed } = await import('./steed.js');
+                await dismount_steed(DISMOUNT_FELL, state, { random });
+            }
         } else if (!random.rn2(10 + acurr(state, A_DEX))) {
             if (!NODIAG(u.umonnum))
                 confdir(true, state, { random });
@@ -909,7 +910,10 @@ export async function slip_or_trip(state = game, env = {}) {
             await message('You slide to one side of the saddle.', state);
             break;
         }
-        if (!env.planning) note_unported('steed.c dismount_steed');
+        if (!env.planning) {
+            const { dismount_steed } = await import('./steed.js');
+            await dismount_steed(DISMOUNT_FELL, state, { random });
+        }
     }
 }
 
