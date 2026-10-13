@@ -1,0 +1,130 @@
+{
+  "session": "synthetic/v58/v58-ceiling-striking-helmet-action1",
+  "corpus": "synthetic",
+  "batch": "v58",
+  "caseId": "v58-ceiling-striking-helmet-action1",
+  "remainingScreens": 75,
+  "recordedSteps": 243,
+  "manifestPath": "challenges/manifests/v58.json",
+  "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+  "recordingSha256": "6739bc973f59a191362f56e429854245cf96223db5ac77575b8a547131c07d57",
+  "evaluationPath": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v58.json",
+  "evaluationCommit": "b151b2318fa82ab62868ad676c7f00823de614c0",
+  "status": "complete",
+  "commit": "73d0a1a0403910c12bd8c2590b83757f7361abb9",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v58",
+    "caseId": "v58-ceiling-striking-helmet-action1",
+    "session": "synthetic/v58/v58-ceiling-striking-helmet-action1",
+    "manifestPath": "challenges/manifests/v58.json",
+    "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+    "recording": "challenges/cases/v58/v58-ceiling-striking-helmet-action1.session.json",
+    "recordingPath": "challenges/cases/v58/v58-ceiling-striking-helmet-action1.session.json",
+    "recordingSha256": "6739bc973f59a191362f56e429854245cf96223db5ac77575b8a547131c07d57",
+    "recipe": "challenges/cases/v58/v58-ceiling-striking-helmet-action1.recipe.session.json",
+    "recipeSha256": "132106c4a61c49276cce3f174d2795ea87802c3283334a4fda1f5afdc6577189",
+    "replayInputSha256": "141c20cf32a82279fa655ed9b2ef14f3ac8a870117be4d97b98b531fc30e147c",
+    "evaluationPath": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v58.json",
+    "evaluationCommit": "b151b2318fa82ab62868ad676c7f00823de614c0",
+    "evaluationArtifact": "challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v58.json",
+    "evaluationUtc": "2026-10-13T15:57:57.263Z",
+    "remainingScreens": 75,
+    "recordedSteps": 243,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 168,
+        "total": 243
+      },
+      "rng": {
+        "matched": 2859,
+        "total": 2919
+      },
+      "cursors": {
+        "matched": 243,
+        "total": 243
+      }
+    },
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v58/v58-ceiling-striking-helmet-action1.json"
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 168,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 168,
+          "key": "<"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "A",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2850,
+        "cEntry": "rn2(3)=2",
+        "cCaller": "zap_updown(zap.c:3307)",
+        "jsEntry": "rn2(5)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 168,
+          "key": "<"
+        },
+        "stepIndex": 168
+      },
+      "cursor": null
+    },
+    "step": 168,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "zap_updown",
+    "message": null,
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": 3307
+  },
+  "goalKind": "file-port",
+  "summary": "zap.c:zap_updown is only partially implemented. The selected upward WAN_STRIKING use reaches the C falling-rock arm, which makes a rn2(3) decision and then applies helmet-aware damage, creates and stacks a rock, and redraws the square. The JavaScript implementation skips this and the other source arms in zap_updown, so this needs the complete C function port rather than a one-branch workaround.",
+  "source": {
+    "file": "zap.c",
+    "branch": "zap.c:weffects() sends an immediate directional zap with nonzero u.dz to zap_updown(). Within zap_updown(), WAN_STRIKING falls through with striking=true; when u.dz<0, rn2(3) is nonzero, the level is not air or water, the hero is not underwater, and the level is not the quest start, C prints the dislodged-rock message, rolls rnd(2) for a hard helmet or rnd(6) otherwise, calls losehp(Maybe_Half_Phys(dmg), ...), creates a rock at the hero square, learns its description with xname(), stacks it, and calls newsym().",
+    "functions": [
+      "zap_updown() whole zap.c:3219-3410; js/zap.js:6173-6256 currently implements WAN_PROBING and generic pile/map handling but omits WAN_OPENING/SPE_KNOCK, WAN_STRIKING/SPE_FORCE_BOLT, WAN_LOCKING/SPE_WIZARD_LOCK, SPE_STONE_TO_FLESH, and the source-sensitive upward/downward effect branches."
+    ],
+    "callers": [
+      "zap.c:weffects() at 3438-3445 calls zap_updown(obj) when an immediate wand or spell has nonzero u.dz.",
+      "js/zap.js:weffects() at 6258-6265 calls zap_updown(obj, state, random) through the same production dispatch."
+    ],
+    "dependencies": [
+      "Reuse existing JS implementations for bhitpile, zap_map, update_mapseen_for, display_binventory, hard_helmet, losehp, mksobj_at, stackobj, newsym, hides_under, hideunder, and trap.js openholdingtrap/closeholdingtrap/openfallingtrap; preserve their return and noticed semantics.",
+      "closeholdingtrap() has a consumed C boolean result; JS returns {result, noticed}, so use result for the C branch and merge noticed into disclose.",
+      "openholdingtrap() and openfallingtrap() are already implemented; C discards their return values but passes disclose by pointer, so retain their state effects and merge their returned noticed flag.",
+      "dbridge.c open_drawbridge(), close_drawbridge(), and destroy_drawbridge() have no JS implementation. Their C return values are void/discarded from zap_updown; record note_unported for each and skip those calls unless the callee is separately ported under an approved scope.",
+      "The selected hard-helmet case relies on do_wear.c hard_helmet() and zap.c Maybe_Half_Phys() damage reduction; both need their exact current JS helper/state representations read before implementation. Do not infer that the helmet is hard from its object name."
+    ]
+  },
+  "evidence": [
+    "Saved admission evaluation challenges/evaluations/admission-b151b2318fa82ab62868ad676c7f00823de614c0-v58.json reports 168/243 screens and 243/243 cursors matched, with 2859/2919 RNG calls matched. The first mismatch is at step 168 on key <; C starts the screen with A while JS leaves a space. The C call trace is rn2(3) in zap.c:zap_updown at line 3307; JS has rn2(5) at the corresponding trace position.",
+    "The source-traced recipe independently starts as a level-20 Wizard, wishes for a wand of striking and a dwarvish iron helm, wears the helm, then zaps upward with repeated zo< input. The selected mismatch occurs on the first upward zap after those actions.",
+    "Read upstream zap.c:3219-3410 in full. The C WAN_STRIKING/SPE_FORCE_BOLT case sets striking=true, falls through to the shared striking/locking logic, and enters the falling-rock branch only after its drawbridge branch fails. Its branch order is rn2(3), air/water/Underwater/quest-start gates, message, rnd(hard_helmet(uarmh) ? 2 : 6), Maybe_Half_Phys, losehp, conditional mksobj_at/xname/stackobj, then newsym.",
+    "Read the full existing JS zap_updown() and production weffects() path. JS contains no striking branch and does not test the upward falling-rock conditions; it returns disclose after the generic upward hide-under behavior. The call is already wired, so the missing behavior is the partial zap_updown implementation, not a caller dispatch error.",
+    "Current-base selected-case scan at 73d0a1a0403910c12bd8c2590b83757f7361abb9 reproduces the saved first mismatch exactly: screen 168 and C rn2(3)=2 at zap_updown(zap.c:3307) versus JS rn2(5)=0. Scanner output is preserved in .cache/A2-v58-ceiling-striking-scan.json. It also reports the unrelated existing sounds.c SoundAchievement gap."
+  ]
+}
