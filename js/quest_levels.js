@@ -15,7 +15,7 @@
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
 //         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/Hea-fila.lua,
 //         dat/Hea-filb.lua, dat/Cav-filb.lua,
-//         dat/Mon-fila.lua,
+//         dat/Mon-fila.lua, dat/Mon-filb.lua,
 //         dat/tower1.lua, dat/tower2.lua,
 //         dat/tower3.lua, dat/Val-strt.lua.
 
@@ -1600,6 +1600,46 @@ async function monFila(des) {
     await des.random_corridors();
 }
 
+// C ref: complete dat/Mon-filb.lua. The later filler changes only the room
+// contents, retaining all six ordinary rooms and random-corridor ordering.
+async function monFilb(des) {
+    await des.room({ type: 'ordinary', async contents() {
+        await des.stair('up');
+        await des.object();
+        await des.monster({ class: 'X', peaceful: 0 });
+    } });
+    await des.room({ type: 'ordinary', async contents() {
+        await des.object();
+        await des.object();
+        await des.monster({ class: 'X', peaceful: 0 });
+    } });
+    await des.room({ type: 'ordinary', async contents() {
+        await des.object();
+        await des.trap();
+        await des.object();
+        await des.monster({ class: 'E', peaceful: 0 });
+    } });
+    await des.room({ type: 'ordinary', async contents() {
+        await des.stair('down');
+        await des.object();
+        await des.trap();
+        await des.monster({ class: 'E', peaceful: 0 });
+        await des.monster('earth elemental');
+    } });
+    await des.room({ type: 'ordinary', async contents() {
+        await des.object();
+        await des.object();
+        await des.trap();
+        await des.monster({ class: 'X', peaceful: 0 });
+    } });
+    await des.room({ type: 'ordinary', async contents() {
+        await des.object();
+        await des.trap();
+        await des.monster('earth elemental');
+    } });
+    await des.random_corridors();
+}
+
 // C ref: dat/Pri-goal.lua. Priest quest goal level — lava-filled cave with
 // Nalzok guarding the Mitre of Holiness amid human zombies and wraiths.
 async function priGoal(des) {
@@ -3152,6 +3192,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Hea-filb': heaFilb,
     'Cav-filb': cavFilb,
     'Mon-fila': monFila,
+    'Mon-filb': monFilb,
     'Kni-strt': kniStrt,
     astral,
     'Pri-strt': priStrt,
