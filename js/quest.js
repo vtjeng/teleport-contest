@@ -47,6 +47,7 @@ import {
     verbalize,
 } from './pline.js';
 import { observe_object } from './o_init.js';
+import { note_unported } from './unported.js';
 
 // Everything a quest conversation needs from the world outside quest.c: the
 // pager's window-port calls, pline(), the wizard-mode prompt, the random
@@ -441,15 +442,45 @@ export async function quest_talk(mtmp, env = {}) {
     }
     const msound = mtmp.data?.msound;
     if (msound === MS_NEMESIS)
-        ops.unsupported('the quest nemesis speaking');
+        await nemesis_speaks(ops);
     if (msound === MS_DJINNI)
-        ops.unsupported('a captive quest prisoner speaking');
+        // quest.c:quest_talk discards prisoner_speaks()'s void result. Preserve
+        // the unported side-effect gap without refusing the whole dispatch.
+        note_unported('quest.c prisoner_speaks');
+}
+
+// C ref: quest.c nemesis_speaks() (403-422). The battle flag was set earlier
+// by quest_stat_check() in monmove.c:714. C pages first, then updates the
+// persistent made_goal/met_nemesis state; in battle it has only a 1-in-5
+// chance to page the random discouragement.
+async function nemesis_speaks(ops) {
+    const qs = ops.state.svq.quest_status;
+    const madeGoal = qs.made_goal ?? 0;
+    const random = typeof ops.random === 'function'
+        ? ops.random : ops.random?.rn2 ?? rn2;
+    if (!qs.in_battle) {
+        let msgid;
+        if (ops.state.u.uhave.questart)
+            msgid = 'nemesis_wantsit';
+        else if (madeGoal === 1 || !qs.met_nemesis)
+            msgid = 'nemesis_first';
+        else if (madeGoal < 4)
+            msgid = 'nemesis_next';
+        else if (madeGoal < 7)
+            msgid = 'nemesis_other';
+        else if (!random(5))
+            msgid = 'discourage';
+        if (msgid) await ops.pager(msgid);
+        if (madeGoal < 7) qs.made_goal = madeGoal + 1;
+        qs.met_nemesis = true;
+    } else if (!random(5)) {
+        await ops.pager('discourage');
+    }
 }
 
 // C ref: quest.c quest_stat_check() (513-518). monmove.c dochug() calls this
-// for every monster it moves; only the nemesis writes anything. Qstat(in_battle)
-// has no ported reader yet -- quest.c nemesis_speaks() is its only one -- but
-// the flag is the nemesis's own per-turn state and belongs with its writer.
+// for every monster it moves; only the nemesis writes anything. The flag is
+// read by nemesis_speaks() later in that same monster turn.
 export function quest_stat_check(mtmp, state = game) {
     if (mtmp.data?.msound === MS_NEMESIS) {
         state.svq.quest_status.in_battle =
