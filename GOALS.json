@@ -298356,7 +298356,7 @@
     {
       "id": "fix-save-restore-floor-object-and-lantern-state-v55-20261013",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dosave0, savegamestate, savelev_core, saveobjchn from undefined",
       "cFile": "save.c",
       "sessions": [
@@ -298366,10 +298366,436 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "60a94ba634d9406a0fe41fb58ee5eb6c9956d242",
       "delivered": null,
       "function": "dosave0",
-      "session": "synthetic/v55/v55-lantern-save-restore-action2"
+      "session": "synthetic/v55/v55-lantern-save-restore-action2",
+      "closeStanding": {
+        "sha": "60a94ba634d9406a0fe41fb58ee5eb6c9956d242",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "85c020e5e1c4bb33fe569728fbab336d139d95a3",
+        "target": "synthetic/v55/v55-lantern-save-restore-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/60a94ba634d9406a0fe41fb58ee5eb6c9956d242/run-hosted-axfzjU/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dosave0",
+            "sourceFile": "save.c",
+            "implementation": "js/save.js",
+            "symbol": "dosave0",
+            "sourceReview": "The active #save route calls dosave0 before serializing the selected saved game.",
+            "callers": [
+              {
+                "path": "js/save.js",
+                "symbol": "dosave0",
+                "source": "save.c:dosave0 participates in the selected #save/restore path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/save-restore-object-graph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "The saved global and level data are written, including floor objects and lantern timer/light roots."
+              }
+            ]
+          },
+          {
+            "name": "savegamestate",
+            "sourceFile": "save.c",
+            "implementation": "js/save.js",
+            "symbol": "serializeGameState",
+            "sourceReview": "The selected global save writes timer and light roots before inventory, preserving the same object identities.",
+            "callers": [
+              {
+                "path": "js/save.js",
+                "symbol": "serializeGameState",
+                "source": "save.c:savegamestate participates in the selected #save/restore path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/save-restore-object-graph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "The saved global and level data are written, including floor objects and lantern timer/light roots."
+              }
+            ]
+          },
+          {
+            "name": "savelev_core",
+            "sourceFile": "save.c",
+            "implementation": "js/save.js",
+            "symbol": "serializeSnapshot",
+            "sourceReview": "The selected floor-object graph is serialized with aliases retained instead of dropping repeated objects.",
+            "callers": [
+              {
+                "path": "js/save.js",
+                "symbol": "serializeSnapshot",
+                "source": "save.c:savelev_core participates in the selected #save/restore path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/save-restore-object-graph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "The saved global and level data are written, including floor objects and lantern timer/light roots."
+              }
+            ]
+          },
+          {
+            "name": "saveobjchn",
+            "sourceFile": "save.c",
+            "implementation": "js/save.js",
+            "symbol": "serializeSnapshot",
+            "sourceReview": "The C floor object chain is represented through the level object graph and its per-square chains.",
+            "callers": [
+              {
+                "path": "js/save.js",
+                "symbol": "serializeSnapshot",
+                "source": "save.c:saveobjchn participates in the selected #save/restore path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/save-restore-object-graph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "The saved global and level data are written, including floor objects and lantern timer/light roots."
+              }
+            ]
+          },
+          {
+            "name": "dorecover",
+            "sourceFile": "restore.c",
+            "implementation": "js/restore.js",
+            "symbol": "dorestore",
+            "sourceReview": "The active restore entry consumes the saved snapshot through dorestore.",
+            "callers": [
+              {
+                "path": "js/restore.js",
+                "symbol": "dorestore",
+                "source": "restore.c:dorecover participates in the selected #save/restore path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/save-restore-object-graph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 1,
+                "fromStep": 0,
+                "throughStep": 72,
+                "source": "The restored data supports floor redraw and the lamp off/on sequence through the final step."
+              }
+            ]
+          },
+          {
+            "name": "restgamestate",
+            "sourceFile": "restore.c",
+            "implementation": "js/restore.js",
+            "symbol": "dorestore",
+            "sourceReview": "Global timer/light roots are restored before inventory, preserving the C source order.",
+            "callers": [
+              {
+                "path": "js/restore.js",
+                "symbol": "dorestore",
+                "source": "restore.c:restgamestate participates in the selected #save/restore path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/save-restore-object-graph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 1,
+                "fromStep": 0,
+                "throughStep": 72,
+                "source": "The restored data supports floor redraw and the lamp off/on sequence through the final step."
+              }
+            ]
+          },
+          {
+            "name": "getlev",
+            "sourceFile": "restore.c",
+            "implementation": "js/restore.js",
+            "symbol": "dorestore",
+            "sourceReview": "The selected level graph is restored with floor object identities before the second-segment display.",
+            "callers": [
+              {
+                "path": "js/restore.js",
+                "symbol": "dorestore",
+                "source": "restore.c:getlev participates in the selected #save/restore path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/save-restore-object-graph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 1,
+                "fromStep": 0,
+                "throughStep": 72,
+                "source": "The restored data supports floor redraw and the lamp off/on sequence through the final step."
+              }
+            ]
+          },
+          {
+            "name": "restobjchn",
+            "sourceFile": "restore.c",
+            "implementation": "js/restore.js",
+            "symbol": "dorestore",
+            "sourceReview": "Floor objects and their grid/list references resolve to the same restored objects.",
+            "callers": [
+              {
+                "path": "js/restore.js",
+                "symbol": "dorestore",
+                "source": "restore.c:restobjchn participates in the selected #save/restore path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/save-restore-object-graph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 1,
+                "fromStep": 0,
+                "throughStep": 72,
+                "source": "The restored data supports floor redraw and the lamp off/on sequence through the final step."
+              }
+            ]
+          },
+          {
+            "name": "save_timers",
+            "sourceFile": "timeout.c",
+            "implementation": "js/save.js",
+            "symbol": "serializeGameState",
+            "sourceReview": "Global timer_base is captured with the lantern object reference intact.",
+            "callers": [
+              {
+                "path": "js/save.js",
+                "symbol": "serializeGameState",
+                "source": "timeout.c:save_timers participates in the selected #save/restore path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/save-restore-object-graph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "The saved global and level data are written, including floor objects and lantern timer/light roots."
+              }
+            ]
+          },
+          {
+            "name": "restore_timers",
+            "sourceFile": "timeout.c",
+            "implementation": "js/restore.js",
+            "symbol": "dorestore",
+            "sourceReview": "The global timer_base is reattached to its saved lantern before use_lamp calls end_burn.",
+            "callers": [
+              {
+                "path": "js/restore.js",
+                "symbol": "dorestore",
+                "source": "timeout.c:restore_timers participates in the selected #save/restore path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/save-restore-object-graph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 1,
+                "fromStep": 0,
+                "throughStep": 72,
+                "source": "The restored data supports floor redraw and the lamp off/on sequence through the final step."
+              }
+            ]
+          },
+          {
+            "name": "save_light_sources",
+            "sourceFile": "light.c",
+            "implementation": "js/save.js",
+            "symbol": "serializeGameState",
+            "sourceReview": "Global light_base is captured with the lantern object reference intact.",
+            "callers": [
+              {
+                "path": "js/save.js",
+                "symbol": "serializeGameState",
+                "source": "light.c:save_light_sources participates in the selected #save/restore path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/save-restore-object-graph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "The saved global and level data are written, including floor objects and lantern timer/light roots."
+              }
+            ]
+          },
+          {
+            "name": "restore_light_sources",
+            "sourceFile": "light.c",
+            "implementation": "js/restore.js",
+            "symbol": "dorestore",
+            "sourceReview": "The global light_base is reattached before the recorded lamp off/on actions.",
+            "callers": [
+              {
+                "path": "js/restore.js",
+                "symbol": "dorestore",
+                "source": "light.c:restore_light_sources participates in the selected #save/restore path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/save-restore-object-graph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 1,
+                "fromStep": 0,
+                "throughStep": 72,
+                "source": "The restored data supports floor redraw and the lamp off/on sequence through the final step."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active production path is #save -> save.c:dosave0/savegamestate/savelev_core -> restore.c:dorecover/restgamestate/getlev on the second segment. The C recording covers the full floor chain, a carried lit lantern with its global timer/light source, save, restore, and lamp off/on commands. The final replay matches all 202 steps across both segments.",
+        "entryPoints": [
+          {
+            "name": "save and restore a level with floor objects and a lit carried lantern",
+            "functions": [
+              "dosave0",
+              "savegamestate",
+              "savelev_core",
+              "saveobjchn",
+              {
+                "name": "dorecover",
+                "sourceFile": "restore.c"
+              },
+              {
+                "name": "restgamestate",
+                "sourceFile": "restore.c"
+              },
+              {
+                "name": "getlev",
+                "sourceFile": "restore.c"
+              },
+              {
+                "name": "restobjchn",
+                "sourceFile": "restore.c"
+              },
+              {
+                "name": "save_timers",
+                "sourceFile": "timeout.c"
+              },
+              {
+                "name": "restore_timers",
+                "sourceFile": "timeout.c"
+              },
+              {
+                "name": "save_light_sources",
+                "sourceFile": "light.c"
+              },
+              {
+                "name": "restore_light_sources",
+                "sourceFile": "light.c"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "The saved global and level data are written, including floor objects and lantern timer/light roots."
+              },
+              {
+                "batch": "v55",
+                "caseId": "v55-lantern-save-restore-action2",
+                "segment": 1,
+                "fromStep": 0,
+                "throughStep": 72,
+                "source": "The restored data supports floor redraw and the lamp off/on sequence through the final step."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
