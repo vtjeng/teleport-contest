@@ -62,6 +62,7 @@ import {
     ECMD_TIME,
     EF_DESTROY,
     EF_VERBOSE,
+    EXPL_FIERY,
     EXACT_NAME,
     ERODE_CRACK,
     ER_DESTROYED,
@@ -457,7 +458,7 @@ import { finish_quest } from './quest.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
-import { explode_oil } from './explode.js';
+import { explode, explode_oil } from './explode.js';
 import { align_gname } from './pray.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { in_out_region, m_in_out_region } from './region.js';
@@ -1801,13 +1802,8 @@ export async function breakobj(
     }
     if (!fracture) delobj(obj, objectEnv);
     if (explosion) {
-        const explode = rawEnv.explode;
-        if (typeof explode === 'function') {
-            await explode(x, y, -11, (random.d ?? d)(3, 6), 0, 5, state,
-                { ...rawEnv, random, message });
-        } else {
-            note_unported('explode.c explode');
-        }
+        await explode(x, y, -11, (random.d ?? d)(3, 6), 0, EXPL_FIERY, state,
+            { ...objectEnv, random, message });
     }
     return 1;
 }
