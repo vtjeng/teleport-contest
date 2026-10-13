@@ -4,7 +4,7 @@
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
 //         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
 //         dat/Cav-strt.lua, dat/Cav-fila.lua, dat/Mon-goal.lua, dat/Mon-loca.lua, dat/Mon-strt.lua,
-//         dat/Sam-goal.lua, dat/Tou-strt.lua, dat/astral.lua,
+//         dat/Sam-goal.lua, dat/Tou-strt.lua, dat/Tou-fila.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
 //         dat/Ran-goal.lua, dat/Ran-strt.lua, dat/Rog-strt.lua, dat/Rog-loca.lua,
@@ -409,6 +409,29 @@ async function cavFila(des) {
         await des.monster({ id: PM_BUGBEAR, peaceful: 0 });
     await des.monster({ class: S_HUMANOID, peaceful: 0 });
     await des.monster({ id: PM_HILL_GIANT, peaceful: 0 });
+}
+
+// C ref: dat/Tou-fila.lua, whole program. Mines-style filler for Tourist
+// quest levels above Tou-loca, with source-order stairs, objects, traps, and
+// hostile soldiers and humanoids.
+async function touFila(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({
+        style: 'mines', fg: '.', bg: ' ',
+        smoothed: true, joined: true, walled: true,
+    });
+
+    await des.stair('up');
+    await des.stair('down');
+
+    for (let i = 0; i < 7; i++) await des.object();
+    for (let i = 0; i < 4; i++) await des.trap();
+
+    for (let i = 0; i < 5; i++)
+        await des.monster({ id: 'soldier', peaceful: 0 });
+    await des.monster({ class: 'H', peaceful: 0 });
+    await des.monster({ class: 'C', peaceful: 0 });
 }
 
 // C ref: dat/Bar-goal.lua. Map-based barbarian quest goal level: irregular
@@ -3219,6 +3242,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Hea-strt': heaStrt,
     'Cav-loca': cavLoca,
     'Cav-fila': cavFila,
+    'Tou-fila': touFila,
     'Cav-goal': cavGoal,
     'Bar-strt': barStrt,
     'Bar-fila': barFila,
