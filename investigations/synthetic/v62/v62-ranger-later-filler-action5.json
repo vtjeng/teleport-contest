@@ -141,5 +141,10 @@
     "recipeSha256": "147511f9e6c5ccb8862ffed0704ff669717ac71ce72a8027c518ac3f677ffef1",
     "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
     "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904"
-  }
+  },
+  "manifestPath": "challenges/manifests/v62.json",
+  "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
+  "recordingSha256": "26f58cffef964861f1bf03f92301b5abc1a49bcd71344eb7cf0aa5dfb5368da0",
+  "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v62.json",
+  "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904"
 }
