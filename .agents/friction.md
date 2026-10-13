@@ -543,3 +543,13 @@ triage decisions or fix references.
   against immutable `794e91a9`, then preserved that submission's ancestry
   with a merge that left Main's tree unchanged. Preflight passed at
   `acaa5f96`; all 86 focused spell tests passed after the resolution.
+
+### 2026-10-13 — admission activity task guard
+
+- The first all-accepted-batches check after tooling validation tried to
+  record admission activity against the pyrolisk implementation task. The
+  ledger rejected it: admission and baseline phases require an accepted
+  preparation task. No event was appended.
+- The direct ledger admission check passed at `1812ba65` and returned an
+  empty group: v56–v61 remained submitted rather than accepted. For a
+  nonempty group, record its admission activity against accepted Prep.
