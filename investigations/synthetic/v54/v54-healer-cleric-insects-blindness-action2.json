@@ -1,0 +1,77 @@
+{
+  "session": "synthetic/v54/v54-healer-cleric-insects-blindness-action2",
+  "corpus": "synthetic",
+  "batch": "v54",
+  "caseId": "v54-healer-cleric-insects-blindness-action2",
+  "manifestPath": "challenges/manifests/v54.json",
+  "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+  "recordingSha256": "ddd5bb772fb07087c96ccd654edccd8ce96fc0b118cc7038c4317fbf8a64704a",
+  "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+  "evaluationCommit": "8c9dea179cf061e29b9b7a3cde76a99c42083a35",
+  "remainingScreens": 558,
+  "recordedSteps": 724,
+  "status": "complete",
+  "commit": "d54efaeb9c3c290fc7da9f9d68603b084ba78645",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v54",
+    "caseId": "v54-healer-cleric-insects-blindness-action2",
+    "session": "synthetic/v54/v54-healer-cleric-insects-blindness-action2",
+    "manifestPath": "challenges/manifests/v54.json",
+    "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
+    "recording": "challenges/cases/v54/v54-healer-cleric-insects-blindness-action2.session.json",
+    "recordingPath": "challenges/cases/v54/v54-healer-cleric-insects-blindness-action2.session.json",
+    "recordingSha256": "ddd5bb772fb07087c96ccd654edccd8ce96fc0b118cc7038c4317fbf8a64704a",
+    "evaluationPath": "challenges/evaluations/baseline-78195d815-v54.json",
+    "evaluationCommit": "8c9dea179cf061e29b9b7a3cde76a99c42083a35",
+    "evaluationArtifact": "challenges/evaluations/baseline-78195d815-v54.json",
+    "remainingScreens": 558,
+    "recordedSteps": 724,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {"matched": 166, "total": 724},
+      "rng": {"matched": 2537, "total": 5836},
+      "cursors": {"matched": 660, "total": 724}
+    },
+    "firstMismatch": {
+      "segmentIndex": 0,
+      "stepIndex": 166,
+      "key": ".",
+      "kind": "ch",
+      "row": 0,
+      "column": 50,
+      "cCell": {"ch": "-", "color": 8, "attr": 0, "decgfx": 0},
+      "jsCell": {"ch": " ", "color": 8, "attr": 0, "decgfx": 0}
+    },
+    "step": 166,
+    "kind": "screen",
+    "sourceFile": "mcastu.c",
+    "function": "mcast_blind_you",
+    "message": "The saved baseline first differs at step 166 in the clerical blindness spell."
+  },
+  "summary": "The saved admitted baseline matches 166/724 screens before the first difference at step 166; RNG first diverges later at step 188. In upstream mcastu.c:mcast_blind_you, C prints the scales message, applies blindness through make_blinded(Half_spell_damage ? 100L : 200L, FALSE), and conditionally reports vision clearing. The JS mcast_spell dispatcher currently records note_unported('mcastu.c mcast_blind_you') for MCAST_BLIND_YOU, so this existing C body is skipped. This is a bounded missing-body and dispatcher-wiring divergence, not a whole mcastu.c port.",
+  "source": {
+    "file": "mcastu.c",
+    "branch": "mcast_spell dispatches MCAST_BLIND_YOU to mcast_blind_you with dmg set to zero. mcast_blind_you runs only when the hero is not Blinded: it obtains eyecount(gy.youmonst.data), prints 'Scales cover your %s!', calls make_blinded(Half_spell_damage ? 100L : 200L, FALSE), then says vision clears if Blind is still false; otherwise it reports impossible. JS already has an async dispatcher and an explicit gap at the same arm, but no helper body.",
+    "functions": ["mcast_blind_you", "mcast_spell MCAST_BLIND_YOU arm"],
+    "callers": [
+      "C mcastu.c:castmu calls mcast_spell for both AD_SPEL and AD_CLRC attacks; JS castmu already awaits mcast_spell.",
+      "C mcastu.c:mcast_spell calls mcast_blind_you then sets dmg to zero, preserving its trailing mdamageu guard; JS dispatcher likewise supports awaited effect handlers and clears result damage by leaving resultDmg at zero."
+    ],
+    "dependencies": [
+      "The consumed make_blinded effect is already ported in js/potion.js and takes the same state/environment; the dispatcher and caller are already async.",
+      "body_part is already ported in js/polyself.js and makeplural in js/fruit.js. C eyecount is the mondata.h macro: no eyes => 0, cyclops/floating eye => 1, otherwise 2; equivalent eye-count logic is already present in potion.js:make_blinded for body-part pluralization.",
+      "The separate MCAST_INSECTS arm remains an unrelated explicit gap."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved admitted baseline challenges/evaluations/baseline-78195d815-v54.json records 166/724 screens and 660/724 cursors before mismatch, with a later RNG divergence at index 2520 / step 188; error is null. Canonical manifest digest is cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e and the case recording digest is ddd5bb772fb07087c96ccd654edccd8ce96fc0b118cc7038c4317fbf8a64704a.",
+    "The admitted manifest identifies step 166 as mcastu.c:cast_spell MCAST_BLIND_YOU -> mcast_blind_you and explains that the missing scales/Blind-state effect precedes the later RNG consequences.",
+    "Upstream nethack-c/upstream/src/mcastu.c:mcast_blind_you (729-742) defines the full effect; mcast_spell dispatches MCAST_BLIND_YOU at 875-877 and zeroes damage. JS mcastu.js has a matching async dispatcher arm but calls recordMcastGap('mcastu.c mcast_blind_you').",
+    "Production runtime entry is the monster AD_CLRC/AD_SPEL castmu branch -> mcast_spell -> mcast_blind_you. Existing make_blinded is the called state/vision effect; no new helper or return-valued dependency is needed."
+  ]
+}
