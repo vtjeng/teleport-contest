@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first expanded source mission music.c:do_play_instrument Underwater return before can_blow/improvisation. Piranha form enters own clear pool before applying bugle; no charged instrument or RNG consumption expected from instrument. C-only cheap source route: Water troll swimming and hands allow tool application in an actual pool, unlike piranha. C-only prompt/entry correction: Creating terrain under hero does not establish entering it; leave wished pool then step back before bugle, using own observed approach.",
+  "segments": [
+    {
+      "seed": 61101805,
+      "datetime": "20710314232425",
+      "nethackrc": "OPTIONS=name:V61Next,role:Caveman,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed bugle\n                    i                    #wizmap\n#wizidentify\n.\n                    dc                    dd                    #polyself\nwater troll\n                    h                    \u0017pool\n                    l                    h                    af                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission read.c:recharge MAGIC_MARKER rechrg branch override1. Select previously recharged zero-charge magic marker for blessed charging; preserve source tool selection and count. Expected Marker permanently dried out; no further charge draw, recharged resets to1.. C follow-up: Identify all with the supported PICK_ANY menu, acknowledge the charging scroll More once and select previously recharged marker j.",
+  "segments": [
+    {
+      "seed": 61101708,
+      "datetime": "20700119212223",
+      "nethackrc": "OPTIONS=name:V61Prep,role:Priest,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed magic marker (1:0)\n                    \u0017blessed scroll of charging\n                    i                    #wizmap\n#wizidentify\n.\n                    rk j                    i                    "
+    }
+  ]
+}

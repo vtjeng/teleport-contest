@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission polyself.c:dobreathe Strangled guard before energy debit. Dragon form with amulet of strangulation worn; invoke breath while short timeout remains, without subsequent status report. Expected Cannot breathe Sorry; guard precedes energy15 requirement and direction..",
+  "segments": [
+    {
+      "seed": 61101704,
+      "datetime": "20700119212223",
+      "nethackrc": "OPTIONS=name:V61Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed amulet of strangulation\n                    i                    #wizmap\n"
+    }
+  ]
+}

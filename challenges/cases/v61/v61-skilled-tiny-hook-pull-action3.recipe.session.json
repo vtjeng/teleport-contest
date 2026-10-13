@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission apply.c:use_grapple Skilled aim menu -> verysmall rloc_to. Ranger establishes Skilled flail through supported wizard enhancement, then aims hook at actual adjacent tiny newt. Prior v60 only reaches NPC attack, not pull. Expected You pull in newt, with relocation and no thit damage; preserve aim/attack misses.. C follow-up: Own C flail entry i is enhanced twice with wizard override; map the newt before selecting grapple coordinates.",
+  "segments": [
+    {
+      "seed": 61101701,
+      "datetime": "20700119212223",
+      "nethackrc": "OPTIONS=name:V61Prep,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed grappling hook\n                    \u0017uncursed ring of protection +25\n                    i                    #wizmap\n#enhance\nyi                    \u001b                    #enhance\nyi                    \u001b                    wg                    #wizgenesis\npeaceful newt\n                    #wizmap\n"
+    }
+  ]
+}

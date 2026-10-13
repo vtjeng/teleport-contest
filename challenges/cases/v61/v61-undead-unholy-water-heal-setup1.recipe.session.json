@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first expanded source mission potion.c:peffect_water mon_hates_blessings -> cursed heal d(2,6). Wraith form drinks cursed unholy water; compare actual form HP and pride branch with holy-water burn, no lycanthropy.",
+  "segments": [
+    {
+      "seed": 61101808,
+      "datetime": "20710314232425",
+      "nethackrc": "OPTIONS=name:V61Next,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017cursed potion of water\n                    i                    #wizmap\n"
+    }
+  ]
+}

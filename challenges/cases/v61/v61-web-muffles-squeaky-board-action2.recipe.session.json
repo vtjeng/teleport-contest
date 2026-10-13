@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission polyself.c:dospinweb SQKY_BOARD -> deltrap/newsym. Giant spider on actual untriggered squeaky board off stairs, use web ability. Expected Squeaky board muffled and deleted, not ordinary fresh web or swallowed expulsion.. C-only action/scout: Move to clear neighbor of dropped gear after spider form, then create untriggered squeaky board and web.",
+  "segments": [
+    {
+      "seed": 61101705,
+      "datetime": "20700119212223",
+      "nethackrc": "OPTIONS=name:V61Prep,role:Caveman,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of slow digestion\n                    i                    #wizmap\n#polyself\ngiant spider\n                    l                    \u0017squeaky board\n                    #monster\n                    #wizmap\n"
+    }
+  ]
+}

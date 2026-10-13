@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission sit.c:lay_an_egg female aquatic non-eel -> spe1 egg/set_corpsenm timer. Minimal-inventory female Caveman becomes piranha, leaves dropped pile and enters pool. Underwater sit should spawn egg rather than eel Sargasso refusal. Expected Spawn egg with hero-parent spe1/hatch timer in water; no OBJ_AT precedence.. C-only action/scout: Drop heavy rock/flint stacks c and d before fish transformation; leave all dropped gear for a clear neighbor before pool and two sits.",
+  "segments": [
+    {
+      "seed": 61101707,
+      "datetime": "20700119212223",
+      "nethackrc": "OPTIONS=name:V61Prep,role:Caveman,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of slow digestion\n                    i                    #wizmap\ndc                    dd                    #polyself\npiranha\n                    l                    \u0017pool\n                    #sit\n                    #sit\n                    #wizmap\n"
+    }
+  ]
+}

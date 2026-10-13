@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first expanded source mission music.c:do_improvisation FIRE_HORN self direction -> zapyourself. Red dragon form supplies fire resistance; apply fire horn toward self with independently wished scroll inventory.",
+  "segments": [
+    {
+      "seed": 61101804,
+      "datetime": "20710314232425",
+      "nethackrc": "OPTIONS=name:V61Next,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed fire horn (0:4)\n                    \u0017uncursed scroll of confuse monster\n                    i                    #wizmap\n"
+    }
+  ]
+}

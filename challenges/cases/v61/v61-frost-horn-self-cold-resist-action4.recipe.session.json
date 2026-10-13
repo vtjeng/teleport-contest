@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first expanded source mission music.c:do_improvisation FROST_HORN self direction -> zapyourself. White dragon form supplies cold resistance; apply charged frost horn toward self with independent potion inventory exposed to destruction. C-only cheap source route: Yeti form has hands and cold resistance, replacing dragon no-tool gate; expose independently wished potion inventory to self horn. C-only prompt/entry correction: Acknowledge the C playing-message More once before self direction dot; previous dot was consumed by More and horn canceled.",
+  "segments": [
+    {
+      "seed": 61101803,
+      "datetime": "20710314232425",
+      "nethackrc": "OPTIONS=name:V61Next,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed frost horn (0:4)\n                    \u0017uncursed potion of fruit juice\n                    i                    #wizmap\n#wizidentify\n.\n                    #polyself\nyeti\n                    any .                    i                    "
+    }
+  ]
+}

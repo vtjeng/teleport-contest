@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first expanded source mission music.c:do_improvisation WOODEN_FLUTE -> charm_snakes. Level thirty hero plays normal flute beside independently created hostile snake, testing actual peaceful transition rather than magic sleep. Independently observed C inventory slots; source action designed before new local comparison.",
+  "segments": [
+    {
+      "seed": 61101801,
+      "datetime": "20710314232425",
+      "nethackrc": "OPTIONS=name:V61Next,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed wooden flute\n                    i                    #wizmap\n#wizidentify\n.\n                    #levelchange\n30\n                                                                                     #wizgenesis\nhostile sleeping snake\n                    aoy                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission mcastu.c:mcast_geyser 523-539 physical d(8,6). High HP protected hero, debug_mongen enabled to suppress new incidental NPCs before unique hostile cleric. Bounded source-based waits seek geyser; old death-continuation defect must not count as new. Expected Sudden geyser d(8,6), no inventory wetting. Other cleric casts or same earlier continuation owner are preserved overlap probes.. C-only action/scout: Initial suffix +35 ring request is not a verified protection source: C produced free action. Correct prefix syntax independently and identify before wearing; debug_mongen suppresses incidental random NPCs.",
+  "segments": [
+    {
+      "seed": 61101712,
+      "datetime": "20700119212223",
+      "nethackrc": "OPTIONS=name:V61Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of protection +35\n                    \u0017uncursed ring of slow digestion\n                    \u00178 blessed potions of full healing\n                    i                    #wizmap\n#levelchange\n30\n                                                                                     \u0017uncursed +35 ring of protection\n                    #wizidentify\n                    i                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission monmove.c:bee_eat_jelly 394-422 floor royal jelly queen growth. Place royal jelly on clear floor; tame killer bee can seek it through dogmove/dog_eat. Observe actual consumption, no queen on level. Expected Bee eats floor jelly and grows into queen. Earlier nominal regression actually applies jelly to an egg and does not reach this helper.. C-only action/scout: Drop jelly n at own clear floor, leave it and generate tame killer bee; bounded twenty-five turns seek actual floor consumption.",
+  "segments": [
+    {
+      "seed": 61101706,
+      "datetime": "20700119212223",
+      "nethackrc": "OPTIONS=name:V61Prep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u00172 uncursed lumps of royal jelly\n                    i                    #wizmap\ndn                    l                    #wizgenesis\ntame killer bee\n                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    #wizmap\n"
+    }
+  ]
+}

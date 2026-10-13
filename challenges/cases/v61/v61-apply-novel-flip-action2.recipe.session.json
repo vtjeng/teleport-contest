@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission apply.c:flip_through_book SPE_NOVEL non-Hallucination branch. Apply independently wished novel without reading or Hallucination; no attributes command. Expected Looks like interesting to read, not tribute or animated initials.. C-only action/scout: Own novel l is applied, not read; no Hallucination or gold report.",
+  "segments": [
+    {
+      "seed": 61101709,
+      "datetime": "20700119212223",
+      "nethackrc": "OPTIONS=name:V61Prep,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed novel\n                    i                    #wizmap\nal                    "
+    }
+  ]
+}

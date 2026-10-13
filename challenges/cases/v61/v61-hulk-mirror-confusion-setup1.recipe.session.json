@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first expanded source mission apply.c:use_mirror self PM_UMBER_HULK -> d(3,4) confusion. Umber hulk form looks into own mirror; no floating-eye gaze or vampire no-reflection branch.",
+  "segments": [
+    {
+      "seed": 61101812,
+      "datetime": "20710314232425",
+      "nethackrc": "OPTIONS=name:V61Next,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed mirror\n                    i                    #wizmap\n"
+    }
+  ]
+}

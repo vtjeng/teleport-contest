@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission dokick.c:kick_nondoor positive Luck -> ornamental mkgold/rnd_class -> T_LOOTED. Blessed luckstone, high HP, Blind feedback and full-healing between bounded throne kicks. Prior v60 failed loot guard and fell through. Expected Kick something loose plus coin/gem creation; mark loot to prevent repeated generation..",
+  "segments": [
+    {
+      "seed": 61101703,
+      "datetime": "20700119212223",
+      "nethackrc": "OPTIONS=name:V61Prep,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017blessed luckstone\n                    \u0017uncursed blindfold\n                    \u00178 blessed potions of full healing\n                    i                    #wizmap\n"
+    }
+  ]
+}

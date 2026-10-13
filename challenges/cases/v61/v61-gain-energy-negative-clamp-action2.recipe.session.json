@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first expanded source mission potion.c:peffect_gain_energy cursed subtract d(1,6) and clamp max/current to0. Low-energy Barbarian drinks three cursed energy potions, requiring observed zero clamp instead of blessed max increase. Independently observed C inventory slots; source action designed before new local comparison.",
+  "segments": [
+    {
+      "seed": 61101810,
+      "datetime": "20710314232425",
+      "nethackrc": "OPTIONS=name:V61Next,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u00173 cursed potions of gain energy\n                    i                    #wizmap\n#wizidentify\n.\n                    qf                    qf                    qf                    i                    "
+    }
+  ]
+}

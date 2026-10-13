@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first expanded source mission potion.c:peffect_invisibility BInvis potion still adds timeout; no self-invis message. Wear mummy wrapping then drink cursed invisibility potion; blocking is active but potion still changes timeout and aggravates. Independently observed C inventory slots; source action designed before new local comparison.",
+  "segments": [
+    {
+      "seed": 61101809,
+      "datetime": "20710314232425",
+      "nethackrc": "OPTIONS=name:V61Next,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed mummy wrapping\n                    \u0017cursed potion of invisibility\n                    i                    #wizmap\n#wizidentify\n.\n                    Tb                    Wo                    qp                    i                    "
+    }
+  ]
+}

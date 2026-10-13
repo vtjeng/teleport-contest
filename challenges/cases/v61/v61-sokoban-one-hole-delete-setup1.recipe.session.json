@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission trap.c:maybe_finish_sokoban deltrap deleting one Sokoban hole -> remaining-pit check. Enter first Sokoban level through supported level teleport, use web-capable form and untriggered hole. Delete one hole while others remain. Expected C web covers hole, maybe_finish_sokoban returns without prize when others remain; distinguish startup misses if Lua diverges first..",
+  "segments": [
+    {
+      "seed": 61101710,
+      "datetime": "20700119212223",
+      "nethackrc": "OPTIONS=name:V61Prep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of slow digestion\n                    i                    #wizmap\n"
+    }
+  ]
+}
