@@ -298109,6 +298109,64 @@
           }
         ]
       }
+    },
+    {
+      "id": "port-muse-offensive-item-selection-and-use-v54-healer-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement find_offensive, use_offensive from muse.c",
+      "cFile": "muse.c",
+      "sessions": [
+        "synthetic/v54/v54-healer-kirin-mage-strength-stun-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v54-healer-kirin-mage-strength-stun-residual-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "find_offensive",
+          "line": 1421,
+          "endLine": 1596,
+          "declared": true
+        },
+        {
+          "name": "mbhitm",
+          "line": 1597,
+          "endLine": 1706,
+          "declared": true
+        },
+        {
+          "name": "fhito_loc",
+          "line": 1707,
+          "endLine": 1733,
+          "declared": true
+        },
+        {
+          "name": "mbhit",
+          "line": 1734,
+          "endLine": 1814,
+          "declared": true
+        },
+        {
+          "name": "buzz_force_miss",
+          "line": 1815,
+          "endLine": 1823,
+          "declared": true
+        },
+        {
+          "name": "use_offensive",
+          "line": 1824,
+          "endLine": 2034,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 1421,
+        "to": 2034
+      }
     }
   ]
 }
