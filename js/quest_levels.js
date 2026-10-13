@@ -13,7 +13,8 @@
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
-//         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/tower1.lua, dat/tower2.lua,
+//         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/Hea-fila.lua,
+//         dat/tower1.lua, dat/tower2.lua,
 //         dat/tower3.lua, dat/Val-strt.lua.
 
 import {
@@ -1494,6 +1495,27 @@ async function heaLoca(des) {
     for (let i = 0; i < 2; ++i) await des.monster({ class: ';', peaceful: 0 });
     for (let i = 0; i < 5; ++i) await des.monster({ class: 'D', peaceful: 0 });
     for (let i = 0; i < 9; ++i) await des.monster({ class: 'S', peaceful: 0 });
+}
+
+// C ref: complete dat/Hea-fila.lua. The source applies solidfill, maze flags,
+// and the Mines background in this order before placing random contents.
+async function heaFila(des) {
+    await des.level_init({ style: 'solidfill', fg: 'P' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'P',
+        smoothed: false, joined: true, lit: 1, walled: false });
+
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 8; ++i) await des.object();
+
+    await des.monster('rabid rat');
+    for (let i = 0; i < 2; ++i) await des.monster({ class: 'r', peaceful: 0 });
+    for (let i = 0; i < 2; ++i) await des.monster('giant eel');
+    await des.monster('electric eel');
+    for (let i = 0; i < 4; ++i) await des.monster({ class: 'D', peaceful: 0 });
+    for (let i = 0; i < 3; ++i) await des.monster({ class: 'S', peaceful: 0 });
+    for (let i = 0; i < 4; ++i) await des.trap();
 }
 
 // C ref: dat/Pri-goal.lua. Priest quest goal level — lava-filled cave with
@@ -3044,6 +3066,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Hea-goal': heaGoal,
     'Cav-strt': cavStrt,
     'Hea-loca': heaLoca,
+    'Hea-fila': heaFila,
     'Kni-strt': kniStrt,
     astral,
     'Pri-strt': priStrt,
