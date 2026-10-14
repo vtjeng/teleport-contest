@@ -13,7 +13,9 @@ export function integrateTaskCommits(root, state, taskId) {
         const missing = new Set(git(root, 'cherry', 'HEAD', sha, delivery.base)
             .split('\n').filter(row => row.startsWith('+')).map(row => row.slice(2)));
         for (const commit of delivery.commits) if (missing.has(commit)) {
-            git(root, 'cherry-pick', commit);
+            // Keep originally empty metadata commits; unexpected empty source
+            // patches still stop for inspection rather than being dropped.
+            git(root, 'cherry-pick', '--allow-empty', commit);
             integrated.push(commit);
         }
     }
