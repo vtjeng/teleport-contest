@@ -2539,7 +2539,7 @@ async function moverock_core(sx, sy, state, env) {
                         state,
                     );
                     await blow_up_landmine(ttmp, effectEnv);
-                    fill_pit(u.ux, u.uy, state);
+                    await fill_pit(u.ux, u.uy, state, effectEnv);
                     if (cansee(rx, ry, state)) redraw(rx, ry, state);
                     return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
                 }

@@ -3583,7 +3583,7 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
         }
     }
 
-    fill_pit(x, y, state);
+    await fill_pit(x, y, state, env);
     const { maybe_dunk_boulders } = await import('./apply.js');
     await maybe_dunk_boulders(x, y, state, { ...env, random });
     recalc_block_point(x, y, state);
@@ -3681,7 +3681,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
         const nextTrap = t_at(state.u.ux, state.u.uy, state);
         if (nextTrap)
             await dotrap(nextTrap, RECURSIVETRAP, state);
-        fill_pit(state.u.ux, state.u.uy, state);
+        await fill_pit(state.u.ux, state.u.uy, state, env);
         return Trap_Effect_Finished;
     }
 
@@ -3748,7 +3748,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
         if (result === Trap_Killed_Mon)
             trapkilled = true;
     }
-    fill_pit(tx, ty, state);
+    await fill_pit(tx, ty, state, rawEnv);
     if (mtmp.mhp < 1) trapkilled = true;
     if (unconscious(state)) {
         state.multi = -1;
@@ -4146,9 +4146,9 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
                             env,
                         );
                     }
-                    // mintrap() discards fill_pit()'s result. Its do.c
-                    // flooreffects dependency is intentionally a named gap.
-                    note_unported('trap.c fill_pit');
+                    // mintrap() discards fill_pit()'s result, but await its
+                    // source-ordered flooreffects before resolving the trap.
+                    await fill_pit(monster.mx, monster.my, state, env);
                 }
             } else {
                 if (canseemon(monster, state)) {

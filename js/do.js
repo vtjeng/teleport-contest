@@ -529,7 +529,7 @@ export async function revive_corpse(corpse, state = game, rawEnv = {}) {
                 const line = youHear('scratching noises.', state);
                 if (line) await message(line, state, env);
             }
-            fill_pit(monster.mx, monster.my, state);
+            await fill_pit(monster.mx, monster.my, state, env);
             break;
         }
         // C falls through for an unexpectedly revived buried non-zombie.
@@ -2826,7 +2826,7 @@ export async function goto_level(
     // free, so getlev()/mklev() can restore them at the destination.
     if (Punished(state)) unplacebc(state);
     reset_utrap(false, state);
-    fill_pit(u.ux, u.uy, state);
+    await fill_pit(u.ux, u.uy, state);
     set_ustuck(null, state);
     await set_uinwater(false, state);
     u.uundetected = false;

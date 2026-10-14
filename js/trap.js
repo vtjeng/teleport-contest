@@ -2004,7 +2004,7 @@ export async function float_up(state = game) {
 
 // C ref: trap.c fill_pit() (4010-4021). A boulder resting on a pit or hole
 // settles into it when the hero leaves the square.
-export function fill_pit(x, y, state = game) {
+export async function fill_pit(x, y, state = game, rawEnv = {}) {
     const trap = t_at(x, y, state);
     const boulder = sobj_at(BOULDER, x, y, state);
     if (trap && (is_pit(trap.ttyp) || is_hole(trap.ttyp)) && boulder) {
@@ -2016,7 +2016,8 @@ export function fill_pit(x, y, state = game) {
                     recalc_block_point(bx, by, env.state),
             },
         });
-        note_unported('do.c flooreffects');
+        const { flooreffects } = await import('./do.js');
+        await flooreffects(boulder, x, y, 'settle', { ...rawEnv, state });
     }
 }
 
@@ -2882,7 +2883,7 @@ async function help_monster_out(mtmp, ttmp, state = game) {
     await ttyPline(`You pull ${monsterCommonName(mtmp, state)} out of the pit.`, state);
     mtmp.mtrapped = 0;
     await reward_untrap(ttmp, mtmp, state);
-    fill_pit(mtmp.mx, mtmp.my, state);
+    await fill_pit(mtmp.mx, mtmp.my, state);
     return 1;
 }
 

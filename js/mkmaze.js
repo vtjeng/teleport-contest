@@ -1133,7 +1133,7 @@ export async function fixup_special(state = game, env = {}) {
     } else if (on_level(state.u.uz, state.baalzebub_level)) {
         await baalz_fixup(state);
     } else if (state.u.uz.dnum === state.mines_dnum && state.ransacked) {
-        stolen_booty(state);
+        await stolen_booty(state);
     }
 
     const special = Is_special(state.u.uz, state);
@@ -1151,7 +1151,7 @@ const ORC_LEADER = 1;
 const ORC_FRUIT = Object.freeze(['paddle cactus', 'dwarven root']);
 
 // C ref: mkmaze.c migrate_orc() (716-745).
-export function migrate_orc(monster, flags, state = game) {
+export async function migrate_orc(monster, flags, state = game) {
     const currentDepth = depth(state.u.uz, state);
     const maxDepth = dunlevs_in_dungeon(state.u.uz, state)
         + state.dungeons[state.u.uz.dnum].depth_start - 1;
@@ -1168,7 +1168,7 @@ export function migrate_orc(monster, flags, state = game) {
     }
     const destination = {};
     get_level(destination, destinationDepth, state);
-    migrate_to_level(
+    await migrate_to_level(
         monster, ledger_no(destination, state), MIGR_RANDOM, null, { state },
     );
 }
@@ -1223,7 +1223,7 @@ export function migr_booty_item(otyp, gang, state = game) {
 }
 
 // C ref: mkmaze.c stolen_booty() (798-889).
-export function stolen_booty(state = game) {
+export async function stolen_booty(state = game) {
     const gang = rndorcname({ rn1, rn2 });
     let count = rnd(4);
     for (let i = 0; i < count; ++i)
@@ -1260,7 +1260,7 @@ export function stolen_booty(state = game) {
         monster.mpeaceful = false;
         set_malign(monster, state);
         shiny_orc_stuff(monster, state);
-        migrate_orc(monster, ORC_LEADER, state);
+        await migrate_orc(monster, ORC_LEADER, state);
     }
     for (let current = state.level.monlist; current; current = current.nmon) {
         if ((current.mhp ?? 1) < 1) continue;
@@ -1275,7 +1275,7 @@ export function stolen_booty(state = game) {
         monster = makemon(state.mons[mtyp], 0, 0, MM_NONAME, monsterEnv);
         if (monster) {
             shiny_orc_stuff(monster, state);
-            migrate_orc(monster, 0, state);
+            await migrate_orc(monster, 0, state);
         }
     }
     state.ransacked = false;

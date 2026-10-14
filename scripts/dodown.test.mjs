@@ -461,10 +461,9 @@ test('goto_level refreshes and preserves the departing level overview',
 });
 
 test('goto_level() settles a boulder into the pit it is leaving', async () => {
-    // do.c:1619. trap.c fill_pit() extracts a boulder resting over a pit once
-    // the thing pinning it leaves. flooreffects() remains an unported call. The pit
-    // and the boulder are fabricated: no generated square carries a staircase
-    // and a trap at once, so the call site has no recordable case.
+    // do.c:1619. trap.c fill_pit() extracts and settles a boulder resting over
+    // a pit once the thing pinning it leaves. The pit and boulder are
+    // fabricated because generated squares do not combine stairs and traps.
     const state = await heroOnDownStairs();
     state.level.traps.push({ tx: state.u.ux, ty: state.u.uy, ttyp: PIT });
     const boulder = mksobj(BOULDER, true, false, { state });

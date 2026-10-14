@@ -4537,8 +4537,7 @@ export async function use_magic_whistle(obj, state = game, env = {}) {
 // C ref: apply.c magic_whistled() (518-691). Trapped-pet and active-trap
 // consequences retain explicit source boundaries: fill_pit() is a discarded
 // void call, while mintrap()'s consumed result is wired through its existing
-// implementation. That implementation currently refuses trap effects it has
-// not ported, so matching evidence must keep pets on trap-free destinations.
+// implementation.
 export async function magic_whistled(obj, state = game, env = {}) {
     const random = { ...whistleRandom, ...(env.random ?? {}) };
     const message = env.message ?? ttyPline;
@@ -4561,7 +4560,7 @@ export async function magic_whistled(obj, state = game, env = {}) {
         if (monster.mhp >= 1 && monster.mtame && monster !== state.u?.usteed) {
             if (monster.mtrapped) {
                 monster.mtrapped = false;
-                note_unported('trap.c fill_pit');
+                await fill_pit(monster.mx, monster.my, state, env);
             }
 
             const oldSeen = canspotmon(monster, state);
@@ -4889,7 +4888,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
                     );
                 }
             }
-            fill_pit(x, y, state);
+            await fill_pit(x, y, state, env);
             await maybe_dunk_boulders(x, y, state, { ...env, random });
             recalc_block_point(x, y, state);
             continue;
