@@ -36,6 +36,27 @@ test('savebones releases leashes before unpunishing the hero', async () => {
     assert.doesNotMatch(jsSource, /unleash_all\(\) -- no leash logic/u);
 });
 
+test('bones restoration completes shop catch-up before mklev returns', async () => {
+    const cBones = await readFile(
+        new URL('../nethack-c/upstream/src/bones.c', import.meta.url), 'utf8',
+    );
+    const cMklev = await readFile(
+        new URL('../nethack-c/upstream/src/mklev.c', import.meta.url), 'utf8',
+    );
+    const jsBones = await readFile(
+        new URL('../js/bones.js', import.meta.url), 'utf8',
+    );
+    const jsMklev = await readFile(
+        new URL('../js/mklev.js', import.meta.url), 'utf8',
+    );
+    assert.match(cBones,
+        /resetobjs\(svl\.level\.buriedobjlist, TRUE\);\s*fix_shop_damage\(\);/u);
+    assert.match(cMklev, /if \(getbones\(\)\)\s*return;/u);
+    assert.match(jsBones,
+        /resetobjs\(state\.level\?\.objlist, true, state\);[\s\S]*?resetobjs\(state\.level\?\.buriedobjlist, true, state\);\s*\/\/ C ref: bones\.c:731 repairs shop damage after restoring the bones level\.\s*await fix_shop_damage\(state\);/u);
+    assert.match(jsMklev, /ok = await loadBones\(state\);/u);
+});
+
 test('ghostly restoration recomputes monster attitude for the new hero', () => {
     // restore.c:getlev() resets peacefulness after loading a bones level. A
     // dwarf that was peaceful for a lawful dead hero is hostile to this

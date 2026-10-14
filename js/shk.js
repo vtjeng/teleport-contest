@@ -7,7 +7,9 @@
 // append_price_quote(), contained_gold(), check_unpaid(),
 // use_unpaid_trapobj(), costly_spot(),
 // shop_object(), shk_owns(), mon_owns(), shk_your(), shk_move(),
-// shk_fixes_damage(), and the end-of-game cleanup chain next_shkp(),
+// shk_fixes_damage(), repair_damage(), fix_shop_damage(), litter_getpos(),
+// litter_scatter(), litter_newsyms(), discard_damage_struct(), and the
+// end-of-game cleanup chain next_shkp(),
 // rile_shk(), hot_pursuit(), onbill(), clear_unpaid(), clear_no_charge(), setpaid(),
 // inherits() and paybill().
 
@@ -36,6 +38,8 @@ import {
     ECMD_OK,
     ECMD_TIME,
     D_BROKEN,
+    D_CLOSED,
+    FAINTED,
     EYE,
     FAST,
     G_GONE,
@@ -46,6 +50,7 @@ import {
     INVIS,
     IS_DOOR,
     IS_ROOM,
+    IS_WALL,
     LL_ACHIEVE,
     LOW_PM,
     MAXULEV,
@@ -82,6 +87,12 @@ import {
     SELL_NORMAL,
     SHOPBASE,
     SVALL,
+    BEAR_TRAP,
+    LANDMINE,
+    HOLE,
+    PIT,
+    SPIKED_PIT,
+    ZAP_POS,
     TT_PIT,
     FIRE_RES,
     POISON_RES,
@@ -101,10 +112,11 @@ import { isok } from './cmd_isok.js';
 import { acurr, adjalign, exercise } from './attrib.js';
 import { arti_cost } from './artifacts.js';
 import { y_n, yn_function } from './cmd.js';
-import { bot, map_invisible } from './display.js';
+import { bot, map_invisible, newsym } from './display.js';
 import { assign_level, depth, mapseen_room, on_level } from './dungeon.js';
 import { um_dist } from './apply.js';
 import { game } from './gstate.js';
+import { del_engr_at } from './engrave.js';
 import { getpos } from './getpos.js';
 import { intrinsic_possible } from './eat.js';
 import {
@@ -125,6 +137,7 @@ import {
     money_cnt,
     INVLET_BASIC,
     merge_choice,
+    obfree,
     obj_extract_self,
     o_on,
     update_inventory,
@@ -147,6 +160,9 @@ import {
     objectType,
     splitobj,
     weight,
+    mksobj,
+    place_object,
+    remove_object,
 } from './obj.js';
 import {
     AGATE,
@@ -210,6 +226,10 @@ import {
     HORN_OF_PLENTY,
     AQUAMARINE,
     LEASH,
+    LAND_MINE,
+    BEARTRAP,
+    BOULDER,
+    ROCK,
 } from './objects.js';
 import {
     PM_KEYSTONE_KOP,
@@ -245,7 +265,12 @@ import { move_special } from './priest.js';
 import { SHTYPES } from './shtypes_data.js';
 import { makeplural } from './fruit.js';
 import { m_at } from './monst.js';
-import { t_at } from './trap.js';
+import { deltrap, trapname, t_at, unconscious } from './trap.js';
+import { closed_door } from './monmove.js';
+import { picking_at } from './lock.js';
+import { block_point } from './vision.js';
+import { stop_occupation } from './allmain.js';
+import { placebc, unplacebc } from './ball.js';
 import { makemon_runtime } from './makemon_create.js';
 import { enexto } from './teleport.js';
 import { m_next2u } from './mhitu.js';
@@ -3406,6 +3431,253 @@ export function find_damage(shkp, state = game) {
     return null;
 }
 
+// C ref: shk.c discard_damage_struct() (4509-4528). Keep the damage list's
+// link structure identical when a keeper finishes one repair.
+function discard_damage_struct(damage, state = game) {
+    if (!damage) return;
+    if (damage === state.level?.damagelist) {
+        state.level.damagelist = damage.next ?? null;
+    } else {
+        let previous = state.level?.damagelist ?? null;
+        while (previous && previous.next !== damage)
+            previous = previous.next ?? null;
+        if (previous) previous.next = damage.next ?? null;
+    }
+    damage.next = null;
+}
+
+const LITTER_UPDATE = 0x01;
+const LITTER_OPEN = 0x02;
+const LITTER_INSHOP = 0x04;
+const litterHoriz = (i) => (i % 3) - 1;
+const litterVert = (i) => Math.trunc(i / 3) - 1;
+
+// C ref: shk.c litter_getpos() (4591-4619). Return the number of adjacent
+// open squares belonging to this shop while preserving each square's flags.
+function litter_getpos(litter, x, y, shkp, state = game) {
+    litter.fill(0);
+    const location = state.level?.at(x, y);
+    if (!state.level?.objects?.[x]?.[y] || !location || IS_ROOM(location.typ))
+        return 0;
+
+    let count = 0;
+    for (let i = 0; i < 9; ++i) {
+        const ix = x + litterHoriz(i);
+        const iy = y + litterVert(i);
+        if (i === 4 || !isok(ix, iy)) continue;
+        const adjacent = state.level.at(ix, iy);
+        if (!adjacent || !ZAP_POS(adjacent.typ)) continue;
+        litter[i] = LITTER_OPEN;
+        if (inside_shop(ix, iy, state)
+            === shkp.mextra.eshk.shoproom) {
+            litter[i] |= LITTER_INSHOP;
+            ++count;
+        }
+    }
+    return count;
+}
+
+// C ref: shk.c litter_scatter() (4622-4709). Move the objects out of the
+// repaired wall into adjacent open shop squares, retaining billing behavior.
+async function litter_scatter(litter, x, y, shkp, state = game, env = {}) {
+    const random = env.random ?? { rn2 };
+    const chain = state.uchain;
+    const ball = state.uball;
+    if (ball && !state.u?.uswallow
+        && ((chain?.ox === x && chain?.oy === y)
+            || (ball.where === OBJ_FLOOR && ball.ox === x && ball.oy === y))) {
+        if (!heroIsDeaf(state) && !muteshk(shkp)) {
+            set_voice(shkp, 0, 80, 0, state);
+            await verbalize('Get your junk out of my wall!', state, env);
+        }
+        unplacebc(state);
+        await placebc(state, env);
+    }
+
+    while (state.level.objects[x][y]) {
+        const object = state.level.objects[x][y];
+        if (object.otyp === BOULDER || object.otyp === ROCK) {
+            obj_extract_self(object, { ...env, state });
+            obfree(object, null, { ...env, state });
+            continue;
+        }
+
+        let trylimit = 10;
+        let i = random.rn2(9);
+        do {
+            i = (i + 1) % 9;
+        } while (--trylimit && !(litter[i] & LITTER_INSHOP));
+
+        let ix;
+        let iy;
+        if (litter[i] & (LITTER_OPEN | LITTER_INSHOP)) {
+            ix = x + litterHoriz(i);
+            iy = y + litterVert(i);
+        } else {
+            ix = shkp.mx;
+            iy = shkp.my;
+        }
+
+        if (object.unpaid) {
+            let owner = shkp;
+            if (costly_spot(ix, iy, state)
+                && (onbill(object, owner, true)
+                    || ((owner = find_objowner(object, ix, iy, state))
+                        && onbill(object, owner, false)))) {
+                subfrombill(object, owner, state, env);
+            }
+        }
+        if (object.no_charge
+            && !costly_spot(ix, iy, state)
+            && !costly_adjacent(shkp, ix, iy, state)) {
+            object.no_charge = false;
+        }
+
+        remove_object(object, { ...env, state });
+        await place_object(object, ix, iy, { ...env, state });
+        litter[i] |= LITTER_UPDATE;
+    }
+}
+
+// C ref: shk.c litter_newsyms() (4712-4720). Redraw only squares to which
+// litter was moved.
+function litter_newsyms(litter, x, y) {
+    for (let i = 0; i < 9; ++i) {
+        if (litter[i] & LITTER_UPDATE)
+            newsym(x + litterHoriz(i), y + litterVert(i));
+    }
+}
+
+// C ref: shk.c repair_damage() (4732-4847). `catchup` suppresses messages
+// and returns one as soon as the terrain is restored for an off-level repair.
+async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
+    if (!repairable_damage(damage, shkp, state)) return 0;
+
+    const { x, y } = damage.place;
+    const seeit = cansee(x, y, state);
+    const trap = t_at(x, y, state);
+    let disposition = 1;
+    let stopPicking = false;
+
+    if (trap) {
+        let objectTypeForTrap = null;
+        switch (trap.ttyp) {
+        case LANDMINE:
+            objectTypeForTrap = LAND_MINE;
+            break;
+        case BEAR_TRAP:
+            objectTypeForTrap = BEARTRAP;
+            break;
+        case HOLE:
+        case PIT:
+        case SPIKED_PIT:
+            break;
+        default:
+            break;
+        }
+
+        if (objectTypeForTrap !== null) {
+            const object = mksobj(objectTypeForTrap, true, false, {
+                ...env,
+                state,
+            });
+            object.quan = 1;
+            object.owt = weight(object, { ...env, state });
+            if (!catchup) {
+                if (canseemon(shkp, state)
+                    && dist2(x, y, shkp.mx, shkp.my) <= 2) {
+                    await ttyPline(
+                        `${Shknam(shkp, state, env)} untraps ${
+                            ansimpleoname(object, state)}.`,
+                        state,
+                        env,
+                    );
+                } else if (trap.tseen && cansee(trap.tx, trap.ty, state)) {
+                    await ttyPline(
+                        `The ${trapname(trap.ttyp, true, state, randomFor(env))} vanishes.`,
+                        state,
+                        env,
+                    );
+                }
+            }
+            mpickobj(shkp, object, { ...env, state });
+        } else if (!catchup && trap.tseen && cansee(trap.tx, trap.ty, state)) {
+            const verb = trap.ttyp === HOLE || trap.ttyp === PIT
+                || trap.ttyp === SPIKED_PIT ? 'is filled in' : 'vanishes';
+            await ttyPline(
+                `The ${trapname(trap.ttyp, true, state, randomFor(env))} ${verb}.`,
+                state,
+                env,
+            );
+        }
+
+        deltrap(trap, state);
+        del_engr_at(x, y, state);
+        if (seeit) newsym(x, y);
+        if (!catchup) disposition = 3;
+    }
+
+    const location = state.level.at(x, y);
+    if (IS_ROOM(damage.typ)
+        || (damage.typ === location.typ
+            && (!IS_DOOR(damage.typ) || location.doormask > D_BROKEN))) {
+        return disposition;
+    }
+
+    if (closed_door(x, y, state))
+        stopPicking = picking_at(x, y, state);
+
+    location.typ = damage.typ;
+    if (IS_DOOR(damage.typ)) {
+        // rm.flags aliases rm.doormask in C; keep both JS projections in sync.
+        location.flags = D_CLOSED;
+        location.doormask = D_CLOSED;
+    }
+    else location.flags = damage.flags;
+
+    const litter = new Array(9).fill(0);
+    if (litter_getpos(litter, x, y, shkp, state))
+        await litter_scatter(litter, x, y, shkp, state, env);
+    del_engr_at(x, y, state);
+
+    if (seeit) newsym(x, y);
+    block_point(x, y, state);
+    if (catchup) return 1;
+
+    if (seeit) {
+        if (IS_WALL(damage.typ)) {
+            location.seenv = SVALL;
+            await ttyPline('Suddenly, a section of the wall closes up!', state, env);
+        } else if (IS_DOOR(damage.typ)) {
+            await ttyPline('Suddenly, the shop door reappears!', state, env);
+        }
+        newsym(x, y);
+    } else if (IS_WALL(damage.typ)) {
+        if (inside_shop(state.u.ux, state.u.uy, state)
+            === shkp.mextra.eshk.shoproom) {
+            await ttyPline(youFeelPrefix(state)
+                + ' more claustrophobic than before.', state, env);
+        } else if (!heroIsDeaf(state) && !randomFor(env).rn2(10)) {
+            await ttyNorep('The dungeon acoustics noticeably change.', state, env);
+        }
+    }
+
+    if (stopPicking) await stop_occupation(state, env);
+    litter_newsyms(litter, x, y);
+    if (disposition < 3) disposition = 2;
+    return disposition;
+}
+
+function randomFor(env) {
+    return env.random ?? { rn2 };
+}
+
+function youFeelPrefix(state) {
+    const isUnconscious = Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || state.u?.uhs === FAINTED);
+    return isUnconscious ? 'You dream that you feel' : 'You feel';
+}
+
 // C ref: shk.c shk_fixes_damage() (4556-4577). Fresh shop damage is ignored
 // until the C repair delay and occupancy checks in find_damage() permit it.
 async function shk_fixes_damage(shkp, state, env = {}) {
@@ -3414,28 +3686,37 @@ async function shk_fixes_damage(shkp, state, env = {}) {
 
     const closeby = dist2(shkp.mx, shkp.my, state.u.ux, state.u.uy)
         <= Math.trunc(BOLT_LIM / 2) ** 2;
-    const message = env.message ?? ttyPline;
     if (canseemon(shkp, state)) {
-        await message(
+        await ttyPline(
             `${Shknam(shkp, state, env)} whispers ${
                 closeby ? 'an incantation' : 'something'}.`,
             state,
             env,
         );
-    } else if (closeby) {
-        const deafness = state.u?.uprops?.[DEAF];
-        if (!(deafness?.intrinsic || deafness?.extrinsic
-            || state.u?.uroleplay?.deaf)) {
-            const heard = youHear('someone muttering an incantation.', state);
-            if (heard) await message(heard, state, env);
-        }
+    } else if (closeby && !heroIsDeaf(state)) {
+        const heard = youHear('someone muttering an incantation.', state);
+        if (heard) await ttyPline(heard, state, env);
     }
 
-    // Both C results are discarded. The full terrain/trap repair procedure
-    // and record deallocation remain explicit gaps, as the source contract
-    // permits for unported void helpers.
-    note_unported('shk.c repair_damage');
-    note_unported('shk.c discard_damage_struct');
+    await repair_damage(shkp, damage, false, state, env);
+    discard_damage_struct(damage, state);
+}
+
+// C ref: shk.c fix_shop_damage() (4850-4877). Catch-up repairs are silent and
+// retain a record only when repair_damage() reports that it could not repair.
+export async function fix_shop_damage(state = game, env = {}) {
+    if (!state.level?.damagelist) return;
+    for (let shkp = next_shkp(state.level.monlist ?? null, false, state);
+        shkp;
+        shkp = next_shkp(shkp.nmon, false, state)) {
+        if (shk_impaired(shkp, state)) continue;
+        for (let damage = state.level.damagelist; damage;) {
+            const nextDamage = damage.next ?? null;
+            if (await repair_damage(shkp, damage, true, state, env))
+                discard_damage_struct(damage, state);
+            damage = nextDamage;
+        }
+    }
 }
 
 // C ref: shk.c shk_move() (4880-4993). Covers the ordinary peaceful path and

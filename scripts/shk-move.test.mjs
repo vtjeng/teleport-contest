@@ -4,6 +4,9 @@ import test from 'node:test';
 
 import {
     COLNO,
+    D_BROKEN,
+    D_CLOSED,
+    DOOR,
     MMOVE_NOTHING,
     ROOM,
     ROOMOFFSET,
@@ -14,6 +17,7 @@ import {
 import {
     after_shk_move,
     find_damage,
+    fix_shop_damage,
     repairable_damage,
     shk_impaired,
     shk_move,
@@ -276,6 +280,42 @@ test('find_damage selects the first record after its source repair delay', () =>
     shkp.mextra.eshk.following = true;
     assert.equal(shk_impaired(shkp, state), true);
     assert.equal(find_damage(shkp, state), null);
+});
+
+test('fix_shop_damage silently restores and discards eligible terrain damage', async () => {
+    // The catch-up path repairs a previously damaged door before gameplay
+    // resumes; this fixture isolates the C catchup=TRUE branch.
+    const sourceStart = SHK_C_SOURCE.indexOf('\nfix_shop_damage(void)');
+    assert.ok(sourceStart >= 0, 'C fix_shop_damage definition is present');
+    const source = SHK_C_SOURCE.slice(sourceStart);
+    assert.match(source, /repair_damage\(shkp, damg, TRUE\)/u);
+    assert.match(source, /discard_damage_struct\(damg\)/u);
+    const shkp = makeStationaryShopkeeper();
+    const state = makeShopState();
+    state.level.rooms[0].resident = shkp;
+    state.level.monlist = shkp;
+    state.moves = REPAIR_DELAY;
+    const location = state.level.at(4, 5);
+    location.typ = DOOR;
+    location.flags = D_BROKEN;
+    location.doormask = D_BROKEN;
+    const damage = {
+        when: 0, // Exactly REPAIR_DELAY turns have elapsed.
+        place: { x: 4, y: 5 },
+        cost: 400, // The door damage record from the C path.
+        typ: DOOR,
+        flags: 0,
+        next: null,
+    };
+    state.level.damagelist = damage;
+
+    await fix_shop_damage(state);
+
+    assert.equal(location.typ, DOOR);
+    assert.equal(location.flags, D_CLOSED);
+    assert.equal(location.doormask, D_CLOSED);
+    assert.equal(state.level.damagelist, null);
+    assert.equal(damage.next, null);
 });
 
 test('m_move dispatches isshk monsters to shk_move, returns MMOVE_NOTHING', async () => {

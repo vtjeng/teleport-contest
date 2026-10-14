@@ -78,6 +78,7 @@ import {
 import { peace_minded, propagate, set_malign } from './makemon.js';
 import { rn2 } from './rng.js';
 import { unpunish } from './read.js';
+import { fix_shop_damage } from './shk.js';
 import { vfsWriteFile, vfsReadFile, vfsDeleteFile } from './storage.js';
 import { roles, races, genders, aligns } from './roles.js';
 import { initrack } from './track.js';
@@ -289,7 +290,7 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
         if (mtmp) {
             add_to_minv(mtmp, otmp);
         } else if (cont) {
-            add_to_container(cont, otmp);
+            await add_to_container(cont, otmp);
         } else if (!rn2(8)) {
             give_to_nearby_mon(otmp, x, y, state);
         } else {
@@ -770,7 +771,7 @@ export function resetGhostlyMonsterAttitudes(state) {
 // restores the level, and deletes the bones file. The caller (mklev.js)
 // handles the preliminary eligibility checks (discover, flags.bones, rn2(3),
 // no_bones_level) and the wizard-mode "Get bones?" prompt before calling.
-export function getbones(state = game) {
+export async function getbones(state = game) {
     const bonesFile = openBonesFile(state.u.uz);
     if (!bonesFile) return false;
 
@@ -800,6 +801,9 @@ export function getbones(state = game) {
     purgeDefunctBonesMonsters(state);
     resetobjs(state.level?.objlist, true, state);
     resetobjs(state.level?.buriedobjlist, true, state);
+
+    // C ref: bones.c:731 repairs shop damage after restoring the bones level.
+    await fix_shop_damage(state);
 
     state.u.uroleplay ??= {};
     state.u.uroleplay.numbones = (state.u.uroleplay.numbones ?? 0) + 1;
