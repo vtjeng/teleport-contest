@@ -15,10 +15,10 @@
   "summary": "The green-slime glob now reaches C m_consume_obj transformation, and get_count retains its C history-suppressed count echo. A C-derived You_hear gate now controls hidden cube slurping messages. The selected replay improves from 299/351 to 348/351 screens with all 3081 RNG calls matching, but three screens and one cursor still differ at steps 299-301. Two independent C recordings exercise floor-glob digestion and match all 112 steps, RNG calls, screens and cursors. The selected replay timing mismatch remains unresolved.",
   "mismatch": {
     "session": "synthetic/v70/v70-cube-glob-scout2",
-    "remainingScreens": 3,
+    "remainingScreens": 52,
     "kind": "screen",
     "step": 299,
-    "message": "C and JS differ at the final engulf/transformation message boundary: at step 299 the C map cell row 16, column 75 is green slime and JS is gelatinous cube; JS reaches green-slime state by the next boundary, and its transformation line trails C by one input.",
+    "message": "The accepted baseline first diverges at step 299 when the C green-slime map cell differs from the JS gelatinous cube. The local partial implementation reduces the remaining screen differences to three.",
     "sourceFile": "mon.c",
     "function": "meatobj",
     "corpus": "synthetic",
@@ -38,15 +38,15 @@
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 348,
+        "matched": 299,
         "total": 351
       },
       "rng": {
-        "matched": 3081,
+        "matched": 2809,
         "total": 3081
       },
       "cursors": {
-        "matched": 350,
+        "matched": 299,
         "total": 351
       }
     },
@@ -74,25 +74,7 @@
           "decgfx": 0
         }
       },
-      "rng": null,
-      "cursor": {
-        "index": 300,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 300,
-          "key": " "
-        },
-        "cCursor": [
-          76,
-          16,
-          1
-        ],
-        "jsCursor": [
-          64,
-          0,
-          1
-        ]
-      }
+      "rng": null
     },
     "cFile": "mon.c",
     "luaFile": null,
@@ -128,6 +110,7 @@
     ]
   },
   "evidence": [
+    "The report identity and remaining-screen count refer to the accepted baseline evaluation at bddad68fdb54a722e031c03e8efcb95d9518a34e (299/351 screens, 2809/3081 RNG calls, 299/351 cursors; 52 remaining screens). The local candidate result is reported separately below and must not be read as the saved baseline evaluation.",
     "The accepted v70 evaluation at bddad68f has the same manifest and recording hashes and records 299/351 screens, 2809/3081 RNG calls, and 299/351 cursors. Fresh bounded replay run-jCr4eo improves this target to 348/351 screens, 3081/3081 RNG calls, and 350/351 cursors with error null.",
     "Bounded boundary comparison run-Y9lEgm identifies the only screen differences at zero-based steps 299, 300, and 301; the only cursor difference is step 300. At step 299 C row 16, column 75 is green-slime glyph P (green) while JS is gelatinous-cube glyph b (cyan). Steps 302-350 match. The earlier prefix through step 298 matches.",
     "C recording steps 299-301 show: step 299 key '.', green-slime map glyph and `The gelatinous cube engulfs a small glob of green slime.--More--`; step 300 key space and `The gelatinous cube turns into a green slime!`; step 301 key space and `Unknown command ' '.` JS bounded trace run-uUiBtF shows the cube and engulf line at input boundary 299, green-slime state with the prior engulf line at boundary 300, and the transformation line at boundary 301.",
@@ -140,7 +123,7 @@
   ],
   "goalKind": "divergence-fix",
   "recordedSteps": 351,
-  "remainingScreens": 3,
+  "remainingScreens": 52,
   "commit": "45fd9d7401cd1a24850780d35efde118ce882fdb",
   "priorAcceptedInvestigation": {
     "session": "synthetic/v70/v70-cube-glob-scout2",
