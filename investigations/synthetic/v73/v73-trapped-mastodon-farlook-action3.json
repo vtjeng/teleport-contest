@@ -1,0 +1,63 @@
+{
+  "session": "synthetic/v73/v73-trapped-mastodon-farlook-action3",
+  "corpus": "synthetic",
+  "batch": "v73",
+  "caseId": "v73-trapped-mastodon-farlook-action3",
+  "manifestPath": "challenges/manifests/v73.json",
+  "manifestSha256": "47ee27378b0863dd5538f676f0f170e9e2ca91771edc37e7f514f659b4dacc32",
+  "recordingSha256": "65075d9eb31c62a5411835379461c774d67bb3ff9cc6cf49b5f0c7fec55b57c8",
+  "evaluationPath": "challenges/evaluations/accepted-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-v73.json",
+  "evaluationCommit": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+  "remainingScreens": 106,
+  "recordedSteps": 362,
+  "status": "partial",
+  "commit": "1be7c8cca413f41a8bfb208fb28c72312f863b48",
+  "mismatch": {
+    "session": "synthetic/v73/v73-trapped-mastodon-farlook-action3",
+    "remainingScreens": 106,
+    "step": 256,
+    "kind": "stop",
+    "firstMismatch": {
+      "message": "unsupported hero move: a bear trap closing on a steed"
+    }
+  },
+  "summary": "The admitted input reaches the mounted hero arm of trap.c:trapeffect_bear_trap. The JS correction now admits the branch, sets the hero's trapped timer, names and damages the steed using the already-rolled d(2,4), and avoids the unmounted hero wound/HP loss. The first local replay after this correction advances beyond step 256 and reaches the later farlook boundary, where pager.js currently throws because TRAP_DESCRIPTIONS is undefined. A's submitted pager correction is the explicit continuation prerequisite; this task does not edit pager scope.",
+  "source": {
+    "file": "trap.c",
+    "functions": [
+      "trapeffect_bear_trap"
+    ],
+    "branch": "The hero triggers a BEAR_TRAP while mounted. After the source d(2,4), feeltrap and escape/shape checks, C sets TT_BEARTRAP. If u.usteed is present it reports the trap closing on the steed, calls thitm(0,u.usteed,NULL,dmg,FALSE), and calls reset_utrap(TRUE) only if that attack killed the steed. The hero receives neither the unmounted foot message nor the unmounted leg wound/HP loss.",
+    "callers": [
+      "hack.c:spoteffects invokes trap.c:dotrap for a trap under the hero; trap.c:dotrap dispatches the hero trap to trapeffect_bear_trap.",
+      "trap.c:trapeffect_bear_trap calls trap.c:thitm for the mounted steed using the damage already rolled at function entry."
+    ],
+    "dependencies": [
+      "trap.c:set_utrap and trap.c:reset_utrap update the hero's trapped state and remain existing helpers.",
+      "trap.c:thitm applies the trap's damage to the steed and supplies the death result used by reset_utrap.",
+      "A's submitted delivery c5900feeb18455d560036e12e561c9caa78f12e6 corrects the later pager.c:look_at_monster farlook boundary. The corrected mastodon replay depends on that change; this task's source correction is limited to the earlier mounted bear-trap branch."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The accepted v73 evaluation identifies the first mismatch at segment 0 step 256 after 256 screens/cursors and 2222 of 2269 RNG calls; JS stops with 'unsupported hero move: a bear trap closing on a steed'.",
+    "C trap.c:trapeffect_bear_trap (1479-1560) rolls d(2,4), sets the hero's trap timer, then checks u.usteed: it formats the steed possessive/body part and calls thitm with the preserved damage; reset_utrap(TRUE) is conditional on the steed being killed.",
+    "The mounted branch is now implemented in js/trap_effects.js:preflight_dotrap admits BEAR_TRAP for a mounted hero, and trapeffect_bear_trap applies the entry damage to the steed instead of wounding the hero.",
+    "Prep's saved route adjudication .cache/prep37-recovery/prep73/final-twenty-eight-route-adjudication.json confirms the actual armed bear trap and mounted farlook context. Earlier plain-trap and dismount setup distinctions remain preserved; no source behavior is inferred from a spawned monster merely standing on a trap.",
+    "After the mounted bear-trap correction, bounded replay run-fi5z8H advanced beyond the original step-256 refusal and reached pager.js:look_at_monster, then stopped with ReferenceError: TRAP_DESCRIPTIONS is not defined. The continuation is covered by A's submitted delivery c5900feeb18455d560036e12e561c9caa78f12e6; this task does not edit pager.js."
+  ],
+  "baselineMetrics": {
+    "screens": {
+      "matched": 256,
+      "total": 362
+    },
+    "rng": {
+      "matched": 2222,
+      "total": 2269
+    },
+    "cursors": {
+      "matched": 256,
+      "total": 362
+    }
+  }
+}

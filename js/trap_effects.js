@@ -1181,13 +1181,11 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
 // C ref: trap.c trapeffect_bear_trap() (1478-1560), hero arm (1489-1524) and
 // monster arm (1525-1558), both ported.
 //
-// Two of the hero arm's branches stop, and both are refused ahead of the move
-// by preflight_dotrap() rather than here, so that no refusal lands after
-// feeltrap() has repainted or set_utrap() has written u.utrap: the mounted arm
-// at 1507-1511 needs s_suffix(mon_nam()) and mbodypart(), and the iron-shoes
-// line at 1517-1518 needs Yname2(). `dmg` is rolled before either of them, at
-// C's position, because the roll happens whether or not the branch that spends
-// it is taken.
+// The mounted hero branch names the steed with s_suffix(mon_nam()) and
+// mbodypart(), then applies the entry roll through thitm(). It is handled
+// here; only the iron-shoes line at 1517-1518 remains refused by
+// preflight_dotrap() because it needs Yname2(). `dmg` is rolled before either
+// branch at C's position, whether or not that branch spends it.
 //
 // The monster arm's own d(2, 4) sits where C spends it, after the catch
 // message rather than before: the hero arm's roll leads its messages and this
@@ -1299,6 +1297,20 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
         return Trap_Effect_Finished;
     }
     set_utrap(random.rn1(4, 4), TT_BEARTRAP, state);
+    if (state.u.usteed) {
+        const steed = state.u.usteed;
+        await message(
+            `${A_Your[trap.madeby_u ? 1 : 0]} bear trap closes on`
+            + ` ${s_suffix(mon_nam(steed, state, env))}`
+            + ` ${mbodypart(steed, FOOT)}!`,
+            state,
+            env,
+        );
+        if (await thitm(0, steed, null, dmg, false, env))
+            await reset_utrap(true, state);
+        await exercise(A_DEX, false, state, random);
+        return Trap_Effect_Finished;
+    }
     await message(
         `${A_Your[trap.madeby_u ? 1 : 0]} bear trap closes on your`
         + ` ${body_part(FOOT, state.youmonst)}!`,
@@ -3934,8 +3946,7 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //     VIBRATING_SQUARE; LEVEL_TELEP reaches this completed escape check in
 //     dotrap() before its own source-backed effect;
 //   a mounted hero where the effect has no corresponding source arm --
-//     s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509 (bear trap),
-//     while steedintrap() handles the arrow, dart, gas, magic, polymorph,
+//     steedintrap() handles the arrow, dart, gas, magic, polymorph,
 //     landmine and pit arms; LEVEL_TELEP targets the hero directly in its
 //     source effect and is admitted here for a mounted hero too;
 //     ROCKTRAP still targets the hero, ANTI_MAGIC acts directly on them, and
@@ -3996,6 +4007,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
     }
     if (state.u.usteed && trap.ttyp !== ARROW_TRAP
         && trap.ttyp !== WEB
+        && trap.ttyp !== BEAR_TRAP
         && trap.ttyp !== LANDMINE && trap.ttyp !== DART_TRAP
         && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== SLP_GAS_TRAP && trap.ttyp !== MAGIC_TRAP
@@ -4004,16 +4016,13 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== VIBRATING_SQUARE
         && trap.ttyp !== LEVEL_TELEP
         && !pitTrap) {
-        // trap.c:1507-1511 names a bear-trap steed through
-        // s_suffix(mon_nam()) and mbodypart(); the other mounted arms call
-        // steedintrap() and are admitted above.
+        // trap.c:1517-1518 still needs Yname2(); the bear-trap mounted arm is
+        // ported above and no longer reaches this refusal.
         throw new UnsupportedHeroMoveBoundaryError(
-            trap.ttyp === BEAR_TRAP
-                ? 'a bear trap closing on a steed'
-                : 'a steed in a trap',
+            'a steed in a trap',
         );
     }
-    if (trap.ttyp === BEAR_TRAP
+    if (!state.u.usteed && trap.ttyp === BEAR_TRAP
         && wearing_iron_shoes(state.youmonst, state)) {
         throw new UnsupportedHeroMoveBoundaryError(
             'iron shoes in a bear trap',
