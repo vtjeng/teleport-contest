@@ -1,0 +1,44 @@
+{
+  "session": "synthetic/v70/v70-blind-ice-decor-on-scout2",
+  "corpus": "synthetic",
+  "batch": "v70",
+  "caseId": "v70-blind-ice-decor-on-scout2",
+  "manifestPath": "challenges/manifests/v70.json",
+  "manifestSha256": "14c26870e789a38f3773bde57004a8c1739003f722718ec7bbca5c374f88992e",
+  "recordingPath": "challenges/cases/v70/v70-blind-ice-decor-on-scout2.session.json",
+  "recordingSha256": "44837e4a59e1e40b499fef1b5043604d73b00b0801955bd6942b60e1a932152f",
+  "recipePath": "challenges/cases/v70/v70-blind-ice-decor-on-scout2.recipe.session.json",
+  "recipeSha256": "0bdfef461615986dc22b65ac85a91b8eec9cd8d6489e2e5980a35a4a7b5564dd",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "recordedSteps": 178,
+  "remainingScreens": 178,
+  "status": "complete",
+  "commit": "b3d9ab6c58ae5e93246dc604238893a6e4a67c63",
+  "summary": "The admitted blind-on-ice recording reached invent.c:look_here's ice-description branch with mention_decor enabled, where JavaScript used ICE without importing it. Importing the existing source constant restores the previous-decoration condition; the full recording now matches.",
+  "mismatch": {
+    "session": "synthetic/v70/v70-blind-ice-decor-on-scout2",
+    "remainingScreens": 178,
+    "kind": "stop",
+    "step": 157,
+    "message": "ReferenceError: ICE is not defined",
+    "sourceFile": "invent.c",
+    "function": "look_here"
+  },
+  "source": {
+    "file": "invent.c",
+    "functions": ["look_here"],
+    "branch": "Upstream invent.c:look_here (4104-4315) handles blind interaction with ice separately: after identifying actual ICE terrain, it calls force_decor(FALSE) when mention_decor is off or the previous decoration is already ICE, then prints the tactile ice message and skips the later feature description.",
+    "javascript": "js/invent.js:dolook calls look_here; its blind ice branch uses is_ice(ux, uy, state), then checks state.iflags.prev_decor === ICE. invent.js now imports the existing ICE constant from const.js.",
+    "callers": ["cmd.c ':' -> dolook -> invent.c:look_here; js/cmd.js:runLookCommand -> js/invent.js:dolook -> js/invent.js:look_here"],
+    "dependencies": ["const.js already exports the source ICE terrain constant; no new helper or state mapping is needed."],
+    "resolution": "Import ICE from js/const.js and preserve the source order and previous-decoration condition."
+  },
+  "evidence": [
+    "The admitted v70 evaluation reports 0/178 screens matched and ReferenceError: ICE is not defined. The recorded colon command reaches blind look_here on actual ice with mention_decor enabled; the C branch checks previous decoration before force_decor and the tactile message.",
+    "Upstream nethack-c/upstream/src/invent.c:look_here (4191-4197) compares SURFACE_AT to ICE and iflags.prev_decor to ICE. js/invent.js has the corresponding condition and now imports ICE from js/const.js.",
+    "After adding the import, the focused bounded scan emitted and matched all 178/178 screens, RNG calls, cursors, and the input boundary through segment 0 step 177. No unported callees were reached."
+  ],
+  "verifiedReplay": {"segment": 0, "throughStep": 177, "recordingMatched": true, "inputBoundaryMatched": true, "replayCommit": "5456d0c759570c70a25845c0c635fe4f25913c90"},
+  "goalKind": "divergence-fix"
+}
