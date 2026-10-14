@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T03:40:37.207Z",
+  "capturedAt": "2026-10-14T04:42:30.540Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -104280,6 +104280,13 @@
           "Prep24",
           "Prep25",
           "Prep26"
+        ],
+        "validationGroup": [
+          "Prep22",
+          "Prep23",
+          "Prep24",
+          "Prep25",
+          "Prep26"
         ]
       },
       {
@@ -104290,6 +104297,13 @@
         "task": "Prep23",
         "integration": "ce51c52366d1b682c5423677ab5c687cb70833ee",
         "prepGroup": [
+          "Prep22",
+          "Prep23",
+          "Prep24",
+          "Prep25",
+          "Prep26"
+        ],
+        "validationGroup": [
           "Prep22",
           "Prep23",
           "Prep24",
@@ -104310,6 +104324,13 @@
           "Prep24",
           "Prep25",
           "Prep26"
+        ],
+        "validationGroup": [
+          "Prep22",
+          "Prep23",
+          "Prep24",
+          "Prep25",
+          "Prep26"
         ]
       },
       {
@@ -104325,6 +104346,13 @@
           "Prep24",
           "Prep25",
           "Prep26"
+        ],
+        "validationGroup": [
+          "Prep22",
+          "Prep23",
+          "Prep24",
+          "Prep25",
+          "Prep26"
         ]
       },
       {
@@ -104335,6 +104363,13 @@
         "task": "Prep26",
         "integration": "ce51c52366d1b682c5423677ab5c687cb70833ee",
         "prepGroup": [
+          "Prep22",
+          "Prep23",
+          "Prep24",
+          "Prep25",
+          "Prep26"
+        ],
+        "validationGroup": [
           "Prep22",
           "Prep23",
           "Prep24",
@@ -106465,6 +106500,10 @@
         "prepGroup": [
           "Prep27",
           "Prep28"
+        ],
+        "validationGroup": [
+          "Prep27",
+          "Prep28"
         ]
       },
       {
@@ -106475,6 +106514,10 @@
         "task": "Prep28",
         "integration": "0d77886b4c27cd162d19dbe498c8c59f5a731307",
         "prepGroup": [
+          "Prep27",
+          "Prep28"
+        ],
+        "validationGroup": [
           "Prep27",
           "Prep28"
         ]
@@ -107585,22 +107628,567 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Resuming two preserved source-designed C continuations after Root queue refresh released the shared slot."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-scan-finished-worn-amulet-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:40:47.474Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v64-multi-trouble-horn-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:41:08.855Z",
+        "task": "B-investigation-v64-multi-trouble-horn-action2-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-156e78f5d17675a37166d1fecb3dc84e5d217399",
+        "type": "ready",
+        "at": "2026-10-14T03:41:15.902Z",
+        "task": "C-investigation-v63-knight-later-filler-setup1-20261014",
+        "delivery": "156e78f5d17675a37166d1fecb3dc84e5d217399"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v63-samurai-later-filler-setup1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:41:33.315Z",
+        "task": "C-investigation-v63-samurai-later-filler-setup1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v56-earthquake-boulder-floor-action2-20261013-c2b1521f16a0a26fab549233408d2e9410aa5020",
+        "type": "published",
+        "at": "2026-10-14T03:42:23.364Z",
+        "task": "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
+        "commit": "c2b1521f16a0a26fab549233408d2e9410aa5020"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v63-samurai-later-filler-setup1-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:42:37.217Z",
+        "task": "C-investigation-v63-samurai-later-filler-setup1-20261014",
+        "goal": "port-sam-filb-v63-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v64-multi-trouble-horn-action2-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:42:48.906Z",
+        "task": "B-investigation-v64-multi-trouble-horn-action2-20261014",
+        "goal": "fix-unicorn-horn-trouble-shuffle-v64-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v64-worn-amulet-poly-action3-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:43:56.697Z",
+        "task": "A2-investigation-v64-worn-amulet-poly-action3-20261014",
+        "goal": "port-zap-poly-obj-worn-accessory-v64-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-60d14e3a9633e780626ba277503bc65adab31194",
+        "type": "ready",
+        "at": "2026-10-14T03:46:32.108Z",
+        "task": "C-investigation-v63-samurai-later-filler-setup1-20261014",
+        "delivery": "60d14e3a9633e780626ba277503bc65adab31194"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v64-broken-speed-wand-action3-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:47:37.397Z",
+        "task": "C-investigation-v64-broken-speed-wand-action3-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v64-horn-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:49:00.771Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v64-speed-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:49:15.037Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrate-review-c-throne-20261014",
+        "type": "activity",
+        "at": "2026-10-14T03:49:24.122Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013",
+        "phase": "review",
+        "reason": "Integrate the saved bounded monster-message correction to release the monster-creation scope needed by parked shipping and clone tasks."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v64-broken-speed-wand-action3-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:50:46.331Z",
+        "task": "C-investigation-v64-broken-speed-wand-action3-20261014",
+        "goal": "fix-v64-broken-speed-wand-callback-action3-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-c-throne-a06da5-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T03:51:29.542Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013",
+        "integration": "a06da5592f4de49ae8d42102b8b06bb754c79269"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-da7ef8b0fbb3b725ee33338be104d5a1c01b947d",
+        "type": "ready",
+        "at": "2026-10-14T03:52:37.745Z",
+        "task": "B-investigation-v64-multi-trouble-horn-action2-20261014",
+        "delivery": "da7ef8b0fbb3b725ee33338be104d5a1c01b947d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:54:02.051Z",
+        "task": "B-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5a8dda289a69602edae616a9aec5bc007e90fdff",
+        "type": "ready",
+        "at": "2026-10-14T03:55:02.320Z",
+        "task": "C-investigation-v64-broken-speed-wand-action3-20261014",
+        "delivery": "5a8dda289a69602edae616a9aec5bc007e90fdff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B-v64-stair-duplicate-20261014",
+        "type": "park",
+        "at": "2026-10-14T03:55:55.487Z",
+        "task": "B-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "reason": "Duplicate of C committed parked diagnosis adc0e4d88 for the same session. Reuse that source finding and select a different unowned case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v64-mounted-horse-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:56:27.347Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is investigating an unclaimed v64 mounted-horse polymorph case after submitting the broken-wand caller fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v64-mounted-controlled-horse-action4-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:56:31.180Z",
+        "task": "C-investigation-v64-mounted-controlled-horse-action4-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v64-grapple-cockatrice-body-collision-action4-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:56:36.327Z",
+        "task": "B-investigation-v64-grapple-cockatrice-body-collision-action4-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-dothrow-hurtle-step-v64-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:58:54.772Z",
+        "task": "B-investigation-v64-grapple-cockatrice-body-collision-action4-20261014",
+        "goal": "port-dothrow-hurtle-step-v64-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-e6869bc748a84ae24417f2f38865bbdd2a0b9622",
+        "type": "received",
+        "at": "2026-10-14T03:59:10.101Z",
+        "task": "C-investigation-v63-valkyrie-earlier-filler-setup1-20261014",
+        "delivery": "e6869bc748a84ae24417f2f38865bbdd2a0b9622"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-2581741882f88a491ef2f0188ea954f44e7b439d",
+        "type": "received",
+        "at": "2026-10-14T03:59:14.399Z",
+        "task": "C-investigation-v63-valkyrie-later-filler-setup1-20261014",
+        "delivery": "2581741882f88a491ef2f0188ea954f44e7b439d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-156e78f5d17675a37166d1fecb3dc84e5d217399",
+        "type": "received",
+        "at": "2026-10-14T03:59:19.104Z",
+        "task": "C-investigation-v63-knight-later-filler-setup1-20261014",
+        "delivery": "156e78f5d17675a37166d1fecb3dc84e5d217399"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-60d14e3a9633e780626ba277503bc65adab31194",
+        "type": "received",
+        "at": "2026-10-14T03:59:23.421Z",
+        "task": "C-investigation-v63-samurai-later-filler-setup1-20261014",
+        "delivery": "60d14e3a9633e780626ba277503bc65adab31194"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-522b8f094fea76d97376c20e63c7105a6a854d9e",
+        "type": "received",
+        "at": "2026-10-14T03:59:27.382Z",
+        "task": "B-investigation-v64-wielded-statue-animation-action4-20261014",
+        "delivery": "522b8f094fea76d97376c20e63c7105a6a854d9e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-da7ef8b0fbb3b725ee33338be104d5a1c01b947d",
+        "type": "received",
+        "at": "2026-10-14T03:59:31.348Z",
+        "task": "B-investigation-v64-multi-trouble-horn-action2-20261014",
+        "delivery": "da7ef8b0fbb3b725ee33338be104d5a1c01b947d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-5a8dda289a69602edae616a9aec5bc007e90fdff",
+        "type": "received",
+        "at": "2026-10-14T03:59:35.063Z",
+        "task": "C-investigation-v64-broken-speed-wand-action3-20261014",
+        "delivery": "5a8dda289a69602edae616a9aec5bc007e90fdff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v64-mounted-controlled-horse-action4-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:59:54.565Z",
+        "task": "C-investigation-v64-mounted-controlled-horse-action4-20261014",
+        "goal": "port-steed-poly-steed-v64-mount-polymorph-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-33a7b6f6115178babd878c2701e12ee0b1449af2",
+        "type": "ready",
+        "at": "2026-10-14T04:02:17.195Z",
+        "task": "C-investigation-v64-mounted-controlled-horse-action4-20261014",
+        "delivery": "33a7b6f6115178babd878c2701e12ee0b1449af2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6f50192e73a8390ef19b76f434cbb08eaba188ef",
+        "type": "ready",
+        "at": "2026-10-14T04:03:06.575Z",
+        "task": "B-investigation-v64-grapple-cockatrice-body-collision-action4-20261014",
+        "delivery": "6f50192e73a8390ef19b76f434cbb08eaba188ef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v64-wielded-polymorph-potion-action3-20261014",
+        "type": "assign",
+        "at": "2026-10-14T04:03:44.590Z",
+        "task": "C-investigation-v64-wielded-polymorph-potion-action3-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-validated-c-throne-failed-38508418378",
+        "type": "validated",
+        "at": "2026-10-14T04:03:48.593Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-c-throne-recording-regressions-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T04:03:53.302Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013",
+        "delivery": "a48c235cc3c1bdbe8b10396b35a84228098e2ecf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v64-punished-submerge-action4-20261014",
+        "type": "assign",
+        "at": "2026-10-14T04:04:41.607Z",
+        "task": "B-investigation-v64-punished-submerge-action4-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-684cd2b4403244de9906ffea3b27638cb37183ed",
+        "type": "ready",
+        "at": "2026-10-14T04:04:46.681Z",
+        "task": "A2-investigation-v64-worn-amulet-poly-action3-20261014",
+        "delivery": "684cd2b4403244de9906ffea3b27638cb37183ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v64-wielded-polymorph-potion-action3-20261014",
+        "type": "implement",
+        "at": "2026-10-14T04:07:04.407Z",
+        "task": "C-investigation-v64-wielded-polymorph-potion-action3-20261014",
+        "goal": "fix-potion-dodrink-worn-item-v64-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v63-hostile-ghost-door-action11-20261014",
+        "type": "assign",
+        "at": "2026-10-14T04:08:08.480Z",
+        "task": "A2-investigation-v63-hostile-ghost-door-action11-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v63-hostile-ghost-door-investigation-20261014",
+        "type": "turn",
+        "at": "2026-10-14T04:08:19.472Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-punished-submerge-resume-20261014",
+        "type": "turn",
+        "at": "2026-10-14T04:08:46.064Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5a9b80c57729e91b20fe0c2533eb7c679ad8db98",
+        "type": "ready",
+        "at": "2026-10-14T04:08:53.259Z",
+        "task": "C-investigation-v64-wielded-polymorph-potion-action3-20261014",
+        "delivery": "5a9b80c57729e91b20fe0c2533eb7c679ad8db98"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-65fdd240dd71aabc8a47ab45418e3f193ccf8b80",
+        "type": "ready",
+        "at": "2026-10-14T04:10:30.031Z",
+        "task": "Prep30",
+        "delivery": "65fdd240dd71aabc8a47ab45418e3f193ccf8b80"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-throne-correction-resume-20261014",
+        "type": "resume",
+        "at": "2026-10-14T04:11:15.665Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-throne-correction-turn-20261014",
+        "type": "turn",
+        "at": "2026-10-14T04:11:19.490Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep31-v67-20261013",
+        "type": "assign",
+        "at": "2026-10-14T04:12:37.318Z",
+        "task": "Prep31",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v67"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-v63-hostile-ghost-door-await-c-delivery-20261014",
+        "type": "park",
+        "at": "2026-10-14T04:12:57.387Z",
+        "task": "A2-investigation-v63-hostile-ghost-door-action11-20261014",
+        "reason": "The diagnosis identifies lock.c:doorlock wiring to monmove.c:mb_trapped, exactly the source scope and fix already held in C delivery 2db52a7e4c50d452aa5dacc664c5de62eb0a9f3b. Preserve the investigation report and wait for that delivery acceptance; then resume this task to replay the independent v63 case against the accepted fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-punished-submerge-drown-20261014",
+        "type": "implement",
+        "at": "2026-10-14T04:16:42.040Z",
+        "task": "B-investigation-v64-punished-submerge-action4-20261014",
+        "goal": "port-trap-drown-punished-underwater-v64-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e94aa57bad5fbb0be0648125356b790adbf9fb29",
+        "type": "ready",
+        "at": "2026-10-14T04:18:52.414Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013",
+        "delivery": "e94aa57bad5fbb0be0648125356b790adbf9fb29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3fd72d4cf4d65598b853e6977439cbb229cbf31c",
+        "type": "ready",
+        "at": "2026-10-14T04:20:52.755Z",
+        "task": "B-investigation-v64-punished-submerge-action4-20261014",
+        "delivery": "3fd72d4cf4d65598b853e6977439cbb229cbf31c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-e94aa57bad5fbb0be0648125356b790adbf9fb29",
+        "type": "received",
+        "at": "2026-10-14T04:21:13.117Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013",
+        "delivery": "e94aa57bad5fbb0be0648125356b790adbf9fb29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-65fdd240dd71aabc8a47ab45418e3f193ccf8b80",
+        "type": "received",
+        "at": "2026-10-14T04:21:18.322Z",
+        "task": "Prep30",
+        "delivery": "65fdd240dd71aabc8a47ab45418e3f193ccf8b80"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-684cd2b4403244de9906ffea3b27638cb37183ed",
+        "type": "received",
+        "at": "2026-10-14T04:21:21.403Z",
+        "task": "A2-investigation-v64-worn-amulet-poly-action3-20261014",
+        "delivery": "684cd2b4403244de9906ffea3b27638cb37183ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-33a7b6f6115178babd878c2701e12ee0b1449af2",
+        "type": "received",
+        "at": "2026-10-14T04:21:24.467Z",
+        "task": "C-investigation-v64-mounted-controlled-horse-action4-20261014",
+        "delivery": "33a7b6f6115178babd878c2701e12ee0b1449af2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-5a9b80c57729e91b20fe0c2533eb7c679ad8db98",
+        "type": "received",
+        "at": "2026-10-14T04:21:27.567Z",
+        "task": "C-investigation-v64-wielded-polymorph-potion-action3-20261014",
+        "delivery": "5a9b80c57729e91b20fe0c2533eb7c679ad8db98"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-6f50192e73a8390ef19b76f434cbb08eaba188ef",
+        "type": "received",
+        "at": "2026-10-14T04:21:30.583Z",
+        "task": "B-investigation-v64-grapple-cockatrice-body-collision-action4-20261014",
+        "delivery": "6f50192e73a8390ef19b76f434cbb08eaba188ef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v58-gremlin-light-20261014",
+        "type": "assign",
+        "at": "2026-10-14T04:21:37.205Z",
+        "task": "C-investigation-v58-gremlin-scroll-light-action1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-park-v58-gremlin-light-litroom-owner-20261014",
+        "type": "park",
+        "at": "2026-10-14T04:23:26.605Z",
+        "task": "C-investigation-v58-gremlin-scroll-light-action1-20261014",
+        "reason": "The source trace identifies read.c:litroom, which A2 reserves for its swallowed-light task. Preserved the distinct gremlin-visibility finding in investigations/synthetic/v58/v58-gremlin-scroll-light-action1.json; no source code was edited. Resume after A2 accepts/releases source:read.c:litroom."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-throne-and-litroom-20261014",
+        "type": "turn",
+        "at": "2026-10-14T04:23:47.725Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Waiting for Root to accept the throne correction and for A2 to release litroom; the v58 gremlin-light source finding is preserved for follow-on."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-throne-bootstrap-9117ca9f0",
+        "type": "integrating",
+        "at": "2026-10-14T04:27:58.881Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013",
+        "integration": "9117ca9f09b6a01d771c4c1a5ba31dede590a24a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-punished-3fd72d4",
+        "type": "received",
+        "at": "2026-10-14T04:29:00.549Z",
+        "task": "B-investigation-v64-punished-submerge-action4-20261014",
+        "delivery": "3fd72d4cf4d65598b853e6977439cbb229cbf31c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a2-magic-trap-6fd7927",
+        "type": "received",
+        "at": "2026-10-14T04:29:03.848Z",
+        "task": "A2-investigation-v59-cancellation-magic-trap-action2-20261013",
+        "delivery": "6fd792764bbfda409ddaa587830c20fe7db2fcdc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v57-throne-court-summon-action2-20261013-9117ca9f09b6a01d771c4c1a5ba31dede590a24a-validated",
+        "type": "validated",
+        "at": "2026-10-14T04:35:58.084Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v57-throne-court-summon-action2-20261013-9117ca9f09b6a01d771c4c1a5ba31dede590a24a-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T04:36:32.525Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-v63-wizard-clone-20261014",
+        "type": "resume",
+        "at": "2026-10-14T04:37:12.517Z",
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-wizard-clone-20261014",
+        "type": "turn",
+        "at": "2026-10-14T04:37:16.215Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v63-wizard-clone-scope-20261014",
+        "type": "implement",
+        "at": "2026-10-14T04:38:10.304Z",
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "goal": "port-wizard-clone-spell-v63-20261014"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v57-throne-court-summon-action2-20261013",
-        "worker": "C",
-        "goal": "fix-makemon-runtime-norep-callback-v57",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "a48c235cc3c1bdbe8b10396b35a84228098e2ecf",
-        "since": "2026-10-13T15:34:12.899Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B-investigation-v57-hallucinatory-whatis-20261013",
         "worker": "B",
@@ -107620,10 +108208,8 @@
         "status": "ready",
         "delivery": "c28f3b83e48a51bb5046ce8408f370f155fd427c",
         "since": "2026-10-13T15:40:42.757Z",
-        "blockedBy": [
-          "C-investigation-v57-throne-court-summon-action2-20261013"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "B-investigation-v57-traditional-container-menu-request-20261013",
@@ -107647,7 +108233,6 @@
         "delivery": "819202120be22caa2ab014fc6fbdb9dd7a86e55c",
         "since": "2026-10-13T16:14:13.655Z",
         "blockedBy": [
-          "C-investigation-v57-throne-court-summon-action2-20261013",
           "C-investigation-v56-sack-container-help-traditional-action2-20261013"
         ],
         "unblocks": 0
@@ -107969,7 +108554,7 @@
         "batch": "v65",
         "since": "2026-10-14T02:58:20.560Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "B-investigation-v63-petrifying-newman-action2-20261014",
@@ -108111,6 +108696,119 @@
         "status": "ready",
         "delivery": "522b8f094fea76d97376c20e63c7105a6a854d9e",
         "since": "2026-10-14T03:40:16.522Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v63-knight-later-filler-setup1-20261014",
+        "worker": "C",
+        "goal": "port-kni-filb-v63-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "156e78f5d17675a37166d1fecb3dc84e5d217399",
+        "since": "2026-10-14T03:41:15.902Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v63-samurai-later-filler-setup1-20261014",
+        "worker": "C",
+        "goal": "port-sam-filb-v63-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "60d14e3a9633e780626ba277503bc65adab31194",
+        "since": "2026-10-14T03:46:32.108Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v64-multi-trouble-horn-action2-20261014",
+        "worker": "B",
+        "goal": "fix-unicorn-horn-trouble-shuffle-v64-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "da7ef8b0fbb3b725ee33338be104d5a1c01b947d",
+        "since": "2026-10-14T03:52:37.745Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v64-broken-speed-wand-action3-20261014",
+        "worker": "C",
+        "goal": "fix-v64-broken-speed-wand-callback-action3-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "5a8dda289a69602edae616a9aec5bc007e90fdff",
+        "since": "2026-10-14T03:55:02.320Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v64-mounted-controlled-horse-action4-20261014",
+        "worker": "C",
+        "goal": "port-steed-poly-steed-v64-mount-polymorph-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "33a7b6f6115178babd878c2701e12ee0b1449af2",
+        "since": "2026-10-14T04:02:17.195Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v64-grapple-cockatrice-body-collision-action4-20261014",
+        "worker": "B",
+        "goal": "port-dothrow-hurtle-step-v64-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "6f50192e73a8390ef19b76f434cbb08eaba188ef",
+        "since": "2026-10-14T04:03:06.575Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v64-worn-amulet-poly-action3-20261014",
+        "worker": "A2",
+        "goal": "port-zap-poly-obj-worn-accessory-v64-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "684cd2b4403244de9906ffea3b27638cb37183ed",
+        "since": "2026-10-14T04:04:46.681Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v64-wielded-polymorph-potion-action3-20261014",
+        "worker": "C",
+        "goal": "fix-potion-dodrink-worn-item-v64-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "5a9b80c57729e91b20fe0c2533eb7c679ad8db98",
+        "since": "2026-10-14T04:08:53.259Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep30",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "65fdd240dd71aabc8a47ab45418e3f193ccf8b80",
+        "batch": "v66",
+        "since": "2026-10-14T04:10:30.031Z",
+        "blockedBy": [
+          "Prep29"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v64-punished-submerge-action4-20261014",
+        "worker": "B",
+        "goal": "port-trap-drown-punished-underwater-v64-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "3fd72d4cf4d65598b853e6977439cbb229cbf31c",
+        "since": "2026-10-14T04:20:52.755Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -108692,17 +109390,6 @@
         "reason": "Source trace identifies read.c:litroom() as the missing caller for potion.c:impact_arti_light(); read.c:litroom is reserved by A2-investigation-v58-swallowed-light-action2-20261013. Preserve report 63c9e9879 and resume after that delivery is accepted and the refreshed queue confirms this case remains unmatched."
       },
       {
-        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-14T02:52:23.247Z",
-        "blockedBy": [],
-        "reason": "Source trace is committed at 5a032c87e. The clone path requires clonewiz to call makemon(PM_WIZARD_OF_YENDOR, u.ux, u.uy, MM_NOWAIT), but current JavaScript makemon rejects this explicit hero-square flag shape. C owns a ready v57 makemon.c:makemon callback delivery; resume after its acceptance and merge to implement the exact clone call admission without editing the bounded task."
-      },
-      {
         "task": "C-investigation-v64-stair-shipped-object-arrival-action3-20261014",
         "worker": "C",
         "goal": null,
@@ -108734,12 +109421,45 @@
         "since": "2026-10-14T03:21:06.878Z",
         "blockedBy": [],
         "reason": "Temporarily yield the claimed wizard-clone investigation while Root-requested empty metadata corrections are submitted for preserved Sokoban and swallowed-light deliveries; the session scan is saved in .cache and ownership will be resumed after the corrections."
+      },
+      {
+        "task": "B-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-14T03:55:55.487Z",
+        "blockedBy": [],
+        "reason": "Duplicate of C committed parked diagnosis adc0e4d88 for the same session. Reuse that source finding and select a different unowned case."
+      },
+      {
+        "task": "A2-investigation-v63-hostile-ghost-door-action11-20261014",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-14T04:12:57.387Z",
+        "blockedBy": [],
+        "reason": "The diagnosis identifies lock.c:doorlock wiring to monmove.c:mb_trapped, exactly the source scope and fix already held in C delivery 2db52a7e4c50d452aa5dacc664c5de62eb0a9f3b. Preserve the investigation report and wait for that delivery acceptance; then resume this task to replay the independent v63 case against the accepted fix."
+      },
+      {
+        "task": "C-investigation-v58-gremlin-scroll-light-action1-20261014",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-14T04:23:26.605Z",
+        "blockedBy": [],
+        "reason": "The source trace identifies read.c:litroom, which A2 reserves for its swallowed-light task. Preserved the distinct gremlin-visibility finding in investigations/synthetic/v58/v58-gremlin-scroll-light-action1.json; no source code was edited. Resume after A2 accepts/releases source:read.c:litroom."
       }
     ]
   },
   "development": {
-    "executionCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
-    "measuredAt": "2026-10-14T03:15:07.015Z",
+    "executionCommit": "9117ca9f09b6a01d771c4c1a5ba31dede590a24a",
+    "measuredAt": "2026-10-14T04:33:11.652Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

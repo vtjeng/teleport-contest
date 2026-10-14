@@ -300572,7 +300572,7 @@
     {
       "id": "fix-makemon-runtime-norep-callback-v57",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Preserve Norep semantics for runtime monster appearance messages.",
       "cFile": "makemon.c",
       "sessions": [
@@ -300582,10 +300582,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "9117ca9f09b6a01d771c4c1a5ba31dede590a24a",
       "delivered": null,
       "function": "makemon",
-      "session": "synthetic/v57/v57-throne-court-summon-action2"
+      "session": "synthetic/v57/v57-throne-court-summon-action2",
+      "closeStanding": {
+        "sha": "9117ca9f09b6a01d771c4c1a5ba31dede590a24a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+        "target": "synthetic/v57/v57-throne-court-summon-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/9117ca9f09b6a01d771c4c1a5ba31dede590a24a/run-hosted-qN7Dje/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "makemon",
+            "implementation": "js/makemon_create.js",
+            "symbol": "makemon_runtime",
+            "sourceReview": "C makemon.c:makemon lines 1472-1500 redraws the runtime monster and calls Norep for a discernible appearance when MM_NOMSG is clear. The JavaScript runtime tail already calls normalized.norepMessage, but makemon_runtime incorrectly aliases its default to env.message whenever a caller supplies an ordinary message sink. This fix leaves explicit Norep overrides intact and restores ttyNorep as the default. Correction: when a planned monster turn supplies a silent message callback, makemon_runtime must use that same callback for the default Norep operation; only live calls default to ttyNorep. This prevents a clone-owned appearance message from writing to the replay display.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "C sit.c:throne_sit_effect effect 7 calls makemon(courtmon(), tx, ty, NO_MM_FLAGS); JavaScript sit.js passes the same court monster, coordinates, and ordinary message sink to makemon_runtime."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "summonmu",
+                "source": "mhitu.c:summonmu -> were.c:were_summon -> makemon.c:makemon"
+              },
+              {
+                "path": "js/were.js",
+                "symbol": "were_summon",
+                "source": "were.c:were_summon creates compatible helper species through makemon()"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v57",
+                "caseId": "v57-throne-court-summon-action2",
+                "segment": 0,
+                "fromStep": 72,
+                "throughStep": 230,
+                "source": "sit.c:throne_sit_effect effect 7 -> makemon.c:makemon runtime appearance -> Norep callback"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected entry point is the normal sit command on a throne when effect 7 summons court monsters. C follows sit.c:throne_sit_effect -> courtmon -> makemon; JavaScript follows sit.js:throne_sit_effect -> courtmon -> makemon_runtime. Consecutive identical appearance lines now use the C Norep behavior. The exact failed checkpoint exposed a planned-turn display leak through were helper creation. The two saved recordings named in the correction now match completely, and the original v57 throne range remains fully matched.",
+        "entryPoints": [
+          {
+            "name": "Throne court summon uses Norep for repeated monster appearances",
+            "functions": [
+              "makemon"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v57",
+                "caseId": "v57-throne-court-summon-action2",
+                "segment": 0,
+                "fromStep": 72,
+                "throughStep": 230,
+                "source": "sit.c:throne_sit_effect effect 7 -> makemon.c:makemon runtime appearance -> Norep callback"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
