@@ -44,12 +44,15 @@ import {
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
+import { PM_HUMAN, monst_globals_init } from '../js/monsters.js';
 import { traptype_rnd } from '../js/mklev.js';
 import { timeout_globals_init } from '../js/timeout.js';
 import { count_traps, dng_bottom, maketrap, t_at } from '../js/trap.js';
 
 function initializedState(dlevel = 1) {
     const state = resetGame();
+    monst_globals_init(state);
+    state.youmonst = { data: state.mons[PM_HUMAN] };
     state.u = {
         ulevel: 1,
         uz: { dnum: 0, dlevel },

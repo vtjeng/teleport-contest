@@ -1028,6 +1028,7 @@ test('losedogs delivers returning shopkeepers and independent migrants', async (
 function arrivalState() {
     const state = dungeonState();
     monst_globals_init(state);
+    state.youmonst = { data: state.mons[PM_HUMAN] };
     reset_mvitals(state);
     state.u.uprops = [];
     // A three-by-three room around the hero, so that enexto() has a square to

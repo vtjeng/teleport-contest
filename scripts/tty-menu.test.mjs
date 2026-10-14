@@ -8,6 +8,7 @@ import { GameMap } from '../js/game.js';
 import { runSegment } from '../js/jsmain.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
+import { PM_HUMAN, monst_globals_init } from '../js/monsters.js';
 import {
     encodeUtf8ByteString,
 } from '../js/hacklib.js';
@@ -50,6 +51,8 @@ const WINTTY_C = readFileSync(
 function menuState(keys = '') {
     resetGame();
     game.nhDisplay = new GameDisplay(null);
+    monst_globals_init(game);
+    game.youmonst = { data: game.mons[PM_HUMAN] };
     for (const ch of keys) game.nhDisplay.pushKey(ch.charCodeAt(0));
     renderTtyStartupBanner(game);
     return game;

@@ -17,6 +17,7 @@ import {
 import {
     PM_GIANT_RAT,
     PM_GRID_BUG,
+    PM_HUMAN,
     PM_WIZARD_OF_YENDOR,
     monst_globals_init,
     reset_mvitals,
@@ -41,6 +42,7 @@ function monsterState() {
         usteed: null,
     };
     monst_globals_init(state);
+    state.youmonst = { data: state.mons[PM_HUMAN] };
     reset_mvitals(state);
     objects_globals_init(state);
     return state;

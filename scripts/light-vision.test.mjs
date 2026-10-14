@@ -38,6 +38,7 @@ import {
 import { GameMap } from '../js/game.js';
 import * as light from '../js/light.js';
 import { resetGame } from '../js/gstate.js';
+import { PM_HUMAN, monst_globals_init } from '../js/monsters.js';
 import {
     candle_light_range,
     del_light_source,
@@ -87,6 +88,8 @@ import {
 
 function darkRoomState() {
     const state = resetGame();
+    monst_globals_init(state);
+    state.youmonst = { data: state.mons[PM_HUMAN] };
     state.level = new GameMap();
     // This open rectangle keeps the test away from map boundaries while
     // leaving every square dark so only night vision or the candle reveals it.
