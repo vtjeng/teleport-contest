@@ -1,0 +1,65 @@
+{
+  "session": "synthetic/v67/v67-rogue-blind-probing-action7",
+  "corpus": "synthetic",
+  "batch": "v67",
+  "caseId": "v67-rogue-blind-probing-action7",
+  "remainingScreens": 28,
+  "recordedSteps": 527,
+  "manifestPath": "challenges/manifests/v67.json",
+  "manifestSha256": "81ba9593c8fc99da2c548fe51197cb11d0674f386b21216d1bbfaaf27dfe3196",
+  "recordingSha256": "48cacc0ea41f6582231fbf969f1a5a161203507c2c67179820217f8abe04e1ea",
+  "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
+  "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+  "status": "complete",
+  "commit": "d8a47d06e0f459e6de886c1e7ad1277bc388afa5",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v67",
+    "caseId": "v67-rogue-blind-probing-action7",
+    "session": "synthetic/v67/v67-rogue-blind-probing-action7",
+    "manifestPath": "challenges/manifests/v67.json",
+    "manifestSha256": "81ba9593c8fc99da2c548fe51197cb11d0674f386b21216d1bbfaaf27dfe3196",
+    "recording": "challenges/cases/v67/v67-rogue-blind-probing-action7.session.json",
+    "recordingPath": "challenges/cases/v67/v67-rogue-blind-probing-action7.session.json",
+    "recordingSha256": "48cacc0ea41f6582231fbf969f1a5a161203507c2c67179820217f8abe04e1ea",
+    "recipe": "challenges/cases/v67/v67-rogue-blind-probing-action7.recipe.session.json",
+    "recipeSha256": "dd3f8588dca05c3824107cfaa42a56a7b51414fb8a6f61e668a055e243e97cac",
+    "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
+    "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+    "evaluationArtifact": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
+    "remainingScreens": 28,
+    "recordedSteps": 527,
+    "firstMismatch": {
+      "kind": "rng",
+      "step": 64,
+      "rngIndex": 2832,
+      "cEntry": "rn2(1)=0",
+      "cCaller": "roguejoin(extralev.c:34)",
+      "jsEntry": "rn2(5)=4"
+    },
+    "step": 64,
+    "kind": "rng",
+    "sourceFile": "mklev.c",
+    "function": "dosdoor"
+  },
+  "summary": "On Rogue levels, mklev.c:dosdoor must clear D_TRAPPED before its trapped-door mimic check. The admitted recording reaches this branch while roguecorr creates the second up/down corridor. C clears the flag and consumes no mimic roll; JavaScript retains it and consumes rn2(5), producing the first random-number mismatch.",
+  "source": {
+    "file": "mklev.c",
+    "branch": "When dosdoor creates a regular DOOR, the level difficulty is at least 5, the location is not a shop door, and rn2(25) returns zero, C marks the door D_TRAPPED. It then clears the complete doormask to D_NODOOR on a Rogue level before the level-difficulty and mimic-generation check. JavaScript skips this Rogue-level clearing branch.",
+    "functions": [
+      "dosdoor"
+    ],
+    "callers": [
+      "mklev.c:dodoor selects SDOOR or DOOR and calls dosdoor. extralev.c:roguecorr calls dodoor while carving the Rogue room graph; JS follows makeroguerooms -> roguecorr -> dodoor -> dosdoor during Rogue level generation."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The published v67 manifest identifies the defect at mklev.c:dosdoor, not extralev.c:roguejoin. It records matching RNG draws through index 2831, then C rn2(1)=0 at roguejoin while JS consumes rn2(5)=4 after dosdoor retains D_TRAPPED.",
+    "The v67 admission evaluation based on 979a3f3967638748dc19cf8b6ea8851736ade63e records 499/527 matching screens, 3025/3050 RNG entries, and 527/527 cursors for this case. The manifest's original local comparison identifies step 64 as the first RNG divergence and step 94 as the first screen difference.",
+    "Upstream nethack-c/upstream/src/mklev.c:615-680 sets D_TRAPPED after the closed/locked door draws, then lines 645-648 set D_NODOOR on Rogue levels before lines 650-663 test for a trapped door and possibly call rn2(5), mkclass, and makemon.",
+    "The current js/mklev.js:7139-7170 implements the door draw and mimic check but omits the Is_rogue_level branch between setting D_TRAPPED and testing that flag. The selected admitted path is extralev.c:roguecorr -> mklev.c:dodoor -> mklev.c:dosdoor.",
+    "The complete change is a one-branch correction to dosdoor plus focused coverage of the Rogue-level trapped-door path. The admitted v67 range supplies production evidence through Rogue level generation and the affected corridor creation path."
+  ]
+}
