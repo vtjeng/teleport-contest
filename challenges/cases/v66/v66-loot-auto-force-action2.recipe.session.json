@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pickup.c do_loot_cont autounlock FORCE -> cmd.c cmdq_add_ec(doforce). Explicit autounlock:force bypasses key/untrap. A human Barbarian wields an ordinary two-handed sword accepted by u_have_forceable_weapon, drops a locked empty chest, then #loot triggers the canned force command and its confirmation. Require C locked feedback followed by actual doforce confirmation/start; source auto-command caller differs from charged-bag bite and traditional_loot menu request. This is a C scout until actual queued command is established. Own C inventory has initial oil lamp e, chest f. Prior de dropped the lamp and #loot found no container. Correct df for the actual sole locked chest; preserve the missed first attempt.",
+  "segments": [
+    {
+      "seed": 66101317,
+      "datetime": "20860425173219",
+      "nethackrc": "OPTIONS=name:V66AutoForce,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,autounlock:force\n",
+      "moves": "     \u0017locked empty chest\n                    df                    #loot\n                    y                    y                    "
+    }
+  ]
+}

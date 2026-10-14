@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pickup.c do_loot_cont BAG_OF_TRICKS branch2150-2159. Wish a charged bag, drop it under an ordinary human Barbarian, and use #loot on the actual floor container. C carefully opens the bag, exposes teeth, bites with rnd(10), and sets discovery/abort_looting. Prior makemon.c bagotricks empty-charge application bite uses doapply, not floor do_loot_cont; its implementation does not wire this existing caller. Require actual charged-bag inventory, drop and floor loot before comparison.",
+  "segments": [
+    {
+      "seed": 66101316,
+      "datetime": "20860424184253",
+      "nethackrc": "OPTIONS=name:V66BagLoot,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     \u0017uncursed bag of tricks (0:5)\n                    #wizidentify\n.\n                    de                    #loot\n                    y                    "
+    }
+  ]
+}

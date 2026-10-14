@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first read.c seffects armor alteration -> costly_alteration consumer candidate. Own v66 general-store C map puts armor at (30,6), hero at (29,8), shopkeeper at (27,6). Inspect and pick up that actual unpaid armor before selecting a negative enchantment route; do not assume its subtype or inventory letter.",
+  "segments": [
+    {
+      "seed": 66101306,
+      "datetime": "20860419101743",
+      "nethackrc": "OPTIONS=name:V66Town,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     #wizlevelport\n?\n w                    #wizmap\n\u0017uncursed ring of teleport control\n                    \u0017uncursed wand of teleportation (0:20)\n                    #wizidentify\n.\n                    i  k                    k                    l                    ,                    i"
+    }
+  ]
+}

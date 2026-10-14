@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first o_init.c dodiscovered -> disco_output_sorted for explicit discosort:a. This source body buffers discoveries and alphabetizes within classes. Prior v48 case first fails choose_disco_sort menu; current explicit option bypasses that menu, so adding the old menu alone cannot implement sorted output. Source-defined Wizard startup gives known object types; debug identify establishes own inventory types before ordinary discoveries command. Require sorted heading/order in C, not a seed change.",
+  "segments": [
+    {
+      "seed": 66101315,
+      "datetime": "20860423195341",
+      "nethackrc": "OPTIONS=name:V66Sort,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,discosort:a\n",
+      "moves": "     #wizidentify\n.\n                    \\                    "
+    }
+  ]
+}

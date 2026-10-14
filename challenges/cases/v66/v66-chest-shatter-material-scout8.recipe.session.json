@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first material shattering, second material setup. Prior ordinary locked chest had mkbox_cnts rn2(8)=0, so successful destruction reached no child branch. Source-guided guaranteed contents: wish unlocked empty chest plus wooden flute (objects.c WOOD) and locking wand. Put actual flute into chest using ordinary loot, then lock and force it with blunt mace. Require C insertion before destruction. Source loot menu/inventory scout is recorded before choosing letters/menu actions; no JavaScript target result has been consulted. Own menu has s stash-one-item and C inventory flute g. Choose s then g and acknowledge the insertion; require actual C put-into-chest text.",
+  "segments": [
+    {
+      "seed": 66101318,
+      "datetime": "20860426162547",
+      "nethackrc": "OPTIONS=name:V66Shatter,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017uncursed mace\n                    \u0017unlocked empty chest\n                    \u0017uncursed wooden flute\n                    \u0017uncursed wand of locking (0:8)\n                    i                    df                    we                    #loot\nsg                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission eat.c touchfood first bite -> costly_alteration(COST_BITE). Own v66 native general-store scout places hero (29,8) beside floor food at (28,8), and shopkeeper at (27,6). Dismiss the inventory pages, move west onto the source food glyph, pick up unpaid stock and inspect inventory before eating. Minetown door attempts did not establish watchman warning and remain separate missed targets. C-only prompt correction: moving onto the tripe ration displays a More prompt, which consumed the immediate comma. Acknowledge that actual floor-stock message before pickup. Actual C inventory proves q is a tripe ration unpaid at 20 zorkmids. Dismiss both inventory pages and eat q to reach the first-bite costly alteration consumer; observe the bill and occupation messages.",
+  "segments": [
+    {
+      "seed": 66101306,
+      "datetime": "20860419101743",
+      "nethackrc": "OPTIONS=name:V66Town,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     #wizlevelport\n?\n w                    #wizmap\n\u0017uncursed ring of teleport control\n                    \u0017uncursed wand of teleportation (0:20)\n                    #wizidentify\n.\n                    i  h                    ,                    i  eq                    i"
+    }
+  ]
+}

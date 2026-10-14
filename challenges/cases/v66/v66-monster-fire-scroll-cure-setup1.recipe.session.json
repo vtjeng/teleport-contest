@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first muse.c munslime/muse_unslime SCR_FIRE -> explode source branch. Set actual runtime suppression of random generation; obtain protection ring and noncursed fire scrolls, then let an intelligent fire-resistant barbed devil collect the scrolls before a controlled green-slime hero attack. C pickup and scroll use must establish actual inventory/cure, not inferred monster equipment.",
+  "segments": [
+    {
+      "seed": 66101312,
+      "datetime": "20860420132859",
+      "nethackrc": "OPTIONS=name:V66Scroll,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,acoustics\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017uncursed +20 ring of protection\n                    \u001710 uncursed scrolls of fire\n                    #wizidentify\n.\n                    #wizmap\ni"
+    }
+  ]
+}

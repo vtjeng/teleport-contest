@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-guided independent C variation for muse.c munslime FIRE_TRAP: use wizcmds.c wiz_polyself -> polyself(POLY_CONTROLLED) so source skips the random new-human outcome, and a protection ring to survive ordinary monster attacks. Own original level scout places hero on upstair (4,17), with ordinary floor (5,17) and (5,16). Create fire trap on floor, stand north of it, transform to green slime, create a sleeping unarmored stone giant, and force attack adjacent directions. Prior setup and chance misses remain preserved.",
+  "segments": [
+    {
+      "seed": 66101304,
+      "datetime": "20860418172137",
+      "nethackrc": "OPTIONS=name:V66Source,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed +20 ring of protection\n                    #levelchange\n30\n                                                                                     Pel                    l                    \u0017fire trap\n                    k                    #polyself\ngreen slime\n                    #wizgenesis\nsleeping stone giant\n                    Fh                    Fh                    Fh                    Fh                    Fh                    Fh                    Fh                    Fh                    Fh                    Fh                    Fh                    Fh                    Fh                    Fh                    Fh                    Fh                    Fj                    Fj                    Fj                    Fj                    Fj                    Fj                    Fj                    Fj                    Fj                    Fj                    Fj                    Fj                    Fj                    Fj                    Fj                    Fj                    Fb                    Fb                    Fb                    Fb                    Fb                    Fb                    Fb                    Fb                    Fb                    Fb                    Fb                    Fb                    Fb                    Fb                    Fb                    Fb                    "
+    }
+  ]
+}

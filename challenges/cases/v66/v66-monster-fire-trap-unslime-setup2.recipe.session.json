@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source design: uhitm.c mhitm_ad_slim calls muse.c munslime; with no carried cure, an intelligent mobile monster can move to an adjacent FIRE_TRAP and burn away slime. Scout hero inventory and open adjacent room terrain before potion polymorph and trap creation. C-only setup correction: polycontrol is not a supported startup option; preserve that rejected setup. Obtain actual polymorph control from its ring instead.",
+  "segments": [
+    {
+      "seed": 66101304,
+      "datetime": "20860418172137",
+      "nethackrc": "OPTIONS=name:V66Source,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of polymorph control\n                    \u0017uncursed potion of polymorph\n                    #levelchange\n30\n                                                                                     i                    #wizmap\n"
+    }
+  ]
+}

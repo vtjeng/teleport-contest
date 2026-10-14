@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first lock.c chest_shatter_msg non-PAPER material branches1275-1318, reached through forcelock/blunt breakchestlock. Wish an ordinary blunt mace and a filled locked chest; source content generation remains ordinary random play. Inspect actual letters/contents and use the mace to #force the lock until actual chest destruction and a nonpaper child shatters. Previously ordinary forced-chest paper and potion branches do not define wood/glass/mineral/organic disposition messages. Do not assume a child shatters; require C RNG and material text. Scout only, no JavaScript comparison until reached. Own C scout proves mace e and chest f. Drop f, wield e and #force the sole locked box with immediate yes to the source confirmation. Supply acknowledgement spaces while the occupation runs; actual destruction and child material messages determine the result. No JavaScript result has been consulted for this target.",
+  "segments": [
+    {
+      "seed": 66101318,
+      "datetime": "20860426162547",
+      "nethackrc": "OPTIONS=name:V66Shatter,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017uncursed mace\n                    \u0017locked chest\n                    i                    #wizmap\ndf                    we                    #force\ny                                                                                                                        #wizmap\n"
+    }
+  ]
+}

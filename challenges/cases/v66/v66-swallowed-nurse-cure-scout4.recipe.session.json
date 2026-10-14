@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first do.c swallowed carrot -> muse.c mcureblindness(FALSE) caller. Plan to establish actual blindness before engulf, feed carrot inside worm, escape with digging, and inspect restored monster sight. Scout item slots first. Use the runtime debug_mongen option to establish suppression of unrelated random generation in source, rather than assume its config value. Source correction before target action: do.c 840-882 sets could_heal only for a nurse corpse. The carrot was an incorrect proposed target and is retained as setup history. Wish the actual nurse corpse, then create a peaceful purple worm and scout its placement before potion throw. Material blindness variation from source: the thrown potion missed the known worm. Zap a newly wished lightning wand toward the same actual purple worm to establish its blinded flag, then use stethoscope. Monster HP is 77, so one ordinary lightning hit has room to survive; retain if the actual target remains alive and blind.",
+  "segments": [
+    {
+      "seed": 66101308,
+      "datetime": "20860419121947",
+      "nethackrc": "OPTIONS=name:V66Carrot,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,acoustics\n",
+      "moves": "     #optionsfull\n:debug_mongen\n\n#levelchange\n30\n                                                                                     \u0017uncursed carrot\n                    \u0017uncursed potion of blindness\n                    \u0017uncursed wand of digging (0:20)\n                    \u0017uncursed stethoscope\n                    #wizidentify\n.\n                    i \u0017nurse corpse\n                    #wizgenesis\npeaceful purple worm\n                    #wizmap\n\u0017uncursed wand of lightning (0:20)\n                    #wizidentify\n.\n                    i"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dogmove.c quickmimic mounted pet branch. Source 1478-1488 dismounts a steed with DISMOUNT_POLY before appearance changes; dog_eat reaches it via m_consume_obj on a mimic corpse. Generate a tame saddled carnivorous gray dragon and scout its placement before mounting. Earlier hero-eats-mimic and leashed-dog cases have different caller/state. Own C scout places gray dragon northeast of hero, hero (52,16), dragon (53,15), and small-mimic corpse i. Dismiss inventory, use #ride northeast and answer the source force-mount question yes, then drop i on the mounted steed tile. Require actual steed eating and forced dismount before appearance change.",
+  "segments": [
+    {
+      "seed": 66101310,
+      "datetime": "20860419172453",
+      "nethackrc": "OPTIONS=name:V66Steed,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,acoustics\n",
+      "moves": "     #optionsfull\n:debug_mongen\n\n\u0017small mimic corpse\n                    #wizgenesis\ntame saddled gray dragon\n                    #wizmap\ni #ride\nuy                    di                    #wizmap\n"
+    }
+  ]
+}

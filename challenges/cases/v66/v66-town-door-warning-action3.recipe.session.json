@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source design: dokick.c watchman_door_damage checks a peaceful watchman in line of sight when a Minetown door kick fails; the first warning sets D_WARNED and a later failure causes arrest. Scout the native dungeon menu and Minetown geometry before choosing a nonshop door. The same source level scout may identify reachable unpaid food and armor for separate costly_alteration consumer candidates. Own native menu page2 gives minetn w at depth6. Enter that destination and map its doors/watchmen before choosing damage coordinates. Wish teleport-control ring and relocation wand for source-independent approach, then inspect actual item slots. Own C map has a nonshop closed door (38,6) in the northern ordinary room, adjacent hallway (39,6). Inventory is two pages; dismiss both before wearing teleport-control ring o, then use wand p on self and getpos to hallway. Create a peaceful watchman adjacent to that actual hallway before repeated westward kicks.",
+  "segments": [
+    {
+      "seed": 66101306,
+      "datetime": "20860419101743",
+      "nethackrc": "OPTIONS=name:V66Town,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     #wizlevelport\n?\n w                    #wizmap\n\u0017uncursed ring of teleport control\n                    \u0017uncursed wand of teleportation (0:20)\n                    #wizidentify\n.\n                    i  Pol                    zp.  llllllllllkk.                    #wizgenesis\npeaceful watchman\n                    \u0004h                    \u0004h                    \u0004h                    "
+    }
+  ]
+}

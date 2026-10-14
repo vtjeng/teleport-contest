@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first muse.c munslime/muse_unslime SCR_FIRE -> explode source branch. Set actual runtime suppression of random generation; obtain protection ring and noncursed fire scrolls, then let an intelligent fire-resistant barbed devil collect the scrolls before a controlled green-slime hero attack. C pickup and scroll use must establish actual inventory/cure, not inferred monster equipment. Own C scout proves protection ring e, ten fire scrolls f, hero (20,10) and clear floor south (20,11). Wear the ring, drop the scroll stack, step south, create a peaceful barbed devil, and give it three ordinary turns to collect actual scrolls. Observe pickup and current position while hero still has eyes. C-only wait protocol correction: C refused bare rest near a monster and explicitly required the m-prefix to force a no-op. Use three m. rests to give the monster real pickup turns; prior bare rests consumed none. Source-guided material pickup variation: the peaceful devil searched for items only on the rn2(10) arm and walked off the pile. Use a hostile intelligent ogre instead, step away to give it a nonadjacent pickup turn, and observe the same actual fire scrolls. Ogre lacks fire resistance, so muse.c find_offensive will not spend SCR_FIRE attacking the hero, while munslime can still choose it for a cure. Its unarmored body avoids captain magic cancellation.",
+  "segments": [
+    {
+      "seed": 66101312,
+      "datetime": "20860420132859",
+      "nethackrc": "OPTIONS=name:V66Scroll,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,acoustics\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017uncursed +20 ring of protection\n                    \u001710 uncursed scrolls of fire\n                    #wizidentify\n.\n                    #wizmap\ni Pel                    df                    j                    #wizgenesis\nhostile ogre\n                    j                    m.                    m.                    m.                    #wizmap\n"
+    }
+  ]
+}

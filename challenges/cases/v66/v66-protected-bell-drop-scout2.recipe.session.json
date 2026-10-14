@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source design: steal.c mdrop_special_objs protected-object floor drop, entered through read.c do_class_genocide wizard * -> mon.c mongone. An actual hostile intelligent ogre must collect the Bell of Opening; then read a blessed genocide scroll with wizard * to remove monsters without ordinary death inventory release. C Bell survives on the floor; inspect it after removal. The prior fire-scroll scout supplies independently created room coordinates (20,10) and floor southeast. No prior challenge inputs are copied. Inventory/setup scout before selecting the actual pickup path. Own C inventory proves ring e, Bell f, genocide scroll g and hero (20,10). Wear e, drop f, step south, create hostile ogre, move southeast out of combat line, then give three actual pickup turns. C-only observation is required before genocide.",
+  "segments": [
+    {
+      "seed": 66101312,
+      "datetime": "20860420132859",
+      "nethackrc": "OPTIONS=name:V66Scroll,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,acoustics\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017uncursed +20 ring of protection\n                    \u0017uncursed Bell of Opening\n                    \u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    #wizmap\ni                    Pel                    df                    j                    #wizgenesis\nhostile ogre\n                    n                    m.                    m.                    m.                    #wizmap\n"
+    }
+  ]
+}

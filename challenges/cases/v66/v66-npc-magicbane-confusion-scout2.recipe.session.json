@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first artifact.c Mb_hit NPC Magicbane attack -> potion.c make_confused hero state. Prior v58 human setup did not establish an NPC weapon attack. Use actual hostile off-line pickup source conditions, strong level30 Barbarian for repeated ordinary attacks, and a nonenchanted Magicbane that can exercise the 1/12 confusion arm. Require C human wielding named Magicbane and actual confusion feedback/status; preserve failed pickup routes. First scout establishes inventory and own room positions before choosing movement. Own C proves Magicbane e, hero (20,10), level30. Drop e, step south, create hostile human (AT_WEAP, M2_COLLECT, no starting weapon), step southeast out of the source combat line, and wait three forced turns. Inspect actual pickup and wielding before adding an attack sequence.",
+  "segments": [
+    {
+      "seed": 66101312,
+      "datetime": "20860420132859",
+      "nethackrc": "OPTIONS=name:V66Scroll,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,acoustics\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n30\n                                                                                     \u0017uncursed +0 Magicbane\n                    #wizidentify\n.\n                    #wizmap\ni                    de                    j                    #wizgenesis\nhostile human\n                    n                    m.                    m.                    m.                    #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source design: uhitm.c mhitm_ad_slim calls muse.c munslime; with no carried cure, an intelligent mobile monster can move to an adjacent FIRE_TRAP and burn away slime. Scout hero inventory and open adjacent room terrain before potion polymorph and trap creation.",
+  "segments": [
+    {
+      "seed": 66101304,
+      "datetime": "20860418172137",
+      "nethackrc": "OPTIONS=name:V66Source,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics,polycontrol\n",
+      "moves": "     \u0017uncursed potion of polymorph\n                    #levelchange\n30\n                                                                                     i                    #wizmap\n"
+    }
+  ]
+}

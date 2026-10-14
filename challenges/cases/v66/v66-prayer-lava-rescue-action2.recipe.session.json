@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pray.c fix_worst_trouble TROUBLE_LAVA calls safe_teleds and rescued_from_terrain. C scout establishes fire resistance ring inventory before creating lava. C inventory gives fire-resistance ring e, hero level 30 with 193 HP. Wear the ring, create lava beneath hero, then pray immediately while trapped.",
+  "segments": [
+    {
+      "seed": 66101302,
+      "datetime": "20860418162137",
+      "nethackrc": "OPTIONS=name:V66Source,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,debug_mongen,acoustics\n",
+      "moves": "     \u0017uncursed ring of fire resistance\n                    #levelchange\n30\n                                                                                     i                    Pel                    \u0017lava\n                    #pray\ny                    "
+    }
+  ]
+}

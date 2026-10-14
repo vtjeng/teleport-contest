@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first muse.c munslime/muse_unslime SCR_FIRE -> explode inventory branch. Prior peaceful devil had only three real turns, and hostile ogre in line with the hero skipped item search (monmove.c m_move combat gate). Source-guided cheap route: peaceful intelligent ogre, forty forced m. turns for the actual rn2(10) item-search arm; observe actual scroll pickup before any polymorph or attack. Source correction: offensive SCR_FIRE selection in find_offensive is inside #if 0; fire resistance is not needed to prevent offensive use. This remains a C-only inventory scout, not presumed cure evidence.",
+  "segments": [
+    {
+      "seed": 66101312,
+      "datetime": "20860420132859",
+      "nethackrc": "OPTIONS=name:V66Scroll,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,acoustics\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017uncursed +20 ring of protection\n                    \u001710 uncursed scrolls of fire\n                    #wizidentify\n.\n                    #wizmap\ni Pel                    df                    j                    #wizgenesis\npeaceful ogre\n                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    m.                    #wizmap\n"
+    }
+  ]
+}
