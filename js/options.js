@@ -273,6 +273,7 @@ import {
     assign_graphics,
     known_handling,
     finish_boulder_symbol,
+    do_symset,
     MAXMCLASSES,
     switch_symbols,
 } from './symbols.js';
@@ -283,7 +284,7 @@ import {
     inspect_glyphrep,
 } from './glyphs.js';
 import { choose_classes_menu, getlin, select_menu } from './windows.js';
-import { displayTtyTextWindow } from './tty_menu.js';
+import { displayTtyTextWindow, menuTitleStyle } from './tty_menu.js';
 import { note_unported } from './unported.js';
 import { choose_disco_sort } from './o_init.js';
 import { game } from './gstate.js';
@@ -4184,6 +4185,28 @@ function menuSelectionValues(selection) {
     return values
         .map((entry) => typeof entry === 'object' ? entry?.value : entry)
         .filter((value) => value !== null && value !== undefined);
+}
+
+// C refs: options.c:optfn_symset()'s do_handler arm and handler_symset().
+async function handler_symset(state, optionName, helpers) {
+    if (!glyphid_cache_status(state)) fill_glyphid_cache(state);
+    try {
+        const result = await do_symset(optionName === 'roguesymset', state, {
+            selectMenu: helpers?.selectMenu ?? ((spec) => select_menu(state, {
+                ...spec,
+                ...menuTitleStyle(state),
+                overlay: state.iflags?.menu_overlay !== false,
+            })),
+            message: helpers?.message
+                ?? ((message) => ttyPline(message, state)),
+            preferenceUpdate: (pref) => preference_update(state, pref),
+        });
+        state.go ??= {};
+        state.go.opt_need_redraw = true;
+        return result;
+    } finally {
+        if (glyphid_cache_status(state)) free_glyphid_cache(state);
+    }
 }
 
 // C ref: options.c handler_menustyle() (5544-5585).  select_menu() returns a
@@ -8398,6 +8421,10 @@ const OPTION_HANDLERS = Object.freeze({
     perminv_mode: handler_perminv_mode,
     pickup_burden: handler_pickup_burden,
     sortdiscoveries: handler_sortdiscoveries,
+    symset: (state, helpers) => handler_symset(state, 'symset', helpers),
+    roguesymset: (state, helpers) => handler_symset(
+        state, 'roguesymset', helpers,
+    ),
     pickup_types: (state, helpers) => optfn_pickup_types(
         state, DO_HANDLER, false, '', undefined, helpers,
     ),

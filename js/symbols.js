@@ -9,6 +9,8 @@ import {
     H_MAC,
     H_UTF8,
     H_UNK,
+    Is_rogue_level,
+    PICK_ONE,
     PRIMARYSET,
     ROGUESET,
     TRAPNUM,
@@ -339,6 +341,129 @@ function loadSymbolSet(name, set, state) {
     }
     if (glyphid_cache_status(state)) free_glyphid_cache(state);
     apply_customizations(state.gc.currentgraphics, state);
+}
+
+// C refs: symbols.c:do_symset() and files.c:read_sym_file()'s list-building
+// path. The generated data keeps each list row beside its symbol data.
+const INTERACTIVE_SYMSET_HANDLINGS = Object.freeze(new Set([
+    'UNKNOWN', 'IBM', 'DEC', 'UTF8',
+]));
+
+function interactiveSymbolSets(rogueFlag) {
+    return SYMBOL_SET_DEFINITIONS
+        .map((definition, index) => ({ ...definition, index }))
+        .filter(({ restrictions, handling }) => (
+            !(rogueFlag
+                ? restrictions.includes('primary')
+                : restrictions.includes('rogue'))
+            && INTERACTIVE_SYMSET_HANDLINGS.has(handling)
+        ));
+}
+
+// Pure projection of symbols.c:do_symset()'s source-ordered PICK_ONE list.
+export function symsetMenuItems(rogueFlag, state = game) {
+    const definitions = interactiveSymbolSets(rogueFlag);
+    const currentName = state.gs?.symset?.[
+        rogueFlag ? ROGUESET : PRIMARYSET
+    ]?.name;
+    let defaultIndex = currentName ? 0 : 1;
+    const biggest = Math.max(
+        'Default Symbols'.length,
+        ...definitions.map(({ name }) => name.length),
+    );
+    const items = [{
+        value: 1,
+        text: 'Default Symbols',
+        selected: !currentName,
+    }];
+    for (const definition of definitions) {
+        const value = definition.index + 2;
+        if (currentName
+            && definition.name.toLowerCase() === currentName.toLowerCase()) {
+            defaultIndex = value;
+        }
+        items.push({
+            value,
+            // C formats `%-Nname description`; retain the separator and
+            // trailing padding for rows whose Description is missing.
+            text: `${definition.name.padEnd(biggest + 2)} ${definition.description ?? ''}`,
+            selected: Boolean(currentName)
+                && definition.name.toLowerCase() === currentName.toLowerCase(),
+        });
+    }
+    return { items, defaultIndex, count: definitions.length };
+}
+
+// C select_menu(PICK_ONE) can return both a preselected row and a newly
+// selected row. do_symset() prefers the second only when the first is current.
+export function selectedSymsetMenuValue(selection, defaultIndex) {
+    if (selection === null || selection === undefined) return null;
+    const values = (Array.isArray(selection) ? selection : [selection])
+        .map((entry) => typeof entry === 'object' ? entry?.value : entry)
+        .filter((value) => Number.isInteger(value));
+    if (values.length > 0) {
+        return values.length > 1 && values[0] === defaultIndex
+            ? values[1] : values[0];
+    }
+    return defaultIndex > 0 ? defaultIndex : null;
+}
+
+// C ref: symbols.c:do_symset(). The JavaScript picker uses the generated
+// symbols-file projection instead of mutating global symset_list while parsing.
+export async function do_symset(
+    rogueFlag,
+    state = game,
+    { selectMenu, message, preferenceUpdate } = {},
+) {
+    graphicsState(state);
+    const whichSet = rogueFlag ? ROGUESET : PRIMARYSET;
+    state.gs.symset_list = null;
+    state.gs.symset_which_set = whichSet;
+    const { items, defaultIndex, count } = symsetMenuItems(rogueFlag, state);
+    if (!count) {
+        await message?.(
+            `There are no appropriate ${rogueFlag ? 'rogue level ' : 'primary '}`
+                + 'symbol sets available.',
+        );
+        return true;
+    }
+
+    const title = `Select ${rogueFlag ? 'rogue level ' : ''}symbol set:`;
+    if (typeof selectMenu !== 'function')
+        throw new TypeError('do_symset requires the options menu selector');
+    const selection = await selectMenu({
+        items,
+        how: PICK_ONE,
+        title,
+        cancelValue: null,
+        returnSelections: true,
+    });
+    const selectedValue = selectedSymsetMenuValue(selection, defaultIndex);
+    if (selectedValue === null) return true;
+
+    const chosenIndex = selectedValue - 2;
+    let readyToSwitch = false;
+    if (chosenIndex > -1) {
+        const definition = SYMBOL_SET_DEFINITIONS[chosenIndex];
+        if (definition) {
+            loadSymbolSet(definition.name, whichSet, state);
+            readyToSwitch = true;
+        }
+    } else if (chosenIndex === -1) {
+        resetSymbolSlot(whichSet, state);
+    } else {
+        return true;
+    }
+
+    if (readyToSwitch) switch_symbols(state, true);
+    if (Is_rogue_level(state.u?.uz)) {
+        if (rogueFlag) assign_graphics(ROGUESET, state);
+    } else if (!rogueFlag) {
+        assign_graphics(PRIMARYSET, state);
+    }
+    apply_customizations(whichSet, state, { symbols: true, colors: true });
+    await preferenceUpdate?.('symset');
+    return true;
 }
 
 // C ref: symbols.c:init_symbols(), init_primary_symbols(),

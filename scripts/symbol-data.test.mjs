@@ -195,6 +195,27 @@ test('generated symbol sets match the pinned source projection', () => {
             ['AmigaFont', 'UNKNOWN'],
         ],
     );
+    // symbols.c:do_symset() prints these exact Description: values beside
+    // each admitted menu row; absent descriptions remain null from files.c.
+    assert.deepEqual(
+        SYMBOL_SET_DEFINITIONS.map(({ name, description }) => [name, description]),
+        [
+            ['plain', "same as default symbols, except '+' for corner walls"],
+            ['Blank', 'completely blank symbols'],
+            ['IBMgraphics', 'special line-drawing characters used for walls'],
+            ['IBMGraphics_1', null],
+            ['IBMGraphics_2', null],
+            ['RogueIBM', null],
+            ['RogueEpyx', 'rogue level color symbol set like Epyx Rogue'],
+            ['RogueWindows', null],
+            ['curses', 'approximation of IBMgraphics using DECgraphics'],
+            ['DECgraphics', 'special line-drawing characters used for walls'],
+            ['MACgraphics', null],
+            ['Enhanced1', 'Enhanced with Unicode glyphs and 24-bit color'],
+            ['Enhanced2', 'Enhanced with more Unicode glyphs and 24-bit color'],
+            ['AmigaFont', 'Amiga hack.font line-drawing and effect characters'],
+        ],
+    );
 });
 
 test('generated cmap colours are defsym.h\'s own column', () => {

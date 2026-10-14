@@ -233,6 +233,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "plain",
             "handling": "UNKNOWN",
+            "description": "same as default symbols, except '+' for corner walls",
             "restrictions": [],
             "color": null,
             "bytes": {
@@ -253,6 +254,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "Blank",
             "handling": "UNKNOWN",
+            "description": "completely blank symbols",
             "restrictions": [],
             "color": null,
             "bytes": {
@@ -444,6 +446,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "IBMgraphics",
             "handling": "IBM",
+            "description": "special line-drawing characters used for walls",
             "restrictions": [],
             "color": null,
             "bytes": {
@@ -536,6 +539,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "IBMGraphics_1",
             "handling": "IBM",
+            "description": null,
             "restrictions": [],
             "color": null,
             "bytes": {
@@ -610,6 +614,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "IBMGraphics_2",
             "handling": "IBM",
+            "description": null,
             "restrictions": [],
             "color": null,
             "bytes": {
@@ -689,6 +694,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "RogueIBM",
             "handling": "IBM",
+            "description": null,
             "restrictions": [
                 "rogue"
             ],
@@ -731,6 +737,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "RogueEpyx",
             "handling": "IBM",
+            "description": "rogue level color symbol set like Epyx Rogue",
             "restrictions": [
                 "rogue"
             ],
@@ -806,6 +813,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "RogueWindows",
             "handling": "IBM",
+            "description": null,
             "restrictions": [
                 "rogue"
             ],
@@ -849,6 +857,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "curses",
             "handling": "DEC",
+            "description": "approximation of IBMgraphics using DECgraphics",
             "restrictions": [
                 "primary"
             ],
@@ -934,6 +943,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "DECgraphics",
             "handling": "DEC",
+            "description": "special line-drawing characters used for walls",
             "restrictions": [
                 "primary"
             ],
@@ -1031,6 +1041,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "MACgraphics",
             "handling": "MAC",
+            "description": null,
             "restrictions": [],
             "color": null,
             "bytes": {
@@ -1064,6 +1075,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "Enhanced1",
             "handling": "UTF8",
+            "description": "Enhanced with Unicode glyphs and 24-bit color",
             "restrictions": [
                 "primary"
             ],
@@ -1167,6 +1179,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "Enhanced2",
             "handling": "UTF8",
+            "description": "Enhanced with more Unicode glyphs and 24-bit color",
             "restrictions": [
                 "primary"
             ],
@@ -1272,6 +1285,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
         {
             "name": "AmigaFont",
             "handling": "UNKNOWN",
+            "description": "Amiga hack.font line-drawing and effect characters",
             "restrictions": [],
             "color": null,
             "bytes": {

@@ -53,6 +53,10 @@ import {
 } from '../js/const.js';
 import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
 import { ttyMenuLayout } from '../js/tty_menu.js';
+import {
+    selectedSymsetMenuValue,
+    symsetMenuItems,
+} from '../js/symbols.js';
 import { optionsMenuRecipe } from './run-options-menu.mjs';
 
 // The two recipes that page doset() without picking, named the way
@@ -1286,4 +1290,74 @@ test('only the primary symset reports its handler', async () => {
     state.gc.currentgraphics = PRIMARYSET;
     items = dosetMenuItems(state, menuHelpers(), false);
     assert.equal(valueOf(items, 'symset'), 'default');
+});
+
+test('interactive symset rows match source order and build restrictions', () => {
+    const state = {
+        gs: { symset: [{ name: null }, { name: null }] },
+    };
+    const { items, defaultIndex, count } = symsetMenuItems(false, state);
+    // The values retain source indices: rogue-only entries and MACgraphics
+    // are omitted from this Linux primary menu, while UTF8 sets remain.
+    assert.deepEqual(
+        items.map(({ value }) => value),
+        [1, 2, 3, 4, 5, 6, 10, 11, 13, 14, 15],
+    );
+    assert.equal(defaultIndex, 1);
+    assert.equal(count, 10);
+    assert.equal(items[0].text, 'Default Symbols');
+    assert.match(items.find(({ value }) => value === 3).text,
+        /completely blank symbols/u);
+    assert.equal(items.some(({ text }) => text.includes('RogueIBM')), false);
+    assert.equal(items.some(({ text }) => text.includes('MACgraphics')), false);
+    assert.equal(items.some(({ text }) => text.includes('Enhanced1')), true);
+
+    const rogueState = {
+        gs: { symset: [{ name: null }, { name: 'RogueEpyx' }] },
+    };
+    const rogue = symsetMenuItems(true, rogueState);
+    // Source restrictions reveal the rogue-only sets and preselect the active one.
+    assert.equal(rogue.defaultIndex, 8);
+    assert.equal(rogue.items.some(({ text }) => text.includes('RogueEpyx')), true);
+    assert.equal(rogue.items.some(({ text }) => text.includes('plain')), true);
+});
+
+test('PICK_ONE symset resolution prefers the newly selected row', () => {
+    // C symbols.c:do_symset() keeps a preselected row when the menu commits
+    // empty, and uses the second pick when the first is that current row.
+    assert.equal(selectedSymsetMenuValue([], 1), 1);
+    assert.equal(selectedSymsetMenuValue([{ value: 1 }, { value: 3 }], 1), 3);
+    assert.equal(selectedSymsetMenuValue([{ value: 3 }, { value: 8 }], 8), 3);
+    // Escape is distinct from an empty commit and leaves the set untouched.
+    assert.equal(selectedSymsetMenuValue(null, 1), null);
+});
+
+test('O menu dispatches symset selection through its source handler', async () => {
+    const state = await startConfiguredGame(STOCK);
+    const symsetOption = allopt.findIndex(({ name }) => name === 'symset') + 1;
+    let pickerSpec;
+    let menuCalls = 0;
+    // Starting at the command prompt leaves its initial --More-- to dismiss
+    // during the source handler's map redraw. The next O-menu pass escapes.
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    state.nhDisplay.pushKey('\x1b'.charCodeAt(0));
+    await doset_simple(state, menuHelpers({
+        menu: (_items, prompt) => {
+            assert.equal(prompt, 'Options');
+            return menuCalls++ === 0 ? symsetOption : null;
+        },
+        selectMenu: (spec) => {
+            pickerSpec = spec;
+            // C returns current preselection followed by the new Blank row.
+            return [{ value: 1 }, { value: 3 }];
+        },
+    }));
+
+    assert.equal(pickerSpec.title, 'Select symbol set:');
+    assert.equal(pickerSpec.how, PICK_ONE);
+    assert.equal(pickerSpec.returnSelections, true);
+    assert.equal(state.gs.symset[PRIMARYSET].name, 'Blank');
+    assert.equal(state.gs.symset_which_set, PRIMARYSET);
+    assert.equal(state.go.opt_need_redraw, false,
+        'doset_simple() consumes handler_symset()\'s redraw request');
 });

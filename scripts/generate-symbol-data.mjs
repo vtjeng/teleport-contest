@@ -333,6 +333,7 @@ export function extractSymbolSets(defsymSource, symbolsSource) {
             current = {
                 name: withoutComment(start[1]),
                 handling: 'UNKNOWN',
+                description: null,
                 restrictions: [],
                 color: null,
                 bytes: {},
@@ -350,13 +351,17 @@ export function extractSymbolSets(defsymSource, symbolsSource) {
         }
         if (!current) continue;
 
-        const control = text.match(/^(handling|restrictions|colou?r)\s*:\s*(.*?)\s*$/iu);
+        const control = text.match(/^(handling|restrictions|colou?r|description)\s*:\s*(.*?)\s*$/iu);
         if (control) {
             const key = control[1].toLowerCase();
             const value = withoutComment(control[2]);
             if (key === 'handling') current.handling = value.toUpperCase();
             else if (key === 'restrictions') {
                 current.restrictions.push(value.toLowerCase());
+            } else if (key === 'description') {
+                // files.c:proc_symset_line() stores the first Description for
+                // the current list row, matching its `if (!tmpsp->desc)` gate.
+                if (current.description === null) current.description = value;
             } else {
                 current.color = /^(?:true|yes|on)$/iu.test(value);
             }
