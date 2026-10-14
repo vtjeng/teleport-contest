@@ -63,12 +63,13 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The admitted v69 cube-contents replay stops before its first matched screen because JS mon.c:meatbox references PM_GELATINOUS_CUBE without importing it. C compares the consumed monster species with mons[PM_GELATINOUS_CUBE] and routes a cube’s contained objects to mpickobj. The JS function already implements that branch; importing the source constant restores the species check and lets the recorded case exercise the contents path.",
+  "summary": "The admitted v69 cube-contents replay first exposed an omitted PM_GELATINOUS_CUBE import in js/mon.js:meatbox. After that binding was restored, replay matched through step 459 and exposed a second planner refusal at step 460: js/unported_monster_actions.js rejected a gelatinous cube with digestible inventory even though js/monmove.js:dochug already calls the implemented gelcube_digests path. The task now covers both source-traced issues so the recorded filled-container consumption reaches meatbox.",
   "source": {
     "file": "mon.c",
     "branch": "When a monster consumes a container with contents at a valid map position, meatbox checks whether the monster is a gelatinous cube. C calls mpickobj for each child when it is a cube; otherwise it reports the spill and applies floor effects before placement.",
     "functions": [
-      "meatbox"
+      "meatbox",
+      "gelcube_digests"
     ],
     "callers": [
       "mon.c:m_consume_obj()",
@@ -78,12 +79,35 @@
     ],
     "dependencies": []
   },
+  "continuations": [
+    {
+      "afterCommit": "676faed67",
+      "firstMismatch": {
+        "kind": "stop",
+        "step": 460,
+        "message": "UnsupportedTurnBoundaryError: simple monster action requires a special monster action"
+      },
+      "source": {
+        "file": "monmove.c",
+        "functions": [
+          "dochug",
+          "gelcube_digests"
+        ],
+        "branch": "dochug PHASE THREE calls gelcube_digests for a gelatinous cube; an eligible organic, non-artifact, non-prize inventory object is consumed and returns 0. The JS planner's duplicate eligibility check incorrectly refused this implemented branch before dochug could execute it.",
+        "callers": [
+          "monmove.c:movemon_singlemon -> dochugw -> dochug -> gelcube_digests"
+        ]
+      },
+      "plannedCorrection": "Remove the stale gelatinous-cube planner refusal and retain the clone-only preflight boundary for unsupported branches. Update the focused planner test to cover empty, ineligible, and digestible inventories while asserting that live state, RNG, and display remain unchanged."
+    }
+  ],
   "goalKind": "divergence-fix",
   "evidence": [
     "The admitted v69 baseline was evaluated against f5371e6adf39dfbf6b3bc839f5d6d96195f0536f; its recorded case has 510 steps, and the saved evaluation stops with “PM_GELATINOUS_CUBE is not defined” before any screen matches. The admission record is challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v69.json.",
     "Upstream nethack-c/upstream/src/mon.c:1354-1390 defines meatbox: it compares mon->data with &mons[PM_GELATINOUS_CUBE], then routes each container child through mpickobj for a cube or flooreffects/place_object otherwise. nethack-c/upstream/src/mon.c:m_consume_obj calls meatbox whenever the consumed object has contents.",
+    "After commit 676faed67 imported PM_GELATINOUS_CUBE, the replay matched 459 screens. At step 460 it stopped in the planner before C's random call at monmove.c:538. Source tracing showed the cause was js/unported_monster_actions.js:assertSimpleActionState duplicating gelcube_digests' eligibility and refusing its true branch, even though monmove.c:dochug PHASE THREE calls gelcube_digests and js/monmove.js already implements that call. Removing this obsolete guard lets the clone-only preflight execute the existing source path without changing live state.",
     "The source callers include nethack-c/upstream/src/dogmove.c:dog_eat, monmove.c:gelcube_digests, and mon.c:mpickstuff. Their JS counterparts call the existing async m_consume_obj/meatbox chain in js/dogmove.js, js/monmove.js, and js/mon.js.",
     "In js/mon.js:1422-1427, meatbox evaluates state.mons?.[PM_GELATINOUS_CUBE]. The module’s only monsters.js import block at js/mon.js:~450-565 omits PM_GELATINOUS_CUBE, although js/monsters.js exports it as index 8. The missing binding is therefore the direct cause; the branch body and callers already exist.",
-    "Actionable change is confined to importing PM_GELATINOUS_CUBE in js/mon.js and adding a focused test that exercises the cube branch through m_consume_obj. The admitted v69 recording will provide production entry-point evidence after the import is corrected."
+    "The task changes js/mon.js:meatbox's missing species binding, and removes the stale cube refusal from js/unported_monster_actions.js so js/monmove.js:dochug can reach gelcube_digests on the planner clone. The focused tests exercise both the container transfer and planner admission; the admitted v69 recording provides production caller evidence through the first cube-consumption path."
   ]
 }
