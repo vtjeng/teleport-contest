@@ -1554,6 +1554,14 @@ test('lookat covers non-cmap glyph arms and returns source side channels', () =>
     assert.match(monsterResult.buf, /hatamoto/u);
     assert.equal(howmonseen(monster, state) & 1, 1);
 
+    // pager.c look_at_monster() uses trapname() for visible trapped monsters
+    // and records that the description revealed the trap.
+    const bearTrap = { tx: 3, ty: 4, ttyp: BEAR_TRAP, tseen: false };
+    state.level.traps.push(bearTrap);
+    monster.mtrapped = true;
+    assert.match(lookat(3, 4, state).buf, /trapped in a bear trap/u);
+    assert.equal(bearTrap.tseen, true);
+
     state.level.at = (x, y) => x === 3 && y === 4
         ? { disp_glyph: { glyph: GLYPH_INVIS_OFF } }
         : undefined;
