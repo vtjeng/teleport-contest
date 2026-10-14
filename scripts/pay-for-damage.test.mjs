@@ -5,11 +5,11 @@ import test from 'node:test';
 import { pay_for_damage } from '../js/shk.js';
 
 const cSource = Object.fromEntries(
-    ['shk.c', 'apply.c', 'explode.c', 'zap.c', 'dig.c', 'hack.c', 'dokick.c']
+    ['shk.c', 'end.c', 'apply.c', 'explode.c', 'zap.c', 'dig.c', 'hack.c', 'dokick.c']
         .map((file) => [file, readFileSync(`nethack-c/upstream/src/${file}`, 'utf8')]),
 );
 const jsSource = Object.fromEntries(
-    ['shk.js', 'apply.js', 'explode.js', 'zap.js', 'dig.js', 'hack.js', 'dokick.js']
+    ['shk.js', 'end.js', 'apply.js', 'explode.js', 'zap.js', 'dig.js', 'hack.js', 'dokick.js']
         .map((file) => [file, readFileSync(`js/${file}`, 'utf8')]),
 );
 
@@ -18,6 +18,18 @@ function cDefinition(source, signature) {
     assert.ok(start >= 0, `${signature} is present in C`);
     return source.slice(start);
 }
+
+test('home_shk completes the no-message relocation before shop bookkeeping', () => {
+    const c = cDefinition(cSource['shk.c'], 'home_shk(struct monst *shkp, boolean killkops)');
+    const js = cDefinition(jsSource['shk.js'], 'async function home_shk(');
+    assert.match(c, /mnearto\(shkp, x, y, TRUE, RLOC_NOMSG\);[\s\S]*?has_shop = 1;[\s\S]*?after_shk_move\(shkp\);/u);
+    assert.match(js, /await mnearto\(shopkeeper,[\s\S]*?RLOC_NOMSG,[\s\S]*?\);[\s\S]*?has_shop = true;[\s\S]*?await after_shk_move\(shopkeeper, state\);/u);
+
+    const endC = cDefinition(cSource['end.c'], 'really_done(int how)');
+    const endJs = cDefinition(jsSource['end.js'], 'async function really_done(');
+    assert.match(endC, /taken = paybill\([\s\S]*?\);[\s\S]*?paygd\(silently\);/u);
+    assert.match(endJs, /const taken = how === PANICKED[\s\S]*?: await paybill\([\s\S]*?\);[\s\S]*?paygd\(silently, state\);/u);
+});
 
 test('pay_for_damage follows the C selection, pursuit, and restitution branches', async () => {
     const c = cDefinition(cSource['shk.c'], 'pay_for_damage(const char *dmgstr');
@@ -33,7 +45,7 @@ test('pay_for_damage follows the C selection, pursuit, and restitution branches'
     assert.match(js, /if \(!shopkeeper\.mpeaceful \|\| shopkeeper\.mextra\.eshk\.following\)[\s\S]*?hot_pursuit\(shopkeeper, state\)/u);
     assert.match(js, /cant_mollify[\s\S]*?roll\(50\)/u);
     assert.match(js, /if \(inShop\) \{[\s\S]*?await mnexto\(shopkeeper, RLOC_NOMSG, env\);[\s\S]*?\n    \} else \{[\s\S]*?await mnearto\(shopkeeper, x, y, true, RLOC_MSG, env\);\n    \}/u);
-    assert.match(js, /await check_credit\(damageCost, shopkeeper, state, env\)[\s\S]*?money2mon\(shopkeeper, damageCost, state\)[\s\S]*?home_shk\(shopkeeper, false, state\)[\s\S]*?pacify_shk\(shopkeeper, false\)/u);
+    assert.match(js, /await check_credit\(damageCost, shopkeeper, state, env\)[\s\S]*?money2mon\(shopkeeper, damageCost, state\)[\s\S]*?await home_shk\(shopkeeper, false, state, env\)[\s\S]*?pacify_shk\(shopkeeper, false\)/u);
 
     const state = {
         moves: 9,

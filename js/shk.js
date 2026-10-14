@@ -4048,32 +4048,21 @@ async function rouse_shk(shopkeeper, verbosely = false, state = game, env = {}) 
     }
 }
 
-function shopMessage(text, state) {
-    // paybill() retains its source-shaped synchronous API. really_done()
-    // awaits this one deferred tty write before it resumes disclosure.
-    const previous = state._paybill_message ?? Promise.resolve();
-    state._paybill_message = Promise.resolve(previous).then(
-        () => ttyPline(text, state),
-    );
-}
-
 // C ref: shk.c home_shk() (1317-1330). Return a keeper to the square at its
 // shop door; the no-message relocation flag is the only observable work on
 // this death path.
-function home_shk(shopkeeper, _killkops, state) {
-    // The movement helper's extended rloc_to() bookkeeping is not ported;
-    // home_shk() discards mnearto()'s result, so preserve the reached gap and
-    // keep the shop bookkeeping below source control.
-    note_unported('mon.c mnearto');
+async function home_shk(shopkeeper, _killkops, state, env = {}) {
+    await mnearto(shopkeeper, shopkeeper.mextra.eshk.shk.x,
+        shopkeeper.mextra.eshk.shk.y, true, RLOC_NOMSG, { ...env, state });
     state.level.flags ??= {};
     state.level.flags.has_shop = true;
-    after_shk_move(shopkeeper, state, { defer: true });
+    await after_shk_move(shopkeeper, state);
 }
 
 // C ref: shk.c inherits() (2570-2676). The ordinary death path below ports
 // the hostile/following arm as well as the clear arm. Inventory stays in the
 // hero's list until finish_paybill(), after disclosure, just as in C.
-function inherits(shopkeeper, numsk, croaked, silently, state) {
+async function inherits(shopkeeper, numsk, croaked, silently, state) {
     const eshkp = shopkeeper.mextra.eshk;
     const uinshop = (state.u.ushops ?? []).includes(eshkp.shoproom);
 
@@ -4113,7 +4102,8 @@ function inherits(shopkeeper, numsk, croaked, silently, state) {
     if (eshkp.following || !NOTANGRY(shopkeeper) || take) {
         if (!state.invent) {
             rouse_shk(shopkeeper);
-            if (!inhishop(shopkeeper, state)) home_shk(shopkeeper, false, state);
+            if (!inhishop(shopkeeper, state))
+                await home_shk(shopkeeper, false, state);
         } else {
             const umoney = money_cnt(state.invent);
             let takes = '';
@@ -4132,7 +4122,10 @@ function inherits(shopkeeper, numsk, croaked, silently, state) {
                     state.disp.botl = true;
                 }
                 if (!silently)
-                    shopMessage(`${Shknam(shopkeeper, state)} ${takes} all your possessions.`, state);
+                    await ttyPline(
+                        `${Shknam(shopkeeper, state)} ${takes} all your possessions.`,
+                        state,
+                    );
                 taken = true;
             } else {
                 money2mon(shopkeeper, loss, state);
@@ -4141,7 +4134,7 @@ function inherits(shopkeeper, numsk, croaked, silently, state) {
                 if (!silently) {
                     const customer = eshkp.customer ?? '';
                     const owesYou = customer.startsWith(state.plname ?? '');
-                    shopMessage(
+                    await ttyPline(
                         `${Shknam(shopkeeper, state)} ${takes} the ${loss} ${currency(loss, state)} ${owesYou ? 'you ' : ''}owed ${mhim(shopkeeper)}.`,
                         state,
                     );
@@ -4151,7 +4144,8 @@ function inherits(shopkeeper, numsk, croaked, silently, state) {
                 eshkp.robbed = 0;
             }
             rouse_shk(shopkeeper);
-            if (!inhishop(shopkeeper, state)) home_shk(shopkeeper, false, state);
+            if (!inhishop(shopkeeper, state))
+                await home_shk(shopkeeper, false, state);
         }
     }
 
@@ -4164,7 +4158,7 @@ function inherits(shopkeeper, numsk, croaked, silently, state) {
 // C ref: shk.c paybill() (2483-2566). Called from end.c really_done() after
 // the hero dies, quits, or escapes. Returns whether a shopkeeper took the
 // hero's inventory, which decides whether finish_paybill() later moves it.
-export function paybill(croaked, silently, state = game) {
+export async function paybill(croaked, silently, state = game) {
     /* if we escaped from the dungeon, shopkeepers can't reach us */
     if (croaked < 0) return false;
 
@@ -4210,7 +4204,7 @@ export function paybill(croaked, silently, state = game) {
     const firstshk = resident ?? creditor ?? hostile ?? localshk;
     if (firstshk) {
         numsk++;
-        taken = inherits(firstshk, numsk, croaked, silently, state);
+        taken = await inherits(firstshk, numsk, croaked, silently, state);
     }
 
     /* now handle the rest */
@@ -4223,7 +4217,7 @@ export function paybill(croaked, silently, state = game) {
         const local = on_level(eshkp.shoplevel, state.u.uz);
         if (mtmp !== firstshk) {
             numsk++;
-            taken = inherits(mtmp, numsk, croaked, silently, state) || taken;
+            taken = (await inherits(mtmp, numsk, croaked, silently, state)) || taken;
         }
         /* for bones: we don't want a shopless shk around */
         if (!local) mongone(mtmp, { state });
@@ -4420,7 +4414,7 @@ export async function pay_for_damage(
             state.disp.botl = true;
         }
         await message(`Mollified, ${shkname(shopkeeper, state)} accepts your restitution.`, state, env);
-        home_shk(shopkeeper, false, state);
+        await home_shk(shopkeeper, false, state, env);
         pacify_shk(shopkeeper, false);
         if (shopkeeper.mx !== oldX || shopkeeper.my !== oldY) {
             if (wasOutside && canspotmon(shopkeeper, state)) {

@@ -1307,11 +1307,7 @@ async function really_done(how, state) {
     const silently = disclosureStopprint(state);
     const taken = how === PANICKED
         ? false
-        : paybill(how === ESCAPED ? -1 : (how !== QUIT), silently, state);
-    if (state._paybill_message) {
-        await state._paybill_message;
-        delete state._paybill_message;
-    }
+        : await paybill(how === ESCAPED ? -1 : (how !== QUIT), silently, state);
     if (how !== PANICKED) {
         paygd(silently, state);
         await clearpriests(state);

@@ -104,18 +104,18 @@ function floorObject(state, { x, y, no_charge }) {
     return obj;
 }
 
-test('paybill leaves the dungeon-escape case alone', () => {
+test('paybill leaves the dungeon-escape case alone', async () => {
     // C ref: shk.c:2497-2499. croaked < 0 returns before gr.repo is even
     // initialized, so a hero who escaped keeps whatever the record held.
     const state = makeState();
     makeShopkeeper(state);
     state.gr = { repo: 'untouched' };
 
-    assert.equal(paybill(-1, true, state), false);
+    assert.equal(await paybill(-1, true, state), false);
     assert.equal(state.gr.repo, 'untouched');
 });
 
-test('paybill clears a lone unowed shopkeeper without taking anything', () => {
+test('paybill clears a lone unowed shopkeeper without taking anything', async () => {
     // C ref: shk.c:2555-2565 through inherits():2670-2675. The hero dies
     // outside the shop (u.ushops empty), so the keeper lands in `localshk`,
     // inherits() falls through every taking arm to the `clear` label, and
@@ -129,7 +129,7 @@ test('paybill clears a lone unowed shopkeeper without taking anything', () => {
     const inShop = floorObject(state, { x: 4, y: 4, no_charge: true });
     const elsewhere = floorObject(state, { x: 70, y: 4, no_charge: true });
 
-    assert.equal(paybill(1, true, state), false);
+    assert.equal(await paybill(1, true, state), false);
 
     assert.deepEqual(state.gr.repo, {
         location: { x: 0, y: 0 }, shopkeeper: null,
@@ -148,7 +148,7 @@ test('paybill clears a lone unowed shopkeeper without taking anything', () => {
     assert.equal(elsewhere.no_charge, false);
 });
 
-test('setpaid keeps no_charge on a rival shopkeeper\'s floor', () => {
+test('setpaid keeps no_charge on a rival shopkeeper\'s floor', async () => {
     // C ref: shk.c clear_no_charge_obj():367-370. The final disjunct spares
     // an object whose room has a resident other than the shopkeeper being
     // settled, so a second shop's goods survive the first keeper's cleanup.
@@ -158,11 +158,11 @@ test('setpaid keeps no_charge on a rival shopkeeper\'s floor', () => {
     state.level.rooms[1].resident = { isshk: true };
     const rival = floorObject(state, { x: 70, y: 4, no_charge: true });
 
-    assert.equal(paybill(1, true, state), false);
+    assert.equal(await paybill(1, true, state), false);
     assert.equal(rival.no_charge, true);
 });
 
-test('setpaid always clears no_charge inside a container', () => {
+test('setpaid always clears no_charge inside a container', async () => {
     // C ref: shk.c:361. shk.c asks get_obj_location() for OBJ_CONTAINED |
     // OBJ_BURIED (6), which that function reads as CONTAINED_TOO (0x1) and
     // BURIED_TOO (0x2); six omits 0x1, so a contained object never resolves
@@ -175,11 +175,11 @@ test('setpaid always clears no_charge inside a container', () => {
         where: OBJ_CONTAINED,
     };
 
-    assert.equal(paybill(1, true, state), false);
+    assert.equal(await paybill(1, true, state), false);
     assert.equal(box.cobj.no_charge, false);
 });
 
-test('paybill riles and clears an angry shopkeeper', () => {
+test('paybill riles and clears an angry shopkeeper', async () => {
     // C ref: shk.c next_shkp():224-228 calls rile_shk() on an angry keeper
     // that has no surcharge yet, before paybill() has classified anyone. The
     // The hostile inherits() arm clears the keeper after the scan has applied
@@ -187,32 +187,32 @@ test('paybill riles and clears an angry shopkeeper', () => {
     const state = makeState();
     const shkp = makeShopkeeper(state, { mpeaceful: false });
 
-    assert.equal(paybill(1, true, state), false);
+    assert.equal(await paybill(1, true, state), false);
     assert.equal(shkp.mextra.eshk.surcharge, true);
 });
 
-test('paybill refuses a shopkeeper the hero still owes', () => {
+test('paybill refuses a shopkeeper the hero still owes', async () => {
     // C ref: shk.c inherits():2620-2626. A debit reaches addupbill() and
     // money2mon(), neither of which is ported.
     const state = makeState();
     makeShopkeeper(state).mextra.eshk.debit = 60;
 
-    assert.throws(
-        () => paybill(1, true, state),
+    await assert.rejects(
+        paybill(1, true, state),
         (err) => err instanceof UnsupportedShopError
             && err.message.includes('unpaid bill'),
     );
 });
 
-test('paybill refuses a hero who dies inside the shop', () => {
+test('paybill refuses a hero who dies inside the shop', async () => {
     // C ref: shk.c inherits():2607-2614. Dying in a peaceful keeper's shop
     // hands it the whole pack ("gratefully inherits"), which needs
     // set_repo_loc() and finish_paybill().
     const state = makeState({ ushops: [ROOMOFFSET, 0, 0, 0, 0] });
     makeShopkeeper(state);
 
-    assert.throws(
-        () => paybill(1, true, state),
+    await assert.rejects(
+        paybill(1, true, state),
         (err) => err instanceof UnsupportedShopError
             && err.message.includes('bequeathing'),
     );
