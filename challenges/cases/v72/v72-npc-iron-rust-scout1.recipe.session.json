@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C trap.c:trapeffect_rust_trap completelyrusts iron golem -> mlifesaver wording -> monkilled AD_RUST. High-level hero, actual rust trap and source chase geometry; no death claim until C records trigger.",
+  "segments": [
+    {
+      "seed": 72104116,
+      "datetime": "20941024102600",
+      "nethackrc": "OPTIONS=name:v72-npc-iron-rust-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n30\n                                                                                l                        \u0017rust trap\n                        h                        #wizgenesis\nhostile iron golem\n                        m.                        m.                        m.                        "
+    }
+  ]
+}

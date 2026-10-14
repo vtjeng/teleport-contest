@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C dothrow.c:throwit swallowed tethered weapon uses tmp_at(DISP_TETHER) before guaranteed hit. First actual engulf setup with wielded aklys; no throw claim before C state. Actual C second engulf at473 remains active at final scout and weapon a is tethered. Throw a east; nonzero direction is required although swallowed path guarantees swallower target.",
+  "segments": [
+    {
+      "seed": 72104127,
+      "datetime": "20941024103700",
+      "nethackrc": "OPTIONS=name:v72-engulfed-aklys-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n30\n                                                                                \u0017uncursed aklys\n                        wa                        #wizgenesis\nhostile purple worm\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        i                        tal                        "
+    }
+  ]
+}

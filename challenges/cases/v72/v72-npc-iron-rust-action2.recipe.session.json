@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C trap.c:trapeffect_rust_trap completelyrusts iron golem -> mlifesaver wording -> monkilled AD_RUST. High-level hero, actual rust trap and source chase geometry; no death claim until C records trigger. Actual initial C51,6 east is wall; initial l failed and wished trap on stairs. Correct initial h to50,6 real floor. Hero then west49,6, creates NPC; two east moves guide it through trap50,6 toward stairs51,6. Verify actual generated NPC geometry.",
+  "segments": [
+    {
+      "seed": 72104116,
+      "datetime": "20941024102600",
+      "nethackrc": "OPTIONS=name:v72-npc-iron-rust-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n30\n                                                                                h                        \u0017rust trap\n                        h                        #wizgenesis\nhostile iron golem\n                        l                        l                        m.                        m.                        m.                        "
+    }
+  ]
+}

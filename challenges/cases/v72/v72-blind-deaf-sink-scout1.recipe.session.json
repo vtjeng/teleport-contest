@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C fountain.c:dipsink POT_LEVITATION -> sink_backs_up Blind+Deaf body_part(FACE) branch. Source Deaf startup option and worn blindfold, real ordinary-floor sink. Actual sink and potion outcome must be proved.",
+  "segments": [
+    {
+      "seed": 72104115,
+      "datetime": "20941024102500",
+      "nethackrc": "OPTIONS=name:v72-blind-deaf-sink-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup,deaf\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed blindfold\n                        Pa                        \u0017uncursed potion of levitation\n                        l                        \u0017sink\n                        #dip\nby                        "
+    }
+  ]
+}

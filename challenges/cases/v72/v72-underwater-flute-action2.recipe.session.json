@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C source trap.c:drown5106 accepts Swimming water troll and sets u.uinwater; form retains humanoid hands. Actual ordinary-floor pool must be established before underwater action. music.c:do_play_instrument Underwater refuses before charged flute improvisation. C creates actual east pool but ordinary l avoids stepping even with Swimming; source C tip explicitly requires m-prefix for deliberate entry. Change final l to ml, preserving dry action attempt.",
+  "segments": [
+    {
+      "seed": 72104110,
+      "datetime": "20941024102000",
+      "nethackrc": "OPTIONS=name:v72-underwater-flute-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic flute\n                        #polyself\nwater troll\n                        l                        \u0017pool\n                        h                        ml                        aa                        i                        "
+    }
+  ]
+}

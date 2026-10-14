@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C apply.c:use_unicorn_horn cursed rn2(13)/2 generates actual trouble. Do not choose or infer branch before C records RNG/status.",
+  "segments": [
+    {
+      "seed": 72104107,
+      "datetime": "20941024101700",
+      "nethackrc": "OPTIONS=name:v72-cursed-horn-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017cursed unicorn horn\n                        aa                        #attributes\n                        "
+    }
+  ]
+}

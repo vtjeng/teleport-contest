@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C source trap.c:drown5106 accepts Swimming water troll and sets u.uinwater; form retains humanoid hands. Actual ordinary-floor pool must be established before underwater action. apply.c:flip_coin Underwater split one coin/drop, source gold inventory $.",
+  "segments": [
+    {
+      "seed": 72104108,
+      "datetime": "20941024101800",
+      "nethackrc": "OPTIONS=name:v72-underwater-coin-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u001720 gold pieces\n                        #polyself\nwater troll\n                        l                        \u0017pool\n                        h                        l                        a$                        i                        "
+    }
+  ]
+}

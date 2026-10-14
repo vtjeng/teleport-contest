@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "insight.c:attributes_enlightenment clinger reads has_ceiling before ordinary can-cling line. Actual spider form required.",
+  "segments": [
+    {
+      "seed": 72104113,
+      "datetime": "20941024102300",
+      "nethackrc": "OPTIONS=name:v72-clinger-attributes-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\ngiant spider\n                        #attributes\n                        "
+    }
+  ]
+}

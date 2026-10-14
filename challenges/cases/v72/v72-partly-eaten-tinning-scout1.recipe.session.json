@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source correction from apply.c:tinnable2167 and eat.c:tin_ok/floorfood: partly eaten/zero-nutrition corpses are filtered BEFORE use_tinning_kit unreachable later guards. Legal partly eaten wish is source objnam.c4092/5383; capture actual noneligible carried corpse and tin selector refusal, no later cannot-tin-message claim.",
+  "segments": [
+    {
+      "seed": 72104105,
+      "datetime": "20941024101500",
+      "nethackrc": "OPTIONS=name:v72-partly-eaten-tinning-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed partly eaten lichen corpse\n                        \u0017uncursed tinning kit\n                        ab                        i                        "
+    }
+  ]
+}

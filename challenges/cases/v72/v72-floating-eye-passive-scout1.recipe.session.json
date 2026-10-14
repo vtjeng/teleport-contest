@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C uhitm.c:passive floating-eye live AD_PLYS checks ureflects before Free_action. Low-level unarmed hit avoids instantly killing eye; ring prevents long paralysis. Capture actual target location first.",
+  "segments": [
+    {
+      "seed": 72104119,
+      "datetime": "20941024102900",
+      "nethackrc": "OPTIONS=name:v72-floating-eye-passive-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed ring of free action\n                        Par                        #wizgenesis\npeaceful floating eye\n                        i                        "
+    }
+  ]
+}

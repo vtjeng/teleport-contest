@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C apply.c:use_mirror self vampire no reflection, with hands and actual sight. Independent form state and self action must be established.",
+  "segments": [
+    {
+      "seed": 72104106,
+      "datetime": "20941024101600",
+      "nethackrc": "OPTIONS=name:v72-vampire-mirror-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed mirror\n                        #polyself\nvampire\n                        aa.                        "
+    }
+  ]
+}

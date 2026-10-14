@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C music.c:charm_monsters swallowed distance zero. First actual purple-worm engulf setup; no charm claim until swallowed C state and harp action established. Level30 preserves ordinary human HP. Actual C second engulf at452 remains active at final scout; play actual harp a and improvise to charm only distance-zero swallower. Prior debug-death regurgitation is preserved history, not claimed current swallow.",
+  "segments": [
+    {
+      "seed": 72104124,
+      "datetime": "20941024103400",
+      "nethackrc": "OPTIONS=name:v72-swallowed-harp-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n30\n                                                                                \u0017uncursed magic harp\n                        #wizgenesis\nhostile purple worm\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        i                        aay                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C potion.c:dodrink actual milky-description occupant gate and ghost_from_bottle Blind branch. Bounded six-quaff source probe; C actual description, count, blindness and occupant result decide reachability. No seed search or ghost claim before source gate.",
+  "segments": [
+    {
+      "seed": 72104123,
+      "datetime": "20941024103300",
+      "nethackrc": "OPTIONS=name:v72-blind-ghost-milky-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n30\n                                                                                \u0017uncursed blindfold\n                        Pa                        \u00176 uncursed milky potions\n                        i                        qb                        qb                        qb                        qb                        qb                        qb                        "
+    }
+  ]
+}
