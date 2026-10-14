@@ -1,0 +1,88 @@
+{
+  "session": "synthetic/v73/v73-hurtle-iron-rust-action4",
+  "corpus": "synthetic",
+  "batch": "v73",
+  "caseId": "v73-hurtle-iron-rust-action4",
+  "manifestPath": "challenges/manifests/v73.json",
+  "manifestSha256": "47ee27378b0863dd5538f676f0f170e9e2ca91771edc37e7f514f659b4dacc32",
+  "recordingSha256": "81146ed20194e6acc7427c674888e512362b66ec1ca67e845fb11f08980cadea",
+  "evaluationPath": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
+  "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
+  "recordedSteps": 268,
+  "status": "investigated",
+  "commit": "2834d0836bff4dc1e65a0cd1be7a0c5f3a3684e8",
+  "mismatch": {
+    "session": "synthetic/v73/v73-hurtle-iron-rust-action4",
+    "remainingScreens": 0,
+    "step": null,
+    "kind": "stop",
+    "firstMismatch": {
+      "message": "nonliving is not defined",
+      "error": "nonliving is not defined"
+    }
+  },
+  "summary": "The replay reaches C's rust-trap death branch after the iron golem lands on the trap. The JavaScript rustTrapMonsterLifesaver helper reads nonliving without importing it, so execution stops before output comparison can measure the remaining 25 screens. Prep's unchanged-input C/JS prefix capture verifies parity through step 242, then reproduces the same ReferenceError at the step-243 rust-trap event.",
+  "source": {
+    "file": "trap.c",
+    "functions": [
+      "trapeffect_rust_trap"
+    ],
+    "branch": "For a completely rustable monster, C first builds the visible death message using mlifesaver(mtmp), then calls monkilled with AD_RUST. In the retained route, a hurled iron golem lands on an actual rust trap; the airborne intermediate square is skipped, while the final landing invokes the FORCEBUNGLE trap path.",
+    "callers": [
+      "dothrow.c:mhurtle_step invokes mintrap for the final FORCEBUNGLE landing.",
+      "trap.c:mintrap dispatches the trap effect to trap.c:trapeffect_rust_trap."
+    ],
+    "dependencies": [
+      "mon.c:mlifesaver checks nonliving(mon->data) or is_vampshifter(mon) before checking for a worn Amulet of Life Saving; this check selects the rust-trap message wording.",
+      "mondata.h:nonliving supplies the predicate used by mon.c:mlifesaver."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted recording challenges/cases/v73/v73-hurtle-iron-rust-action4.session.json and Prep's source crosswalk establish the actual route: wizcmds.c:wiz_telekinesis -> dothrow.c:mhurtle_step -> mintrap(HURTLING); check_in_air bypasses the intermediate rust trap, and the final landing at (42,14) invokes mintrap(FORCEBUNGLE) and trap.c:trapeffect_rust_trap.",
+    "C trap.c:trapeffect_rust_trap calls mlifesaver(mtmp) inside the completelyrusts branch before monkilled(AD_RUST), so this is the exact helper read that the failing JS call stack reaches.",
+    "JS js/trap_effects.js:rustTrapMonsterLifesaver calls nonliving(monster.data), but the module import list includes is_vampshifter and completelyrusts while omitting nonliving; js/mondata.js exports nonliving.",
+    "Prep's saved prefix proof .cache/prep37-recovery/prep73/iron-rust-prefix.stdout.json uses unchanged game inputs and matches 1982 RNG calls, 243 screens/cursors, and 2 animation frames before the ReferenceError during zero-based step 243. The evidence confirms reachability and the first cause; it is not a full-replay result.",
+    "Earlier route setup attempts are retained as counter-evidence: airborne traversal bypasses the intermediate trap, and a monster spawned atop a trap does not prove a mintrap entry. The final landing is the first proven rust-trap invocation."
+  ],
+  "baselineMetrics": {
+    "screens": {
+      "matched": 0,
+      "total": 268
+    },
+    "rng": {
+      "matched": 0,
+      "total": 2019
+    },
+    "cursors": {
+      "matched": 0,
+      "total": 268
+    }
+  },
+  "partialPrefix": {
+    "source": ".cache/prep37-recovery/prep73/iron-rust-prefix.stdout.json",
+    "capturedScreens": 243,
+    "errorDuringStep": 243,
+    "metrics": {
+      "rng": {
+        "c": 1982,
+        "js": 1982
+      },
+      "screens": {
+        "c": 243,
+        "js": 243
+      },
+      "cursors": {
+        "c": 243,
+        "js": 243
+      },
+      "animFrames": {
+        "c": 2,
+        "js": 2
+      }
+    },
+    "error": "ReferenceError: nonliving is not defined",
+    "cSource": "trap.c:trapeffect_rust_trap; mon.c:mlifesaver",
+    "jsSource": "js/trap_effects.js:rustTrapMonsterLifesaver"
+  }
+}
