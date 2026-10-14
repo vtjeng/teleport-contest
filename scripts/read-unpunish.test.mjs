@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { OBJ_DELETED, OBJ_FREE, OBJ_FLOOR, W_BALL, W_CHAIN } from '../js/const.js';
@@ -7,6 +8,19 @@ import { remove_object, newObject, place_object } from '../js/obj.js';
 import { HEAVY_IRON_BALL, IRON_CHAIN, TOOL_CLASS } from '../js/objects.js';
 import { runSegment } from '../js/jsmain.js';
 import { unpunish } from '../js/read.js';
+
+test('eatspecial forwards its operation environment to the punishment release helper', () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/eat.js', import.meta.url), 'utf8');
+    const cFunction = c.match(/staticfn void\s+eatspecial\(void\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    const jsFunction = js.match(/async function eatspecial\(state, env\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(cFunction, 'C source has the whole eatspecial function');
+    assert.ok(jsFunction, 'JavaScript source has the corresponding whole function');
+    assert.match(cFunction,
+        /if \(otmp == uball\)\s+unpunish\(\);[\s\S]*?if \(otmp == uchain\)\s+unpunish\(\);/u);
+    assert.match(jsFunction,
+        /if \(otmp === state\.uball\)\s+unpunish\(state, env\);[\s\S]*?if \(otmp === state\.uchain\)\s*\{\s*unpunish\(state, env\);/u);
+});
 
 test('unpunish clears the chain slot, deletes it, then clears the ball slot',
     async () => {
