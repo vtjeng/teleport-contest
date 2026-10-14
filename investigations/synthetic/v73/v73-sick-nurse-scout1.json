@@ -25,7 +25,7 @@
     "recordingPath": "challenges/cases/v73/v73-sick-nurse-scout1.session.json",
     "session": "synthetic/v73/v73-sick-nurse-scout1"
   },
-  "summary": "A hostile Nurse reaches the unarmored-hero healing branch of uhitm.c:mhitm_ad_heal() while the hero is sick. C calls make_sick(0, NULL, FALSE, SICK_ALL), clearing the sickness. JavaScript already follows the complete branch and calls make_sick with the same arguments, but js/uhitm.js has no SICK_ALL import, so evaluation throws ReferenceError before the source cure runs.",
+  "summary": "A Nurse reaches the unarmed and unarmored healing branch of uhitm.c:mhitm_ad_heal() while the hero is sick. C calls make_sick(0, NULL, FALSE, SICK_ALL) to clear sickness. JavaScript already follows the branch and calls make_sick with the same arguments, but js/uhitm.js does not import SICK_ALL, so the call throws ReferenceError before the cure executes.",
   "source": {
     "file": "uhitm.c",
     "branch": "In mhitm_ad_heal(), the monster-attacks-hero arm heals an unarmed, unarmored hero; after the two exercise gates it checks Sick and calls make_sick(0L, NULL, FALSE, SICK_ALL), then sets disp.botl and continues the nurse-gone/flee/damage decisions.",
@@ -35,8 +35,8 @@
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "The v73 C recording reaches a hostile Nurse's attack on the hero at segment 0 step 179 while FoodPois remains active. The saved evaluation reports ReferenceError `SICK_ALL is not defined` in JavaScript; C continues through the healer branch and cures all sickness.",
-    "upstream nethack-c/upstream/src/uhitm.c:4296-4385 defines mhitm_ad_heal(). Lines 4315-4354 cover the unarmed/unarmored Nurse heal, including the Sick test and make_sick(0L, (char *) 0, FALSE, SICK_ALL). uhitm.c:4782-4791 dispatches AD_HEAL to this function; mhitu.c:1191 passes a monster attack on the hero through mhitm_adtyping(). include/you.h:401 defines SICK_ALL as 0x03.",
-    "js/mhitu.js:mattacku() calls js/uhitm.js:mhitm_adtyping(), which dispatches AD_HEAL to js/uhitm.js:mhitm_ad_heal(). The JS helper already calls make_sick with the source arguments, but SICK_ALL is absent from its js/const.js import list; js/const.js exports SICK_ALL. The scoped correction is to import the existing source constant without changing branch or RNG order."
+    "The v73 C recording reaches a hostile Nurse's attack on the hero at segment 0 step 179 while FoodPois remains active. The saved evaluation reports ReferenceError `SICK_ALL is not defined` in JavaScript; C continues through the Nurse healing branch and cures all sickness.",
+    "upstream nethack-c/upstream/src/uhitm.c:4296-4385 defines mhitm_ad_heal(). Lines 4315-4354 cover the unarmed/unarmored Nurse heal, including the Sick test and make_sick(0L, (char *) 0, FALSE, SICK_ALL). uhitm.c:4782-4791 dispatches AD_HEAL to this function; mhitu.c:1191 passes monster attacks on the hero through mhitm_adtyping(). include/you.h:401 defines SICK_ALL as 0x03.",
+    "js/mhitu.js:mattacku() calls js/uhitm.js:mhitm_adtyping(), which dispatches AD_HEAL to js/uhitm.js:mhitm_ad_heal(). The JS helper already calls make_sick with the source arguments, but SICK_ALL is absent from its js/const.js import list; js/const.js exports SICK_ALL. The scoped correction is to import the existing source constant without changing branch behavior or RNG order."
   ]
 }
