@@ -122,8 +122,8 @@
         "do.c:goto_level awaits fix_shop_damage before fall damage and pickup on the existing-level arrival path.",
         "allmain.c:moveloop_preamble awaits fix_shop_damage after restore and before the resumed move loop.",
         "bones.c:getbones awaits fix_shop_damage after restoring objects and before returning the bones level; mklev.c:mklev awaits getbones.",
-        "bones.c:getbones awaits add_to_container because B's pending invent.c:add_to_container port makes it asynchronous.",
-        "shk.c:litter_scatter awaits place_object before setting the destination's redraw flag because the pending object-placement billing path is asynchronous."
+        "shk.c:litter_scatter awaits place_object before setting the destination's redraw flag because the pending object-placement billing path is asynchronous.",
+        "bones.c:drop_upon_death awaits add_to_container before recomputing container weight, preserving B’s asynchronous billing dependency."
       ]
     },
     "validation": {
@@ -154,14 +154,15 @@
           "blocker": "The probe has not established a shopkeeper or repaired doorway; its monster-detection selection flow remains incomplete."
         }
       ],
-      "focusedTests": "node scripts/run-bounded.mjs focused -- node --test scripts/bones.test.mjs scripts/shk-move.test.mjs passed 14/14 tests on the tree later committed as 415591d67; log /tmp/teleport-validation-1000/run-P9AH8m/stdout.log.",
-      "lint": "node scripts/run-bounded.mjs focused -- npm run lint passed on the tree later committed as 415591d67; log /tmp/teleport-validation-1000/run-1l7Pu8/stdout.log.",
-      "syntheticPrefix": "The earlier scripts/synthetic-range-evidence.mjs run verified the v67 target through segment 0 step 1199. Rerun on the final execution tree before submission."
+      "focusedTests": "node scripts/run-bounded.mjs focused -- node --test scripts/bones.test.mjs scripts/shk-move.test.mjs passed 15/15 tests on the final focused-test tree; log /tmp/teleport-validation-1000/run-KO0v9x/stdout.log.",
+      "lint": "node scripts/run-bounded.mjs focused -- npm run lint passed on the final focused-test tree; log /tmp/teleport-validation-1000/run-qTdITi/stdout.log.",
+      "syntheticPrefix": "node scripts/run-bounded.mjs focused -- node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json passed on the final execution tree; v67/v67-shop-damage-repair-action11 segment 0 matched through step 1151, with receipt /tmp/teleport-validation-1000/run-BXcXBt/receipt.json. The earlier post-implementation scan matched the complete 1200-step target."
     },
     "runtimeEvidenceLimits": [
       "The admitted v67 range covers ordinary shk_fixes_damage and door restoration, but the case has no item on the repaired wall and does not exercise litter_scatter moving objects.",
       "The level-return catch-up path lacks a matching recording because its independent recipe stops earlier in priest.c:move_special.",
-      "The bones restoration path lacks a matching recording; it requires a bones-enabled recorder route that reaches mklev.c:mklev -> bones.c:getbones -> fix_shop_damage."
+      "The bones restoration path lacks a matching recording; it requires a bones-enabled recorder route that reaches mklev.c:mklev -> bones.c:getbones -> fix_shop_damage.",
+      "The async add_to_container caller adjustment is in bones.c:drop_upon_death and is covered by a source-pinned ordering test; it is not a shop-repair runtime entry point."
     ]
   }
 }
