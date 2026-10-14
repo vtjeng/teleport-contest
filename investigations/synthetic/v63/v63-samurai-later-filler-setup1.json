@@ -8,8 +8,8 @@
   "manifestPath": "challenges/manifests/v63.json",
   "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
   "recordingSha256": "8de8a4e2dbf2fd75bfc0f6a423258cd53278a71e554097b9612eac7b79ca63e3",
-  "evaluationPath": "challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v63.json",
-  "evaluationCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+  "evaluationPath": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
+  "evaluationCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
   "status": "complete",
   "commit": "156e78f5d17675a37166d1fecb3dc84e5d217399",
   "mismatch": {
@@ -137,7 +137,8 @@
     "nethack-c/upstream/src/mklev.c:1275-1285 selects role-specific quest filler proto names from filecode and depth. js/mklev.js:756-770 mirrors this selection and dispatches registered programs through makemaz/load_special.",
     "js/quest_levels.js includes Sam-fila but not Sam-filb in QUEST_LEVEL_LOADERS. The C program map is a fixed 60 by 16 grid and will be generated deterministically with a source-derived consistency check.",
     "The saved v63 baseline evaluation reports v63-samurai-later-filler-setup1 at 241/265 screens, 4233/4467 RNG calls, and 248/265 cursors, with no runtime error. The first mismatch is at segment 0, step 241 while C and JavaScript diverge in level randomization.",
-    "The current queue evaluation is challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v63.json at 6533e0a77d2145733c0fcabedf1e8446dc251fba; its baseline case matches the retained accepted artifact challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json at 02a098f2e3bf8dab3c52e27f90b3fd1adacc6260 exactly by manifest hash 7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe, recording hash 8de8a4e2dbf2fd75bfc0f6a423258cd53278a71e554097b9612eac7b79ca63e3, metrics (241/265 screens, 4233/4467 RNG, 248/265 cursors), and null error."
+    "The current queue evaluation is challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v63.json at 6533e0a77d2145733c0fcabedf1e8446dc251fba; its baseline case matches the retained accepted artifact challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json at 02a098f2e3bf8dab3c52e27f90b3fd1adacc6260 exactly by manifest hash 7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe, recording hash 8de8a4e2dbf2fd75bfc0f6a423258cd53278a71e554097b9612eac7b79ca63e3, metrics (241/265 screens, 4233/4467 RNG, 248/265 cursors), and null error.",
+    "The refreshed queue evaluation challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v63.json at 6533e0a77d2145733c0fcabedf1e8446dc251fba is unavailable in the worker base. The cited retained accepted artifact challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json at 02a098f2e3bf8dab3c52e27f90b3fd1adacc6260 matches manifest 7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe, recording 8de8a4e2dbf2fd75bfc0f6a423258cd53278a71e554097b9612eac7b79ca63e3, screens 241/265, RNG 4233/4467, cursors 248/265, and null error."
   ],
   "comparableAcceptedEvaluation": {
     "path": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
@@ -159,6 +160,27 @@
       }
     },
     "error": null,
-    "reason": "The latest queue evaluation artifact is not present in this worker base. The retained accepted artifact has identical manifest, recording hash, metrics, and error; the queue evaluation path, commit, and measurement remain recorded in the task context."
+    "reason": "The refreshed queue evaluation artifact is absent from the worker base. This retained accepted evaluation is used because the manifest hash, case recording hash, metrics, and null error are identical; the queue evaluation identity and measurements are preserved separately."
+  },
+  "queueEvaluation": {
+    "path": "challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v63.json",
+    "commit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+    "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+    "recordingSha256": "8de8a4e2dbf2fd75bfc0f6a423258cd53278a71e554097b9612eac7b79ca63e3",
+    "metrics": {
+      "screens": {
+        "matched": 241,
+        "total": 265
+      },
+      "rng": {
+        "matched": 4233,
+        "total": 4467
+      },
+      "cursors": {
+        "matched": 248,
+        "total": 265
+      }
+    },
+    "error": null
   }
 }
