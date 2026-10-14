@@ -312914,6 +312914,42 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-endgame-quantum-cat-species-reference-v71-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement really_done from end.c",
+      "cFile": "end.c",
+      "sessions": [
+        "synthetic/v71/v71-quantum-box-escape-no-disclosure-action8"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "really_done",
+      "session": "synthetic/v71/v71-quantum-box-escape-no-disclosure-action8"
+    },
+    {
+      "id": "fix-use-whip-mimic-import-v71-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement use_whip from apply.c",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v71/v71-whip-mimic-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v71-whip-mimic-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_whip",
+      "session": "synthetic/v71/v71-whip-mimic-action3"
     }
   ]
 }
