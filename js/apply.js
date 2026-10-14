@@ -45,6 +45,7 @@ import {
     CQ_CANNED,
     CORR,
     CONFUSION,
+    CONFLICT,
     COST_DSTROY,
     COST_SPLAT,
     DEAF,
