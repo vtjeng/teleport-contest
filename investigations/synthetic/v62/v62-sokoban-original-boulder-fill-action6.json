@@ -18,7 +18,9 @@
     "kind": "stop",
     "message": "unsupported hero move: a trap the hero has already seen",
     "cEntry": "rn2(5)=1 @ dotrap(trap.c:3038)",
-    "cScreen": "Click! You trigger a rolling boulder trap! No boulder was released."
+    "cScreen": "Click! You trigger a rolling boulder trap! No boulder was released.",
+    "session": "synthetic/v62/v62-sokoban-original-boulder-fill-action6",
+    "remainingScreens": 29
   },
   "summary": "C trap.c:dotrap() handles a seen rolling-boulder trap through its ordinary rn2(5) escape branch. The JavaScript movement preflight rejected that source-known trap type before dotrap() could run. preflight_dotrap() now admits it, and the complete v62 case matches.",
   "source": {
@@ -30,9 +32,12 @@
     "callers": [
       "hack.c:domove_core moves the hero before hack.c:spoteffects() dispatches the destination trap to trap.c:dotrap().",
       "js/hack.js:preflight_domove_core() asks preflight_dotrap() about the destination before committing the move; this correction admits the C-supported rolling-trap branch."
+    ],
+    "dependencies": [
+      "The previously accepted hack.c:moverock_core and trap.c:launch_obj port delivers the boulder to the rolling-boulder trap in this recorded path."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
     "challenges/manifests/v62.json identifies the case mission as hack.c:moverock ROLLING_BOULDER_TRAP launch_obj caller and sourcePointers as hack.c:moverock_core lines 594-614 -> trap.c:launch_obj with ROLL|LAUNCH_KNOWN.",
     "Read upstream nethack-c/upstream/src/hack.c:moverock_core (348-638), especially the ROLLING_BOULDER_TRAP arm (594-614): C finds the launch endpoint, prints the roll message, calls feeltrap, then launches BOULDER from (sx,sy) to (tox,toy) and returns whether a boulder remains at the original square.",
@@ -122,7 +127,6 @@
       }
     }
   ],
-  "resolution": "js/trap_effects.js:preflight_dotrap() now excludes ROLLING_BOULDER_TRAP from the seen-trap refusal predicate. The admitted case reaches the normal dotrap escape roll and matches to completion.",
   "validation": {
     "base": "449b70838c80ff0e2661f1e13e3588ca054b18f8",
     "sourceCommit": "0c7b1a9c8b06114b84b1a1f9e5f292eb34a95afb",
@@ -134,5 +138,6 @@
       "lint": "/tmp/teleport-loop-worker-a46-20260929/.cache/A2-v62-lint.log",
       "replay": "/tmp/teleport-loop-worker-a46-20260929/.cache/A2-v62-replay.log"
     }
-  }
+  },
+  "result": "The preflight admission correction lets the existing dotrap implementation match the complete recorded case."
 }
