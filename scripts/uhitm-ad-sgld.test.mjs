@@ -230,7 +230,7 @@ test('mounted floor-gold theft uses the steed name before fleeing', async () => 
     assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
     assert.equal(findgold(attacker.minvent), floorGold);
     assert.ok(lines.some(line => /quickly snatches some gold from between your dwarf's feet!/u.test(line)));
-    assert.deepEqual(randomCalls, [5], 'only the post-message flee check draws'); 
+    assert.deepEqual(randomCalls, [5], 'only the post-message flee check draws');
 });
 
 test('monster-pair cancellation clears damage before leaving gold and strategy alone', async () => {
