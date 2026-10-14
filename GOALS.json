@@ -312601,6 +312601,60 @@
           }
         ]
       }
+    },
+    {
+      "id": "preserve-float-up-web-enum-mismatch-v69-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement float_up from undefined",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v69/v69-blocked-boots-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v69-blocked-boots-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "float_up",
+      "session": "synthetic/v69/v69-blocked-boots-action3"
+    },
+    {
+      "id": "fix-meatobj-green-slimeproof-import-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement meatobj from undefined",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v70/v70-cube-glob-scout2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v70-cube-glob-scout2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "meatobj",
+      "session": "synthetic/v70/v70-cube-glob-scout2"
+    },
+    {
+      "id": "fix-tty-menu-text-window-line-attributes-v69-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement process_text_window, tty_putstr from wintty.c",
+      "cFile": "wintty.c",
+      "sessions": [
+        "synthetic/v69/v69-vanq-sort-recovered4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v69-vanq-sort-recovered4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "process_text_window",
+      "session": "synthetic/v69/v69-vanq-sort-recovered4"
     }
   ]
 }
