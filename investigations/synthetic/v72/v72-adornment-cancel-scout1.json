@@ -13,7 +13,7 @@
   "remainingScreens": 272,
   "recordedSteps": 272,
   "status": "complete",
-  "commit": null,
+  "commit": "e84f638c7",
   "mismatch": {
     "segment": 0,
     "step": 211,
