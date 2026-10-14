@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source music.c:do_improvisation615-624 self horn damage. Earlier v61 yeti resists cold and returns zero damage so skips caller losehp. Independent human hero with raised level survives damage; actual C HP reduction required. No previous resistance control copied.",
+  "segments": [
+    {
+      "seed": 73104225,
+      "datetime": "20951126101300",
+      "nethackrc": "OPTIONS=name:v73-frost-horn-self-damage-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                                                                                          \u0017uncursed frost horn (0:5)\n                        aay.                        i                        "
+    }
+  ]
+}

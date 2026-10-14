@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source steal.c:stealgold mounted floor-gold naming branch. Initial C-only setup captures actual saddled pony position before choosing ride direction; no mounted status claimed yet. Actual C setup has pony directly north of hero(4,8), so source-based k mounts actual saddled pet. Drop all newly wished37 coins under mount, then create leprechaun and bounded waits. Actual k mount attempt asks wizard Force the mount to succeed? because low riding skill/roll. Explicit y uses source debug prompt; prior default n slip was not mounted and pet attacked leprechaun. No prior mounted theft claim. Source makemon.c1327 always starts leprechaun asleep; use_whistle wakes nearby. Source monmove.c:leppie_avoidance avoids hero if leprechaun carries more gold. Wish30000 and drop20000, leaving10000 so floor pile remains larger and usual leprechaun gold cannot trigger avoidance. Actual quantities/wake/theft still require C proof; same independent seed.",
+  "segments": [
+    {
+      "seed": 73104221,
+      "datetime": "20951125103100",
+      "nethackrc": "OPTIONS=name:v73-mounted-floor-gold-setup1,role:Knight,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizgenesis\ntame saddled pony\n                        i                        #ride\nky                        \u001730000 gold pieces\n                        d20000$                        \u0017uncursed tin whistle\n                        #wizgenesis\nhostile leprechaun\n                        aa                        m. m. m. m. m. m. m. m.                         i                        "
+    }
+  ]
+}

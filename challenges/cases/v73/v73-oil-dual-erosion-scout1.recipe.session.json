@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C potion.c:potion_dip2670: oil removes one level EACH rust and corrosion from actual dual-eroded weapon, no greased flag. Wish parser must establish both erosion fields.",
+  "segments": [
+    {
+      "seed": 73104202,
+      "datetime": "20951125101200",
+      "nethackrc": "OPTIONS=name:v73-oil-dual-erosion-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed very rusty very corroded long sword\n                        \u0017uncursed potion of oil\n                        #dip\nab                        \u001b                        i                        "
+    }
+  ]
+}

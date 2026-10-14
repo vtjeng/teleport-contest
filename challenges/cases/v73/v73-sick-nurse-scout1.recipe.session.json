@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c:mhitm_ad_heal4352-4353. Set actual timed sickness through source #wizintrinsic menu, create hostile nurse, wait for healing hit. C healing hit clears Sick with make_sick(0,SICK_ALL); ordinary healthy nurse healing does not exercise conditional. Capture-only setup first; no unobserved state counts as proof.",
+  "segments": [
+    {
+      "seed": 73104216,
+      "datetime": "20951125102600",
+      "nethackrc": "OPTIONS=name:v73-sick-nurse-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizintrinsic\n:fatally sick\n\n                        #wizgenesis\nhostile nurse\n                        m. m. m. m. m.                         #attributes\n                        "
+    }
+  ]
+}

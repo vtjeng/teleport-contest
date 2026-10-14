@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source dothrow.c:mhurtle_step calls mintrap(HURTLING) on each traversed square. C-only setup1 proves hero43,12 and sleeping peaceful iron golem44,12. Move south to43,13, wish rust trap, move west42,13; wizard telekinesis selects monster then pushes southwest through43,13. Actual rust/death must be observed; no prior setup counted as trap entry.",
+  "segments": [
+    {
+      "seed": 73104224,
+      "datetime": "20951126101200",
+      "nethackrc": "OPTIONS=name:v73-hurtle-iron-rust-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizgenesis\npeaceful sleeping iron golem\n                        i                        j\u0017rust trap\n                        h#wiztelekinesis\nm.b                        \u001b"
+    }
+  ]
+}

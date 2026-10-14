@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C dothrow.c:toss_up cream-pie face branch. Actual roof break is a target miss. Preserve it and use source-supported environment variation only if needed, no seed-only search.",
+  "segments": [
+    {
+      "seed": 73104211,
+      "datetime": "20951125102100",
+      "nethackrc": "OPTIONS=name:v73-pie-upward-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u00173 uncursed cream pies\n                        ta<                        #attributes\n                        i                        "
+    }
+  ]
+}

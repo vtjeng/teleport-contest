@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C read.c:seffect_fire Confusion+Underwater. Actual swimming water-troll form can read known wished scroll; actual potion confusion must still be active at read. Little water vaporizes without normal explosion. If no confusion/Underwater, target miss only. C first real pool was correctly created but ordinary l avoided known water. Source hack.c explicitly requires m-prefix; ml enters actual pool before confusion quaff and scroll. Preserve dry fire-burn outcome as target miss. Second C setup actually enters water but water_damage blanks the carried fire scroll. Source cheap correction: acquire scroll/potion by legal wishes after entering pool; no further water-entry damage before read.",
+  "segments": [
+    {
+      "seed": 73104215,
+      "datetime": "20951125102500",
+      "nethackrc": "OPTIONS=name:v73-confused-underwater-fire-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\nwater troll\n                        l                        \u0017pool\n                        h                        ml                        \u0017uncursed scroll of fire\n                        \u0017uncursed potion of confusion\n                        qb                        ra                        i                        "
+    }
+  ]
+}

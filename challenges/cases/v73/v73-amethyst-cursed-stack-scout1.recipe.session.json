@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C potion.c:mixtype and potion_dip: cursed amethyst transforms one of actual booze stack into cursed fruit juice, retaining others. Prior v33 docall cg.zeroobj first cause must not count again; target is actual cursed propagation/split state.",
+  "segments": [
+    {
+      "seed": 73104210,
+      "datetime": "20951125102000",
+      "nethackrc": "OPTIONS=name:v73-amethyst-cursed-stack-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017cursed amethyst\n                        \u00173 uncursed potions of booze\n                        #dip\nab                        \u001b                        i                        "
+    }
+  ]
+}

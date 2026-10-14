@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C potion.c:peffect_oil likes_fire: actual salamander drinks actual lit oil, says refreshing drink without face burn. Human fire resistance alone is a different source branch.",
+  "segments": [
+    {
+      "seed": 73104206,
+      "datetime": "20951125101600",
+      "nethackrc": "OPTIONS=name:v73-fire-lover-oil-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed potion of oil\n                        #polyself\nsalamander\n                        aa                        qa                        #attributes\n                        "
+    }
+  ]
+}

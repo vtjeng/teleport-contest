@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C muse.c:find_offensive Earth mconf short-circuit replaces prior deferred helmet/rn2(10) condition. Independent C-only setup provisions scroll and confusion potion, creates ordinary hostile dwarf, captures initial geometry before choosing real pickup and throw inputs. No read or NPC inventory claim yet.",
+  "segments": [
+    {
+      "seed": 73104223,
+      "datetime": "20951126101100",
+      "nethackrc": "OPTIONS=name:v73-confused-npc-earth-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                                                                                          \u0017uncursed scroll of earth\n                        da                        \u0017uncursed potion of confusion\n                        #wizgenesis\nhostile dwarf\n                        i                        "
+    }
+  ]
+}

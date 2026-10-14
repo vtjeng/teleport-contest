@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C pager.c:look_at_monster trapped-monster description. Reuses this new batch independently chosen pony setup only, then different source-designed trap/dismount/farlook history. Actual bear trapping and C farlook description required. Missing trap, escape or wrong cursor are setup misses. Source objnam.c4622-4655 now distinguishes armed terrain trap with trapped prefix; plain bear trap creates inventory object. Actual first C wish returned disarmed item, so no trap claim. New input requests real trap. C actual armed beartrap killed fragile pony at253. Source monsters.h mastodon level20 has at least20 HP, above beartrap max8; can_saddle permits quadruped MZ_HUGE. Replace species with hardier actual C steed, retain original seed/inputs otherwise and verify direction/entry. No unavailable pony-trap proof counts.",
+  "segments": [
+    {
+      "seed": 73104221,
+      "datetime": "20951125103100",
+      "nethackrc": "OPTIONS=name:v73-mounted-floor-gold-setup1,role:Knight,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizgenesis\ntame saddled mastodon\n                        i                        #ride\nky                        \u0017trapped bear trap\n                        h                        ml                        #ride\n                        ;                        m.                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source dothrow.c:mhurtle_step calls mintrap(HURTLING) after actual location change. Initial C-only sleeping iron-golem setup captures geometry before choosing real rust-trap path and telekinesis direction. No trap-entry/death claim from creation alone.",
+  "segments": [
+    {
+      "seed": 73104224,
+      "datetime": "20951126101200",
+      "nethackrc": "OPTIONS=name:v73-hurtle-iron-rust-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizgenesis\npeaceful sleeping iron golem\n                        i                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C insight.c:list_vanquished ask=true q branch increments program_state.stopprint. Source legal wizard kill establishes mvitals death; endgame disclose limits prompts to vanquished. Actual q prompt reachability required; incorrect getpos or More is setup miss. First C getpos prompt has a More before cursor controls; initial m/. were consumed. Corrected source input acknowledges More/help, then m cycles to visible monster and dot selects; q exits next-target cursor. Original setup miss retained.",
+  "segments": [
+    {
+      "seed": 73104219,
+      "datetime": "20951125102900",
+      "nethackrc": "OPTIONS=name:v73-quit-vanquished-q-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=disclose:ni na +v ng nc\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizgenesis\nhostile lichen\n                        #wizkill\n                        m.                        q                        #quit\nyq                        "
+    }
+  ]
+}

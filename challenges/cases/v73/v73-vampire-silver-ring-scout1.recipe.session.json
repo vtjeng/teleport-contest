@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C dothrow.c:toss_up: nonweapon silver ring hits actual vampire and silver-sears damage adds rnd20. Wish material must actually be silver; a randomized ring appearance is not assumed. Ceiling hit is target miss. Before C capture, corrected wish to appearance-only silver ring: source ring descriptors/material shuffle together; no fixed ring type or material override is assumed.",
+  "segments": [
+    {
+      "seed": 73104208,
+      "datetime": "20951125101800",
+      "nethackrc": "OPTIONS=name:v73-vampire-silver-ring-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed silver ring\n                        #polyself\nvampire\n                        ta<                        i                        "
+    }
+  ]
+}

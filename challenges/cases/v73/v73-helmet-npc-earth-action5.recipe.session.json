@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C muse.c:find_offensive Earth mconf short-circuit replaces prior deferred helmet/rn2(10) condition. Independent C-only setup provisions scroll and confusion potion, creates ordinary hostile dwarf, captures initial geometry before choosing real pickup and throw inputs. No read or NPC inventory claim yet. Actual initial geometry hero27,14 dwarf27,15. Pick own dropped Earth (provisional c), move east28,14 and drop there, retreat east to30,14 so dwarf pursuit crosses scroll rather than attacking in place. Verify actual inventory and pickup; confusion throw follows only after C establishes location. C pickup preserves original Earth letter a rather than allocating c. Replace only observed drop selector with a; original drop-c refusal remains setup miss. Dwarf still alive and pursuing along same room floor. New source caller variation isolates actual hard-helmet NPC Earth reading without the failed confusion throw. Prior C potion missed and helmet alone qualified Earth; keep potion wish/ownership and all pickup setup unchanged, approach adjacent and wait for read. All original C pairs/RNG divergence remain preserved; no JS/game source or fixture is modified.",
+  "segments": [
+    {
+      "seed": 73104223,
+      "datetime": "20951126101100",
+      "nethackrc": "OPTIONS=name:v73-confused-npc-earth-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                                                                                          \u0017uncursed scroll of earth\n                        da                        \u0017uncursed potion of confusion\n                        #wizgenesis\nhostile dwarf\n                        i                        ,                        l                        da                        ll                        m. m. m.                         i                        h                        m. m. m. m. m.                         i                        "
+    }
+  ]
+}

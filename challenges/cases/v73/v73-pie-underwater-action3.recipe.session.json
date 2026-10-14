@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Original same-seed upward-pie case hits ceiling and breaks there. Source-supported environment variation: swimming water troll enters actual pool and Underwater makes throwit hitsroof false. Pie must fall on face and blind; no seed alteration or manufactured capture. C original east is wall, and west movement later enters actual teleport trap and opens getpos. Recreated initial map has ordinary visible floor north: move north to create pool, return south, use mk to force entry from south. Preserve teleport/getpos setup miss.",
+  "segments": [
+    {
+      "seed": 73104211,
+      "datetime": "20951125102100",
+      "nethackrc": "OPTIONS=name:v73-pie-underwater-action2,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u00173 uncursed cream pies\n                        #polyself\nwater troll\n                        k                        \u0017pool\n                        j                        mk                        ta<                        #attributes\n                        i                        "
+    }
+  ]
+}

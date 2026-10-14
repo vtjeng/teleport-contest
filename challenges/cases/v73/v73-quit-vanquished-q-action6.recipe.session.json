@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C insight.c:list_vanquished ask=true q branch increments program_state.stopprint. Source legal wizard kill establishes mvitals death; endgame disclose limits prompts to vanquished. Actual q prompt reachability required; incorrect getpos or More is setup miss. First C getpos prompt has a More before cursor controls; initial m/. were consumed. Corrected source input acknowledges More/help, then m cycles to visible monster and dot selects; q exits next-target cursor. Original setup miss retained. Source wiz_kill loops until a selected location lacks a monster. q is not a getpos cancel key. After first kill, second dot selects same corpse square and exits via no-monster branch; no extra NPC kill or altered fixture. Third attempt reached actual process exit: recorder received191 boundaries and expected215 because24 trailing spaces followed game termination. Preserve EOF log, remove only the unread trailing24 spaces in new recipe; no absent partial recording counts as proof. C end.c:done2 wizard quit asks Dump core? after confirmation. Prior q answered this earlier prompt and incremented stopprint before disclosure. Explicit n to core prompt then q targets list_vanquished question. Preserve prior normal-exit record separately. C flag.h/options.c correct disclosure syntax: n prompts default no, + shows without prompt. Earlier q answered attributes, not vanquished. Use -i-a?v-g-c: suppress inventory/attributes, prompt vanquished with special default. Exact prior option history remains preserved.",
+  "segments": [
+    {
+      "seed": 73104219,
+      "datetime": "20951125102900",
+      "nethackrc": "OPTIONS=name:v73-quit-vanquished-q-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=disclose:-i-a?v-g-c\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizgenesis\nhostile lichen\n                        #wizkill\n                        m..                        #quit\nynq"
+    }
+  ]
+}

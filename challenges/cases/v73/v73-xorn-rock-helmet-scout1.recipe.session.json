@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C dothrow.c:toss_up: xorn passes rocks makes rock harmless initially, but worn soft fedora negates harmless. Actual falling rock hit and helmet condition must occur; ceiling hit alone is target miss.",
+  "segments": [
+    {
+      "seed": 73104207,
+      "datetime": "20951125101700",
+      "nethackrc": "OPTIONS=name:v73-xorn-rock-helmet-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed rock\n                        \u0017uncursed fedora\n                        #polyself\nxorn\n                        Wb                        ta<                        i                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source pager.c:look_at_monster trapped description. Earlier current v73 mounted steed hits unrelated mounted-bear preflight first. New never-mounted NPC is hurtled to endpoint bear trap via source mintrap(FORCEBUNGLE); use known own geometry seed, actual mastodon placement/trap/survival must be verified. No trap description claimed from later static source alone.",
+  "segments": [
+    {
+      "seed": 73104224,
+      "datetime": "20951126101200",
+      "nethackrc": "OPTIONS=name:v73-nonsteed-bear-farlook-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizgenesis\npeaceful sleeping mastodon\n                        i                        jb\u0017trapped bear trap\n                        k#wiztelekinesis\n                        m.b                        \u001b;                        m.                        "
+    }
+  ]
+}

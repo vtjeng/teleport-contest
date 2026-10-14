@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C read.c:litroom -> potion.c:impact_arti_light. Prior v58 resisted and made no BUC change. Current blessed artifact must actually lose blessing through nonresisting H2Opotion_dip to add coverage; another resistance is excluded, not a new failure.",
+  "segments": [
+    {
+      "seed": 73104212,
+      "datetime": "20951125102200",
+      "nethackrc": "OPTIONS=name:v73-sunsword-darken-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017blessed Sunsword\n                        \u0017cursed scroll of light\n                        wa                        rb                        i                        "
+    }
+  ]
+}

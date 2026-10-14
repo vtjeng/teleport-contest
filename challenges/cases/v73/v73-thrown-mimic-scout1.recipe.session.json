@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dothrow.c:tmiss1163 -> seemimic. Create actual mimic, inspect C position/disguise and aim a thrown dagger at it. C thrown-miss tmiss clears disguise through seemimic; melee and stethoscope have different caller. Capture-only setup first; no unobserved state counts as proof.",
+  "segments": [
+    {
+      "seed": 73104217,
+      "datetime": "20951125102700",
+      "nethackrc": "OPTIONS=name:v73-thrown-mimic-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u00175 uncursed daggers\n                        #wizgenesis\nhostile giant mimic\n                        i                        "
+    }
+  ]
+}

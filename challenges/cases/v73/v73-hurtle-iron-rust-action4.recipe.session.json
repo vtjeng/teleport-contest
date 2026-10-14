@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source dothrow.c:mhurtle_step calls mintrap(HURTLING) on each traversed square. C-only setup1 proves hero43,12 and sleeping peaceful iron golem44,12. Move south to43,13, wish rust trap, move west42,13; wizard telekinesis selects monster then pushes southwest through43,13. Actual rust/death must be observed; no prior setup counted as trap entry. Action2 m/dot/b were swallowed by Pick a monster More prompt, so no actual hurtle. Add explicit acknowledgment before getpos selection; retain setup miss. Source correction: check_in_air treats HURTLING as airborne, so rust is bypassed en route. Actual action3 ends42,14 before wall. Put trap at final landing42,14 for mhurtle final mintrap(FORCEBUNGLE), not traversed43,13. Preserve original mistaken route and actual C as excluded coverage.",
+  "segments": [
+    {
+      "seed": 73104224,
+      "datetime": "20951126101200",
+      "nethackrc": "OPTIONS=name:v73-hurtle-iron-rust-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizgenesis\npeaceful sleeping iron golem\n                        i                        jb\u0017rust trap\n                        k#wiztelekinesis\n                        m.b                        \u001b"
+    }
+  ]
+}
