@@ -469,6 +469,7 @@ const output = {
   progress, scoreHistory, workGoals, summary, scores,
   challenges: challengeDashboardPayload(challenges),
   activity, pendingMainWork: snapshot?.pendingMainWork ?? null,
+  workerReservations: snapshot?.workerReservations ?? null,
   activityGoals: [...activityGoals.values()],
   developmentSessions,
 };

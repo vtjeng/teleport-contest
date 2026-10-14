@@ -423,6 +423,39 @@ test('remaining challenge filter includes screen and trace mismatches', () => {
     assert.doesNotMatch(rendered.get('challengeTable').innerHTML, /<td>Fixed<\/td>/u);
 });
 
+test('session rows distinguish submitted targets and shared-source reservations without changing scores', () => {
+    const data = sourceDashboardData();
+    // Three unmatched one-boundary cases: a submitted target, its shared source,
+    // and an unclaimed investigation. All remain in the score/remaining counts.
+    data.challenges.cases = ['target', 'related', 'free'].map(id => ({batch: 'v1', id, title: id,
+        first: {screens: {matched: 0, total: 1}},
+        current: {passed: false, screens: {matched: 0, total: 1}}}));
+    const task = {id: 'A-task', worker: 'A2', status: 'ready', seed: 'synthetic/v1/target',
+        reservations: ['session:synthetic/v1/target', 'source:spell.c:cast_protection']};
+    data.workerReservations = {tasks: {[task.id]: task}, reservations: Object.fromEntries(
+        task.reservations.map(key => [key, {tasks: [task.id]}]))};
+    const queue = {mode: 'work', sessions: data.challenges.cases.map(item => ({
+        session: 'synthetic/v1/' + item.id, kind: 'screen', remainingScreens: 1,
+        ...(item.id === 'related' ? {investigation: {status: 'complete', result: {
+            source: {file: 'spell.c', functions: ['cast_protection']}}}} : {}),
+    }))};
+    const rendered = renderDashboard(data, queue);
+    const html = rendered.get('challengeTable').innerHTML;
+    assert.match(html, /Submitted—awaiting Main/u);
+    assert.match(html, /Reserved by submitted work/u);
+    assert.match(html, /Task A-task · Worker A · Submitted—awaiting Main/u);
+    assert.match(html, /<td>0<\/td><td>0<\/td><td>1<\/td>/u);
+    assert.match(rendered.get('sessionSummary').textContent, /3 of 3 synthetic sessions remaining · 1 candidate group available/u);
+    for (const [state, label] of [['working', 'In progress'], ['integrating', 'Integration and checks'],
+        ['validated', 'Awaiting acceptance'], ['changes-required', 'Needs correction']]) {
+        task.status = state;
+        assert.ok(renderDashboard(data, queue).get('challengeCards').innerHTML.includes(label), state);
+    }
+    data.workerReservations = null;
+    assert.doesNotMatch(renderDashboard(data, queue).get('challengeTable').innerHTML, /Submitted—awaiting Main|Not available for assignment/u,
+        'an older snapshot does not invent current ownership');
+});
+
 test('unmeasured challenge cases remain visible in the remaining filter', () => {
     const data = sourceDashboardData();
     data.challenges.cases = [

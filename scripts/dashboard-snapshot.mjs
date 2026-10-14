@@ -70,6 +70,19 @@ export function mergeActivity(previous, current) {
     events: [...events.values()].sort((a, b) => a.at.localeCompare(b.at)) };
 }
 
+// Only public ownership fields; no handles, worktree paths or delivery packets.
+export function reservationSnapshot(state) {
+  const tasks = Object.fromEntries(Object.values(state.tasks)
+    .filter(task => task.kind !== 'challenge-preparation' && task.status !== 'accepted')
+    .map(task => [task.id, {id: task.id, worker: task.worker, status: task.status,
+      seed: task.seed, reservations: task.reservations,
+      ...(task.status === 'parked' ? {reason: task.reason} : {})}]));
+  const reservations = Object.fromEntries(Object.entries(state.reservations)
+    .map(([key, row]) => [key, {tasks: row.tasks.filter(id => tasks[id])}])
+    .filter(([, row]) => row.tasks.length));
+  return {tasks, reservations};
+}
+
 export function developmentFromCheckpoint(summary, results, resultBytes) {
   if (!summary?.allPassed || !/^[a-f0-9]{40}$/u.test(summary.executionCommit ?? '')) {
     throw new Error('expected a passing accepted checkpoint with an execution commit');
@@ -112,6 +125,7 @@ export function developmentFromCheckpoint(summary, results, resultBytes) {
 
 export function writeDashboardSnapshot({ ledger: ledgerPath, checkpoint, output }, root = process.cwd()) {
   const ledger = JSON.parse(readFileSync(resolve(root, ledgerPath), 'utf8'));
+  const state = summarizeLedger(ledger);
   const summary = JSON.parse(readFileSync(resolve(root, checkpoint), 'utf8'));
   const resultBytes = readFileSync(join(summary.artifacts, 'session-results.json'));
   const results = JSON.parse(resultBytes);
@@ -122,7 +136,8 @@ export function writeDashboardSnapshot({ ledger: ledgerPath, checkpoint, output 
     version: 1,
     capturedAt: new Date().toISOString(),
     activity: mergeActivity(previous?.activity, activityFromLedger(ledger)),
-    pendingMainWork: pendingMainWork(summarizeLedger(ledger), admittedBatchIds(root)),
+    pendingMainWork: pendingMainWork(state, admittedBatchIds(root)),
+    workerReservations: reservationSnapshot(state),
     development: developmentFromCheckpoint(summary, results, resultBytes),
   };
   writeFileSync(outputPath, JSON.stringify(snapshot, null, 2) + '\n');

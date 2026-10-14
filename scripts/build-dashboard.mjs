@@ -7,6 +7,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { activityUtilization, mainIntegrationDurations } from './dashboard-activity.mjs';
+import { workerWork } from './worker-backlog.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // The history and per-case challenge data can exceed execSync's 1 MiB default.
@@ -24,6 +25,11 @@ export function escapeJsonForScript(json) {
 }
 
 export function injectDashboardData(template, data, queueData, commit) {
+  const reservations = JSON.parse(data)?.workerReservations, queue = JSON.parse(queueData);
+  if (reservations && queue) {
+    queue.workerWork = workerWork(reservations, queue);
+    queueData = JSON.stringify(queue);
+  }
   // Use replacer callbacks because JSON can contain `$'`, `$&`, and other
   // replacement-pattern sequences that String.replace() would interpret.
   const html = template

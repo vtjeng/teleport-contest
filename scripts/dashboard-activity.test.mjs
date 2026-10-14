@@ -3,8 +3,22 @@ import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 
 import { activityTimeline, activityUtilization, mainIntegrationDurations, agentStages, syntheticGainByCommit } from './dashboard-activity.mjs';
-import { activityFromLedger, developmentFromCheckpoint, mergeActivity } from './dashboard-snapshot.mjs';
+import { activityFromLedger, developmentFromCheckpoint, mergeActivity, reservationSnapshot } from './dashboard-snapshot.mjs';
 import {createLedger, recordEvent} from './worker-state.mjs';
+
+test('public reservations retain pending ownership without exposing private worker or delivery fields', () => {
+  // Ready source work remains reserved; accepted source and Prep are not assignable source owners.
+  const source = {id: 'A1', kind: 'implementation', status: 'ready', worker: 'A', seed: 'synthetic/v1/case',
+    reservations: ['source:spell.c:cast'], worktree: '/private/worktree', deliveries: ['private-packet']};
+  const state = {tasks: {A1: source, A0: {...source, id: 'A0', status: 'accepted'},
+    Prep1: {...source, id: 'Prep1', kind: 'challenge-preparation'}},
+    reservations: {'source:spell.c:cast': {tasks: ['A1'], worker: 'A'},
+      'challenge-batch:v2': {tasks: ['Prep1']}, 'source:spell.c:old': {tasks: ['A0']}}};
+  const result = reservationSnapshot(state);
+  assert.deepEqual(Object.keys(result.tasks), ['A1']);
+  assert.deepEqual(result.reservations, {'source:spell.c:cast': {tasks: ['A1']}});
+  assert.doesNotMatch(JSON.stringify(result), /private|worktree|deliveries/u);
+});
 
 test('a shared Prep run stays in every task lifespan but counts once in Main timing', () => {
   // Two tasks share the same five-minute hosted attempt; neither is a second CPU/elapsed sample.

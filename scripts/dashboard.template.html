@@ -1102,6 +1102,19 @@ document.getElementById('stats').innerHTML = [
     .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const queueRows = QUEUE?.sessions || [];
   const queueById = new Map(queueRows.map(row => [row.session, row]));
+  const unavailable = new Map((QUEUE?.workerWork?.unavailable || []).map(row => [row.session, row]));
+  const taskState = {working: 'In progress', ready: 'Submitted—awaiting Main',
+    integrating: 'Integration and checks', validated: 'Awaiting acceptance',
+    'changes-required': 'Needs correction', parked: 'Parked—needs recheck'};
+  const owners = row => (unavailable.get(row.id)?.blockedBy || [])
+    .map(id => DATA.workerReservations?.tasks[id]).filter(Boolean);
+  const workStatus = row => {
+    const tasks = owners(row);
+    if (!tasks.length) return null;
+    if (tasks.every(task => task.status === 'ready')) return tasks.some(task => task.seed === row.id
+      || task.reservations.includes('session:' + row.id)) ? 'Submitted—awaiting Main' : 'Reserved by submitted work';
+    return tasks.map(task => taskState[task.status] || 'Reserved').filter((state, i, all) => all.indexOf(state) === i).join('; ');
+  };
   const metricComplete = result => result?.passed === true && !result.error
     && ['screens', 'rng', 'cursors'].every(key => Number.isFinite(result[key]?.matched)
       && result[key].matched === result[key].total);
@@ -1135,6 +1148,9 @@ document.getElementById('stats').innerHTML = [
     + development.length + ' development sessions remaining · '
     + remainingSynthetic + ' of ' + actionableSynthetic.length + ' synthetic sessions remaining'
     + (excludedCount ? ' · ' + excludedCount + ' excluded' : '')
+    + (QUEUE?.workerWork?.status === 'available' ? ' · '
+      + QUEUE.workerWork.candidateGroups + ' candidate group'
+      + (QUEUE.workerWork.candidateGroups === 1 ? '' : 's') + ' available' : '')
     + (DATA.developmentSessions ? ' · development measured at '
       + DATA.developmentSessions.executionCommit.slice(0, 8) : '');
   const notices = [];
@@ -1166,11 +1182,16 @@ document.getElementById('stats').innerHTML = [
       + esc(row.exclusion.reason) + '</p>';
     const q = row.queue;
     if (!q) return row.outcome ? '<p>' + esc(row.outcome) + '</p>' : '';
+    const ownership = owners(row);
+    const reserved = ownership.length ? '<p>Not available for assignment. '
+      + ownership.map(task => 'Task ' + esc(task.id) + ' · Worker '
+        + esc(task.worker === 'A2' ? 'A' : task.worker) + ' · '
+        + esc(taskState[task.status] || 'Reserved')).join('; ') + '.</p>' : '';
     const finding = q.investigation?.result?.summary;
     const remaining = q.corpus === 'fixed'
       ? 'At most ' + fmtN(q.remainingScreensUpperBound) + ' later screens may be affected.'
       : fmtN(q.remainingScreens) + ' screens currently unmatched.';
-    return '<div class="session-finding"><p>First mismatch: '
+    return reserved + '<div class="session-finding"><p>First mismatch: '
       + esc(q.kind) + (q.step == null ? '' : ' at step ' + q.step) + '. ' + remaining + '</p>'
       + (finding ? '<p>' + esc(finding) + '</p>' : '') + '</div>';
   };
@@ -1196,6 +1217,7 @@ document.getElementById('stats').innerHTML = [
         row.change == null ? '—' : fmtDelta(row.change)];
       const status = row.exclusion ? 'Excluded'
         : row.complete ? '<span role="img" aria-label="Matched">✅</span>'
+        : workStatus(row) ? esc(workStatus(row))
         : '<span role="img" aria-label="Remaining">🔧</span>';
       const details = detail(row);
       const name = details

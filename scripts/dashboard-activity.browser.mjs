@@ -43,6 +43,31 @@ try {
     assert.match(summary, /Submitted batches awaiting Main:/u);
     for (const batch of submittedBatches) assert.ok(summary.includes(batch), 'submitted batch is visible without opening Details: ' + batch);
   }
+  const reservedRows = page.locator('#challengeTable tbody tr').filter({hasText: 'Not available for assignment.'});
+  if (await reservedRows.count()) {
+    const row = reservedRows.first(), summary = row.locator('summary').first();
+    await row.scrollIntoViewIfNeeded();
+    const widths = () => page.locator('#challengeTable thead th').evaluateAll(cells =>
+      cells.map(cell => cell.getBoundingClientRect().width));
+    const before = await widths();
+    await summary.click();
+    assert.match(await row.innerText(), /Not available for assignment[\s\S]*Task .*Worker/u);
+    assert.deepEqual(await widths(), before, 'ownership details must not shift table columns');
+    await summary.focus(); await summary.press('Space');
+    assert.ok(await summary.evaluate(element => document.activeElement === element));
+    // Scrub from desktop through the existing table/cards transition to phone.
+    for (const width of [900, 720, 620, 400]) {
+      await page.setViewportSize({width, height: 1000});
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false,
+        'ownership labels must not cause horizontal overflow at ' + width);
+    }
+    const card = page.locator('#challengeCards details').filter({hasText: 'Not available for assignment.'}).first();
+    await card.scrollIntoViewIfNeeded(); await card.locator('summary').click();
+    assert.match(await card.innerText(), /Task .*Worker/u);
+    await card.locator('summary').click();
+    await page.setViewportSize({width: 1440, height: 1200});
+    console.log('Session ownership: desktop/mobile labels, stable columns and pointer/keyboard details passed.');
+  }
   if (screenshot) await pending.locator('..').screenshot({ path: screenshot.replace(/\.png$/u, '-backlog.png') });
   assert.equal(await page.getByRole('heading', { name: 'Worker timeline', exact: true }).count(), 1);
   const durationCharts = [durationChart];
