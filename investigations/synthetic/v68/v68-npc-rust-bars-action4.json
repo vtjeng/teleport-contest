@@ -1,0 +1,52 @@
+{
+  "session": "synthetic/v68/v68-npc-rust-bars-action4",
+  "corpus": "synthetic",
+  "batch": "v68",
+  "caseId": "v68-npc-rust-bars-action4",
+  "manifestPath": "challenges/manifests/v68.json",
+  "manifestSha256": "f24f70ec92301004f8c070fdf94a3a2d318a19231ca193ce52e888320beaaa3e",
+  "recordingPath": "challenges/cases/v68/v68-npc-rust-bars-action4.session.json",
+  "recordingSha256": "153e449cd96be46e75a1a54ed2b1bb82538bfb1659a7d02bfa4372626d6cc3a9",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v68.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "remainingScreens": 105,
+  "recordedSteps": 545,
+  "status": "investigating",
+  "mismatch": {
+    "session": "synthetic/v68/v68-npc-rust-bars-action4",
+    "batch": "v68",
+    "caseId": "v68-npc-rust-bars-action4",
+    "remainingScreens": 105,
+    "recordingPath": "challenges/cases/v68/v68-npc-rust-bars-action4.session.json"
+  },
+  "summary": "The rust monster reaches an iron-bars square that C has already admitted through mon.c:mfndpos's ALLOW_BARS rule, but the JavaScript simple-action preflight rejects the same destination before monmove.c:postmov can execute its AD_RUST bar-dissolving branch. The replay matches 440 screens/cursors and 3000 RNG calls, then stops at segment 0 step 440 on key l with UnsupportedTurnBoundaryError: mfndpos() door or special terrain movement. The existing JavaScript mfndpos and postmov implementations already contain the relevant bar filtering and dissolution behavior; the missing branch is in unported_monster_actions.js's duplicate destination admission gate.",
+  "source": {
+    "file": "monmove.c",
+    "branch": "mon.c:mfndpos admits IRONBARS only when ALLOW_BARS is set and the bar-specific attack/diggability conditions pass. monmove.c:postmov then checks the monster's actual destination; an eligible AD_RUST, AD_CORR, or metallivorous monster emits the C message, calls dissolve_bars, and returns MMOVE_DONE.",
+    "functions": [
+      "mfndpos",
+      "postmov",
+      "dissolve_bars"
+    ],
+    "callers": [
+      "monmove.c:m_move",
+      "monmove.c:m_move -> mon.c:mfndpos",
+      "monmove.c:m_move -> monmove.c:postmov",
+      "js/unported_monster_actions.js:admitSimpleDestinationAndRegion"
+    ],
+    "dependencies": [
+      "mon.c:mon_allowflags",
+      "mon.c:mfndpos ALLOW_BARS",
+      "monmove.c:dissolve_bars"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The v68 manifest identifies the source path as mon.c mfndpos ALLOW_BARS -> monmove.c postmov IRONBARS AD_RUST -> dissolve_bars. Its case recipe builds bars on an actual floor, places a hostile rust monster, transforms it to a cave spider to cross the barrier, then restores the rust-monster form so the NPC reaches the bars.",
+    "The admitted v68 evaluation's saved comparison has C totals of 545 screens/cursors and 3084 RNG calls versus JavaScript's 440 screens/cursors and 3000 RNG calls. The first missing C screen and RNG call are at segment 0 step 440, key l; C's next RNG call is rn2(5)=2 from distfleeck(monmove.c:538).",
+    "Upstream mon.c:2109 sets ALLOW_BARS for the relevant passes-bars condition; mon.c:2226 applies the bar-specific mfndpos filter. js/mon.js:2136 and js/monmove.js:1449 already port those respective decisions.",
+    "Upstream monmove.c:1624-1632 handles an IRONBARS destination. For an eligible rust/corrosive/metallivorous monster and diggable bars, it prints the eats-through-bars message, calls dissolve_bars, and returns MMOVE_DONE. js/monmove.js already implements that behavior and dissolve_bars.",
+    "In js/unported_monster_actions.js:1013-1023, admitSimpleDestinationAndRegion accepts ordinary room terrain, corridor, doors, passwall, digging, and liquid destinations, but omits IRONBARS. Because this callback runs after the implemented mfndpos has already selected the square, refusing every bar square here suppresses the source's later postmov behavior. The source filter and action remain intact; this is a missing preflight admission case.",
+    "No JavaScript replay or new C recording was launched during the Root validation hold. The admitted C recording and evaluation provide the diagnosis; the next step is a focused source-aligned planner correction and test, followed by committed-tree range evidence when validation is released."
+  ]
+}
