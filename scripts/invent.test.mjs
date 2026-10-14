@@ -19,6 +19,24 @@ const INVENT_C = readFileSync(
 );
 const INVENT_JS = readFileSync('js/invent.js', 'utf8');
 
+test('look_here imports and uses the C ice-decoration constant', () => {
+    const cStart = INVENT_C.indexOf('look_here(\n');
+    const cEnd = INVENT_C.indexOf('\n}\n', cStart);
+    const jsStart = INVENT_JS.indexOf('export async function look_here(');
+    const jsEnd = INVENT_JS.indexOf('\n}', jsStart);
+    const cFunction = INVENT_C.slice(cStart, cEnd);
+    const jsFunction = INVENT_JS.slice(jsStart, jsEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart, 'C look_here source range exists');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart, 'JS look_here source range exists');
+    assert.match(cFunction,
+        /SURFACE_AT\(u\.ux, u\.uy\) == ICE[\s\S]*?if \(!flags\.mention_decor \|\| iflags\.prev_decor == ICE\)/u);
+    assert.match(jsFunction,
+        /is_ice\(ux, uy, state\)[\s\S]*?state\.iflags\?\.prev_decor === ICE/u);
+    assert.match(INVENT_JS,
+        /import \{[^}]*\bICE,[^}]*\} from '\.\/const\.js';/su);
+});
+
 test('invent.c altar descriptions use the hero-square a_gname wrapper', () => {
     const cStart = INVENT_C.indexOf(
         'dfeature_at(coordxy x, coordxy y, char *buf)',
