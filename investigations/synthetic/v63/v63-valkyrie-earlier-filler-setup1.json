@@ -1,0 +1,141 @@
+{
+  "session": "synthetic/v63/v63-valkyrie-earlier-filler-setup1",
+  "remainingScreens": 24,
+  "recordedSteps": 265,
+  "corpus": "synthetic",
+  "batch": "v63",
+  "caseId": "v63-valkyrie-earlier-filler-setup1",
+  "manifestPath": "challenges/manifests/v63.json",
+  "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+  "recordingSha256": "57cc660f9976771428cf7e64db767607f4eb207018d873a518ca98b8687c1bcc",
+  "evaluationPath": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
+  "evaluationCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+  "status": "complete",
+  "commit": "4f62211bbb1e10d19554916b076a07ba320b6e17",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v63",
+    "caseId": "v63-valkyrie-earlier-filler-setup1",
+    "session": "synthetic/v63/v63-valkyrie-earlier-filler-setup1",
+    "manifestPath": "challenges/manifests/v63.json",
+    "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+    "recording": "challenges/cases/v63/v63-valkyrie-earlier-filler-setup1.session.json",
+    "recordingPath": "challenges/cases/v63/v63-valkyrie-earlier-filler-setup1.session.json",
+    "recordingSha256": "57cc660f9976771428cf7e64db767607f4eb207018d873a518ca98b8687c1bcc",
+    "recipe": "challenges/cases/v63/v63-valkyrie-earlier-filler-setup1.recipe.session.json",
+    "recipeSha256": "229a94c2fd40d7e4f6603c233ce66dfb6222015036f34297e82482e3db9bfe1f",
+    "replayInputSha256": "5d8a0d424bda8035238c89e2c08d6d84d98eb2706d483f4c492b6ead514f832f",
+    "evaluationPath": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
+    "evaluationCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+    "evaluationArtifact": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
+    "evaluationUtc": "2026-10-14T02:54:25.085Z",
+    "remainingScreens": 24,
+    "recordedSteps": 265,
+    "previousScreensMatched": 241,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 241,
+        "total": 265
+      },
+      "rng": {
+        "matched": 4742,
+        "total": 6712
+      },
+      "cursors": {
+        "matched": 248,
+        "total": 265
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 241,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 241,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 1,
+        "column": 0,
+        "cCell": {
+          "ch": ".",
+          "color": 6,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 4734,
+        "cEntry": "rn2(3)=0",
+        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+        "jsEntry": "rn2(5)=4",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 241,
+          "key": "\n"
+        },
+        "stepIndex": 241
+      },
+      "cursor": {
+        "index": 241,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 241,
+          "key": "\n"
+        },
+        "cCursor": [
+          9,
+          13,
+          1
+        ],
+        "jsCursor": [
+          75,
+          18,
+          1
+        ]
+      }
+    },
+    "step": 241,
+    "kind": "rng",
+    "sourceFile": "nhlib.lua",
+    "function": "shuffle",
+    "message": null,
+    "cFile": null,
+    "luaFile": "nhlib.lua",
+    "line": 19,
+    "helper": {
+      "function": "random",
+      "luaFile": "nhlib.lua",
+      "line": 8
+    }
+  },
+  "summary": "The role-specific Valkyrie earlier filler program Val-fila.lua is absent from QUEST_LEVEL_LOADERS. Above Val-loca, mklev.c:makelevel selects Val-fila and routes through makemaz/load_special; JavaScript therefore generates a generic level instead of applying the ice-themed Mines cavern, stairs, objects, monsters, and traps.",
+  "source": {
+    "file": "Val-fila.lua",
+    "branch": "In the Valkyrie quest above Val-loca, mklev.c:makelevel selects the earlier filler name Val-fila; its special-level loader must execute the complete program.",
+    "functions": [
+      "Val-fila.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special",
+      "js/mklev.js:makelevel -> makemaz -> load_special via QUEST_LEVEL_LOADERS"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "nethack-c/upstream/dat/Val-fila.lua:1-40 defines a solid-fill iced Mines level with mazelevel/icedpools/noflip flags, up/down stairs, nine random objects, five fire ants, one a-class monster, one hostile fire giant, and seven random traps in source order.",
+    "nethack-c/upstream/src/mklev.c:1275-1285 selects role-specific quest filler proto names from filecode and depth. js/mklev.js:756-770 mirrors this selection and dispatches registered programs through makemaz/load_special.",
+    "js/quest_levels.js:3270-3330 holds QUEST_LEVEL_LOADERS; it includes Val-loca and Val-strt but no Val-fila entry. Existing Val level registrations show this is a missing complete Lua program rather than an unported shared caller.",
+    "Accepted v63 baseline artifact reports v63-valkyrie-earlier-filler-setup1 at 241/265 screens, 4742/6712 RNG calls, and 248/265 cursors, with no runtime error. The first mismatch is at segment 0, step 241 while the C and JavaScript RNG paths diverge during level randomization."
+  ]
+}
