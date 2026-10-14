@@ -1,0 +1,49 @@
+{
+  "session": "synthetic/v65/v65-runtime-customsymbols-reset-action1",
+  "corpus": "synthetic",
+  "batch": "v65",
+  "caseId": "v65-runtime-customsymbols-reset-action1",
+  "remainingScreens": 2,
+  "recordedSteps": 10,
+  "manifestPath": "challenges/manifests/v65.json",
+  "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+  "recordingSha256": "ef1138e95cec4ec0ed4af3b34c602e6df009c1e7da5355bc90a3fb3b86cf7012",
+  "evaluationPath": "challenges/evaluations/accepted-095108659186c34ffbff02f40aec70be90dd4e8e-v65.json",
+  "evaluationCommit": "095108659186c34ffbff02f40aec70be90dd4e8e",
+  "status": "complete",
+  "commit": "9d45d4777a4f08c07e29a8b148cd622b98a7fc87",
+  "mismatch": {
+    "session": "synthetic/v65/v65-runtime-customsymbols-reset-action1",
+    "remainingScreens": 2,
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 8,
+      "message": "unsupported hero command: an unported branch of this command: the options menu requires reset_customsymbols()"
+    },
+    "kind": "stop",
+    "sourceFile": "utf8map.c",
+    "function": "reset_customsymbols"
+  },
+  "summary": "The options menu changes the customsymbols setting and sets go.opt_reset_customsymbols. C then calls utf8map.c:reset_customsymbols() before redrawing the map. JavaScript stops at the option key because reset_needed_visuals() still throws for that call.",
+  "source": {
+    "file": "utf8map.c",
+    "functions": [
+      "free_all_glyphmap_u",
+      "reset_customsymbols"
+    ],
+    "branch": "With ENHANCED_SYMBOLS enabled, options.c:optfn_boolean() sets go.opt_reset_customsymbols when the customsymbols option changes. options.c:reset_needed_visuals() calls reset_customsymbols() before docrt(); reset_customsymbols() clears every glyph's Unicode representation, clears the corresponding cached references, and reapplies symbol customizations for gc.currentgraphics.",
+    "callers": [
+      "options.c:reset_needed_visuals() consumes go.opt_reset_customsymbols and calls reset_customsymbols() before docrt().",
+      "options.c:doset() and doset_simple() call reset_needed_visuals() after an option selection."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The v65 queue entry and the recorded session identify step 8 as the first mismatch. The preceding inputs open the options menu and move to its Map page; key d selects customsymbols.",
+    "Upstream options.c:optfn_boolean() sets go.opt_reset_customsymbols for opt_customsymbols. options.c:reset_needed_visuals() then calls utf8map.c:reset_customsymbols() and docrt() in that order.",
+    "Upstream utf8map.c:free_all_glyphmap_u() clears glyphmap[glyph].u and each gg.gbuf[y][x].glyphinfo.gm.u reference. reset_customsymbols() calls that helper, then calls apply_customizations(gc.currentgraphics, do_custom_symbols).",
+    "JavaScript js/options.js:reset_needed_visuals() currently throws UnsupportedOptionMenuError('reset_customsymbols()') instead of calling the C behavior. A fresh differential of the admitted v65 recipe matched all 2378 RNG calls, but stopped after C produced 10 screens and JavaScript produced 8; the first missing boundary followed key d. The log is .cache/C-customsymbols-target-fresh.log.",
+    "The neighboring v65 customcolors case exercises glyphs.c:reset_customcolors(), which clears and reapplies color overrides. It does not cover utf8map.c's Unicode-symbol reset path."
+  ]
+}
