@@ -136,6 +136,7 @@ import {
     capitalizedMonsterName,
     hcolor,
     monsterCommonName,
+    mon_nam,
     monverbself,
     rndmonnam,
     x_monnam,
@@ -190,7 +191,7 @@ import * as O from './objects.js';
 import { an, ansimpleoname, distant_name, donameFresh, is_plural,
     simpleonames, singular, the, vtense, xnameFresh } from './objnam.js';
 import { discover_object, objdescr_is, observe_object } from './o_init.js';
-import { accessible, monflee, mon_would_take_item, monnear, onscary, youHear } from './monmove.js';
+import { accessible, closed_door, monflee, mon_would_take_item, monnear, onscary, youHear } from './monmove.js';
 import { lined_up, linedup_callback, m_useup } from './mthrowu.js';
 import { encumber_msg, removed_from_icebox } from './pickup.js';
 import { in_your_sanctuary } from './priest.js';
@@ -2853,24 +2854,34 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         const isCursed = Boolean(otmp.cursed);
         const isBlessed = Boolean(otmp.blessed);
 
-        await mreadmsg(mtmp, otmp, state);
+        // The elapsed-turn preflight executes this action against a planning
+        // clone. Pass its message owner through every Earth message so the
+        // dry run cannot write to the shared live TTY.
+        await mreadmsg(mtmp, otmp, state, env);
+        const message = env.message ?? ttyPline;
         if (canseemon(mtmp, state)) {
-            await ttyPline(
+            await message(
                 `The ${ceiling(mtmp.mx, mtmp.my, state)} rumbles `
                     + `${isBlessed ? 'around' : 'above'} `
                     + `${mon_nam(mtmp, state)}!`,
                 state,
             );
-            if (oseen) discover_object(otmp.otyp, true, true, true, state);
+            if (oseen)
+                discover_object(
+                    otmp.otyp, true, true, true, state, { ...env, random },
+                );
         } else if (cansee(mtmp.mx, mtmp.my, state)) {
-            await ttyPline(
+            await message(
                 `The ${ceiling(mtmp.mx, mtmp.my, state)} rumbles `
                     + 'in the middle of nowhere!',
                 state,
             );
             if (mtmp.minvis)
                 map_invisible(mtmp.mx, mtmp.my, state);
-            if (oseen) discover_object(otmp.otyp, true, true, true, state);
+            if (oseen)
+                discover_object(
+                    otmp.otyp, true, true, true, state, { ...env, random },
+                );
         }
 
         // The scroll must leave inventory before a fatal boulder drops.
@@ -2884,13 +2895,13 @@ export async function use_offensive(mtmp, rawEnv = {}) {
                 if (!(center ? !isBlessed : !isCursed)) continue;
                 if (x === state.u.ux && y === state.u.uy) continue;
                 await drop_boulder_on_monster(
-                    x, y, confused, false, { state },
+                    x, y, confused, false, { ...env, state, random },
                 );
             }
         }
         if (distmin(mmx, mmy, state.u.ux, state.u.uy) === 1 && !isCursed) {
             await drop_boulder_on_player(
-                confused, !isCursed, false, true, { state },
+                confused, !isCursed, false, true, { ...env, state, random },
             );
         }
         return mtmp.mhp < 1 ? 1 : 2;

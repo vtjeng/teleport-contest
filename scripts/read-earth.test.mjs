@@ -56,6 +56,31 @@ test('a by-you earth boulder uses the source monster-kill path', () => {
         < jsFunction.indexOf('await wake_nearto(x, y, 4 * 4'),
     'kill cleanup remains before the source-ordered nearby-monster wakeup');
     assert.match(jsFunction,
-        /else\s*\{\s*await ttyPline\([\s\S]*?note_unported\('mon\.c mondied'\);/u,
+        /const\s+message\s*=\s*rawEnv\.message\s*\?\?\s*ttyPline/u,
+    'monster-turn planning routes Earth messages through its silent owner');
+    assert.match(jsFunction,
+        /const\s+redraw\s*=\s*rawEnv\.redraw\s*\?\?\s*rawEnv\.newsym\s*\?\?\s*\(rawEnv\.planning\s*\?\s*\(\)\s*=>\s*\{\}\s*:\s*newsym\)/u,
+    'planned boulder placement cannot repaint the live global map');
+    assert.match(jsFunction,
+        /else\s*\{\s*await message\([\s\S]*?note_unported\('mon\.c mondied'\);/u,
     'the separate non-player mondied gap remains visible');
+});
+
+test('Earth boulder planning keeps messages and redraws off the live display', () => {
+    for (const name of ['drop_boulder_on_player', 'drop_boulder_on_monster']) {
+        const cFunction = readSource.match(
+            new RegExp(`(?:boolean|void)\\s+${name}\\([^)]*\\)\\s*\\{([\\s\\S]*?)\\n\\}`, 'u'),
+        )?.[1];
+        const jsFunction = readJavascript.match(
+            new RegExp(`export async function ${name}\\([^)]*\\)\\s*\\{([\\s\\S]*?)\\n\\}`, 'u'),
+        )?.[1];
+        assert.ok(cFunction, `read.c ${name} source is present`);
+        assert.ok(jsFunction, `js/read.js ${name} is present`);
+        assert.match(jsFunction,
+            /const\s+message\s*=\s*rawEnv\.message\s*\?\?\s*ttyPline/u,
+        `${name} uses the caller's source-message owner`);
+        assert.match(jsFunction,
+            /const\s+redraw\s*=\s*rawEnv\.redraw\s*\?\?\s*rawEnv\.newsym\s*\?\?\s*\(rawEnv\.planning\s*\?\s*\(\)\s*=>\s*\{\}\s*:\s*newsym\)/u,
+        `${name} suppresses live map redraw during clone planning`);
+    }
 });

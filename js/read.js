@@ -2307,6 +2307,12 @@ export async function drop_boulder_on_player(
     rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
+    // Earth actions also run against a cloned state during monster-turn
+    // preflight. Keep their messages on that caller's output path and prevent
+    // the clone from repainting the live display through display.js:newsym().
+    const message = rawEnv.message ?? ttyPline;
+    const redraw = rawEnv.redraw ?? rawEnv.newsym
+        ?? (rawEnv.planning ? () => {} : newsym);
     const random = rawEnv.random ?? { rn1, rn2, rnd, rne };
     const env = objectGenerationEnv({ ...rawEnv, state, random });
 
@@ -2330,17 +2336,17 @@ export async function drop_boulder_on_player(
     const species = state.youmonst?.data;
     if (!amorphous(species) && !passes_walls(species)
         && !noncorporeal(species) && !unsolid(species)) {
-        await ttyPline(`You are hit by ${donameFresh(rock, state)}!`, state);
+        await message(`You are hit by ${donameFresh(rock, state)}!`, state);
         damage = Math.trunc(dmgval(rock, state.youmonst, state, env)
             * rock.quan);
         if (state.uarmh && helmetProtects) {
             if (hard_helmet(state.uarmh, state)) {
-                await ttyPline(
+                await message(
                     'Fortunately, you are wearing a hard helmet.', state,
                 );
                 if (damage > 2) damage = 2;
             } else if (state.flags?.verbose) {
-                await ttyPline(
+                await message(
                     `${Yname2(state.uarmh, state)} does not protect you.`,
                     state,
                 );
@@ -2354,7 +2360,7 @@ export async function drop_boulder_on_player(
     if (!await flooreffects(rock, state.u.ux, state.u.uy, 'fall', env)) {
         place_object(rock, state.u.ux, state.u.uy, env);
         stackobj(rock, env);
-        newsym(state.u.ux, state.u.uy, state);
+        redraw(state.u.ux, state.u.uy, state);
     }
     if (damage) {
         const halfPhysical = state.u?.uprops?.[HALF_SPDAM];
@@ -2372,6 +2378,11 @@ export async function drop_boulder_on_monster(
     rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
+    // Match drop_boulder_on_player(): planning changes stay on the cloned
+    // state and must not repaint the live map or message window.
+    const message = rawEnv.message ?? ttyPline;
+    const redraw = rawEnv.redraw ?? rawEnv.newsym
+        ?? (rawEnv.planning ? () => {} : newsym);
     const random = rawEnv.random ?? { rn1, rn2, rnd, rne };
     const env = objectGenerationEnv({ ...rawEnv, state, random });
     const rock = mksobj(confused ? ROCK : BOULDER, false, false, env);
@@ -2386,7 +2397,7 @@ export async function drop_boulder_on_monster(
         const helmet = which_armor(monster, W_ARMH, state);
         let damage;
         if (cansee(x, y, state)) {
-            await ttyPline(
+            await message(
                 `${Monnam(monster, state)} is hit by `
                     + `${donameFresh(rock, state)}!`,
                 state,
@@ -2400,25 +2411,25 @@ export async function drop_boulder_on_monster(
                     + `${body_part(HEAD, state.youmonst)}!`,
                 state,
             );
-            if (line) await ttyPline(line, state);
+            if (line) await message(line, state);
         }
 
         damage = Math.trunc(dmgval(rock, monster, state, env) * rock.quan);
         if (helmet) {
             if (hard_helmet(helmet, state)) {
                 if (canspotmon(monster, state)) {
-                    await ttyPline(
+                    await message(
                         `Fortunately, ${mon_nam(monster, state)} is wearing `
                             + 'a hard helmet.',
                         state,
                     );
                 } else {
                     const line = youHear('a clanging sound.', state);
-                    if (line) await ttyPline(line, state);
+                    if (line) await message(line, state);
                 }
                 if (damage > 2) damage = 2;
             } else if (canspotmon(monster, state)) {
-                await ttyPline(
+                await message(
                     `${Monnam(monster, state)}'s ${xnameFresh(helmet, state)} `
                         + `does not protect ${mhim(monster, { state })}.`,
                     state,
@@ -2430,7 +2441,7 @@ export async function drop_boulder_on_monster(
             if (byu) {
                 await killed(monster, state, env);
             } else {
-                await ttyPline(`${Monnam(monster, state)} is killed.`, state);
+                await message(`${Monnam(monster, state)} is killed.`, state);
                 note_unported('mon.c mondied');
             }
         } else {
@@ -2448,7 +2459,7 @@ export async function drop_boulder_on_monster(
     if (!await flooreffects(rock, x, y, 'fall', env)) {
         place_object(rock, x, y, env);
         stackobj(rock, env);
-        newsym(x, y, state);
+        redraw(x, y, state);
     }
     return true;
 }

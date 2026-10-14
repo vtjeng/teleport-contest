@@ -55,14 +55,16 @@
     "luaFile": null,
     "line": 1903
   },
-  "summary": "A hostile dwarf wearing a hard helmet reads a scroll of earth. The first JavaScript failure occurs when muse.c:use_offensive formats the visible reader's rumble message with mon_nam; js/muse.js calls mon_nam without importing it.",
+  "summary": "The original step-581 failure was the missing mon_nam import in muse.c:use_offensive. After that import was restored, exact replay exposed two more defects in the same Earth action: discover_object used live RNG instead of the planning clone's stream, and planning messages/redraws from the Earth boulder helpers leaked into the live display. The admitted replay now matches all 632 screens, cursors and 2,965 RNG calls.",
   "source": {
     "file": "muse.c",
-    "branch": "In MUSE_SCR_EARTH, use_offensive calls mreadmsg, then the canspotmon branch prints the ceiling rumble message with mon_nam(mtmp). The JS branch follows the same order and arguments but its module import list omits mon_nam.",
-    "functions": ["use_offensive"],
+    "branch": "In MUSE_SCR_EARTH, use_offensive calls mreadmsg, identifies the scroll, prints the ceiling rumble, consumes it and drops boulders. The JS implementation now forwards the caller's message and random owners. Its planning pass simulates that complete action against a cloned level; read.c's drop_boulder_on_player and drop_boulder_on_monster therefore receive the planner's message/redraw owners so a clone cannot print or repaint the shared live display.",
+    "functions": ["use_offensive", "drop_boulder_on_player", "drop_boulder_on_monster"],
     "callers": [
       "muse.c:muse -> use_offensive",
-      "js/muse.js:muse -> use_offensive"
+      "js/muse.js:muse -> use_offensive",
+      "muse.c:use_offensive -> read.c:drop_boulder_on_monster",
+      "muse.c:use_offensive -> read.c:drop_boulder_on_player"
     ],
     "dependencies": []
   },
@@ -70,6 +72,22 @@
   "evidence": [
     "Read nethack-c/upstream/src/muse.c:1824-2032. In the MUSE_SCR_EARTH branch at lines 1899-1905, use_offensive calls mreadmsg, then formats the visible reader's ceiling-rumble message with mon_nam(mtmp).",
     "Read js/muse.js:2658-2870. Its corresponding branch awaits mreadmsg and uses mon_nam(mtmp, state) at line 2861, but the do_name.js import list omits mon_nam. The ReferenceError at step 581 is therefore an unresolved imported binding in an otherwise corresponding source branch.",
-    "The admitted evaluation's stopped replay records 581 matching screens/cursors and 2939 matching RNG calls before the error at step 581. The case exercises the production path through muse -> use_offensive -> MUSE_SCR_EARTH with a visible monster reader."
-  ]
+    "The original diagnosis is preserved above: the admitted stopped replay had 581 matching screens/cursors before ReferenceError(mon_nam) at step 581.",
+    "After importing mon_nam, an exact replay first diverged at screen frame 582 and RNG call 2940. The RNG mismatch was read.js:o_init discover_object/exerciseAttribute in the planning clone: muse.c:use_offensive did not forward its caller's random context. Forwarding that existing random owner restores the exact 2,965-call RNG log.",
+    "Exact-step tracing showed the remaining frame-582 display mismatch came from the planning pass. use_offensive passed its raw planning environment to read.js, but the Earth branch called mreadmsg/ttyPline directly and the two read.c boulder helpers called newsym directly. Since planningState shares the TTY display while cloning the level, the planned helper repainted the live stair glyph from the original map; the actual pass painted the boulder later. The Earth branch now forwards its message owner, and both helpers route messages/redraws through the supplied planning-safe callbacks.",
+    "The focused test scripts/muse.test.mjs replays the admitted production entry point through muse -> use_offensive -> MUSE_SCR_EARTH -> both read.c boulder helpers. Exact comparison passes all 632 screens, 632 cursors, and 2,965 RNG calls; there is no mismatch or replay error. The run exercises both planning and live passes."
+  ],
+  "runtimeVerification": {
+    "batch": "v73",
+    "caseId": "v73-helmet-npc-earth-action5",
+    "segment": 0,
+    "fromStep": 0,
+    "throughStep": 631,
+    "screens": {"matched": 632, "total": 632},
+    "cursors": {"matched": 632, "total": 632},
+    "rng": {"matched": 2965, "total": 2965},
+    "firstMismatch": null,
+    "error": null,
+    "source": "muse.c:use_offensive -> read.c:drop_boulder_on_monster/drop_boulder_on_player"
+  }
 }

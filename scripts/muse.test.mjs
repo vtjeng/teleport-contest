@@ -40,6 +40,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 import { cloneIsaacContext, createCoreRandom } from '../js/rng.js';
 import {
     cures_stoning,
@@ -149,6 +150,20 @@ import {
     SHIELD_OF_REFLECTION,
     objects_globals_init,
 } from '../js/objects.js';
+
+// This admitted v73 case reaches muse.c:use_offensive with a visible Earth-scroll reader.
+test('muse.c use_offensive formats the admitted helmeted NPC Earth message', async () => {
+    const recording = JSON.parse(readFileSync(new URL(
+        '../challenges/cases/v73/v73-helmet-npc-earth-action5.session.json', import.meta.url,
+    ), 'utf8'));
+    const javascript = await runJsSession(recording, process.cwd());
+    const comparison = compareSessionOutputs(recording, javascript);
+    // These zero-based frames are the recorded scroll-read and Earth-impact messages.
+    assert.match(javascript.screens[581], /The dwarf reads a scroll labeled/);
+    assert.match(javascript.screens[582], /The ceiling rumbles above the dwarf!/);
+    assert.equal(javascript.error, null);
+    assert.equal(comparison.passed, true);
+});
 
 const MUSE_C = readFileSync(
     new URL('../nethack-c/upstream/src/muse.c', import.meta.url), 'utf8',
