@@ -74,7 +74,9 @@
     "message": null,
     "cFile": "zap.c",
     "luaFile": null,
-    "line": 5998
+    "line": 5998,
+    "session": "synthetic/v66/v66-monster-fire-scroll-cure-action9",
+    "remainingScreens": 139
   },
   "summary": "When a green-slime-form hero successfully slimes a monster that cures itself with a fire scroll, JavaScript consumes the scroll but skips the resulting fire explosion. C calls explode() from muse_unslime(); the skipped blast causes the downstream inventory-destruction RNG and screen mismatch.",
   "source": {
