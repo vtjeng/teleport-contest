@@ -3,11 +3,15 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    BAG_OF_HOLDING, CHEST, GOLD_PIECE, ICE_BOX, LARGE_BOX, LEASH,
-    SCR_IDENTIFY, TOOL_CLASS,
+    BAG_OF_HOLDING, BAG_OF_TRICKS, CHEST, GOLD_PIECE, ICE_BOX,
+    LARGE_BOX, LEASH, LONG_SWORD, SCR_IDENTIFY, TOOL_CLASS,
 } from '../js/objects.js';
 import {
+    AUTOUNLOCK_FORCE,
+    CQ_CANNED,
+    ECMD_OK,
     ECMD_TIME,
+    HALF_PHDAM,
     LEVITATION,
     OBJ_INVENT,
     P_RIDING,
@@ -24,6 +28,7 @@ import { isContainer, mksobj } from '../js/obj.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { rhack } from '../js/cmd.js';
 
 function loadLockedFloorBoxRecipe() {
     return JSON.parse(readFileSync(
@@ -253,6 +258,110 @@ test('#loot applies a lock pick to an ordinary locked floor box', async () => {
     assert.equal(state.u.dz, 0, 'do_loot_cont clears vertical direction');
     assert.equal(state.go?.occupation ?? null, null,
         'occupation ends after success');
+});
+
+test('#loot lets a floor bag of tricks bite and applies half physical damage',
+    async () => {
+        async function biteDamage(protectedByHalfPhysicalDamage) {
+            // heroOnCleanSquare() repeats the same seed and input-free setup,
+            // so both runs draw the same rnd(10) value for the bag's bite.
+            const state = await heroOnCleanSquare();
+            const bag = placeFloorObjects(state, [{ otyp: BAG_OF_TRICKS }]);
+            if (protectedByHalfPhysicalDamage) {
+                // A nonzero intrinsic source enables Half_physical_damage.
+                state.u.uprops[HALF_PHDAM].intrinsic = 1;
+            }
+            clearTtyMessageWindow(state);
+            // The two bite messages, damage feedback, and identification can
+            // each produce a --More--; unused dismissals remain test input.
+            for (let index = 0; index < 12; ++index)
+                state.nhDisplay.pushKey(' '.charCodeAt(0));
+            const hpBefore = state.u.uhp;
+
+            assert.equal(await doloot(state), ECMD_TIME,
+                'the carnivorous-bag branch spends a turn');
+            assert.equal(bag.lknown, 1,
+                'the floor container becomes known when opened');
+            assert.equal(state.ga.abort_looting, true,
+                'C stops processing further containers after the bite');
+            assert.equal(state.objects[BAG_OF_TRICKS].oc_name_known, 1,
+                'makeknown identifies the bag of tricks');
+            assert.equal(state.objects[BAG_OF_TRICKS].oc_encountered, 1,
+                'makeknown records that the bag type was encountered');
+            assert.match(state.nhDisplay.toplines,
+                /develops a huge set of teeth and bites you/u);
+            return hpBefore - state.u.uhp;
+        }
+
+        const damage = await biteDamage(false);
+        const halfDamage = await biteDamage(true);
+        assert.ok(damage > 0, 'rnd(10) produces positive bite damage');
+        // hack.h:1236 rounds odd physical damage upward when half damage is active.
+        assert.equal(halfDamage, Math.trunc((damage + 1) / 2));
+    });
+
+test('#loot queues #force only for a forceable weapon and one locked container',
+    async () => {
+        const state = await heroOnCleanSquare();
+        const chest = placeFloorObjects(state, [
+            { otyp: CHEST, olocked: 1 },
+        ]);
+        state.flags.autounlock = AUTOUNLOCK_FORCE;
+        // A long sword is a weapon whose C skill lies in the forceable range.
+        state.uwep = mksobj(LONG_SWORD, false, false, { state });
+        clearTtyMessageWindow(state);
+
+        assert.equal(await doloot(state), ECMD_OK,
+            'queueing #force itself does not spend the current command');
+        assert.equal(chest.lknown, 1,
+            'the locked container is identified before the force attempt');
+        assert.equal(state.ga.abort_looting, true,
+            'C stops this loot pass while the queued force command runs');
+        assert.equal(state.command_queue[CQ_CANNED].at(-1)?.ec_entry?.ef_funct,
+            'doforce', 'the canned extcmd resolves to lock.c:doforce');
+    });
+
+test('rhack dispatches the queued #force function before reading a command',
+    async () => {
+        const state = await heroOnCleanSquare();
+        placeFloorObjects(state, [{ otyp: CHEST, olocked: 1 }]);
+        state.flags.autounlock = AUTOUNLOCK_FORCE;
+        state.uwep = mksobj(LONG_SWORD, false, false, { state });
+        clearTtyMessageWindow(state);
+
+        assert.equal(await doloot(state), ECMD_OK);
+        assert.equal(state.command_queue[CQ_CANNED].length, 1);
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+        state.nhDisplay.pushKey('n'.charCodeAt(0));
+
+        await rhack(0, state);
+
+        assert.equal(state.command_queue[CQ_CANNED].length, 0,
+            'rhack consumes the queued extcmd');
+        assert.match(state.nhDisplay.toplines,
+            /You decide not to force the issue\./u,
+            'the queued row reaches lock.js:doforce and reads its answer');
+    });
+
+test('#loot autounlock force stays idle without a forceable weapon', async () => {
+    const state = await heroOnCleanSquare();
+    placeFloorObjects(state, [{ otyp: CHEST, olocked: 1 }]);
+    state.flags.autounlock = AUTOUNLOCK_FORCE;
+    // Valkyrie startup equips a long sword; remove it to exercise C's no-weapon gate.
+    state.uwep = null;
+    clearTtyMessageWindow(state);
+
+    assert.equal(await doloot(state), ECMD_OK,
+        'a locked container without a forceable weapon returns ECMD_OK');
+    assert.equal(state.ga.abort_looting, false,
+        'the C force gate does not abort looting without a weapon');
+    assert.equal(
+        (state.command_queue?.[CQ_CANNED] ?? []).some(
+            ({ ec_entry: entry }) => entry?.ef_funct === 'doforce',
+        ),
+        false,
+        'no #force command is queued without a forceable weapon',
+    );
 });
 
 test('doloot with a single locked chest (lknown=1) prints "is locked"',

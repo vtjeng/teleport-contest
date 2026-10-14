@@ -5732,6 +5732,16 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
+        // C ref: pickup.c:2144 queues lock.c:doforce() as a function
+        // pointer. rhack() dispatches that row directly before reading a key.
+        if (queuedExtcmdEntry?.ef_funct === 'doforce') {
+            const res = await doforce(state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
         // C ref: iactions.c itemactions_pushkeys() queues the doorganize
         // function pointer for IA_ADJUST_OBJ. Its ef_txt is "adjust", which
         // remains the command spelling used by can_do_extcmd(), but rhack()

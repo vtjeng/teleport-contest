@@ -36,9 +36,11 @@ import {
     ECMD_OK,
     ECMD_TIME,
     ECMD_CANCEL,
+    CQ_CANNED,
     EXT_ENCUMBER,
     FOOT,
     HALLUC,
+    HALF_PHDAM,
     IS_ALTAR,
     IS_THRONE,
     T_LOOTED,
@@ -131,11 +133,22 @@ import {
     is_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
-import { get_adjacent_loc, paranoid_ynq, yn_function } from './cmd.js';
+import {
+    cmdq_add_ec,
+    ext_func_tab_from_func,
+    get_adjacent_loc,
+    paranoid_ynq,
+    yn_function,
+} from './cmd.js';
 import { def_char_to_objclass } from './drawing.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
 import { container_contents } from './end.js';
-import { autokey, boxlock, pick_lock } from './lock.js';
+import {
+    autokey,
+    boxlock,
+    pick_lock,
+    u_have_forceable_weapon,
+} from './lock.js';
 import { bot, flush_screen, newsym, obj_to_glyph } from './display.js';
 import { hliquid } from './do_name.js';
 import { ceiling, surface, surface_typ } from './dungeon.js';
@@ -217,7 +230,7 @@ import { makemon_runtime } from './makemon_create.js';
 import { courtmon } from './mkroom.js';
 import { remove_worn_item } from './steal.js';
 import { hornoplenty } from './mkobj_hornoplenty.js';
-import { observe_object } from './o_init.js';
+import { discover_object, observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { regex_match } from './posixregex.js';
 import { in_rooms } from './rooms.js';
@@ -1855,9 +1868,8 @@ function mon_beside(x, y, state) {
     return false;
 }
 
-// C ref: pickup.c do_loot_cont() (2088-2162). Handles a single container
-// found on the floor. If locked, prints a message and sets lknown. If
-// unlocked, delegates to use_container(), which is the current boundary.
+// C ref: pickup.c do_loot_cont() (2088-2162). Handles one selected floor
+// container, including autounlock force and the BAG_OF_TRICKS bite.
 //
 // Covered: the locked-container message arm (both lknown true and false),
 // the lknown=1 assignment, and the delegation to use_container().
@@ -1866,7 +1878,7 @@ function mon_beside(x, y, state) {
 // the box to lock.c pick_lock().
 //
 // AUTOUNLOCK_UNTRAP delegates to the same complete pick_lock() selection
-// owner. AUTOUNLOCK_FORCE and BAG_OF_TRICKS bite remain outside this caller.
+// owner. The force branch queues lock.c:doforce() through the command list.
 async function do_loot_cont(cobj, cindex, ccount, state) {
     if (!cobj) return ECMD_OK;
 
@@ -1908,22 +1920,50 @@ async function do_loot_cont(cobj, cindex, ccount, state) {
 
                 return res;
             }
-            if ((autounlock & AUTOUNLOCK_FORCE) && ccount === 1) {
-                throw new UnsupportedPickupError(
-                    'do_loot_cont: autounlock force on container',
+            if ((autounlock & AUTOUNLOCK_FORCE)
+                && res !== ECMD_TIME
+                && ccount === 1
+                && u_have_forceable_weapon(state)) {
+                // pickup.c:2138-2144. The extcmd table routes this queued
+                // handler to the existing lock.js:doforce() implementation.
+                cmdq_add_ec(
+                    CQ_CANNED,
+                    ext_func_tab_from_func('doforce'),
+                    state,
                 );
+                state.ga.abort_looting = true;
             }
         }
         return ECMD_OK;
     }
     cobj.lknown = 1; /* floor container, no update_inventory() needed */
 
-    // pickup.c:2150-2159. The BAG_OF_TRICKS arm bites the hero and needs
-    // makeknown(), which is not imported.
+    // pickup.c:2150-2159. The floor bag of tricks bites before the ordinary
+    // use_container() prompt. makeknown() expands to discover_object().
     if (cobj.otyp === BAG_OF_TRICKS) {
-        throw new UnsupportedPickupError(
-            'do_loot_cont: BAG_OF_TRICKS carnivorous bag',
+        await ttyPline(
+            `You carefully open ${the(xnameFresh(cobj, state), state)}...`,
+            state,
         );
+        await ttyPline(
+            'It develops a huge set of teeth and bites you!',
+            state,
+        );
+        const damage = rnd(10);
+        const halfPhysicalDamage = state.u?.uprops?.[HALF_PHDAM];
+        const inflictedDamage = halfPhysicalDamage?.intrinsic
+            || halfPhysicalDamage?.extrinsic
+            // hack.h:1236 Maybe_Half_Phys() rounds odd damage upward.
+            ? Math.trunc((damage + 1) / 2) : damage;
+        await losehp(
+            inflictedDamage,
+            'carnivorous bag',
+            KILLED_BY_AN,
+            state,
+        );
+        discover_object(BAG_OF_TRICKS, true, true, true, state);
+        state.ga.abort_looting = true;
+        return ECMD_TIME;
     }
     // pickup.c:2161. use_container(cobjp, FALSE, cindex < ccount).
     const more_containers = cindex < ccount;
