@@ -16,7 +16,7 @@
 //         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/Kni-fila.lua, dat/Sam-fila.lua,
 //         dat/Rog-fila.lua,
 //         dat/Hea-fila.lua,
-//         dat/Hea-filb.lua, dat/Cav-filb.lua, dat/Ran-fila.lua,
+//         dat/Hea-filb.lua, dat/Cav-filb.lua, dat/Ran-fila.lua, dat/Val-fila.lua,
 //         dat/Mon-fila.lua, dat/Mon-filb.lua,
 //         dat/tower1.lua, dat/tower2.lua,
 //         dat/tower3.lua, dat/Val-strt.lua.
@@ -3115,6 +3115,23 @@ async function valLoca(des) {
     await des.monster({ class: 'H', peaceful: 0 });
 }
 
+// C ref: complete dat/Val-fila.lua. Preserve its icy Mines terrain setup and
+// the source-ordered random stairs, objects, monsters, and traps.
+async function valFila(des) {
+    await des.level_init({ style: 'solidfill', fg: 'I' });
+    await des.level_flags('mazelevel', 'icedpools', 'noflip');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'I', smoothed: true,
+        joined: true, lit: 1, walled: false });
+
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 9; ++i) await des.object();
+    for (let i = 0; i < 5; ++i) await des.monster('fire ant');
+    await des.monster('a');
+    await des.monster({ id: 'fire giant', peaceful: 0 });
+    for (let i = 0; i < 7; ++i) await des.trap();
+}
+
 // Whole dat/Ran-strt.lua1–101. Tree replacement uses the pre-map frame;
 // the branch region is absolute, while inhabitants use the map-relative frame.
 async function ranStrt(des) {
@@ -3327,6 +3344,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Ran-strt': ranStrt,
     'Rog-strt': rogStrt,
     'Val-loca': valLoca,
+    'Val-fila': valFila,
     'Val-strt': valStrt,
     'Hea-strt': heaStrt,
     'Cav-loca': cavLoca,
