@@ -1536,8 +1536,20 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
             return;
         }
         if (otmp.otyp === TIN) stop('a non-TIN food item');
-        if (otmp.otyp === GLOB_OF_GREEN_SLIME)
-            stop('a non-slime food item');
+        if (otmp.otyp === GLOB_OF_GREEN_SLIME) {
+            // C mon.c:m_consume_obj() sets `slimer` before delobj(), then
+            // changes the eater into green slime with visibility-sensitive
+            // newcham() feedback. Gelatinous-cube digestion reaches this
+            // branch after meatobj() has engulfed the glob into inventory.
+            const visible = canseemon(mtmp, state);
+            delobj(otmp, objectGenerationEnv({ ...rawEnv, state }));
+            await newcham(mtmp, state.mons[PM_GREEN_SLIME], {
+                ...rawEnv,
+                state,
+                ncflags: visible ? NC_SHOW_MSG : 0,
+            });
+            return;
+        }
         delobj(otmp, objectGenerationEnv({ ...rawEnv, state }));
         if (otmp.otyp === CARROT && !mtmp.mcansee) {
             // C ref: muse.c mcureblindness() (2872-2881), reached by

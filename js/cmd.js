@@ -1763,7 +1763,7 @@ export async function get_count(
                 countMessage = `Count: ${count}`;
                 backspaced = false;
             }
-            await ttyPline(countMessage, state);
+            await ttyCustomPline(countMessage, SUPPRESS_HISTORY, state);
             await flush_screen(1);
             state.nhDisplay?.setCursor(countMessage.length, 0);
         }

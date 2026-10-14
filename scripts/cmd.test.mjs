@@ -155,6 +155,7 @@ import { NO_COLOR } from '../js/terminal.js';
 import { seenv_matrix } from '../js/vision.js';
 import {
     clearTtyMessageWindow,
+    TOPLINE_NEED_MORE,
     ttyPline,
 } from '../js/tty_message.js';
 
@@ -2843,6 +2844,7 @@ test('parseCommand echoes a multi-digit count only at source boundaries', async 
     state._preNhgetchHook = () => boundaries.push({
         line: topLine(state),
         cursor: [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        toplin: state.nhDisplay.toplin,
     });
 
     const key = await parseCommand(state);
@@ -2859,6 +2861,9 @@ test('parseCommand echoes a multi-digit count only at source boundaries', async 
     ]);
     // The nine visible bytes in "Count: 12" leave the source cursor at 9.
     assert.deepEqual(boundaries.at(-1).cursor, [9, 0]);
+    // cmd.c uses custompline(SUPPRESS_HISTORY): the line awaits the command
+    // key, but get_count() does not consume that key as a More dismissal.
+    assert.equal(boundaries.at(-1).toplin, TOPLINE_NEED_MORE);
     assert.equal(topLine(state), '');
 });
 
@@ -2925,11 +2930,11 @@ test('count editing preserves erase, leading-zero, and cancellation branches', a
     }
 });
 
-test('parseCommand clears the physical message row but retains the final Count text as logical toplines', async () => {
+test('parseCommand clears the physical message row without saving Count in history', async () => {
     const state = resetParserTestGame('12.');
     // Fill the row with non-default glyph, color, and attribute values so
-    // physical clearing is observable; "12." leaves "Count: 12" in logical
-    // message history.
+    // physical clearing is observable; cmd.c get_count() suppresses history
+    // for "Count: 12" and preserves the earlier message history.
     for (let column = 0; column < state.nhDisplay.cols; ++column)
         state.nhDisplay.setCell(column, 0, 'X', 2, 3);
     state._pending_message = 'Ready';
@@ -2952,9 +2957,9 @@ test('parseCommand clears the physical message row but retains the final Count t
     );
     assert.equal(state._pending_message, '');
     assert.equal(state.nhDisplay.toplin, 0);
-    assert.equal(state._ttyToplines, 'Count: 12');
-    assert.equal(state.nhDisplay.topMessage, 'Count: 12');
-    assert.equal(state.nhDisplay.toplines, 'Count: 12');
+    assert.equal(state._ttyToplines, '');
+    assert.equal(state.nhDisplay.topMessage, '');
+    assert.equal(state.nhDisplay.toplines, '');
 });
 
 test('number-pad count prefix feeds the same saturating parser', async () => {

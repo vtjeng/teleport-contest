@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { FIRE_RES, ROWNO, COLNO, ROOM } from '../js/const.js';
+import { FIRE_RES, OBJ_DELETED, ROWNO, COLNO, ROOM } from '../js/const.js';
 
 const C_MON_SOURCE = readFileSync('nethack-c/upstream/src/mon.c', 'utf8');
 const JS_MON_SOURCE = readFileSync('js/mon.js', 'utf8');
@@ -23,22 +23,28 @@ test('meatobj imports and applies source slimeproof for green slime glob', () =>
 });
 import { GameMap } from '../js/game.js';
 import {
+    m_consume_obj,
     meatcorpse,
     meatmetal,
     mon_give_prop,
     mpickgold,
 } from '../js/mon.js';
+import { mpickobj } from '../js/steal.js';
 import {
+    PM_GELATINOUS_CUBE,
+    PM_GREEN_SLIME,
     PM_HUMAN,
     PM_PURPLE_WORM,
     PM_ROCK_MOLE,
     monst_globals_init,
+    reset_mvitals,
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
     CORPSE,
     GOLD_PIECE,
+    GLOB_OF_GREEN_SLIME,
     IRON_CHAIN,
     objects_globals_init,
 } from '../js/objects.js';
@@ -50,6 +56,13 @@ function makeState() {
         },
         flags: { verbose: false },
         level: new GameMap(),
+        dungeons: [{
+            depth_start: 1,
+            ledger_start: 0,
+            num_dunlevs: 29,
+            entry_lev: 1,
+            flags: { hellish: false },
+        }],
         u: {
             uprops: [],
             ux: 5,
@@ -67,6 +80,7 @@ function makeState() {
 
 function random() {
     return {
+        d: (count) => count,
         rn2: () => 5,
         rnd: (bound) => bound,
         rn1: (count, base) => base,
@@ -99,6 +113,30 @@ function floorObject(state, otyp, overrides = {}) {
     place_object(obj, 5, 5, { state, random: random() });
     return obj;
 }
+
+test('m_consume_obj turns an eater into green slime after consuming a glob', async () => {
+    const state = makeState();
+    reset_mvitals(state);
+    const cube = monster(state, PM_GELATINOUS_CUBE);
+    const globType = state.objects[GLOB_OF_GREEN_SLIME];
+    const glob = newObject({
+        oclass: globType.oc_class,
+        otyp: GLOB_OF_GREEN_SLIME,
+        owt: globType.oc_weight,
+        quan: 1,
+    });
+    mpickobj(cube, glob, { state, random: random() });
+
+    await m_consume_obj(cube, glob, {
+        state,
+        random: random(),
+        canSpotMonster: () => false,
+        redrawSquare: () => {},
+    });
+
+    assert.equal(glob.where, OBJ_DELETED);
+    assert.equal(cube.data, state.mons[PM_GREEN_SLIME]);
+});
 
 test('meatmetal consumes the first acceptable metallic object', async () => {
     const state = makeState();
