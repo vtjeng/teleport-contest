@@ -310222,6 +310222,870 @@
           }
         ]
       }
+    },
+    {
+      "id": "divergence-fix-options-doset-menu-help-v65-20261014",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement doset from options.c",
+      "cFile": "options.c",
+      "sessions": [
+        "synthetic/v65/v65-options-help-file-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v65-options-help-file-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+      "delivered": null,
+      "function": "doset",
+      "session": "synthetic/v65/v65-options-help-file-action3",
+      "closeStanding": {
+        "sha": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "target": "synthetic/v65/v65-options-help-file-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/99cc21c54b87286aa660ab80537c0a22e6b39faa/run-hosted-diE681/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "doset",
+            "sourceFile": "options.c",
+            "implementation": "js/options.js",
+            "symbol": "doset",
+            "sourceReview": "Read options.c:doset() (8758-8975) in full and traced the selected HELP_IDX branch in the function's menu construction, pick loop, cleanup, and rerun order. The C help pick calls display_file(OPTMENUHELP,FALSE), marks gavehelp, and continues through any other picks. After the window closes, a sole help pick sets skiphelp and restarts at rerun; a help pick accompanied by another selection does not restart. JavaScript now uses the existing pager optmenu text-window path and repeats only the sole-help case. The rest of doset's existing option handlers and their unported gaps were not changed or certified by this divergence fix.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runOptionsCommand",
+                "source": "cmd.c:doextcmd() dispatches the optionsfull command to options.c:doset(); js/cmd.js already wires that command to doset."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "doset",
+                "source": "options.c:doset() calls display_file(OPTMENUHELP,FALSE) in the HELP_IDX branch; JavaScript dynamically dispatches to pager.js:dispfile_optmenu(), which renders the existing generated optmenu file."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "dispfile_optmenu",
+                "source": "pager.c:dispfile_optmenu() displays OPTMENUHELP; its generated text and tty_display_file() behavior are already implemented in the shared pager module."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-toggle.test.mjs",
+              "scripts/options-menu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-options-help-file-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c:doextcmd -> options.c:doset; the selected '?' displays OPTMENUHELP, its dismissal returns to a second doset menu without '?', and the remaining segment input completes."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is #optionsfull from the command dispatcher, which calls options.c:doset. The admitted v65 case reaches its novice-help selector, displays and dismisses the static optmenu text, and exercises C's sole-help rerun with the help row suppressed. Existing JavaScript command dispatch already reaches doset. This task repairs that branch only; it does not certify every option handler or the complete source function.",
+        "entryPoints": [
+          {
+            "name": "#optionsfull selecting and dismissing the novice help row",
+            "functions": [
+              "doset"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-options-help-file-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c:doextcmd -> options.c:doset HELP_IDX -> display_file(OPTMENUHELP,FALSE) -> help dismissal -> doset rerun with skiphelp."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fix-utf8map-customsymbols-reset-v65-20261014",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement free_all_glyphmap_u, reset_customsymbols from utf8map.c",
+      "cFile": "utf8map.c",
+      "sessions": [
+        "synthetic/v65/v65-runtime-customsymbols-reset-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v65-runtime-customsymbols-reset-action1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+      "delivered": null,
+      "function": "free_all_glyphmap_u",
+      "session": "synthetic/v65/v65-runtime-customsymbols-reset-action1",
+      "closeStanding": {
+        "sha": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "target": "synthetic/v65/v65-runtime-customsymbols-reset-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/99cc21c54b87286aa660ab80537c0a22e6b39faa/run-hosted-diE681/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "free_all_glyphmap_u",
+            "sourceFile": "utf8map.c",
+            "implementation": "js/utf8map.js",
+            "symbol": "free_all_glyphmap_u",
+            "sourceReview": "Read utf8map.c:free_all_glyphmap_u() at lines 59-80. It clears every glyphmap[glyph].u and each cached gg.gbuf[y][x].glyphinfo.gm.u pointer. JavaScript stores the Unicode string on each glyph customization entry and has no retained gg.gbuf pointer, so the port clears all displayCh values through clear_all_glyphmap_unicode().",
+            "callers": [
+              {
+                "path": "js/utf8map.js",
+                "symbol": "reset_customsymbols",
+                "source": "utf8map.c:reset_customsymbols() calls free_all_glyphmap_u() before reapplying the active set's symbol customizations."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-runtime-customsymbols-reset-action1",
+                "segment": 0,
+                "fromStep": 8,
+                "throughStep": 9,
+                "source": "The O options-menu entry selects customsymbols at step 8. options.c:reset_needed_visuals() calls utf8map.c:reset_customsymbols(), which calls free_all_glyphmap_u(); the following Escape returns to the map. The complete case matches through step 9."
+              }
+            ]
+          },
+          {
+            "name": "reset_customsymbols",
+            "sourceFile": "utf8map.c",
+            "implementation": "js/utf8map.js",
+            "symbol": "reset_customsymbols",
+            "sourceReview": "Read utf8map.c:reset_customsymbols() at lines 211-217. Under ENHANCED_SYMBOLS it calls free_all_glyphmap_u(), then apply_customizations(gc.currentgraphics, do_custom_symbols). The JavaScript implementation preserves the C order and applies only the active graphics set's Unicode symbol details; the color map remains unchanged.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "reset_needed_visuals",
+                "source": "options.c:reset_needed_visuals() calls reset_customsymbols() when go.opt_reset_customsymbols is set, before docrt()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-runtime-customsymbols-reset-action1",
+                "segment": 0,
+                "fromStep": 8,
+                "throughStep": 9,
+                "source": "The O options-menu entry selects customsymbols at step 8. options.c:reset_needed_visuals() calls utf8map.c:reset_customsymbols() before docrt(); the complete case matches through step 9."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The runtime entry point is the O options menu. Its page-two d entry toggles customsymbols; options.c:optfn_boolean() sets go.opt_reset_customsymbols and doset() reaches reset_needed_visuals(), which resets Unicode glyph mappings before repainting. The admitted v65 case reaches the reset and returns to the map.",
+        "entryPoints": [
+          {
+            "name": "O options menu toggles customsymbols",
+            "functions": [
+              "free_all_glyphmap_u",
+              "reset_customsymbols"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-runtime-customsymbols-reset-action1",
+                "segment": 0,
+                "fromStep": 8,
+                "throughStep": 9,
+                "source": "The page-two d pick reaches the C customsymbols option arm, reset_needed_visuals(), reset_customsymbols(), and free_all_glyphmap_u(); the full admitted case matches through step 9."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fix-rogue-blind-probe-draft-message-v67-20261014",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement zap_map from zap.c",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v67/v67-rogue-blind-probing-action7"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v67-rogue-blind-probing-continuation-action9-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+      "delivered": null,
+      "function": "zap_map",
+      "session": "synthetic/v67/v67-rogue-blind-probing-action7",
+      "closeStanding": {
+        "sha": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "target": "synthetic/v67/v67-rogue-blind-probing-action7",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/99cc21c54b87286aa660ab80537c0a22e6b39faa/run-hosted-diE681/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "zap_map",
+            "implementation": "js/zap.js",
+            "symbol": "zap_map",
+            "sourceReview": "Compared upstream nethack-c/upstream/src/zap.c:3628-3825 with js/zap.js:3926-4027. In source order, zap_map runs maybe_explode_trap first, then handles vertical engravings or lateral drawbridges, followed by WAN_PROBING terrain and trap discovery. In the selected WAN_PROBING branch, C snapshots the seen glyph/type before show_map_spot, checks the current surface, converts SDOOR to DOOR, recalculates blocking, redraws, and when the hero cannot see the revealed door on a Rogue level calls dig.c:draft_message(FALSE). JS already performs the conversion and redraw; it now awaits the existing js/dig.js draft_message helper with the caller message and rn1 random source instead of skipping the call. The non-hallucinating branch emits the exact C message without a random draw. The separate zap_over_floor secret-door caller is outside this selected source branch and remains tracked by its existing note_unported site.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_updown",
+                "source": "zap.c:zap_updown calls zap_map after bhitpile for down-zapped WAN_PROBING at :3248; production keyboard path is dozap -> weffects -> zap_updown."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhit",
+                "source": "zap.c:bhit calls zap_map at :3921 for ZAPPED_WAND ray steps."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-probe-draft.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-rogue-blind-probing-action7",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 506,
+                "source": "zap.c:dozap -> weffects -> zap_updown -> zap_map(WAN_PROBING, SDOOR) -> dig.c:draft_message(FALSE)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected active entry point is a blind hero zapping a wand of probing down at a secret door on a Rogue level. C dispatches keyboard z through dozap -> weffects -> zap_updown -> zap_map, which calls dig.c:draft_message(FALSE) after conversion/redraw. The admitted v67 recording now matches through step 506 and the complete 527-screen case. zap.c:bhit is a second direct zap_map caller, but the selected range is vertical probing. zap.c:zap_over_floor has a separate blind Rogue secret-door callsite; that branch is outside this task and still has its existing note_unported marker.",
+        "entryPoints": [
+          {
+            "name": "blind downward probing reveals a Rogue-level secret door",
+            "functions": [
+              "zap_map"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-rogue-blind-probing-action7",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 506,
+                "source": "zap.c:dozap -> weffects -> zap_updown -> zap_map(WAN_PROBING, SDOOR) -> dig.c:draft_message(FALSE)"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "divergence-fix-prayer-lava-rescue-v66-20261014",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement fix_worst_trouble from pray.c",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v66/v66-prayer-lava-rescue-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v66-prayer-lava-rescue-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+      "delivered": null,
+      "function": "fix_worst_trouble",
+      "session": "synthetic/v66/v66-prayer-lava-rescue-action3",
+      "closeStanding": {
+        "sha": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "target": "synthetic/v66/v66-prayer-lava-rescue-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/99cc21c54b87286aa660ab80537c0a22e6b39faa/run-hosted-diE681/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "fix_worst_trouble",
+            "sourceFile": "pray.c",
+            "implementation": "js/pray.js",
+            "symbol": "fix_worst_trouble",
+            "sourceReview": "Read pray.c:373-600 and js/pray.js:1443-1672 in full. The TROUBLE_LAVA arm calls safe_teleds(TELEDS_NO_FLAGS), calls reset_utrap(TRUE) only when teleporting fails, then always calls trap.c:rescued_from_terrain(DISSOLVED). JavaScript now awaits the existing js/trap.js implementation after the same conditional rescue sequence. Other branches were not changed by this divergence fix; the existing note_unported('pray.c impossible') remains at the source-discarded impossible() call in the hands branch.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "pleased",
+                "source": "pray.c:pleased() invokes fix_worst_trouble(trouble) while resolving a successful prayer; the JavaScript caller already awaits this function."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-prayer-lava-rescue-action3",
+                "segment": 0,
+                "fromStep": 236,
+                "throughStep": 240,
+                "source": "The recorded #pray command at step 236 reaches pray.c:dopray -> prayer_done -> pleased -> fix_worst_trouble(TROUBLE_LAVA) -> trap.c:rescued_from_terrain(DISSOLVED); the landing feedback appears in the matched step-240 screen."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is #pray. cmd.c dispatches it to pray.c:dopray(); prayer_done() resolves the successful prayer through pleased(), which invokes fix_worst_trouble() for TROUBLE_LAVA. The admitted v66 recording uses a fire-resistance ring and a lava-trapped hero, reaches #pray at step 236, and matches the rescue landing feedback through step 240. The correction changes only the missing call to the existing trap.c helper.",
+        "entryPoints": [
+          {
+            "name": "#pray rescues a fire-resistant hero from lava",
+            "functions": [
+              "fix_worst_trouble"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-prayer-lava-rescue-action3",
+                "segment": 0,
+                "fromStep": 236,
+                "throughStep": 240,
+                "source": "cmd.c #pray dispatch -> pray.c:dopray -> prayer_done -> pleased -> fix_worst_trouble(TROUBLE_LAVA) -> trap.c:rescued_from_terrain(DISSOLVED)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fix-display-warning-invisible-memory-v63-20261014",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement newsym, display_warning, show_mon_or_warn, display_monster from display.c",
+      "cFile": "display.c",
+      "sessions": [
+        "synthetic/v63/v63-sighted-wizard-clone-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v63-sighted-wizard-clone-followup-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+      "delivered": null,
+      "function": "newsym",
+      "session": "synthetic/v63/v63-sighted-wizard-clone-action4",
+      "closeStanding": {
+        "sha": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "target": "synthetic/v63/v63-sighted-wizard-clone-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/99cc21c54b87286aa660ab80537c0a22e6b39faa/run-hosted-diE681/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "show_mon_or_warn",
+            "sourceFile": "display.c",
+            "implementation": "js/display.js",
+            "symbol": "show_mon_or_warn",
+            "sourceReview": "Read display.c:show_mon_or_warn() lines 482-496. When the remembered glyph is invisible, it calls unmap_object(); if an object is visible under the square, it remaps it; then it draws the supplied monster or warning glyph. JavaScript now has this shared helper and preserves the same order using the active display state. unmap_object(), vobj_at(), cansee(), and map_object() are existing source-backed helpers.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "display_monster",
+                "source": "display.c:display_monster() calls show_mon_or_warn() for a real or sensed monster glyph."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "display_warning",
+                "source": "display.c:display_warning() calls show_mon_or_warn() for warning glyphs."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-sighted-wizard-clone-action4",
+                "segment": 0,
+                "fromStep": 1118,
+                "throughStep": 1121,
+                "source": "The hostile monster is rendered as warning glyph 3 while the old square remembers GLYPH_INVISIBLE; then monmove.c:postmov() moves it and calls newsym(omx,omy). display.c:newsym() calls display_warning(), which calls show_mon_or_warn() and clears that marker before the old square redraw. This prefix through the movement boundary matches screens, RNG and cursors."
+              }
+            ]
+          },
+          {
+            "name": "display_warning",
+            "sourceFile": "display.c",
+            "implementation": "js/display.js",
+            "symbol": "display_warning",
+            "sourceReview": "Read display.c:display_warning() lines 630-650. For the warning branch reached here, it computes warning_of(mon) or the hallucinated display warning glyph, then passes it to show_mon_or_warn(). JavaScript retains warningGlyphInfo() as the glyph computation and now uses the same shared side-effect path. The warning predicate is established by newsym() before this function is called.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "newsym",
+                "source": "display.c:newsym() calls display_warning() for a warning-bearing monster in both visible and not-visible branches."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-sighted-wizard-clone-action4",
+                "segment": 0,
+                "fromStep": 1118,
+                "throughStep": 1121,
+                "source": "The hostile monster is rendered as warning glyph 3 while the old square remembers GLYPH_INVISIBLE; then monmove.c:postmov() moves it and calls newsym(omx,omy). display.c:newsym() calls display_warning(), which calls show_mon_or_warn() and clears that marker before the old square redraw. This prefix through the movement boundary matches screens, RNG and cursors."
+              }
+            ]
+          },
+          {
+            "name": "newsym",
+            "sourceFile": "display.c",
+            "implementation": "js/display.js",
+            "symbol": "newsym",
+            "sourceReview": "Read display.c:newsym() lines 1030-1056 and the adjacent visible/out-of-sight flow. Both mon_warning() arms call display_warning(); that path clears GLYPH_INVISIBLE and restores remembered object/terrain state before painting. JavaScript had bypassed display_warning() in both arms; the correction wires them through it. The remainder of newsym() is existing accepted implementation and is not re-certified by this divergence fix.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c:postmov() calls newsym(omx,omy) after successful monster movement; js/monmove.js:postmov() calls redraw(oldX,oldY), whose live default is newsym."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-sighted-wizard-clone-action4",
+                "segment": 0,
+                "fromStep": 1118,
+                "throughStep": 1121,
+                "source": "The hostile monster is rendered as warning glyph 3 while the old square remembers GLYPH_INVISIBLE; then monmove.c:postmov() moves it and calls newsym(omx,omy). display.c:newsym() calls display_warning(), which calls show_mon_or_warn() and clears that marker before the old square redraw. This prefix through the movement boundary matches screens, RNG and cursors."
+              }
+            ]
+          },
+          {
+            "name": "display_monster",
+            "sourceFile": "display.c",
+            "implementation": "js/display.js",
+            "symbol": "display_monster",
+            "sourceReview": "Read display.c:display_monster() lines 514-621 and the final non-mimic/sensed-monster arm. This correction only moves its existing show_mon_or_warn cleanup into the shared helper so display_warning() can use the same C operation; the prior accepted port remains responsible for the rest of this function.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "newsym",
+                "source": "display.c:newsym() dispatches visible/sensed monsters to display_monster(); js/display.js:newsym() retains that production path."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-sighted-wizard-clone-action4",
+                "segment": 0,
+                "fromStep": 1118,
+                "throughStep": 1121,
+                "source": "The hostile monster is rendered as warning glyph 3 while the old square remembers GLYPH_INVISIBLE; then monmove.c:postmov() moves it and calls newsym(omx,omy). display.c:newsym() calls display_warning(), which calls show_mon_or_warn() and clears that marker before the old square redraw. This prefix through the movement boundary matches screens, RNG and cursors."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is a monster turn that moves a warning-bearing monster from an unseen square. C monmove.c:postmov() redraws the old square with newsym(); both the visible and not-visible mon_warning branches use display_warning() and show_mon_or_warn(). The admitted v63 case exercises the out-of-sight branch and the old-square redraw through step 1121. The real/sensed monster rendering path also reuses show_mon_or_warn(); its implementation was previously accepted and this task only extracts its existing cleanup into the shared helper.",
+        "entryPoints": [
+          {
+            "name": "Monster movement redraws an out-of-sight warning square",
+            "functions": [
+              "newsym",
+              "display_warning",
+              "show_mon_or_warn"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-sighted-wizard-clone-action4",
+                "segment": 0,
+                "fromStep": 1118,
+                "throughStep": 1121,
+                "source": "The hostile monster is rendered as warning glyph 3 while the old square remembers GLYPH_INVISIBLE; then monmove.c:postmov() moves it and calls newsym(omx,omy). display.c:newsym() calls display_warning(), which calls show_mon_or_warn() and clears that marker before the old square redraw. This prefix through the movement boundary matches screens, RNG and cursors."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "B-v67-angry-shop-settlement-make-happy-shk-20261014",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement angry_shk_exists, make_happy_shk, make_happy_shoppers, kops_gone from shk.c",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v67/v67-angry-shop-settlement-action10"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v67-angry-shop-settlement-continuation-action11-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+      "delivered": null,
+      "function": "make_happy_shoppers",
+      "session": "synthetic/v67/v67-angry-shop-settlement-action10",
+      "closeStanding": {
+        "sha": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "target": "synthetic/v67/v67-angry-shop-settlement-action10",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/99cc21c54b87286aa660ab80537c0a22e6b39faa/run-hosted-diE681/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "angry_shk_exists",
+            "implementation": "js/shk.js",
+            "symbol": "angry_shk_exists",
+            "sourceReview": "Compared shk.c:1330-1340 with the helper and next_shkp in js/shk.js. The scan follows live shopkeepers in chain order; next_shkp restores an absent anger surcharge before the predicate is tested. The helper is impure when that surcharge is missing.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "make_happy_shoppers",
+                "source": "shk.c:make_happy_shoppers calls angry_shk_exists before dismissing Kops and pacifying guards."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-angry-shop-settlement-action10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 974,
+                "source": "shk.c:dopay -> make_happy_shk -> pacify_shk/make_happy_shoppers; next monster action through mon.c:movemon_singlemon"
+              }
+            ]
+          },
+          {
+            "name": "make_happy_shk",
+            "implementation": "js/shk.js",
+            "symbol": "make_happy_shk",
+            "sourceReview": "Compared shk.c:1394-1436 in order. It records prior anger, calls pacify_shk without clearing surcharge, clears following and robbed, adjusts alignment outside the Rogue role, returns an out-of-shop keeper to the home square when its shop is on this level, otherwise drops special objects and records the unported dog.c:migrate_to_level call, emits the source message, then invokes make_happy_shoppers. All active JS callers now await this helper: dopay, tamedog, and ghitm. The other-level shopkeeper migration arm remains a documented source gap.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "dopay",
+                "source": "shk.c:dopay calls make_happy_shk after a sufficient restitution payment or appeasement."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "tamedog",
+                "source": "dog.c:tamedog calls make_happy_shk for a shopkeeper before refusing taming."
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "ghitm",
+                "source": "dokick.c:ghitm calls make_happy_shk when thrown gold covers the shopkeeper’s robbed amount."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-angry-shop-settlement-action10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 974,
+                "source": "shk.c:dopay -> make_happy_shk -> pacify_shk/make_happy_shoppers; next monster action through mon.c:movemon_singlemon"
+              }
+            ]
+          },
+          {
+            "name": "make_happy_shoppers",
+            "implementation": "js/shk.js",
+            "symbol": "make_happy_shoppers",
+            "sourceReview": "Compared shk.c:1438-1447. If no angry shopkeeper remains, call the source-proven kops_gone helper, then pacify_guards. dog.c:losedogs and make_happy_shk await the helper.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "make_happy_shk",
+                "source": "shk.c:make_happy_shk calls make_happy_shoppers after settling state and messaging."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "losedogs",
+                "source": "dog.c:losedogs calls make_happy_shoppers(TRUE) when the migrating shopkeeper state permits Kops dismissal."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-angry-shop-settlement-action10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 974,
+                "source": "shk.c:dopay -> make_happy_shk -> pacify_shk/make_happy_shoppers; next monster action through mon.c:movemon_singlemon"
+              }
+            ]
+          },
+          {
+            "name": "kops_gone",
+            "implementation": "js/shk.js",
+            "symbol": "kops_gone",
+            "sourceReview": "Compared shk.c:5606-5622. Walk the live monster chain, save nmon before mongone detaches each live S_KOP, count visible Kops before removal, and emit C’s pluralized disappearance message only when visible and not silent.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "make_happy_shoppers",
+                "source": "shk.c:make_happy_shoppers calls kops_gone when no angry shopkeeper remains."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-angry-shop-settlement-action10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 974,
+                "source": "shk.c:dopay -> make_happy_shk -> make_happy_shoppers -> kops_gone and pacify_guards; next monster action through mon.c:movemon_singlemon"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected runtime entry point is sufficient payment to settle a shopkeeper’s robbed amount through keyboard dopay. The admitted v67 case reaches shk.c:dopay -> make_happy_shk at segment 0 step 974, then executes Kops dismissal, guard pacification, and the monster turn. The same helper is wired in dog.c:tamedog and dokick.c:ghitm; these caller edges share the source helper but are not independently reached by the cited recording. dog.c:losedogs invokes make_happy_shoppers and awaits its migration-arrival effects; that entry point is not part of the cited range. The shopkeeper migration arm of dog.c:migrate_to_level remains unported.",
+        "entryPoints": [
+          {
+            "name": "payment settles a robbed shopkeeper before the monster turn",
+            "functions": [
+              "make_happy_shk",
+              "make_happy_shoppers"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-angry-shop-settlement-action10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 974,
+                "source": "shk.c:dopay -> make_happy_shk -> pacify_shk/make_happy_shoppers; next monster action through mon.c:movemon_singlemon"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "port-shipped-object-arrival-v64-20261014",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement obj_delivery from dokick.c",
+      "cFile": "dokick.c",
+      "sessions": [
+        "synthetic/v64/v64-stair-shipped-object-arrival-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+      "delivered": null,
+      "function": "obj_delivery",
+      "session": "synthetic/v64/v64-stair-shipped-object-arrival-action3",
+      "closeStanding": {
+        "sha": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "target": "synthetic/v64/v64-stair-shipped-object-arrival-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/99cc21c54b87286aa660ab80537c0a22e6b39faa/run-hosted-diE681/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "obj_delivery",
+            "implementation": "js/dokick.js",
+            "symbol": "obj_delivery",
+            "sourceReview": "Read the complete dokick.c:obj_delivery() definition, lines 1768-1851. It saves the next migration-list pointer before each branch, filters by destination level and MIGR_TO_SPECIES, derives the near-hero arm with the source XOR, extracts and clears migration metadata, selects original up stair/ladder or hero coordinates, places then applies non-hero/hero break handling, stacks, scatters with rnd(2) or redraws, and uses rloco() for MIGR_RANDOM. The JavaScript awaits only asynchronous effects at the same C call sites. Existing helpers are obj_extract_self(), stairway_find_from(), place_object(), breaktest(), breaks(), delobj(), stackobj(), scatter(), newsym(), and rloco(); objectGenerationEnv() supplies the required object hooks.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c:goto_level() calls obj_delivery(FALSE) before run_timers() and obj_delivery(TRUE) after arrival-room messages; both JavaScript calls now await the ported dokick.c function."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v64",
+                "caseId": "v64-stair-shipped-object-arrival-action3",
+                "segment": 0,
+                "fromStep": 263,
+                "throughStep": 335,
+                "source": "The recorded > transition sends three apples through dokick.c:ship_object(); the destination level reaches do.c:goto_level(), whose obj_delivery() calls deliver the surviving migrating apples at the staircase. The target segment matches all screens, RNG calls, cursors, and input through step 335."
+              }
+            ]
+          },
+          {
+            "name": "goto_level",
+            "sourceFile": "do.c",
+            "implementation": "js/do.js",
+            "symbol": "goto_level",
+            "sourceReview": "Read do.c:goto_level(), lines 1479-1998. This divergence fix changes only its two existing obj_delivery() call sites to await the ported asynchronous JavaScript helper, preserving the source order: false before losedogs()/run_timers(), true after level-entry messages. Other goto_level branches remain the existing implementation and are not recertified here.",
+            "callers": [
+              {
+                "path": "js/dungeon.js",
+                "symbol": "next_level",
+                "source": "dungeon.c:next_level() selects the destination and calls its supplied gotoLevel operation; js/do.js:dodown() supplies goto_level() while processing the recorded downstairs command."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v64",
+                "caseId": "v64-stair-shipped-object-arrival-action3",
+                "segment": 0,
+                "fromStep": 263,
+                "throughStep": 335,
+                "source": "The recorded > command follows do.c:dodown() through dungeon.c:next_level() into do.c:goto_level(); the completed segment exercises both arrival object-delivery call sites and matches through step 335."
+              }
+            ]
+          },
+          {
+            "name": "makemon",
+            "sourceFile": "makemon.c",
+            "implementation": "js/makemon_create.js",
+            "symbol": "makemon",
+            "sourceReview": "Read makemon.c:makemon(), lines 1147-1510, including the post-inventory/strategy call at line 1469. C permits level generation to continue with migrating_objs present and calls dokick.c:deliver_obj_to_mon() only when allow_minvent is true; its result is discarded. Remove the JS-only blanket preflight refusal, then retain the unported void call as note_unported() at the corresponding inventory tail. The rest of makemon() remains the existing bounded implementation.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "fill_ordinary_room",
+                "source": "mklev.c:fill_ordinary_room() creates the level monsters through makemon(); do.c:goto_level() enters mklev() on the recorded first descent."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v64",
+                "caseId": "v64-stair-shipped-object-arrival-action3",
+                "segment": 0,
+                "fromStep": 263,
+                "throughStep": 335,
+                "source": "At the first descent, level generation continues through makemon.c:makemon() with the remaining migrating-object chain; the matching JS replay exercises the removed refusal and reaches the recorded arrival through step 335."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is the normal downstairs command with migrating ordinary objects. C do.c:dodown() dispatches through dungeon.c:next_level() to do.c:goto_level(); goto_level() calls dokick.c:obj_delivery() before away-time timers and again after arrival messages. Level generation also reaches makemon.c:makemon() while the migration list still contains objects for later delivery. The admitted v64 recipe independently throws three apples down the actual stairs; the accepted recording reaches step 263 and the complete corrected segment matches through step 335. This task claims this downstairs path and the corresponding removal of its blanket maker refusal; it does not claim all other goto_level() or makemon() source branches.",
+        "entryPoints": [
+          {
+            "name": "Downstairs arrival delivers shipped objects while level generation proceeds",
+            "functions": [
+              {
+                "sourceFile": "dokick.c",
+                "name": "obj_delivery"
+              },
+              {
+                "sourceFile": "do.c",
+                "name": "goto_level"
+              },
+              {
+                "sourceFile": "makemon.c",
+                "name": "makemon"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v64",
+                "caseId": "v64-stair-shipped-object-arrival-action3",
+                "segment": 0,
+                "fromStep": 263,
+                "throughStep": 335,
+                "source": "The normal > route calls goto_level(), which delivers the migrating objects around timers and level-entry messages; makemon() continues with the remaining migration chain. All recorded screens, RNG calls, cursors, and input match through step 335."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
