@@ -815,3 +815,12 @@ triage decisions or fix references.
   original base and baseline, and fresh-checkpoint acceptance. Root exercised
   the split with Invocation, cancellation and rolling-trap deliveries; preflight
   passed. The failed branch and both corrections remain preserved.
+
+### 2026-10-14 — preparation publication requires local main
+
+- The v65–v67 preparation group passed hosted checkpoint 38531268459 at
+  `de6a2ef0`, and Admission run 38532374999 passed at `979a3f396`.
+- Publication from the retained Admission branch exited with
+  `publish from local main`. Root collected that terminal result, switched to
+  local `main`, fast-forwarded it to the verified Admission commit, and retried
+  the same publication. The retry published `061c6b63`; no validation was rerun.

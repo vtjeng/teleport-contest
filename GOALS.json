@@ -306176,6 +306176,42 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-read-litroom-gremlin-vision-recalc-v58-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore read.c:litroom visibility before light_hits_gremlin() damages gremlins collected by room lighting.",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v58/v58-gremlin-scroll-light-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v58-gremlin-scroll-light-action1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "litroom",
+      "session": "synthetic/v58/v58-gremlin-scroll-light-action1"
+    },
+    {
+      "id": "downward-stone-to-flesh-engraving-zap-map-v59-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement the downward stone-to-flesh engraving effect in zap_map for an ENGRAVE on a non-headstone floor tile.",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v59/v59-stone-to-flesh-stone-text-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v59-stone-to-flesh-stone-text-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "zap_map",
+      "session": "synthetic/v59/v59-stone-to-flesh-stone-text-action2"
     }
   ]
 }
