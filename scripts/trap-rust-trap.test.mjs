@@ -2,12 +2,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    Trap_Killed_Mon,
     RUST_TRAP,
     Trap_Effect_Finished,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_GREMLIN, PM_HUMAN } from '../js/monsters.js';
+import { PM_GREMLIN, PM_IRON_GOLEM } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import {
     preflight_dotrap,
@@ -106,14 +107,14 @@ for (const [roll, expected] of [
         });
 }
 
-test('trapeffect_rust_trap monster arm returns the C finished sentinel',
+test('trapeffect_rust_trap reads lifesaving for a completely rustable golem',
     async () => {
         const state = await stateReady();
         const monster = newMonster({
-            data: state.mons[PM_HUMAN],
-            mnum: PM_HUMAN,
-            mx: 0,
-            my: 0,
+            data: state.mons[PM_IRON_GOLEM],
+            mnum: PM_IRON_GOLEM,
+            mx: state.u.ux,
+            my: state.u.uy,
             mhp: 10,
             mhpmax: 10,
             minvent: null,
@@ -135,8 +136,12 @@ test('trapeffect_rust_trap monster arm returns the C finished sentinel',
             0,
             env,
         );
-        assert.equal(result, Trap_Effect_Finished);
-        assert.deepEqual(env.randomCalls, [5]);
+        assert.equal(result, Trap_Killed_Mon);
+        assert.equal(env.randomCalls[0], 5);
+        assert.deepEqual(env.messages, [
+            'A gush of water hits the iron golem!',
+            'The iron golem falls to pieces!',
+        ]);
     });
 
 test('trapeffect_rust_trap wires the monster gremlin split caller',

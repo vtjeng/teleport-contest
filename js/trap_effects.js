@@ -234,6 +234,7 @@ import {
     metallivorous,
     mindless,
     nolimbs,
+    nonliving,
     Resists_Elem,
     mon_knows_traps,
     mon_learns_traps,
