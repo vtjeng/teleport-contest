@@ -159,6 +159,43 @@ test('use_magic_whistle preserves cursed vibration draws before relocation', asy
     assert.deepEqual(draws, []);
 });
 
+test('use_magic_whistle checks level teleport restrictions before relocating a pet', async () => {
+    const state = whistleState();
+    const events = [];
+    const draws = [0, 0];
+    await use_magic_whistle({ cursed: true }, state, {
+        random: { rn2: bound => {
+            assert.equal(bound, 2);
+            return draws.shift();
+        } },
+        message: async line => events.push(['message', line]),
+        wakeNearby: async () => events.push(['wake']),
+        teleToRndPet: async () => events.push(['teleport']),
+    });
+    assert.deepEqual(events, [
+        ['message', 'You produce a high-pitched humming noise.'],
+        ['wake'],
+        ['teleport'],
+    ]);
+    assert.deepEqual(draws, []);
+
+    const blocked = whistleState();
+    blocked.level.flags.noteleport = true;
+    const blockedDraws = [0, 0];
+    const blockedEvents = [];
+    await use_magic_whistle({ cursed: true }, blocked, {
+        random: { rn2: bound => {
+            assert.equal(bound, 2);
+            return blockedDraws.shift();
+        } },
+        message: async () => blockedEvents.push('message'),
+        wakeNearby: async () => blockedEvents.push('wake'),
+        teleToRndPet: async () => assert.fail('noteleport_level must suppress pet relocation'),
+    });
+    assert.deepEqual(blockedEvents, ['message', 'wake']);
+    assert.deepEqual(blockedDraws, []);
+});
+
 test('magic_whistled returns before pet traversal during stasis', async () => {
     const state = whistleState({ stasis: 11 });
     const object = tinWhistle(state);

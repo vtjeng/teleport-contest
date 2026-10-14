@@ -575,7 +575,7 @@ import { wield_tool } from './wield.js';
 import { acurr } from './attrib.js';
 import { known_spell, spe_Fresh, spelleffects } from './spell.js';
 import { kick_steed, stucksteed, use_saddle } from './steed.js';
-import { enexto, rloc, rloc_to, tele_restrict, tele_to_rnd_pet, teleds } from './teleport.js';
+import { enexto, noteleport_level, rloc, rloc_to, tele_restrict, tele_to_rnd_pet, teleds } from './teleport.js';
 import { mpickobj } from './steal.js';
 import {
     _doWearInternals,
