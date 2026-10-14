@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T18:43:55.179Z",
+  "capturedAt": "2026-10-14T19:04:00.022Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -122693,37 +122693,266 @@
         "type": "accepted",
         "at": "2026-10-14T18:41:33.170Z",
         "task": "B-investigation-v66-unpaid-food-action3-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v67-shop-damage-repair-continuation-action12-20261014-d6e0ad64c83724785d1d2d2098abbb452503ffe0",
+        "type": "published",
+        "at": "2026-10-14T18:44:08.083Z",
+        "task": "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+        "commit": "d6e0ad64c83724785d1d2d2098abbb452503ffe0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014-d6e0ad64c83724785d1d2d2098abbb452503ffe0",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T18:44:11.776Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "commit": "d6e0ad64c83724785d1d2d2098abbb452503ffe0",
+        "knownBy": "2026-10-14T18:44:08.083Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v66-favourable-prayer-crown-action12-20261014-d6e0ad64c83724785d1d2d2098abbb452503ffe0",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T18:44:13.105Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "commit": "d6e0ad64c83724785d1d2d2098abbb452503ffe0",
+        "knownBy": "2026-10-14T18:44:08.083Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v66-unpaid-food-action3-20261014-d6e0ad64c83724785d1d2d2098abbb452503ffe0",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T18:44:14.402Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014",
+        "commit": "d6e0ad64c83724785d1d2d2098abbb452503ffe0",
+        "knownBy": "2026-10-14T18:44:08.083Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-20261014-shipped-object-resume",
+        "type": "turn",
+        "at": "2026-10-14T18:45:02.109Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Tracing the existing v64 shipped-object arrival report after its source dependencies were released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v64-shipped-object-20261014",
+        "type": "resume",
+        "at": "2026-10-14T18:45:05.982Z",
+        "task": "C-investigation-v64-stair-shipped-object-arrival-action3-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-254def0c561ebaccaf7663c0d6f926c9c8e3ad09235f61424d71f1a79bb7bd36-f6a51f3088b631c7f70ce29dbfb195d4c6e30069-Prep32",
+        "type": "integrating",
+        "at": "2026-10-14T18:45:23.221Z",
+        "task": "Prep32",
+        "integration": "f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "prepGroup": [
+          "Prep32",
+          "Prep33",
+          "Prep34"
+        ],
+        "validationGroup": [
+          "Prep32",
+          "Prep33",
+          "Prep34"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-254def0c561ebaccaf7663c0d6f926c9c8e3ad09235f61424d71f1a79bb7bd36-f6a51f3088b631c7f70ce29dbfb195d4c6e30069-Prep33",
+        "type": "integrating",
+        "at": "2026-10-14T18:45:23.221Z",
+        "task": "Prep33",
+        "integration": "f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "prepGroup": [
+          "Prep32",
+          "Prep33",
+          "Prep34"
+        ],
+        "validationGroup": [
+          "Prep32",
+          "Prep33",
+          "Prep34"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-254def0c561ebaccaf7663c0d6f926c9c8e3ad09235f61424d71f1a79bb7bd36-f6a51f3088b631c7f70ce29dbfb195d4c6e30069-Prep34",
+        "type": "integrating",
+        "at": "2026-10-14T18:45:23.221Z",
+        "task": "Prep34",
+        "integration": "f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "prepGroup": [
+          "Prep32",
+          "Prep33",
+          "Prep34"
+        ],
+        "validationGroup": [
+          "Prep32",
+          "Prep33",
+          "Prep34"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v64-shipped-object-20261014",
+        "type": "implement",
+        "at": "2026-10-14T18:45:40.969Z",
+        "task": "C-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "goal": "port-shipped-object-arrival-v64-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-observed-b-idle-after-two-ready-20261014",
+        "type": "turn",
+        "at": "2026-10-14T18:47:40.062Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Settlement and billing correction are submitted. Waiting for the prepared batches to provide new independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep32-f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "type": "validated",
+        "at": "2026-10-14T18:55:48.044Z",
+        "task": "Prep32",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep32-f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "type": "accepted",
+        "at": "2026-10-14T18:55:48.044Z",
+        "task": "Prep32"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep33-f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "type": "validated",
+        "at": "2026-10-14T18:55:48.044Z",
+        "task": "Prep33",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep33-f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "type": "accepted",
+        "at": "2026-10-14T18:55:48.044Z",
+        "task": "Prep33"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep34-f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "type": "validated",
+        "at": "2026-10-14T18:55:48.044Z",
+        "task": "Prep34",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep34-f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+        "type": "accepted",
+        "at": "2026-10-14T18:55:48.044Z",
+        "task": "Prep34"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-admission-prep32-through34-20261014",
+        "type": "activity",
+        "at": "2026-10-14T18:56:08.568Z",
+        "task": "Prep32",
+        "phase": "admission",
+        "reason": "Three accepted prepared batches have verified C proofs and distinct coverage; prepare all 38 cases for hosted admission baselines."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-baseline-prep32-through34-38619555174",
+        "type": "activity",
+        "at": "2026-10-14T18:59:00.823Z",
+        "task": "Prep32",
+        "phase": "baseline",
+        "reason": "Hosted admission validates all 38 newly admitted cases and saves their first baseline; existing batches retain their prior complete evaluations."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-49ccff128841b60feb0a44926005da4f2383dbc1",
+        "type": "ready",
+        "at": "2026-10-14T18:59:22.469Z",
+        "task": "C-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "delivery": "49ccff128841b60feb0a44926005da4f2383dbc1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-49ccff128841b60feb0a44926005da4f2383dbc1",
+        "type": "received",
+        "at": "2026-10-14T19:00:09.174Z",
+        "task": "C-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "delivery": "49ccff128841b60feb0a44926005da4f2383dbc1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep32-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+        "type": "activity",
+        "at": "2026-10-14T19:01:19.498Z",
+        "task": "Prep32",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep32-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+        "type": "activity",
+        "at": "2026-10-14T19:01:20.285Z",
+        "task": "Prep32",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep33-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+        "type": "activity",
+        "at": "2026-10-14T19:01:21.008Z",
+        "task": "Prep33",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep33-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+        "type": "activity",
+        "at": "2026-10-14T19:01:21.771Z",
+        "task": "Prep33",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep34-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+        "type": "activity",
+        "at": "2026-10-14T19:01:22.518Z",
+        "task": "Prep34",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep34-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+        "type": "activity",
+        "at": "2026-10-14T19:01:23.227Z",
+        "task": "Prep34",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "Prep32",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "d481cbaad9536f36db36dd0ee4fae92f4a125191",
-        "batch": "v68",
-        "since": "2026-10-14T08:40:53.157Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
-        "task": "Prep33",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "d4a3a9b17f84987c41797763f32205b1772969b5",
-        "batch": "v69",
-        "since": "2026-10-14T16:29:23.020Z",
-        "blockedBy": [
-          "Prep32"
-        ],
-        "unblocks": 0
-      },
       {
         "task": "A2-investigation-v65-options-help-file-action3-20261014",
         "worker": "A2",
@@ -122791,18 +123020,14 @@
         "unblocks": 0
       },
       {
-        "task": "Prep34",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
+        "task": "C-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "worker": "C",
+        "goal": "port-shipped-object-arrival-v64-20261014",
+        "kind": "implementation",
         "status": "ready",
-        "delivery": "2d494323239769911f012087ece7c41ca0fe2cee",
-        "batch": "v70",
-        "since": "2026-10-14T18:31:30.605Z",
-        "blockedBy": [
-          "Prep32",
-          "Prep33"
-        ],
+        "delivery": "49ccff128841b60feb0a44926005da4f2383dbc1",
+        "since": "2026-10-14T18:59:22.469Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -123348,17 +123573,6 @@
         "since": "2026-10-13T18:16:32.311Z",
         "blockedBy": [],
         "reason": "Diagnosis is committed at 5e8801ffe. The fix is a missing WAN_OPENING/SPE_KNOCK down branch in zap.c:zap_updown, already reserved by A2’s ready v58 ceiling-strike delivery. Resume this follow-on after that delivery is accepted and the queue confirms this case remains unmatched."
-      },
-      {
-        "task": "C-investigation-v64-stair-shipped-object-arrival-action3-20261014",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-14T03:14:51.991Z",
-        "blockedBy": [],
-        "reason": "Diagnosis saved at adc0e4d88: dokick.c obj_delivery() must be ported and wired through do.c goto_level(), but required JavaScript guard removal and source attribution at makemon.c makemon is still reserved by C prior ready v57 delivery. Root is validating that delivery; resume this report after the makemon.c makemon reservation releases, then claim the full source scope before code edits."
       },
       {
         "task": "A2-investigation-v63-sighted-wizard-clone-action4-20261014",
@@ -123941,12 +124155,14 @@
       "C-investigation-v64-stair-shipped-object-arrival-action3-20261014": {
         "id": "C-investigation-v64-stair-shipped-object-arrival-action3-20261014",
         "worker": "C",
-        "status": "parked",
+        "status": "ready",
         "seed": "synthetic/v64/v64-stair-shipped-object-arrival-action3",
         "reservations": [
-          "session:synthetic/v64/v64-stair-shipped-object-arrival-action3"
-        ],
-        "reason": "Diagnosis saved at adc0e4d88: dokick.c obj_delivery() must be ported and wired through do.c goto_level(), but required JavaScript guard removal and source attribution at makemon.c makemon is still reserved by C prior ready v57 delivery. Root is validating that delivery; resume this report after the makemon.c makemon reservation releases, then claim the full source scope before code edits."
+          "session:synthetic/v64/v64-stair-shipped-object-arrival-action3",
+          "source:dokick.c:obj_delivery",
+          "source:do.c:goto_level",
+          "source:makemon.c:makemon"
+        ]
       },
       "A2-investigation-v63-sighted-wizard-clone-action4-20261014": {
         "id": "A2-investigation-v63-sighted-wizard-clone-action4-20261014",
@@ -124064,6 +124280,26 @@
       }
     },
     "reservations": {
+      "session:synthetic/v64/v64-stair-shipped-object-arrival-action3": {
+        "tasks": [
+          "C-investigation-v64-stair-shipped-object-arrival-action3-20261014"
+        ]
+      },
+      "source:dokick.c:obj_delivery": {
+        "tasks": [
+          "C-investigation-v64-stair-shipped-object-arrival-action3-20261014"
+        ]
+      },
+      "source:do.c:goto_level": {
+        "tasks": [
+          "C-investigation-v64-stair-shipped-object-arrival-action3-20261014"
+        ]
+      },
+      "source:makemon.c:makemon": {
+        "tasks": [
+          "C-investigation-v64-stair-shipped-object-arrival-action3-20261014"
+        ]
+      },
       "session:synthetic/v65/v65-options-help-file-action3": {
         "tasks": [
           "A2-investigation-v65-options-help-file-action3-20261014"
@@ -124197,8 +124433,8 @@
     }
   },
   "development": {
-    "executionCommit": "92dd522455f1b4309973280d93c5fb72a3257997",
-    "measuredAt": "2026-10-14T18:37:13.494Z",
+    "executionCommit": "f6a51f3088b631c7f70ce29dbfb195d4c6e30069",
+    "measuredAt": "2026-10-14T18:51:41.763Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
