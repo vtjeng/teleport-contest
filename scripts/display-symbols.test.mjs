@@ -527,6 +527,9 @@ function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
     state.urole = { mnum: PM_TENGU };
     state.flags = {};
     monst_globals_init(state);
+    // newsym() can feel the hero's own square during redraws, which reads the
+    // initialized hero form just as C's u.youmonst does.
+    state.youmonst = { data: state.mons[state.u.umonnum] };
     reset_mvitals(state);
     objects_globals_init(state);
     initialize_symbols_from_options({ flags: {} }, state);
@@ -699,6 +702,9 @@ function statusRenderingState() {
     };
     state.moves = 7;
     state.mons = [{ mflags1: M1_HUMANOID }];
+    state.youmonst = {
+        data: { ...state.mons[0], msize: 2, mattk: [] },
+    };
     state.uwep = object(SPEAR);
     state.uarms = object(SMALL_SHIELD);
     state.invent = { oclass: COIN_CLASS, quan: 50, nobj: null };
@@ -1016,6 +1022,7 @@ test('disabled color suppresses the hero color', () => {
     const state = resetGame();
     state.level = new GameMap();
     state.u = { ux: 7, uy: 4 };
+    state.youmonst = { data: { mflags1: 0, msize: 2, mattk: [] } };
     state.iflags = { wc_color: false };
     state.level.at(7, 4).typ = ROOM;
     initialize_symbols_from_options({ flags: {} }, state);
@@ -2008,6 +2015,37 @@ test('feel_location darkens a remembered lit corridor', () => {
     corridor.remembered_glyph = null;
     feel_location(x, y, state);
     assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_litcorr);
+});
+
+test('newsym feels the blind hero square before displaying self', () => {
+    // display.c:1041-1045 calls feel_location() before display_self() when
+    // the hero occupies a square that cannot be physically seen. This is
+    // especially visible on Rogue levels: feeling writes S_darkroom, which
+    // newsym()'s Rogue memory arm intentionally leaves intact.
+    const x = 7;
+    const y = 4;
+    const state = feelingHeroBeside(x, y);
+    state.u.ux = x;
+    state.u.uy = y;
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    state.rogue_level = { dnum: 0, dlevel: 1 };
+    state.iflags = { ...(state.iflags ?? {}), wc_color: true };
+    const location = state.level.at(x, y);
+    location.typ = ROOM;
+    location.lit = false;
+    location.waslit = false;
+    location.remembered_glyph = {
+        glyph: cmap_to_glyph(S_room, state),
+    };
+
+    newsym(x, y);
+
+    assert.equal(
+        glyph_to_cmap(location.remembered_glyph.glyph),
+        S_darkroom,
+        'the tactile update is saved before the hero redraw',
+    );
+    assert.equal(location.disp_ch, '@');
 });
 
 // display.c map_invisible() (377-385) with the GLYPH_INVIS_OFF arm of
