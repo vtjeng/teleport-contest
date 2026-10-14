@@ -86,6 +86,8 @@ test('the checked-in quality ledger has a valid schema', async () => {
       'js/polyself_bodyparts.js',
       'js/random_text_data.js',
       'js/read_text_data.js',
+      // Sam-strt.lua is generated alongside the other fixed level programs.
+      'js/sam_strt_level_data.js',
       'js/shtypes_data.js',
       'js/sound_effects_data.js',
       'js/symbol_data.js',
