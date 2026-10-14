@@ -53,7 +53,7 @@ import {
     x_monnam,
     do_mgivenname,
 } from '../js/do_name.js';
-import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
+import { ART_EXCALIBUR, ART_STING, init_artifacts } from '../js/artifacts.js';
 import {
     ARTICLE_A,
     ARTICLE_NONE,
@@ -84,6 +84,7 @@ import {
 } from '../js/const.js';
 import {
     CORPSE,
+    ELVEN_DAGGER,
     FIGURINE,
     LONG_SWORD,
     STATUE,
@@ -992,6 +993,29 @@ test('oname names an object and converts a matching artifact', () => {
     assert.equal(plain.oextra.oname, 'Rover');
     oname(plain, '', ONAME_WISH, { state });
     assert.equal(has_oname(plain), false);
+});
+
+test('oname ends two-weapon combat when Sting is named in the secondary slot', async () => {
+    await runSegment({
+        seed: 424243,
+        datetime: '20320405060708',
+        nethackrc: 'OPTIONS=name:StingTest,role:Wizard,race:human,gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,playmode:debug\n',
+        moves: '',
+    });
+
+    const state = game;
+    const dagger = { otyp: ELVEN_DAGGER, oartifact: 0, where: OBJ_FREE };
+    state.uswapwep = dagger;
+    state.u.twoweap = true;
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await oname(dagger, 'Sting', ONAME_WISH, { state });
+
+    assert.equal(dagger.oartifact, ART_STING);
+    assert.equal(state.u.twoweap, false);
+    assert.equal(state._pending_message,
+        'You can no longer wield two weapons at once.');
 });
 
 test('oname truncates a name at PL_PSIZ and stops on a held object', () => {

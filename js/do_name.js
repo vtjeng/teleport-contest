@@ -153,9 +153,9 @@ import { get_rnd_text } from './random_text.js';
 import { HCOLORS, HLIQUIDS } from './random_text_data.js';
 import { rn1, rn2, rn2_on_display_rng, rnd_on_display_rng } from './rng.js';
 import { getlin } from './windows.js';
-import { note_unported } from './unported.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { livelog_printf, verbalize } from './pline.js';
+import { untwoweapon } from './wield.js';
 import { wipeout_text } from './engrave.js';
 import { hides_under } from './mondata.js';
 // C apply.c:beautiful() is shared with do_mgivenname(); apply.js already
@@ -299,8 +299,7 @@ function* oname_steps(obj, name, oflgs, env) {
     if (obj.oartifact) {
         /* can't dual-wield with artifact as secondary weapon */
         if (obj === state.uswapwep) {
-            state.u.twoweap = false;
-            note_unported('wield.c untwoweapon() message');
+            yield untwoweapon(state);
         }
         /* activate warning if you've just named your weapon "Sting" */
         if (obj === state.uwep)
