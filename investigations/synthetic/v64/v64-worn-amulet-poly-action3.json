@@ -24,7 +24,8 @@
     "earliestStep": null,
     "caseId": "v64-worn-amulet-poly-action3",
     "batch": "v64",
-    "recordingPath": "challenges/cases/v64/v64-worn-amulet-poly-action3.session.json"
+    "recordingPath": "challenges/cases/v64/v64-worn-amulet-poly-action3.session.json",
+    "session": "synthetic/v64/v64-worn-amulet-poly-action3"
   },
   "summary": "When a worn ESP amulet is polymorphed into another amulet, C removes the old item, installs the replacement in the same slot, and reapplies wear effects. The JS poly_obj caller skips accessory removal and set_wear, so setworn tries to replace the still-worn amulet with an environment that lacks cancelDoff and throws. The ordinary scan reproduces this at js/zap.js:2546 through potion_dip. The C trace diverges at zero-based step 173 after matching through step 172.",
   "source": {
