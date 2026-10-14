@@ -1,0 +1,44 @@
+{
+  "session": "synthetic/v69/v69-swallowed-break-action4",
+  "corpus": "synthetic",
+  "batch": "v69",
+  "caseId": "v69-swallowed-break-action4",
+  "remainingScreens": 74,
+  "recordedSteps": 476,
+  "status": "complete",
+  "summary": "The admitted v69 replay stops when a swallowed hero breaks a teleportation wand. C teleds() clears the swallowed state, restores punishment-ball bookkeeping when needed, and redraws the ordinary map with docrt() before relocating the hero. JavaScript teleds() throws for every swallowed hero at that branch, so it omits the redraw and the remaining relocation effects.",
+  "commit": "550d26d439b8810b34326ac91e330da10c08f69f",
+  "mismatch": {
+    "session": "synthetic/v69/v69-swallowed-break-action4",
+    "remainingScreens": 74,
+    "kind": "stop",
+    "message": "UnsupportedHeroMoveBoundaryError: teleds() out of an engulfer",
+    "step": 402
+  },
+  "source": {
+    "file": "teleport.c",
+    "branch": "teleport.c:488-505 saves u.uswallow before set_ustuck(NULL) clears it. When was_swallowed is true, teleds() sets ball_active and disables drag bookkeeping if Punished, then calls docrt() unconditionally. It continues through normal relocation, vision and terrain updates, and spoteffects(). JavaScript teleport.js:1837-1842 throws before those effects for every swallowed state.",
+    "functions": ["teleds"],
+    "callers": [
+      "apply.c:do_break_wand() applies WAN_TELEPORTATION through its explosion effects; zap.c:zapyourself() calls tele(), and teleport.c:tele() reaches safe_teleds()/teleds().",
+      "teleport.c:teleds() is also called by safe_teleds(), scrolltele(), teleport traps, and mounted relocation paths; this task implements its whole function's swallowed branch."
+    ],
+    "dependencies": [
+      "display.c:docrt() is already implemented as js/display.js:docrt() and imported by js/teleport.js; production state is the module-level game that docrt() redraws.",
+      "mon.c:set_ustuck() is already implemented as js/mon.js:set_ustuck() and clears u.uswallow when passed null."
+    ]
+  },
+  "goalKind": "file-port",
+  "manifestPath": "challenges/manifests/v69.json",
+  "manifestSha256": "12a5d44891f8681f06d1c769bbee98f7851412aa1f53402ac106a9046acf7bd9",
+  "recordingSha256": "581dbff14e56a273119b0426f0f7701c23ddedc750d8a88a88d9a9bc595b8b30",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v69.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "evidence": [
+    "The accepted v69 evaluation reports 402/476 matched screens, 3174/3191 matched RNG calls, and 402/476 matched cursors. Its first screen and cursor mismatch is step 402, where JavaScript stops with UnsupportedHeroMoveBoundaryError: teleds() out of an engulfer. The evaluation names manifest digest 12a5d44891f8681f06d1c769bbee98f7851412aa1f53402ac106a9046acf7bd9 and recording digest 581dbff14e56a273119b0426f0f7701c23ddedc750d8a88a88d9a9bc595b8b30.",
+    "The admitted C recipe has an air elemental engulf the hero, then breaks a charged teleportation wand. At C step 402, the hero materializes on the selected adjacent square; the saved screen and cursor are present in challenges/cases/v69/v69-swallowed-break-action4.session.json. Prep's independent C replay is byte-identical to that admitted recording, as recorded in challenges/manifests/v69.json.",
+    "Upstream nethack-c/upstream/src/teleport.c:488-505 saves was_swallowed before set_ustuck(NULL), then calls docrt() after restoring punishment-ball state. The function continues into u_on_newpos(), fill_pit(), region updates, vision redraw, and spoteffects(); the recorded materialization screen is downstream of that branch.",
+    "The current js/teleport.js:1837-1842 clears the swallowed state and then throws UnsupportedHeroMoveBoundaryError before the relocation effects. The saved C RNG call rn2(100) from obj_resists(zap.c:1469) is reached after the first missing screen, so it is downstream evidence rather than the first mismatch owner.",
+    "The production path starts in apply.c:do_break_wand(), whose WAN_TELEPORTATION effect reaches zap.c:zapyourself(), then teleport.c:tele() and safe_teleds()/teleds(). The source unit to complete is teleport.c:teleds(); display.c:docrt() and mon.c:set_ustuck() already have JavaScript implementations."
+  ]
+}
