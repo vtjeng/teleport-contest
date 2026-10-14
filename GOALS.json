@@ -306521,6 +306521,133 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-lock-chest-shatter-material-v66-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement chest_shatter_msg from lock.c",
+      "cFile": "lock.c",
+      "sessions": [
+        "synthetic/v66/v66-chest-shatter-material-action9"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v66-chest-shatter-material-action9-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "chest_shatter_msg",
+      "session": "synthetic/v66/v66-chest-shatter-material-action9"
+    },
+    {
+      "id": "muse-unslime-fire-scroll-explosion-v66-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Run the fire-scroll explosion when a monster cures sliming with SCR_FIRE.",
+      "cFile": "muse.c",
+      "sessions": [
+        "synthetic/v66/v66-monster-fire-scroll-cure-action9"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v66-monster-fire-scroll-cure-action9-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "muse_unslime",
+      "session": "synthetic/v66/v66-monster-fire-scroll-cure-action9"
+    },
+    {
+      "id": "fix-mklev-dosdoor-rogue-trapped-door-v67-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dosdoor from mklev.c",
+      "cFile": "mklev.c",
+      "sessions": [
+        "synthetic/v67/v67-rogue-blind-probing-action7"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v67-rogue-blind-probing-action7-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dosdoor",
+      "session": "synthetic/v67/v67-rogue-blind-probing-action7"
+    },
+    {
+      "id": "fix-trap-killed-steed-dismount-v67-landmine",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Dismount a steed killed by a land mine and move its saddle beside the corpse.",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v67/v67-landmine-steed-saddle-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v67-landmine-steed-saddle-action5-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "steedintrap",
+      "session": "synthetic/v67/v67-landmine-steed-saddle-action5"
+    },
+    {
+      "id": "port-mon-m_detach-quest-leaddead-v65-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port mon.c:m_detach's dying quest-leader call together with required quest.c:leaddead state update.",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v65/v65-quest-leader-death-state-action8"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v65-quest-leader-death-state-action8-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "m_detach",
+          "line": 2734,
+          "endLine": 2807,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 2734,
+        "to": 2807
+      },
+      "requiredFunctions": [
+        {
+          "name": "leaddead",
+          "line": 116,
+          "endLine": 124,
+          "declared": false,
+          "sourceFile": "quest.c"
+        }
+      ]
+    },
+    {
+      "id": "fix-shk-u-left-shop-boundary-warning-v67-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement u_left_shop from shk.c",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v67/v67-angry-shop-settlement-action10"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v67-angry-shop-settlement-action10-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "u_left_shop",
+      "session": "synthetic/v67/v67-angry-shop-settlement-action10"
     }
   ]
 }
