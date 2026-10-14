@@ -1310,7 +1310,11 @@ export function possibly_unwield(monster, polyspot = false, env = {}) {
                     { ...env, state },
                 )) {
                     if (polyspot) bypass_obj(weapon, state);
-                    place_object(weapon, monster.mx, monster.my, { ...env, state });
+                    const placement = place_object(
+                        weapon, monster.mx, monster.my, { ...env, state },
+                    );
+                    if (placement && typeof placement.then === 'function')
+                        await placement;
                     stackobj(weapon, { ...env, state });
                 }
             })();

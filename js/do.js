@@ -2171,7 +2171,7 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
     )) {
         return;
     }
-    place_object(
+    const placement = place_object(
         obj,
         normalized.state.u.ux,
         normalized.state.u.uy,
@@ -2185,6 +2185,7 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
             },
         },
     );
+    if (placement && typeof placement.then === 'function') await placement;
     if (withImpact) {
         // C do.c:dropz() calls container_impact_dmg() after placement and
         // before corpse disturbance, ball handling, shop sale, and stacking.

@@ -15,8 +15,6 @@ import {
     CXN_PFX_THE,
     RIGHT_HANDED,
     HALLUC_RES,
-    OBJ_FREE,
-    OBJ_INVENT,
     BLINDED,
     ECMD_CANCEL,
     ECMD_FAIL,
@@ -487,7 +485,7 @@ export async function chwepon(otmp, amount, state = game) {
                 + `${multiple ? 'fuse, and become' : 'is'} much duller now.`,
             state,
         );
-        sourceCostlyAlteration(uwep, COST_DEGRD, state);
+        await sourceCostlyAlteration(uwep, COST_DEGRD, state);
         uwep.otyp = WORM_TOOTH;
         uwep.oerodeproof = 0;
         if (multiple) {
@@ -543,7 +541,7 @@ export async function chwepon(otmp, amount, state = game) {
         }
     }
 
-    if (amount < 0) sourceCostlyAlteration(uwep, COST_DECHNT, state);
+    if (amount < 0) await sourceCostlyAlteration(uwep, COST_DECHNT, state);
     uwep.spe += amount;
     if (amount > 0) {
         if (uwep.cursed) await uncurse(uwep, { state });
@@ -578,12 +576,8 @@ function hallucinationActiveForWield(state) {
         && !(resistance?.intrinsic || resistance?.extrinsic);
 }
 
-function sourceCostlyAlteration(obj, alterType, state) {
-    if ((obj.where === OBJ_FREE || obj.where === OBJ_INVENT) && !obj.unpaid) {
-        costly_alteration(obj, alterType, { state });
-    } else {
-        note_unported('shk.c costly_alteration');
-    }
+async function sourceCostlyAlteration(obj, alterType, state) {
+    await costly_alteration(obj, alterType, { state });
 }
 
 function propertyActiveForWield(state, property) {

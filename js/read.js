@@ -102,8 +102,6 @@ import {
     LL_CONDUCT,
     LL_GENOCIDE,
     MAX_ERODE,
-    OBJ_FREE,
-    OBJ_INVENT,
     Upolyd,
     Ugender,
     plur,
@@ -527,7 +525,7 @@ async function stripspe(obj, state = game) {
         await ttyPline(nothing_happens, state);
     } else {
         await ttyPline(`${Yobjnam2(obj, 'vibrate', state)} briefly.`, state);
-        sourceCostlyAlteration(obj, COST_UNCHRG, state);
+        await sourceCostlyAlteration(obj, COST_UNCHRG, state);
         obj.spe = 0;
         if (obj.otyp === OIL_LAMP || obj.otyp === BRASS_LANTERN)
             obj.age = 0;
@@ -657,7 +655,7 @@ export async function recharge(obj, curseBless, state = game) {
                 state,
             );
             if (adjustment < 0)
-                sourceCostlyAlteration(obj, COST_DECHNT, state);
+                await sourceCostlyAlteration(obj, COST_DECHNT, state);
             if (isOn) await Ring_off(obj, state);
             obj.spe += adjustment;
             if (isOn) {
@@ -735,7 +733,7 @@ export async function recharge(obj, curseBless, state = game) {
                     await ttyPline(`${Yobjnam2(obj, 'vibrate', state)} briefly.`, state);
                 }
                 if (obj.spe > 0)
-                    sourceCostlyAlteration(obj, COST_UNCHRG, state);
+                    await sourceCostlyAlteration(obj, COST_UNCHRG, state);
                 obj.spe = 0;
             } else if (isBlessed) {
                 obj.spe = 7;
@@ -1558,7 +1556,7 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
         if (oldErodeproof && !newErodeproof) {
             // C restores the old flag before shop billing.
             otmp.oerodeproof = true;
-            sourceCostlyAlteration(otmp, COST_DEGRD, state);
+            await sourceCostlyAlteration(otmp, COST_DEGRD, state);
         }
         otmp.oerodeproof = newErodeproof;
         return false;
@@ -1650,7 +1648,7 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
     );
 
     if (s < 0)
-        sourceCostlyAlteration(otmp, COST_DECHNT, state);
+        await sourceCostlyAlteration(otmp, COST_DECHNT, state);
     if (scursed && !otmp.cursed)
         await curse(otmp, effectEnv);
     else if (sblessed && !otmp.blessed)
@@ -1728,7 +1726,7 @@ export async function seffect_destroy_armor(
         if (oldErodeproof && !newErodeproof) {
             // Restore before shop billing, in source order.
             otmp.oerodeproof = true;
-            sourceCostlyAlteration(otmp, COST_DEGRD, state);
+            await sourceCostlyAlteration(otmp, COST_DEGRD, state);
         }
         otmp.oerodeproof = newErodeproof;
         return false;
@@ -1889,7 +1887,7 @@ export async function seffect_remove_curse(scroll, state = game, env = {}) {
                         alter_cost(obj, 0, state);
                 } else if (obj.cursed) {
                     if (shopWater)
-                        sourceCostlyAlteration(obj, COST_UNCURS, state);
+                        await sourceCostlyAlteration(obj, COST_UNCURS, state);
                     await uncurse(obj, { ...env, state });
                     if (obj.bknown && otyp === SCR_REMOVE_CURSE)
                         learnscrolltyp(SCR_REMOVE_CURSE, state);
@@ -3379,7 +3377,7 @@ export async function seffect_enchant_weapon(scroll, state = game) {
             // C restores the old flag before asking the shop subsystem to
             // price the change, then applies the new false value below.
             uwep.oerodeproof = 1;
-            sourceCostlyAlteration(uwep, COST_DEGRD, state);
+            await sourceCostlyAlteration(uwep, COST_DEGRD, state);
         }
         uwep.oerodeproof = newErodeproof ? 1 : 0;
         return false;
@@ -3398,14 +3396,9 @@ export async function seffect_enchant_weapon(scroll, state = game) {
     return consumed;
 }
 
-// C ref: shk.c costly_alteration() is a void call here. Its JS port only owns
-// the source fast path for free/inventory objects without an unpaid bill.
-function sourceCostlyAlteration(obj, alterType, state) {
-    if ((obj.where === OBJ_FREE || obj.where === OBJ_INVENT) && !obj.unpaid) {
-        costly_alteration(obj, alterType, { state });
-    } else {
-        note_unported('shk.c costly_alteration');
-    }
+// C ref: mkobj.c costly_alteration() bills each source branch before returning.
+async function sourceCostlyAlteration(obj, alterType, state) {
+    await costly_alteration(obj, alterType, { state });
 }
 
 // C ref: read.c cant_revive() (3111-3134).

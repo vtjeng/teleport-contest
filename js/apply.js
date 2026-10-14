@@ -959,11 +959,14 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
                 await possibly_unwield(monster, false, { state });
                 await setmnotwielded(monster, object, { state });
                 switch (rn2(proficient + 1)) {
-                case 2:
+                case 2: {
                     await ttyPline(`You yank ${yname(object, state)} to the ${surface(u.ux, u.uy, state)}!`, state);
-                    place_object(object, u.ux, u.uy, { state });
+                    const placement = place_object(object, u.ux, u.uy, { state });
+                    if (placement && typeof placement.then === 'function')
+                        await placement;
                     stackobj(object, { state });
                     break;
+                }
                 case 3: {
                     await ttyPline(`You snatch ${yname(object, state)}!`, state);
                     const species = state.mons?.[object.corpsenm];
@@ -976,7 +979,11 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
                             ? await polymon(PM_STONE_GOLEM, state) : false;
                         if (!saved) {
                             await ttyPline(`Snatching ${an(objectName, state)} is a fatal mistake.`, state);
-                            place_object(object, u.ux, u.uy, { state });
+                            const placement = place_object(
+                                object, u.ux, u.uy, { state },
+                            );
+                            if (placement && typeof placement.then === 'function')
+                                await placement;
                             note_unported('trap.c instapetrify');
                             obj_extract_self(object, { state });
                         }
@@ -989,8 +996,14 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
                 }
                 default:
                     await ttyPline(`You yank ${the(objectName, state)} from ${s_suffix(mon_nam(monster, state))} ${hand}!`, state);
-                    obj_no_longer_held(object, { state });
-                    place_object(object, monster.mx, monster.my, { state });
+                    const release = obj_no_longer_held(object, { state });
+                    if (release && typeof release.then === 'function')
+                        await release;
+                    const placement = place_object(
+                        object, monster.mx, monster.my, { state },
+                    );
+                    if (placement && typeof placement.then === 'function')
+                        await placement;
                     stackobj(object, { state });
                     break;
                 }
@@ -1863,10 +1876,8 @@ function heroDeaf(state) {
         || state.u?.uroleplay?.deaf);
 }
 
-// C ref: apply.c use_cream_pie() (3568-3603). The C-discarded shop
-// alteration remains a named gap for billed inventory when its implementation
-// is not supplied; the ordinary paid inventory path is costly_alteration()'s
-// source fast path.
+// C ref: apply.c use_cream_pie() (3568-3603). Complete the shop alteration
+// and its audible billing before consuming the cream pie.
 async function use_cream_pie(obj, state = game, rawEnv = {}) {
     const random = { d, rn1, rn2, rnd, rne, rnz, ...(rawEnv.random ?? {}) };
     const env = { ...rawEnv, state, random };
@@ -1916,11 +1927,7 @@ async function use_cream_pie(obj, state = game, rawEnv = {}) {
     }
 
     await setnotworn(obj, env);
-    if (obj.unpaid && typeof env.hooks?.costlyAlteration !== 'function') {
-        if (state === game) note_unported('mkobj.c costly_alteration');
-    } else {
-        costly_alteration(obj, COST_SPLAT, env);
-    }
+    await costly_alteration(obj, COST_SPLAT, env);
     obj_extract_self(obj, env);
     delobj(obj, env);
     return ECMD_OK;
@@ -4758,7 +4765,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
 
     if (obj.unpaid) {
         await check_unpaid(obj, state, { ...env, random });
-        costly_alteration(obj, COST_DSTROY, env);
+        await costly_alteration(obj, COST_DSTROY, env);
     }
 
     state.current_wand = obj;

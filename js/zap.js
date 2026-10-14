@@ -2709,7 +2709,9 @@ export async function stone_to_flesh_obj(obj, state = game,
                     const item = target.cobj;
                     bypass_obj(item, state);
                     obj_extract_self(item, env);
-                    place_object(item, ox, oy, env);
+                    const placement = place_object(item, ox, oy, env);
+                    if (placement && typeof placement.then === 'function')
+                        await placement;
                 }
                 target = await poly_obj(target, CORPSE,
                     state, random, rawEnv);
@@ -2798,7 +2800,8 @@ export async function fracture_rock(obj, state = game, random = { rn1 }, rawEnv 
     if (obj.where === OBJ_FLOOR) {
         const { ox, oy } = obj;
         obj_extract_self(obj, objectEnv);
-        place_object(obj, ox, oy, objectEnv);
+        const placement = place_object(obj, ox, oy, objectEnv);
+        if (placement && typeof placement.then === 'function') await placement;
         if (!does_block(ox, oy, null, state)) {
             unblock_point(ox, oy, state);
             // The ray may hit more objects after this square; make vision
@@ -2826,7 +2829,8 @@ export async function break_statue(obj, state = game, random = { rn1 }, rawEnv =
     while (obj.cobj) {
         const item = obj.cobj;
         obj_extract_self(item, objectEnv);
-        place_object(item, obj.ox, obj.oy, objectEnv);
+        const placement = place_object(item, obj.ox, obj.oy, objectEnv);
+        if (placement && typeof placement.then === 'function') await placement;
     }
     if (byHero
         && state.urole?.mnum === PM_ARCHEOLOGIST
@@ -2846,21 +2850,13 @@ export async function break_statue(obj, state = game, random = { rn1 }, rawEnv =
 // object mutations remain source ordered.
 export async function cancel_item(obj, state = game, rawEnv = {}) {
     const otyp = obj.otyp;
-    const alterationEnv = objectGenerationEnv({
-        ...rawEnv,
-        state,
-        hooks: {
-            ...rawEnv.hooks,
-            costlyAlteration: rawEnv.hooks?.costlyAlteration
-                ?? (() => note_unported('mkobj.c costly_alteration')),
-        },
-    });
-    const alterCost = (alterType) => {
+    const alterationEnv = objectGenerationEnv({ ...rawEnv, state });
+    const alterCost = async (alterType) => {
         // mkobj.c:costly_alteration() returns immediately for a floor object
-        // outside a shop, before consulting its still-unported bill effects.
+        // outside a shop.
         if (obj.where === OBJ_FLOOR
             && !costly_spot(obj.ox, obj.oy, state)) return;
-        costly_alteration(obj, alterType, alterationEnv);
+        await costly_alteration(obj, alterType, alterationEnv);
     };
     if (carried(obj, state)) {
         switch (otyp) {
@@ -2924,25 +2920,25 @@ export async function cancel_item(obj, state = game, rawEnv = {}) {
             && otyp !== WAN_CANCELLATION
             && otyp !== MAGIC_LAMP
             && otyp !== CANDELABRUM_OF_INVOCATION) {
-            alterCost(COST_CANCEL);
+            await alterCost(COST_CANCEL);
             obj.spe = cancelledSpe;
         }
         switch (obj.oclass) {
         case SCROLL_CLASS:
-            alterCost(COST_CANCEL);
+            await alterCost(COST_CANCEL);
             obj.otyp = SCR_BLANK_PAPER;
             obj.spe = 0;
             break;
         case SPBOOK_CLASS:
             if (otyp !== SPE_CANCELLATION && otyp !== SPE_BOOK_OF_THE_DEAD) {
-                alterCost(COST_CANCEL);
+                await alterCost(COST_CANCEL);
                 obj.otyp = SPE_BLANK_PAPER;
                 if (otyp === SPE_NOVEL)
                     blank_novel(obj, alterationEnv);
             }
             break;
         case POTION_CLASS:
-            alterCost(otyp !== POT_WATER ? COST_CANCEL
+            await alterCost(otyp !== POT_WATER ? COST_CANCEL
                 : obj.cursed ? COST_UNCURS : COST_UNBLSS);
             if (otyp === POT_SICKNESS || otyp === POT_SEE_INVISIBLE) {
                 obj.otyp = POT_FRUIT_JUICE;
@@ -2996,64 +2992,63 @@ export function drain_item(obj, byYou, state = game, rawEnv = {}) {
         || obj_resists(obj, 10, 90, { ...rawEnv, state, random }))
         return false;
 
+    const finishDrain = () => {
+        obj.spe--;
+        const uRing = obj === state.uleft || obj === state.uright;
+        switch (obj.otyp) {
+        case RIN_GAIN_STRENGTH:
+            if ((obj.owornmask & W_RING) && uRing) {
+                state.u.abon[A_STR]--;
+                state.disp.botl = true;
+            }
+            break;
+        case RIN_GAIN_CONSTITUTION:
+            if ((obj.owornmask & W_RING) && uRing) {
+                state.u.abon[A_CON]--;
+                state.disp.botl = true;
+            }
+            break;
+        case RIN_ADORNMENT:
+            if ((obj.owornmask & W_RING) && uRing) {
+                state.u.abon[A_CHA]--;
+                state.disp.botl = true;
+            }
+            break;
+        case RIN_INCREASE_ACCURACY:
+            if ((obj.owornmask & W_RING) && uRing) state.u.uhitinc--;
+            break;
+        case RIN_INCREASE_DAMAGE:
+            if ((obj.owornmask & W_RING) && uRing) state.u.udaminc--;
+            break;
+        case RIN_PROTECTION:
+            if (uRing) state.disp.botl = true;
+            break;
+        case HELM_OF_BRILLIANCE:
+            if ((obj.owornmask & W_ARMH) && obj === state.uarmh) {
+                state.u.abon[A_INT]--;
+                state.u.abon[A_WIS]--;
+                state.disp.botl = true;
+            }
+            break;
+        case GAUNTLETS_OF_DEXTERITY:
+            if ((obj.owornmask & W_ARMG) && obj === state.uarmg) {
+                state.u.abon[A_DEX]--;
+                state.disp.botl = true;
+            }
+            break;
+        default:
+            break;
+        }
+        if (state.disp.botl) statusRefresh();
+        if (carried(obj, state)) update_inventory({ ...rawEnv, state });
+        return true;
+    };
     if (byYou) {
-        const hooks = { ...(rawEnv.hooks ?? {}) };
-        hooks.costlyAlteration ??= () => {
-            if (!rawEnv.planning)
-                note_unported('mkobj.c costly_alteration');
-        };
-        costly_alteration(obj, COST_DRAIN, { ...rawEnv, state, hooks });
+        const billing = costly_alteration(obj, COST_DRAIN, { ...rawEnv, state });
+        return billing && typeof billing.then === 'function'
+            ? billing.then(finishDrain) : finishDrain();
     }
-
-    obj.spe--;
-    const uRing = obj === state.uleft || obj === state.uright;
-    switch (obj.otyp) {
-    case RIN_GAIN_STRENGTH:
-        if ((obj.owornmask & W_RING) && uRing) {
-            state.u.abon[A_STR]--;
-            state.disp.botl = true;
-        }
-        break;
-    case RIN_GAIN_CONSTITUTION:
-        if ((obj.owornmask & W_RING) && uRing) {
-            state.u.abon[A_CON]--;
-            state.disp.botl = true;
-        }
-        break;
-    case RIN_ADORNMENT:
-        if ((obj.owornmask & W_RING) && uRing) {
-            state.u.abon[A_CHA]--;
-            state.disp.botl = true;
-        }
-        break;
-    case RIN_INCREASE_ACCURACY:
-        if ((obj.owornmask & W_RING) && uRing) state.u.uhitinc--;
-        break;
-    case RIN_INCREASE_DAMAGE:
-        if ((obj.owornmask & W_RING) && uRing) state.u.udaminc--;
-        break;
-    case RIN_PROTECTION:
-        if (uRing) state.disp.botl = true;
-        break;
-    case HELM_OF_BRILLIANCE:
-        if ((obj.owornmask & W_ARMH) && obj === state.uarmh) {
-            state.u.abon[A_INT]--;
-            state.u.abon[A_WIS]--;
-            state.disp.botl = true;
-        }
-        break;
-    case GAUNTLETS_OF_DEXTERITY:
-        if ((obj.owornmask & W_ARMG) && obj === state.uarmg) {
-            state.u.abon[A_DEX]--;
-            state.disp.botl = true;
-        }
-        break;
-    default:
-        break;
-    }
-    if (state.disp.botl) statusRefresh();
-    if (carried(obj, state)) update_inventory({ ...rawEnv, state });
-    return true;
+    return finishDrain();
 }
 
 // C ref: zap.c bhito() (2119-2427), complete floor-object callback. Void
@@ -3210,9 +3205,11 @@ export async function bhito(obj, wand, state = game,
             await cancel_item(obj, state, rawEnv);
             newsym(obj.ox, obj.oy, state);
             break;
-        case SPE_DRAIN_LIFE:
-            drain_item(obj, true, state, { ...rawEnv, random });
+        case SPE_DRAIN_LIFE: {
+            const drained = drain_item(obj, true, state, { ...rawEnv, random });
+            if (drained && typeof drained.then === 'function') await drained;
             break;
+        }
         case WAN_TELEPORTATION:
         case SPE_TELEPORT_AWAY: {
             const ox = obj.ox;
@@ -3862,7 +3859,11 @@ export async function bhitpile(wand, tx, ty, state = game,
     let previousType = BOULDER;
     while (previous) {
         if (previous.otyp === BOULDER && previousType !== BOULDER) {
-            recreate_pile_at(tx, ty, zapObjectEnv(state, random, rawEnv));
+            const rebuilding = recreate_pile_at(
+                tx, ty, zapObjectEnv(state, random, rawEnv),
+            );
+            if (rebuilding && typeof rebuilding.then === 'function')
+                await rebuilding;
             break;
         }
         previousType = previous.otyp;

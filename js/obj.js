@@ -7,11 +7,14 @@ import {
     A_NONE,
     BLINDED,
     BURIED_TOO,
+    CONTAINED_TOO,
     CORPSTAT_FEMALE,
     CORPSTAT_MALE,
     CORPSTAT_NEUTER,
     COST_DEGRD,
     COST_SINGLEOBJ,
+    COST_UNBLSS,
+    COST_UNCURS,
     COLNO,
     DB_ICE,
     DB_UNDER,
@@ -60,6 +63,7 @@ import {
     ROT_CORPSE,
     ROWNO,
     SHRINK_GLOB,
+    SHOPBASE,
     SPINACH_TIN,
     TIMER_OBJECT,
     W_AMUL,
@@ -163,7 +167,7 @@ import { youHear, youSee } from './monmove.js';
 // Naming functions in objnam.js are used only inside object helper bodies, so
 // the function-body-only module cycle is safe after initialization.
 import {
-    Yname2, donameFresh, erosion_matters, obj_typename, otense,
+    Yname2, donameFresh, erosion_matters, obj_typename, otense, simpleonames,
 } from './objnam.js';
 import {
     pushRngLogEntry,
@@ -200,14 +204,19 @@ import { note_unported } from './unported.js';
 import {
     addtobill,
     alter_cost,
+    billable,
     costly_adjacent,
     costly_spot,
     find_objowner,
     onshopbill,
     shop_keeper,
     subfrombill,
+    stolen_value,
     unpaid_cost,
 } from './shk.js';
+import { in_rooms } from './rooms.js';
+import { verbalize } from './pline.js';
+import { set_voice } from './sounds.js';
 // encumber_msg() compares the old and new encumbrance after glob weight
 // changes. pickup.js imports from this file; both sides use the other's
 // exports only inside function bodies.
@@ -449,8 +458,6 @@ export class UnsupportedObjectOperationError extends Error {
 //   isPermanentlyPoisoned(obj, env) -> boolean
 //   stopObjectTimers(obj, env) -> must clear obj.timed and its timer queue
 //   deleteObjectLightSource(obj, env) -> removes the remaining light source
-//   costlyAlteration(obj, COST_DEGRD, env) -> applies shop billing before
-//     an irreversible object degradation
 
 // Each alias reads and writes `this[source]`, so every object can share one
 // descriptor. A fresh getter and setter per object would give each object its
@@ -2830,14 +2837,73 @@ function floorObjectGrid(state) {
     return grid;
 }
 
-// C ref: mkobj.c costly_alteration(). The full shop-location calculation is
-// not ported here. Its source fast path proves that an unbilled free or
-// inventory object has no shop consequence; every other case needs the hook
-// so a potentially owed side effect cannot be silently discarded.
+// C ref: mkobj.c costly_alteration(). Preserve its carried/free unpaid path,
+// floor-shop check, wording, knowledge update and billing order.
+const alterationVerbs = [
+    'cancel', 'drain', 'uncharge', 'unbless', 'uncurse', 'disenchant',
+    'degrade', 'dilute', 'erase', 'burn', 'neutralize', 'destroy', 'splatter',
+    'bite', 'open', 'break the lock on', 'rust', 'rot', 'tarnish', 'crack',
+];
+
 export function costly_alteration(obj, alterType, env = {}) {
-    if ((obj.where === OBJ_FREE || obj.where === OBJ_INVENT) && !obj.unpaid)
-        return;
-    requiredHook(env, 'costlyAlteration', obj)(obj, alterType, env);
+    const normalized = lifecycleEnv(env);
+    const { state } = normalized;
+    if (!Number.isInteger(alterType) || alterType < 0
+        || alterType >= alterationVerbs.length) {
+        return ttyPline(`impossible: invalid alteration type (${alterType})`, state)
+            .then(() => costly_alteration(obj, 0, normalized));
+    }
+
+    let ox = 0;
+    let oy = 0;
+    let objroom = '';
+    let shkp = null;
+    if (obj.where === OBJ_INVENT || obj.where === OBJ_MINVENT
+        || obj.where === OBJ_FREE) {
+        // OBJ_FREE includes an unpaid crysknife before place_object() or
+        // add_to_container() gives it its new location.
+        if (!obj.unpaid) return;
+    } else {
+        const location = get_obj_location(obj, CONTAINED_TOO, state);
+        if (location) {
+            ox = location.x;
+            oy = location.y;
+        } else {
+            ox = state.u.ux;
+            oy = state.u.uy;
+        }
+        if (!costly_spot(ox, oy, state)) return;
+        objroom = in_rooms(ox, oy, SHOPBASE, state)[0] ?? '';
+        const owner = { value: null };
+        if (!billable(owner, obj, objroom, false, state)) return;
+        shkp = owner.value;
+    }
+
+    const those = obj.quan === 1 ? 'that' : 'those';
+    const them = obj.quan === 1 ? 'it' : 'them';
+    const learnBknown = alterType === COST_UNCURS || alterType === COST_UNBLSS;
+    if (learnBknown) obj.bknown = true;
+
+    if (obj.where === OBJ_FREE || obj.where === OBJ_INVENT) {
+        if (shkp) set_voice(shkp, 0, 80, 0, state);
+        return verbalize(
+            `You ${alterationVerbs[alterType]} ${those} ${simpleonames(obj, state)}, you pay for ${them}!`,
+            state,
+            { message: normalized.message ?? ttyPline },
+        ).then(() => bill_dummy_object(obj, normalized));
+    } else if (obj.where === OBJ_FLOOR) {
+        if (costly_spot(state.u.ux, state.u.uy, state)
+            && objroom === Math.trunc(state.u.ushops?.[0] ?? 0)) {
+            if (shkp) set_voice(shkp, 0, 80, 0, state);
+            return verbalize(
+                `You ${alterationVerbs[alterType]} ${those}, you pay for ${them}!`,
+                state,
+                { message: normalized.message ?? ttyPline },
+            ).then(() => bill_dummy_object(obj, normalized));
+        } else {
+            return stolen_value(obj, ox, oy, false, false, state);
+        }
+    }
 }
 
 // C ref: do.c obj_no_longer_held(). Contents are released before their
@@ -2847,25 +2913,36 @@ export function obj_no_longer_held(obj, env = {}) {
     const { state } = normalized;
     let random;
 
-    const release = (current) => {
-        if (!current) return;
-
-        for (let contents = current.cobj; contents; contents = contents.nobj)
-            release(contents);
-
+    const releaseSelf = (current) => {
         if (current.otyp !== CRYSKNIFE) return;
         if (current.oerodeproof) {
             random ??= sourceRandom(normalized);
             if (random.rn2(10)) return;
         }
-
-        if (!state.context?.mon_moving && !state.program_state?.gameover)
-            costly_alteration(current, COST_DEGRD, normalized);
-        current.otyp = WORM_TOOTH;
-        current.oerodeproof = false;
+        const transform = () => {
+            current.otyp = WORM_TOOTH;
+            current.oerodeproof = false;
+        };
+        if (!state.context?.mon_moving && !state.program_state?.gameover) {
+            const billing = costly_alteration(current, COST_DEGRD, normalized);
+            if (billing && typeof billing.then === 'function')
+                return billing.then(transform);
+        }
+        transform();
     };
+    const releaseContents = (current, contents = current.cobj) => {
+        while (contents) {
+            const next = contents.nobj;
+            const result = release(contents);
+            if (result && typeof result.then === 'function')
+                return result.then(() => releaseContents(current, next));
+            contents = next;
+        }
+        return releaseSelf(current);
+    };
+    const release = (current) => current && releaseContents(current);
 
-    release(obj);
+    return release(obj);
 }
 
 // C ref: mkobj.c place_object(). This owns the two source floor indexes: the
@@ -2888,42 +2965,46 @@ export function place_object(obj, x, y, env = {}) {
         ? requiredHook(normalized, 'blockPoint', obj)
         : null;
 
-    const grid = floorObjectGrid(state);
-    let pile = grid[x][y];
-    obj_no_longer_held(obj, normalized);
-    if (pile?.otyp === BOULDER && obj.otyp !== BOULDER) {
-        while (pile.nexthere?.otyp === BOULDER) pile = pile.nexthere;
-        obj.nexthere = pile.nexthere;
-        pile.nexthere = obj;
-    } else {
-        obj.nexthere = pile;
-        grid[x][y] = obj;
-    }
+    const insert = () => {
+        const grid = floorObjectGrid(state);
+        let pile = grid[x][y];
+        if (pile?.otyp === BOULDER && obj.otyp !== BOULDER) {
+            while (pile.nexthere?.otyp === BOULDER) pile = pile.nexthere;
+            obj.nexthere = pile.nexthere;
+            pile.nexthere = obj;
+        } else {
+            obj.nexthere = pile;
+            grid[x][y] = obj;
+        }
 
-    obj.ox = x;
-    obj.oy = y;
-    obj.where = OBJ_FLOOR;
-    obj.nobj = state.level.objlist ?? null;
-    state.level.objlist = obj;
-    // Two things about this call do not look like C. C makes it above the pile
-    // insertion, and this port's block_point() is the same full vision_reset()
-    // as unblock_point() and recalc_block_point(), reading the live pile
-    // (js/vision.js blocksVisionAt()); a rebuild run before the insertion would
-    // still read the square as transparent, so it has to run after.
-    //
-    // C's `!otmp2 || otmp2->otyp != BOULDER` guard is dropped, and that is not
-    // free. The rebuild reaches C's blocked answer either way, since a square
-    // that already held a boulder rebuilds to the same value. But
-    // js/vision.js rebuildVisionPoint() also raises state.vision_full_recalc
-    // whenever the square is in the viz_array, and js/allmain.js spends that
-    // flag on an extra vision_recalc(0) at the end of the turn -- so on a
-    // second boulder landing where one already stands, this port makes a call
-    // C skips entirely. No ported path stacks boulders yet, which is why the
-    // guard is left out rather than written; restoring it means reading the
-    // pile before insertion.
-    if (blockPoint) blockPoint(x, y, normalized);
-    if (obj.timed) obj_timer_checks(obj, x, y, 0, normalized);
-    return obj;
+        obj.ox = x;
+        obj.oy = y;
+        obj.where = OBJ_FLOOR;
+        obj.nobj = state.level.objlist ?? null;
+        state.level.objlist = obj;
+        // Two things about this call do not look like C. C makes it above the pile
+        // insertion, and this port's block_point() is the same full vision_reset()
+        // as unblock_point() and recalc_block_point(), reading the live pile
+        // (js/vision.js blocksVisionAt()); a rebuild run before the insertion would
+        // still read the square as transparent, so it has to run after.
+        //
+        // C's `!otmp2 || otmp2->otyp != BOULDER` guard is dropped, and that is not
+        // free. The rebuild reaches C's blocked answer either way, since a square
+        // that already held a boulder rebuilds to the same value. But
+        // js/vision.js rebuildVisionPoint() also raises state.vision_full_recalc
+        // whenever the square is in the viz_array, and js/allmain.js spends that
+        // flag on an extra vision_recalc(0) at the end of the turn -- so on a
+        // second boulder landing where one already stands, this port makes a call
+        // C skips entirely. No ported path stacks boulders yet, which is why the
+        // guard is left out rather than written; restoring it means reading the
+        // pile before insertion.
+        if (blockPoint) blockPoint(x, y, normalized);
+        if (obj.timed) obj_timer_checks(obj, x, y, 0, normalized);
+        return obj;
+    };
+    const released = obj_no_longer_held(obj, normalized);
+    return released && typeof released.then === 'function'
+        ? released.then(insert) : insert();
 }
 
 function objectLocationIsIce(x, y, state) {
@@ -3072,13 +3153,17 @@ export function recreate_pile_at(x, y, env = {}) {
 
     // Pile at <x,y> is now empty; create new one, re-reversing to restore
     // original order; place_object() handles making boulders be on top.
-    otmp = reversed;
-    while (otmp) {
-        const nextObj = otmp.nobj;
-        otmp.nobj = null; // obj.where is OBJ_FREE
-        place_object(otmp, x, y, normalized);
-        otmp = nextObj;
-    }
+    const restore = (current) => {
+        while (current) {
+            const nextObj = current.nobj;
+            current.nobj = null; // obj.where is OBJ_FREE
+            const placement = place_object(current, x, y, normalized);
+            if (placement && typeof placement.then === 'function')
+                return placement.then(() => restore(nextObj));
+            current = nextObj;
+        }
+    };
+    return restore(reversed);
 }
 
 // C ref: mkobj.c extract_nobj() (2596-2615). Remove obj from a chain linked

@@ -2585,7 +2585,12 @@ export function unearth_objs(x, y, rawEnv = {}) {
             }
             obj_extract_self(obj, env);
             if (obj.timed) stop_timer(ROT_ORGANIC, obj, state, env);
-            place_object(obj, x, y, env);
+            const placement = place_object(obj, x, y, env);
+            if (placement && typeof placement.then === 'function')
+                return placement.then(() => {
+                    stackobj(obj, env);
+                    return expose(next);
+                });
             stackobj(obj, env);
         }
         finish();

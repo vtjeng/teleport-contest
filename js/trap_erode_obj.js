@@ -296,7 +296,7 @@ export async function erode_obj(obj, description, type, flags, env) {
             );
         }
         if (flags & EF_PAY)
-            costly_alteration(obj, details.costType, env);
+            await costly_alteration(obj, details.costType, env);
         setErosion(obj, details.primary, next);
         if (uvictim) update_inventory({ state });
         return ER_DAMAGED;
@@ -316,7 +316,7 @@ export async function erode_obj(obj, description, type, flags, env) {
             );
         }
         if (flags & EF_PAY)
-            costly_alteration(obj, details.costType, env);
+            await costly_alteration(obj, details.costType, env);
         if (obj.owornmask) {
             if (uvictim) {
                 const { remove_worn_item } = await import('./steal.js');

@@ -1477,7 +1477,9 @@ export async function mloot_container(mon, container, vismon, rawEnv = {}) {
             // [shouldn't be a problem; even though this item didn't
             // give the rummage message, that's what mon was doing]
             xobj.nomerge = 1;
-            xobj = add_to_container(container, xobj, { state });
+            const addition = add_to_container(container, xobj, { state });
+            xobj = addition && typeof addition.then === 'function'
+                ? await addition : addition;
             if (!already_nomerge)
                 xobj.nomerge = 0;
             container.owt = weight(container, { state });
@@ -1739,7 +1741,8 @@ export async function use_misc(mtmp, selection, state, env = {}) {
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} yanks ${the_weapon} from your ${hand_buf}!`,
                 state);
-            place_object(obj, mtmp.mx, mtmp.my, { state });
+            const placement = place_object(obj, mtmp.mx, mtmp.my, { state });
+            if (placement && typeof placement.then === 'function') await placement;
             break;
         case 2: /* onto floor beneath you */
             await pline_mon(mtmp,

@@ -1042,7 +1042,8 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
         );
     }
     if (!await flooreffects(obj, omx, omy, 'fall', env)) {
-        place_object(obj, omx, omy, env);
+        const placement = place_object(obj, omx, omy, env);
+        if (placement && typeof placement.then === 'function') await placement;
         stackobj(obj, env);
     }
     /* do this last, after placing obj on floor; removing steed's saddle

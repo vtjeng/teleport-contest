@@ -1456,12 +1456,14 @@ export async function meatbox(mon, obj, rawEnv = {}) {
                     ?? ((reason) => note_unported(`do.c flooreffects ${reason}`)),
             },
         )) {
-            place_object(
+            const placement = place_object(
                 child,
                 x,
                 y,
                 objectGenerationEnv({ ...rawEnv, state }),
             );
+            if (placement && typeof placement.then === 'function')
+                await placement;
         }
     }
 }
@@ -5765,7 +5767,9 @@ export async function monstone(mdef, state = game, env = {}) {
                 || obj_resists(obj, 0, 0, objectEnv)) {
                 if (await flooreffects(obj, x, y, 'fall', { ...env, state }))
                     continue;
-                place_object(obj, x, y, objectEnv);
+                const placement = place_object(obj, x, y, objectEnv);
+                if (placement && typeof placement.then === 'function')
+                    await placement;
             } else {
                 if (obj.lamplit) end_burn(obj, true, { ...env, state });
                 obj.nobj = oldminvent;
@@ -6103,7 +6107,9 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
                     delobj(otmp, dropEnv);
                 } else if (!await flooreffects(otmp, x, y, nomsg ? '' : 'fall',
                                          dropEnv)) {
-                    place_object(otmp, x, y, dropEnv);
+                    const placement = place_object(otmp, x, y, dropEnv);
+                    if (placement && typeof placement.then === 'function')
+                        await placement;
                     stackobj(otmp, objectGenerationEnv(dropEnv));
                 }
             }

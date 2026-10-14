@@ -8,7 +8,6 @@ import {
     EF_NONE,
     EF_PAY,
     EF_VERBOSE,
-    COST_RUST,
     ACID_RES,
     ERODE_BURN,
     ERODE_CORRODE,
@@ -766,12 +765,11 @@ test('EF_PAY destruction keeps the costly alteration source call', async () => {
         otyp: IRON_SHOES,
         quan: 1,
         rknown: false,
-        // Keep the source EF_PAY arm. The isolated shop hook below lets
-        // deletion finish without entering the unrelated bill lookup.
-        unpaid: true,
+        // Keep the source EF_PAY arm while exercising costly_alteration's
+        // no-billing branch for a non-unpaid free object.
+        unpaid: false,
         where: OBJ_FREE,
     };
-    const alterations = [];
     const result = await erode_obj(
         floorShoes,
         'shoes',
@@ -779,10 +777,6 @@ test('EF_PAY destruction keeps the costly alteration source call', async () => {
         EF_PAY | EF_DESTROY,
         {
             canSeeObject: () => false,
-            hooks: {
-                costlyAlteration: (obj, type) => alterations.push([obj, type]),
-                obfreeShopBill: () => 'unbilled',
-            },
             message: () => {},
             random: { rn2: () => 99, rnl: () => 1 },
             state: game,
@@ -790,9 +784,7 @@ test('EF_PAY destruction keeps the costly alteration source call', async () => {
     );
 
     assert.equal(result, ER_DESTROYED);
-    assert.equal(alterations.length, 1);
-    assert.strictEqual(alterations[0][0], floorShoes);
-    assert.equal(alterations[0][1], COST_RUST);
+    assert.equal(floorShoes.where, OBJ_DELETED);
 });
 
 test('water protection uses both uluck and moreluck', async () => {

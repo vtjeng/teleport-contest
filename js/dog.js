@@ -510,8 +510,11 @@ export async function tamedog(
                 } else if (cansee(monster.mx, monster.my, state)) {
                     await message(`${Tobjnam(obj, 'stop', state)}.`, state);
                 }
-                if (obj.where === OBJ_FREE)
-                    place_object(obj, monster.mx, monster.my, normalized);
+                if (obj.where === OBJ_FREE) {
+                    const placement = place_object(obj, monster.mx, monster.my, normalized);
+                    if (placement && typeof placement.then === 'function')
+                        await placement;
+                }
                 const { dog_eat } = await import('./dogmove.js');
                 await dog_eat(monster, obj, monster.mx, monster.my, false, {
                     ...normalized,
@@ -554,8 +557,11 @@ export async function tamedog(
     initedog(monster, !hadEdog, normalized);
 
     if (obj) {
-        if (obj.where === OBJ_FREE)
-            place_object(obj, monster.mx, monster.my, normalized);
+        if (obj.where === OBJ_FREE) {
+            const placement = place_object(obj, monster.mx, monster.my, normalized);
+            if (placement && typeof placement.then === 'function')
+                await placement;
+        }
         const { dog_eat } = await import('./dogmove.js');
         const eaten = await dog_eat(monster, obj, monster.mx, monster.my,
             true, { ...normalized, state });

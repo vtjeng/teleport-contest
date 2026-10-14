@@ -499,7 +499,9 @@ test('read.c seffect_enchant_weapon uses the shared cap_spe helper', () => {
 
     const jsSource = readFileSync(new URL('../js/read.js', import.meta.url), 'utf8');
     const jsStart = jsSource.indexOf('export async function seffect_enchant_weapon(');
-    const jsEnd = jsSource.indexOf('// C ref: shk.c costly_alteration()', jsStart);
+    const jsEnd = jsSource.indexOf(
+        '// C ref: mkobj.c costly_alteration()', jsStart,
+    );
     assert.notEqual(jsStart, -1);
     assert.notEqual(jsEnd, -1);
     assert.match(jsSource.slice(jsStart, jsEnd), /if \(state\.uwep\)\s*cap_spe\(state\.uwep\);/u);

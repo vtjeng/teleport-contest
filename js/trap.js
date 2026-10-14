@@ -932,25 +932,29 @@ function mk_trap_statue(x, y, env) {
     const donorEnv = { ...env, _statueInventoryCreation: true };
     const finishDonor = (monster) => {
         if (!monster) return;
-        while (monster.minvent) {
-            const obj = monster.minvent;
-            obj.owornmask = 0;
-            obj_extract_self(obj, donorEnv);
-            add_to_container(statue, obj, donorEnv);
-        }
-        statue.owt = weight(statue, donorEnv);
-        mongone(monster, donorEnv);
+        const transfer = () => {
+            while (monster.minvent) {
+                const obj = monster.minvent;
+                obj.owornmask = 0;
+                obj_extract_self(obj, donorEnv);
+                const addition = add_to_container(statue, obj, donorEnv);
+                if (addition && typeof addition.then === 'function')
+                    return addition.then(transfer);
+            }
+            statue.owt = weight(statue, donorEnv);
+            mongone(monster, donorEnv);
+        };
+        return transfer();
     };
 
     if (state.in_mklev) {
-        finishDonor(makemon(
+        return finishDonor(makemon(
             state.mons[statue.corpsenm],
             0,
             0,
             mmflags,
             donorEnv,
         ));
-        return;
     }
     if (env._specialRoomFill) {
         // sp_lev.c room filling owns the runtime tail inside makemon(), which

@@ -1085,7 +1085,7 @@ export async function extract_from_minvent(
             // give monster a chance to wear other equipment on its next move
             check_gear_next_turn(mon);
         }
-        obj_no_longer_held(obj, normalized);
+        await obj_no_longer_held(obj, normalized);
         if (unwornmask & W_WEP) {
             const mwepgoneHook = normalized.hooks.mwepgone;
             if (mwepgoneHook !== undefined) {
@@ -1111,7 +1111,8 @@ async function m_lose_armor(monster, obj, polyspot, rawEnv = {}) {
     const env = wornEnv(rawEnv);
     const { state } = env;
     await extract_from_minvent(monster, obj, true, false, env);
-    place_object(obj, monster.mx, monster.my, env);
+    const placement = place_object(obj, monster.mx, monster.my, env);
+    if (placement && typeof placement.then === 'function') await placement;
     if (polyspot) bypass_obj(obj, state);
     newsym(monster.mx, monster.my, state);
 }
