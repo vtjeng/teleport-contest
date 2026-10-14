@@ -231,6 +231,7 @@ import {
     HEAVY_IRON_BALL,
     IRON_CHAIN,
     LUCKSTONE,
+    LEVITATION_BOOTS,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
 import { start_timer, timeout_globals_init } from '../js/timeout.js';
@@ -481,6 +482,10 @@ test('armor_simple_name dispatches each C armor category to its named helper', (
 
     assert.equal(boots_simple_name(objectOf(state, IRON_SHOES, {
         dknown: false,
+    }), state), 'boots');
+    state.objects[LEVITATION_BOOTS].oc_name_known = true;
+    assert.equal(boots_simple_name(objectOf(state, LEVITATION_BOOTS, {
+        dknown: true,
     }), state), 'boots');
     assert.equal(shield_simple_name(objectOf(state, SHIELD_OF_REFLECTION, {
         dknown: false,

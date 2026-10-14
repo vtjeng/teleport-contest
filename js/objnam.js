@@ -375,8 +375,8 @@ export function boots_simple_name(boots, state = game) {
         const type = objectType(boots, state);
         const actualn = OBJ_NAME(type, state) ?? '';
         const descrpn = OBJ_DESCR(type, state) ?? '';
-        if (strstri(descrpn, 'shoes')
-            || (type.oc_name_known && strstri(actualn, 'shoes')))
+        if (strstri(descrpn, 'shoes') >= 0
+            || (type.oc_name_known && strstri(actualn, 'shoes') >= 0))
             return 'shoes';
     }
     return 'boots';
