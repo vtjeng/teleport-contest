@@ -1,0 +1,42 @@
+{
+  "session": "synthetic/v73/v73-nonsteed-bear-farlook-action2",
+  "corpus": "synthetic",
+  "batch": "v73",
+  "caseId": "v73-nonsteed-bear-farlook-action2",
+  "manifestPath": "challenges/manifests/v73.json",
+  "manifestSha256": "47ee27378b0863dd5538f676f0f170e9e2ca91771edc37e7f514f659b4dacc32",
+  "recordingSha256": "37acdcd9b2abd04effbc8fec9d3dfdeeec150551d414bfab09beecb77ea73207",
+  "evaluationPath": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
+  "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
+  "remainingScreens": 373,
+  "recordedSteps": 373,
+  "status": "investigated",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": ["synthetic/v73/v73-nonsteed-bear-farlook-action2"],
+    "remainingScreens": 373,
+    "remainingScreensUpperBound": null,
+    "caseId": "v73-nonsteed-bear-farlook-action2",
+    "batch": "v73",
+    "recordingPath": "challenges/cases/v73/v73-nonsteed-bear-farlook-action2.session.json",
+    "session": "synthetic/v73/v73-nonsteed-bear-farlook-action2"
+  },
+  "summary": "The C recording reaches a trapped nonsteed mastodon at step 297 and farlook auto-description at step 298. pager.c:look_at_monster() describes a visible trapped monster only for BEAR_TRAP, pits (including SPIKED_PIT), or WEB; it obtains the text with trapname(tt, FALSE) and marks the trap seen. js/pager.js has the same already-wired function and imports trapname, but instead reads an undeclared TRAP_DESCRIPTIONS table, causing ReferenceError before producing the description.",
+  "source": {
+    "file": "pager.c",
+    "branch": "In look_at_monster(), when mtrapped and cansee() hold, obtain t_at() and set tt to NO_TRAP when absent. For BEAR_TRAP, is_pit(tt), or WEB, append trapped-in text using an(trapname(tt, FALSE)) and set t->tseen.",
+    "functions": ["look_at_monster"],
+    "callers": ["pager.c:do_screen_description", "getpos.c:auto_describe", "pager.c:lookat"],
+    "dependencies": ["trap.c:trapname", "rm.h:is_pit"]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The exact v73 admission evaluation reports ReferenceError `TRAP_DESCRIPTIONS is not defined` at segment 0 step 298, when getpos farlook describes the mastodon after the real bear-trap landing at step 297. The C screen says `mastodon, trapped in a bear trap`.",
+    "upstream nethack-c/upstream/src/pager.c:look_at_monster() lines 422-552 obtains the trap type or NO_TRAP, tests BEAR_TRAP || is_pit(tt) || WEB, appends `trapname(tt, FALSE)`, and sets t->tseen. `is_pit()` includes PIT and SPIKED_PIT in include/rm.h.",
+    "The production caller path is getpos.c:getpos -> auto_describe -> do_screen_description -> look_at_monster. js/getpos.js:auto_describe() calls do_screen_description(); js/pager.js:look_at_monster() is already used by do_screen_description and other farlook callers. It currently indexes undeclared TRAP_DESCRIPTIONS at line 641. js/pager.js already imports trapname from js/trap.js; js/const.js exports BEAR_TRAP, WEB and is_pit. The source-faithful repair is to select the same three trap classes and call trapname(ttype, false, state), setting tseen only when a matching trap exists."
+  ]
+}
