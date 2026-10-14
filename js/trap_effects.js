@@ -3935,6 +3935,9 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== LANDMINE && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== STATUE_TRAP
         && trap.ttyp !== SQKY_BOARD
+        // trap.c:dotrap() reaches the seen-trap rn2(5) escape branch for a
+        // rolling-boulder trap; this source-known branch is not a refusal.
+        && trap.ttyp !== ROLLING_BOULDER_TRAP
         && trap.ttyp !== LEVEL_TELEP
         && !undestroyable_trap(trap.ttyp)
         && !pitTrap && !is_hole(trap.ttyp)) {
