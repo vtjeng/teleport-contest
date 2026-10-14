@@ -9,8 +9,8 @@
   "evaluationPath": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
   "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
   "recordedSteps": 268,
-  "status": "investigated",
-  "commit": "2834d0836bff4dc1e65a0cd1be7a0c5f3a3684e8",
+  "status": "complete",
+  "commit": "57f18ca81db7fabc1a3a95379e0befc7b6364234",
   "mismatch": {
     "session": "synthetic/v73/v73-hurtle-iron-rust-action4",
     "remainingScreens": 0,
@@ -21,7 +21,7 @@
       "error": "nonliving is not defined"
     }
   },
-  "summary": "The replay reaches C's rust-trap death branch after the iron golem lands on the trap. The JavaScript rustTrapMonsterLifesaver helper reads nonliving without importing it, so execution stops before output comparison can measure the remaining 25 screens. Prep's unchanged-input C/JS prefix capture verifies parity through step 242, then reproduces the same ReferenceError at the step-243 rust-trap event.",
+  "summary": "The replay reaches C's rust-trap death branch after the iron golem lands on the trap. The JavaScript rustTrapMonsterLifesaver helper read nonliving without importing it; importing the existing predicate restores the C message and death path. The committed replay now matches the complete 268-step recording: 268 screens, 2019 RNG calls, 268 cursor positions and 2 animation frames.",
   "source": {
     "file": "trap.c",
     "functions": [
@@ -84,5 +84,33 @@
     "error": "ReferenceError: nonliving is not defined",
     "cSource": "trap.c:trapeffect_rust_trap; mon.c:mlifesaver",
     "jsSource": "js/trap_effects.js:rustTrapMonsterLifesaver"
+  },
+  "postFixVerification": {
+    "command": "node scripts/run-bounded.mjs focused -- node scripts/scan-sessions.mjs --json --synthetic v73/v73-hurtle-iron-rust-action4",
+    "runId": "run-nU1gDQ",
+    "passed": true,
+    "case": "v73-hurtle-iron-rust-action4",
+    "segment": 0,
+    "throughStep": 267,
+    "metrics": {
+      "screens": {
+        "c": 268,
+        "js": 268
+      },
+      "rng": {
+        "c": 2019,
+        "js": 2019
+      },
+      "cursors": {
+        "c": 268,
+        "js": 268
+      },
+      "animFrames": {
+        "c": 2,
+        "js": 2
+      }
+    },
+    "error": null,
+    "replayCommit": "57f18ca81db7fabc1a3a95379e0befc7b6364234"
   }
 }
