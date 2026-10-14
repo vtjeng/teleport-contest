@@ -2138,6 +2138,15 @@ export async function litroom(on, object, state) {
 
     // C drains the temporary gremlin list after the delayed vision pass.
     // uhitm.c owns the shared wake, death and remembered-invisible effects.
+    if (gremlins.length) {
+        // read.c:litroom() cannot leave the full recalculation delayed when
+        // gremlins were collected. Restore visibility before light_hits_gremlin
+        // chooses the monster's name for its damage message.
+        vision_recalc(0, {
+            state,
+            redraw: (x, y) => newsym(x, y),
+        });
+    }
     for (const monster of gremlins) {
         if (monster.mhp < 1) continue;
         const damage = rnd(5);
