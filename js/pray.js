@@ -69,6 +69,8 @@ import {
     HVY_ENCUMBER,
     INTRINSIC,
     IS_ALTAR,
+    P_BROAD_SWORD,
+    P_LONG_SWORD,
     KILLED_BY,
     KILLED_BY_AN,
     LARGEST_INT,
@@ -96,9 +98,14 @@ import {
     ROOM,
     SCORR,
     SDOOR,
+    SEE_INVIS,
     SICK,
     SICK_ALL,
+    FIRE_RES,
+    COLD_RES,
+    SLEEP_RES,
     SHOCK_RES,
+    POISON_RES,
     SLIMED,
     STRAT_APPEARMSG,
     STONED,
@@ -136,11 +143,16 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {
+    ART_EXCALIBUR,
+    ART_STORMBRINGER,
+    ART_VORPAL_BLADE,
     artifact_origin,
     artiname,
     confers_luck,
     discover_artifact,
+    exist_artifact,
     hcolor,
+    is_art,
     mk_artifact,
     nartifact_exist,
 } from './artifacts.js';
@@ -198,6 +210,8 @@ import {
     AD_BLND,
     AT_ENGL,
     PM_CLERIC,
+    PM_MONK,
+    PM_WIZARD,
     PM_CYCLOPS,
     PM_FLOATING_EYE,
     PM_KNIGHT,
@@ -215,6 +229,7 @@ import {
     bless,
     carried,
     is_weptool,
+    mksobj,
     mkobj,
     peek_at_iced_corpse_age,
     place_object,
@@ -248,6 +263,11 @@ import {
     STATUE,
     WEAPON_CLASS,
     SPE_TURN_UNDEAD,
+    SPE_FINGER_OF_DEATH,
+    SPE_RESTORE_ABILITY,
+    LONG_SWORD,
+    RUNESWORD,
+    STRANGE_OBJECT,
     OBJ_NAME,
 } from './objects.js';
 import { body_part, mbodypart, rehumanize } from './polyself.js';
@@ -288,7 +308,7 @@ import {
 } from './priest.js';
 import { cansee, couldsee, does_block, unblock_point } from './vision.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
-import { Monnam, a_monnam, mon_nam } from './do_name.js';
+import { Monnam, a_monnam, mon_nam, oname } from './do_name.js';
 import { killed, mon_offmap, wake_nearby, xkilled } from './mon.js';
 import { monflee } from './monmove.js';
 import { set_malign } from './makemon.js';
@@ -326,9 +346,11 @@ import {
     unrestrict_weapon_skill,
     weapon_type,
 } from './startup_skills.js';
+import { add_weapon_skill } from './weapon.js';
 import {
-    an, ansimpleoname, bare_artifactname, corpse_xname,
+    an, ansimpleoname, actualoname, bare_artifactname, corpse_xname,
     gloves_simple_name, otense, vtense, yname, Yobjnam2,
+    simpleonames, xname,
 } from './objnam.js';
 import { note_unported } from './unported.js';
 import { punish, unpunish } from './read.js';
@@ -2207,6 +2229,205 @@ export async function give_spell(state = game, env = {}) {
     }
 }
 
+// C ref: pray.c gcrownu() (805-995). Confer the alignment's Hand of
+// Elbereth status and gift, then improve the eligible weapon and grant the
+// extra weapon-skill credit. SetVoice is backed by sounds.c; its speech
+// recording remains outside the no-sound reference build.
+async function gcrownu(state) {
+    const { u } = state;
+    for (const property of [SEE_INVIS, FIRE_RES, COLD_RES, SHOCK_RES,
+        SLEEP_RES, POISON_RES]) {
+        const prop = u.uprops[property] ??= { intrinsic: 0, extrinsic: 0 };
+        prop.intrinsic = (prop.intrinsic ?? 0) | FROMOUTSIDE;
+    }
+    await godvoice(u.ualign.type, null, state);
+
+    let classGift = STRANGE_OBJECT;
+    if (state.urole?.mnum === PM_WIZARD
+        && !is_art(state.uwep, ART_VORPAL_BLADE)
+        && !is_art(state.uwep, ART_STORMBRINGER)
+        && !carrying(SPE_FINGER_OF_DEATH, state)) {
+        classGift = SPE_FINGER_OF_DEATH;
+    } else if (state.urole?.mnum === PM_MONK
+        && (!state.uwep || !state.uwep.oartifact)
+        && !carrying(SPE_RESTORE_ABILITY, state)) {
+        classGift = SPE_RESTORE_ABILITY;
+    }
+
+    const isWeapon = obj => Boolean(obj && (obj.oclass === WEAPON_CLASS
+        || is_weptool(obj, state)));
+    let obj = isWeapon(state.uwep) ? state.uwep : null;
+    let alreadyExists = false;
+    let inHand = false;
+    switch (u.ualign.type) {
+    case A_LAWFUL:
+        u.uevent.uhand_of_elbereth = 1;
+        set_voice(null, 0, 80, voice_deity, state);
+        await verbalize('I crown thee...  The Hand of Elbereth!', state);
+        livelog_printf(
+            LL_DIVINEGIFT,
+            `was crowned "The Hand of Elbereth" by ${u_gname(state)}`,
+            state,
+        );
+        break;
+    case A_NEUTRAL:
+        u.uevent.uhand_of_elbereth = 2;
+        inHand = is_art(state.uwep, ART_VORPAL_BLADE);
+        alreadyExists = exist_artifact(
+            LONG_SWORD,
+            artiname(ART_VORPAL_BLADE, state),
+            state,
+        );
+        set_voice(null, 0, 80, voice_deity, state);
+        await verbalize('Thou shalt be my Envoy of Balance!', state);
+        livelog_printf(
+            LL_DIVINEGIFT,
+            `became ${s_suffix(u_gname(state))} Envoy of Balance`,
+            state,
+        );
+        break;
+    case A_CHAOTIC: {
+        u.uevent.uhand_of_elbereth = 3;
+        inHand = is_art(state.uwep, ART_STORMBRINGER);
+        alreadyExists = exist_artifact(
+            RUNESWORD,
+            artiname(ART_STORMBRINGER, state),
+            state,
+        );
+        const what = ((alreadyExists && !inHand)
+            || classGift !== STRANGE_OBJECT) ? 'take lives' : 'steal souls';
+        set_voice(null, 0, 80, voice_deity, state);
+        await verbalize(`Thou art chosen to ${what} for My Glory!`, state);
+        livelog_printf(
+            LL_DIVINEGIFT,
+            `was chosen to ${what} for the Glory of ${u_gname(state)}`,
+            state,
+        );
+        break;
+    }
+    default:
+        break;
+    }
+
+    if (state.objects?.[classGift]?.oc_class === SPBOOK_CLASS) {
+        const book = mksobj(classGift, true, false, { state });
+        const bookName = actualoname(book, state);
+        bless(book, { state });
+        book.bknown = 1;
+        observe_object(book, state);
+        await at_your_feet(upstart(ansimpleoname(book, state)), state);
+        await dropy(book, state);
+        u.ugifts = (u.ugifts ?? 0) + 1;
+        livelog_printf(
+            LL_DIVINEGIFT | LL_ARTIFACT | LL_SPOILER,
+            `was bestowed with ${bookName}`,
+            state,
+        );
+        if (known_spell(classGift, state) !== spe_Unknown && isWeapon(state.uwep))
+            obj = state.uwep;
+    }
+
+    switch (u.ualign.type) {
+    case A_LAWFUL:
+        if (classGift === STRANGE_OBJECT && obj?.otyp === LONG_SWORD
+            && !obj.oartifact) {
+            const before = simpleonames(obj, state);
+            if (!Blind(state))
+                await ttyPline('Your sword shines brightly for a moment.', state);
+            obj = await oname(
+                obj,
+                artiname(ART_EXCALIBUR, state),
+                ONAME_GIFT | ONAME_KNOW_ARTI,
+                { state },
+            );
+            if (is_art(obj, ART_EXCALIBUR)) {
+                u.ugifts = (u.ugifts ?? 0) + 1;
+                livelog_printf(
+                    LL_DIVINEGIFT | LL_ARTIFACT,
+                    `had ${uhim(state)} wielded ${before} transformed into `
+                        + `${artiname(ART_EXCALIBUR, state)}`,
+                    state,
+                );
+            }
+        }
+        unrestrict_weapon_skill(P_LONG_SWORD, state);
+        if (is_art(obj, ART_EXCALIBUR)) discover_artifact(ART_EXCALIBUR, state);
+        break;
+    case A_NEUTRAL:
+        if (classGift === STRANGE_OBJECT && obj && inHand) {
+            await ttyPline(`Your ${xname(obj, state)} goes snicker-snack!`, state);
+            observe_object(obj, state);
+        } else if (classGift === STRANGE_OBJECT && !alreadyExists) {
+            obj = mksobj(LONG_SWORD, false, false, { state });
+            obj = await oname(
+                obj,
+                artiname(ART_VORPAL_BLADE, state),
+                ONAME_GIFT | ONAME_KNOW_ARTI,
+                { state },
+            );
+            obj.spe = 1;
+            await at_your_feet('A sword', state);
+            await dropy(obj, state);
+            u.ugifts = (u.ugifts ?? 0) + 1;
+            livelog_printf(
+                LL_DIVINEGIFT | LL_ARTIFACT,
+                `was bestowed with ${artiname(ART_VORPAL_BLADE, state)}`,
+                state,
+            );
+        }
+        unrestrict_weapon_skill(P_LONG_SWORD, state);
+        if (is_art(obj, ART_VORPAL_BLADE))
+            discover_artifact(ART_VORPAL_BLADE, state);
+        break;
+    case A_CHAOTIC: {
+        const swordName = `${hcolor('black', state)} sword`;
+        if (classGift === STRANGE_OBJECT && obj && inHand) {
+            await ttyPline(`Your ${swordName} hums ominously!`, state);
+            observe_object(obj, state);
+        } else if (classGift === STRANGE_OBJECT && !alreadyExists) {
+            obj = mksobj(RUNESWORD, false, false, { state });
+            obj = await oname(
+                obj,
+                artiname(ART_STORMBRINGER, state),
+                ONAME_GIFT | ONAME_KNOW_ARTI,
+                { state },
+            );
+            obj.spe = 1;
+            await at_your_feet(an(swordName, state), state);
+            await dropy(obj, state);
+            u.ugifts = (u.ugifts ?? 0) + 1;
+            livelog_printf(
+                LL_DIVINEGIFT | LL_ARTIFACT,
+                `was bestowed with ${artiname(ART_STORMBRINGER, state)}`,
+                state,
+            );
+        }
+        unrestrict_weapon_skill(P_BROAD_SWORD, state);
+        if (is_art(obj, ART_STORMBRINGER))
+            discover_artifact(ART_STORMBRINGER, state);
+        break;
+    }
+    default:
+        obj = null;
+        break;
+    }
+
+    if (isWeapon(obj)) {
+        await bless(obj, { state });
+        obj.oeroded = 0;
+        obj.oeroded2 = 0;
+        obj.oerodeproof = 1;
+        obj.bknown = 1;
+        obj.rknown = 1;
+        if (obj.spe < 1) obj.spe = 1;
+        unrestrict_weapon_skill(weapon_type(obj, state), state);
+    } else if (classGift === STRANGE_OBJECT) {
+        await ttyPline('You feel unworthy.', state);
+    }
+    update_inventory({ state });
+    add_weapon_skill(1, state);
+}
+
 // C ref: pray.c pleased() (1071-1386). A successful prayer first reports the
 // deity's satisfaction, then chooses a trouble repair, blessing, recovery, or
 // divine gift. The source helpers that are still outside the port are recorded
@@ -2295,7 +2516,10 @@ export async function pleased(g_align, state = game) {
         case 0:
             break;
         case 1: {
-            const weapon = u.uwep;
+            // C's uwep is the game-level wielded-object slot, not a member of
+            // the u structure. Keep this branch on the same state owner used
+            // by wielding and inventory code so the reward reaches the live weapon.
+            const weapon = state.uwep;
             if (weapon && (welded(weapon, state)
                 || weapon.oclass === WEAPON_CLASS
                 || is_weptool(weapon, state))) {
@@ -2476,7 +2700,7 @@ export async function pleased(g_align, state = game) {
         case 7:
         case 8:
             if (u.ualign.record >= 20 && !u.uevent.uhand_of_elbereth) {
-                note_unported('pray.c gcrownu');
+                await gcrownu(state);
                 break;
             }
             // FALLTHROUGH
