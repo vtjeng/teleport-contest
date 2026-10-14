@@ -10,7 +10,7 @@
   "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
   "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
   "evaluationBlob": "d1f964a8b233d32e31f884598a51115662e4ae20",
-  "remainingScreens": 0,
+  "remainingScreens": 278,
   "recordedSteps": 278,
   "status": "complete",
   "commit": "a93d8ad4367fc8a1dfabf257565342ef566d888a",
@@ -22,7 +22,7 @@
     "error": "KILLED_BY is not defined",
     "source": "music.c:do_improvisation622-624",
     "session": "synthetic/v72/v72-frost-horn-self-action4",
-    "remainingScreens": 0
+    "remainingScreens": 278
   },
   "diagnosis": "The admitted sequence activates an unresisted frost horn and directs it at the hero. C reaches music.c:do_improvisation622-624 and calls losehp(damage, buf, KILLED_BY). JavaScript made the same call, but js/music.js omitted KILLED_BY from its const.js imports, so the first self-damage branch stopped with ReferenceError before losehp. The unchanged KILLED_BY constant is already exported by js/const.js.",
   "source": {
@@ -53,5 +53,20 @@
     "The corrected replay matches all 278 screens, 3093 RNG calls, and 278 cursors, with inputBoundaryMatched true; the source range verifier matches segment 0 through step 277."
   ],
   "goalKind": "divergence-fix",
-  "summary": "Importing KILLED_BY from const.js lets the self-directed frost-horn branch reach losehp with C’s killer format. The admitted v72 recording now matches every screen, RNG call, cursor position, and input boundary."
+  "summary": "The accepted evaluation stops at the self-directed frost-horn damage branch because js/music.js references KILLED_BY without importing it. Importing the existing constant lets the C-aligned losehp call complete; the follow-up replay matches every screen, RNG call, and cursor.",
+  "baselineEvaluation": {
+    "screens": {
+      "matched": 0,
+      "total": 278
+    },
+    "rng": {
+      "matched": 0,
+      "total": 3093
+    },
+    "cursors": {
+      "matched": 0,
+      "total": 278
+    },
+    "reason": "The accepted evaluation stopped on the step-217 JavaScript ReferenceError before it emitted replay output."
+  }
 }
