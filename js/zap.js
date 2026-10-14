@@ -190,11 +190,15 @@ import {
 import { Shknam, shkname } from './shknam.js';
 import { messageAt } from './startup_a11y.js';
 import { MIM_OMIT_WAIT, MIM_REVEAL } from './const.js';
+import {
+    EXPL_MAGICAL, TRAP_EXPLODE, is_magical_trap, undestroyable_trap,
+} from './const.js';
 import { S_flashbeam, S_hcdoor, S_vodoor, } from './symbols.js';
 import {
     closed_door, dissolve_bars, monflee, monfleeMessage, onscary, set_apparxy, youHear, } from './monmove.js';
 
 import { acid_damage, burnarmor } from './trap_erode_obj.js';
+import { deltrap } from './trap.js';
 import { delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, sokoban_guilt, t_at, trapname, trap_ice_effects, Levitation } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import {
@@ -3886,10 +3890,59 @@ export async function bhitpile(wand, tx, ty, state = game,
 // C ref: zap.c zap_map() (3625-3825). The WAN_PROBING arm maps terrain and
 // traps before it teaches the wand; the downward polymorph and teleportation
 // arms handle engraving. Other zap_map branches remain at their source boundaries.
+// C ref: zap.c maybe_explode_trap() (3594-3623). A cancellation ray explodes
+// a magical trap before zap_map handles its remaining terrain and engraving.
+export async function maybe_explode_trap(
+    trap,
+    object,
+    learnIt,
+    state = game,
+    random = {},
+    rawEnv = {},
+) {
+    if (!trap || !object
+        || (object.otyp !== WAN_CANCELLATION
+            && object.otyp !== SPE_CANCELLATION)) return;
+
+    const { tx: x, ty: y } = trap;
+    if (undestroyable_trap(trap.ttyp)) {
+        await shieldeff(x, y, state);
+        if (cansee(x, y, state)) {
+            trap.tseen = true;
+            newsym(x, y, state);
+            learnIt.value = true;
+        }
+    } else if (is_magical_trap(trap.ttyp)) {
+        const seeIt = cansee(x, y, state);
+        const explosionRandom = {
+            d, rn1, rn2, rnl, rnd, rne,
+            ...random,
+        };
+        await explode(
+            x,
+            y,
+            -WAN_CANCELLATION,
+            20 + (random.d ?? d)(3, 6),
+            TRAP_EXPLODE,
+            EXPL_MAGICAL,
+            state,
+            { ...rawEnv, random: explosionRandom },
+        );
+        deltrap(trap, state);
+        newsym(x, y, state);
+        if (seeIt) learnIt.value = true;
+    }
+}
+
 export async function zap_map(
     x, y, wand, state = game,
     random = { rn2, rn2_on_display_rng }, rawEnv = {},
 ) {
+    const trapLearn = { value: false };
+    await maybe_explode_trap(
+        t_at(x, y, state), wand, trapLearn, state, random, rawEnv,
+    );
+
     if (wand?.otyp === WAN_PROBING) {
         const trap = t_at(x, y, state);
         let learnIt = false;
@@ -3994,10 +4047,15 @@ export async function zap_map(
         }
     }
 
-    if ((state.u?.dz ?? 0) <= 0) return undefined;
-    const engraving = engr_at(x, y, state);
-    if (!engraving || engraving.engr_type === HEADSTONE)
+    if ((state.u?.dz ?? 0) <= 0) {
+        if (trapLearn.value) learnwand(wand, state);
         return undefined;
+    }
+    const engraving = engr_at(x, y, state);
+    if (!engraving || engraving.engr_type === HEADSTONE) {
+        if (trapLearn.value) learnwand(wand, state);
+        return undefined;
+    }
     switch (wand?.otyp) {
     case WAN_POLYMORPH:
     case SPE_POLYMORPH: {
@@ -4019,6 +4077,7 @@ export async function zap_map(
         rloc_engr(engraving, state, { ...rawEnv, random });
         break;
     }
+    if (trapLearn.value) learnwand(wand, state);
     return undefined;
 }
 
