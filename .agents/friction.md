@@ -835,3 +835,58 @@ triage decisions or fix references.
   The missing-patch fallback hashes all commits after a stale worker base,
   including unrelated large preparation recordings. Root requested a focused
   tooling correction; no hosted checkpoint or acceptance was started.
+
+### 2026-10-14 — temporary worker storage absent on resumption
+
+- All four registered worker directories under `/tmp` were absent on
+  resumption. Git branches and immutable delivery packets remained available.
+  Root restored the original paths from those branches and ran the private C
+  checkout and recorder readiness checks before resuming workers.
+- C reconstructed its uncommitted discoveries edits. Prep reported 25 earlier
+  C pairs with no surviving proof bytes; those attempts remain historical
+  observations and do not count toward the reconstructed batch. New proof files
+  are copied to the coordinator cache after each completed attempt.
+
+### 2026-10-14 — report ancestry and isolated spell delivery
+
+- Source groups encountered missing-base report conflicts for shop relocation
+  and Astral hostility. Root restored each worker's exact committed report and
+  continued the retained cherry-pick; no source review or gameplay check was
+  repeated for those report resolutions.
+- A's spell delivery included unrelated `GOALS.json` changes after merging
+  accepted Main during the task. An isolated branch merged accepted Main into
+  the original assignment before applying the two task commits. Its packaged
+  tree equals the tested tree. Submission succeeded with the explicit packaged
+  head after switching the checkout back to its registered branch; all original
+  commits and branch refs remain preserved.
+
+### 2026-10-14 — checkpoint import attempted before all jobs finished
+
+- Root attempted to import run 38589672152 after the combined checkpoint job
+  finished while three synthetic jobs were still running. The importer rejected
+  the pending run. Root collected the original watch's terminal success before
+  importing again. The later candidate's complete run status was verified before
+  import; no checkpoint was rerun.
+
+### 2026-10-14 — GitHub Pages deployment timeout
+
+- Dashboard run 38591623655 built and uploaded the accepted `58844faaf`
+  snapshot, but Pages remained in `updating_pages` until the deployment timed
+  out. Root saved the failure log and retried only the failed Dashboard job.
+- The first retry failed because the run contained two generated `github-pages`
+  bundles. Root archived both ZIPs and metadata, verified their integrity, removed
+  only those generated bundles, and retried Dashboard. Attempt 3 deployed
+  successfully; accepted source and dashboard work was published at `b4eee962`.
+  Gameplay validation was not rerun.
+- The first Dashboard attempt for `b4eee962` also timed out in `updating_pages`.
+  Root archived and verified its generated bundle, then removed that deployment
+  input before a Dashboard-only retry to avoid duplicate artifacts.
+
+### 2026-10-14 — preflight fallback correction accepted
+
+- Correction `0206b470` was integrated as `f0581a765`. Missing-patch fallback
+  searches the submitted paths while preserving whole-commit identity checks;
+  unrelated large preparation patches no longer enter that search.
+- The four-source preflight passed, hosted checkpoint 38535686281 passed at
+  `f0581a765`, and all four tasks were accepted. The original failed candidate
+  and report snapshots remain in history.

@@ -178,6 +178,7 @@
         "js/sam_filb_level_data.js",
         "js/sam_goal_level_data.js",
         "js/sam_loca_level_data.js",
+        "js/sam_strt_level_data.js",
         "js/sanctum_level_data.js",
         "js/sanctum_levels.js",
         "js/save.js",
@@ -208,6 +209,11 @@
           "path": "js/dungeon_data.js",
           "generator": "scripts/generate-dungeon-data.mjs",
           "check": "node scripts/generate-dungeon-data.mjs --check"
+        },
+        {
+          "path": "js/sam_strt_level_data.js",
+          "generator": "scripts/generate-sam-strt-level.mjs",
+          "check": "node scripts/generate-sam-strt-level.mjs --check"
         },
         {
           "path": "js/shtypes_data.js",
