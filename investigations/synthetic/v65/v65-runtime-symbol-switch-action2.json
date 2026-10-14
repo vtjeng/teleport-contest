@@ -1,0 +1,93 @@
+{
+  "session": "synthetic/v65/v65-runtime-symbol-switch-action2",
+  "corpus": "synthetic",
+  "batch": "v65",
+  "caseId": "v65-runtime-symbol-switch-action2",
+  "manifestPath": "challenges/manifests/v65.json",
+  "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+  "recordingPath": "challenges/cases/v65/v65-runtime-symbol-switch-action2.session.json",
+  "recordingSha256": "02f6f719726aa59f15ca770c70c20863620ac6bb225d3138a0b844f6f6d21461",
+  "evaluationPath": "challenges/evaluations/accepted-f0581a7656691256c99c2e6deeebfdc57ff7e06c-v65.json",
+  "evaluationCommit": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+  "status": "complete",
+  "commit": "51e47397870480047712c28f946fb04b409a3680",
+  "summary": "At segment 0 step 8, the options menu reaches the `symset` do_handler arm and JavaScript stops because OPTION_HANDLERS has no symset entry. C calls handler_symset() and symbols.c:do_symset() to present the available sets; the recorded choice selects Blank.",
+  "source": {
+    "file": "options.c",
+    "branch": "When doset_simple() applies the selected symset row, optfn_symset() receives do_handler, fills the glyph-id cache if absent, calls handler_symset(), and frees the cache. handler_symset() calls do_symset() for the primary or rogue set and requests a redraw.",
+    "functions": [
+      "optfn_symset",
+      "handler_symset",
+      "symbols.c:do_symset"
+    ],
+    "callers": [
+      "options.c:doset_simple_menu() selects the symset row and passes it to doset_simple()'s apply loop.",
+      "options.c:doset_simple() calls the selected option's do_handler arm; JavaScript routes the existing menu flow through OPTION_HANDLERS.",
+      "options.c:handler_symset() calls symbols.c:do_symset() and sets go.opt_need_redraw."
+    ],
+    "dependencies": []
+  },
+  "evidence": [
+    "The saved v65 evaluation at f0581a7656691256c99c2e6deeebfdc57ff7e06c reports 8/11 screens and 8/11 cursors matched, with all 2378 RNG calls matched. The first stop is the missing optfn_symset() do_handler request at segment 0 step 8. Manifest digest: f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de; recording digest: 02f6f719726aa59f15ca770c70c20863620ac6bb225d3138a0b844f6f6d21461.",
+    "Fresh scan at 51e47397870480047712c28f946fb04b409a3680 is saved in .cache/v65-runtime-symbol-switch-scan.json. It stops after the recorded O menu selects symset, with inputThroughStop `     O i` and the message `Select symbol set:`.",
+    "options.c:optfn_symset() (4167-4230) implements do_init, do_set, get_val, get_cnf_val, and do_handler; the existing JavaScript implements the configuration and value arms, but OPTION_HANDLERS in options.js has no symset entry, so applyOptionMenuPick() raises UnsupportedOptionMenuError before C's do_handler path.",
+    "options.c:handler_symset() (6321-6328) calls do_symset(optidx == opt_roguesymset) and sets go.opt_need_redraw. symbols.c:do_symset() (909-1093) temporarily clears the selected set name so read_sym_file() builds a list, filters sets by primary/rogue restrictions and compiled handler support, creates a PICK_ONE menu with the current set preselected, resolves the selected and preselected indices, clears or loads the chosen set, switches symbols, assigns graphics for the active level type, applies customizations, and updates the symset preference.",
+    "The recorded C menu at step 8 includes Default Symbols and 10 primary-compatible sets with source descriptions; it excludes RogueIBM, RogueEpyx, and RogueWindows as rogue-only, and MACgraphics because the recorded Linux build lacks MAC_GRAPHICS_ENV. It includes Enhanced1 and Enhanced2, confirming ENHANCED_SYMBOLS is enabled in this build. The recorded `c` selection chooses Blank and returns to the options menu.",
+    "SYMBOL_SET_DEFINITIONS in js/symbol_data.js already holds all 14 names, handlers, restrictions, symbol bytes, and glyph data parsed from include/defsym.h and dat/symbols. scripts/generate-symbol-data.mjs currently ignores each `Description:` line, although files.c:proc_symset_line() preserves that value for symbols.c:do_symset() to print. The generated projection therefore needs descriptions to reproduce the menu without a separate hard-coded list.",
+    "Existing symbols.js functions loadSymbolSet(), switch_symbols(), assign_graphics(), and customization handling implement the post-selection source operations for configuration-driven changes; they do not create the interactive menu or resolve its preselected PICK_ONE result. The missing port should reuse these source-equivalent operations rather than duplicate symbol state."
+  ],
+  "remainingScreens": 3,
+  "recordedSteps": 11,
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v65",
+    "caseId": "v65-runtime-symbol-switch-action2",
+    "session": "synthetic/v65/v65-runtime-symbol-switch-action2",
+    "manifestPath": "challenges/manifests/v65.json",
+    "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+    "recording": "challenges/cases/v65/v65-runtime-symbol-switch-action2.session.json",
+    "recordingPath": "challenges/cases/v65/v65-runtime-symbol-switch-action2.session.json",
+    "recordingSha256": "02f6f719726aa59f15ca770c70c20863620ac6bb225d3138a0b844f6f6d21461",
+    "recipe": "challenges/cases/v65/v65-runtime-symbol-switch-action2.recipe.session.json",
+    "recipeSha256": "5aa89744d06e1b13cca0dd7aacb71743570233ae9af47a811000edec9505950d",
+    "replayInputSha256": "c9ec0deae5a3337ac7edae606148667e78e9a51ee2b3212cdae9f607a75225f8",
+    "evaluationPath": "challenges/evaluations/accepted-f0581a7656691256c99c2e6deeebfdc57ff7e06c-v65.json",
+    "evaluationCommit": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+    "evaluationArtifact": "challenges/evaluations/accepted-f0581a7656691256c99c2e6deeebfdc57ff7e06c-v65.json",
+    "evaluationUtc": "2026-10-14T08:37:37.224Z",
+    "remainingScreens": 3,
+    "recordedSteps": 11,
+    "previousScreensMatched": 8,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 8, "total": 11 },
+      "rng": { "matched": 2378, "total": 2378 },
+      "cursors": { "matched": 8, "total": 11 }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_symset()'s do_handler request",
+      "step": 8
+    },
+    "step": 8,
+    "kind": "stop",
+    "sourceFile": "options.c",
+    "function": "optfn_symset",
+    "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_symset()'s do_handler request",
+    "cFile": "options.c",
+    "luaFile": null,
+    "line": null
+  },
+  "selectionRationale": "The admitted v65 mismatch stops at optfn_symset()'s missing do_handler path. The queue, current ledger and existing investigations showed no owner for options.c:symset, symbols.c:do_symset, or the generated symbol-set descriptions needed by its menu. The recorded case enters the primary symset handler through the O options menu.",
+  "closestEarlierCases": "The existing v65 runtime-option reset cases concern custom color and custom symbol state resets, not interactive selection of a named symbol set. Existing symbols.js configuration loading covers do_set and get_val arms but has no do_symset menu path.",
+  "overlapCrosswalk": {
+    "scope": "The saved v65 current-work-queue entry, worker-state reservations, options.js handler table, symbols.js implementation, and the existing symbol-data generator/tests.",
+    "closestEarlierCases": "No earlier investigation for the interactive symset picker or its selected-set menu was found.",
+    "causalDifference": "This case opens the `symset` row from the `O` menu and reaches optfn_symset()'s unported do_handler branch. It does not exercise nethackrc symset parsing or custom symbol/color reset operations.",
+    "withinBatch": "The case is the admitted first cause for this task; the remaining steps exercise selection and return from the interactive picker."
+  },
+  "candidateDisposition": "included",
+  "goalKind": "file-port"
+}
