@@ -22,7 +22,7 @@
       "error": "y_monnam is not defined"
     }
   },
-  "summary": "During the mounted floor-gold theft branch, the JS replay stops when steal.js:stealgold calls y_monnam for the hero’s steed, because the module uses y_monnam without importing it. C steal.c:stealgold makes the same naming call after transferring floor gold to the leprechaun. The saved C/JS prefix matches through 384 prior steps; the thrown ReferenceError at step 385 prevents all later output.",
+  "summary": "The admitted case exposed a missing y_monnam import in the mounted floor-gold branch of js/steal.js:stealgold. C steal.c:stealgold calls y_monnam for the hero’s steed after transferring floor gold; adding the existing import restores that message path. The corrected replay now matches all 457 screens, 2432 RNG calls and 457 cursor positions.",
   "source": {
     "file": "steal.c",
     "functions": [
@@ -41,7 +41,9 @@
   "evidence": [
     "C source steal.c:58-116 transfers floor gold first, then uses y_monnam(u.usteed) to build the possessive in the mounted message; no RNG or separate naming branch precedes that call.",
     "JavaScript js/steal.js:1242-1271 follows the same floorGold branch and calls y_monnam(who,state,env), while its do_name.js import list includes Adjmonnam, Monnam and Some_Monnam but omits y_monnam.",
-    "The admitted v73 case is designed with a mounted hero, no carried gold, a floor gold pile and an adjacent leprechaun. The retained C/JS comparison matches 385 screens and 2319 RNG calls before the step-385 ReferenceError; the case queue records the resulting stop error and zero complete session outputs."
+    "The admitted v73 case is designed with a mounted hero, no carried gold, a floor gold pile and an adjacent leprechaun. The retained C/JS comparison matches 385 screens and 2319 RNG calls before the step-385 ReferenceError; the case queue records the resulting stop error and zero complete session outputs.",
+    "The new regression test exercises the production uhitm.c:mhitm_ad_sgld -> steal.c:stealgold route with a mounted hero. Its fixture confirms floor-stack transfer, the C-derived steed possessive message and the single post-message rn2(5) call.",
+    "After importing y_monnam, the admitted replay matches the complete v73-mounted-floor-gold-action4 recording: segment 0 through step 456, 457 screens, 2432 RNG calls and 457 cursor positions."
   ],
   "baselineMetrics": {
     "screens": {
@@ -78,5 +80,32 @@
     "error": "ReferenceError: y_monnam is not defined",
     "cSource": "steal.c:58-116",
     "jsSource": "js/steal.js:1242-1271"
+  },
+  "postFixVerification": {
+    "command": "node scripts/run-bounded.mjs focused -- node scripts/scan-sessions.mjs --json --synthetic v73/v73-mounted-floor-gold-action4",
+    "runId": "run-mQQANZ",
+    "passed": true,
+    "case": "v73-mounted-floor-gold-action4",
+    "segment": 0,
+    "throughStep": 456,
+    "metrics": {
+      "screens": {
+        "c": 457,
+        "js": 457
+      },
+      "rng": {
+        "c": 2432,
+        "js": 2432
+      },
+      "cursors": {
+        "c": 457,
+        "js": 457
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "error": null
   }
 }
