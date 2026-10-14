@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T21:54:03.896Z",
+  "capturedAt": "2026-10-14T22:14:01.884Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -127171,6 +127171,185 @@
         "at": "2026-10-14T21:53:48.798Z",
         "task": "Prep37",
         "delivery": "5d8999029961dd9d72bfd724c31fb2e26edb301e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v72-opening-pet-action2-20261014-7a6a538185235e80bbad13dc3675521c307b9005",
+        "type": "published",
+        "at": "2026-10-14T21:54:20.938Z",
+        "task": "B-investigation-v72-opening-pet-action2-20261014",
+        "commit": "7a6a538185235e80bbad13dc3675521c307b9005"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v72-frost-horn-self-action4-20261014-7a6a538185235e80bbad13dc3675521c307b9005",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T21:54:26.841Z",
+        "task": "A2-investigation-v72-frost-horn-self-action4-20261014",
+        "commit": "7a6a538185235e80bbad13dc3675521c307b9005",
+        "knownBy": "2026-10-14T21:54:20.938Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v72-floating-eye-passive-action2-20261014-7a6a538185235e80bbad13dc3675521c307b9005",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T21:54:28.312Z",
+        "task": "B-investigation-v72-floating-eye-passive-action2-20261014",
+        "commit": "7a6a538185235e80bbad13dc3675521c307b9005",
+        "knownBy": "2026-10-14T21:54:20.938Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v72-clinger-attributes-action2-20261014-7a6a538185235e80bbad13dc3675521c307b9005",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T21:54:29.704Z",
+        "task": "B-investigation-v72-clinger-attributes-action2-20261014",
+        "commit": "7a6a538185235e80bbad13dc3675521c307b9005",
+        "knownBy": "2026-10-14T21:54:20.938Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v72-adornment-cancel-scout1-20261014-7a6a538185235e80bbad13dc3675521c307b9005",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T21:54:31.150Z",
+        "task": "A2-investigation-v72-adornment-cancel-scout1-20261014",
+        "commit": "7a6a538185235e80bbad13dc3675521c307b9005",
+        "knownBy": "2026-10-14T21:54:20.938Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep38-v74-20261014",
+        "type": "assign",
+        "at": "2026-10-14T21:54:45.492Z",
+        "task": "Prep38",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v74"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v70-cube-evidence-ready-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:55:07.292Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Finishing the v70 cube partial fix with independent C-matching runtime evidence; the selected replay still has three screen and one cursor differences."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-Prep37-5d89990",
+        "type": "received",
+        "at": "2026-10-14T21:55:23.784Z",
+        "task": "Prep37",
+        "delivery": "5d8999029961dd9d72bfd724c31fb2e26edb301e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-b5354b3e0252d2b2999823fcb99b1bbf6cd90ac2ae912ecaf7fc925331900388-92d1488fd1d9ad565909c0daf1261089b01f6bee-Prep37",
+        "type": "integrating",
+        "at": "2026-10-14T21:56:49.291Z",
+        "task": "Prep37",
+        "integration": "92d1488fd1d9ad565909c0daf1261089b01f6bee",
+        "prepGroup": [
+          "Prep37"
+        ],
+        "validationGroup": [
+          "Prep37"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-893784a49a5753c0609f5e64a0faf5d392c0064a",
+        "type": "ready",
+        "at": "2026-10-14T21:57:05.684Z",
+        "task": "C-investigation-v70-cube-glob-scout2-followup-20261014",
+        "delivery": "893784a49a5753c0609f5e64a0faf5d392c0064a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-Prep37-hosted-wait-92d1488",
+        "type": "activity",
+        "at": "2026-10-14T21:57:15.390Z",
+        "task": "Prep37",
+        "phase": "waiting",
+        "reason": "The approved24-case preparation packet passed saved-proof verification and preflight. Hosted checkpoint must pass before acceptance, admission and the first official baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep38-source-plan-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:57:39.782Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep38 is preparing sixteen independent source routes for v74. The previous24-case packet is submitted; initial overlap checks and C recipes come next."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-cube-submitted-no-independent-queue-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:57:52.629Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C’s cube task is submitted; the remaining promoted mismatches are owned by A2/B, retained by C deliveries, or parked. Waiting for a newly released independent case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v70-cube-893784a",
+        "type": "received",
+        "at": "2026-10-14T21:58:28.360Z",
+        "task": "C-investigation-v70-cube-glob-scout2-followup-20261014",
+        "delivery": "893784a49a5753c0609f5e64a0faf5d392c0064a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep37-92d1488fd1d9ad565909c0daf1261089b01f6bee",
+        "type": "validated",
+        "at": "2026-10-14T22:06:11.788Z",
+        "task": "Prep37",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep37-92d1488fd1d9ad565909c0daf1261089b01f6bee",
+        "type": "accepted",
+        "at": "2026-10-14T22:06:11.788Z",
+        "task": "Prep37"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep38-two-provisional-held-20261014",
+        "type": "turn",
+        "at": "2026-10-14T22:07:25.908Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep38 has two provisional source failures and two full matches. Four additional reached C routes are preserved; their comparisons await Main’s short v73 acceptance window. Source review and backups continue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-Prep37-baseline-be9f82a4",
+        "type": "activity",
+        "at": "2026-10-14T22:08:10.693Z",
+        "task": "Prep37",
+        "phase": "baseline",
+        "reason": "The accepted24-case v73 manifest is pushed for its first hosted Admission baseline. Implementation workers can select these cases after the saved baseline is imported and the queue is refreshed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep37-be9f82a4d596bc329cf45ad6b910979f5c718969",
+        "type": "activity",
+        "at": "2026-10-14T22:11:39.286Z",
+        "task": "Prep37",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep37-be9f82a4d596bc329cf45ad6b910979f5c718969",
+        "type": "activity",
+        "at": "2026-10-14T22:11:40.126Z",
+        "task": "Prep37",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
@@ -127232,14 +127411,13 @@
         "unblocks": 0
       },
       {
-        "task": "Prep37",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
+        "task": "C-investigation-v70-cube-glob-scout2-followup-20261014",
+        "worker": "C",
+        "goal": "port-m-consume-green-slime-glob-transformation-20261014",
+        "kind": "implementation",
         "status": "ready",
-        "delivery": "5d8999029961dd9d72bfd724c31fb2e26edb301e",
-        "batch": "v73",
-        "since": "2026-10-14T21:53:48.798Z",
+        "delivery": "893784a49a5753c0609f5e64a0faf5d392c0064a",
+        "since": "2026-10-14T21:57:05.684Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -128419,7 +128597,7 @@
       "C-investigation-v70-cube-glob-scout2-followup-20261014": {
         "id": "C-investigation-v70-cube-glob-scout2-followup-20261014",
         "worker": "C",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v70/v70-cube-glob-scout2",
         "reservations": [
           "session:synthetic/v70/v70-cube-glob-scout2",
@@ -128548,8 +128726,8 @@
     }
   },
   "development": {
-    "executionCommit": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
-    "measuredAt": "2026-10-14T21:48:40.991Z",
+    "executionCommit": "92d1488fd1d9ad565909c0daf1261089b01f6bee",
+    "measuredAt": "2026-10-14T22:02:17.304Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
