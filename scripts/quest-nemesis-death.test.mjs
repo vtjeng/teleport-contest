@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { nemdead } from '../js/quest.js';
+import { leaddead, nemdead } from '../js/quest.js';
 import { QUEST_TEXT_DATA } from '../js/quest_text_data.js';
 import { stinky_nemesis } from '../js/questpgr.js';
 
@@ -106,4 +106,25 @@ test('nemesis death helpers are wired in m_detach source order', () => {
     assert.match(QUEST_JS, /context\.mon_moving = true;[\s\S]*?finally\s*\{\s*context\.mon_moving = saveMonMoving;/u);
     assert.match(QUEST_JS, /create_gas_cloud\(mx, my, 5, 8/u);
     assert.match(QUESTPGR_JS, /const normalized = rawText\.value\.replaceAll\('\\n', ' '\)/u);
+});
+
+test('leaddead marks the Quest permission state from m_detach source order', () => {
+    const status = { killed_leader: false };
+    leaddead({ svq: { quest_status: status } });
+    assert.equal(status.killed_leader, true);
+    leaddead({ svq: { quest_status: status } });
+    assert.equal(status.killed_leader, true);
+
+    const c = cFunction(MON_C, 'm_detach');
+    assert.match(c, /if \(mtmp->data->msound == MS_LEADER\)\s*leaddead\(\);/u);
+    assert.match(cFunction(QUEST_C, 'leaddead'), /Qstat\(killed_leader\) = TRUE;/u);
+
+    const jsStart = MON_JS.indexOf('export function m_detach(');
+    const jsEnd = MON_JS.indexOf('\nfunction monsterOnLevelChain', jsStart);
+    const js = MON_JS.slice(jsStart, jsEnd);
+    const leaderDeath = js.indexOf('if (mtmp.data.msound === MS_LEADER)');
+    const leaddeadAt = js.indexOf('leaddead(state)', leaderDeath);
+    const dropAt = js.indexOf('await relobj(mtmp, 1, false', leaderDeath);
+    assert.ok(leaderDeath >= 0 && leaddeadAt > leaderDeath && leaddeadAt < dropAt);
+    assert.match(QUEST_JS, /export function leaddead\(state = game\)[\s\S]*?status\.killed_leader = true;/u);
 });

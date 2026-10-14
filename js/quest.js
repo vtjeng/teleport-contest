@@ -119,6 +119,15 @@ export function nemdead(state = game, ops = {}) {
     );
 }
 
+// C ref: quest.c leaddead() (116-122). Record the dead leader once so
+// ok_to_quest() can allow the hero to leave the Quest start level. C leaves
+// the optional killed_leader pager disabled.
+export function leaddead(state = game) {
+    const status = state.svq.quest_status;
+    if (!status.killed_leader)
+        status.killed_leader = true;
+}
+
 // C ref: quest.c nemesis_stinks(). The temporary mon_moving value prevents
 // the hero from being credited with a cloud produced by the monster death.
 // region.create_gas_cloud is async in this port; restore the C state after its

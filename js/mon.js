@@ -4761,7 +4761,6 @@ export function mnearto(
 // The remaining unported branches stop under their source conditions:
 //
 //   2741-2742  m_unleash(), for a leashed pet.
-//   2774-2775  leaddead(), for a dying quest leader.
 //   2800-2801  asynchronous DISMOUNT_GENERIC release when the departing
 //              monster was the hero's steed.
 // thiefdead(), shkgone(), wormgone(), MON_ENDGAME_FREE, and the detach flag
@@ -4869,8 +4868,10 @@ export function m_detach(
                         });
                     }
                 }
-                if (mtmp.data.msound === MS_LEADER)
-                    unsupported("the quest leader's death");
+                if (mtmp.data.msound === MS_LEADER) {
+                    const { leaddead } = await import('./quest.js');
+                    leaddead(state);
+                }
                 /* "release (drop onto map) all objects carried by mtmp; assumes that
                    mtmp->mx,my contains the appropriate location" */
                 await relobj(mtmp, 1, false, { ...env, state });
