@@ -314848,6 +314848,42 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-v73-hurtle-iron-rust-trap-nonliving-binding-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement trapeffect_rust_trap from trap.c",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v73/v73-hurtle-iron-rust-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v73-hurtle-iron-rust-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "trapeffect_rust_trap",
+      "session": "synthetic/v73/v73-hurtle-iron-rust-action4"
+    },
+    {
+      "id": "fix-v73-helmet-earth-mon-nam-import-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement use_offensive from muse.c",
+      "cFile": "muse.c",
+      "sessions": [
+        "synthetic/v73/v73-helmet-npc-earth-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v73-helmet-npc-earth-action5-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_offensive",
+      "session": "synthetic/v73/v73-helmet-npc-earth-action5"
     }
   ]
 }
