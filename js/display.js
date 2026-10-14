@@ -3889,6 +3889,17 @@ export function newsym(x, y) {
     }
 
     if (game.u?.ux === x && game.u?.uy === y) {
+        // display.c:1041-1045. A hero square outside physical sight is felt
+        // before canspotself() redraws the hero. The tactile update can change
+        // map memory (for example, a dark Rogue room's S_room becomes
+        // S_darkroom), so it must precede the hero glyph and own the memory
+        // write for this branch.
+        if (!visible) {
+            feel_location(x, y, game);
+            if (heroCanSpotSelf(game)) display_self();
+            return;
+        }
+
         // C ref: display.h display_self() (251-260). maybe_display_usteed()
         // puts a visible steed's glyph on the hero's square. C's newsym()
         // first maps the underlying location when canspotself() is false,

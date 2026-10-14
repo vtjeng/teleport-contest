@@ -61,5 +61,78 @@
     "Upstream nethack-c/upstream/src/mklev.c:615-680 sets D_TRAPPED after the closed/locked door draws, then lines 645-648 set D_NODOOR on Rogue levels before lines 650-663 test for a trapped door and possibly call rn2(5), mkclass, and makemon.",
     "The current js/mklev.js:7139-7170 implements the door draw and mimic check but omits the Is_rogue_level branch between setting D_TRAPPED and testing that flag. The selected admitted path is extralev.c:roguecorr -> mklev.c:dodoor -> mklev.c:dosdoor.",
     "The complete change is a one-branch correction to dosdoor plus focused coverage of the Rogue-level trapped-door path. The admitted v67 range supplies production evidence through Rogue level generation and the affected corridor creation path."
+  ],
+  "continuations": [
+    {
+      "task": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+      "goal": "fix-display-newsym-blind-tactile-memory-v67-20261014",
+      "status": "verified",
+      "step": 502,
+      "segment": 0,
+      "kind": "screen",
+      "firstMismatch": {
+        "row": 11,
+        "column": 57,
+        "c": {
+          "ch": ".",
+          "color": 8,
+          "attr": 0
+        },
+        "js": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0
+        },
+        "key": "l"
+      },
+      "summary": "C display.c:newsym() invokes feel_location(u.ux,u.uy) for the blind hero square before the later departure redraw. JS newsym() takes its early hero-square return without that call. Under the recorded state (Blind, Rogue level, ROOM typ=25, lit=0, waslit=0, dark_room=1, color=1), C feel_location changes remembered S_room glyph 3992 to S_darkroom 3993, which renders as the remembered floor dot; JS omits the tactile update and its subsequent Rogue newsym darkens S_room to S_stone 3929, yielding a blank square.",
+      "source": {
+        "file": "display.c",
+        "function": "newsym",
+        "lines": "917-1099",
+        "branch": "The !cansee hero-square arm at 1041-1045 calls feel_location before display_self; JS display.js newsym returns in its earlier hero-square arm without calling feel_location.",
+        "callee": "display.c:feel_location at 894-900 performs the S_darkroom memory write for this state; corresponding JS display.js feel_location exists and should be called."
+      },
+      "stateEvidence": {
+        "hero": [
+          58,
+          10
+        ],
+        "blind": true,
+        "rogue": true,
+        "typ": 25,
+        "lit": 0,
+        "waslit": 0,
+        "darkRoom": true,
+        "color": true,
+        "canSee": false,
+        "cGlyphBefore": 3992,
+        "cGlyphAfter": 3993,
+        "jsGlyphBeforeDeparture": 3992,
+        "jsGlyphAfterDeparture": 3929
+      },
+      "ruledOut": [
+        "rogue_vision(): old-room visibility setup is not the differing write; the issue occurs in newsym tactile update while blind.",
+        "C/JS Rogue generation terrain typ, lighting, and RNG match at the selected boundary.",
+        "The older dosdoor divergence is already fixed at the accepted v67 baseline; this continuation begins from its 502/527 screen, 3050/3050 RNG, 527/527 cursor score."
+      ],
+      "diagnosticC": {
+        "classification": "temporary-instrumented-reference-diagnostic (separate from ordinary C evidence)",
+        "log": ".cache/v67-rogue-blind-diagnostic-c-state.log",
+        "logSha256": "02407f26cded82444eca3f96e13850e7b24a7190c7a538712e1f2a1db613a2b7",
+        "replay": ".cache/v67-rogue-blind-diagnostic-c-replay.session.json",
+        "replaySha256": "48cacc0ea41f6582231fbf969f1a5a161203507c2c67179820217f8abe04e1ea",
+        "byteIdenticalToOriginalRecording": true,
+        "originalRecordingSha256": "48cacc0ea41f6582231fbf969f1a5a161203507c2c67179820217f8abe04e1ea",
+        "temporarySourceRoot": "/tmp/rogue-c-diag",
+        "notes": "Temporary C source instrumentation wrote only stderr. No original recipe, recording, recorder source, or repository C source was changed."
+      },
+      "evidence": [
+        "The admitted v67 accepted baseline evaluation at a0cd732525b945d1c2bbd556038f6c057856bd13 records 502/527 screens, 3050/3050 RNG entries, and 527/527 cursors. A fresh replay at c1b7aae60532098b8e0d65f5e17929ef8c2d1235 confirms first screen mismatch at step 502, row 11 column 57, C \".\" versus JS blank, with RNG/cursor matched.",
+        "A separate temporary instrumented C recorder replayed the immutable original recipe and emitted a byte-identical recording. At x58,y10, it logged blind=1, rogue=1, ROOM typ=25, lit=0, waslit=0, glyph=3992 then 3993.",
+        "display.c:newsym() lines 1041-1045 calls feel_location(u.ux,u.uy) whenever the hero square is not physically visible, then conditionally calls display_self(). JS display.js newsym() handles the hero square before the visible/not-visible chain and does not call feel_location.",
+        "display.c:feel_location() lines 894-900 writes S_darkroom in the relevant ordinary tactile arm when the remembered glyph is S_room and dark_room/use_color are true. Rogue newsym() only darkens S_room to S_stone; it leaves S_darkroom unchanged, matching C output."
+      ]
+    }
   ]
 }
