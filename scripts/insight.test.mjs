@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 
 import {
     A_CHA,
@@ -2462,4 +2463,14 @@ test('record_achievement appends source rank and prize events', async () => {
     assert.deepEqual(state.gamelog.map((event) => event.text), [
         'acquired the Bell of Opening',
     ]);
+});
+
+test('insight.c attributes_enlightenment reports a clinger ceiling', async () => {
+    const recording = JSON.parse(readFileSync(new URL(
+        '../challenges/cases/v72/v72-clinger-attributes-action2.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    const js = await runJsSession(recording, process.cwd());
+    const result = compareSessionOutputs(recording, js);
+    assert.equal(result.passed, true, JSON.stringify(result));
 });

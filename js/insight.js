@@ -249,7 +249,7 @@ import { timet_delta } from './allmain.js';
 import { acurr, from_what, stone_luck } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { enc_stat, rank_of, rank_to_xlev } from './display.js';
-import { depth, dunlev, endgamelevelname, surface, ceiling } from './dungeon.js';
+import { depth, dunlev, endgamelevelname, surface, ceiling, has_ceiling } from './dungeon.js';
 import { hu_stat, temp_resist } from './eat.js';
 import { game } from './gstate.js';
 import { newuexp } from './exper.js';
