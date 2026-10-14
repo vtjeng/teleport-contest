@@ -1,0 +1,33 @@
+{
+  "session": "synthetic/v70/v70-tame-grip-jump-scout2",
+  "corpus": "synthetic",
+  "batch": "v70",
+  "caseId": "v70-tame-grip-jump-scout2",
+  "manifestPath": "challenges/manifests/v70.json",
+  "manifestSha256": "14c26870e789a38f3773bde57004a8c1739003f722718ec7bbca5c374f88992e",
+  "recordingPath": "challenges/cases/v70/v70-tame-grip-jump-scout2.session.json",
+  "recordingSha256": "2f612f180a96437013800f9cce97472284a189956d0ac0fffb84428d4240c224",
+  "recipePath": "challenges/cases/v70/v70-tame-grip-jump-scout2.recipe.session.json",
+  "recipeSha256": "e76baf7eb55f08b1f2007b3ea899995272026a41022c8acd65f60555dffe5050",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "recordedSteps": 616,
+  "status": "complete",
+  "summary": "The admitted tame-grip-jump recording reached apply.c:jump's tame-captor escape condition, where JavaScript threw because CONFLICT was referenced but not imported. Importing the existing constant restores the source branch; the full 616-step recording now matches.",
+  "mismatch": {"kind": "stop", "step": 562, "message": "ReferenceError: CONFLICT is not defined", "sourceFile": "apply.c", "function": "jump"},
+  "source": {
+    "file": "apply.c",
+    "functions": ["jump"],
+    "branch": "Upstream apply.c:jump (1988-2163) tests u.ustuck->mtame && !Conflict && !u.ustuck->mconf. For the admitted sequence, the tame python has grabbed the hero, the hero removes the sole Conflict ring, and #jump takes the branch that clears u.ustuck and prints the pull-free message.",
+    "javascript": "js/apply.js:jump mirrors the condition at line 3036 through jumpProperty(state, CONFLICT), but CONFLICT was absent from the module's named imports. The throw occurs before the branch can release the captor.",
+    "resolution": "Import CONFLICT from js/const.js in js/apply.js. Keep the source condition and its ordering unchanged."
+  },
+  "evidence": [
+    "After merging accepted admission commit 8ed2a7dadcf72a348bc5f3709e19b133c03e0666, the bounded scan of synthetic/v70/v70-tame-grip-jump-scout2 stopped at apply.js:3036 with ReferenceError: CONFLICT is not defined; no game screen was emitted after the stop.",
+    "The saved admission result identifies the same 616-step recording and the same ReferenceError. challenges/manifests/v70.json attributes the case to apply.c:jump and records the C trace: a tame python grabs the hero, the hero removes the sole Conflict ring, and #jump says the hero pulls free.",
+    "Upstream nethack-c/upstream/src/apply.c:jump (1988-2030) tests the exact tame/non-conflict/non-confused guard before clearing u.ustuck. js/const.js exports CONFLICT; js/apply.js referenced it without importing it.",
+    "After importing CONFLICT, the bounded scan emitted and matched all 616/616 screens, RNG calls, cursors, and the input boundary through segment 0 step 615. The only remaining unported marker is sounds.c SoundAchievement, unrelated to this case's matching result."
+  ],
+  "verifiedReplay": {"segment": 0, "throughStep": 615, "recordingMatched": true, "inputBoundaryMatched": true, "replayCommit": "69bea223b716d97c7f0c74a7a07daaec40282210"},
+  "goalKind": "divergence-fix"
+}

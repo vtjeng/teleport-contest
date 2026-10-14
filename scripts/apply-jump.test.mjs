@@ -10,6 +10,8 @@ import {
     D_CLOSED,
     D_ISOPEN,
     DOOR,
+    CONFLICT,
+    ECMD_TIME,
     IN_SIGHT,
     JUMPING,
     ROOM,
@@ -20,6 +22,8 @@ import {
     get_valid_jump_position,
 } from '../js/apply.js';
 import { GameMap } from '../js/game.js';
+import { newMonster } from '../js/monst.js';
+import { PM_PYTHON } from '../js/monsters.js';
 
 function makeState() {
     const level = new GameMap();
@@ -118,6 +122,28 @@ test('jump forwards the supplied hunger callbacks and random source at the trapp
     assert.equal(game.u.uhunger, 50);
     assert.equal(game.u.uhs, WEAK);
     assert.deepEqual(events, [['rnd', 10], ['message', 'You are beginning to feel weak.'], ['run', true], ['bot', true]]);
+});
+
+test('jump releases a tame captor when Conflict is absent', async () => {
+    const { runSegment } = await import('../js/jsmain.js');
+    const gstate = await import('../js/gstate.js');
+    const { jump } = await import('../js/apply.js');
+    const { clearTtyMessageWindow } = await import('../js/tty_message.js');
+    await runSegment({ seed: 15840231, datetime: '20521018140000',
+        nethackrc: 'OPTIONS=name:JumpTameGrip,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!acoustics', moves: '' });
+    const { game } = gstate;
+    clearTtyMessageWindow(game);
+    const captor = newMonster({
+        data: game.mons[PM_PYTHON],
+        mnum: PM_PYTHON,
+        mtame: 1,
+        mconf: 0,
+    });
+    game.u.ustuck = captor;
+    game.u.uprops[CONFLICT] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+
+    assert.equal(await jump(1, game), ECMD_TIME);
+    assert.equal(game.u.ustuck, null);
 });
 
 test('one-cell jump consumes a flat mutable range and emits no delay frame', async () => {
