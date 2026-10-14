@@ -1,0 +1,44 @@
+{
+  "session": "synthetic/v64/v64-worn-amulet-poly-action3",
+  "remainingScreens": 191,
+  "recordedSteps": 191,
+  "corpus": "synthetic",
+  "batch": "v64",
+  "caseId": "v64-worn-amulet-poly-action3",
+  "manifestPath": "challenges/manifests/v64.json",
+  "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+  "recordingSha256": "02cada8528b568bf04190ec9bf3e908ce1992b28a47eac54a866e7a9531450c5",
+  "evaluationPath": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v64.json",
+  "evaluationCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+  "status": "complete",
+  "commit": "4c0954db711c705152053bc79650fc35208886a0",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": ["synthetic/v64/v64-worn-amulet-poly-action3"],
+    "remainingScreens": 191,
+    "remainingScreensUpperBound": null,
+    "earliestStep": null,
+    "caseId": "v64-worn-amulet-poly-action3",
+    "batch": "v64",
+    "recordingPath": "challenges/cases/v64/v64-worn-amulet-poly-action3.session.json"
+  },
+  "summary": "When a worn ESP amulet is polymorphed into another amulet, C removes the old item, installs the replacement in the same slot, and reapplies wear effects. The JS poly_obj caller skips accessory removal and set_wear, so setworn tries to replace the still-worn amulet with an environment that lacks cancelDoff and throws. The ordinary scan reproduces this at js/zap.js:2546 through potion_dip. The C trace diverges at zero-based step 173 after matching through step 172.",
+  "source": {
+    "file": "zap.c",
+    "branch": "Inventory polymorph when old_wornmask includes W_AMUL and wearslot(replacement) preserves W_AMUL; remove the old worn item before assigning the replacement, then call set_wear and reread the slot.",
+    "functions": ["poly_obj"],
+    "callers": ["potion.c:potion_dip (potion.c:2442-2492)"],
+    "dependencies": ["steal.c:remove_worn_item", "do_wear.c:set_wear", "do_wear.c:Amulet_off", "worn.c:setworn", "do_wear.c:cancel_doff"]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "nethack-c/upstream/src/zap.c:1929-1949 unconditionally calls remove_worn_item(obj, TRUE), then setworn(otmp, new_wornmask), set_wear(otmp), and wearmask_to_obj(new_wornmask) for a nonzero replacement mask. The JS poly_obj implementation at js/zap.js:2518-2546 excludes W_AMUL from that call and throws before the next boundary.",
+    "nethack-c/upstream/src/steal.c:213-290 implements remove_worn_item: W_AMUL calls Amulet_off(), then any remaining worn bits go through setnotworn(). do_wear.c:1642-1659 requires cancel_doff() as part of worn-slot changes. js/steal.js:375 currently calls setnotworn(obj, { state }), dropping the hooks from its environment; preserve the do_wear hook environment when enabling this path for other amulet types.",
+    "nethack-c/upstream/src/potion.c:2442-2492 calls poly_obj from potion_dip for polymorphing the dipped object. The synthetic input exercises that production path with a worn ESP amulet and a polymorph potion.",
+    "The ordinary baseline diagnostic is .cache/A2-v64-worn-amulet-poly-scan.json at replay commit 4c0954db711c705152053bc79650fc35208886a0. It reports the error through potion_dip -> poly_obj -> setworn: worn requires cancelDoff for otyp 201. The accepted v64 manifest records the C step 173 boundary and an observational match through step 172."
+  ]
+}
