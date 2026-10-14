@@ -1,0 +1,111 @@
+{
+  "session": "synthetic/v66/v66-unpaid-food-action3",
+  "remainingScreens": 3,
+  "recordedSteps": 272,
+  "corpus": "synthetic",
+  "batch": "v66",
+  "caseId": "v66-unpaid-food-action3",
+  "manifestPath": "challenges/manifests/v66.json",
+  "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+  "recordingSha256": "f2e4ab730546fb979bb6e315bcef21bec6cddd51a39f33f6065fe5f681df66ad",
+  "evaluationPath": "challenges/evaluations/accepted-cf20559eac8b7d89d2412d3fed2d8842bdecbf66-v66.json",
+  "evaluationCommit": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+  "status": "complete",
+  "commit": "cc6f3c42e31cda941807d85ae28c66b3555ac167",
+  "mismatch": {
+    "screen": {
+      "index": 250,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 250,
+        "key": "q"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 0,
+      "cCell": {
+        "ch": "\"",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "Y",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "rng": {
+      "index": 3746,
+      "cEntry": "rnd(2)=2",
+      "cCaller": "next_ident(mkobj.c:521)",
+      "jsEntry": "rn2(2)=1",
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 250,
+        "key": "q"
+      },
+      "stepIndex": 250
+    },
+    "cursor": {
+      "index": 250,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 250,
+        "key": "q"
+      },
+      "cCursor": [
+        70,
+        0,
+        1
+      ],
+      "jsCursor": [
+        58,
+        0,
+        1
+      ]
+    },
+    "kind": "rng",
+    "sourceFile": "mkobj.c",
+    "function": "next_ident",
+    "line": 521
+  },
+  "summary": "At segment 0 step 250, selecting the floor tripe ration reaches C eat.c:doeat -> touchfood -> mkobj.c:costly_alteration(COST_BITE). The floor-object path checks costly_spot and billable, prints “You bite that, you pay for it!”, then calls bill_dummy_object. JavaScript costly_alteration currently returns only for unbilled free or inventory objects and routes the remaining cases to an injected unported hook, so the floor food is not billed and the message is absent. The reported next_ident RNG mismatch is a consequence of the missing dummy-object billing path, not the cause.",
+  "source": {
+    "file": "mkobj.c",
+    "branch": "For a floor object in a costly shop, get_obj_location determines its shop room, costly_spot confirms the location, and billable determines whether that shop charges for it; the function then emits the bite payment message and bills a dummy object.",
+    "functions": [
+      "costly_alteration"
+    ],
+    "callers": [
+      "eat.c:doeat -> touchfood -> costly_alteration(COST_BITE)",
+      "eat.c:doeat -> costly_tin -> costly_alteration",
+      "do.c:obj_no_longer_held -> costly_alteration",
+      "dogmove.c:dog_eat -> costly_alteration",
+      "zap.c:cancel_item -> costly_alteration",
+      "zap.c:drain_item -> costly_alteration",
+      "potion.c:H2Opotion_dip -> costly_alteration",
+      "potion.c:potion_dip -> costly_alteration",
+      "wield.c:chwepon -> costly_alteration",
+      "trap.c:erode_obj -> costly_alteration",
+      "read.c:seffect_enchant_weapon -> costly_alteration",
+      "apply.c:use_cream_pie -> costly_alteration",
+      "apply.c:do_break_wand -> costly_alteration"
+    ],
+    "dependencies": [
+      "mkobj.c:bill_dummy_object",
+      "shk.c:costly_spot",
+      "shk.c:billable",
+      "shk.c:stolen_value"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v66 queue records segment 0 step 250 (`q`) as the first mismatch: 269 prior screens match; C has You bite that tripe ration, you pay for it! while JavaScript has Yak - dog food! followed by nausea feedback.",
+    "The C RNG log at step 250 begins with `rnd(2)=2 @ next_ident(mkobj.c:521)`, which occurs while mkobj.c:bill_dummy_object creates and bills the dummy object. JavaScript omits the bill_dummy_object call because costly_alteration reaches the injected gap.",
+    "nethack-c/upstream/src/eat.c:touchfood calls costly_alteration(otmp, COST_BITE) before setting the first-bite nutrition or starting the meal.",
+    "nethack-c/upstream/src/mkobj.c:costly_alteration has a floor-object branch that checks costly_spot and billable, emits the payment message for an owned shop-floor object, and calls bill_dummy_object.",
+    "js/obj.js:costly_alteration currently handles only the free/inventory unpaid fast return and calls a required hook for all other cases; js/eat.js:touchfood supplies a hook that only calls note_unported."
+  ]
+}
