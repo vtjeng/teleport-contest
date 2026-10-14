@@ -306648,6 +306648,72 @@
       "delivered": null,
       "function": "u_left_shop",
       "session": "synthetic/v67/v67-angry-shop-settlement-action10"
+    },
+    {
+      "id": "port-pickup-do-loot-cont-v66-bag-of-tricks-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the complete pickup.c:do_loot_cont() function for the floor BAG_OF_TRICKS bite and locked-container autounlock-force branches.",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v66/v66-floor-loot-tricks-bite-action1",
+        "synthetic/v66/v66-loot-auto-force-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v66-floor-loot-tricks-bite-action1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_loot_cont",
+          "line": 2088,
+          "endLine": 2165,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 2088,
+        "to": 2165
+      },
+      "requiredFunctions": [
+        {
+          "name": "discover_object",
+          "line": 454,
+          "endLine": 497,
+          "declared": true,
+          "sourceFile": "o_init.c"
+        },
+        {
+          "name": "u_have_forceable_weapon",
+          "line": 660,
+          "endLine": 675,
+          "declared": true,
+          "sourceFile": "lock.c"
+        },
+        {
+          "name": "doforce",
+          "line": 676,
+          "endLine": 758,
+          "declared": true,
+          "sourceFile": "lock.c"
+        },
+        {
+          "name": "cmdq_add_ec",
+          "line": 254,
+          "endLine": 273,
+          "declared": true,
+          "sourceFile": "cmd.c"
+        },
+        {
+          "name": "ext_func_tab_from_func",
+          "line": 3016,
+          "endLine": 3028,
+          "declared": true,
+          "sourceFile": "cmd.c"
+        }
+      ]
     }
   ]
 }
