@@ -1,0 +1,56 @@
+{
+  "session": "synthetic/v70/v70-item-split-scout2",
+  "corpus": "synthetic",
+  "batch": "v70",
+  "caseId": "v70-item-split-scout2",
+  "manifestPath": "challenges/manifests/v70.json",
+  "manifestSha256": "14c26870e789a38f3773bde57004a8c1739003f722718ec7bbca5c374f88992e",
+  "recordingSha256": "f71d71380bd7696c75070358771e057338b3a3b437cc7dce6330401fdbc0c994",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "remainingScreens": 145,
+  "recordedSteps": 145,
+  "status": "complete",
+  "commit": "43868f5b231a71369a38581eff3d2c156e0110fc",
+  "mismatch": {
+    "session": "synthetic/v70/v70-item-split-scout2",
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "caseId": "v70-item-split-scout2",
+    "batch": "v70",
+    "sessions": [
+      "synthetic/v70/v70-item-split-scout2"
+    ],
+    "remainingScreens": 145,
+    "recordingPath": "challenges/cases/v70/v70-item-split-scout2.session.json"
+  },
+  "summary": "The v70 five-arrow stack reaches invent.c:adjust_split through the queued item-action path. The first mismatch at step 101 is a ReferenceError: js/invent.js uses GC_ECHOFIRST and GC_CONDHIST in its multi-item get_count call without importing either constant. C defines both flags in hack.h (values 4 and 2); js/const.js already exports them. The prefix matches through step 100, including 2203 RNG calls. The fix is to import both existing flags and test the >2 stack path through itemactions and rhack.",
+  "source": {
+    "file": "invent.c",
+    "branch": "adjust_split: when the selected object has quantity greater than two, C reads the first digit with yn_function and calls get_count with GC_ECHOFIRST|GC_CONDHIST before validating the amount and splitting the object.",
+    "functions": [
+      "adjust_split"
+    ],
+    "callers": [
+      "iactions.c:itemactions_pushkeys",
+      "cmd.c:rhack",
+      "js/iactions.js:itemactions_pushkeys",
+      "js/cmd.js:rhack"
+    ],
+    "dependencies": [
+      "cmd.c:get_count",
+      "hack.h:GC_ECHOFIRST",
+      "hack.h:GC_CONDHIST"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "challenges/manifests/v70.json identifies invent.c:adjust_split as the C owner and records the expected five-arrow split: the input asks “Split off how many?”, enters 2, and selects destination b.",
+    "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json records the first mismatch at segment 0, step 101, key 2: ReferenceError GC_ECHOFIRST is not defined. The C prefix matches 101 screens and 2203 RNG calls before that boundary.",
+    "nethack-c/upstream/src/invent.c:5008-5065 calls get_count with GC_ECHOFIRST|GC_CONDHIST for quantity greater than two; hack.h:1386-1388 defines those values as 4 and 2. js/const.js already exports both values.",
+    "js/invent.js:5570-5584 uses both constants but imports neither. js/cmd.js already imports and passes the same flags to its get_count implementation.",
+    "The production caller is iactions.c:itemactions_pushkeys (IA_ADJUST_STACK queues adjust_split) followed by cmd.c:rhack invoking the queued function pointer. js/iactions.js and js/cmd.js already implement that same queue and dispatch path.",
+    "scripts/cmd.test.mjs:3858 covers this item-action dispatch only for quantity two; that branch skips get_count. Extend it with a quantity-five stack and keys 2, space, and a destination letter to cover the failing branch and C message/split order.",
+    "The admitted v70 crosswalk distinguishes this failure from v47 two-egg splitting (which defaults to one and bypasses get_count) and v69 #adjust (which uses doorganize/getobj)."
+  ]
+}
