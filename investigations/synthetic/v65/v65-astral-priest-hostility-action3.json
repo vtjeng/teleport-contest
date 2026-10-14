@@ -14,6 +14,8 @@
   "status": "complete",
   "commit": "4de56bbde1493a876a505e22c65c88e49b6de1d8",
   "mismatch": {
+    "session": "synthetic/v65/v65-astral-priest-hostility-action3",
+    "remainingScreens": 30,
     "step": 180,
     "kind": "screen",
     "segmentIndex": 0,
