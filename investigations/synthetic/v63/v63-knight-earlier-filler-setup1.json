@@ -1,0 +1,64 @@
+{
+  "session": "synthetic/v63/v63-knight-earlier-filler-setup1",
+  "corpus": "synthetic",
+  "batch": "v63",
+  "caseId": "v63-knight-earlier-filler-setup1",
+  "manifestPath": "challenges/manifests/v63.json",
+  "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+  "recordingSha256": "f2f76ba4ed85c3d0832001acecef8ec5c60179d92a6b100fd3878c5877f37df9",
+  "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+  "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+  "remainingScreens": 24,
+  "recordedSteps": 265,
+  "status": "complete",
+  "commit": "b9193ef89c1a32a62e42162ddc94d623b5420e7e",
+  "goalKind": "lua-port",
+  "mismatch": {
+    "kind": "resolved",
+    "session": "synthetic/v63/v63-knight-earlier-filler-setup1",
+    "remainingScreens": 24,
+    "firstMismatchBeforePort": {
+      "step": 241,
+      "owner": "dat/Kni-fila.lua whole-program loader/body",
+      "sourceProgramSha256": "f16989e032bd00737a5b3b726f5ce44251fe3def69d1ff2dc48de796616b3b0d",
+      "cause": "js/quest_levels.js had no Kni-fila registry entry, so mklev.js fell through to ordinary level generation."
+    }
+  },
+  "summary": "Ported and registered the complete Knight quest earlier-filler program. The admitted v63 case now matches all 265 screens, 11,443 RNG calls, and 265 cursors with no replay error.",
+  "source": {
+    "file": "Kni-fila.lua",
+    "functions": [
+      "Kni-fila.lua"
+    ],
+    "branch": "The Knight quest filler level above Kni-loca is selected by makelevel and runs dat/Kni-fila.lua through makemaz and load_special.",
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Kni-fila.lua",
+      "js/mklev.js:makelevel -> QUEST_LEVEL_LOADERS['Kni-fila'] -> kniFila"
+    ],
+    "dependencies": []
+  },
+  "evidence": [
+    "The original admitted evaluation at 3fc2021644e79e564fb762bc2038139c3241ff42 matched 241/265 screens, 8435/11443 RNG calls, and 248/265 cursors; its first mismatch was at step 241.",
+    "The v63 Knight case replay after b9193ef89 matched 265/265 screens, 11443/11443 RNG calls, and 265/265 cursors; error was null.",
+    "synthetic-range-evidence verified segment 0 through step 264 through makelevel, makemaz, load_special, and the complete Kni-fila.lua program.",
+    "The implementation preserves both level initializers, maze flags, stairs, eight random objects, four quasits, one i-class monster, one ochre jelly, and four random traps in source order."
+  ],
+  "postImplementationReplay": {
+    "commit": "b9193ef89c1a32a62e42162ddc94d623b5420e7e",
+    "recordingSha256": "f2f76ba4ed85c3d0832001acecef8ec5c60179d92a6b100fd3878c5877f37df9",
+    "baseline": {
+      "screens": "241/265",
+      "rng": "8435/11443",
+      "cursors": "248/265",
+      "error": null
+    },
+    "result": {
+      "screens": "265/265",
+      "rng": "11443/11443",
+      "cursors": "265/265",
+      "error": null
+    },
+    "targetImproved": true,
+    "firstRemainingMismatch": null
+  }
+}
