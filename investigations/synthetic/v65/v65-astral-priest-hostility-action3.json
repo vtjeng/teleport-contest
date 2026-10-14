@@ -1,0 +1,44 @@
+{
+  "session": "synthetic/v65/v65-astral-priest-hostility-action3",
+  "corpus": "synthetic",
+  "batch": "v65",
+  "caseId": "v65-astral-priest-hostility-action3",
+  "manifestPath": "challenges/manifests/v65.json",
+  "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+  "recordingPath": "challenges/cases/v65/v65-astral-priest-hostility-action3.session.json",
+  "recordingSha256": "c4afcdea727af056ea8d5f61d7d5b6c5d373da8d21b54841b3eebb4d494e6f87",
+  "evaluationPath": "challenges/evaluations/accepted-f0581a7656691256c99c2e6deeebfdc57ff7e06c-v65.json",
+  "evaluationCommit": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+  "remainingScreens": 30,
+  "recordedSteps": 210,
+  "status": "complete",
+  "commit": "4de56bbde1493a876a505e22c65c88e49b6de1d8",
+  "mismatch": {
+    "step": 180,
+    "kind": "screen",
+    "segmentIndex": 0,
+    "key": " ",
+    "row": 10,
+    "column": 34,
+    "cCell": { "ch": "5", "color": 13, "attr": 0, "decgfx": 0 },
+    "jsCell": { "ch": " ", "color": 8, "attr": 0, "decgfx": 0 },
+    "rng": { "matched": 6144, "total": 6144 },
+    "cursors": { "matched": 210, "total": 210 }
+  },
+  "summary": "On a newly created Astral level, do.c:final_level() calls iter_mons(reset_hostility) before creating player-monsters and a guardian angel. priest.c:reset_hostility() marks non-coaligned minion Angels and aligned clerics hostile, updates their alignment value, and calls newsym() for each. The Astral arrival branch in js/do.js had recorded this call as unported, skipping the monster-state update and redraw. Porting the callback and wiring it into final_level() makes the complete admitted v65 recording match.",
+  "source": {
+    "file": "priest.c",
+    "branch": "reset_hostility processes only minions whose data is PM_ALIGNED_CLERIC or PM_ANGEL; when min_align differs from the hero alignment it clears peaceful and tame state and recomputes malign, then redraws the monster square.",
+    "functions": ["reset_hostility"],
+    "callers": ["do.c:final_level", "do.c:goto_level Astral arrival"],
+    "dependencies": ["makemon.c:set_malign", "display.c:newsym", "mon.c:iter_mons"]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "nethack-c/upstream/src/do.c:2043-2049 defines final_level() as iter_mons(reset_hostility), create_mplayers(rn1(4, 3), TRUE), then gain_guardian_angel(); nethack-c/upstream/src/do.c:1882-1889 calls final_level() only for a newly created Astral level.",
+    "nethack-c/upstream/src/priest.c:755-770 returns for non-minions and non-Angels/non-aligned clerics; for a non-coaligned minion it clears mpeaceful and mtame and calls set_malign(), then calls newsym() at the monster coordinates.",
+    "At diagnosis commit 4de56bbde1493a876a505e22c65c88e49b6de1d8, js/do.js:3162-3169 follows the Astral arrival branch and calls note_unported('priest.c reset_hostility') before create_mplayers() and gain_guardian_angel(); js/priest.js has no reset_hostility implementation.",
+    "The saved v65 evaluation reports the first difference at segment 0, step 180, screen row 10 column 34: C renders glyph 5 in color 13 and JavaScript renders a blank cell in color 8. The same evaluation reports 6144/6144 RNG calls and 210/210 cursors matched, consistent with the missing redraw and state-only hostility update.",
+    "The recording recipe reaches this branch through #levelchange to a new Astral level after wizard-created peaceful Angels follow the hero; the next visible interaction opens the Amulet wish prompt. After implementation commit 0bdeab742, the focused scan reported no divergence and matched all 210 recorded steps; synthetic-range-evidence verified segment 0 through step 209."
+  ]
+}
