@@ -23,8 +23,8 @@
 // LAND_MINE/BEARTRAP use apply.c
 // use_trap()/set_trap(); and HORN_OF_PLENTY delegates to mkobj.c. Ordinary
 // food and armor return their source unknown-use result. The unicorn-horn arm
-// calls apply.c use_unicorn_horn(); its unported void effect helpers remain
-// explicit note_unported gaps. Other named arms still stop at a refusal
+// calls apply.c use_unicorn_horn(), including rnd.c shuffle_int_array.
+// Other named arms still stop at a refusal
 // naming the C function they need; spellbooks and coins call their helpers.
 // use_stethoscope() covers the whole source function. Its mounted and
 // swallowed arms await insight.c mstatusline(); both reachability branches
@@ -558,6 +558,7 @@ import {
 } from './dig.js';
 import { genders } from './roles.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { shuffle_int_array } from './rnd.js';
 import {
     add_damage,
     check_unpaid,
@@ -3497,9 +3498,6 @@ export async function use_candle(obj, state = game, env = {}) {
 // intrinsic timeout and property flags in u.uprops.
 export async function use_unicorn_horn(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const recordGap = (source) => {
-        if (state === game) note_unported(source);
-    };
     const intrinsic = (property) => state.u?.uprops?.[property]?.intrinsic ?? 0;
     const timedTrouble = (property) => {
         const value = intrinsic(property);
@@ -3608,7 +3606,7 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
         return;
     }
     if (troubles.length > 1)
-        recordGap('rnd.c shuffle_int_array');
+        shuffle_int_array(troubles, troubles.length, rn2);
 
     let valLimit = rn2(d(2, obj?.blessed ? 4 : 2));
     if (valLimit > troubles.length) valLimit = troubles.length;

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C recipe for apply.c:use_unicorn_horn through cmd.c:domonability. The Wizard changes into a white unicorn, sets timed blindness and deafness, then uses #monster; C should shuffle the two troubles before choosing which one to cure.",
+  "segments": [
+    {
+      "seed": 72418031,
+      "datetime": "20440719080911",
+      "nethackrc": "OPTIONS=name:HornCaller,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#polyself\nwhite unicorn\n  #wizintrinsic\nij\n #monster\n."
+    }
+  ]
+}
