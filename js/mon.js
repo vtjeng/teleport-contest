@@ -4758,13 +4758,10 @@ export function mnearto(
 // of mtmp from other data structures". `mptr` is mtmp->data as it stood before
 // the death, which mondead() saves before restoring a chameleon's true form.
 //
-// The remaining unported branches stop under their source conditions:
-//
-//   2741-2742  m_unleash(), for a leashed pet.
-//   2800-2801  asynchronous DISMOUNT_GENERIC release when the departing
-//              monster was the hero's steed.
-// thiefdead(), shkgone(), wormgone(), MON_ENDGAME_FREE, and the detach flag
-// update are implemented in C order. The due_to_death branch awaits its
+// The planned-steed branch stops before asynchronous DISMOUNT_GENERIC work,
+// which cannot run against a planning clone. m_unleash(), thiefdead(),
+// shkgone(), wormgone(), MON_ENDGAME_FREE, and the detach flag update follow
+// C order. The due_to_death branch awaits its
 // inventory drop; either death or departure can then await the generic steed
 // release so its caller observes the completed source-order effects.
 //
@@ -4779,7 +4776,6 @@ export function m_detach(
     state = game,
     env = {},
 ) {
-    const unsupported = requiredKillOperation(env, 'unsupported');
     const mx = mtmp.mx;
     const my = mtmp.my;
 
