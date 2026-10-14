@@ -360,6 +360,7 @@ import {
     trapname,
     activate_statue_trap,
     minstapetrify,
+    selftouch,
 } from './trap.js';
 import {
     level_tele_trap,
@@ -1648,7 +1649,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
                     return Trap_Effect_Finished;
                 await placebc(state);
             }
-            if (!conjPit) note_unported('trap.c selftouch');
+            if (!conjPit) await selftouch('Falling, you', state, env);
             state.vision_full_recalc = 1;
             const exerciseEnv = {
                 encumberMessage: (subject) => encumber_msg(subject),

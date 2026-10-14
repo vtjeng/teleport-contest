@@ -269,6 +269,7 @@ test('a boulder landing in the hero pit applies the source damage branch', async
     init_objects(state, () => 0);
 
     const calls = [];
+    const messages = [];
     const boulder = object({
         otyp: BOULDER,
         ox: DROP_X,
@@ -276,18 +277,25 @@ test('a boulder landing in the hero pit applies the source damage branch', async
     });
     assert.match(C_DO,
         /losehp\(Maybe_Half_Phys\(rnd\(15\)\),\s*"squished under a boulder",\s*NO_KILLER_PREFIX\)/u);
+    assert.match(C_DO,
+        /vtense\(\(const char \*\) 0, verb\)/u);
+    assert.match(JS_DO,
+        /\$\{subject\} boulder \$\{vtense\(null, verb\)\} into the pit/u);
 
-    assert.equal(await land(state, boulder, DROP_X, DROP_Y, {
+    assert.equal(await flooreffects(boulder, DROP_X, DROP_Y, 'drop', {
+        state,
         random: {
             // This fixed result keeps the follow-up object-resistance draw stable.
             rn2: (bound) => { calls.push(bound); return 1; },
             // C's rnd(15)=1 yields one point of damage in this trapped-hero case.
             rnd: (sides) => { calls.push(sides); return 1; },
         },
-        message: async () => {},
+        message: async (text) => { messages.push(text); },
         newsym: () => {},
     }), true);
 
+    // do.c vtense(NULL, "drop") adds the singular third-person s.
+    assert.equal(messages[0], 'The boulder drops into the pit with you.');
     assert.ok(calls.includes(15), 'rnd(15) determines trapped-hero damage');
     assert.equal(state.u.uhp, 20, 'the selected rnd(15)=1 lowers HP from 21 to 20');
     assert.equal(state.level.traps.length, 0);

@@ -1035,7 +1035,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                 && (cansee(x, y, state) || dist2(x, y, state.u.ux, state.u.uy) === 0)) {
                 const subject = cansee(x, y, state) ? 'The' : 'A';
                 await (rawEnv.message ?? ttyPline)(
-                    `${subject} boulder ${verb} into the pit`
+                    `${subject} boulder ${vtense(null, verb)} into the pit`
                         + `${trappedMonster ? '' : ' with you'}.`,
                     state,
                 );
