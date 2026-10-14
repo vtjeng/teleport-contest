@@ -258,7 +258,7 @@ import { makemon } from './makemon_create.js';
 import { fumaroles, movebubbles } from './mkmaze.js';
 import {
     healmon, kill_genocided_monsters, m_in_air, m_into_limbo, mnexto, mondied, newcham, pm_to_cham, set_ustuck,
-    wake_nearto, zombie_form,
+    iter_mons, wake_nearto, zombie_form,
 } from './mon.js';
 import { m_at } from './monst.js';
 import { gulp_blnd_check } from './mhitu.js';
@@ -351,6 +351,7 @@ import {
 import { ok_to_quest, onquest } from './quest.js';
 import { com_pager, deliver_splev_message } from './questpgr.js';
 import { gain_guardian_angel } from './minion.js';
+import { reset_hostility } from './priest.js';
 import { in_out_region, visible_region_at } from './region.js';
 import { getlev } from './restore.js';
 import { delete_levelfile } from './files.js';
@@ -2681,6 +2682,13 @@ function discard_unreachable_levels(state, leavingTutorial) {
 // renderings of the dungeon.h macros and read the module-level game. They
 // ignore the state passed here, as every other caller of those two does. On
 // the live path the two are the same object.
+// C ref: do.c final_level(). Keep its source call order at Astral arrival.
+async function final_level(state = game) {
+    iter_mons((monster) => reset_hostility(monster, state), state);
+    await create_mplayers(rn1(4, 3), true, { state });
+    await gain_guardian_angel(state);
+}
+
 export async function goto_level(
     newlevel,
     at_stairs,
@@ -3158,14 +3166,11 @@ export async function goto_level(
     // the arrival achievement is part of the level-change output order.
     if (In_endgame(u.uz)) {
         // C ref: do.c:1884-1890. A first arrival in an endgame dungeon
-        // records Endgame, then Astral on a newly created Astral level. Keep
-        // final_level()'s source-order calls around the ported player-monster
-        // generation while its other void callees remain explicit gaps.
+        // records Endgame, then runs final_level() before recording Astral on
+        // a newly created Astral level.
         if (newdungeon) record_achievement(ACH_ENDG, state);
         if (isNew && on_level(u.uz, state.astral_level)) {
-            note_unported('priest.c reset_hostility');
-            await create_mplayers(rn1(4, 3), true, { state });
-            await gain_guardian_angel(state);
+            await final_level(state);
             record_achievement(ACH_ASTR, state);
         } else if (newdungeon && u.uhave?.amulet) {
             // C resurrect() returns no value and is already the canonical

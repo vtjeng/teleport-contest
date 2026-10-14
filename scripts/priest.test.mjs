@@ -4,17 +4,19 @@ import test from 'node:test';
 
 import { A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE } from '../js/const.js';
 import { Monnam } from '../js/do_name.js';
-import { game } from '../js/gstate.js';
+import { game, resetGame } from '../js/gstate.js';
 import {
     angry_priest,
     free_epri,
     ghod_hitsu,
     mon_aligntyp,
+    reset_hostility,
 } from '../js/priest.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     MONSTER_TEMPLATES,
     PM_ALIGNED_CLERIC,
+    PM_ANGEL,
     PM_HIGH_CLERIC,
 } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
@@ -25,6 +27,30 @@ const PRAY_C_SOURCE = readFileSync('nethack-c/upstream/src/pray.c', 'utf8');
 const PRAY_JS_SOURCE = readFileSync('js/pray.js', 'utf8');
 const DIG_C_SOURCE = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
 const DIG_JS_SOURCE = readFileSync('js/dig.js', 'utf8');
+
+test('reset_hostility turns a non-coaligned minion angel hostile', () => {
+    // priest.c:763-767 clears both flags and recomputes malign for a chaotic
+    // minion on a lawful Astral arrival; the empty map makes newsym a no-op.
+    const state = resetGame();
+    state.mons = MONSTER_TEMPLATES;
+    state.u = { ualign: { type: A_LAWFUL } };
+    state.level = { at: () => null };
+    const angel = {
+        data: MONSTER_TEMPLATES[PM_ANGEL],
+        isminion: true,
+        mpeaceful: true,
+        mtame: 3,
+        mextra: { emin: { min_align: A_CHAOTIC } },
+        mx: 5,
+        my: 6,
+    };
+
+    reset_hostility(angel, state);
+
+    assert.equal(angel.mpeaceful, false);
+    assert.equal(angel.mtame, 0);
+    assert.equal(angel.malign, 5);
+});
 
 test('priest.c intemple uses Monnam after suppressing the priest title', () => {
     const cStart = PRIEST_C_SOURCE.indexOf('intemple(int roomno)');

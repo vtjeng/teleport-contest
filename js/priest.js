@@ -1,8 +1,8 @@
 // Temple, shrine, and priest creation, movement, and queries.
 // C ref: priest.c newepri(), priestini(), pri_move(), move_special(),
-// mon_aligntyp(), p_coaligned(), temple_occupied(), histemple_at(),
-// inhistemple(), has_shrine(), ghod_hitsu(), findpriest(), in_your_sanctuary(),
-// clearpriests(), and intemple().
+// mon_aligntyp(), reset_hostility(), p_coaligned(), temple_occupied(),
+// histemple_at(), inhistemple(), has_shrine(), ghod_hitsu(), findpriest(),
+// in_your_sanctuary(), clearpriests(), and intemple().
 
 import {
     A_NONE,
@@ -92,6 +92,7 @@ import { mfndpos, monnear } from './monmove.js';
 import {
     AD_ELEC,
     PM_ALIGNED_CLERIC,
+    PM_ANGEL,
     PM_GHOST,
     PM_HIGH_CLERIC,
     S_EEL,
@@ -139,6 +140,21 @@ export function mon_aligntyp(monster) {
     if (alignment === A_NONE) return A_NONE;
     alignment = Math.sign(alignment ?? 0);
     return alignment;
+}
+
+// C ref: priest.c reset_hostility(). Astral arrival makes minions whose
+// alignment differs from the hero hostile, then redraws each eligible square.
+export function reset_hostility(roamer, state = game) {
+    if (!roamer.isminion) return;
+    if (roamer.data !== state.mons[PM_ALIGNED_CLERIC]
+        && roamer.data !== state.mons[PM_ANGEL]) return;
+
+    if (roamer.mextra?.emin?.min_align !== state.u?.ualign?.type) {
+        roamer.mpeaceful = false;
+        roamer.mtame = 0;
+        set_malign(roamer, state);
+    }
+    newsym(roamer.mx, roamer.my);
 }
 
 // C ref: priest.c temple_occupied().
