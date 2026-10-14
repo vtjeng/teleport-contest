@@ -1,0 +1,115 @@
+{
+  "session": "synthetic/v66/v66-loot-auto-force-action2",
+  "corpus": "synthetic",
+  "batch": "v66",
+  "caseId": "v66-loot-auto-force-action2",
+  "manifestPath": "challenges/manifests/v66.json",
+  "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+  "recordingPath": "challenges/cases/v66/v66-loot-auto-force-action2.session.json",
+  "recordingSha256": "b0aa6eb91f646886e97ae527a0fa2f99b9b29a9d2c92b41f2e1456580e212072",
+  "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json",
+  "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+  "status": "complete",
+  "commit": "e85cdcd0a89b8ab955a472334fa0f804f3280a99",
+  "summary": "At segment 0 step 73, JavaScript refuses the locked floor chest with autounlock:force. C pickup.c:do_loot_cont() queues lock.c:doforce() when this is the only container, the force flag is set, no earlier unlock spent a turn, and the hero has a forceable weapon; it then sets abort_looting.",
+  "source": {
+    "file": "pickup.c",
+    "branch": "For a locked floor container, when AUTOUNLOCK_FORCE is active, the current result is not ECMD_TIME, ccount is one, and u_have_forceable_weapon() is true, do_loot_cont() queues doforce() and sets ga.abort_looting.",
+    "functions": [
+      "do_loot_cont"
+    ],
+    "callers": [
+      "pickup.c:doloot() reaches do_loot_cont() through doloot_core() for a single selected floor container (2279).",
+      "js/pickup.js:doloot_core() awaits do_loot_cont() in its single-container path (3622). The command loop dispatches the queued extcmd after #loot returns."
+    ],
+    "dependencies": []
+  },
+  "evidence": [
+    "The admitted v66 evaluation at 979a3f3967638748dc19cf8b6ea8851736ade63e reports 73/136 screens, 2721/2810 RNG calls, and 73/136 cursors matched; its first stop is the unsupported autounlock-force branch at step 73. Manifest digest: 4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c; recording digest: b0aa6eb91f646886e97ae527a0fa2f99b9b29a9d2c92b41f2e1456580e212072.",
+    "Fresh scan at e85cdcd0a89b8ab955a472334fa0f804f3280a99, wrapper run run-lH0de2, stops after “Hmmm, the chest turns out to be locked.” at the UnsupportedPickupError in js/pickup.js:do_loot_cont(). Saved scan: .cache/a2-v66-autoforce-scan.json.",
+    "Upstream pickup.c:do_loot_cont() (2112-2145) zeroes u.dz, attempts key/untrap first, then tests AUTOUNLOCK_FORCE, res != ECMD_TIME, ccount == 1, and u_have_forceable_weapon(); it calls cmdq_add_ec(CQ_CANNED, doforce) and sets ga.abort_looting. lock.c:u_have_forceable_weapon() (659-670) is already implemented as js/lock.js:u_have_forceable_weapon().",
+    "JavaScript already implements cmdq_add_ec() and ext_func_tab_from_func() in js/cmd.js and lock.js:doforce() is registered by the existing force extcmd. pickup.js currently throws UnsupportedPickupError for AUTOUNLOCK_FORCE without checking res or the wielded weapon, and does not queue doforce or set abort_looting."
+  ],
+  "remainingScreens": 63,
+  "recordedSteps": 136,
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v66",
+    "caseId": "v66-loot-auto-force-action2",
+    "session": "synthetic/v66/v66-loot-auto-force-action2",
+    "manifestPath": "challenges/manifests/v66.json",
+    "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+    "recording": "challenges/cases/v66/v66-loot-auto-force-action2.session.json",
+    "recordingPath": "challenges/cases/v66/v66-loot-auto-force-action2.session.json",
+    "recordingSha256": "b0aa6eb91f646886e97ae527a0fa2f99b9b29a9d2c92b41f2e1456580e212072",
+    "recipe": "challenges/cases/v66/v66-loot-auto-force-action2.recipe.session.json",
+    "recipeSha256": "31d84536116fd441eb8bbf4d1b4ca257e87ecc6cd63e18401c1981dd9e6601e6",
+    "replayInputSha256": "24336a5d90159f882868e57479093b4edd27696446ff23d8df1aa8c82c193b0e",
+    "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json",
+    "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+    "evaluationArtifact": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json",
+    "evaluationUtc": "2026-10-14T08:04:20.148Z",
+    "remainingScreens": 63,
+    "recordedSteps": 136,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 73,
+        "total": 136
+      },
+      "rng": {
+        "matched": 2721,
+        "total": 2810
+      },
+      "cursors": {
+        "matched": 73,
+        "total": 136
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported pickup: do_loot_cont: autounlock force on container",
+      "step": 73
+    },
+    "step": 73,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported pickup: do_loot_cont: autounlock force on container",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "observedReplay": {
+    "runId": "run-lH0de2",
+    "command": [
+      "node",
+      "scripts/scan-sessions.mjs",
+      "--json",
+      "--synthetic",
+      "v66/v66-loot-auto-force-action2"
+    ],
+    "replayCommit": "e85cdcd0a89b8ab955a472334fa0f804f3280a99",
+    "screensEmitted": 73,
+    "recordedSteps": 136,
+    "divergence": null,
+    "boundary": "unsupported hero command: an unported branch of this command: unsupported pickup: do_loot_cont: autounlock force on container",
+    "recordingMatched": false,
+    "inputBoundaryMatched": false,
+    "unported": [],
+    "receipt": "/tmp/teleport-validation-1000/run-lH0de2/receipt.json"
+  },
+  "selectionRationale": "This admitted v66 mismatch shares pickup.c:do_loot_cont() with the already claimed BAG_OF_TRICKS task. The function is reserved by this task, so include the autounlock-force branch in the same complete function port.",
+  "closestEarlierCases": "None found by searching investigations and source ownership records for this autounlock-force branch.",
+  "overlapCrosswalk": {
+    "scope": "The saved v66 combined queue, worker ledger, and source implementation.",
+    "closestEarlierCases": "No earlier investigation for this do_loot_cont autounlock-force branch was found.",
+    "causalDifference": "The case reaches the existing autounlock-force refusal in the locked-container branch; the bag-of-tricks case reaches the separate unlocked-container bite branch of the same C function.",
+    "withinBatch": "The case is included in the same task because both source behaviors are branches of pickup.c:do_loot_cont()."
+  },
+  "candidateDisposition": "included",
+  "goalKind": "file-port"
+}
