@@ -299850,6 +299850,130 @@
           }
         ]
       }
+    },
+    {
+      "id": "port-dbridge-open-drawbridge-v58-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port drawbridge occupant resolution and opening/closing transitions; wire and validate the Castle passtune, detection, lateral zap, and vertical zap callers.",
+      "cFile": "dbridge.c",
+      "sessions": [
+        "synthetic/v58/v58-castle-passtune-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v58-castle-passtune-action3-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "get_wall_for_db",
+          "line": 211,
+          "endLine": 234,
+          "declared": false
+        },
+        {
+          "name": "create_drawbridge",
+          "line": 235,
+          "endLine": 285,
+          "declared": true
+        },
+        {
+          "name": "e_at",
+          "line": 286,
+          "endLine": 303,
+          "declared": false
+        },
+        {
+          "name": "m_to_e",
+          "line": 304,
+          "endLine": 320,
+          "declared": false
+        },
+        {
+          "name": "u_to_e",
+          "line": 321,
+          "endLine": 329,
+          "declared": false
+        },
+        {
+          "name": "set_entity",
+          "line": 330,
+          "endLine": 350,
+          "declared": false
+        },
+        {
+          "name": "e_nam",
+          "line": 351,
+          "endLine": 360,
+          "declared": false
+        },
+        {
+          "name": "E_phrase",
+          "line": 361,
+          "endLine": 379,
+          "declared": false
+        },
+        {
+          "name": "e_survives_at",
+          "line": 380,
+          "endLine": 401,
+          "declared": false
+        },
+        {
+          "name": "e_died",
+          "line": 402,
+          "endLine": 485,
+          "declared": false
+        },
+        {
+          "name": "automiss",
+          "line": 486,
+          "endLine": 495,
+          "declared": false
+        },
+        {
+          "name": "e_missed",
+          "line": 496,
+          "endLine": 530,
+          "declared": false
+        },
+        {
+          "name": "e_jumps",
+          "line": 531,
+          "endLine": 553,
+          "declared": false
+        },
+        {
+          "name": "do_entity",
+          "line": 554,
+          "endLine": 762,
+          "declared": false
+        },
+        {
+          "name": "nokiller",
+          "line": 763,
+          "endLine": 774,
+          "declared": false
+        },
+        {
+          "name": "close_drawbridge",
+          "line": 775,
+          "endLine": 839,
+          "declared": false
+        },
+        {
+          "name": "open_drawbridge",
+          "line": 840,
+          "endLine": 887,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 211,
+        "to": 887
+      }
     }
   ]
 }
