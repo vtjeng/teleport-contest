@@ -1027,6 +1027,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
         const trap = t_at(x, y, state);
         if (obj.otyp === BOULDER && trap
             && (is_pit(trap.ttyp) || is_hole(trap.ttyp))) {
+            let deletedWithBoulder = false;
             const trappedMonster = m_at(x, y, state);
             const trappedHero = u_at(x, y, state)
                 && (state.u?.utrap ?? 0);
@@ -1066,11 +1067,14 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                         NO_KILLER_PREFIX,
                         state,
                     );
+                    // C jumps to deletedwithboulder after squishing the hero,
+                    // skipping the later generic pit-filling message.
+                    deletedWithBoulder = true;
                 } else {
                     await reset_utrap(true, state);
                 }
             }
-            if (verb) {
+            if (verb && !deletedWithBoulder) {
                 const message = rawEnv.message ?? ttyPline;
                 const blind = heroIsBlind(state);
                 if (blind && u_at(x, y, state)) {
