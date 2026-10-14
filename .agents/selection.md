@@ -230,6 +230,16 @@ arrivals belong to the next group. Hold batches only for concrete evidence,
 integrity, or dependency failures. Follow `.agents/validation.md`, "Hosted
 admission baselines". Run baselines on GitHub, not the local machine.
 
+After admitting accepted batches, use the current valid queue and reservations
+to choose the next integration. If fewer independent candidate groups are
+available than implementation workers needing work, integrate dependency-ready
+prepared batches before implementation deliveries. Otherwise prioritize
+implementation. Resolve required dependencies before blocked preparation;
+use existing prepared batches before requesting more. `worker-state next
+--queue <saved-queue>` reports the counts and next action. Missing or stale
+evidence requires a refresh, not a shortage assumption. Never interrupt an
+active candidate to change priority.
+
 After saving a new batch's baseline, follow `.agents/loop.md`, "Notifications".
 
 Do not interrupt an active checkpoint. Admission still requires current,

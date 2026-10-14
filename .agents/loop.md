@@ -173,8 +173,10 @@ Group all compatible, received implementation deliveries under
 `.agents/validation.md`, "Implementation acceptance groups".
 Group consecutive ready Prep submissions under "Prep acceptance groups".
 Dependencies must be accepted or included earlier in the group.
-Integrate deliveries that unblock other tasks first, then the oldest ready
-delivery. Do not make an independent delivery wait for an unfinished goal.
+Choose preparation or implementation using `.agents/selection.md`, "Generating
+the next synthetic batch". Within that choice, integrate deliveries that unblock
+other tasks first, then the oldest ready delivery. Do not make an independent
+delivery wait for an unfinished goal.
 Integrate exact submitted commits rather than a moving branch tip. Merge
 only when every included commit belongs in the delivery; otherwise
 cherry-pick the required commits.

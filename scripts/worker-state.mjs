@@ -113,11 +113,12 @@ check source independence and recheck parked blockers. Admission suggestions
 do not interrupt an active checkpoint or waive baseline/admission checks.
 wakeups lists idle/blocked workers whose last report predates a new admitted
 baseline. Their next turn or assignment clears the reminder. Worker notifications
-follow .agents/loop.md, "Notifications". Ready implementation
-deliveries take priority over preparation. Accepted batches are admitted together
-at the next safe boundary under .agents/selection.md. When no implementation
-delivery is ready, prioritize an existing prepared batch if workers lack
-independent work, rather than requesting another batch.
+follow .agents/loop.md, "Notifications". Admit accepted batches first at a safe
+boundary under .agents/selection.md. When the valid queue has fewer candidate
+groups than implementation workers needing work, prioritize dependency-ready
+prepared batches over implementation deliveries. Otherwise implementation takes
+priority. Resolve concrete dependencies before blocked preparation; never
+interrupt an active candidate. Use existing preparation before requesting more.
 Feed actual completion observations into turn events; saved state is not proof of
 liveness. Feedback waits for a safe task boundary. resume refuses to mix two
 working tasks on one worker. preflight reads committed files, reports omissions,
@@ -585,10 +586,11 @@ export function nextActions(state, admittedBatches = [], queue = null) {
         : preparing ? { action: 'finish-preparation', task: preparing.id,
             batch: preparing.reservations[0].split(':')[1] } : { action: 'prepare-more-work' };
     const readyImplementation = ready.find(row => row.kind !== 'challenge-preparation');
-    const preferred = readyImplementation ?? readyPrep;
+    const preferred = short && readyPrep ? readyPrep : readyImplementation ?? readyPrep;
     available.admission = reserve ? {action: 'admit-all-at-next-safe-boundary',
         batches: pending.preparedBatches.map(row => row.batch), tasks: pending.preparedBatches.map(row => row.task)}
         : available.candidateGroups === null ? { action: 'reassess-worker-work' }
+        : short && readyPrep ? prepAction
         : short && readyImplementation
             ? { action: 'integrate-ready-implementation-first', task: readyImplementation.task }
         : short
