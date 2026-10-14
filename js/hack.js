@@ -514,7 +514,7 @@ import {
     ttyNorep, ttyPline, ttyUrgentPline,
 } from './tty_message.js';
 import { tty_raw_print } from './tty_rawprint.js';
-import { init_objects } from './o_init.js';
+import { init_objects, objdescr_is } from './o_init.js';
 import { note_unported } from './unported.js';
 import { heroUnaware, livelog_printf } from './pline.js';
 import { makeplural } from './fruit.js';

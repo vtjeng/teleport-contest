@@ -138,6 +138,25 @@ const EAT_SOURCE = readFileSync('nethack-c/upstream/src/eat.c', 'utf8');
 const EAT_JS_SOURCE = readFileSync('js/eat.js', 'utf8');
 const DO_WEAR_JS_SOURCE = readFileSync('js/do_wear.js', 'utf8');
 
+test('slippery ice uses the source snow-boots description check', () => {
+    const cStart = HACK_SOURCE.indexOf('slippery_ice_fumbling(void)');
+    const cEnd = HACK_SOURCE.indexOf('\nboolean\nu_maybe_impaired', cStart);
+    const jsStart = HACK_JS_SOURCE.indexOf(
+        'export function slippery_ice_fumbling(',
+    );
+    const jsEnd = HACK_JS_SOURCE.indexOf(
+        '\n// C ref: hack.c impaired_movement', jsStart,
+    );
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(HACK_SOURCE.slice(cStart, cEnd),
+        /objdescr_is\(uarmf, "snow boots"\)/u);
+    assert.match(HACK_JS_SOURCE,
+        /import \{ init_objects, objdescr_is \} from '\.\/o_init\.js';/u);
+    assert.match(HACK_JS_SOURCE.slice(jsStart, jsEnd),
+        /objdescr_is\(state\.uarmf, 'snow boots', state\)/u);
+});
+
 test('planned losehp stops after source-ordered lethal state writes', async () => {
     assert.match(
         HACK_SOURCE,
