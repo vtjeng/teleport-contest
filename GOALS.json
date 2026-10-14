@@ -313774,7 +313774,7 @@
     {
       "id": "port-monster-level-teleporter-trap-branch-v71-20261014",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mlevel_tele_trap from teleport.c",
       "cFile": "teleport.c",
       "sessions": [
@@ -313784,7 +313784,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
       "delivered": null,
       "functions": [
         {
@@ -313806,12 +313806,115 @@
           "declared": true,
           "sourceFile": "teleport.c"
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "92d1488fd1d9ad565909c0daf1261089b01f6bee",
+        "target": "synthetic/v71/v71-monster-leveltele-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/884d8d9e40bc31e62b87b33c23c4ae3f1a855a12/run-hosted-5VL9cV/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mlevel_tele_trap",
+            "implementation": "js/teleport.js",
+            "symbol": "mlevel_tele_trap",
+            "sourceReview": "Read teleport.c:mlevel_tele_trap() in full (2006-2086) and preserved the source dispatch order for hole/trapdoor, magic portal, and LEVEL_TELEP/NO_TRAP. The new LEVEL_TELEP arm checks amulet/endgame refusal before random_teleport_level(), returns on same-depth shudder, uses get_level() for a changed destination, then follows the shared visible disappearance, trap discovery, teleport-control confusion and MIGR_RANDOM migration tail. No unported callee was added.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c:dotrap() dispatches a monster trap to teleport.c:mlevel_tele_trap(); js/trap_effects.js:trapeffect_selector() dispatches the corresponding active monster trap to js/teleport.js:mlevel_tele_trap()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport-monster-traps.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v71",
+                "caseId": "v71-monster-leveltele-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 414,
+                "source": "trap.c:dotrap -> teleport.c:mlevel_tele_trap(LEVEL_TELEP) -> teleport.c:random_teleport_level -> get_level -> dog.c:migrate_to_level"
+              }
+            ]
+          },
+          {
+            "name": "random_teleport_level",
+            "implementation": "js/teleport.js",
+            "symbol": "random_teleport_level",
+            "sourceReview": "Read teleport.c:random_teleport_level() in full (2191-2257). Kept its source-ordered early return, depth selection, clamping and bottom-level adjustment; it now accepts an optional caller RNG and falls back to the module RNG for existing live callers. mlevel_tele_trap() passes its active RNG so planning uses the cloned stream rather than advancing the live stream.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "mlevel_tele_trap",
+                "source": "teleport.c:mlevel_tele_trap() calls random_teleport_level() for LEVEL_TELEP; its JS call now forwards the caller's random interface."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "level_tele",
+                "source": "teleport.c:level_tele() also calls random_teleport_level(); js/teleport.js:level_tele() retains the helper's default live RNG stream."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport-monster-traps.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v71",
+                "caseId": "v71-monster-leveltele-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 414,
+                "source": "trap.c:dotrap -> teleport.c:mlevel_tele_trap(LEVEL_TELEP) -> teleport.c:random_teleport_level"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active added entry point is a tame monster stepping onto a LEVEL_TELEP trap. The admitted v71 recording reaches it through the production trap dispatch, and its full unchanged replay matches after the branch and RNG routing are implemented. random_teleport_level()'s other existing level_tele() caller remains on the default global RNG path used during live execution.",
+        "entryPoints": [
+          {
+            "name": "A tame monster enters a level teleporter trap",
+            "functions": [
+              {
+                "sourceFile": "teleport.c",
+                "name": "mlevel_tele_trap"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "random_teleport_level"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v71",
+                "caseId": "v71-monster-leveltele-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 414,
+                "source": "trap.c:dotrap -> teleport.c:mlevel_tele_trap -> teleport.c:random_teleport_level -> get_level -> dog.c:migrate_to_level"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-blind-deaf-sink-face-import-v72-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement sink_backs_up from fountain.c",
       "cFile": "fountain.c",
       "sessions": [
@@ -313821,15 +313924,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
       "delivered": null,
       "function": "sink_backs_up",
-      "session": "synthetic/v72/v72-blind-deaf-sink-scout1"
+      "session": "synthetic/v72/v72-blind-deaf-sink-scout1",
+      "closeStanding": {
+        "sha": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "92d1488fd1d9ad565909c0daf1261089b01f6bee",
+        "target": "synthetic/v72/v72-blind-deaf-sink-scout1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/884d8d9e40bc31e62b87b33c23c4ae3f1a855a12/run-hosted-5VL9cV/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "sink_backs_up",
+            "implementation": "js/fountain.js",
+            "symbol": "sink_backs_up",
+            "sourceReview": "Read fountain.c:805-831 and js/fountain.js:1293-1317. C tests Blind and Deaf, formats the splash message with body_part(FACE), sends the message, then checks S_LRING and performs discovery effects. JS matched this order but referenced FACE without importing the exported constant from const.js. This task adds that missing binding and does not change the branch behavior.",
+            "callers": [
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipsink",
+                "source": "fountain.c:dipsink POT_LEVITATION arm calls sink_backs_up; JS dipsink has the same call."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c: dodip dispatches the selected potion dip into fountain.c:dipsink through JS dodip."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dip.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-blind-deaf-sink-scout1",
+                "segment": 0,
+                "fromStep": 258,
+                "throughStep": 282,
+                "source": "fountain.c:dipsink -> sink_backs_up -> body_part(FACE)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The production entry is #dip -> dodip -> dipsink -> sink_backs_up. C fountain.c:dipsink calls sink_backs_up for the levitation potion; the admitted blind+deaf recipe reaches the C body_part(FACE) splash branch at step 258.",
+        "entryPoints": [
+          {
+            "name": "#dip pours a levitation potion into a sink while blind and deaf",
+            "functions": [
+              "sink_backs_up"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-blind-deaf-sink-scout1",
+                "segment": 0,
+                "fromStep": 258,
+                "throughStep": 282,
+                "source": "fountain.c:dipsink -> sink_backs_up -> body_part(FACE)"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-dothrow-throwit-tether-display-import-v72-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement throwit from dothrow.c",
       "cFile": "dothrow.c",
       "sessions": [
@@ -313839,15 +314010,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
       "delivered": null,
       "function": "throwit",
-      "session": "synthetic/v72/v72-engulfed-aklys-action2"
+      "session": "synthetic/v72/v72-engulfed-aklys-action2",
+      "closeStanding": {
+        "sha": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "92d1488fd1d9ad565909c0daf1261089b01f6bee",
+        "target": "synthetic/v72/v72-engulfed-aklys-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/884d8d9e40bc31e62b87b33c23c4ae3f1a855a12/run-hosted-5VL9cV/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "throwit",
+            "implementation": "js/dothrow.js",
+            "symbol": "throwit",
+            "sourceReview": "Read upstream dothrow.c:throwit (1507-1849), including the swallowed branch and common return/disposal tail. When a wielded tethered weapon is thrown while swallowed, C calls tmp_at(DISP_TETHER, obj_to_glyph(...)) before the hit. JS already awaits the same call; the fix imports DISP_TETHER from const.js. Production callers dothrow -> throw_obj -> throwit were traced.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "C dothrow.c:dothrow -> dothrow.c:throw_obj -> dothrow.c:throwit; JS dothrow.js:dothrow -> dothrow.js:throw_obj -> dothrow.js:throwit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-engulfed-aklys-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 549,
+                "source": "C dothrow.c:dothrow -> dothrow.c:throw_obj -> dothrow.c:throwit; JS dothrow.js:dothrow -> dothrow.js:throw_obj -> dothrow.js:throwit. The entire admitted segment matches, including the swallowed tether animation, worm hit, aklys return and subsequent digestion."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted recording swallows the hero, then throws the wielded tethered aklys at the swallower. Its complete segment matches through the worm hit, tether return and digestion.",
+        "entryPoints": [
+          {
+            "name": "Throw a tethered weapon at the swallower",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-engulfed-aklys-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 549,
+                "source": "C dothrow.c:dothrow -> dothrow.c:throw_obj -> dothrow.c:throwit; JS dothrow.js:dothrow -> dothrow.js:throw_obj -> dothrow.js:throwit. The entire admitted segment matches, including the swallowed tether animation, worm hit, aklys return and subsequent digestion."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-hack-slippery-ice-objdescr-import-v72-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement slippery_ice_fumbling from hack.c",
       "cFile": "hack.c",
       "sessions": [
@@ -313857,15 +314091,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
       "delivered": null,
       "function": "slippery_ice_fumbling",
-      "session": "synthetic/v72/v72-boots-ice-scout1"
+      "session": "synthetic/v72/v72-boots-ice-scout1",
+      "closeStanding": {
+        "sha": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "92d1488fd1d9ad565909c0daf1261089b01f6bee",
+        "target": "synthetic/v72/v72-boots-ice-scout1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/884d8d9e40bc31e62b87b33c23c4ae3f1a855a12/run-hosted-5VL9cV/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "slippery_ice_fumbling",
+            "implementation": "js/hack.js",
+            "symbol": "slippery_ice_fumbling",
+            "sourceReview": "Read upstream hack.c:slippery_ice_fumbling (2396-2413), including its ice/levitation guard, snow-boots description test, other safe movement states, rn2 resistance branch and FROMOUTSIDE cleanup when leaving ice. JS already mirrors the function; its call to objdescr_is was unresolved because hack.js imported only init_objects from o_init.js. The fix imports the existing helper. The domove_core caller is wired in hack.js.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "C hack.c:domove_core -> hack.c:slippery_ice_fumbling; JS hack.js:domove_core -> hack.js:slippery_ice_fumbling."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-boots-ice-scout1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "C hack.c:domove_core -> hack.c:slippery_ice_fumbling; JS hack.js:domove_core -> hack.js:slippery_ice_fumbling. The whole admitted segment matches, including creation of ice under low boots, departure from ice, the snow-boots check, fumbling state update and subsequent slip."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted movement recipe creates ice under low boots, moves the hero off it, and matches the complete segment including slippery_ice_fumbling and the later slip.",
+        "entryPoints": [
+          {
+            "name": "Move off ice while wearing low boots",
+            "functions": [
+              "slippery_ice_fumbling"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-boots-ice-scout1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 245,
+                "source": "C hack.c:domove_core -> hack.c:slippery_ice_fumbling; JS hack.js:domove_core -> hack.js:slippery_ice_fumbling. The whole admitted segment matches, including creation of ice under low boots, departure from ice, the snow-boots check, fumbling state update and subsequent slip."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-elf-bow-damage-constant-import-v72-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement hmon_hitmon_weapon_melee from uhitm.c",
       "cFile": "uhitm.c",
       "sessions": [
@@ -313875,15 +314172,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
       "delivered": null,
       "function": "hmon_hitmon_weapon_melee",
-      "session": "synthetic/v72/v72-elf-bow-shot-action2"
+      "session": "synthetic/v72/v72-elf-bow-shot-action2",
+      "closeStanding": {
+        "sha": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "92d1488fd1d9ad565909c0daf1261089b01f6bee",
+        "target": "synthetic/v72/v72-elf-bow-shot-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/884d8d9e40bc31e62b87b33c23c4ae3f1a855a12/run-hosted-5VL9cV/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "hmon_hitmon_weapon_melee",
+            "implementation": "js/uhitm.js",
+            "symbol": "hmon_hitmon_weapon_melee",
+            "sourceReview": "Read uhitm.c:933-1067 and js/uhitm.js:2753-2885. C tests hmd->thrown for ammunition, calls ammo_and_launcher, then applies the elf bonus only for ELVEN_ARROW fired from ELVEN_BOW. The JS branch has the corresponding race, arrow and launcher checks, but its objects.js import list omitted ELVEN_BOW. This fix adds the missing binding; it does not change damage logic or random-call order.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_weapon",
+                "source": "uhitm.c:hmon_hitmon_weapon dispatches hmon_hitmon_weapon_melee for matching thrown ammunition; JS uses the same branch."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit -> thitmonst -> hmon -> hmon_hitmon -> hmon_hitmon_weapon."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-elf-bow-shot-action2",
+                "segment": 0,
+                "fromStep": 310,
+                "throughStep": 361,
+                "source": "dothrow.c:throwit -> thitmonst -> hmon -> hmon_hitmon -> hmon_hitmon_weapon -> hmon_hitmon_weapon_melee"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The production entry is #throw -> dothrow -> throwit -> thitmonst -> hmon -> hmon_hitmon -> hmon_hitmon_weapon -> hmon_hitmon_weapon_melee. C selects the melee helper for thrown elven arrows only when the selected ammo matches the launcher. The admitted Elf Ranger case reaches that branch on the second arrow hit.",
+        "entryPoints": [
+          {
+            "name": "#throw hits a monster with an elven arrow fired from an elven bow",
+            "functions": [
+              "hmon_hitmon_weapon_melee"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-elf-bow-shot-action2",
+                "segment": 0,
+                "fromStep": 310,
+                "throughStep": 361,
+                "source": "dothrow.c:throwit -> thitmonst -> hmon -> hmon_hitmon -> hmon_hitmon_weapon -> hmon_hitmon_weapon_melee"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "port-m-consume-green-slime-glob-transformation-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement m_consume_obj, meatobj from mon.c",
       "cFile": "mon.c",
       "sessions": [
@@ -313893,10 +314258,132 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
       "delivered": null,
       "function": "m_consume_obj",
-      "session": "synthetic/v70/v70-cube-glob-scout2"
+      "session": "synthetic/v70/v70-cube-glob-scout2",
+      "closeStanding": {
+        "sha": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "92d1488fd1d9ad565909c0daf1261089b01f6bee",
+        "target": "synthetic/v70/v70-cube-glob-scout2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/884d8d9e40bc31e62b87b33c23c4ae3f1a855a12/run-hosted-5VL9cV/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "m_consume_obj",
+            "implementation": "js/mon.js",
+            "symbol": "m_consume_obj",
+            "sourceReview": "Read mon.c:m_consume_obj() in full (1392-1453), checking the pet/non-pet branches, content handling, green-slime flag before object deletion, source-ordered newcham call, growth, stone, healing and mimic effects. The green-glob branch sets slimer and calls newcham(PM_GREEN_SLIME, vis ? NC_SHOW_MSG : NO_NC_FLAGS); the JS implementation follows that order. This task introduces no unported call or placeholder for this path.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "meatobj",
+                "source": "mon.c:meatobj() calls m_consume_obj() after extracting an edible floor object; the JS meatobj() calls js/mon.js:m_consume_obj() after the corresponding extraction. The new recordings execute this path for a floor green-slime glob."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "gelcube_digests",
+                "source": "monmove.c:gelcube_digests() calls mon.c:m_consume_obj() for an organic object in cube inventory; js/monmove.js:gelcube_digests() calls the same implementation. The independent recordings exercise m_consume_obj through meatobj(), not this inventory caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-consumption.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/cube-green-glob-transform-wizard.session.json",
+              "recordings/mon.c/cube-green-glob-transform-quiet.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "meatobj",
+            "implementation": "js/mon.js",
+            "symbol": "meatobj",
+            "sourceReview": "Read mon.c:meatobj() in full (1533-1653), including pet exclusion, special-item and inaccessible-object branches, organic/eatable handling, engulfed-object handling, object extraction, return values and the final message. For a hidden eaten object, C emits You_hear('a slurping sound.') only when flags.verbose; the final engulf message also uses You_hear only when verbose. JS now applies those same verbosity, acoustics and deafness gates through youHear(). The recipe pair exercises both a verbose deaf/no-acoustics branch and a non-verbose branch while retaining the green-glob transformation. No unported call was added.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c:m_move() calls mon.c:meatobj() after a monster moves onto floor objects; js/monmove.js:m_move() calls js/mon.js:meatobj() at the corresponding point. Both new C recordings reach this production path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-consumption.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/cube-green-glob-transform-wizard.session.json",
+              "recordings/mon.c/cube-green-glob-transform-quiet.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "get_count",
+            "implementation": "js/cmd.js",
+            "symbol": "get_count",
+            "sourceReview": "Read cmd.c:get_count() in full (5010-5089) and checked the source count-echo branch at 5073-5078. C routes Count text through custompline(SUPPRESS_HISTORY); the existing JS implementation uses ttyCustomPline with the same flag. The recipes type a counted movement command and the recordings show Count: 50 at step 97.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "parse",
+                "source": "cmd.c:parse() calls get_count() to read a command count; js/cmd.js:parse() calls js/cmd.js:get_count() for the same counted-command input. Both independent recordings reach the count echo."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/cube-green-glob-transform-wizard.session.json",
+              "recordings/mon.c/cube-green-glob-transform-quiet.session.json"
+            ],
+            "synthetic": [],
+            "sourceFile": "cmd.c"
+          }
+        ],
+        "entryPointReview": "The active entry point covered by these recordings is a non-tame gelatinous cube moving onto and consuming a floor glob of green slime. C enters mon.c:meatobj() from monmove.c:m_move(); meatobj() calls m_consume_obj(), which deletes the glob and transforms the cube with newcham(). The recordings also exercise cmd.c:get_count() through parse() when typing a counted movement. The independent recordings cover one verbose hidden-message branch with deafness and acoustics disabled and one !verbose branch with acoustics enabled. The separate inventory-digestion gelcube_digests() caller remains unchanged and is not claimed as exercised by these recordings.",
+        "entryPoints": [
+          {
+            "name": "A non-tame gelatinous cube consumes a floor green-slime glob",
+            "functions": [
+              {
+                "sourceFile": "mon.c",
+                "name": "meatobj"
+              },
+              {
+                "sourceFile": "mon.c",
+                "name": "m_consume_obj"
+              }
+            ],
+            "recordings": [
+              "recordings/mon.c/cube-green-glob-transform-wizard.session.json",
+              "recordings/mon.c/cube-green-glob-transform-quiet.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "The player enters a counted movement command before the cube interaction",
+            "functions": [
+              {
+                "sourceFile": "cmd.c",
+                "name": "get_count"
+              }
+            ],
+            "recordings": [
+              "recordings/mon.c/cube-green-glob-transform-wizard.session.json",
+              "recordings/mon.c/cube-green-glob-transform-quiet.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }

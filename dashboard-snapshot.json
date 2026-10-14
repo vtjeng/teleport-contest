@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T22:14:01.884Z",
+  "capturedAt": "2026-10-14T22:35:13.980Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -127350,74 +127350,606 @@
         "task": "Prep37",
         "phase": "done",
         "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v73-selection-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T22:14:02.213Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Selecting an independent case from the newly admitted v73 batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep37-c8ce9384f9558ec6d1652fef392a6d3dc1e4960b",
+        "type": "published",
+        "at": "2026-10-14T22:14:08.836Z",
+        "task": "Prep37",
+        "commit": "c8ce9384f9558ec6d1652fef392a6d3dc1e4960b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v73-confused-npc-earth-action4-20261014",
+        "type": "assign",
+        "at": "2026-10-14T22:14:28.786Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-active-v73-20261014",
+        "type": "turn",
+        "at": "2026-10-14T22:14:40.846Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resumed after v73 admission; selecting an independent admitted mismatch under current reservations."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-resume-v73-20261014",
+        "type": "turn",
+        "at": "2026-10-14T22:15:01.019Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the v73 vanquished-monster quit case; session is unclaimed and implementation source scope will follow the C trace."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v73-quit-vanquished-q-action6-20261014",
+        "type": "assign",
+        "at": "2026-10-14T22:15:05.149Z",
+        "task": "A2-investigation-v73-quit-vanquished-q-action6-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v73-helmet-npc-earth-action5-20261014",
+        "type": "assign",
+        "at": "2026-10-14T22:15:13.785Z",
+        "task": "B-investigation-v73-helmet-npc-earth-action5-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v73-quit-vanquished-q-action6-20261014",
+        "type": "implement",
+        "at": "2026-10-14T22:16:09.955Z",
+        "task": "A2-investigation-v73-quit-vanquished-q-action6-20261014",
+        "goal": "A2-fix-v73-vanquished-quit-stopprint-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v73-helmet-earth-mon-nam-20261014",
+        "type": "implement",
+        "at": "2026-10-14T22:16:42.492Z",
+        "task": "B-investigation-v73-helmet-npc-earth-action5-20261014",
+        "goal": "fix-v73-helmet-earth-mon-nam-import-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-8826c0b73ebded1ee22025a95c1723785d2c586966561ecf1ad23bdbe9fcce94-C-investigation-v71-monster-leveltele-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T22:17:14.758Z",
+        "task": "C-investigation-v71-monster-leveltele-action2-20261014",
+        "integration": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "validationGroup": [
+          "C-investigation-v71-monster-leveltele-action2-20261014",
+          "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+          "A2-investigation-v72-engulfed-aklys-action2-20261014",
+          "A2-investigation-v72-boots-ice-scout1-20261014",
+          "B-investigation-v72-elf-bow-shot-action2-20261014",
+          "C-investigation-v70-cube-glob-scout2-followup-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-8826c0b73ebded1ee22025a95c1723785d2c586966561ecf1ad23bdbe9fcce94-B-investigation-v72-blind-deaf-sink-scout1-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T22:17:14.758Z",
+        "task": "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+        "integration": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "validationGroup": [
+          "C-investigation-v71-monster-leveltele-action2-20261014",
+          "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+          "A2-investigation-v72-engulfed-aklys-action2-20261014",
+          "A2-investigation-v72-boots-ice-scout1-20261014",
+          "B-investigation-v72-elf-bow-shot-action2-20261014",
+          "C-investigation-v70-cube-glob-scout2-followup-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-8826c0b73ebded1ee22025a95c1723785d2c586966561ecf1ad23bdbe9fcce94-A2-investigation-v72-engulfed-aklys-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T22:17:14.758Z",
+        "task": "A2-investigation-v72-engulfed-aklys-action2-20261014",
+        "integration": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "validationGroup": [
+          "C-investigation-v71-monster-leveltele-action2-20261014",
+          "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+          "A2-investigation-v72-engulfed-aklys-action2-20261014",
+          "A2-investigation-v72-boots-ice-scout1-20261014",
+          "B-investigation-v72-elf-bow-shot-action2-20261014",
+          "C-investigation-v70-cube-glob-scout2-followup-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-8826c0b73ebded1ee22025a95c1723785d2c586966561ecf1ad23bdbe9fcce94-A2-investigation-v72-boots-ice-scout1-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T22:17:14.758Z",
+        "task": "A2-investigation-v72-boots-ice-scout1-20261014",
+        "integration": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "validationGroup": [
+          "C-investigation-v71-monster-leveltele-action2-20261014",
+          "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+          "A2-investigation-v72-engulfed-aklys-action2-20261014",
+          "A2-investigation-v72-boots-ice-scout1-20261014",
+          "B-investigation-v72-elf-bow-shot-action2-20261014",
+          "C-investigation-v70-cube-glob-scout2-followup-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-8826c0b73ebded1ee22025a95c1723785d2c586966561ecf1ad23bdbe9fcce94-B-investigation-v72-elf-bow-shot-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T22:17:14.758Z",
+        "task": "B-investigation-v72-elf-bow-shot-action2-20261014",
+        "integration": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "validationGroup": [
+          "C-investigation-v71-monster-leveltele-action2-20261014",
+          "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+          "A2-investigation-v72-engulfed-aklys-action2-20261014",
+          "A2-investigation-v72-boots-ice-scout1-20261014",
+          "B-investigation-v72-elf-bow-shot-action2-20261014",
+          "C-investigation-v70-cube-glob-scout2-followup-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-8826c0b73ebded1ee22025a95c1723785d2c586966561ecf1ad23bdbe9fcce94-C-investigation-v70-cube-glob-scout2-followup-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T22:17:14.758Z",
+        "task": "C-investigation-v70-cube-glob-scout2-followup-20261014",
+        "integration": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "validationGroup": [
+          "C-investigation-v71-monster-leveltele-action2-20261014",
+          "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+          "A2-investigation-v72-engulfed-aklys-action2-20261014",
+          "A2-investigation-v72-boots-ice-scout1-20261014",
+          "B-investigation-v72-elf-bow-shot-action2-20261014",
+          "C-investigation-v70-cube-glob-scout2-followup-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c91fcda7f0fca731653580af46f0f7a47257bb87",
+        "type": "ready",
+        "at": "2026-10-14T22:19:00.898Z",
+        "task": "A2-investigation-v73-quit-vanquished-q-action6-20261014",
+        "delivery": "c91fcda7f0fca731653580af46f0f7a47257bb87"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v73-confused-turn-source-diagnosed",
+        "type": "turn",
+        "at": "2026-10-14T22:19:05.121Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Source-traced v73 thrown-potion range bug; awaiting exact source-scope claim before edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v73-earth-implement-breakobj-distance-20261014",
+        "type": "implement",
+        "at": "2026-10-14T22:19:27.318Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "goal": "fix-v73-thrown-potion-next2u-distance-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v73-archon-monster-gaze-scout1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T22:19:54.173Z",
+        "task": "A2-investigation-v73-archon-monster-gaze-scout1-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-hosted-wait-884d8d9-C-investigation-v71-monster-leveltele-action2-20261014",
+        "type": "activity",
+        "at": "2026-10-14T22:20:19.865Z",
+        "task": "C-investigation-v71-monster-leveltele-action2-20261014",
+        "phase": "waiting",
+        "reason": "Waiting for the exact combined six-source hosted checkpoint; workers continue independent v73 tasks."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-hosted-wait-884d8d9-B-investigation-v72-blind-deaf-sink-scout1-20261014",
+        "type": "activity",
+        "at": "2026-10-14T22:20:23.258Z",
+        "task": "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+        "phase": "waiting",
+        "reason": "Waiting for the exact combined six-source hosted checkpoint; workers continue independent v73 tasks."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-hosted-wait-884d8d9-A2-investigation-v72-engulfed-aklys-action2-20261014",
+        "type": "activity",
+        "at": "2026-10-14T22:20:26.981Z",
+        "task": "A2-investigation-v72-engulfed-aklys-action2-20261014",
+        "phase": "waiting",
+        "reason": "Waiting for the exact combined six-source hosted checkpoint; workers continue independent v73 tasks."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-hosted-wait-884d8d9-A2-investigation-v72-boots-ice-scout1-20261014",
+        "type": "activity",
+        "at": "2026-10-14T22:20:30.792Z",
+        "task": "A2-investigation-v72-boots-ice-scout1-20261014",
+        "phase": "waiting",
+        "reason": "Waiting for the exact combined six-source hosted checkpoint; workers continue independent v73 tasks."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-hosted-wait-884d8d9-B-investigation-v72-elf-bow-shot-action2-20261014",
+        "type": "activity",
+        "at": "2026-10-14T22:20:34.465Z",
+        "task": "B-investigation-v72-elf-bow-shot-action2-20261014",
+        "phase": "waiting",
+        "reason": "Waiting for the exact combined six-source hosted checkpoint; workers continue independent v73 tasks."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-hosted-wait-884d8d9-C-investigation-v70-cube-glob-scout2-followup-20261014",
+        "type": "activity",
+        "at": "2026-10-14T22:20:38.285Z",
+        "task": "C-investigation-v70-cube-glob-scout2-followup-20261014",
+        "phase": "waiting",
+        "reason": "Waiting for the exact combined six-source hosted checkpoint; workers continue independent v73 tasks."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v73-archon-monster-gaze-scout1-20261014",
+        "type": "implement",
+        "at": "2026-10-14T22:21:00.297Z",
+        "task": "A2-investigation-v73-archon-monster-gaze-scout1-20261014",
+        "goal": "A2-fix-v73-archon-gazemm-ad-blnd-import-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6daaf025fc207efc97f9b09be7606fde75f66eec",
+        "type": "ready",
+        "at": "2026-10-14T22:22:28.742Z",
+        "task": "A2-investigation-v73-archon-monster-gaze-scout1-20261014",
+        "delivery": "6daaf025fc207efc97f9b09be7606fde75f66eec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c91fcda7f0fca731653580af46f0f7a47257bb87",
+        "type": "received",
+        "at": "2026-10-14T22:23:11.253Z",
+        "task": "A2-investigation-v73-quit-vanquished-q-action6-20261014",
+        "delivery": "c91fcda7f0fca731653580af46f0f7a47257bb87"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-6daaf025fc207efc97f9b09be7606fde75f66eec",
+        "type": "received",
+        "at": "2026-10-14T22:23:14.481Z",
+        "task": "A2-investigation-v73-archon-monster-gaze-scout1-20261014",
+        "delivery": "6daaf025fc207efc97f9b09be7606fde75f66eec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v73-nonsteed-bear-farlook-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-14T22:23:37.864Z",
+        "task": "A2-investigation-v73-nonsteed-bear-farlook-action2-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b38d20168355afdbf3a906b6cf516eabf392c92e",
+        "type": "ready",
+        "at": "2026-10-14T22:24:28.184Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "delivery": "b38d20168355afdbf3a906b6cf516eabf392c92e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-after-v73-throw-distance-20261014",
+        "type": "turn",
+        "at": "2026-10-14T22:24:46.745Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "v73 distance correction is ready with a later B-owned replay blocker; checking for an independent queued task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v73-mounted-floor-gold-action4-20261014",
+        "type": "assign",
+        "at": "2026-10-14T22:25:19.622Z",
+        "task": "C-investigation-v73-mounted-floor-gold-action4-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v73-mounted-floor-gold-stealgold-20261014",
+        "type": "implement",
+        "at": "2026-10-14T22:26:12.238Z",
+        "task": "C-investigation-v73-mounted-floor-gold-action4-20261014",
+        "goal": "fix-v73-mounted-floor-gold-y-monnam-import-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v73-nonsteed-bear-farlook-action2-20261014",
+        "type": "implement",
+        "at": "2026-10-14T22:26:23.233Z",
+        "task": "A2-investigation-v73-nonsteed-bear-farlook-action2-20261014",
+        "goal": "pager-trapped-monster-description-v73"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-distance-b38d201",
+        "type": "received",
+        "at": "2026-10-14T22:28:19.320Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "delivery": "b38d20168355afdbf3a906b6cf516eabf392c92e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-hold-distance-for-earth-b38d201",
+        "type": "feedback",
+        "at": "2026-10-14T22:28:22.921Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "delivery": "b38d20168355afdbf3a906b6cf516eabf392c92e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c5900feeb18455d560036e12e561c9caa78f12e6",
+        "type": "ready",
+        "at": "2026-10-14T22:29:51.891Z",
+        "task": "A2-investigation-v73-nonsteed-bear-farlook-action2-20261014",
+        "delivery": "c5900feeb18455d560036e12e561c9caa78f12e6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v73-sick-nurse-scout1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T22:30:52.953Z",
+        "task": "A2-investigation-v73-sick-nurse-scout1-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2834d0836bff4dc1e65a0cd1be7a0c5f3a3684e8",
+        "type": "ready",
+        "at": "2026-10-14T22:31:18.967Z",
+        "task": "C-investigation-v73-mounted-floor-gold-action4-20261014",
+        "delivery": "2834d0836bff4dc1e65a0cd1be7a0c5f3a3684e8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep38-three-provisional-source-search-20261014",
+        "type": "turn",
+        "at": "2026-10-14T22:31:36.380Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep38 has three provisional source failures, nine matching route candidates and one matching target miss. Independent C evidence is backed up; source search and distinct-coverage checks continue with no current blocker."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v73-sick-nurse-scout1-20261014",
+        "type": "implement",
+        "at": "2026-10-14T22:31:46.513Z",
+        "task": "A2-investigation-v73-sick-nurse-scout1-20261014",
+        "goal": "uhitm-nurse-sick-clear-v73"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-v73-hurtle-investigation-20261014",
+        "type": "turn",
+        "at": "2026-10-14T22:31:51.828Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C has submitted the mounted floor-gold fix and is tracing the next unreserved v73 case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v73-hurtle-iron-rust-action4-20261014",
+        "type": "assign",
+        "at": "2026-10-14T22:31:56.088Z",
+        "task": "C-investigation-v73-hurtle-iron-rust-action4-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v71-monster-leveltele-action2-20261014-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-validated",
+        "type": "validated",
+        "at": "2026-10-14T22:32:35.660Z",
+        "task": "C-investigation-v71-monster-leveltele-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v72-blind-deaf-sink-scout1-20261014-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-validated",
+        "type": "validated",
+        "at": "2026-10-14T22:32:35.660Z",
+        "task": "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v72-engulfed-aklys-action2-20261014-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-validated",
+        "type": "validated",
+        "at": "2026-10-14T22:32:35.660Z",
+        "task": "A2-investigation-v72-engulfed-aklys-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v72-boots-ice-scout1-20261014-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-validated",
+        "type": "validated",
+        "at": "2026-10-14T22:32:35.660Z",
+        "task": "A2-investigation-v72-boots-ice-scout1-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v72-elf-bow-shot-action2-20261014-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-validated",
+        "type": "validated",
+        "at": "2026-10-14T22:32:35.660Z",
+        "task": "B-investigation-v72-elf-bow-shot-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v70-cube-glob-scout2-followup-20261014-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-validated",
+        "type": "validated",
+        "at": "2026-10-14T22:32:35.660Z",
+        "task": "C-investigation-v70-cube-glob-scout2-followup-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v71-monster-leveltele-action2-20261014-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T22:33:13.084Z",
+        "task": "C-investigation-v71-monster-leveltele-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v72-blind-deaf-sink-scout1-20261014-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T22:33:13.084Z",
+        "task": "B-investigation-v72-blind-deaf-sink-scout1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v72-engulfed-aklys-action2-20261014-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T22:33:13.084Z",
+        "task": "A2-investigation-v72-engulfed-aklys-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v72-boots-ice-scout1-20261014-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T22:33:13.084Z",
+        "task": "A2-investigation-v72-boots-ice-scout1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v72-elf-bow-shot-action2-20261014-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T22:33:13.084Z",
+        "task": "B-investigation-v72-elf-bow-shot-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v70-cube-glob-scout2-followup-20261014-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T22:33:13.084Z",
+        "task": "C-investigation-v70-cube-glob-scout2-followup-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c5900feeb18455d560036e12e561c9caa78f12e6",
+        "type": "received",
+        "at": "2026-10-14T22:33:25.852Z",
+        "task": "A2-investigation-v73-nonsteed-bear-farlook-action2-20261014",
+        "delivery": "c5900feeb18455d560036e12e561c9caa78f12e6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-2834d0836bff4dc1e65a0cd1be7a0c5f3a3684e8",
+        "type": "received",
+        "at": "2026-10-14T22:33:29.444Z",
+        "task": "C-investigation-v73-mounted-floor-gold-action4-20261014",
+        "delivery": "2834d0836bff4dc1e65a0cd1be7a0c5f3a3684e8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v73-hurtle-iron-rust-action4-20261014",
+        "type": "implement",
+        "at": "2026-10-14T22:33:41.618Z",
+        "task": "C-investigation-v73-hurtle-iron-rust-action4-20261014",
+        "goal": "fix-v73-hurtle-iron-rust-trap-nonliving-binding-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v73-rust-trap-implementation-20261014",
+        "type": "turn",
+        "at": "2026-10-14T22:34:25.025Z",
+        "worker": "C",
+        "state": "active"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C-investigation-v71-monster-leveltele-action2-20261014",
-        "worker": "C",
-        "goal": "port-monster-level-teleporter-trap-branch-v71-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "419265b7807aac8837e52f31ad148b839efadc45",
-        "since": "2026-10-14T21:40:11.645Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v72-blind-deaf-sink-scout1-20261014",
-        "worker": "B",
-        "goal": "fix-blind-deaf-sink-face-import-v72-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "36d65f62fb43ac185029aced436908928ce1f85f",
-        "since": "2026-10-14T21:40:34.132Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v72-engulfed-aklys-action2-20261014",
+        "task": "A2-investigation-v73-quit-vanquished-q-action6-20261014",
         "worker": "A2",
-        "goal": "fix-dothrow-throwit-tether-display-import-v72-20261014",
+        "goal": "A2-fix-v73-vanquished-quit-stopprint-20261014",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "10293385acd9a12af43aa7bcab20f4a5d5a83cff",
-        "since": "2026-10-14T21:41:37.049Z",
+        "delivery": "c91fcda7f0fca731653580af46f0f7a47257bb87",
+        "since": "2026-10-14T22:19:00.898Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v72-boots-ice-scout1-20261014",
+        "task": "A2-investigation-v73-archon-monster-gaze-scout1-20261014",
         "worker": "A2",
-        "goal": "fix-hack-slippery-ice-objdescr-import-v72-20261014",
+        "goal": "A2-fix-v73-archon-gazemm-ad-blnd-import-20261014",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "d69e6fb34cae4226f28acd13d27db017b3e6cece",
-        "since": "2026-10-14T21:43:39.962Z",
+        "delivery": "6daaf025fc207efc97f9b09be7606fde75f66eec",
+        "since": "2026-10-14T22:22:28.742Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v72-elf-bow-shot-action2-20261014",
-        "worker": "B",
-        "goal": "fix-elf-bow-damage-constant-import-v72-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "176fe5bca71c505bfa438a28f6212111aa2f8fee",
-        "since": "2026-10-14T21:44:21.019Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v70-cube-glob-scout2-followup-20261014",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
         "worker": "C",
-        "goal": "port-m-consume-green-slime-glob-transformation-20261014",
+        "goal": "fix-v73-thrown-potion-next2u-distance-20261014",
+        "kind": "implementation",
+        "status": "changes-required",
+        "delivery": "b38d20168355afdbf3a906b6cf516eabf392c92e",
+        "since": "2026-10-14T22:24:28.184Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v73-nonsteed-bear-farlook-action2-20261014",
+        "worker": "A2",
+        "goal": "pager-trapped-monster-description-v73",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "893784a49a5753c0609f5e64a0faf5d392c0064a",
-        "since": "2026-10-14T21:57:05.684Z",
+        "delivery": "c5900feeb18455d560036e12e561c9caa78f12e6",
+        "since": "2026-10-14T22:29:51.891Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v73-mounted-floor-gold-action4-20261014",
+        "worker": "C",
+        "goal": "fix-v73-mounted-floor-gold-y-monnam-import-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2834d0836bff4dc1e65a0cd1be7a0c5f3a3684e8",
+        "since": "2026-10-14T22:31:18.967Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -128583,151 +129115,185 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "C-investigation-v71-monster-leveltele-action2-20261014": {
-        "id": "C-investigation-v71-monster-leveltele-action2-20261014",
+      "C-investigation-v73-confused-npc-earth-action4-20261014": {
+        "id": "C-investigation-v73-confused-npc-earth-action4-20261014",
         "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v71/v71-monster-leveltele-action2",
+        "status": "changes-required",
+        "seed": "synthetic/v73/v73-confused-npc-earth-action4",
         "reservations": [
-          "session:synthetic/v71/v71-monster-leveltele-action2",
-          "source:teleport.c:mlevel_tele_trap",
-          "source:teleport.c:random_teleport_level"
+          "session:synthetic/v73/v73-confused-npc-earth-action4",
+          "source:dothrow.c:breakobj"
         ]
       },
-      "C-investigation-v70-cube-glob-scout2-followup-20261014": {
-        "id": "C-investigation-v70-cube-glob-scout2-followup-20261014",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v70/v70-cube-glob-scout2",
-        "reservations": [
-          "session:synthetic/v70/v70-cube-glob-scout2",
-          "source:mon.c:m_consume_obj",
-          "source:cmd.c:get_count",
-          "source:mon.c:meatobj"
-        ]
-      },
-      "B-investigation-v72-blind-deaf-sink-scout1-20261014": {
-        "id": "B-investigation-v72-blind-deaf-sink-scout1-20261014",
-        "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v72/v72-blind-deaf-sink-scout1",
-        "reservations": [
-          "session:synthetic/v72/v72-blind-deaf-sink-scout1",
-          "source:fountain.c:sink_backs_up"
-        ]
-      },
-      "A2-investigation-v72-engulfed-aklys-action2-20261014": {
-        "id": "A2-investigation-v72-engulfed-aklys-action2-20261014",
+      "A2-investigation-v73-quit-vanquished-q-action6-20261014": {
+        "id": "A2-investigation-v73-quit-vanquished-q-action6-20261014",
         "worker": "A2",
         "status": "ready",
-        "seed": "synthetic/v72/v72-engulfed-aklys-action2",
+        "seed": "synthetic/v73/v73-quit-vanquished-q-action6",
         "reservations": [
-          "session:synthetic/v72/v72-engulfed-aklys-action2",
-          "source:dothrow.c:throwit"
+          "session:synthetic/v73/v73-quit-vanquished-q-action6",
+          "source:insight.c:list_vanquished"
         ]
       },
-      "B-investigation-v72-elf-bow-shot-action2-20261014": {
-        "id": "B-investigation-v72-elf-bow-shot-action2-20261014",
+      "B-investigation-v73-helmet-npc-earth-action5-20261014": {
+        "id": "B-investigation-v73-helmet-npc-earth-action5-20261014",
         "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v72/v72-elf-bow-shot-action2",
+        "status": "working",
+        "seed": "synthetic/v73/v73-helmet-npc-earth-action5",
         "reservations": [
-          "session:synthetic/v72/v72-elf-bow-shot-action2",
-          "source:uhitm.c:hmon_hitmon_weapon_melee"
+          "session:synthetic/v73/v73-helmet-npc-earth-action5",
+          "source:muse.c:use_offensive"
         ]
       },
-      "A2-investigation-v72-boots-ice-scout1-20261014": {
-        "id": "A2-investigation-v72-boots-ice-scout1-20261014",
+      "A2-investigation-v73-archon-monster-gaze-scout1-20261014": {
+        "id": "A2-investigation-v73-archon-monster-gaze-scout1-20261014",
         "worker": "A2",
         "status": "ready",
-        "seed": "synthetic/v72/v72-boots-ice-scout1",
+        "seed": "synthetic/v73/v73-archon-monster-gaze-scout1",
         "reservations": [
-          "session:synthetic/v72/v72-boots-ice-scout1",
-          "source:hack.c:slippery_ice_fumbling"
+          "session:synthetic/v73/v73-archon-monster-gaze-scout1",
+          "source:mhitm.c:gazemm"
+        ]
+      },
+      "A2-investigation-v73-nonsteed-bear-farlook-action2-20261014": {
+        "id": "A2-investigation-v73-nonsteed-bear-farlook-action2-20261014",
+        "worker": "A2",
+        "status": "ready",
+        "seed": "synthetic/v73/v73-nonsteed-bear-farlook-action2",
+        "reservations": [
+          "session:synthetic/v73/v73-nonsteed-bear-farlook-action2",
+          "source:pager.c:look_at_monster"
+        ]
+      },
+      "C-investigation-v73-mounted-floor-gold-action4-20261014": {
+        "id": "C-investigation-v73-mounted-floor-gold-action4-20261014",
+        "worker": "C",
+        "status": "ready",
+        "seed": "synthetic/v73/v73-mounted-floor-gold-action4",
+        "reservations": [
+          "session:synthetic/v73/v73-mounted-floor-gold-action4",
+          "source:steal.c:stealgold",
+          "source:uhitm.c:mhitm_ad_sgld"
+        ]
+      },
+      "A2-investigation-v73-sick-nurse-scout1-20261014": {
+        "id": "A2-investigation-v73-sick-nurse-scout1-20261014",
+        "worker": "A2",
+        "status": "working",
+        "seed": "synthetic/v73/v73-sick-nurse-scout1",
+        "reservations": [
+          "session:synthetic/v73/v73-sick-nurse-scout1",
+          "source:uhitm.c:mhitm_ad_heal"
+        ]
+      },
+      "C-investigation-v73-hurtle-iron-rust-action4-20261014": {
+        "id": "C-investigation-v73-hurtle-iron-rust-action4-20261014",
+        "worker": "C",
+        "status": "working",
+        "seed": "synthetic/v73/v73-hurtle-iron-rust-action4",
+        "reservations": [
+          "session:synthetic/v73/v73-hurtle-iron-rust-action4",
+          "source:trap.c:trapeffect_rust_trap",
+          "source:mon.c:mlifesaver"
         ]
       }
     },
     "reservations": {
-      "session:synthetic/v71/v71-monster-leveltele-action2": {
+      "session:synthetic/v73/v73-confused-npc-earth-action4": {
         "tasks": [
-          "C-investigation-v71-monster-leveltele-action2-20261014"
+          "C-investigation-v73-confused-npc-earth-action4-20261014"
         ]
       },
-      "source:teleport.c:mlevel_tele_trap": {
+      "source:dothrow.c:breakobj": {
         "tasks": [
-          "C-investigation-v71-monster-leveltele-action2-20261014"
+          "C-investigation-v73-confused-npc-earth-action4-20261014"
         ]
       },
-      "source:teleport.c:random_teleport_level": {
+      "session:synthetic/v73/v73-quit-vanquished-q-action6": {
         "tasks": [
-          "C-investigation-v71-monster-leveltele-action2-20261014"
+          "A2-investigation-v73-quit-vanquished-q-action6-20261014"
         ]
       },
-      "session:synthetic/v70/v70-cube-glob-scout2": {
+      "source:insight.c:list_vanquished": {
         "tasks": [
-          "C-investigation-v70-cube-glob-scout2-followup-20261014"
+          "A2-investigation-v73-quit-vanquished-q-action6-20261014"
         ]
       },
-      "source:mon.c:m_consume_obj": {
+      "session:synthetic/v73/v73-helmet-npc-earth-action5": {
         "tasks": [
-          "C-investigation-v70-cube-glob-scout2-followup-20261014"
+          "B-investigation-v73-helmet-npc-earth-action5-20261014"
         ]
       },
-      "source:cmd.c:get_count": {
+      "source:muse.c:use_offensive": {
         "tasks": [
-          "C-investigation-v70-cube-glob-scout2-followup-20261014"
+          "B-investigation-v73-helmet-npc-earth-action5-20261014"
         ]
       },
-      "source:mon.c:meatobj": {
+      "session:synthetic/v73/v73-archon-monster-gaze-scout1": {
         "tasks": [
-          "C-investigation-v70-cube-glob-scout2-followup-20261014"
+          "A2-investigation-v73-archon-monster-gaze-scout1-20261014"
         ]
       },
-      "session:synthetic/v72/v72-blind-deaf-sink-scout1": {
+      "source:mhitm.c:gazemm": {
         "tasks": [
-          "B-investigation-v72-blind-deaf-sink-scout1-20261014"
+          "A2-investigation-v73-archon-monster-gaze-scout1-20261014"
         ]
       },
-      "source:fountain.c:sink_backs_up": {
+      "session:synthetic/v73/v73-nonsteed-bear-farlook-action2": {
         "tasks": [
-          "B-investigation-v72-blind-deaf-sink-scout1-20261014"
+          "A2-investigation-v73-nonsteed-bear-farlook-action2-20261014"
         ]
       },
-      "session:synthetic/v72/v72-engulfed-aklys-action2": {
+      "source:pager.c:look_at_monster": {
         "tasks": [
-          "A2-investigation-v72-engulfed-aklys-action2-20261014"
+          "A2-investigation-v73-nonsteed-bear-farlook-action2-20261014"
         ]
       },
-      "source:dothrow.c:throwit": {
+      "session:synthetic/v73/v73-mounted-floor-gold-action4": {
         "tasks": [
-          "A2-investigation-v72-engulfed-aklys-action2-20261014"
+          "C-investigation-v73-mounted-floor-gold-action4-20261014"
         ]
       },
-      "session:synthetic/v72/v72-elf-bow-shot-action2": {
+      "source:steal.c:stealgold": {
         "tasks": [
-          "B-investigation-v72-elf-bow-shot-action2-20261014"
+          "C-investigation-v73-mounted-floor-gold-action4-20261014"
         ]
       },
-      "source:uhitm.c:hmon_hitmon_weapon_melee": {
+      "source:uhitm.c:mhitm_ad_sgld": {
         "tasks": [
-          "B-investigation-v72-elf-bow-shot-action2-20261014"
+          "C-investigation-v73-mounted-floor-gold-action4-20261014"
         ]
       },
-      "session:synthetic/v72/v72-boots-ice-scout1": {
+      "session:synthetic/v73/v73-sick-nurse-scout1": {
         "tasks": [
-          "A2-investigation-v72-boots-ice-scout1-20261014"
+          "A2-investigation-v73-sick-nurse-scout1-20261014"
         ]
       },
-      "source:hack.c:slippery_ice_fumbling": {
+      "source:uhitm.c:mhitm_ad_heal": {
         "tasks": [
-          "A2-investigation-v72-boots-ice-scout1-20261014"
+          "A2-investigation-v73-sick-nurse-scout1-20261014"
+        ]
+      },
+      "session:synthetic/v73/v73-hurtle-iron-rust-action4": {
+        "tasks": [
+          "C-investigation-v73-hurtle-iron-rust-action4-20261014"
+        ]
+      },
+      "source:trap.c:trapeffect_rust_trap": {
+        "tasks": [
+          "C-investigation-v73-hurtle-iron-rust-action4-20261014"
+        ]
+      },
+      "source:mon.c:mlifesaver": {
+        "tasks": [
+          "C-investigation-v73-hurtle-iron-rust-action4-20261014"
         ]
       }
     }
   },
   "development": {
-    "executionCommit": "92d1488fd1d9ad565909c0daf1261089b01f6bee",
-    "measuredAt": "2026-10-14T22:02:17.304Z",
+    "executionCommit": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+    "measuredAt": "2026-10-14T22:22:53.133Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
