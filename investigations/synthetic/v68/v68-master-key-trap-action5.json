@@ -1,0 +1,39 @@
+{
+  "session": "synthetic/v68/v68-master-key-trap-action5",
+  "corpus": "synthetic",
+  "batch": "v68",
+  "caseId": "v68-master-key-trap-action5",
+  "remainingScreens": 322,
+  "recordedSteps": 322,
+  "status": "complete",
+  "summary": "The admitted v68 Master Key replay stops in the existing JavaScript port of lock.c:picklock() because lock.js references A_WIS without importing it. C applies a Wisdom exercise after the Master Key disarms the trapped chest; the undefined JavaScript binding interrupts that callback before the occupation completes.",
+  "commit": "0055ce9d3ece98c7bb96fee5d3cb83a8314c2fa9",
+  "mismatch": {
+    "session": "synthetic/v68/v68-master-key-trap-action5",
+    "remainingScreens": 322,
+    "kind": "stop",
+    "message": "Replay error: A_WIS is not defined",
+    "step": null
+  },
+  "source": {
+    "file": "lock.c",
+    "branch": "lock.c:picklock() handles each occupation turn. In the magic-key trapped-box arm, an affirmative answer clears otrapped and tknown, reports that the chest remains locked, and calls exercise(A_WIS, TRUE); a negative answer also calls exercise(A_WIS, FALSE). js/lock.js:picklock() follows the same branch but A_WIS is absent from its const.js imports, so the selected affirmative path throws before the callback returns and resets usedtime.",
+    "functions": ["picklock"],
+    "callers": [
+      "lock.c:pick_lock() registers picklock with set_occupation() after storing the target and magic-key state; js/lock.js pick_lock() registers the corresponding JavaScript picklock callback. The game turn loop invokes that occupation callback for the admitted case."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "manifestPath": "challenges/manifests/v68.json",
+  "manifestSha256": "f24f70ec92301004f8c070fdf94a3a2d318a19231ca193ce52e888320beaaa3e",
+  "recordingSha256": "fac58349f3057a68d5dca196043ea59e4843fec3d2e7c41a0684ca4e8fb75663",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v68.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "evidence": [
+    "The accepted v68 evaluation records 0/322 screens, 0/2815 RNG calls, and 0/322 cursors, with error A_WIS is not defined for this case. Its manifest describes the source behavior as lock.c:picklock() disarming a trapped box with the Master Key of Thievery while leaving the box locked.",
+    "A targeted scan of the admitted recording on 0055ce9d3ece98c7bb96fee5d3cb83a8314c2fa9 stops with ReferenceError: A_WIS is not defined at js/lock.js:606 in picklock(), called by the occupation path in allmain.js. The retained log is /tmp/teleport-validation-1000/run-TQFrK6/stdout.log.",
+    "Upstream lock.c:picklock() at lines 68-160 increases the chance for a trapped box with the Master Key, asks whether to disarm, clears the trap after an affirmative answer, reports the still-locked chest, and exercises A_WIS before returning with usedtime reset.",
+    "js/lock.js:picklock() mirrors that branch and calls exercise(A_WIS, true, state), but its const.js import list omits A_WIS even though js/const.js exports it. The failure is a missing binding in the existing production occupation callback, not a missing lock operation or input-specific behavior."
+  ]
+}
