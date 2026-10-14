@@ -1,0 +1,74 @@
+{
+  "session": "synthetic/v72/v72-blind-deaf-sink-scout1",
+  "remainingScreens": 283,
+  "recordedSteps": 283,
+  "corpus": "synthetic",
+  "batch": "v72",
+  "caseId": "v72-blind-deaf-sink-scout1",
+  "manifestPath": "challenges/manifests/v72.json",
+  "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+  "recordingSha256": "91f856887f66ee1f91c4b8d350c3f75c13a1ece0785628671531df59f46be510",
+  "recipeSha256": "c1744e314aee311876e46620e156abb03efca970adfd282b83431564c4c6f830",
+  "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+  "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+  "status": "complete",
+  "commit": "030e61e09d7a022bf95946d3a5aa5fc1f615b3e7",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v72",
+    "caseId": "v72-blind-deaf-sink-scout1",
+    "session": "synthetic/v72/v72-blind-deaf-sink-scout1",
+    "manifestPath": "challenges/manifests/v72.json",
+    "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+    "recording": "challenges/cases/v72/v72-blind-deaf-sink-scout1.session.json",
+    "recordingPath": "challenges/cases/v72/v72-blind-deaf-sink-scout1.session.json",
+    "recordingSha256": "91f856887f66ee1f91c4b8d350c3f75c13a1ece0785628671531df59f46be510",
+    "recipe": "challenges/cases/v72/v72-blind-deaf-sink-scout1.recipe.session.json",
+    "recipeSha256": "c1744e314aee311876e46620e156abb03efca970adfd282b83431564c4c6f830",
+    "replayInputSha256": "8f052fd80c88e3b221df2c26fa6968d7128f4ebbb85e8200eb6219a811536a49",
+    "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+    "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+    "evaluationArtifact": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+    "remainingScreens": 283,
+    "recordedSteps": 283,
+    "previousScreensMatched": 258,
+    "regression": false,
+    "passed": false,
+    "error": "FACE is not defined",
+    "metrics": {
+      "screens": { "matched": 0, "total": 283 },
+      "rng": { "matched": 2027, "total": 2305 },
+      "cursors": { "matched": 258, "total": 283 }
+    },
+    "firstMismatch": {
+      "kind": "ReferenceError",
+      "message": "FACE is not defined",
+      "step": 258
+    },
+    "step": 258,
+    "kind": "ReferenceError",
+    "sourceFile": "fountain.c",
+    "function": "sink_backs_up",
+    "message": "FACE is not defined",
+    "cFile": "fountain.c",
+    "luaFile": null,
+    "line": 813
+  },
+  "summary": "A blind and deaf hero pours a levitation potion into a sink. fountain.c:sink_backs_up uses body_part(FACE) for the splash message, but the JavaScript port references FACE without importing it, stopping replay at step 258.",
+  "source": {
+    "file": "fountain.c",
+    "branch": "sink_backs_up chooses the splash text from Blind and Deaf: when both are true it formats 'Something splashes you in the %s' using body_part(FACE), then prints it before checking whether the sink ring was already found.",
+    "functions": ["sink_backs_up"],
+    "callers": [
+      "fountain.c:dipsink -> sink_backs_up",
+      "js/fountain.js:dipsink -> sink_backs_up"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Read nethack-c/upstream/src/fountain.c:805-831. sink_backs_up checks Blind, then Deaf, and in the both-true branch calls body_part(FACE) before printing the message and doing the ring-discovery effects.",
+    "Read js/fountain.js:1290-1317. sink_backs_up mirrors the C branch and calls body_part(FACE, state.youmonst), but FACE is absent from the const.js bindings imported at the module top. The constant is exported by js/const.js.",
+    "The admitted case reaches this edge from fountain.c:dipsink's POT_LEVITATION arm. Its accepted error-prefix proof matches 258 screens, cursors and 2027 RNG calls through step 257; the first JS error at step 258 is the missing FACE binding. The production path is #dip -> dodip -> dipsink -> sink_backs_up."
+  ]
+}
