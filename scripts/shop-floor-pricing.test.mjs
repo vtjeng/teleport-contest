@@ -43,7 +43,12 @@ import {
     TIMER_OBJECT,
 } from '../js/const.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
-import { PM_FIRE_ANT, PM_NEWT, PM_TOURIST } from '../js/monsters.js';
+import {
+    PM_FIRE_ANT,
+    PM_NEWT,
+    PM_SHOPKEEPER,
+    PM_TOURIST,
+} from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
 import { create_region } from '../js/region.js';
 import { check_special_room } from '../js/rooms.js';
@@ -104,6 +109,9 @@ async function generatedShopPile({ excludedSecond = false } = {}) {
     const keeper = {
         isshk: true,
         mpeaceful: true,
+        mhp: 10,
+        mcanmove: true,
+        data: state.mons[PM_SHOPKEEPER],
         mx: start.x,
         my: start.y,
         mextra: {
@@ -290,39 +298,43 @@ test('settled shop departure moves without shop bookkeeping', async () => {
     assert.deepEqual(state.u.ushops_left.slice(0, 2), [ROOMOFFSET, 0]);
 });
 
-test('bill and debit shop debt each refuse departure before movement',
-    async () => {
-        for (const debt of ['billct', 'debit']) {
-            const { keeper, state, target } = await generatedShopPile();
-            keeper.mextra.eshk[debt] = 1;
-            state.level.at(target.x, target.y).roomno = 0;
-            state.level.objects[target.x][target.y] = null;
-            const before = movementSnapshot(state, target, keeper);
-
-            await assert.rejects(
-                () => domove(state),
-                /leaving a shop with debt/u,
-                debt,
-            );
-
-            assertMovementSnapshot(state, target, before, keeper);
-        }
+test('debit debt settles through robbery after departure', async () => {
+    // One unpaid debit reaches rob_shop() after domove_core commits the exit.
+    const { keeper, state, target } = await generatedShopPile();
+    Object.assign(keeper.mextra.eshk, {
+        bill: [], bill_p: null, billct: 0, credit: 0, debit: 1,
+        loan: 0, robbed: 0, shoptype: SHOPBASE, shknam: 'Testkeeper',
     });
+    state.level.at(target.x, target.y).roomno = 0;
+    state.level.objects[target.x][target.y] = null;
+    // Robbery emits more prompts than this one-step test needs to inspect.
+    for (let index = 0; index < 4; index++)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
 
-test('ordinary movement refuses a debtor reaching the shop edge atomically',
+    await domove(state);
+
+    assert.deepEqual([state.u.ux, state.u.uy], [target.x, target.y]);
+    assert.equal(keeper.mextra.eshk.debit, 0);
+    assert.equal(keeper.mextra.eshk.robbed, 1);
+});
+
+test('check_special_room warns a debtor after movement reaches the shop edge',
     async () => {
         const { keeper, state, target } = await generatedShopPile();
         state.level.objects[target.x][target.y] = null;
         state.level.at(target.x, target.y).edge = true;
         keeper.mextra.eshk.debit = 1;
-        const before = movementSnapshot(state, target, keeper);
+        const start = { x: state.u.ux, y: state.u.uy };
+        state.u.ux0 = start.x;
+        state.u.uy0 = start.y;
+        state.u.ux = target.x;
+        state.u.uy = target.y;
 
-        await assert.rejects(
-            () => domove(state),
-            /reaching a shop boundary with debt/u,
-        );
+        await check_special_room(false, state);
 
-        assertMovementSnapshot(state, target, before, keeper);
+        assert.deepEqual([state.u.ux, state.u.uy], [target.x, target.y]);
+        assert.notDeepEqual([state.u.ux, state.u.uy], [start.x, start.y]);
+        assert.match(state._pending_message, /Please pay before leaving/u);
     });
 
 test('a visible region is described before the priced pile menu', async () => {

@@ -295,6 +295,44 @@ test('u_left_shop places the Kops around a hero stepping out of the shop', async
     assert.ok(kopsOnLevel(state) > 0);
 });
 
+test('u_left_shop warns a debtor on a shop boundary after movement', async () => {
+    // A debit of 80 reaches the C warning branch. The two rows pin its spoken
+    // and Deaf/surcharged pline forms; x + 1 is the adjacent boundary square.
+    for (const { deaf, surcharge, expected } of [
+        {
+            deaf: false,
+            surcharge: false,
+            expected: state => `"${state.plname}!  Please pay before leaving."`,
+        },
+        {
+            deaf: true,
+            surcharge: true,
+            expected: () => 'Testkeeper makes it clear that you need to pay before leaving!',
+        },
+    ]) {
+        const { state, eshk, messages } = await shop();
+        const { ux: x, uy: y } = state.u;
+        const edgeX = x + 1;
+        eshk.debit = 80;
+        eshk.surcharge = surcharge;
+        state.u.ushops0 = [ROOMOFFSET, 0, 0, 0, 0];
+        state.u.ux0 = x;
+        state.u.uy0 = y;
+        state.u.ux = edgeX;
+        state.u.uy = y;
+        state.level.at(x, y).edge = false;
+        state.level.at(edgeX, y).edge = true;
+        if (deaf) state.u.uprops[DEAF] = { intrinsic: 1, extrinsic: 0 };
+
+        await u_left_shop('', false, state, {
+            message: text => messages.push(text),
+        });
+
+        assert.deepEqual(messages, [expected(state)]);
+        assert.deepEqual([state.u.ux, state.u.uy], [edgeX, y]);
+    }
+});
+
 test('bill_dummy_object replaces the original bill and preserves its old price', async () => {
     const { state, keeper, eshk, env } = await shop();
     const dart = object(state, DART);

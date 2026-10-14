@@ -737,45 +737,8 @@ export function find_objowner(obj, x, y, state = game) {
     return defaultShopkeeper;
 }
 
-// Admission seam for the parts of shk.c:u_left_shop() which movement can
-// reach. Settled departures and absent/displaced keepers have no effect. Debt
-// handling and boundary-entry blocking remain named refusals, raised before
-// hack.c:domove_core() changes u.ux/u.uy.
-export function preflight_shop_transition(
-    fromX,
-    fromY,
-    toX,
-    toY,
-    state = game,
-) {
-    const oldShops = in_rooms(fromX, fromY, SHOPBASE, state);
-    const newShops = in_rooms(toX, toY, SHOPBASE, state);
-
-    const left = oldShops.filter((roomno) => !newShops.includes(roomno));
-    const from = state.level?.at(fromX, fromY);
-    const to = state.level?.at(toX, toY);
-    if (!left.length) {
-        if (!to?.edge) return;
-        if (from?.edge) return;
-    }
-
-    const roomno = left[0] ?? oldShops[0] ?? 0;
-    const shopkeeper = shop_keeper(roomno, state);
-    if (!shopkeeper) return;
-    if (!inhishop(shopkeeper, state)) return;
-    const extension = shopkeeper.mextra.eshk;
-    if (!extension.billct) {
-        if (!extension.debit) return;
-    }
-    throw new UnsupportedShopError(
-        left.length
-            ? 'u_left_shop() leaving a shop with debt'
-            : 'u_left_shop() reaching a shop boundary with debt',
-    );
-}
-
-// C ref: shk.c u_left_shop() (578-625).  The boundary speech remains in the
-// preflight seam; this post-move function handles robbery and the Kops call.
+// C ref: shk.c u_left_shop() (579-625). The empty-leavestring boundary warning
+// runs after the hero moves; an indebted departure reaches rob_shop().
 export async function u_left_shop(
     leavestring,
     newlev,
@@ -798,13 +761,34 @@ export async function u_left_shop(
     if (!extension.billct) {
         if (!extension.debit) return;
     }
-    // C's no-leavestring branch tries to make the hero pay at the shop
-    // boundary.  The movement preflight owns that still-unported speech and
-    // refusal, so do not turn a boundary arrival into a robbery here.
-    if (!left.length)
-        throw new UnsupportedShopError(
-            'u_left_shop() reaching a shop boundary with debt',
-        );
+    // C's no-leavestring branch warns the debtor at the boundary and returns;
+    // an explicit leavestring departure skips that warning and reaches
+    // rob_shop() below.
+    if (!left.length && !muteshk(shopkeeper)) {
+        const notUpset = !extension.surcharge;
+        if (!heroIsDeaf(state)) {
+            // SetVoice has no effect in the recorder's tty build; preserve its
+            // source position before verbalize() prints the boundary warning.
+            set_voice(shopkeeper, 0, 80, 0, state);
+            await verbalize(
+                `${state.plname ?? ''}!  ${notUpset
+                    ? 'Please pay before leaving.'
+                    : "Don't you leave without paying!"}`,
+                state,
+                { message },
+            );
+        } else {
+            await message(
+                `${Shknam(shopkeeper, state)} ${notUpset
+                    ? 'points out'
+                    : 'makes it clear'} that you need to pay before leaving${notUpset
+                    ? '.'
+                    : '!'}`,
+                state,
+            );
+        }
+        return;
+    }
     if (await rob_shop(shopkeeper, state, { message })) {
         await call_kops(
             shopkeeper,
