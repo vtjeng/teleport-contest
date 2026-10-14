@@ -8,11 +8,12 @@ import {
     LL_MINORAC,
     MAX_NUM_WORMS,
     PIT,
+    ROLLING_BOULDER_TRAP,
     Trap_Effect_Finished,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { MZ_HUGE, monst_globals_init, PM_LONG_WORM } from '../js/monsters.js';
-import { trapeffect_selector } from '../js/trap_effects.js';
+import { preflight_dotrap, trapeffect_selector } from '../js/trap_effects.js';
 import { deltrap } from '../js/trap.js';
 import { count_wsegs } from '../js/worm.js';
 
@@ -243,6 +244,26 @@ test('dotrap forwards planner owners and keeps C-discarded selector return', () 
         /const env = heroTrapEnv\(state, rawEnv\);/u);
     assert.match(JS_TRAP_EFFECTS,
         /await trapeffect_selector\(state\.youmonst, trap, flags, env\);/u);
+});
+
+test('preflight admits a seen Sokoban rolling trap to dotrap escape handling', () => {
+    const cDotrap = cFunction(
+        C_TRAP,
+        'dotrap(struct trap *trap, unsigned trflags)',
+        '\nstaticfn char *\ntrapnote',
+    );
+    assert.match(cDotrap,
+        /if \(already_seen && !Fumbling && !undestroyable_trap\(ttype\)/u);
+    assert.match(cDotrap, /!rn2\(5\) \|\| \(is_pit\(ttype\)/u);
+
+    // The admitted v62 case reaches a seen rolling-boulder trap while the
+    // hero is in Sokoban; C's ordinary seen-trap escape roll handles it.
+    const trap = { ttyp: ROLLING_BOULDER_TRAP, tseen: true };
+    const state = {
+        level: { flags: { sokoban_rules: true } },
+        u: {},
+    };
+    assert.doesNotThrow(() => preflight_dotrap(trap, state));
 });
 
 test('mkroll_launch redraws the launch square through the default capability', () => {
