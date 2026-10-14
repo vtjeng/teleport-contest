@@ -241,7 +241,9 @@ import {
 } from './startup_skills.js';
 
 import { y_n } from './cmd.js';
+import { handle_tip } from './hack.js';
 import { select_menu, ttyMenuColorAttribute } from './windows.js';
+import { heroUnaware } from './pline.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { cansee, couldsee } from './vision.js';
@@ -1840,9 +1842,8 @@ export async function enhance_weapon_skill(
 
     /* player knows about #enhance, don't show tip anymore */
     // hack.c handle_tip() is the only reader, and give_may_advance_msg() is
-    // the only path to it; use_skill() and add_weapon_skill() below refuse
-    // that path, so nothing observes this bit yet. C writes it before every
-    // branch below, so this does too.
+    // the other writer; C writes it before every branch below, so this does
+    // too.
     state.context.tips = (state.context.tips ?? 0) | (1 << TIP_ENHANCE);
 
     let n;
@@ -1910,31 +1911,34 @@ export async function enhance_weapon_skill(
     return ECMD_OK;
 }
 
+// C ref: weapon.c give_may_advance_msg() (76-84). The source uses You_feel()
+// and then handle_tip(TIP_ENHANCE); both messages stay in this call's order.
+async function give_may_advance_msg(skill, state = game) {
+    const category = skill === P_NONE ? ''
+        : skill <= P_LAST_WEAPON ? 'weapon '
+            : skill <= P_LAST_SPELL ? 'spell casting '
+                : 'fighting ';
+    const feel = heroUnaware(state)
+        ? 'You dream that you feel' : 'You feel';
+    await ttyPline(`${feel} more confident in your ${category}skills.`, state);
+    await handle_tip(TIP_ENHANCE, state);
+}
+
 // C ref: weapon.c use_skill() (1423-1434). Practice toward the next skill
-// level. uhitm.c hmon_hitmon_dmg_recalc() calls it once for every hit that did
-// more than minimal damage, which is the only way a hero's P_ADVANCE rises in
-// combat.
-//
-// A restricted skill takes neither the practice nor the message.  The C
-// give_may_advance_msg() call is a discarded notification; its owner is still
-// outside this port, so record that void boundary after preserving practice.
-export function use_skill(skill, degree, state = game) {
+// level. A restricted skill takes neither the practice nor the message.
+export async function use_skill(skill, degree, state = game) {
     if (skill !== P_NONE && P_SKILL(skill, state) !== P_ISRESTRICTED) {
         const advance_before = can_advance(skill, false, state);
         skillSlot(skill, state).advance += degree;
         if (!advance_before && can_advance(skill, false, state))
-            note_unported('weapon.c give_may_advance_msg(skill)');
+            await give_may_advance_msg(skill, state);
     }
 }
 
-// C ref: weapon.c add_weapon_skill(), which attrib.c adjabil() calls once per
-// experience level gained. can_advance() also requires practice, so a slot
-// alone never lifts the count: a hero who has struck nothing has zero
-// P_ADVANCE for every skill and `before == after`. Where the count does rise,
-// give_may_advance_msg() prints "You feel more confident in your skills." and
-// then calls handle_tip(TIP_ENHANCE), which has no owner here, so that arm
-// stays fail-closed.
-export function add_weapon_skill(n, state = game) {
+// C ref: weapon.c add_weapon_skill() (1437-1450). A newly available skill
+// slot reports a category-free confidence message only when it increases the
+// number of skills the hero can currently advance.
+export async function add_weapon_skill(n, state = game) {
     let before = 0;
     for (let i = 0; i < P_NUM_SKILLS; i++)
         if (can_advance(i, false, state)) before++;
@@ -1943,7 +1947,7 @@ export function add_weapon_skill(n, state = game) {
     for (let i = 0; i < P_NUM_SKILLS; i++)
         if (can_advance(i, false, state)) after++;
     if (before < after)
-        throw new UnsupportedWeaponSkillError('give_may_advance_msg(P_NONE)');
+        await give_may_advance_msg(P_NONE, state);
 }
 
 // C ref: weapon.c lose_weapon_skill() (1453-1470). Experience loss first
@@ -1981,13 +1985,4 @@ export function autoreturn_weapon(obj) {
             return arwep[i];
     }
     return null;
-}
-
-// Thrown where weapon.c reaches a skill branch this port has not ported.
-export class UnsupportedWeaponSkillError extends Error {
-    constructor(branch) {
-        super(`weapon skill handling requires ${branch}`);
-        this.name = 'UnsupportedWeaponSkillError';
-        this.branch = branch;
-    }
 }

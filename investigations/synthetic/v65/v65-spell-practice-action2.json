@@ -1,0 +1,136 @@
+{
+  "session": "synthetic/v65/v65-spell-practice-action2",
+  "corpus": "synthetic",
+  "batch": "v65",
+  "caseId": "v65-spell-practice-action2",
+  "manifestPath": "challenges/manifests/v65.json",
+  "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+  "recordingPath": "challenges/cases/v65/v65-spell-practice-action2.session.json",
+  "recordingSha256": "ac2cdb20deeb7c6092210bc7d9ee806adefaf09c706361dcceb94d2947f14621",
+  "evaluationPath": "challenges/evaluations/accepted-a0cd732525b945d1c2bbd556038f6c057856bd13-v65.json",
+  "evaluationCommit": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+  "remainingScreens": 2,
+  "recordedSteps": 603,
+  "status": "complete",
+  "commit": "9738673d56239727ed9d6dfa8edc922690e23076",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v65",
+    "caseId": "v65-spell-practice-action2",
+    "session": "synthetic/v65/v65-spell-practice-action2",
+    "manifestPath": "challenges/manifests/v65.json",
+    "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+    "recording": "challenges/cases/v65/v65-spell-practice-action2.session.json",
+    "recordingPath": "challenges/cases/v65/v65-spell-practice-action2.session.json",
+    "recordingSha256": "ac2cdb20deeb7c6092210bc7d9ee806adefaf09c706361dcceb94d2947f14621",
+    "recipe": "challenges/cases/v65/v65-spell-practice-action2.recipe.session.json",
+    "recipeSha256": "424b0a134f29459fcc11dbb7b9b73f3dec0f6495d71de7e0ae1147d595a4bf94",
+    "replayInputSha256": "5e4341a1408359501def0b5cca482ab0dca85761fcf03e96f3659116347af14e",
+    "evaluationPath": "challenges/evaluations/accepted-a0cd732525b945d1c2bbd556038f6c057856bd13-v65.json",
+    "evaluationCommit": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+    "evaluationArtifact": "challenges/evaluations/accepted-a0cd732525b945d1c2bbd556038f6c057856bd13-v65.json",
+    "evaluationUtc": "2026-10-14T09:16:06.601Z",
+    "remainingScreens": 2,
+    "recordedSteps": 603,
+    "previousScreensMatched": 601,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 601,
+        "total": 603
+      },
+      "rng": {
+        "matched": 4369,
+        "total": 4369
+      },
+      "cursors": {
+        "matched": 602,
+        "total": 603
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 529,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 529,
+          "key": "h"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 529,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 529,
+          "key": "h"
+        },
+        "cCursor": [
+          61,
+          0,
+          1
+        ],
+        "jsCursor": [
+          47,
+          15,
+          1
+        ]
+      }
+    },
+    "step": 529,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "A successful force bolt cast crosses the Wizard’s next spell-skill practice threshold. C weapon.c:use_skill() calls give_may_advance_msg(), which displays “You feel more confident in your spell casting skills.” and then calls handle_tip(TIP_ENHANCE). JavaScript use_skill() updates practice but skips the notification through note_unported(), so the recorded message screen is absent. handle_tip(TIP_ENHANCE) is already implemented; the repair must preserve its source order after the message.",
+  "source": {
+    "file": "weapon.c",
+    "branch": "use_skill(skill, degree) changes P_ADVANCE only for a non-P_NONE, unrestricted skill and calls give_may_advance_msg(skill) only when the practice change makes can_advance() become true. add_weapon_skill(n) calls give_may_advance_msg(P_NONE) only when adding slots increases the count of currently advanceable skills. The helper prints a category-specific confidence message and then calls handle_tip(TIP_ENHANCE), discarding its boolean result.",
+    "functions": [
+      "give_may_advance_msg",
+      "use_skill",
+      "add_weapon_skill"
+    ],
+    "callers": [
+      "spell.c:spelleffects",
+      "uhitm.c:hmon_hitmon_dmg_recalc",
+      "dokick.c:dokick",
+      "steed.c:exercise_steed",
+      "hack.c:domove_core",
+      "attrib.c:adjabil",
+      "pray.c:gcrownu"
+    ],
+    "dependencies": [
+      "hack.c:handle_tip (already implemented in js/hack.js)"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved admitted v65 evaluation and .cache/current-work-queue.json entry identify synthetic/v65/v65-spell-practice-action2, 603 recorded steps, 601/603 screens, 4369/4369 RNG calls, and 602/603 cursors. The first mismatch is segment 0 step 529, key h, at row 0 column 0: C shows Y and JavaScript shows T; there is no RNG mismatch at that step.",
+    "The retained session recording challenges/cases/v65/v65-spell-practice-action2.session.json shows step 528 selecting force bolt, with prompt “In what direction?”, and step 529 displaying “You feel more confident in your spell casting skills.--More--” in C after direction h. Its step 528/529 RNG entries are attributed to spell.c:spelleffects_check, attrib.c:exercise, and zap.c:weffects; the relevant message is the post-cast skill notification rather than a new random branch.",
+    "Upstream spell.c:1599 calls use_skill(skill, spellev(spell)) after a successful non-forced spell. weapon.c:1424-1434 increments P_ADVANCE and calls give_may_advance_msg only when the increase newly makes can_advance true. weapon.c:76-84 formats the message as “spell casting skills” for spell skills and follows it with handle_tip(TIP_ENHANCE).",
+    "JavaScript spell.js:1938 already calls use_skill after a successful cast. In js/weapon.js:1921-1927, use_skill updates the skill record but replaces the C notification with note_unported; add_weapon_skill has a second placeholder at js/weapon.js:1937-1947. js/hack.js:622-650 already implements handle_tip(TIP_ENHANCE), so its return may be ignored while preserving the printed tip when enabled.",
+    "Upstream callers of the source functions include spell.c:spelleffects, uhitm.c:hmon_hitmon_dmg_recalc, dokick.c:dokick, steed.c:exercise_steed and hack.c:domove_core for use_skill; attrib.c:adjabil and pray.c:gcrownu call add_weapon_skill. JavaScript has an existing adjabil call, while gcrownu remains an explicit note_unported gap in js/pray.js. The eventual async notification must be awaited through implemented JavaScript caller paths to keep the source message before subsequent game output."
+  ]
+}

@@ -617,7 +617,7 @@ export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
     }
 
     if (oldlevel > 0) {
-        if (newlevel > oldlevel) add_weapon_skill(newlevel - oldlevel, state);
+        if (newlevel > oldlevel) await add_weapon_skill(newlevel - oldlevel, state);
         else lose_weapon_skill(oldlevel - newlevel, state);
     }
 }

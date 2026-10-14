@@ -1093,9 +1093,8 @@ test('the enhancement summary names one, two or three skills', async () => {
 
 // :1437-1439 ask can_advance() with `speedy` FALSE, so weapon.c:1163's
 // wizard-mode "advance skills without practice" shortcut never reaches the
-// report: a wizard is told what an ordinary hero would be told. js/weapon.js
-// raises UnsupportedWeaponSkillError for that shortcut rather than porting it,
-// which is what makes the argument observable here.
+// report: a wizard is told what an ordinary hero would be told. This test
+// covers the existing non-speedy report behavior, not a refused skill path.
 //
 // The window itself is driven through enlightenment() rather than `^X`,
 // because insight.c doattributes():2014-2015 turns a wizard's `^X` into a

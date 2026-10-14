@@ -1935,7 +1935,7 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
 
     /* gain skill for successful cast */
     if (!force)
-        use_skill(skill, spellev(spell, state), state);
+        await use_skill(skill, spellev(spell, state), state);
 
     obfree(pseudo, null, { state }); /* now, get rid of it */
     return ECMD_TIME;

@@ -396,7 +396,7 @@ export async function kickdmg(mon, clumsy, state = game) {
         state, env);
     if (mon.mhp < 1 && !trapKilled)
         await killed(mon, state, env);
-    if (kickSkill !== P_NONE) use_skill(kickSkill, 1, state);
+    if (kickSkill !== P_NONE) await use_skill(kickSkill, 1, state);
 }
 
 // C ref: dokick.c maybe_kick_monster() (126-143). forcefight is scoped to

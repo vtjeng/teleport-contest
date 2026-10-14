@@ -328,10 +328,7 @@ import {
     dovspell,
     UnsupportedSpellCastError,
 } from './spell.js';
-import {
-    UnsupportedWeaponSkillError,
-    enhance_weapon_skill,
-} from './weapon.js';
+import { enhance_weapon_skill } from './weapon.js';
 import {
     displayTtyTextWindow, menuTitleStyle,
 } from './tty_menu.js';
@@ -2891,7 +2888,6 @@ export function failClosedCommandRefusals() {
         // reaches that death through losehp(), and js/allmain.js converts the
         // same two classes where a monster's attack reaches it.
         UnsupportedVaultGuardError,
-        UnsupportedWeaponSkillError,
         UnsupportedSearchError,
         UnsupportedDirectionBoundaryError,
         UnsupportedApplyError,
