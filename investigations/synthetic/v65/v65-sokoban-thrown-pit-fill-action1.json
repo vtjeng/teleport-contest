@@ -65,6 +65,9 @@
     "functions": [
       "throwit"
     ],
+    "dependencies": [
+      "mkobj.c:place_object() and vision.c:block_point() are already implemented; this task wires their existing behavior and does not change either source unit."
+    ],
     "callers": [
       "dothrow.c:dothrow -> throw_obj -> throwit",
       "dothrow.c:throwit -> flooreffects",
