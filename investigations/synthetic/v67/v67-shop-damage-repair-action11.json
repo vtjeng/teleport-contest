@@ -113,14 +113,14 @@
         "shk_fixes_damage"
       ],
       "callerFunctions": [
-        "allmain.c:allmain",
+        "allmain.c:moveloop_preamble",
         "do.c:goto_level",
         "bones.c:getbones",
         "mklev.c:mklev"
       ],
       "notes": [
         "do.c:goto_level awaits fix_shop_damage before fall damage and pickup on the existing-level arrival path.",
-        "allmain.c:allmain awaits fix_shop_damage after restore and before the resumed move loop.",
+        "allmain.c:moveloop_preamble awaits fix_shop_damage after restore and before the resumed move loop.",
         "bones.c:getbones awaits fix_shop_damage after restoring objects and before returning the bones level; mklev.c:mklev awaits getbones.",
         "bones.c:getbones awaits add_to_container because B's pending invent.c:add_to_container port makes it asynchronous.",
         "shk.c:litter_scatter awaits place_object before setting the destination's redraw flag because the pending object-placement billing path is asynchronous."
