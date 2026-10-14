@@ -51,10 +51,16 @@ const SPELL_C = readFileSync(
 const READ_C = readFileSync(
     new URL('../nethack-c/upstream/src/read.c', import.meta.url), 'utf8',
 );
+const POTION_C = readFileSync(
+    new URL('../nethack-c/upstream/src/potion.c', import.meta.url), 'utf8',
+);
 const LIGHT_C = readFileSync(
     new URL('../nethack-c/upstream/src/light.c', import.meta.url), 'utf8',
 );
 const JS_READ = readFileSync(new URL('../js/read.js', import.meta.url), 'utf8');
+const JS_POTION = readFileSync(
+    new URL('../js/potion.js', import.meta.url), 'utf8',
+);
 const JS_LIGHT = readFileSync(
     new URL('../js/light.js', import.meta.url), 'utf8',
 );
@@ -87,6 +93,50 @@ test('read.c set_lit delegates burning-source checks to obj_is_burning', () => {
         JS_LIGHT.indexOf('export function obj_is_burning('),
     );
     assert.match(jsBurning, /obj\.lamplit && \(ignitable\(obj\) \|\| artifact_light\(obj\)\)/u);
+});
+
+test('read.c litroom routes carried artifact lights through impact_arti_light', () => {
+    const cStart = READ_C.indexOf('\nlitroom(');
+    const cEnd = READ_C.indexOf('\n}\n', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cLitroom = READ_C.slice(cStart, cEnd);
+    const cDarken = cLitroom.slice(cLitroom.indexOf('if (!on)'));
+    assert.match(cDarken, /if \(!artifact_light\(otmp\)\)/u);
+    assert.match(
+        cDarken,
+        /impact_arti_light\(otmp, TRUE, \(boolean\) !Blind\);/u,
+    );
+    const cHelperStart = POTION_C.indexOf('\nimpact_arti_light(');
+    const cHelperEnd = POTION_C.indexOf('\n}\n', cHelperStart);
+    assert.ok(cHelperStart >= 0 && cHelperEnd > cHelperStart);
+    const cHelper = POTION_C.slice(cHelperStart, cHelperEnd);
+    assert.match(cHelper, /obj_resists\(obj, 25, 75\)/u);
+    assert.match(cHelper, /H2Opotion_dip\(otmp, obj, seeit/u);
+
+    const jsStart = JS_READ.indexOf('export async function litroom(');
+    const jsEnd = JS_READ.indexOf('\n}\n', jsStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsLitroom = JS_READ.slice(jsStart, jsEnd);
+    assert.match(jsLitroom, /if \(!artifact_light\(current\)\)/u);
+    assert.match(
+        jsLitroom,
+        /await impact_arti_light\(\s*current, true, !propertyActive\(BLINDED, state\), state,/u,
+    );
+    assert.match(
+        jsLitroom,
+        /await impact_arti_light\(\s*current, false, !propertyActive\(BLINDED, state\), state,/u,
+    );
+
+    const jsHelperStart = JS_POTION.indexOf(
+        'export async function impact_arti_light(',
+    );
+    const jsHelperEnd = JS_POTION.indexOf('\n}\n', jsHelperStart);
+    assert.ok(jsHelperStart >= 0 && jsHelperEnd > jsHelperStart);
+    const jsHelper = JS_POTION.slice(jsHelperStart, jsHelperEnd);
+    assert.match(jsHelper, /obj_resists\(obj, 25, 75, env\)/u);
+    assert.match(jsHelper, /mksobj\(POT_WATER, true, false, env\)/u);
+    assert.match(jsHelper, /await H2Opotion_dip\(potion, obj, seeit/u);
+    assert.match(jsHelper, /dealloc_obj\(potion, env\)/u);
 });
 
 test('read.c fire scroll awaits burn_away_slime in source order', () => {
