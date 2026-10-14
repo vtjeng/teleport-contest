@@ -311090,7 +311090,7 @@
     {
       "id": "fix-apply-jump-conflict-property-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement jump from undefined",
       "cFile": "apply.c",
       "sessions": [
@@ -311100,15 +311100,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "jump",
-      "session": "synthetic/v70/v70-tame-grip-jump-scout2"
+      "session": "synthetic/v70/v70-tame-grip-jump-scout2",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v70/v70-tame-grip-jump-scout2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "jump",
+            "implementation": "js/apply.js",
+            "symbol": "jump",
+            "sourceReview": "Read apply.c:jump (1988-2163), including the tame-captor guard at 2020-2030. C tests mtame, !Conflict, and !mconf in that order, then clears u.ustuck and reports that the hero pulls free. js/apply.js mirrored this branch but omitted CONFLICT from its imports, causing a ReferenceError. Added the missing import without changing condition order or behavior.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:doextcmd dispatches #jump to apply.c:dojump; dojump calls jump(0)."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "dojump",
+                "source": "apply.c:dojump returns jump(0)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-jump.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-tame-grip-jump-scout2",
+                "segment": 0,
+                "fromStep": 562,
+                "throughStep": 615,
+                "source": "cmd.c:doextcmd -> apply.c:dojump -> apply.c:jump tame-captor escape guard"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point for the corrected branch is the #jump extended command. It dispatches from cmd.c:doextcmd through apply.c:dojump to apply.c:jump. The v70 recording reaches #jump at step 562 after the tame python grabs the hero and the sole Conflict ring is removed; the jump frees the hero. Other jump branches were not changed by this divergence fix.",
+        "entryPoints": [
+          {
+            "name": "#jump extended command: tame-captor escape",
+            "functions": [
+              "jump"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-tame-grip-jump-scout2",
+                "segment": 0,
+                "fromStep": 562,
+                "throughStep": 615,
+                "source": "cmd.c:doextcmd -> apply.c:dojump -> apply.c:jump"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-whipattack-state-binding-v70-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement use_whip from apply.c",
       "cFile": "apply.c",
       "sessions": [
@@ -311118,15 +311186,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "use_whip",
-      "session": "synthetic/v70/v70-whip-five-dose-action2"
+      "session": "synthetic/v70/v70-whip-five-dose-action2",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v70/v70-whip-five-dose-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "use_whip",
+            "implementation": "js/apply.js",
+            "symbol": "use_whip",
+            "sourceReview": "Read the complete apply.c:use_whip() definition, lines 2954-3271. The whipattack label at lines 3128-3271 remains within that C function and uses the global hero state for the case-2 floor placement. The JavaScript implementation factors the label into module-level whipattack(); its use_whip-local `u` binding is therefore unavailable there. The fix changes only the helper’s hero-coordinate reads to state.u while preserving the source branch, message order and object placement.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() dispatches the BULLWHIP arm to use_whip(obj) at line 4266; js/apply.js:doapply() calls use_whip() at line 5015. The admitted case exercises this production path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-pole-whip.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-whip-five-dose-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 483,
+                "source": "The admitted v70 replay uses the wielded bullwhip against a visible armed monster and reaches the case-2 floor-placement branch in apply.c:use_whip(). After the helper reads state.u, the complete segment matches all 484 recorded steps through the production doapply caller."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is the BULLWHIP arm of apply.c:doapply(), which dispatches to apply.c:use_whip(). The recorded replay reaches the C whipattack label and case-2 floor-placement branch; JavaScript’s extracted helper previously referenced the use_whip-local u binding out of scope. The corrected helper reads hero coordinates from state.u. This evidence covers the admitted production path through the complete selected segment.",
+        "entryPoints": [
+          {
+            "name": "Use a wielded bullwhip to pull an armed visible monster’s weapon to the hero square",
+            "functions": [
+              "use_whip"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-whip-five-dose-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 483,
+                "source": "apply.c:doapply() reaches the BULLWHIP arm and calls use_whip(); its whipattack label runs the monster weapon disarm and case-2 placement. The complete segment now matches through step 483."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-gelatinous-cube-meatbox-constant-v69-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement meatbox from mon.c",
       "cFile": "mon.c",
       "sessions": [
@@ -311136,15 +311267,178 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "meatbox",
-      "session": "synthetic/v69/v69-cube-contents-action4"
+      "session": "synthetic/v69/v69-cube-contents-action4",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v69/v69-cube-contents-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "meatbox",
+            "implementation": "js/mon.js",
+            "symbol": "meatbox",
+            "sourceReview": "C compares mon->data with &mons[PM_GELATINOUS_CUBE] before routing container children through mpickobj or floor effects. JS already implements that branch; this task adds the omitted species constant import.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_consume_obj",
+                "source": "mon.c:m_consume_obj calls meatbox when the consumed object has contents."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_eat",
+                "source": "dogmove.c:dog_eat reaches m_consume_obj after a pet consumes an object."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "gelcube_digests",
+                "source": "monmove.c:gelcube_digests reaches m_consume_obj for a cube inventory object."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mpickstuff",
+                "source": "mon.c:mpickstuff reaches m_consume_obj after a non-pet consumes floor food."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dogmove-quickmimic.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-cube-contents-action4",
+                "segment": 0,
+                "fromStep": 460,
+                "throughStep": 509,
+                "source": "monmove.c:dochug -> gelcube_digests -> mon.c:m_consume_obj -> meatbox"
+              }
+            ],
+            "sourceFile": "mon.c"
+          },
+          {
+            "name": "gelcube_digests",
+            "implementation": "js/monmove.js",
+            "symbol": "gelcube_digests",
+            "sourceReview": "C skips digestion while meating or without inventory, scans for the first organic non-artifact non-prize object, returns -1 if none qualifies, otherwise updates meating, extracts the object, calls m_consume_obj in source order, and returns 0 to consume the move. The existing JS implementation follows that order; this task removes the clone-planner refusal that prevented it from running.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:dochug PHASE THREE calls gelcube_digests for PM_GELATINOUS_CUBE."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_consume_obj",
+                "source": "monmove.c:gelcube_digests calls m_consume_obj after extraction."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-cube-contents-action4",
+                "segment": 0,
+                "fromStep": 460,
+                "throughStep": 509,
+                "source": "monmove.c:dochug -> gelcube_digests -> mon.c:m_consume_obj -> meatbox"
+              }
+            ],
+            "sourceFile": "monmove.c"
+          },
+          {
+            "name": "m_consume_obj",
+            "implementation": "js/mon.js",
+            "symbol": "m_consume_obj",
+            "sourceReview": "C computes polyfood for EGG before deletion, deletes the egg, and calls newcham with NC_SHOW_MSG only when the monster is visible. An ordinary egg has no further effect. The local corpsenm is NON_PM for non-CORPSE objects, so the corpse-only growth, healing, petrification, pyrolisk-egg, and mon_givit arms do not apply. Existing TIN and unported food effects remain behind their prior guards.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "gelcube_digests",
+                "source": "monmove.c:gelcube_digests calls m_consume_obj after extracting a digestible object."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mpickstuff",
+                "source": "mon.c:mpickstuff calls m_consume_obj after a non-pet consumes floor food."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_eat",
+                "source": "dogmove.c:dog_eat calls m_consume_obj for pet food."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-cube-contents-action4",
+                "segment": 0,
+                "fromStep": 461,
+                "throughStep": 509,
+                "source": "monmove.c:dochug -> gelcube_digests -> mon.c:m_consume_obj handles an ordinary EGG."
+              }
+            ],
+            "sourceFile": "mon.c"
+          }
+        ],
+        "entryPointReview": "The selected range is exercised through the production monster turn: monmove.c:movemon_singlemon -> dochugw -> dochug -> gelcube_digests -> mon.c:m_consume_obj -> meatbox. The admitted v69 case reaches cube digestion at step 460, consumes an ordinary egg at step 461, and matches through step 509 on the corrected tree. Other meatbox and m_consume_obj callers remain traced in each function record.",
+        "entryPoints": [
+          {
+            "name": "Gelatinous cube digests a filled container and an ordinary egg from its inventory",
+            "functions": [
+              {
+                "sourceFile": "monmove.c",
+                "name": "gelcube_digests"
+              },
+              {
+                "sourceFile": "mon.c",
+                "name": "m_consume_obj"
+              },
+              {
+                "sourceFile": "mon.c",
+                "name": "meatbox"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-cube-contents-action4",
+                "segment": 0,
+                "fromStep": 460,
+                "throughStep": 509,
+                "source": "monmove.c:movemon_singlemon -> dochugw -> dochug -> gelcube_digests -> mon.c:m_consume_obj -> meatbox"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "do-boulder-hits-pool-fire-resistance-v70-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement boulder_hits_pool from do.c",
       "cFile": "do.c",
       "sessions": [
@@ -311154,15 +311448,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "boulder_hits_pool",
-      "session": "synthetic/v70/v70-lava-timed-levitation-scout1"
+      "session": "synthetic/v70/v70-lava-timed-levitation-scout1",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v70/v70-lava-timed-levitation-scout1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "boulder_hits_pool",
+            "implementation": "js/do.js",
+            "symbol": "boulder_hits_pool",
+            "sourceReview": "Read the complete do.c:boulder_hits_pool() definition at lines 50-155 and the JavaScript counterpart. The selected lava arm evaluates C Fire_resistance for message punctuation and the d(1,6) damage expression. include/youprop.h expands Fire_resistance through u.uprops[FIRE_RES]. The JavaScript port already has the corresponding branch but omitted FIRE_RES from its const.js imports; importing the exported constant restores the source-defined state lookup without changing branch order or RNG calls. The C sound-effect call remains unported in the hidden-audio branch and has no game-state, screen, or RNG return value.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "flooreffects",
+                "source": "do.c:flooreffects() calls boulder_hits_pool(obj, x, y, FALSE) for a falling boulder; js/do.js flooreffects() makes the same call. The selected dothrow command reaches flooreffects() when the thrown boulder lands in lava."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/flooreffects.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-lava-timed-levitation-scout1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 408,
+                "source": "The admitted v70 recipe expires timed Levitation over lava, then throws a boulder from the fire-resistant form. C do.c:dothrow() reaches flooreffects() and boulder_hits_pool(); the full 409-step segment now matches the recorded screens, RNG calls, cursors, and input boundary."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected active entry point is the falling-boulder arm of do.c:flooreffects(), reached from the do.c:dothrow() throw path. The recording exercises boulder_hits_pool() against adjacent lava after timed Levitation ends and reaches the FIRE_RES lookup. Other active callers of boulder_hits_pool() include hack.c's pushed-boulder path and zap.c/apply.c boulder paths; this one-line binding correction is shared by them, but the selected replay does not claim their distinct caller conditions as runtime coverage. The C Soundeffect call on the invisible splash branch remains recorded as unported and does not affect this matching game's screens or RNG.",
+        "entryPoints": [
+          {
+            "name": "Throw a boulder into lava after timed Levitation ends while fire resistance is active",
+            "functions": [
+              "boulder_hits_pool"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-lava-timed-levitation-scout1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 408,
+                "source": "do.c:dothrow() calls flooreffects() for the falling object, whose boulder arm calls boulder_hits_pool(); this complete segment matches through its final input boundary."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-eatspecial-unpunish-environment-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement eatspecial from undefined",
       "cFile": "eat.c",
       "sessions": [
@@ -311172,15 +311529,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "eatspecial",
-      "session": "synthetic/v70/v70-eat-ball-scout1"
+      "session": "synthetic/v70/v70-eat-ball-scout1",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v70/v70-eat-ball-scout1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "eatspecial",
+            "implementation": "js/eat.js",
+            "symbol": "eatspecial",
+            "sourceReview": "Read whole eat.c:eatspecial (2414-2486). C calls unpunish() for otmp == uball and otmp == uchain; for the chain it deliberately skips useup(). JS implemented the same sequence but passed `{...env, random}` from a function with no random binding. read.c:unpunish has its own RNG defaults and merges rawEnv.random, so the caller must forward env.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat_nonfood",
+                "source": "eat.c:doeat_nonfood calls eatspecial after nutrition/conduct and the nonfood post-effects."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:rhack dispatches #eat to the eat command, whose non-food object path reaches eatspecial."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-unpunish.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-eat-ball-scout1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 273,
+                "source": "cmd.c:rhack -> eat.c:doeat_nonfood -> eat.c:eatspecial uchain branch"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The corrected entry point is #eat on a non-food item that is the attached punishment chain. cmd.c:rhack dispatches the command to doeat; the polymorphed player reaches doeat_nonfood, whose common completion tail is eatspecial. The v70 recording covers the punishment-chain branch and the rest of its input through segment 0 step 273.",
+        "entryPoints": [
+          {
+            "name": "#eat non-food punishment-chain consumption",
+            "functions": [
+              "eatspecial"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-eat-ball-scout1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 273,
+                "source": "cmd.c:rhack -> eat.c:doeat_nonfood -> eat.c:eatspecial"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-break-armor-flimsy-helper-binding-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement break_armor from undefined",
       "cFile": "polyself.c",
       "sessions": [
@@ -311190,15 +311615,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "break_armor",
-      "session": "synthetic/v70/v70-horn-fedora-scout1"
+      "session": "synthetic/v70/v70-horn-fedora-scout1",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v70/v70-horn-fedora-scout1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "break_armor",
+            "implementation": "js/polyself.js",
+            "symbol": "break_armor",
+            "sourceReview": "Read upstream polyself.c:break_armor (1157-1302) and obj.h:is_flimsy (418-420). Checked horned-form helmet handling, the is_flimsy && !donning condition, retention/removal ordering, and its existing JS translation. The only missing behavior was the named import of js/obj.js:is_flimsy; no unported callees are reached in the admitted case.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:polymon calls break_armor at line 888 after transformation setup"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polyself.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-horn-fedora-scout1",
+                "segment": 0,
+                "fromStep": 136,
+                "throughStep": 222,
+                "source": "cmd.c:doextcmd #polyself -> polyself.c:dopoly -> polyself.c:polymon -> polyself.c:break_armor (horned-form flimsy helmet branch)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is the #polyself extended command, which dispatches through dopoly to polymon and break_armor. The admitted recording reaches #polyself at input step 136 and executes the horned-form fedora branch; no build-excluded callers are in this selected divergence scope.",
+        "entryPoints": [
+          {
+            "name": "#polyself",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-horn-fedora-scout1",
+                "segment": 0,
+                "fromStep": 136,
+                "throughStep": 222,
+                "source": "cmd.c:doextcmd #polyself -> polyself.c:dopoly -> polyself.c:polymon -> polyself.c:break_armor"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "mon-newcham-swallowed-light-symbol-v70-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement newcham from mon.c",
       "cFile": "mon.c",
       "sessions": [
@@ -311208,15 +311696,79 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "newcham",
-      "session": "synthetic/v70/v70-swallowed-poly-action3"
+      "session": "synthetic/v70/v70-swallowed-poly-action3",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v70/v70-swallowed-poly-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "newcham",
+            "implementation": "js/mon.js",
+            "symbol": "newcham",
+            "sourceReview": "Read the complete mon.c:newcham() definition at lines 5278-5534 and the JavaScript implementation through its apply_newcham_steps() helper. When the hero is swallowed and the new target lacks an engulfing attack, C checks whether the form is solid; a solid form gets the break-out message and 1 hit point before expels() runs, while a non-solid form skips that treatment. A target with an engulfing attack refreshes the swallowed glyphs. The JavaScript condition already matches this order but referenced S_LIGHT without importing it from monsters.js; the fix adds that binding and leaves the branch and RNG order unchanged.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm() calls newcham() in the resisted polymorph branch at lines 305-311; js/zap.js:bhitm() awaits newcham() in the same branch. The admitted case reaches this call using a controlled wand polymorph while the hero is swallowed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-shape.test.mjs",
+              "scripts/zap-poly-obj.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-swallowed-poly-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 338,
+                "source": "The admitted v70 replay enables monster polymorph control, engulfs the hero, and changes the monster to a solid form through zap.c:bhitm() and mon.c:newcham(). The complete segment now matches through the expulsion and final input boundary."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected active entry point is zap.c:bhitm()'s polymorph-attack branch, which calls mon.c:newcham(). The v70 recording reaches that branch while the hero is swallowed and wizard-controlled monster polymorph chooses the target; a solid target follows the break-out and expulsion branch. Other newcham callers share the corrected module-level S_LIGHT binding, but this task cites runtime evidence only for the selected wand-polymorph path. The scan retains an unrelated sounds.c:SoundAchievement note; all recorded screens, RNG calls, cursors, and the input boundary match.",
+        "entryPoints": [
+          {
+            "name": "Use controlled wand polymorph on the monster swallowing the hero and choose a solid target form",
+            "functions": [
+              "newcham"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-swallowed-poly-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 338,
+                "source": "zap.c:bhitm() passes the monster into mon.c:newcham(); after the hero has been engulfed, the solid target passes the S_LIGHT check, triggers the source break-out message, and expels the hero."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "lock-picklock-master-key-wisdom-v68-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement picklock from lock.c",
       "cFile": "lock.c",
       "sessions": [
@@ -311226,15 +311778,89 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "picklock",
-      "session": "synthetic/v68/v68-master-key-trap-action5"
+      "session": "synthetic/v68/v68-master-key-trap-action5",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v68/v68-master-key-trap-action5",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "picklock",
+            "implementation": "js/lock.js",
+            "symbol": "picklock",
+            "sourceReview": "Read the complete lock.c:picklock() definition at lines 68-160 and the JavaScript callback. The magic-key trapped-box arm increments xlock.chance, asks whether to disarm, clears otrapped and tknown on a yes answer, reports that the box remains locked, then calls exercise(A_WIS, TRUE) before resetting usedtime. The JavaScript callback follows that order but lacked the A_WIS import; importing the exported constant makes the source-defined Wisdom exercise executable without changing the draw or message order.",
+            "callers": [
+              {
+                "path": "js/lock.js",
+                "symbol": "pick_lock",
+                "source": "lock.c:pick_lock() registers picklock with set_occupation() after setting the target and magic-key state; js/lock.js:pick_lock() registers the JavaScript callback in the corresponding apply-key path."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c:moveloop_core() invokes go.occupation when the hero is not helpless; js/allmain.js:moveloop_core() awaits that callback. This is the production turn path that reaches the trapped-box branch."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() calls pick_lock() for a SKELETON_KEY at lines 4285-4289; js/apply.js:doapply() calls lock.js:pick_lock() for the same tool arm. The admitted case applies the Master Key to the trapped chest."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/lock-pick-lock.test.mjs",
+              "scripts/lock.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v68",
+                "caseId": "v68-master-key-trap-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 321,
+                "source": "The admitted v68 replay applies the uncursed Master Key to a trapped, locked chest, accepts the disarm prompt, and reaches lock.c:picklock() through apply.c:doapply(), lock.c:pick_lock(), and allmain.c:moveloop_core(). The complete 322-step segment now matches through the final input boundary."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected entry point is apply.c:doapply()'s SKELETON_KEY arm. It calls lock.c:pick_lock(), which registers lock.c:picklock() as the occupation; allmain.c:moveloop_core() invokes that callback on the next turn. The admitted case uses an uncursed Master Key of Thievery against a trapped locked chest, answers yes to the disarm prompt, and reaches the Wisdom exercise before the chest remains locked. Other callers can register the same callback through container autounlock or door locking; this delivery cites runtime evidence for the selected apply-key path.",
+        "entryPoints": [
+          {
+            "name": "Apply the Master Key of Thievery to disarm a trapped locked chest",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v68",
+                "caseId": "v68-master-key-trap-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 321,
+                "source": "apply.c:doapply() -> lock.c:pick_lock() -> allmain.c:moveloop_core() invokes lock.c:picklock(); the complete selected segment matches through disarming and the still-locked chest message."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-cursed-whistle-noteleport-import-v70-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement use_magic_whistle from apply.c",
       "cFile": "apply.c",
       "sessions": [
@@ -311244,15 +311870,79 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "use_magic_whistle",
-      "session": "synthetic/v70/v70-cursed-whistle-scout1"
+      "session": "synthetic/v70/v70-cursed-whistle-scout1",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v70/v70-cursed-whistle-scout1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "use_magic_whistle",
+            "implementation": "js/apply.js",
+            "symbol": "use_magic_whistle",
+            "sourceFile": "apply.c",
+            "sourceReview": "Complete apply.c:use_magic_whistle 495-516; preserve can_blow, cursed branch, two rn2(2) order, humming output, wake_nearby, noteleport_level check, then tele_to_rnd_pet. Corrected the missing noteleport_level import from js/teleport.js; existing helper matches teleport.c and remains unchanged.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply calls use_magic_whistle at both magic-whistle dispatch sites (4304 and 4314)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-whistle.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-cursed-whistle-scout1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 317,
+                "source": "apply.c:doapply -> use_magic_whistle -> teleport.c:noteleport_level -> tele_to_rnd_pet"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is applying a cursed magic whistle through doapply. On the recorded branch the second rn2(2) allows relocation; the imported teleport.c guard is checked before tele_to_rnd_pet. The focused test also covers the no-teleport level branch where relocation is suppressed. Ordinary magic-whistle behavior remains in magic_whistled and is not modified.",
+        "entryPoints": [
+          {
+            "name": "cursed magic whistle application",
+            "functions": [
+              "use_magic_whistle"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-cursed-whistle-scout1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 317,
+                "source": "apply.c:doapply -> use_magic_whistle -> teleport.c:noteleport_level -> tele_to_rnd_pet"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-create-particular-hidden-eel-pool-predicate-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement create_particular_creation from undefined",
       "cFile": "read.c",
       "sessions": [
@@ -311262,15 +311952,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "create_particular_creation",
-      "session": "synthetic/v70/v70-hidden-eel-scout1"
+      "session": "synthetic/v70/v70-hidden-eel-scout1",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v70/v70-hidden-eel-scout1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "create_particular_creation",
+            "implementation": "js/read.js",
+            "symbol": "create_particular_creation",
+            "sourceReview": "Read the complete upstream read.c:create_particular_creation definition (3252-3371) and compared its loop, creation flags, hidden-monster conditions, and post-creation ordering with js/read.js. The hidden clause sets mundetected for an eel only when is_pool(mx, my) is true. is_pool is the existing dbridge.c implementation exported by js/dbridge.js; the JS call existed but its named import was missing. The task changes only that module import; all source calls and their order remain unchanged.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "create_particular",
+                "source": "read.c:create_particular calls create_particular_creation after successful parsing"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_genesis",
+                "source": "wizcmds.c:wiz_genesis calls read.c:create_particular for the #wizgenesis command"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-hidden-eel-scout1",
+                "segment": 0,
+                "fromStep": 199,
+                "throughStep": 267,
+                "source": "cmd.c:doextcmd #wizgenesis -> wizcmds.c:wiz_genesis -> read.c:create_particular -> read.c:create_particular_creation (hidden eel on pool)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is #wizgenesis, which dispatches through wiz_genesis and create_particular to create_particular_creation. The admitted recording completes the hidden giant eel request and later invokes #wizdetect to reveal the eel. No build-excluded callers are in this selected divergence scope.",
+        "entryPoints": [
+          {
+            "name": "#wizgenesis",
+            "functions": [
+              "create_particular_creation"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-hidden-eel-scout1",
+                "segment": 0,
+                "fromStep": 199,
+                "throughStep": 267,
+                "source": "cmd.c:doextcmd #wizgenesis -> wizcmds.c:wiz_genesis -> read.c:create_particular -> read.c:create_particular_creation"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "dig-rot-organic-buried-container-port",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement rot_organic from dig.c",
       "cFile": "dig.c",
       "sessions": [
@@ -311280,7 +312038,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "functions": [
         {
@@ -311293,12 +312051,78 @@
       "range": {
         "from": 2125,
         "to": 2145
+      },
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v68/v68-buried-filled-sack-action8",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "rot_organic",
+            "implementation": "js/dig.js",
+            "symbol": "rot_organic",
+            "sourceReview": "Read upstream dig.c:2125-2145. The entire callback loops while Has_contents(obj), copies the container ox/oy to the first child, calls bury_an_obj(child) and discards its return, then extracts and frees the now-empty container. Preserve the loop and child transfer order; bury_an_obj owns resistance draws, object/timer effects and burial. Replaced the callback stub and wired the timeout.c ROT_ORGANIC table slot in js/timeout.js; the C run_timers() dispatch order remains unchanged.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "run_timers",
+                "source": "timeout.c:run_timers() dispatches timeout_funcs[ROT_ORGANIC].f() when a buried organic object's timer is due; the registered callback is dig.c:rot_organic()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v68",
+                "caseId": "v68-buried-filled-sack-action8",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 553,
+                "source": "dig.c:bury_an_obj -> timeout.c:run_timers -> dig.c:rot_organic -> dig.c:bury_an_obj"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is an organic container timer expiring after burial. The selected admitted recipe reaches it by putting a metal dagger in an organic sack, burying the sack with #wizbury, waiting past its scheduled ROT_ORGANIC deadline, then digging at the observed square. C calls dig.c:bury_an_obj() to schedule the object timeout; timeout.c:run_timers() dispatches the timer callback. The callback transfers every child into the buried-object list at the container coordinates before freeing the container. The admitted case now matches through the end of segment 0.",
+        "entryPoints": [
+          {
+            "name": "buried organic container decay with contained objects",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "rot_organic"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v68",
+                "caseId": "v68-buried-filled-sack-action8",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 553,
+                "source": "dig.c:bury_an_obj -> timeout.c:run_timers -> dig.c:rot_organic -> dig.c:bury_an_obj"
+              }
+            ]
+          }
+        ]
       }
     },
     {
       "id": "fix-look-here-ice-decoration-helper-binding-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement look_here from undefined",
       "cFile": "invent.c",
       "sessions": [
@@ -311308,15 +312132,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "look_here",
-      "session": "synthetic/v70/v70-blind-ice-decor-on-scout2"
+      "session": "synthetic/v70/v70-blind-ice-decor-on-scout2",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v70/v70-blind-ice-decor-on-scout2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "look_here",
+            "implementation": "js/invent.js",
+            "symbol": "look_here",
+            "sourceReview": "Read the complete upstream invent.c:look_here definition (4104-4315) and compared the blind-surface, terrain-feature, and decoration ordering with js/invent.js. For actual ice, C checks mention_decor and iflags.prev_decor == ICE before force_decor(FALSE), prints the tactile message, and skips the later feature description. JS already mirrors this order with is_ice and the previous-decoration condition, but ICE was missing from its const.js import. const.js exports the source ICE value; the task only adds that import.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "dolook",
+                "source": "invent.c:dolook calls look_here(0, LOOKHERE_NOFLAGS)"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runLookCommand",
+                "source": "cmd.c command ':' dispatches to invent.c:dolook, then look_here"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-blind-ice-decor-on-scout2",
+                "segment": 0,
+                "fromStep": 157,
+                "throughStep": 177,
+                "source": "cmd.c ':' -> invent.c:dolook -> invent.c:look_here (blind-on-ICE previous-decoration branch)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is the ':' look command, dispatched through dolook to look_here. The admitted recording reaches the blind ice branch and continues through the end of its segment. No build-excluded callers are in this selected divergence scope.",
+        "entryPoints": [
+          {
+            "name": ": look",
+            "functions": [
+              "look_here"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-blind-ice-decor-on-scout2",
+                "segment": 0,
+                "fromStep": 157,
+                "throughStep": 177,
+                "source": "cmd.c ':' -> invent.c:dolook -> invent.c:look_here"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-item-split-count-flag-import-v70-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement adjust_split from invent.c",
       "cFile": "invent.c",
       "sessions": [
@@ -311326,15 +312218,84 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "adjust_split",
-      "session": "synthetic/v70/v70-item-split-scout2"
+      "session": "synthetic/v70/v70-item-split-scout2",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v70/v70-item-split-scout2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "adjust_split",
+            "implementation": "js/invent.js",
+            "symbol": "adjust_split",
+            "sourceFile": "invent.c",
+            "sourceReview": "Complete invent.c:adjust_split 5008-5065. The >2 branch obtains the first digit then calls get_count with GC_ECHOFIRST|GC_CONDHIST; imported these already-defined values from js/const.js. Existing ECMD_CANCEL, bounds validation, splitobj and doorganize_core behavior remains in C order.",
+            "callers": [
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions_pushkeys",
+                "source": "iactions.c:itemactions_pushkeys queues adjust_split for IA_ADJUST_STACK."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:rhack invokes the queued function pointer before getobj consumes the selected inventory letter."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-item-split-scout2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 144,
+                "source": "iactions.c:itemactions_pushkeys(IA_ADJUST_STACK) -> cmd.c:rhack queued adjust_split -> invent.c:adjust_split -> cmd.c:get_count"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is the inventory item-action menu choice IA_ADJUST_STACK. C queues adjust_split, then rhack invokes it; quantity five enters the get_count branch before the destination-slot prompt. JavaScript already wires the corresponding itemactions and rhack path, so no caller code was changed.",
+        "entryPoints": [
+          {
+            "name": "inventory item-action stack split",
+            "functions": [
+              "adjust_split"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-item-split-scout2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 144,
+                "source": "iactions.c:itemactions_pushkeys(IA_ADJUST_STACK) -> cmd.c:rhack queued adjust_split -> invent.c:adjust_split -> cmd.c:get_count"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-polymon-stoning-helper-import-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement polymon from undefined",
       "cFile": "polyself.c",
       "sessions": [
@@ -311344,15 +312305,88 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "polymon",
-      "session": "synthetic/v70/v70-stoned-clay-scout1"
+      "session": "synthetic/v70/v70-stoned-clay-scout1",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v70/v70-stoned-clay-scout1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "polymon",
+            "implementation": "js/polyself.js",
+            "symbol": "polymon",
+            "sourceReview": "Read the complete upstream polyself.c:polymon definition (735-1071) and checked its form-change branch and call order. When Stoned is active, C evaluates poly_when_stoned(&mons[mntmp]); if true it selects PM_STONE_GOLEM and invokes make_stoned. js/polyself.js already implements this branch in the same order, but the named import list omitted poly_when_stoned, so this admitted call path raised ReferenceError before any branch behavior ran. The helper is already exported by js/mondata.js. No callee behavior or game-state logic changed.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:polyself invokes polymon; js/polyself.js:polyself invokes polymon"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_polyself",
+                "source": "wizcmds.c:wiz_polyself dispatches to polyself.c:polyself; js/wizcmds.js:wiz_polyself dispatches to js/polyself.js:polyself"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runPolyselfCommand",
+                "source": "cmd.c doextcmd dispatches the #polyself extended-command entry to wizcmds.c:wiz_polyself; js/cmd.js routes the wiz_polyself handler through runPolyselfCommand to js/wizcmds.js:wiz_polyself"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polyself.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-stoned-clay-scout1",
+                "segment": 0,
+                "fromStep": 105,
+                "throughStep": 168,
+                "source": "cmd.c #polyself -> wizcmds.c:wiz_polyself -> polyself.c:polyself -> polyself.c:polymon (active stoning polymorph branch)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is the wizard #polyself command, dispatched through wiz_polyself and polyself to polymon. The admitted recording reaches the stoning polymorph path and matches through the segment end. No other entry point is introduced by this import-only divergence fix.",
+        "entryPoints": [
+          {
+            "name": "#polyself",
+            "functions": [
+              "polymon"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-stoned-clay-scout1",
+                "segment": 0,
+                "fromStep": 105,
+                "throughStep": 168,
+                "source": "cmd.c #polyself -> wizcmds.c:wiz_polyself -> polyself.c:polyself -> polyself.c:polymon"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "port-teleds-swallowed-relocation-v69-20261014",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement teleds from teleport.c",
       "cFile": "teleport.c",
       "sessions": [
@@ -311362,7 +312396,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "functions": [
         {
@@ -311375,12 +312409,88 @@
       "range": {
         "from": 448,
         "to": 577
+      },
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v69/v69-swallowed-break-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "teleds",
+            "implementation": "js/teleport.js",
+            "symbol": "teleds",
+            "sourceReview": "Read the complete nethack-c/upstream/src/teleport.c:448-573 definition in source order. The swallowed branch saves u.uswallow before set_ustuck(NULL), restores ball_active and disables dragging when Punished, then calls docrt() unconditionally before continuing through relocation, vision, terrain and spoteffects effects. JavaScript now follows that order for the live game. The existing planning path records note_unported('display.c docrt') because docrt() renders module-level game state and C discards its return; the existing vault.c:uleftvault() void call and planning newsym_force display gap also remain explicitly noted and do not supply data. No pure functions are in this selected range.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "do_break_wand",
+                "source": "apply.c:do_break_wand() dispatches the WAN_TELEPORTATION self-effect through zapyourself() after the wand explosion."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:zapyourself() handles WAN_TELEPORTATION by calling teleport.c:tele(); the JavaScript caller awaits tele(state)."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "safe_teleds",
+                "source": "teleport.c:tele() reaches scrolltele() and safe_teleds(), which selects the destination and calls teleds(). The selected v69 recording reaches that call while the hero is swallowed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dismount-steed.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-swallowed-break-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 475,
+                "source": "apply.c:do_break_wand -> zap.c:zapyourself -> teleport.c:tele -> teleport.c:scrolltele -> teleport.c:safe_teleds -> teleport.c:teleds"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The changed impure entry point is relocation after a swallowed hero breaks a charged teleportation wand. C applies WAN_TELEPORTATION through do_break_wand(), zapyourself(), tele(), scrolltele(), safe_teleds(), and teleds(); the v69 recording reaches that path after engulfing the hero at step 337, breaks the wand at step 394, materializes at step 402, and matches through segment 0 step 475. Other existing teleds callers (controlled teleport, teleport traps, and riding) use the same already wired function; this task changes only the missing swallowed branch. The existing vault.c:uleftvault() void call and planning-only docrt/newsym_force gaps remain noted where C discards the result or the non-live clone cannot use the game-global renderer.",
+        "entryPoints": [
+          {
+            "name": "swallowed relocation after a teleportation wand breaks at the hero square",
+            "functions": [
+              {
+                "sourceFile": "teleport.c",
+                "name": "teleds"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-swallowed-break-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 475,
+                "source": "apply.c:do_break_wand -> zap.c:zapyourself -> teleport.c:tele -> teleport.c:scrolltele -> teleport.c:safe_teleds -> teleport.c:teleds"
+              }
+            ]
+          }
+        ]
       }
     },
     {
       "id": "admit-iron-bars-monster-destination-v68-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mfndpos from mon.c",
       "cFile": "mon.c",
       "sessions": [
@@ -311390,10 +312500,107 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
       "delivered": null,
       "function": "mfndpos",
-      "session": "synthetic/v68/v68-npc-rust-bars-action4"
+      "session": "synthetic/v68/v68-npc-rust-bars-action4",
+      "closeStanding": {
+        "sha": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+        "target": "synthetic/v68/v68-npc-rust-bars-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/e3c791fcf1803ed1fc399b6f25eed7c8b9bea809/run-hosted-GODoYa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mfndpos",
+            "implementation": "js/monmove.js",
+            "symbol": "mfndpos",
+            "sourceFile": "mon.c",
+            "sourceReview": "The IRONBARS branch in mon.c:mfndpos checks ALLOW_BARS and the W_NONDIGGABLE rust/corrosion exclusion before adding a candidate. JS already implements that branch; the new preflight admission consumes its selected destination and adds no new candidates.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c:m_move calls mon.c:mfndpos to build and select a movement candidate list before invoking the destination callback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v68",
+                "caseId": "v68-npc-rust-bars-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 544,
+                "source": "monmove.c:m_move -> mon.c:mfndpos ALLOW_BARS candidate -> JS preflight admitSimpleDestinationAndRegion"
+              }
+            ]
+          },
+          {
+            "name": "postmov",
+            "implementation": "js/monmove.js",
+            "symbol": "postmov",
+            "sourceFile": "monmove.c",
+            "sourceReview": "The IRONBARS arm checks diggability and AD_RUST/AD_CORR/metallivory; eligible monsters print the C message, call dissolve_bars, and return MMOVE_DONE. JS already implements this behavior. The admission fix lets the selected candidate reach this existing arm.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c:m_move runs postmov after moving the monster to the selected square."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v68",
+                "caseId": "v68-npc-rust-bars-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 544,
+                "source": "monmove.c:m_move -> mon.c:mfndpos ALLOW_BARS -> monmove.c:postmov IRONBARS -> dissolve_bars"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is the hostile NPC rust monster's normal monster turn. monmove.c:m_move selects it through mfndpos, the JS preflight allows the selected bar square, then postmov dissolves the bars. The synthetic case's matching range reaches this path through the caller; no new C recording is required.",
+        "entryPoints": [
+          {
+            "name": "hostile rust monster movement into iron bars",
+            "functions": [
+              "mfndpos",
+              {
+                "sourceFile": "monmove.c",
+                "name": "postmov"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v68",
+                "caseId": "v68-npc-rust-bars-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 544,
+                "source": "monmove.c:m_move -> mon.c:mfndpos ALLOW_BARS -> monmove.c:postmov IRONBARS -> dissolve_bars"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
