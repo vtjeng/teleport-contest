@@ -42,9 +42,11 @@ import {
     wipe_engr_at,
 } from './engrave.js';
 import {
+    flush_screen,
     map_background,
     map_object,
     map_trap,
+    newsym,
     set_wall_state,
 } from './display.js';
 import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
@@ -166,8 +168,15 @@ import {
     getObjects,
 } from './objects.js';
 import { goodpos } from './teleport.js';
-import { deltrap, maketrap, t_at } from './trap.js';
-import { recalc_block_point } from './vision.js';
+import { deltrap, maketrap, reset_utrap, t_at } from './trap.js';
+import { does_block, recalc_block_point, unblock_point } from './vision.js';
+import { buried_ball_to_punishment } from './dig.js';
+import { mintrap } from './trap_effects.js';
+import { minliquid, seemimic } from './mon.js';
+import { m_at } from './monst.js';
+import { is_pool } from './dbridge.js';
+import { nh_delay_output } from './hack.js';
+import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import {
     mktrap as make_level_trap,
     occupied,
@@ -235,6 +244,8 @@ import {
 import { create_gas_cloud, create_gas_cloud_selection } from './region.js';
 import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS, LADDER,
+    NO_TRAP_FLAGS, TT_BURIEDBALL,
+    COULD_SEE, IN_SIGHT,
     LA_UP, LA_DOWN, DRY, WET, HOT,
     HWALL, VWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
     CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
@@ -1244,6 +1255,167 @@ function pick_vibrasquare_location(frame, state) {
         || occupied(x, y, state)
     ));
     return { x, y };
+}
+
+// C ref: mklev.c mkinvokearea(), mkinvpos(), and mkinvk_check_wall(). A
+// successful Book of the Dead invocation changes this level's terrain around
+// `state.inv_pos`, then places the Sanctum stairs under the hero.
+export async function mkinvokearea(state = game, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
+    const redraw = rawEnv.newsym ?? newsym;
+    const flush = rawEnv.flushScreen ?? flush_screen;
+    const delay = rawEnv.delayOutput ?? nh_delay_output;
+    let xmin = state.inv_pos.x;
+    let xmax = state.inv_pos.x;
+    let ymin = state.inv_pos.y;
+    let ymax = state.inv_pos.y;
+
+    await message('The floor shakes violently under you!', state, rawEnv);
+
+    // C expands the candidate rectangle in the same order as the later
+    // topology loop, stopping the wall search at its first positive ring.
+    let wallct = mkinvk_check_wall(xmin, ymin, state);
+    for (let dist = 1; !wallct && dist < 7; ++dist) {
+        --xmin;
+        ++xmax;
+        if (dist !== 3) {
+            --ymin;
+            ++ymax;
+            for (let x = xmin + 1; x < xmax; ++x) {
+                if (mkinvk_check_wall(x, ymin, state)) ++wallct;
+                if (mkinvk_check_wall(x, ymax, state)) ++wallct;
+            }
+        }
+        if (!wallct) {
+            for (let y = ymin; y <= ymax; ++y) {
+                if (mkinvk_check_wall(xmin, y, state)) ++wallct;
+                if (mkinvk_check_wall(xmax, y, state)) ++wallct;
+            }
+        }
+    }
+    if (wallct)
+        await message('The walls around you begin to bend and crumble!', state, rawEnv);
+
+    await (rawEnv.displayMessageWindow ?? displayPendingTtyMessageWindow)(state);
+
+    if (state.u.utrap) {
+        if (state.u.utraptype === TT_BURIEDBALL)
+            await buried_ball_to_punishment(state, rawEnv);
+        await reset_utrap(false, state);
+    }
+
+    xmin = state.inv_pos.x;
+    xmax = state.inv_pos.x;
+    ymin = state.inv_pos.y;
+    ymax = state.inv_pos.y;
+    await mkinvpos(xmin, ymin, 0, state, rawEnv);
+
+    for (let dist = 1; dist < 7; ++dist) {
+        --xmin;
+        ++xmax;
+        if (dist !== 3) {
+            --ymin;
+            ++ymax;
+            for (let x = xmin + 1; x < xmax; ++x) {
+                await mkinvpos(x, ymin, dist, state, rawEnv);
+                await mkinvpos(x, ymax, dist, state, rawEnv);
+            }
+        }
+        for (let y = ymin; y <= ymax; ++y) {
+            await mkinvpos(xmin, y, dist, state, rawEnv);
+            await mkinvpos(xmax, y, dist, state, rawEnv);
+        }
+        await flush(1);
+        await delay(state);
+    }
+
+    await message('You are standing at the top of a stairwell leading down!', state, rawEnv);
+    mkstairs(state.u.ux, state.u.uy, 0, null, false);
+    redraw(state.u.ux, state.u.uy, state);
+    state.vision_full_recalc = 1;
+}
+
+async function mkinvpos(x, y, dist, state = game, rawEnv = {}) {
+    const xMazeMax = state.x_maze_max ?? ((COLNO - 1) & ~1);
+    const yMazeMax = state.y_maze_max ?? ((ROWNO - 1) & ~1);
+    // C decl.c initializes these bounds to the greatest even coordinates;
+    // retain optional level-specific bounds when a caller supplies them.
+    if (!within_bounded_area(x, y, 2, 2, xMazeMax, yMazeMax)) {
+        if (dist < 5 && state === game)
+            note_unported(isok(x, y) ? 'pline.c impossible' : 'alloc.c panic');
+        return;
+    }
+
+    let trap = t_at(x, y, state);
+    if (trap) deltrap(trap, state);
+
+    let makeRocks = dist !== 1 && dist !== 4 && dist !== 5;
+    while (true) {
+        const boulder = sobj_at(BOULDER, x, y, state);
+        if (!boulder) break;
+        if (makeRocks) {
+            const { fracture_rock } = await import('./zap.js');
+            await fracture_rock(boulder, state, rawEnv.random, rawEnv);
+            makeRocks = false;
+        } else {
+            obj_extract_self(boulder, { ...rawEnv, state });
+            obfree(boulder, null, { ...rawEnv, state });
+        }
+    }
+
+    const location = state.level.at(x, y);
+    location.seenv = 0;
+    location.doormask = 0;
+    if (dist < 6) location.lit = true;
+    location.waslit = true;
+    location.horizontal = false;
+    state.viz_array[y][x] = dist < 6
+        ? IN_SIGHT | COULD_SEE
+        : COULD_SEE;
+
+    switch (dist) {
+    case 1:
+        if (is_pool(x, y, state)) break;
+        location.typ = ROOM;
+        trap = await maketrap(x, y, FIRE_TRAP, { ...rawEnv, state });
+        if (trap) trap.tseen = true;
+        break;
+    case 0:
+    case 2:
+    case 3:
+    case 6:
+        location.typ = ROOM;
+        break;
+    case 4:
+    case 5:
+        location.typ = MOAT;
+        break;
+    default:
+        // C's impossible() arm is unreachable from mkinvokearea's fixed
+        // 0..6 distance sequence; retain its discarded diagnostic boundary.
+        if (state === game) note_unported('pline.c impossible');
+        break;
+    }
+
+    const monster = m_at(x, y, state);
+    if (monster) {
+        if (monster.m_ap_type) seemimic(monster, state, rawEnv);
+        if (t_at(x, y, state))
+            await mintrap(monster, NO_TRAP_FLAGS, { ...rawEnv, state });
+        else
+            await minliquid(monster, { ...rawEnv, state });
+    }
+
+    if (!does_block(x, y, location, state)) unblock_point(x, y, state);
+    (rawEnv.newsym ?? newsym)(x, y, state);
+}
+
+// C ref: mklev.c mkinvk_check_wall(). This pure predicate is source-pinned in
+// scripts/mkinvokearea.test.mjs.
+export function mkinvk_check_wall(x, y, state = game) {
+    if (!isok(x, y)) return 0;
+    const typ = state.level.at(x, y).typ;
+    return IS_STWALL(typ) || typ === IRONBARS ? 1 : 0;
 }
 
 // C ref: sp_lev.c sel_set_ter(), which calls mkmaze.c set_levltyp_lit() and

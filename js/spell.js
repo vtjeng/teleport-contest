@@ -202,6 +202,7 @@ import { m_at } from './monst.js';
 import { walk_path } from './dothrow.js';
 import { explode } from './explode.js';
 import { clearTtyMessageWindow } from './tty_message.js';
+import { mkinvokearea } from './mklev.js';
 import { S_goodpos } from './symbols.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
@@ -662,8 +663,10 @@ async function deadbook(book, state = game, env = {}) {
             await message('The invocation fails!', state, env);
             await message('At least one of your relics is cursed...', state, env);
         } else if (candelabrumPrimed && bellPrimed) {
-            const soon = random.rnd(6) + random.rnd(6);
-            if (state === game) note_unported('mklev.c mkinvokearea');
+            if (typeof random.d !== 'function')
+                throw new TypeError('successful Book of the Dead invocation requires d');
+            const soon = random.d(2, 6);
+            await mkinvokearea(state, { ...env, random });
             state.u.uevent.invoked = true;
             const { record_achievement } = await import('./insight.js');
             record_achievement(ACH_INVK, state);
