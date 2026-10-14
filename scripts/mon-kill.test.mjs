@@ -37,7 +37,7 @@ import { new_light_source } from '../js/light.js';
 
 import { accessible } from '../js/monmove.js';
 import { maketrap } from '../js/trap.js';
-import { PIT, RLOC_NOMSG, WEB } from '../js/const.js';
+import { IN_SIGHT, PIT, RLOC_NOMSG, WEB } from '../js/const.js';
 import { mksobj, place_object, remove_object } from '../js/obj.js';
 import {
     AMULET_OF_LIFE_SAVING,
@@ -1647,6 +1647,28 @@ test('the pit and thrown-missile arms read their own conditions',
             delete game.gt.thrownobj;
         }
     });
+
+// mon.c xkilled():3622-3628. The visible corpse message reads its actual
+// OBJ_BURIED location after make_corpse() handles CORPSTAT_BURIED.
+test('a corpse carried to a pit reports its buried location', async () => {
+    await hero();
+    const carrier = spawn(PM_NEWT, { mhp: 0, mtrapped: 1 });
+    maketrap(carrier.mx, carrier.my, PIT, { state: game });
+    game.viz_array[carrier.my][carrier.mx] |= IN_SIGHT;
+    const boulder = mksobj(BOULDER, false, false, { state: game });
+    boulder.where = OBJ_MINVENT;
+    boulder.ocarry = carrier;
+    carrier.minvent = boulder;
+
+    // The pit's boulder settlement draws rn2(100), then rn2(6)=2 declines the
+    // treasure drop and rn2(3)=0 creates a corpse. This reaches the visible
+    // xkilled() burial-message guard and reads cadaver.where.
+    const env = killEnv([1, 2, 0]);
+    await killed(carrier, game, env);
+
+    assert.ok(env.lines.some((line) => line.endsWith('corpse ends up buried.')),
+        env.lines.join('\n'));
+});
 
 // mon.c xkilled():3574. nocorpse and LEVEL_SPECIFIC_NOCORPSE jump straight to
 // the cleanup label, so neither the drop nor the corpse is even considered and

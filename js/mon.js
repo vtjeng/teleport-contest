@@ -126,6 +126,7 @@ import {
     NO_MM_FLAGS,
     NORMAL_SPEED,
     NOTONL,
+    OBJ_BURIED,
     OBJ_FLOOR,
     OBJ_MINVENT,
     ONAME_NO_FLAGS,
