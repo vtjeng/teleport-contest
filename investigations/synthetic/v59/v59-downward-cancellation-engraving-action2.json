@@ -1,0 +1,85 @@
+{
+  "session": "synthetic/v59/v59-downward-cancellation-engraving-action2",
+  "corpus": "synthetic",
+  "batch": "v59",
+  "caseId": "v59-downward-cancellation-engraving-action2",
+  "manifestPath": "challenges/manifests/v59.json",
+  "manifestSha256": "2f55f6f34298abb9bb979d1586361bbf220ac4367059378a60717c31158bbfdf",
+  "recordingPath": "challenges/cases/v59/v59-downward-cancellation-engraving-action2.session.json",
+  "recordingSha256": "3a998c03ec66f7571c27d460ec0fbaa3838f945315c489a1f12532cc9c2388eb",
+  "evaluationPath": "challenges/evaluations/accepted-cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec-v59.json",
+  "evaluationCommit": "cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec",
+  "remainingScreens": 2,
+  "recordedSteps": 196,
+  "status": "complete",
+  "commit": "32a017394dbc3559703c3a33af369feabda5d1ca",
+  "mismatch": {
+    "screen": {
+      "index": 175,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 175,
+        "key": ":"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 0,
+      "cCell": {
+        "ch": "Y",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "S",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "rng": null,
+    "cursor": {
+      "index": 175,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 175,
+        "key": ":"
+      },
+      "cCursor": [
+        65,
+        7,
+        1
+      ],
+      "jsCursor": [
+        72,
+        0,
+        1
+      ]
+    },
+    "session": "synthetic/v59/v59-downward-cancellation-engraving-action2",
+    "remainingScreens": 2
+  },
+  "summary": "A downward wand of cancellation zapped onto a non-headstone engraving should remove it. C does so, so the following look reports no objects; JavaScript leaves the engraving and reads its text. The missing branch is in the existing zap_map implementation.",
+  "source": {
+    "file": "zap.c",
+    "branch": "zap_map(): when u.dz > 0, the target square has an engraving, and the engraving is not a HEADSTONE, WAN_CANCELLATION and SPE_CANCELLATION delete that engraving.",
+    "functions": [
+      "zap_map"
+    ],
+    "callers": [
+      "zap.c:bhit() -> zap_map()",
+      "js/zap.js:bhit() -> zap_map()"
+    ],
+    "dependencies": [
+      "engrave.c:del_engr() (result discarded); JavaScript has del_engr_at()"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/zap.c:3625-3679: zap_map() handles engraving effects only when u.dz > 0; its switch explicitly deletes non-headstone engravings for WAN_CANCELLATION and SPE_CANCELLATION.",
+    "js/zap.js:3875-3970: zap_map() has the same downward engraving gate and handles polymorph and teleportation, but omits both cancellation cases, so the live state retains the engraving.",
+    "challenges/cases/v59/v59-downward-cancellation-engraving-action2.recipe.session.json: independently engraved 'chalk route', zapped the cancellation wand downward, then invoked ':' look; the preceding source conditions reach the missing branch.",
+    ".cache/C-v59-downward-cancel-before.log: exact base replay at 32a017394dbc3559703c3a33af369feabda5d1ca matched RNG 2237/2237 and emitted 196/196 screens; first divergence is step 175 at the look result, with C 'You see no objects here.' and JavaScript still displaying and reading 'chalk route'.",
+    ".cache/C-v59-downward-cancel-before.log and /tmp/teleport-validation-1000/run-o4TMSY/stdout.log: fresh recipe differential confirms 196/196 screens, 2237/2237 RNG, 196/196 cursors, and the same first mismatch after the downward cancellation zap."
+  ]
+}
