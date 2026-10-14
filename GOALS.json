@@ -300482,6 +300482,24 @@
         ],
         "incompleteFunctions": []
       }
+    },
+    {
+      "id": "fix-music-do-earthquake-doormask-alias-v56",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Read the C canonical door-mask value in the earthquake door branch.",
+      "cFile": "music.c",
+      "sessions": [
+        "synthetic/v56/v56-earthquake-boulder-floor-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v56-earthquake-boulder-floor-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "do_earthquake",
+      "session": "synthetic/v56/v56-earthquake-boulder-floor-action2"
     }
   ]
 }
