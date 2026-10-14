@@ -1931,7 +1931,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
     // C teleds() does not exclude an occupied destination; spoteffects() owns
     // the resident monster's surprise after the hero has arrived.
     await spoteffects(true, state, env);
-    invocation_message(state);
+    await invocation_message(state, env);
     notice_mon_on(state);
     await notice_all_mons(true, state, env);
 }

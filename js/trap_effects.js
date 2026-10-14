@@ -3874,21 +3874,23 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //   every type but ARROW_TRAP, BEAR_TRAP, DART_TRAP, ROCKTRAP, MAGIC_TRAP, POLY_TRAP,
 //     ANTI_MAGIC,
 //     FIRE_TRAP, SLP_GAS_TRAP, RUST_TRAP, LANDMINE, PIT, SPIKED_PIT,
-//     TELEP_TRAP, LEVEL_TELEP, WEB, STATUE_TRAP and ROLLING_BOULDER_TRAP -- its own
-//     trapeffect_*() arm;
+//     TELEP_TRAP, LEVEL_TELEP, WEB, STATUE_TRAP, ROLLING_BOULDER_TRAP and
+//     VIBRATING_SQUARE -- its own trapeffect_*() arm;
 //   a fixed-destination teleport trap with a monster standing on the
 //     destination -- teleport.c:1516's rloc_to(), whose port covers only a
 //     monster that is not yet on the map;
 //   a seen trap except ARROW_TRAP, MAGIC_TRAP, WEB, LANDMINE, ROCKTRAP,
 //     ANTI_MAGIC, STATUE_TRAP, SQKY_BOARD and pits/holes -- the "You escape ..." line
-//     at trap.c:3039; LEVEL_TELEP reaches this completed escape check in
+//     at trap.c:3039; undestroyable_trap() also skips this check, including for
+//     VIBRATING_SQUARE; LEVEL_TELEP reaches this completed escape check in
 //     dotrap() before its own source-backed effect;
 //   a mounted hero where the effect has no corresponding source arm --
 //     s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509 (bear trap),
 //     while steedintrap() handles the arrow, dart, gas, magic, polymorph,
 //     landmine and pit arms; LEVEL_TELEP targets the hero directly in its
 //     source effect and is admitted here for a mounted hero too;
-//     ROCKTRAP still targets the hero and ANTI_MAGIC acts directly on them;
+//     ROCKTRAP still targets the hero, ANTI_MAGIC acts directly on them, and
+//     VIBRATING_SQUARE calls feeltrap() for the hero;
 //   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
 export function preflight_dotrap(trap, state = game, trflags = 0) {
     const pitTrap = is_pit(trap.ttyp);
@@ -3905,7 +3907,8 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== POLY_TRAP
         && trap.ttyp !== STATUE_TRAP
         && trap.ttyp !== SQKY_BOARD
-        && trap.ttyp !== ROLLING_BOULDER_TRAP && !is_hole(trap.ttyp))
+        && trap.ttyp !== ROLLING_BOULDER_TRAP
+        && trap.ttyp !== VIBRATING_SQUARE && !is_hole(trap.ttyp))
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
     if (trap.ttyp === TELEP_TRAP) {
         // tele_trap()'s fixed-destination arm calls settrack() before it can
@@ -3933,6 +3936,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== STATUE_TRAP
         && trap.ttyp !== SQKY_BOARD
         && trap.ttyp !== LEVEL_TELEP
+        && !undestroyable_trap(trap.ttyp)
         && !pitTrap && !is_hole(trap.ttyp)) {
         throw new UnsupportedHeroMoveBoundaryError(
             'a trap the hero has already seen',
@@ -3945,6 +3949,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== SLP_GAS_TRAP && trap.ttyp !== MAGIC_TRAP
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== POLY_TRAP
         && trap.ttyp !== SQKY_BOARD
+        && trap.ttyp !== VIBRATING_SQUARE
         && trap.ttyp !== LEVEL_TELEP
         && !pitTrap) {
         // trap.c:1507-1511 names a bear-trap steed through
