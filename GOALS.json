@@ -309549,6 +309549,167 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-prayer-crown-reward-v66-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement gcrownu, pleased from pray.c",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v66/v66-favourable-prayer-crown-action12"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v66-favourable-prayer-crown-action12-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "gcrownu",
+      "session": "synthetic/v66/v66-favourable-prayer-crown-action12"
+    },
+    {
+      "id": "port-shk-repair-damage-shop-catchup-v67-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement discard_damage_struct, shk_fixes_damage, litter_getpos, litter_scatter, litter_newsyms, repair_damage, fix_shop_damage from shk.c",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v67/v67-shop-damage-repair-action11"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "discard_damage_struct",
+          "line": 4509,
+          "endLine": 4529,
+          "declared": false
+        },
+        {
+          "name": "discard_damage_owned_by",
+          "line": 4530,
+          "endLine": 4555,
+          "declared": false
+        },
+        {
+          "name": "shk_fixes_damage",
+          "line": 4556,
+          "endLine": 4590,
+          "declared": true
+        },
+        {
+          "name": "litter_getpos",
+          "line": 4591,
+          "endLine": 4621,
+          "declared": false
+        },
+        {
+          "name": "litter_scatter",
+          "line": 4622,
+          "endLine": 4711,
+          "declared": false
+        },
+        {
+          "name": "litter_newsyms",
+          "line": 4712,
+          "endLine": 4731,
+          "declared": false
+        },
+        {
+          "name": "repair_damage",
+          "line": 4732,
+          "endLine": 4849,
+          "declared": false
+        },
+        {
+          "name": "fix_shop_damage",
+          "line": 4850,
+          "endLine": 4879,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 4509,
+        "to": 4879
+      },
+      "requiredFunctions": [
+        {
+          "name": "moveloop_preamble",
+          "line": 48,
+          "endLine": 113,
+          "declared": true,
+          "sourceFile": "allmain.c"
+        },
+        {
+          "name": "goto_level",
+          "line": 1479,
+          "endLine": 2002,
+          "declared": true,
+          "sourceFile": "do.c"
+        },
+        {
+          "name": "getbones",
+          "line": 630,
+          "endLine": 761,
+          "declared": true,
+          "sourceFile": "bones.c"
+        },
+        {
+          "name": "drop_upon_death",
+          "line": 259,
+          "endLine": 307,
+          "declared": true,
+          "sourceFile": "bones.c"
+        },
+        {
+          "name": "mklev",
+          "line": 1577,
+          "endLine": 1596,
+          "declared": true,
+          "sourceFile": "mklev.c"
+        }
+      ]
+    },
+    {
+      "id": "fix-thrown-boulder-placement-v65-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement throwit from dothrow.c",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v65/v65-sokoban-thrown-pit-fill-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "throwit",
+      "session": "synthetic/v65/v65-sokoban-thrown-pit-fill-action1"
+    },
+    {
+      "id": "fix-costly-alteration-shop-billing-v66-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement costly_alteration from mkobj.c",
+      "cFile": "mkobj.c",
+      "sessions": [
+        "synthetic/v66/v66-unpaid-food-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v66-unpaid-food-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "costly_alteration",
+      "session": "synthetic/v66/v66-unpaid-food-action3"
     }
   ]
 }
