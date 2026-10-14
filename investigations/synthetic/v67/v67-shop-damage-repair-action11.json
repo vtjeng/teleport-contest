@@ -26,7 +26,8 @@
     "earliestStep": 1054,
     "caseId": "v67-shop-damage-repair-action11",
     "batch": "v67",
-    "recordingPath": "challenges/cases/v67/v67-shop-damage-repair-action11.session.json"
+    "recordingPath": "challenges/cases/v67/v67-shop-damage-repair-action11.session.json",
+    "session": "synthetic/v67/v67-shop-damage-repair-action11"
   },
   "summary": "The v67 case first diverged at step 1054 because shk.c:home_shk omitted mon.c:mnearto after restitution. The JavaScript path now awaits that relocation and the replay matches through step 1150; the next screen mismatch is step 1151 in the separate unported shk.c:repair_damage path.",
   "source": {
